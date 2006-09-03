@@ -1,0 +1,45 @@
+CC         = cc
+CFLAGS     = -c -O2 -DMSB_FIRST
+RM         = rm
+RMFLAGS    = -f
+
+.SUFFIXES: .c .o
+
+.c.o:
+	$(CC) $(CFLAGS) $< -o $*.o
+
+XAWCPC     = xawcpc
+XAWCPC_OBJ = src/xawcpc.o
+XAWCPC_LIB = -lXaw -lXt
+
+XMCPC      = xmcpc
+XMCPC_OBJ  = src/xmcpc.o
+XMCPC_LIB  = -lXm -lXt
+
+XCPC_OBJ   = \
+src/XArea.o\
+src/config.o\
+src/amstrad_cpc.o\
+src/z80.o\
+src/crtc_6845.o\
+src/ppi_8255.o\
+src/ay_3_8910.o\
+src/fdc_765.o
+XCPC_LIB   = -lX11
+
+all : ${XAWCPC} ${XMCPC}
+
+${XAWCPC} : ${XAWCPC_OBJ} ${XCPC_OBJ}
+	$(CC) ${XAWCPC_OBJ} ${XCPC_OBJ} ${XAWCPC_LIB} ${XCPC_LIB} -o ${XAWCPC}
+
+${XMCPC} : ${XMCPC_OBJ} ${XCPC_OBJ}
+	$(CC) ${XMCPC_OBJ} ${XCPC_OBJ} ${XMCPC_LIB} ${XCPC_LIB} -o ${XMCPC}
+
+clean_${XAWCPC}:
+	$(RM) $(RMFLAGS) ${XAWCPC} ${XAWCPC_OBJ}
+
+clean_${XMCPC}:
+	$(RM) $(RMFLAGS) ${XMCPC} ${XMCPC_OBJ}
+
+clean: clean_${XAWCPC} clean_${XMCPC}
+	$(RM) $(RMFLAGS) ${XCPC_OBJ}

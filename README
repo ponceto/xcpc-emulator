@@ -1,0 +1,154 @@
+This software is free software and is distributed under the terms of the
+GNU GPL (General Public License); see GPL.txt for more details.
+No warranties are given for this software, and the author is not responsible
+for any damages caused by the software, so USE IT AT YOUR OWN RISK.
+For any questions or suggestions, contact me:
+Olivier Poncet - PoncetO@aol.com
+!! PLEASE DON'T ASK ME FOR ROM IMAGES, SNAPSHOTS OR DISC IMAGES !!
+
+INFORMATIONS:
+-------------
+
+This software is based on the Marat Fayzullin's Z80 emulator
+(http://www.komkon.org/fms/).
+But a complete rewrite of the Z80 emulator is in progress.
+At this time, the emulator only supports SNAPSHOTS (*.sna) for loading games.
+
+COMPILATION:
+------------
+
+  Generic UNIX .. Makefile
+  DEC OSF 4.0 ... Makefile.OSF
+  Solaris 5-8 ... Makefile.Solaris
+  Linux ......... Makefile.Linux
+
+  1) Edit your Makefile:
+  ----------------------
+
+  Please set the endian of your system in the CFLAGS variable:
+  If your system is big endian (x86, alpha, ...), add -DLSB_FIRST
+  If your system is low endian (68k, sparc, ...), add -DMSB_FIRST
+  If you don't kown how your system is, do the following:
+
+  cc src/endian.c -o endian
+  ./endian
+  it will return the system type: LSB_FIRST or MSB_FIRST.
+
+  2) Compile the emulator:
+  ------------------------
+
+  Generic UNIX .. make clean all
+  DEC OSF 4.0 ... make -f Makefile.OSF clean all
+  Solaris 5-8 ... make -f Makefile.Solaris clean all
+  Linux ......... make -f Makefile.Linux clean all
+
+EXECUTION:
+----------
+
+./xawcpc [options]
+
+or
+
+./xmcpc [options]
+
+usage: xcpc [-h]
+            [-cpc464] [-cpc664] [-cpc6128]
+            [-2MHz] [-4MHz] [-8MHz] [-16MHz]
+            [-50Hz] [-60Hz]
+            [-isp] [-triumph] [-saisho] [-solavox]
+            [-awa] [-schneider] [-orion] [-amstrad]
+            [-CTM65] [-CTM644]
+            [-tiny] [-small] [-medium] [-big] [-huge]
+ 
+[-h] .............. help.
+[-cpc464] ......... CPC 464 mode (64 Kb, no fdd).
+[-cpc664] ......... CPC 664 mode (64 Kb, fdd).
+[-cpc6128] ........ CPC 6128 mode (128 Kb, fdd).
+[-2MHz] ........... 2 MHz speed.
+[-4MHz] ........... 4 MHz speed (normal).
+[-8MHz] ........... 8 MHz speed.
+[-16MHz] .......... 16 MHz speed.
+[-50Hz] ........... 50Hz refresh frequency.
+[-60Hz] ........... 60Hz refresh frequency.
+[-isp] ............ Isp manufacturer.
+[-triumph] ........ Triumph manufacturer.
+[-saisho] ......... Saisho manufacturer.
+[-solavox] ........ Solavox manufacturer.
+[-awa] ............ Awa manufacturer.
+[-schneider] ...... Schneider manufacturer.
+[-orion] .......... Orion manufacturer.
+[-amstrad] ........ Amstrad manufacturer.
+[-CTM65] .......... Green monitor emulation.
+[-CTM644] ......... Color monitor emulation.
+[-tiny] ........... tiny border size .
+[-small] .......... small border size.
+[-medium] ......... medium border size.
+[-big] ............ big border size.
+[-huge] ........... huge border size (real cpc size, default).
+
+Note:
+-----
+
+-cpc464 ... cpc464 hardware and -4MHz -50Hz -amstrad -CTM644.
+-cpc664 ... cpc664 hardware and -4MHz -50Hz -amstrad -CTM644.
+-cpc6128 .. cpc6128 hardware and -4MHz -50Hz -amstrad -CTM644.
+
+If no options are given, the software emulates a CPC 6128 @ 4MHz, with a CTM644
+monitor @ 50Hz, made by Amstrad.
+
+CHANGELOG
+---------
+
+04/09/2001:
+-----------
+- Complete rewrite of the emulator. Needs the Athena (Xaw) widget set, and/or a
+  Motif 1.2 (Xm) compliant distribution to compile it (like OpenMotif, Lesstif,
+  OSF Motif, ...).
+
+04/07/2001:
+-----------
+- Improved CRTC 6845 and gate-array emulation; supports Sorcery like games.
+- GFX routines rewritten.
+- Partial support of multi-modes.
+
+15/06/2001:
+-----------
+- Improved CRTC 6845 emulation; supports Space Racer like modes.
+
+14/06/2001:
+-----------
+- Improved GUI and event manager.
+- Improved Z80 encapsulation.
+
+13/06/2001:
+-----------
+- Improved gate_array and crtc support.
+- Removed FAST_GFX conditionnal compilation; dynamic configuration.
+
+12/06/2001:
+-----------
+- Display bugs corrected; complete rewrite of display routines.
+- GUI module added.
+- Some modifications in source code.
+
+01/06/2001:
+-----------
+- Lots of improvements in GUI (GFX mode added).
+
+30/05/2001:
+-----------
+- Added terminal GUI (load & save snapshot).
+- Added back buffer manager (when GUI takes control).
+
+28/05/2001:
+-----------
+First public release.
+
+- No support of DISC images.
+- Full support of SNAPSHOTS (load and save).
+- No support of AY-3-8910.
+- Very partial support of FDC-765.
+- No support of hardware scrolling and hardware graphics effects.
+- Little bug in the last character line when CRTC address changes
+  (the 199th line becomes the 191th line).
+- Lots of bugs.
