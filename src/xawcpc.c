@@ -4,7 +4,6 @@
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/Shell.h>
-#include <X11/Xaw/Paned.h>
 #include <X11/Xaw/Box.h>
 #include <X11/Xaw/MenuButton.h>
 #include <X11/Xaw/SimpleMenu.h>
@@ -17,7 +16,7 @@
 #include "xcpc.h"
 
 XtAppContext appcontext;
-X11 x11;
+Widget xarea;
 
 Atom XA_WM_DELETE_WINDOW = None;
 
@@ -49,8 +48,10 @@ static String resources[] = {
 /*
  *
  */
-  "*menu_bar.showGrip:       False",
-  "*screen.showGrip:         False",
+  "*menu_bar.borderWidth:     0",
+  "*menu_bar.orientation:     horizontal",
+  "*screen.width:             656",
+  "*screen.height:            416",
 /*
  * strings
  */
@@ -78,7 +79,7 @@ static String resources[] = {
   "*save_dialog*ok.label:     Save",
   "*save_dialog*cancel.label: Cancel",
   "*about_shell.title:        About ...",
-  "*about_dialog.label:       XCPC - Athena version\\nAmstrad CPC emulator for UNIX",
+  "*about_dialog.label:       XCPC - Athena version (v20010906)\\nAmstrad CPC emulator for UNIX\\nCoded by Olivier Poncet (PoncetO@aol.com)",
   "*about_dialog*ok.label:    Close",
 /*
  *
@@ -236,16 +237,17 @@ int main(int argc, char **argv)
 {
 GUI *gui;
 Cardinal wargc;
-Arg wargv[2];
-int cx, cy;
+Arg wargv[1];
+int status;
 
   gui = (GUI *) XtMalloc(sizeof(GUI));
 
-  gui->shell = XtAppInitialize(&appcontext, "XawCPC", NULL, 0, &argc, argv, resources, NULL, 0);
+  wargc = 0;
+  XtSetArg(wargv[wargc], XtNallowShellResize, True); wargc++;
+  gui->shell = XtAppInitialize(&appcontext, "XawCPC", NULL, 0, &argc, argv, resources, wargv, wargc);
   XA_WM_DELETE_WINDOW = XInternAtom(XtDisplay(gui->shell), "WM_DELETE_WINDOW", False);
   XtAppAddActions(appcontext, actions, XtNumber(actions));
-  amstrad_cpc_parse(argc, argv);
-  gui->main_window = XtCreateManagedWidget("main_window", panedWidgetClass, gui->shell, NULL, 0);
+  gui->main_window = XtCreateManagedWidget("main_window", boxWidgetClass, gui->shell, NULL, 0);
   gui->menu_bar = XtCreateManagedWidget("menu_bar", boxWidgetClass, gui->main_window, NULL, 0);
   gui->file = XtCreateManagedWidget("file", menuButtonWidgetClass, gui->menu_bar, NULL, 0);
   gui->file_menu = XtCreatePopupShell("menu", simpleMenuWidgetClass, gui->file, NULL, 0);
@@ -273,35 +275,12 @@ int cx, cy;
   gui->help_menu = XtCreatePopupShell("menu", simpleMenuWidgetClass, gui->help, NULL, 0);
   gui->about = XtCreateManagedWidget("about", smeBSBObjectClass, gui->help_menu, NULL, 0);
   XtAddCallback(gui->about, XtNcallback, (XtCallbackProc) xawcpc_about_cbk, gui);
-  wargc = 0;
-  XtSetArg(wargv[wargc], XtNwidth, amstrad_cpc_width); wargc++;
-  XtSetArg(wargv[wargc], XtNheight, amstrad_cpc_height); wargc++;
-  gui->screen = XtCreateManagedWidget("screen", xareaWidgetClass, gui->main_window, wargv, wargc);
-  XtAddCallback(gui->screen, XtNkeyPressCallback, (XtCallbackProc) amstrad_cpc_key_press, gui);
-  XtAddCallback(gui->screen, XtNkeyReleaseCallback, (XtCallbackProc) amstrad_cpc_key_release, gui);
-  XtAddCallback(gui->screen, XtNexposeCallback, (XtCallbackProc) amstrad_cpc_expose, gui);
+  xarea = gui->screen = XtCreateManagedWidget("screen", xareaWidgetClass, gui->main_window, NULL, 0);
   XtOverrideTranslations(gui->shell, XtParseTranslationTable("<Message>WM_PROTOCOLS: xawcpc_quit()"));
   XtRealizeWidget(gui->shell);
   XSetWMProtocols(XtDisplay(gui->shell), XtWindow(gui->shell), &XA_WM_DELETE_WINDOW, 1);
 
-  x11.screen = XtScreen(gui->screen);
-  x11.display = DisplayOfScreen(x11.screen);
-  x11.window = XtWindow(gui->screen);
-  x11.gc = XCreateGC(x11.display, x11.window, 0L, NULL);
-  if((x11.ximage = XCreateImage(x11.display, DefaultVisualOfScreen(x11.screen), DefaultDepthOfScreen(x11.screen), ZPixmap, 0, NULL, amstrad_cpc_width, amstrad_cpc_height, 8, 0)) == NULL) {
-    perror("xmcpc");
-    exit(-1);
-  }
-  x11.ximage->data = (char *) XtMalloc(x11.ximage->bytes_per_line * x11.ximage->height);
-  for(cy = 0; cy < x11.ximage->height; cy++) {
-    for(cx = 0; cx < x11.ximage->width; cx++) {
-      XPutPixel(x11.ximage, cx, cy, BlackPixelOfScreen(x11.screen));
-    }
-  }
+  status = amstrad_cpc_main(argc, argv);
 
-  amstrad_cpc_init();
-  amstrad_cpc_run();
-  amstrad_cpc_exit();
-
-  return(0);
+  return(status);
 }

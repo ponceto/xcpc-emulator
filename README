@@ -53,20 +53,27 @@ or
 
 usage: xcpc [-h]
             [-cpc464] [-cpc664] [-cpc6128]
-            [-2MHz] [-4MHz] [-8MHz] [-16MHz]
+            [-CTM65] [-CTM644]
+            [-1.6MHz] [-2MHz] [-3.3MHz] [-4MHz]
+            [-6.6MHz] [-8MHz] [-9.9MHz] [-16MHz]
             [-50Hz] [-60Hz]
             [-isp] [-triumph] [-saisho] [-solavox]
             [-awa] [-schneider] [-orion] [-amstrad]
-            [-CTM65] [-CTM644]
             [-tiny] [-small] [-medium] [-big] [-huge]
  
 [-h] .............. help.
 [-cpc464] ......... CPC 464 mode (64 Kb, no fdd).
 [-cpc664] ......... CPC 664 mode (64 Kb, fdd).
 [-cpc6128] ........ CPC 6128 mode (128 Kb, fdd).
+[-CTM65] .......... CTM65 (green) monitor emulation.
+[-CTM644] ......... CTM644 (color) monitor emulation.
+[-1.6MHz] ......... 1.6 MHz speed.
 [-2MHz] ........... 2 MHz speed.
-[-4MHz] ........... 4 MHz speed (normal).
+[-3.3MHz] ......... 3.3 MHz speed (normal for CPC 464).
+[-4MHz] ........... 4 MHz speed (normal for CPC 6128 and CPC 664).
+[-6.6MHz] ......... 6.6 MHz speed.
 [-8MHz] ........... 8 MHz speed.
+[-9.9MHz] ......... 9.9 MHz speed.
 [-16MHz] .......... 16 MHz speed.
 [-50Hz] ........... 50Hz refresh frequency.
 [-60Hz] ........... 60Hz refresh frequency.
@@ -78,8 +85,6 @@ usage: xcpc [-h]
 [-schneider] ...... Schneider manufacturer.
 [-orion] .......... Orion manufacturer.
 [-amstrad] ........ Amstrad manufacturer.
-[-CTM65] .......... Green monitor emulation.
-[-CTM644] ......... Color monitor emulation.
 [-tiny] ........... tiny border size .
 [-small] .......... small border size.
 [-medium] ......... medium border size.
@@ -98,6 +103,10 @@ monitor @ 50Hz, made by Amstrad.
 
 CHANGELOG
 ---------
+
+06/09/2001:
+-----------
+- Some changes in GUIs source code and some improvements.
 
 05/09/2001:
 -----------

@@ -1,36 +1,75 @@
 #ifndef __AMSTRAD_CPC_H__
 #define __AMSTRAD_CPC_H__
 
-#define AMSTRAD_CPC_464       0x01 
-#define AMSTRAD_CPC_664       0x02 
-#define AMSTRAD_CPC_6128      0x03 
-#define AMSTRAD_CPC_464_PLUS  0x04 
-#define AMSTRAD_CPC_6128_PLUS 0x05 
+/* Computer version */
+#define AMSTRAD_CPC_464         0x01
+#define AMSTRAD_CPC_664         0x02
+#define AMSTRAD_CPC_6128        0x03
+#define AMSTRAD_CPC_464_PLUS    0x04
+#define AMSTRAD_CPC_6128_PLUS   0x05
 
-#define AMSTRAD_CPC_2MHZ      0x00
-#define AMSTRAD_CPC_4MHZ      0x01
-#define AMSTRAD_CPC_8MHZ      0x02
-#define AMSTRAD_CPC_16MHZ     0x03
+/* monitor type */
+#define AMSTRAD_CPC_CTM65       0x00
+#define AMSTRAD_CPC_CTM644      0x01
 
-#define AMSTRAD_CPC_60HZ      0x00
-#define AMSTRAD_CPC_50HZ      0x01
+/* Computer clock */
+#define AMSTRAD_CPC_1_6MHZ      0x00
+#define AMSTRAD_CPC_2MHZ        0x01
+#define AMSTRAD_CPC_3_3MHZ      0x02
+#define AMSTRAD_CPC_4MHZ        0x03
+#define AMSTRAD_CPC_6_6MHZ      0x04
+#define AMSTRAD_CPC_8MHZ        0x05
+#define AMSTRAD_CPC_9_9MHZ      0x06
+#define AMSTRAD_CPC_16MHZ       0x07
 
-#define AMSTRAD_CPC_ISP       0x00
-#define AMSTRAD_CPC_TRIUMPH   0x01
-#define AMSTRAD_CPC_SAISHO    0x02
-#define AMSTRAD_CPC_SOLAVOX   0x03
-#define AMSTRAD_CPC_AWA       0x04
-#define AMSTRAD_CPC_SCHNEIDER 0x05
-#define AMSTRAD_CPC_ORION     0x06
-#define AMSTRAD_CPC_AMSTRAD   0x07
+/* Cassette read data */
+#define AMSTRAD_CPC_NO_DATA     0x00
+#define AMSTRAD_CPC_DATA        0x01
 
-#define AMSTRAD_CPC_CTM65     0x00
-#define AMSTRAD_CPC_CTM644    0x01
+/* Printer configuration */
+#define AMSTRAD_CPC_NOT_READY   0x01
+#define AMSTRAD_CPC_READY       0x00
 
-#define AMSTRAD_CPC_ABSENT    0x00
-#define AMSTRAD_CPC_PRESENT   0x01
+/* Expansion peripheral detect */
+#define AMSTRAD_CPC_NOT_PRESENT 0x00
+#define AMSTRAD_CPC_PRESENT     0x01
+
+/* Screen refresh frequency */
+#define AMSTRAD_CPC_50HZ        0x01
+#define AMSTRAD_CPC_60HZ        0x00
+
+/* Computer name on power-up */
+#define AMSTRAD_CPC_ISP         0x00
+#define AMSTRAD_CPC_TRIUMPH     0x01
+#define AMSTRAD_CPC_SAISHO      0x02
+#define AMSTRAD_CPC_SOLAVOX     0x03
+#define AMSTRAD_CPC_AWA         0x04
+#define AMSTRAD_CPC_SCHNEIDER   0x05
+#define AMSTRAD_CPC_ORION       0x06
+#define AMSTRAD_CPC_AMSTRAD     0x07
+
+/* VSYNC status */
+#define AMSTRAD_CPC_NOT_ACTIVE  0x00
+#define AMSTRAD_CPC_ACTIVE      0x01
 
 typedef struct {
+  int version;
+  int monitor;
+  int clock;
+  int cassette;
+  int printer;
+  int expansion;
+  int refresh;
+  int manufacturer;
+  int vsync;
+  unsigned int width;
+  unsigned int height;
+  int ramsize;
+  char *rom[8];
+} AMSTRAD_CPC_CFG;
+
+typedef struct {
+  int ticks;
   int cycle;
   struct {
     byte *lower_rom;
@@ -45,25 +84,19 @@ typedef struct {
   struct {
     byte pen;
     byte ink[17];
-    byte rom_configuration;
-    byte ram_configuration;
+    byte rom_cfg;
+    byte ram_cfg;
     byte counter;
   } gate_array;
 } AMSTRAD_CPC;
 
-extern unsigned int amstrad_cpc_width;
-extern unsigned int amstrad_cpc_height;
 extern AMSTRAD_CPC amstrad_cpc;
 
-void amstrad_cpc_parse(int argc, char **argv);
 void amstrad_cpc_init(void);
 void amstrad_cpc_reset(void);
 void amstrad_cpc_exit(void);
-void amstrad_cpc_run(void);
+int amstrad_cpc_main(int argc, char **argv);
 void amstrad_cpc_load_snapshot(char *filename);
 void amstrad_cpc_save_snapshot(char *filename);
-void amstrad_cpc_key_press(Widget widget, XtPointer data, XEvent *event);
-void amstrad_cpc_key_release(Widget widget, XtPointer data, XEvent *event);
-void amstrad_cpc_expose(Widget widget, XtPointer data, XEvent *event);
 
 #endif
