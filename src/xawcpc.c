@@ -237,7 +237,7 @@ int main(int argc, char **argv)
 GUI *gui;
 Cardinal wargc;
 Arg wargv[2];
-int cx, cy, ix;
+int cx, cy;
 
   gui = (GUI *) XtMalloc(sizeof(GUI));
 

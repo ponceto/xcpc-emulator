@@ -108,66 +108,190 @@ static byte *_bank[4];
 static byte *_read[4];
 static byte *_write[4];
 
-void amstrad_cpc_set_ram_configuration(void)
+static void amstrad_cpc_rom_select(void)
 {
-  switch(amstrad_cpc.gate_array.ram_configuration) {
-    case 0x00:
-      _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
-      _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-      _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
-      break;
-    case 0x01:
-      _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
-      _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-      _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
-      break;
-    case 0x02:
-      _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x10000;
-      _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x14000;
-      _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x18000;
-      _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
-      break;
-    case 0x03:
-      _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
-      _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-      _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
-      break;
-    case 0x04:
-      _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x10000;
-      _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-      _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
-      break;
-    case 0x05:
-      _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x14000;
-      _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-      _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
-      break;
-    case 0x06:
-      _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x18000;
-      _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-      _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
-      break;
-    case 0x07:
-      _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x1C000;
-      _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-      _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
-      break;
-  }
-  _read[0] = (!amstrad_cpc.gate_array.lower_ram_enable ? amstrad_cpc.memory.lower_rom : _bank[0]);
-  _read[1] = _bank[1];
-  _read[2] = _bank[2];
-  if(!amstrad_cpc.gate_array.upper_ram_enable) {
+  _read[0] = (!(amstrad_cpc.gate_array.rom_configuration & 0x04) ? amstrad_cpc.memory.lower_rom : _bank[0]);
+  if(!(amstrad_cpc.gate_array.rom_configuration & 0x08)) {
     _read[3] = (amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion] == NULL ? amstrad_cpc.memory.upper_rom[0] : amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion]);
   }
   else {
     _read[3] = _bank[3];
+  }
+}
+
+static void amstrad_cpc_ram_select(void)
+{
+  switch(amstrad_cpc.gate_array.ram_configuration) {
+    case 0x00:
+                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
+      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
+                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      break;
+    case 0x01:
+                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
+      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
+                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
+      break;
+    case 0x02:
+                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x10000;
+      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x14000;
+      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x18000;
+                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
+      break;
+    case 0x03:
+                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
+      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
+                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
+      break;
+    case 0x04:
+                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x10000;
+      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
+                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      break;
+    case 0x05:
+                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x14000;
+      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
+                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      break;
+    case 0x06:
+                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x18000;
+      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
+                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      break;
+    case 0x07:
+                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x1C000;
+      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
+                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      break;
+  }
+  _read[0] = (!(amstrad_cpc.gate_array.rom_configuration & 0x04) ? amstrad_cpc.memory.lower_rom : _bank[0]);
+  if(!(amstrad_cpc.gate_array.rom_configuration & 0x08)) {
+    _read[3] = (amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion] == NULL ? amstrad_cpc.memory.upper_rom[0] : amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion]);
+  }
+  else {
+    _read[3] = _bank[3];
+  }
+}
+
+static unsigned short _palette[32][3] = {
+  { 0x7F7F, 0x7F7F, 0x7F7F }, /* White                        */
+  { 0x7F7F, 0x7F7F, 0x7F7F }, /* White (not official)         */
+  { 0x0000, 0xFFFF, 0x7F7F }, /* Sea Green                    */
+  { 0xFFFF, 0xFFFF, 0x7F7F }, /* Pastel Yellow                */
+  { 0x0000, 0x0000, 0x7F7F }, /* Blue                         */
+  { 0xFFFF, 0x0000, 0x7F7F }, /* Purple                       */
+  { 0x0000, 0x7F7F, 0x7F7F }, /* Cyan                         */
+  { 0xFFFF, 0x7F7F, 0x7F7F }, /* Pink                         */
+  { 0xFFFF, 0x0000, 0x7F7F }, /* Purple (not official)        */
+  { 0xFFFF, 0xFFFF, 0x7F7F }, /* Pastel Yellow (not official) */
+  { 0xFFFF, 0xFFFF, 0x0000 }, /* Bright Yellow                */
+  { 0xFFFF, 0xFFFF, 0xFFFF }, /* Bright White                 */
+  { 0xFFFF, 0x0000, 0x0000 }, /* Bright Red                   */
+  { 0xFFFF, 0x0000, 0xFFFF }, /* Bright Magenta               */
+  { 0xFFFF, 0x7F7F, 0x0000 }, /* Orange                       */
+  { 0xFFFF, 0x7F7F, 0xFFFF }, /* Pastel Magenta               */
+  { 0x0000, 0x0000, 0x7F7F }, /* Blue (not official)          */
+  { 0x0000, 0xFFFF, 0x7F7F }, /* Sea Green (not official)     */
+  { 0x0000, 0xFFFF, 0x0000 }, /* Bright Green                 */
+  { 0x0000, 0xFFFF, 0xFFFF }, /* Bright Cyan                  */
+  { 0x0000, 0x0000, 0x0000 }, /* Black                        */
+  { 0x0000, 0x0000, 0xFFFF }, /* Bright Blue                  */
+  { 0x0000, 0x7F7F, 0x0000 }, /* Green                        */
+  { 0x0000, 0x7F7F, 0xFFFF }, /* Sky Blue                     */
+  { 0x7F7F, 0x0000, 0x7F7F }, /* Magenta                      */
+  { 0x7F7F, 0xFFFF, 0x7F7F }, /* Pastel Green                 */
+  { 0x7F7F, 0xFFFF, 0x0000 }, /* Lime                         */
+  { 0x7F7F, 0xFFFF, 0xFFFF }, /* Pastel Cyan                  */
+  { 0x7F7F, 0x0000, 0x0000 }, /* Red                          */
+  { 0x7F7F, 0x0000, 0xFFFF }, /* Mauve                        */
+  { 0x7F7F, 0x7F7F, 0x0000 }, /* Yellow                       */
+  { 0x7F7F, 0x7F7F, 0xFFFF }  /* Pastel Blue                  */
+};
+
+static unsigned long _col[32] = {
+  0L, /* color 0  */
+  0L, /* color 1  */
+  0L, /* color 2  */
+  0L, /* color 3  */
+  0L, /* color 4  */
+  0L, /* color 5  */
+  0L, /* color 6  */
+  0L, /* color 7  */
+  0L, /* color 8  */
+  0L, /* color 9  */
+  0L, /* color 10 */
+  0L, /* color 11 */
+  0L, /* color 12 */
+  0L, /* color 13 */
+  0L, /* color 14 */
+  0L, /* color 15 */
+  0L, /* color 16 */
+  0L, /* color 17 */
+  0L, /* color 18 */
+  0L, /* color 19 */
+  0L, /* color 20 */
+  0L, /* color 21 */
+  0L, /* color 22 */
+  0L, /* color 23 */
+  0L, /* color 24 */
+  0L, /* color 25 */
+  0L, /* color 26 */
+  0L, /* color 27 */
+  0L, /* color 28 */
+  0L, /* color 29 */
+  0L, /* color 30 */
+  0L  /* color 31 */
+};
+
+static unsigned long _ink[17] = {
+  0L, /* ink 0  */
+  0L, /* ink 1  */
+  0L, /* ink 2  */
+  0L, /* ink 3  */
+  0L, /* ink 4  */
+  0L, /* ink 5  */
+  0L, /* ink 6  */
+  0L, /* ink 7  */
+  0L, /* ink 8  */
+  0L, /* ink 9  */
+  0L, /* ink 10 */
+  0L, /* ink 11 */
+  0L, /* ink 12 */
+  0L, /* ink 13 */
+  0L, /* ink 14 */
+  0L, /* ink 15 */
+  0L, /* border */
+};
+
+static void amstrad_cpc_init_palette(void)
+{
+int ix;
+XColor xcolor;
+
+  xcolor.flags = DoRed | DoGreen | DoBlue;
+  xcolor.pad = 0x00;
+  for(ix = 0; ix < 32; ix++) {
+    if(cfg.monitor == AMSTRAD_CPC_CTM65) {
+      xcolor.red = 0x0000;
+      xcolor.green = (_palette[ix][0] + _palette[ix][1] + _palette[ix][2]) / 3;
+      xcolor.blue = 0x0000;
+    }
+    else {
+      xcolor.red = _palette[ix][0];
+      xcolor.green = _palette[ix][1];
+      xcolor.blue = _palette[ix][2];
+    }
+    if(XAllocColor(x11.display, DefaultColormapOfScreen(x11.screen), &xcolor) == False) {
+      fprintf(stderr, "amstrad_cpc: cannot allocate color ... %04x/%04x/%04x\n", xcolor.red, xcolor.green, xcolor.blue);
+    }
+    _col[ix] = xcolor.pixel;
   }
 }
 
@@ -228,9 +352,7 @@ static byte _mode2[256] = {
   0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
 };
 
-static unsigned long _ink[17];
-
-void amstrad_cpc_redraw_0(void)
+static void amstrad_cpc_redraw_0(void)
 {
 byte *src = _write[crtc_6845.registers[12] >> 4];
 word base = 0x0000;
@@ -255,7 +377,7 @@ int col, row = 0;
     }
     row += 2;
   }
-  switch(amstrad_cpc.gate_array.mode) {
+  switch(amstrad_cpc.gate_array.rom_configuration & 0x03) {
     case 0x00:
       for(cy = 0; cy < vd; cy++) {
         for(cyy = 0; cyy < mr; cyy++) {
@@ -354,7 +476,7 @@ int col, row = 0;
   XPutImage(x11.display, x11.window, x11.gc, x11.ximage, 0, 0, 0, 0, amstrad_cpc_width, amstrad_cpc_height);
 }
 
-void amstrad_cpc_redraw_8(void)
+static void amstrad_cpc_redraw_8(void)
 {
 byte *src = _write[crtc_6845.registers[12] >> 4];
 word base = 0x0000;
@@ -379,7 +501,7 @@ unsigned char *nxt = (unsigned char *) x11.ximage->data;
     }
     dst = nxt;
   }
-  switch(amstrad_cpc.gate_array.mode) {
+  switch(amstrad_cpc.gate_array.rom_configuration & 0x03) {
     case 0x00:
       for(cy = 0; cy < vd; cy++) {
         for(cyy = 0; cyy < mr; cyy++) {
@@ -464,7 +586,7 @@ unsigned char *nxt = (unsigned char *) x11.ximage->data;
   XPutImage(x11.display, x11.window, x11.gc, x11.ximage, 0, 0, 0, 0, amstrad_cpc_width, amstrad_cpc_height);
 }
 
-void amstrad_cpc_redraw_16(void)
+static void amstrad_cpc_redraw_16(void)
 {
 byte *src = _write[crtc_6845.registers[12] >> 4];
 word base = 0x0000;
@@ -489,7 +611,7 @@ unsigned short *nxt = (unsigned short *) x11.ximage->data;
     }
     dst = nxt;
   }
-  switch(amstrad_cpc.gate_array.mode) {
+  switch(amstrad_cpc.gate_array.rom_configuration & 0x03) {
     case 0x00:
       for(cy = 0; cy < vd; cy++) {
         for(cyy = 0; cyy < mr; cyy++) {
@@ -574,7 +696,7 @@ unsigned short *nxt = (unsigned short *) x11.ximage->data;
   XPutImage(x11.display, x11.window, x11.gc, x11.ximage, 0, 0, 0, 0, amstrad_cpc_width, amstrad_cpc_height);
 }
 
-void amstrad_cpc_redraw_32(void)
+static void amstrad_cpc_redraw_32(void)
 {
 byte *src = _write[crtc_6845.registers[12] >> 4];
 word base = 0x0000;
@@ -599,7 +721,7 @@ unsigned int *nxt = (unsigned int *) x11.ximage->data;
     }
     dst = nxt;
   }
-  switch(amstrad_cpc.gate_array.mode) {
+  switch(amstrad_cpc.gate_array.rom_configuration & 0x03) {
     case 0x00:
       for(cy = 0; cy < vd; cy++) {
         for(cyy = 0; cyy < mr; cyy++) {
@@ -684,44 +806,7 @@ unsigned int *nxt = (unsigned int *) x11.ximage->data;
   XPutImage(x11.display, x11.window, x11.gc, x11.ximage, 0, 0, 0, 0, amstrad_cpc_width, amstrad_cpc_height);
 }
 
-void (*amstrad_cpc_redraw)(void) = amstrad_cpc_redraw_0;
-
-static int _cycle = 0;
-
-static XColor _palette[32] = {
-  { 0L, 0x7F7F, 0x7F7F, 0x7F7F, 0 },
-  { 0L, 0x7F7F, 0x7F7F, 0x7F7F, 0 },
-  { 0L, 0x0000, 0xFFFF, 0x7F7F, 0 },
-  { 0L, 0xFFFF, 0xFFFF, 0x7F7F, 0 },
-  { 0L, 0x0000, 0x0000, 0x7F7F, 0 },
-  { 0L, 0xFFFF, 0x0000, 0x7F7F, 0 },
-  { 0L, 0x0000, 0x7F7F, 0x7F7F, 0 },
-  { 0L, 0xFFFF, 0x7F7F, 0x7F7F, 0 },
-  { 0L, 0xFFFF, 0x0000, 0x7F7F, 0 },
-  { 0L, 0xFFFF, 0xFFFF, 0x7F7F, 0 },
-  { 0L, 0xFFFF, 0xFFFF, 0x0000, 0 },
-  { 0L, 0xFFFF, 0xFFFF, 0xFFFF, 0 },
-  { 0L, 0xFFFF, 0x0000, 0x0000, 0 },
-  { 0L, 0xFFFF, 0x0000, 0xFFFF, 0 },
-  { 0L, 0xFFFF, 0x7F7F, 0x0000, 0 },
-  { 0L, 0xFFFF, 0x7F7F, 0xFFFF, 0 },
-  { 0L, 0x0000, 0x0000, 0x7F7F, 0 },
-  { 0L, 0x0000, 0xFFFF, 0x7F7F, 0 },
-  { 0L, 0x0000, 0xFFFF, 0x0000, 0 },
-  { 0L, 0x0000, 0xFFFF, 0xFFFF, 0 },
-  { 0L, 0x0000, 0x0000, 0x0000, 0 },
-  { 0L, 0x0000, 0x0000, 0xFFFF, 0 },
-  { 0L, 0x0000, 0x7F7F, 0x0000, 0 },
-  { 0L, 0x0000, 0x7F7F, 0xFFFF, 0 },
-  { 0L, 0x7F7F, 0x0000, 0x7F7F, 0 },
-  { 0L, 0x7F7F, 0xFFFF, 0x7F7F, 0 },
-  { 0L, 0x7F7F, 0xFFFF, 0x0000, 0 },
-  { 0L, 0x7F7F, 0xFFFF, 0xFFFF, 0 },
-  { 0L, 0x7F7F, 0x0000, 0x0000, 0 },
-  { 0L, 0x7F7F, 0x0000, 0xFFFF, 0 },
-  { 0L, 0x7F7F, 0x7F7F, 0x0000, 0 },
-  { 0L, 0x7F7F, 0x7F7F, 0xFFFF, 0 },
-};
+static void (*amstrad_cpc_redraw)(void) = amstrad_cpc_redraw_0;
 
 void amstrad_cpc_parse(int argc, char **argv)
 {
@@ -885,7 +970,6 @@ char *progname = *argv;
 void amstrad_cpc_init(void)
 {
 int ix;
-XColor xcolor;
 FILE *file;
 
   fprintf(stderr, "amstrad_cpc: version ................. %s\n", tbl_version[cfg.version]);
@@ -914,24 +998,7 @@ FILE *file;
       amstrad_cpc_redraw = amstrad_cpc_redraw_0;
       break;
   }
-  for(ix = 0; ix < 32; ix++) {
-    if(cfg.monitor == AMSTRAD_CPC_CTM65) {
-      xcolor.red = 0x0000;
-      xcolor.green = (_palette[ix].red + _palette[ix].green + _palette[ix].blue) / 3;
-      xcolor.blue = 0x0000;
-      xcolor.flags = DoRed | DoGreen | DoBlue;
-    }
-    else {
-      xcolor.red = _palette[ix].red;
-      xcolor.green = _palette[ix].green;
-      xcolor.blue = _palette[ix].blue;
-      xcolor.flags = DoRed | DoGreen | DoBlue;
-    }
-    if(XAllocColor(x11.display, DefaultColormapOfScreen(x11.screen), &xcolor) == False) {
-      fprintf(stderr, "amstrad_cpc: cannot allocate color ... %04x/%04x/%04x\n", xcolor.red, xcolor.green, xcolor.blue);
-    }
-    _palette[ix].pixel = xcolor.pixel;
-  }
+  amstrad_cpc_init_palette();
   fprintf(stderr, "amstrad_cpc: on-board ram ............ %d Kb\n", cfg.ramsize);
   if((amstrad_cpc.memory.ram = (byte *) malloc(cfg.ramsize * 1024)) == NULL) {
     perror("amstrad_cpc"); exit(-1);
@@ -977,7 +1044,7 @@ void amstrad_cpc_reset(void)
 {
 int ix;
 
-  _cycle = 0x00;
+  amstrad_cpc.cycle = 0x00;
   amstrad_cpc.memory.expansion = 0x00;
   amstrad_cpc.keyboard.row = 0x00;
   for(ix = 0; ix < 16; ix++) {
@@ -986,15 +1053,12 @@ int ix;
   amstrad_cpc.gate_array.pen = 0x00;
   for(ix = 0; ix < 17; ix++) {
     amstrad_cpc.gate_array.ink[ix] = 0x00;
-    _ink[ix] = _palette[amstrad_cpc.gate_array.ink[ix]].pixel;
+    _ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
   }
-  amstrad_cpc.gate_array.generate_interrupts = 0x00;
-  amstrad_cpc.gate_array.upper_ram_enable = 0x00;
-  amstrad_cpc.gate_array.lower_ram_enable = 0x00;
-  amstrad_cpc.gate_array.mode = 0x00;
+  amstrad_cpc.gate_array.rom_configuration = 0x00;
   amstrad_cpc.gate_array.ram_configuration = 0x00;
   amstrad_cpc.gate_array.counter = 0x00;
-  amstrad_cpc_set_ram_configuration();
+  amstrad_cpc_ram_select();
   z80_reset();
   crtc_6845_reset();
   ppi_8255_reset();
@@ -1051,10 +1115,9 @@ int ramsize;
     fprintf(stderr, "amstrad_cpc: not a valid snapshot file (bad signature)\n");
     fclose(file);
     return;
-  }
-  bufptr += 8;
-  bufptr += 8;
-  bufptr++;
+  } bufptr += 8;
+  bufptr += 8; /* not used */
+  bufptr++; /* snapshot version */
   z80.AF.B.l = *bufptr++;
   z80.AF.B.h = *bufptr++;
   z80.BC.B.l = *bufptr++;
@@ -1097,15 +1160,11 @@ int ramsize;
   amstrad_cpc.gate_array.pen = *bufptr++;
   for(ix = 0; ix < 17; ix++) {
     amstrad_cpc.gate_array.ink[ix] = *bufptr++;
-    _ink[ix] = _palette[amstrad_cpc.gate_array.ink[ix]].pixel;
+    _ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
   }
-  amstrad_cpc.gate_array.generate_interrupts = *bufptr & 0x10;
-  amstrad_cpc.gate_array.upper_ram_enable = *bufptr & 0x08;
-  amstrad_cpc.gate_array.lower_ram_enable = *bufptr & 0x04;
-  amstrad_cpc.gate_array.mode = *bufptr & 0x03;
-  bufptr++;
+  amstrad_cpc.gate_array.rom_configuration = *bufptr++;
   amstrad_cpc.gate_array.ram_configuration = *bufptr++;
-  amstrad_cpc_set_ram_configuration();
+  amstrad_cpc_ram_select();
   crtc_6845.current = *bufptr++;
   for(ix = 0; ix < 18; ix++) {
     crtc_6845.registers[ix] = *bufptr++;
@@ -1142,14 +1201,9 @@ int ramsize;
     perror("amstrad_cpc");
     return;
   }
-
-  strncpy(bufptr, "MV - SNA", 8);
-  bufptr += 8;
-  memset(bufptr, 0, 8);
-  bufptr += 8;
-
+  strncpy(bufptr, "MV - SNA", 8); bufptr += 8;
+  memset(bufptr, 0, 8); bufptr += 8; /* not used */
   *bufptr++ = 1; /* snapshot version */
-
   *bufptr++ = z80.AF.B.l;
   *bufptr++ = z80.AF.B.h;
   *bufptr++ = z80.BC.B.l;
@@ -1196,11 +1250,7 @@ int ramsize;
   for(ix = 0; ix < 17; ix++) {
     *bufptr++ = amstrad_cpc.gate_array.ink[ix];
   }
-  *bufptr |= amstrad_cpc.gate_array.generate_interrupts;
-  *bufptr |= amstrad_cpc.gate_array.upper_ram_enable;
-  *bufptr |= amstrad_cpc.gate_array.lower_ram_enable;
-  *bufptr |= amstrad_cpc.gate_array.mode;
-  bufptr++;
+  *bufptr++ = amstrad_cpc.gate_array.rom_configuration;
   *bufptr++ = amstrad_cpc.gate_array.ram_configuration;
   *bufptr++ = crtc_6845.current;
   for(ix = 0; ix < 18; ix++) {
@@ -1803,18 +1853,15 @@ void z80_out(register word port, register byte value)
         break;
       case 0x40: /* Select color */
         amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen] = value & 0x1F;
-        _ink[amstrad_cpc.gate_array.pen] = _palette[amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen]].pixel;
+        _ink[amstrad_cpc.gate_array.pen] = _col[amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen]];
         break;
       case 0x80: /* Interrupt control, ROM configuration and screen mode */
-        amstrad_cpc.gate_array.generate_interrupts = value & 0x10;
-        amstrad_cpc.gate_array.upper_ram_enable = value & 0x08;
-        amstrad_cpc.gate_array.lower_ram_enable = value & 0x04;
-        amstrad_cpc.gate_array.mode = value & 0x03;
-        amstrad_cpc_set_ram_configuration();
+        amstrad_cpc.gate_array.rom_configuration = value;
+        amstrad_cpc_rom_select();
         break;
       case 0xC0: /* RAM memory management */
         amstrad_cpc.gate_array.ram_configuration = value & 0x07;
-        amstrad_cpc_set_ram_configuration();
+        amstrad_cpc_ram_select();
         break;
     }
   }
@@ -1836,7 +1883,7 @@ void z80_out(register word port, register byte value)
   }
   if(!(port & 0x2000)) { /* ROM select (bit 13 = 0; Port DFxx) */
     amstrad_cpc.memory.expansion = value & 0x07;
-    amstrad_cpc_set_ram_configuration();
+    amstrad_cpc_rom_select();
   }
   if(!(port & 0x1000)) { /* Printer port (bit 12 = 0; Port EFxx) */
     /*printf("cpc (Printer port) ...... OUT (%04X),%02X\n", port, value);*/
@@ -1887,8 +1934,8 @@ XtInputMask mask;
 
   if(amstrad_cpc.gate_array.counter++ >= 51) { /* 300Hz irq */
     amstrad_cpc.gate_array.counter = 0;
-    if(_cycle++ >= 5) { /* 50Hz irq */
-      _cycle = 0;
+    if(amstrad_cpc.cycle++ >= 5) { /* 50Hz irq */
+      amstrad_cpc.cycle = 0;
       while(mask = (!paused ? XtAppPending(appcontext) : XtIMAll)) {
         XtAppProcessEvent(appcontext, mask);
       }

@@ -99,6 +99,10 @@ monitor @ 50Hz, made by Amstrad.
 CHANGELOG
 ---------
 
+05/09/2001:
+-----------
+- Some minor changes in source code.
+
 04/09/2001:
 -----------
 - Complete rewrite of the emulator. Needs the Athena (Xaw) widget set, and/or a

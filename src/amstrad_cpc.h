@@ -31,6 +31,7 @@
 #define AMSTRAD_CPC_PRESENT   0x01
 
 typedef struct {
+  int cycle;
   struct {
     byte *lower_rom;
     byte *ram;
@@ -44,10 +45,7 @@ typedef struct {
   struct {
     byte pen;
     byte ink[17];
-    byte generate_interrupts;
-    byte upper_ram_enable;
-    byte lower_ram_enable;
-    byte mode;
+    byte rom_configuration;
     byte ram_configuration;
     byte counter;
   } gate_array;
