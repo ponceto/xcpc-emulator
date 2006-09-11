@@ -1,3 +1,23 @@
+/*
+ * amstrad_cpc.c - Copyright (c) 2001, 2006 Olivier Poncet
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,9 +28,9 @@
 #include <X11/StringDefs.h>
 #include <X11/keysym.h>
 #include "XArea.h"
-#include "config.h"
+#include "common.h"
 #include "xcpc.h"
-#include "z80.h"
+#include "cpu_z80.h"
 #include "crtc_6845.h"
 #include "ppi_8255.h"
 #include "ay_3_8910.h"
@@ -91,14 +111,14 @@ static AMSTRAD_CPC_CFG cfg = {
   800,                    /* width             */
   624,                    /* height            */
   128,                    /* ramsize           */
-  "rom/cpc6128.rom",      /* system rom        */
+  ROMSDIR "/cpc6128.rom", /* system rom        */
   NULL,                   /* expansion rom #1  */
   NULL,                   /* expansion rom #2  */
   NULL,                   /* expansion rom #3  */
   NULL,                   /* expansion rom #4  */
   NULL,                   /* expansion rom #5  */
   NULL,                   /* expansion rom #6  */
-  "rom/amsdos.rom",       /* expansion rom #7  */
+  ROMSDIR "/amsdos.rom",  /* expansion rom #7  */
 };
 
 AMSTRAD_CPC amstrad_cpc;
@@ -1523,7 +1543,7 @@ int refresh;
       cfg.refresh = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
       cfg.ramsize = 64;
-      cfg.rom[0x00] = "rom/cpc464.rom";
+      cfg.rom[0x00] = ROMSDIR "/cpc464.rom";
       cfg.rom[0x07] = NULL;
     }
     else if(!strcmp("-cpc664", *argv)) {
@@ -1534,8 +1554,8 @@ int refresh;
       cfg.refresh = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
       cfg.ramsize = 64;
-      cfg.rom[0x00] = "rom/cpc664.rom";
-      cfg.rom[0x07] = "rom/amsdos.rom";
+      cfg.rom[0x00] = ROMSDIR "/cpc664.rom";
+      cfg.rom[0x07] = ROMSDIR "/amsdos.rom";
     }
     else if(!strcmp("-cpc6128", *argv)) {
       cfg.version = AMSTRAD_CPC_6128;
@@ -1545,8 +1565,8 @@ int refresh;
       cfg.refresh = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
       cfg.ramsize = 128;
-      cfg.rom[0x00] = "rom/cpc6128.rom";
-      cfg.rom[0x07] = "rom/amsdos.rom";
+      cfg.rom[0x00] = ROMSDIR "/cpc6128.rom";
+      cfg.rom[0x07] = ROMSDIR "/amsdos.rom";
     }
     else if(!strcmp("-cpc464+", *argv)) {
       cfg.version = AMSTRAD_CPC_464_PLUS;
@@ -1556,7 +1576,7 @@ int refresh;
       cfg.refresh = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
       cfg.ramsize = 64;
-      cfg.rom[0x00] = "rom/cpc464+.rom";
+      cfg.rom[0x00] = ROMSDIR "/cpc464+.rom";
       cfg.rom[0x07] = NULL;
     }
     else if(!strcmp("-cpc6128+", *argv)) {
@@ -1567,8 +1587,8 @@ int refresh;
       cfg.refresh = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
       cfg.ramsize = 128;
-      cfg.rom[0x00] = "rom/cpc6128+.rom";
-      cfg.rom[0x07] = "rom/amsdos.rom";
+      cfg.rom[0x00] = ROMSDIR "/cpc6128+.rom";
+      cfg.rom[0x07] = ROMSDIR "/amsdos.rom";
     }
     else if(!strcmp("-1.6MHz", *argv)) {
       cfg.clock = AMSTRAD_CPC_1_6MHZ;
@@ -1694,7 +1714,7 @@ int ramsize;
     return;
   }
   fread(buffer, 1, 256, file);
-  if(strncmp(bufptr, "MV - SNA", 8)) {
+  if(memcmp(bufptr, "MV - SNA", 8)) {
     fprintf(stderr, "amstrad_cpc: not a valid snapshot file (bad signature)\n");
     fclose(file);
     return;
@@ -1784,7 +1804,7 @@ int ramsize;
     perror("amstrad_cpc");
     return;
   }
-  strncpy(bufptr, "MV - SNA", 8); bufptr += 8;
+  memcpy(bufptr, "MV - SNA", 8); bufptr += 8;
   memset(bufptr, 0, 8); bufptr += 8; /* not used */
   *bufptr++ = 1; /* snapshot version */
   *bufptr++ = z80.AF.B.l;

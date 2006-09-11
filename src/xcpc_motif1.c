@@ -1,18 +1,29 @@
+/*
+ * xcpc_motif1.c - Copyright (c) 2001, 2006 Olivier Poncet
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <Xm/Xm.h>
-#include <Xm/MainW.h>
-#include <Xm/RowColumn.h>
-#include <Xm/CascadeBG.h>
-#include <Xm/PushBG.h>
-#include <Xm/SeparatoG.h>
-#include <Xm/Form.h>
-#include <Xm/DialogS.h>
-#include <Xm/FileSB.h>
-#include <Xm/MessageB.h>
+#include <Xm/XmAll.h>
 #include "XArea.h"
-#include "config.h"
+#include "common.h"
 #include "amstrad_cpc.h"
 #include "xcpc.h"
 
@@ -54,7 +65,7 @@ static String resources[] = {
 /*
  * strings
  */
-  "*title:                         XmCPC - Amstrad CPC emulator",
+  "*title:                         XCPC - Amstrad CPC emulator",
   "*menu_bar*file.labelString:     File",
   "*menu_bar*insert.labelString:   Insert floppy ...",
   "*menu_bar*remove.labelString:   Remove floppy",
@@ -74,7 +85,7 @@ static String resources[] = {
   "*save_dialog.directory:         snap/",
   "*save_dialog.okLabelString:     Save",
   "*about_dialog.dialogTitle:      About ...",
-  "*about_dialog.messageString:    XCPC - Motif version (v20010906)\\nAmstrad CPC emulator for UNIX\\nCoded by Olivier Poncet (PoncetO@aol.com)",
+  "*about_dialog.messageString:    XCPC - Motif1 version\\nAmstrad CPC emulator for UNIX\\nCoded by Olivier Poncet <ponceto@noos.fr>",
   "*about_dialog.okLabelString:    Close",
 /*
  *

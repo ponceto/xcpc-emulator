@@ -1,6 +1,6 @@
 /** Z80: portable Z80 emulator *******************************/
 /**                                                         **/
-/**                           Z80.c                         **/
+/**                         cpu_z80.c                       **/
 /**                                                         **/
 /** This file contains implementation for Z80 CPU. Don't    **/
 /** forget to provide z80_read(), z80_write(), z80_in(),    **/
@@ -12,10 +12,14 @@
 /**     commercially. Please, notify me, if you make any    **/   
 /**     changes to this file.                               **/
 /*************************************************************/
-
-#include <stdio.h>
+#ifdef HAVE_CONFIG_H
 #include "config.h"
-#include "z80.h"
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "common.h"
+#include "cpu_z80.h"
 
 Z80 z80;
 

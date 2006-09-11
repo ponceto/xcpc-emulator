@@ -1,3 +1,23 @@
+/*
+ * xcpc_athena.c - Copyright (c) 2001, 2006 Olivier Poncet
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +31,7 @@
 #include <X11/Xaw/SmeLine.h>
 #include <X11/Xaw/Dialog.h>
 #include "XArea.h"
-#include "config.h"
+#include "common.h"
 #include "amstrad_cpc.h"
 #include "xcpc.h"
 
@@ -55,7 +75,7 @@ static String resources[] = {
 /*
  * strings
  */
-  "*title:                    XawCPC - Amstrad CPC emulator",
+  "*title:                    XCPC - Amstrad CPC emulator",
   "*menu_bar*file.label:      File",
   "*menu_bar*insert.label:    Insert floppy ...",
   "*menu_bar*remove.label:    Remove floppy",
@@ -79,7 +99,7 @@ static String resources[] = {
   "*save_dialog*ok.label:     Save",
   "*save_dialog*cancel.label: Cancel",
   "*about_shell.title:        About ...",
-  "*about_dialog.label:       XCPC - Athena version (v20010906)\\nAmstrad CPC emulator for UNIX\\nCoded by Olivier Poncet (PoncetO@aol.com)",
+  "*about_dialog.label:       XCPC - Athena version\\nAmstrad CPC emulator for UNIX\\nCoded by Olivier Poncet <ponceto@noos.fr>",
   "*about_dialog*ok.label:    Close",
 /*
  *

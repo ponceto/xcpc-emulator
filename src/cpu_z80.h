@@ -1,6 +1,6 @@
 /** Z80: portable Z80 emulator *******************************/
 /**                                                         **/
-/**                           Z80.h                         **/
+/**                         cpu_z80.h                       **/
 /**                                                         **/
 /** This file contains declarations relevant to emulation   **/
 /** of Z80 CPU.                                             **/
@@ -10,8 +10,12 @@
 /**     commercially. Please, notify me, if you make any    **/   
 /**     changes to this file.                               **/
 /*************************************************************/
-#ifndef Z80_H
-#define Z80_H
+#ifndef __CPU_Z80_H__
+#define __CPU_Z80_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
                                /* Compilation options:       */
 /* #define LSB_FIRST */        /* Compile for low-endian CPU */
@@ -65,42 +69,42 @@ typedef struct
 
 extern Z80 z80;
 
-void z80_init(void);
-void z80_reset(void);
-void z80_exit(void);
+extern void z80_init(void);
+extern void z80_reset(void);
+extern void z80_exit(void);
 
 /** z80_exec() ***********************************************/
 /** This function will execute a single Z80 opcode. It will **/
 /** then return next PC, and current register values in R.  **/
 /*************************************************************/
-word z80_exec(void);
+extern word z80_exec(void);
 
 /** z80_int() ************************************************/
 /** This function will generate interrupt of given vector.  **/
 /*************************************************************/
-void z80_int(register word vector);
+extern void z80_int(register word vector);
 
 /** z80_run() ************************************************/
 /** This function will run Z80 code until an LoopZ80() call **/
 /** returns INT_QUIT. It will return the PC at which        **/
 /** emulation stopped, and current register values in R.    **/
 /*************************************************************/
-word z80_run(void);
+extern word z80_run(void);
 
 /** z80_read()/z80_write() ***********************************/
 /** These functions are called when access to RAM occurs.   **/
 /** They allow to control memory access.                    **/
 /************************************ TO BE WRITTEN BY USER **/
-byte z80_read(register word address);
-void z80_write(register word address, register byte value);
+extern byte z80_read(register word address);
+extern void z80_write(register word address, register byte value);
 
 /** z80_in()/z80_out() ***************************************/
 /** Z80 emulation calls these functions to read/write from  **/
 /** I/O ports. There can be 65536 I/O ports, but only first **/
 /** 256 are usually used                                    **/
 /************************************ TO BE WRITTEN BY USER **/
-byte z80_in(register word port);
-void z80_out(register word port, register byte value);
+extern byte z80_in(register word port);
+extern void z80_out(register word port, register byte value);
 
 /** z80_periodic() *******************************************/
 /** Z80 emulation calls this function periodically to check **/
@@ -109,6 +113,10 @@ void z80_out(register word port, register byte value);
 /** (0x0038, 0x0066, etc.) or INT_NONE for no interrupt.    **/
 /** Return INT_QUIT to exit the emulation loop.             **/
 /************************************ TO BE WRITTEN BY USER **/
-word z80_periodic(void);
+extern word z80_periodic(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

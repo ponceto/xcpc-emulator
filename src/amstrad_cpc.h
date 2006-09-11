@@ -1,5 +1,26 @@
+/*
+ * amstrad_cpc.h - Copyright (c) 2001, 2006 Olivier Poncet
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 #ifndef __AMSTRAD_CPC_H__
 #define __AMSTRAD_CPC_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Computer version */
 #define AMSTRAD_CPC_464         0x01
@@ -92,11 +113,15 @@ typedef struct {
 
 extern AMSTRAD_CPC amstrad_cpc;
 
-void amstrad_cpc_init(void);
-void amstrad_cpc_reset(void);
-void amstrad_cpc_exit(void);
-int amstrad_cpc_main(int argc, char **argv);
-void amstrad_cpc_load_snapshot(char *filename);
-void amstrad_cpc_save_snapshot(char *filename);
+extern void amstrad_cpc_init(void);
+extern void amstrad_cpc_reset(void);
+extern void amstrad_cpc_exit(void);
+extern int  amstrad_cpc_main(int argc, char **argv);
+extern void amstrad_cpc_load_snapshot(char *filename);
+extern void amstrad_cpc_save_snapshot(char *filename);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

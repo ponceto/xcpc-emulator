@@ -1,0 +1,74 @@
+2006-09-11	Olivier Poncet <ponceto@noos.fr>
+
+	* Autoconf / Automake support.
+
+2006-09-03	Olivier Poncet <ponceto@noos.fr>
+
+	* XCPC source code repository is now hosted on SourceForge.
+	* Home Page:                http://xcpc.emuunlim.com/
+	* SF Home Page:             http://xcpc.sourceforge.net/
+	* Project Summary Page:     http://sourceforge.net/projects/xcpc/
+	* SubVersion Repository:    https://svn.sourceforge.net/svnroot/xcpc/
+	* Initial import & Release: xcpc-20010904.
+	* Initial import & Release: xcpc-20010905.
+	* Initial import & Release: xcpc-20010906.
+
+2001-09-06	Olivier Poncet <ponceto@noos.fr>
+
+	* Some changes in GUIs source code and some improvements.
+
+2001-09-05	Olivier Poncet <ponceto@noos.fr>
+
+	* Some minor changes in source code.
+
+2001-09-04	Olivier Poncet <ponceto@noos.fr>
+
+	* Complete rewrite of the emulator. Needs the Athena (Xaw) widget set,
+	  and/or a Motif 1.2 (Xm) compliant distribution to compile Xcpc (like
+	  OpenMotif, Lesstif, OSF Motif, ...).
+
+2001-07-04	Olivier Poncet <ponceto@noos.fr>
+
+	* Improved CRTC 6845 and gate-array emulation; supports Sorcery like games.
+	* GFX routines rewritten.
+	* Partial support of multi-modes.
+
+2001-06-15	Olivier Poncet <ponceto@noos.fr>
+
+	* Improved CRTC 6845 emulation; supports Space Racer like modes.
+
+2001-06-14	Olivier Poncet <ponceto@noos.fr>
+
+	* Improved GUI and event manager.
+	* Improved Z80 encapsulation.
+
+2001-06-13	Olivier Poncet <ponceto@noos.fr>
+
+	* Improved gate_array and crtc support.
+	* Removed FAST_GFX conditionnal compilation; dynamic configuration.
+
+2001-06-12	Olivier Poncet <ponceto@noos.fr>
+
+	* Display bugs corrected; complete rewrite of display routines.
+	* GUI module added.
+	* Some modifications in source code.
+
+2001-06-01	Olivier Poncet <ponceto@noos.fr>
+
+	* Lots of improvements in GUI (GFX mode added).
+
+2001-05-30	Olivier Poncet <ponceto@noos.fr>
+
+	* Added terminal GUI (load & save snapshot).
+	* Added back buffer manager (when GUI takes control).
+
+2001-05-28	Olivier Poncet <ponceto@noos.fr>
+
+	* First public release.
+	* No support of DISC images.
+	* Full support of SNAPSHOTS (load and save).
+	* No support of AY-3-8910.
+	* Very partial support of FDC-765.
+	* No support of hardware scrolling and hardware graphics effects.
+	* Little bug in the last character line when CRTC address changes
+	* Lots of bugs.
