@@ -24,23 +24,45 @@
 #include "common.h"
 #include "crtc_6845.h"
 
-CRTC_6845 crtc_6845;
-
-void crtc_6845_init(void)
+/**
+ * CRTC-6845::init()
+ *
+ * @param self specifies the CRTC-6845 instance
+ */
+void crtc_6845_init(CRTC_6845 *self)
 {
-  crtc_6845_reset();
+  crtc_6845_reset(self);
 }
 
-void crtc_6845_reset(void)
+/**
+ * CRTC-6845::clock()
+ *
+ * @param self specifies the CRTC-6845 instance
+ */
+void crtc_6845_clock(CRTC_6845 *self)
 {
-int ix;
+}
 
-  crtc_6845.current = 0x00;
+/**
+ * CRTC-6845::reset()
+ *
+ * @param self specifies the CRTC-6845 instance
+ */
+void crtc_6845_reset(CRTC_6845 *self)
+{
+  int ix;
+
+  self->current = 0x00;
   for(ix = 0; ix < 18; ix++) {
-    crtc_6845.registers[ix] = 0x00;
+    self->registers[ix] = 0x00;
   }
 }
 
-void crtc_6845_exit(void)
+/**
+ * CRTC-6845::exit()
+ *
+ * @param self specifies the CRTC-6845 instance
+ */
+void crtc_6845_exit(CRTC_6845 *self)
 {
 }

@@ -22,16 +22,15 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct _AY_3_8910 {
   byte current;
   byte registers[16];
 } AY_3_8910;
 
-extern AY_3_8910 ay_3_8910;
-
-extern void ay_3_8910_init(void);
-extern void ay_3_8910_reset(void);
-extern void ay_3_8910_exit(void);
+extern void ay_3_8910_init (AY_3_8910 *ay_3_8910);
+extern void ay_3_8910_clock(AY_3_8910 *ay_3_8910);
+extern void ay_3_8910_reset(AY_3_8910 *ay_3_8910);
+extern void ay_3_8910_exit (AY_3_8910 *ay_3_8910);
 
 #ifdef __cplusplus
 }

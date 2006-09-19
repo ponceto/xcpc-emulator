@@ -22,16 +22,15 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct _CRTC_6845 {
   byte current;
   byte registers[18];
 } CRTC_6845;
 
-extern CRTC_6845 crtc_6845;
-
-extern void crtc_6845_init(void);
-extern void crtc_6845_reset(void);
-extern void crtc_6845_exit(void);
+extern void crtc_6845_init (CRTC_6845 *crtc_6845);
+extern void crtc_6845_clock(CRTC_6845 *crtc_6845);
+extern void crtc_6845_reset(CRTC_6845 *crtc_6845);
+extern void crtc_6845_exit (CRTC_6845 *crtc_6845);
 
 #ifdef __cplusplus
 }

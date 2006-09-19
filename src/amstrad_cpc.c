@@ -32,8 +32,8 @@
 #include "xcpc.h"
 #include "cpu_z80.h"
 #include "crtc_6845.h"
-#include "ppi_8255.h"
 #include "ay_3_8910.h"
+#include "ppi_8255.h"
 #include "fdc_765.h"
 #include "amstrad_cpc.h"
 
@@ -122,6 +122,11 @@ static AMSTRAD_CPC_CFG cfg = {
 };
 
 AMSTRAD_CPC amstrad_cpc;
+
+CRTC_6845 crtc_6845;
+AY_3_8910 ay_3_8910;
+PPI_8255 ppi_8255;
+FDC_765 fdc_765;
 
 static byte *_bank[4];
 static byte *_read[4];
@@ -1450,10 +1455,10 @@ int clock, interrupt;
   }
   z80.IPeriod = (clock * interrupt) / 1000000;
   z80_init();
-  crtc_6845_init();
-  ppi_8255_init();
-  ay_3_8910_init();
-  fdc_765_init();
+  crtc_6845_init(&crtc_6845);
+  ay_3_8910_init(&ay_3_8910);
+  ppi_8255_init(&ppi_8255);
+  fdc_765_init(&fdc_765);
   amstrad_cpc_reset();
 }
 
@@ -1478,11 +1483,11 @@ int ix;
   amstrad_cpc.gate_array.counter = 0x00;
   amstrad_cpc_ram_select();
   z80_reset();
-  crtc_6845_reset();
-  ppi_8255_reset();
+  crtc_6845_reset(&crtc_6845);
+  ay_3_8910_reset(&ay_3_8910);
+  ppi_8255_reset(&ppi_8255);
   ppi_8255.port_b = (cfg.cassette << 7) | (cfg.printer << 6) | (cfg.expansion << 5) | (cfg.refresh << 4) | (cfg.manufacturer << 1) | (cfg.vsync << 0);
-  ay_3_8910_reset();
-  fdc_765_reset();
+  fdc_765_reset(&fdc_765);
 }
 
 void amstrad_cpc_exit(void)
@@ -1513,10 +1518,10 @@ int ix;
     }
   }
   z80_exit();
-  crtc_6845_exit();
-  ppi_8255_exit();
-  ay_3_8910_exit();
-  fdc_765_exit();
+  crtc_6845_exit(&crtc_6845);
+  ay_3_8910_exit(&ay_3_8910);
+  ppi_8255_exit(&ppi_8255);
+  fdc_765_exit(&fdc_765);
 }
 
 static void amstrad_cpc_synchronize(int signum)
@@ -1940,11 +1945,11 @@ byte z80_in(register word port)
         fprintf(stderr, "amstrad_cpc: (F9xx) ................... IN (%04X)\n", port);
         break;
       case 0x0200: /* FDC motor (port FAxx) */
-        return(fdc_765_get_motor());
+        return(fdc_765.motors & 0x01);
         break;
       case 0x0300: /* FDC register (port FBxx) */
         if(!(port & 0x0001)) { /* status (port FB7E) */
-          return(fdc_765_get_status());
+          return(fdc_765.status);
         }
         else { /* data  (port FB7F) */
           fprintf(stderr, "amstrad_cpc: (FDC 765 - FB7F) ......... IN (%04X)\n", port);
@@ -2025,7 +2030,7 @@ void z80_out(register word port, register byte value)
         fprintf(stderr, "amstrad_cpc: (F9xx) .................. OUT (%04X),%02X\n", port, value);
         break;
       case 0x0200: /* FDC motor (port FAxx) */
-        fdc_765_set_motor(value);
+        fdc_765.motors = value & 0x01;
         break;
       case 0x0300: /* FDC register (port FBxx) */
         if(!(port & 0x0001)) { /* status (port FB7E) */

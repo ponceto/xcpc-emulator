@@ -24,23 +24,45 @@
 #include "common.h"
 #include "ay_3_8910.h"
 
-AY_3_8910 ay_3_8910;
-
-void ay_3_8910_init(void)
+/**
+ * AY-3-8910::init()
+ *
+ * @param self specifies the AY-3-8910 instance
+ */
+void ay_3_8910_init(AY_3_8910 *self)
 {
-  ay_3_8910_reset();
+  ay_3_8910_reset(self);
 }
 
-void ay_3_8910_reset(void)
+/**
+ * AY-3-8910::clock()
+ *
+ * @param self specifies the AY-3-8910 instance
+ */
+void ay_3_8910_clock(AY_3_8910 *self)
 {
-int ix;
+}
 
-  ay_3_8910.current = 0x00;
+/**
+ * AY-3-8910::reset()
+ *
+ * @param self specifies the AY-3-8910 instance
+ */
+void ay_3_8910_reset(AY_3_8910 *self)
+{
+  int ix;
+
+  self->current = 0x00;
   for(ix = 0; ix < 16; ix++) {
-    ay_3_8910.registers[ix] = 0x00;
+    self->registers[ix] = 0x00;
   }
 }
 
-void ay_3_8910_exit(void)
+/**
+ * AY-3-8910::exit()
+ *
+ * @param self specifies the AY-3-8910 instance
+ */
+void ay_3_8910_exit(AY_3_8910 *self)
 {
 }

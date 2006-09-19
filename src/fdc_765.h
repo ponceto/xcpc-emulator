@@ -22,19 +22,15 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct _FDC_765 {
   byte status;
-  byte motor;
+  byte motors;
 } FDC_765;
 
-extern FDC_765 fdc_765;
-
-extern void fdc_765_init(void);
-extern void fdc_765_reset(void);
-extern void fdc_765_exit(void);
-extern void fdc_765_set_motor(byte);
-extern byte fdc_765_get_motor(void);
-extern byte fdc_765_get_status(void);
+extern void fdc_765_init (FDC_765 *fdc_765);
+extern void fdc_765_clock(FDC_765 *fdc_765);
+extern void fdc_765_reset(FDC_765 *fdc_765);
+extern void fdc_765_exit (FDC_765 *fdc_765);
 
 #ifdef __cplusplus
 }

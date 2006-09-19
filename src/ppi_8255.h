@@ -22,18 +22,17 @@
 extern "C" {
 #endif
 
-typedef struct {
+typedef struct _PPI_8255 {
   byte control;
   byte port_a;
   byte port_b;
   byte port_c;
 } PPI_8255;
 
-extern PPI_8255 ppi_8255;
-
-extern void ppi_8255_init(void);
-extern void ppi_8255_reset(void);
-extern void ppi_8255_exit(void);
+extern void ppi_8255_init (PPI_8255 *ppi_8255);
+extern void ppi_8255_clock(PPI_8255 *ppi_8255);
+extern void ppi_8255_reset(PPI_8255 *ppi_8255);
+extern void ppi_8255_exit (PPI_8255 *ppi_8255);
 
 #ifdef __cplusplus
 }

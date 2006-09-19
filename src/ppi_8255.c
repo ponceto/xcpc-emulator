@@ -24,21 +24,43 @@
 #include "common.h"
 #include "ppi_8255.h"
 
-PPI_8255 ppi_8255;
-
-void ppi_8255_init(void)
+/**
+ * PPI-8255::init()
+ *
+ * @param self specifies the PPI-8255 instance
+ */
+void ppi_8255_init(PPI_8255 *self)
 {
-  ppi_8255_reset();
+  ppi_8255_reset(self);
 }
 
-void ppi_8255_reset(void)
+/**
+ * PPI-8255::clock()
+ *
+ * @param self specifies the PPI-8255 instance
+ */
+void ppi_8255_clock(PPI_8255 *self)
 {
-  ppi_8255.control = 0x00;
-  ppi_8255.port_a = 0x00;
-  ppi_8255.port_b = 0x00;
-  ppi_8255.port_c = 0x00;
 }
 
-void ppi_8255_exit(void)
+/**
+ * PPI-8255::reset()
+ *
+ * @param self specifies the PPI-8255 instance
+ */
+void ppi_8255_reset(PPI_8255 *self)
+{
+  self->control = 0x00;
+  self->port_a  = 0x00;
+  self->port_b  = 0x00;
+  self->port_c  = 0x00;
+}
+
+/**
+ * PPI-8255::exit()
+ *
+ * @param self specifies the PPI-8255 instance
+ */
+void ppi_8255_exit(PPI_8255 *self)
 {
 }

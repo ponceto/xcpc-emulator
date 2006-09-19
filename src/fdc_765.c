@@ -24,34 +24,41 @@
 #include "common.h"
 #include "fdc_765.h"
 
-FDC_765 fdc_765;
-
-void fdc_765_init(void)
+/**
+ * FDC-765::init()
+ *
+ * @param self specifies the FDC-765 instance
+ */
+void fdc_765_init(FDC_765 *self)
 {
-  fdc_765_reset();
+  fdc_765_reset(self);
 }
 
-void fdc_765_reset(void)
+/**
+ * FDC-765::clock()
+ *
+ * @param self specifies the FDC-765 instance
+ */
+void fdc_765_clock(FDC_765 *self)
 {
-  fdc_765.status = 0x80;
-  fdc_765.motor = 0x00;
 }
 
-void fdc_765_exit(void)
+/**
+ * FDC-765::reset()
+ *
+ * @param self specifies the FDC-765 instance
+ */
+void fdc_765_reset(FDC_765 *self)
 {
+  self->status = 0x80;
+  self->motors = 0x00;
 }
 
-void fdc_765_set_motor(byte state)
+/**
+ * FDC-765::exit()
+ *
+ * @param self specifies the FDC-765 instance
+ */
+void fdc_765_exit(FDC_765 *self)
 {
-  fdc_765.motor = state & 0x01;
-}
-
-byte fdc_765_get_motor(void)
-{
-  return(fdc_765.motor);
-}
-
-byte fdc_765_get_status(void)
-{
-  return(fdc_765.status);
 }

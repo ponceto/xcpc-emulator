@@ -1,3 +1,10 @@
+2006-09-19	Olivier Poncet <ponceto@noos.fr>
+
+	* Improved CRTC-6845.
+	* Improved AY-3-8910.
+	* Improved PPI-8255.
+	* Improved FDC-765.
+
 2006-09-11	Olivier Poncet <ponceto@noos.fr>
 
 	* Autoconf / Automake support.
