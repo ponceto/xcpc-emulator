@@ -1735,8 +1735,8 @@ int ramsize;
   cpu_z80.DE.B.h = *bufptr++;
   cpu_z80.HL.B.l = *bufptr++;
   cpu_z80.HL.B.h = *bufptr++;
-  cpu_z80.R = *bufptr++;
-  cpu_z80.I = *bufptr++;
+  cpu_z80.IR.B.l = *bufptr++;
+  cpu_z80.IR.B.h = *bufptr++;
   cpu_z80.IFF = (*bufptr++ != 0 ? cpu_z80.IFF | IFF_1 : cpu_z80.IFF & (~IFF_2));
   cpu_z80.IFF = (*bufptr++ != 0 ? cpu_z80.IFF | IFF_1 : cpu_z80.IFF & (~IFF_2));
   cpu_z80.IX.B.l = *bufptr++;
@@ -1821,8 +1821,8 @@ int ramsize;
   *bufptr++ = cpu_z80.DE.B.h;
   *bufptr++ = cpu_z80.HL.B.l;
   *bufptr++ = cpu_z80.HL.B.h;
-  *bufptr++ = cpu_z80.R;
-  *bufptr++ = cpu_z80.I;
+  *bufptr++ = cpu_z80.IR.B.l;
+  *bufptr++ = cpu_z80.IR.B.h;
   *bufptr++ = (cpu_z80.IFF & IFF_1 ? 0x01 : 0x00);
   *bufptr++ = (cpu_z80.IFF & IFF_2 ? 0x01 : 0x00);
   *bufptr++ = cpu_z80.IX.B.l;
@@ -2064,6 +2064,6 @@ XtInputMask mask;
     }
     return(INT_RST38); /* DO IRQ */
   }
-  return(0xFFFF); /* DO NOTHING */
+  return(INT_NONE); /* DO NOTHING */
 }
 

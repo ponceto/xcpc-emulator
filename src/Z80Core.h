@@ -686,117 +686,6 @@ enum CodesED {
   DB_F8,DB_F9,DB_FA,DB_FB,DB_FC,DB_FD,DB_FE,DB_FF
 };
 
-static void CodesCB(CPU_Z80 *R)
-{
-  byte I;
-
-  I=RdZ80(R->PC.W++);
-  R->ICount-=CyclesCB[I];
-  switch(I)
-  {
-#include "Z80OpcodesCB.h"
-    default:
-      break;
-  }
-}
-
-static void CodesDDCB(CPU_Z80 *R)
-{
-  pair J;
-  byte I;
-
-#define XX IX    
-  J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
-  I=RdZ80(R->PC.W++);
-  R->ICount-=CyclesXXCB[I];
-  switch(I)
-  {
-#include "Z80OpcodesXCB.h"
-    default:
-      break;
-  }
-#undef XX
-}
-
-static void CodesFDCB(CPU_Z80 *R)
-{
-  pair J;
-  byte I;
-
-#define XX IY
-  J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
-  I=RdZ80(R->PC.W++);
-  R->ICount-=CyclesXXCB[I];
-  switch(I)
-  {
-#include "Z80OpcodesXCB.h"
-    default:
-      break;
-  }
-#undef XX
-}
-
-static void CodesED(CPU_Z80 *R)
-{
-  byte I;
-  pair J;
-
-  I=RdZ80(R->PC.W++);
-  R->ICount-=CyclesED[I];
-  switch(I)
-  {
-#include "Z80OpcodesED.h"
-    case PFX_ED:
-      R->PC.W--;break;
-    default:
-      break;
-  }
-}
-
-static void CodesDD(CPU_Z80 *R)
-{
-  byte I;
-  pair J;
-
-#define XX IX
-  I=RdZ80(R->PC.W++);
-  R->ICount-=CyclesXX[I];
-  switch(I)
-  {
-#include "Z80OpcodesXX.h"
-    case PFX_FD:
-    case PFX_DD:
-      R->PC.W--;break;
-    case PFX_CB:
-      CodesDDCB(R);break;
-    default:
-      break;
-  }
-#undef XX
-}
-
-static void CodesFD(CPU_Z80 *R)
-{
-  byte I;
-  pair J;
-
-#define XX IY
-  I=RdZ80(R->PC.W++);
-  R->ICount-=CyclesXX[I];
-  switch(I)
-  {
-#include "Z80OpcodesXX.h"
-    case PFX_FD:
-    case PFX_DD:
-      R->PC.W--;break;
-    case PFX_CB:
-      CodesFDCB(R);break;
-    default:
-      break;
-  }
-#undef XX
-}
-
 /** IntZ80() *************************************************/
 /** This function will generate interrupt of given vector.  **/
 /*************************************************************/
@@ -830,7 +719,7 @@ void IntZ80(CPU_Z80 *R,word Vector)
     if(R->IFF&IFF_IM2)
     {
       /* Make up the vector address */
-      Vector=(Vector&0xFF)|((word)(R->I)<<8);
+      Vector=(Vector&0xFF)|((word)(R->IR.B.h)<<8);
       /* Read the vector */
       R->PC.B.l=RdZ80(Vector++);
       R->PC.B.h=RdZ80(Vector);
@@ -856,62 +745,4 @@ void IntZ80(CPU_Z80 *R,word Vector)
       case INT_RST38: R->PC.W=0x0038;break;
     }
   }
-}
-
-/** RunZ80() *************************************************/
-/** This function will run Z80 code until an LoopZ80() call **/
-/** returns INT_QUIT. It will return the PC at which        **/
-/** emulation stopped, and current register values in R.    **/
-/*************************************************************/
-word RunZ80(CPU_Z80 *R)
-{
-  byte I;
-  pair J;
-
-  for(;;)
-  {
-    I=RdZ80(R->PC.W++);
-    R->ICount-=Cycles[I];
-    switch(I)
-    {
-#include "Z80Opcodes.h"
-      case PFX_CB: CodesCB(R);break;
-      case PFX_ED: CodesED(R);break;
-      case PFX_FD: CodesFD(R);break;
-      case PFX_DD: CodesDD(R);break;
-    }
- 
-    /* If cycle counter expired... */
-    if(R->ICount<=0)
-    {
-      /* If we have come after EI, get address from IRequest */
-      /* Otherwise, get it from the loop handler             */
-      if(R->IFF&IFF_EI)
-      {
-        R->IFF=(R->IFF&~IFF_EI)|IFF_1; /* Done with AfterEI state */
-        R->ICount+=R->IBackup-1;       /* Restore the ICount      */
-
-        /* Call periodic handler or set pending IRQ */
-        if(R->ICount>0) J.W=R->IRequest;
-        else
-        {
-          J.W=cpu_z80_timer(R);  /* Call periodic handler    */
-          R->ICount+=R->IPeriod; /* Reset the cycle counter  */
-          if(J.W==INT_NONE) J.W=R->IRequest;  /* Pending IRQ */
-        }
-      }
-      else
-      {
-        J.W=cpu_z80_timer(R);    /* Call periodic handler    */
-        R->ICount+=R->IPeriod;   /* Reset the cycle counter  */
-        if(J.W==INT_NONE) J.W=R->IRequest;    /* Pending IRQ */
-      }
-
-      if(J.W==INT_QUIT) return(R->PC.W); /* Exit if INT_QUIT */
-      if(J.W!=INT_NONE) IntZ80(R,J.W);   /* Int-pt if needed */
-    }
-  }
-
-  /* Execution stopped */
-  return(R->PC.W);
 }

@@ -374,6 +374,3 @@ case DAA:
   if(R->AF.B.l&N_FLAG) J.W|=1024;
   R->AF.W=DAATable[J.W];
   break;
-
-default:
-  break;

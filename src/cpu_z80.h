@@ -22,18 +22,18 @@
 extern "C" {
 #endif
 
-#define INT_RST00   0x00C7     /* RST 00h                    */
-#define INT_RST08   0x00CF     /* RST 08h                    */
-#define INT_RST10   0x00D7     /* RST 10h                    */
-#define INT_RST18   0x00DF     /* RST 18h                    */
-#define INT_RST20   0x00E7     /* RST 20h                    */
-#define INT_RST28   0x00EF     /* RST 28h                    */
-#define INT_RST30   0x00F7     /* RST 30h                    */
-#define INT_RST38   0x00FF     /* RST 38h                    */
-#define INT_IRQ     0x00FF     /* Default IRQ opcode is FFh  */
-#define INT_NMI     0xFFFD     /* Non-maskable interrupt     */
-#define INT_NONE    0xFFFF     /* No interrupt required      */
-#define INT_QUIT    0xFFFE     /* Exit the emulation         */
+#define INT_RST00   0x00c7     /* RST 00h                    */
+#define INT_RST08   0x00cf     /* RST 08h                    */
+#define INT_RST10   0x00d7     /* RST 10h                    */
+#define INT_RST18   0x00df     /* RST 18h                    */
+#define INT_RST20   0x00e7     /* RST 20h                    */
+#define INT_RST28   0x00ef     /* RST 28h                    */
+#define INT_RST30   0x00f7     /* RST 30h                    */
+#define INT_RST38   0x00ff     /* RST 38h                    */
+#define INT_IRQ     0x00ff     /* Default IRQ opcode is FFh  */
+#define INT_NMI     0xfffd     /* Non-maskable interrupt     */
+#define INT_NONE    0xffff     /* No interrupt required      */
+#define INT_QUIT    0xfffe     /* Exit the emulation         */
 
 #define S_FLAG      0x80       /* 1: Result negative         */
 #define Z_FLAG      0x40       /* 1: Result is zero          */
@@ -65,8 +65,8 @@ typedef struct _CPU_Z80 {
   pair AF1,BC1,DE1,HL1; /* Prime registers     */
   pair IX, IY;          /* Index registers     */
   pair SP, PC;          /* Control registers   */
-  byte IFF,I;           /* Interrupt registers */
-  byte R;               /* Refresh register    */
+  pair IR;              /* Interrupt & Refresh */
+  byte IFF;             /* Interrupt Flip-Flop */
   word IRequest;        /* pending IRQ         */
   int  IPeriod;
   int  IBackup;
