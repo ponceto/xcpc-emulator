@@ -1,4 +1,4 @@
-# Makefile.am - Copyright (c) 2006 Olivier Poncet
+# Makefile.am - Copyright (c) 2001, 2006 Olivier Poncet
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,12 @@ xcpc_SOURCES = \
 	ppi_8255.c ppi_8255.h \
 	fdc_765.c fdc_765.h \
 	cpu_z80.c cpu_z80.h \
+	Z80Core.h \
+	Z80Opcodes.h \
+	Z80OpcodesCB.h \
+	Z80OpcodesED.h \
+	Z80OpcodesXX.h \
+	Z80OpcodesXCB.h \
 	common.c common.h
 
 if MOTIF1

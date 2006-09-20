@@ -123,6 +123,7 @@ static AMSTRAD_CPC_CFG cfg = {
 
 AMSTRAD_CPC amstrad_cpc;
 
+CPU_Z80 cpu_z80;
 CRTC_6845 crtc_6845;
 AY_3_8910 ay_3_8910;
 PPI_8255 ppi_8255;
@@ -1453,8 +1454,8 @@ int clock, interrupt;
       interrupt = 53;
       break;
   }
-  z80.IPeriod = (clock * interrupt) / 1000000;
-  z80_init();
+  cpu_z80.IPeriod = (clock * interrupt) / 1000000;
+  cpu_z80_init(&cpu_z80);
   crtc_6845_init(&crtc_6845);
   ay_3_8910_init(&ay_3_8910);
   ppi_8255_init(&ppi_8255);
@@ -1482,7 +1483,7 @@ int ix;
   amstrad_cpc.gate_array.ram_cfg = 0x00;
   amstrad_cpc.gate_array.counter = 0x00;
   amstrad_cpc_ram_select();
-  z80_reset();
+  cpu_z80_reset(&cpu_z80);
   crtc_6845_reset(&crtc_6845);
   ay_3_8910_reset(&ay_3_8910);
   ppi_8255_reset(&ppi_8255);
@@ -1517,7 +1518,7 @@ int ix;
       amstrad_cpc.memory.upper_rom[ix] = NULL;
     }
   }
-  z80_exit();
+  cpu_z80_exit(&cpu_z80);
   crtc_6845_exit(&crtc_6845);
   ay_3_8910_exit(&ay_3_8910);
   ppi_8255_exit(&ppi_8255);
@@ -1701,7 +1702,7 @@ int refresh;
   new.it_interval.tv_usec = new.it_value.tv_usec = 1000000 / refresh;
   signal(SIGALRM, amstrad_cpc_synchronize);
   setitimer(ITIMER_REAL, &new, &old);
-  z80_run();
+  cpu_z80_clock(&cpu_z80);
   setitimer(ITIMER_REAL, &old, &new);
   amstrad_cpc_exit();
   return(0);
@@ -1726,45 +1727,45 @@ int ramsize;
   } bufptr += 8;
   bufptr += 8; /* not used */
   bufptr++; /* snapshot version */
-  z80.AF.B.l = *bufptr++;
-  z80.AF.B.h = *bufptr++;
-  z80.BC.B.l = *bufptr++;
-  z80.BC.B.h = *bufptr++;
-  z80.DE.B.l = *bufptr++;
-  z80.DE.B.h = *bufptr++;
-  z80.HL.B.l = *bufptr++;
-  z80.HL.B.h = *bufptr++;
-  z80.Refresh = *bufptr++;
-  z80.I = *bufptr++;
-  z80.IFF = (!(*bufptr++) ? z80.IFF & 0x7F : z80.IFF | 0x80); /* IFF1 */
-  z80.IFF = (!(*bufptr++) ? z80.IFF & 0xFE : z80.IFF | 0x01); /* IFF2 */
-  z80.IX.B.l = *bufptr++;
-  z80.IX.B.h = *bufptr++;
-  z80.IY.B.l = *bufptr++;
-  z80.IY.B.h = *bufptr++;
-  z80.SP.B.l = *bufptr++;
-  z80.SP.B.h = *bufptr++;
-  z80.PC.B.l = *bufptr++;
-  z80.PC.B.h = *bufptr++;
-  switch(*bufptr++) { /* IM */
-    case 0:
-      z80.IFF &= 0xF9;
-      break;
+  cpu_z80.AF.B.l = *bufptr++;
+  cpu_z80.AF.B.h = *bufptr++;
+  cpu_z80.BC.B.l = *bufptr++;
+  cpu_z80.BC.B.h = *bufptr++;
+  cpu_z80.DE.B.l = *bufptr++;
+  cpu_z80.DE.B.h = *bufptr++;
+  cpu_z80.HL.B.l = *bufptr++;
+  cpu_z80.HL.B.h = *bufptr++;
+  cpu_z80.R = *bufptr++;
+  cpu_z80.I = *bufptr++;
+  cpu_z80.IFF = (*bufptr++ != 0 ? cpu_z80.IFF | IFF_1 : cpu_z80.IFF & (~IFF_2));
+  cpu_z80.IFF = (*bufptr++ != 0 ? cpu_z80.IFF | IFF_1 : cpu_z80.IFF & (~IFF_2));
+  cpu_z80.IX.B.l = *bufptr++;
+  cpu_z80.IX.B.h = *bufptr++;
+  cpu_z80.IY.B.l = *bufptr++;
+  cpu_z80.IY.B.h = *bufptr++;
+  cpu_z80.SP.B.l = *bufptr++;
+  cpu_z80.SP.B.h = *bufptr++;
+  cpu_z80.PC.B.l = *bufptr++;
+  cpu_z80.PC.B.h = *bufptr++;
+  switch(*bufptr++) {
     case 1:
-      z80.IFF = (z80.IFF & 0xF9) | 2;
+      cpu_z80.IFF = (cpu_z80.IFF | IFF_IM1) & ~(IFF_IM2);
       break;
     case 2:
-      z80.IFF = (z80.IFF & 0xF9) | 4;
+      cpu_z80.IFF = (cpu_z80.IFF | IFF_IM2) & ~(IFF_IM1);
+      break;
+    default:
+      cpu_z80.IFF = (cpu_z80.IFF) & ~(IFF_IM1 | IFF_IM2);
       break;
   }
-  z80.AF1.B.l = *bufptr++;
-  z80.AF1.B.h = *bufptr++;
-  z80.BC1.B.l = *bufptr++;
-  z80.BC1.B.h = *bufptr++;
-  z80.DE1.B.l = *bufptr++;
-  z80.DE1.B.h = *bufptr++;
-  z80.HL1.B.l = *bufptr++;
-  z80.HL1.B.h = *bufptr++;
+  cpu_z80.AF1.B.l = *bufptr++;
+  cpu_z80.AF1.B.h = *bufptr++;
+  cpu_z80.BC1.B.l = *bufptr++;
+  cpu_z80.BC1.B.h = *bufptr++;
+  cpu_z80.DE1.B.l = *bufptr++;
+  cpu_z80.DE1.B.h = *bufptr++;
+  cpu_z80.HL1.B.l = *bufptr++;
+  cpu_z80.HL1.B.h = *bufptr++;
   amstrad_cpc.gate_array.pen = *bufptr++;
   for(ix = 0; ix < 17; ix++) {
     amstrad_cpc.gate_array.ink[ix] = *bufptr++;
@@ -1812,48 +1813,45 @@ int ramsize;
   memcpy(bufptr, "MV - SNA", 8); bufptr += 8;
   memset(bufptr, 0, 8); bufptr += 8; /* not used */
   *bufptr++ = 1; /* snapshot version */
-  *bufptr++ = z80.AF.B.l;
-  *bufptr++ = z80.AF.B.h;
-  *bufptr++ = z80.BC.B.l;
-  *bufptr++ = z80.BC.B.h;
-  *bufptr++ = z80.DE.B.l;
-  *bufptr++ = z80.DE.B.h;
-  *bufptr++ = z80.HL.B.l;
-  *bufptr++ = z80.HL.B.h;
-  *bufptr++ = z80.Refresh;
-  *bufptr++ = z80.I;
-  *bufptr++ = (z80.IFF & 0x80 ? 0x01 : 0x00);
-  *bufptr++ = (z80.IFF & 0x01 ? 0x01 : 0x00);
-  *bufptr++ = z80.IX.B.l;
-  *bufptr++ = z80.IX.B.h;
-  *bufptr++ = z80.IY.B.l;
-  *bufptr++ = z80.IY.B.h;
-  *bufptr++ = z80.SP.B.l;
-  *bufptr++ = z80.SP.B.h;
-  *bufptr++ = z80.PC.B.l;
-  *bufptr++ = z80.PC.B.h;
-  switch(z80.IFF & 0x06) {
-    case 0:
-      *bufptr++ = 0x00;
-      break;
-    case 2:
+  *bufptr++ = cpu_z80.AF.B.l;
+  *bufptr++ = cpu_z80.AF.B.h;
+  *bufptr++ = cpu_z80.BC.B.l;
+  *bufptr++ = cpu_z80.BC.B.h;
+  *bufptr++ = cpu_z80.DE.B.l;
+  *bufptr++ = cpu_z80.DE.B.h;
+  *bufptr++ = cpu_z80.HL.B.l;
+  *bufptr++ = cpu_z80.HL.B.h;
+  *bufptr++ = cpu_z80.R;
+  *bufptr++ = cpu_z80.I;
+  *bufptr++ = (cpu_z80.IFF & IFF_1 ? 0x01 : 0x00);
+  *bufptr++ = (cpu_z80.IFF & IFF_2 ? 0x01 : 0x00);
+  *bufptr++ = cpu_z80.IX.B.l;
+  *bufptr++ = cpu_z80.IX.B.h;
+  *bufptr++ = cpu_z80.IY.B.l;
+  *bufptr++ = cpu_z80.IY.B.h;
+  *bufptr++ = cpu_z80.SP.B.l;
+  *bufptr++ = cpu_z80.SP.B.h;
+  *bufptr++ = cpu_z80.PC.B.l;
+  *bufptr++ = cpu_z80.PC.B.h;
+  switch(cpu_z80.IFF & (IFF_IM1 | IFF_IM2)) {
+    case IFF_IM1:
       *bufptr++ = 0x01;
       break;
-    case 4:
+    case IFF_IM2:
       *bufptr++ = 0x02;
       break;
     default:
       *bufptr++ = 0x00;
       break;
   }
-  *bufptr++ = z80.AF1.B.l;
-  *bufptr++ = z80.AF1.B.h;
-  *bufptr++ = z80.BC1.B.l;
-  *bufptr++ = z80.BC1.B.h;
-  *bufptr++ = z80.DE1.B.l;
-  *bufptr++ = z80.DE1.B.h;
-  *bufptr++ = z80.HL1.B.l;
-  *bufptr++ = z80.HL1.B.h;
+  *bufptr++ = cpu_z80.AF1.B.l;
+  *bufptr++ = cpu_z80.AF1.B.h;
+  *bufptr++ = cpu_z80.BC1.B.l;
+  *bufptr++ = cpu_z80.BC1.B.h;
+  *bufptr++ = cpu_z80.DE1.B.l;
+  *bufptr++ = cpu_z80.DE1.B.h;
+  *bufptr++ = cpu_z80.HL1.B.l;
+  *bufptr++ = cpu_z80.HL1.B.h;
   *bufptr++ = amstrad_cpc.gate_array.pen;
   for(ix = 0; ix < 17; ix++) {
     *bufptr++ = amstrad_cpc.gate_array.ink[ix];
@@ -1882,17 +1880,17 @@ int ramsize;
   fclose(file);
 }
 
-byte z80_read(register word address)
+byte cpu_z80_mm_rd(CPU_Z80 *cpu_z80, word address)
 {
   return(_read[address >> 14][address & 0x3FFF]);
 }
 
-void z80_write(register word address, register byte value)
+void cpu_z80_mm_wr(CPU_Z80 *cpu_z80, word address, byte value)
 {
   _write[address >> 14][address & 0x3FFF] = value;
 }
 
-byte z80_in(register word port)
+byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word port)
 {
   if(!(port & 0x8000)) { /* Gate-Array (bit 15 = 0; Port 7Fxx) */
     fprintf(stderr, "amstrad_cpc: (Gate-Array) ............. IN (%04X) (Illegal; write only)\n", port);
@@ -1960,7 +1958,7 @@ byte z80_in(register word port)
   return(0x00);
 }
 
-void z80_out(register word port, register byte value)
+void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte value)
 {
   if(!(port & 0x8000)) { /* Gate-Array (bit 15 = 0; Port 7Fxx) */
     switch(value & 0xC0) { /* Select function */
@@ -2044,7 +2042,7 @@ void z80_out(register word port, register byte value)
   }
 }
 
-word z80_periodic(void)
+word cpu_z80_timer(CPU_Z80 *cpu_z80)
 {
 XtInputMask mask;
 
@@ -2064,7 +2062,7 @@ XtInputMask mask;
     else {
       ppi_8255.port_b &= 0xFE; /* reset VSYNC */
     }
-    return(0x0038); /* DO IRQ */
+    return(INT_RST38); /* DO IRQ */
   }
   return(0xFFFF); /* DO NOTHING */
 }
