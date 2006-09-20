@@ -1,3 +1,11 @@
+2006-09-20	Olivier Poncet <ponceto@noos.fr>
+
+	* 'snap/' directory preselection removed when loading snapshot ...
+
+2006-09-20	Olivier Poncet <ponceto@noos.fr>
+
+	* Improved CPU-Z80.
+
 2006-09-19	Olivier Poncet <ponceto@noos.fr>
 
 	* Improved CRTC-6845.
