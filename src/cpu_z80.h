@@ -30,7 +30,7 @@ extern "C" {
 #define INT_RST28   0x00ef     /* RST 28h                    */
 #define INT_RST30   0x00f7     /* RST 30h                    */
 #define INT_RST38   0x00ff     /* RST 38h                    */
-#define INT_IRQ     0x00ff     /* Default IRQ opcode is FFh  */
+#define INT_IRQ     0x00ff     /* Default IRQ opcode is 0xff */
 #define INT_NMI     0xfffd     /* Non-maskable interrupt     */
 #define INT_NONE    0xffff     /* No interrupt required      */
 #define INT_QUIT    0xfffe     /* Exit the emulation         */

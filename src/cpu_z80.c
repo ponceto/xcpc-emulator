@@ -46,125 +46,125 @@ void cpu_z80_clock(CPU_Z80 *self)
   byte I;
   pair J;
 
-  for(;;) {
-    I = cpu_z80_mm_rd(self, self->PC.W++);
-    self->ICount -= Cycles[I];
-    switch(I) {
+decode_op:
+  I = cpu_z80_mm_rd(self, self->PC.W++);
+  self->ICount -= Cycles[I];
+  switch(I) {
 #include "Z80Opcodes.h"
-      case 0xcb:
-        goto decode_cb;
-      case 0xdd:
-        goto decode_dd;
-      case 0xed:
-        goto decode_ed;
-      case 0xfd:
-        goto decode_fd;
-      default:
-        goto decode_ko;
-    }
-    goto decode_ok;
+    case 0xcb:
+      goto decode_cb;
+    case 0xdd:
+      goto decode_dd;
+    case 0xed:
+      goto decode_ed;
+    case 0xfd:
+      goto decode_fd;
+    default:
+      goto decode_ko;
+  }
+  goto decode_ok;
 
 decode_cb:
-    I = cpu_z80_mm_rd(self, self->PC.W++);
-    self->ICount -= CyclesCB[I];
-    switch(I) {
+  I = cpu_z80_mm_rd(self, self->PC.W++);
+  self->ICount -= CyclesCB[I];
+  switch(I) {
 #include "Z80OpcodesCB.h"
-      default:
-        goto decode_ko;
-    }
-    goto decode_ok;
+    default:
+      goto decode_ko;
+  }
+  goto decode_ok;
 
 decode_dd:
+  I = cpu_z80_mm_rd(self, self->PC.W++);
+  self->ICount -= CyclesXX[I];
+  switch(I) {
 #define XX IX
-    I = cpu_z80_mm_rd(self, self->PC.W++);
-    self->ICount -= CyclesXX[I];
-    switch(I) {
 #include "Z80OpcodesXX.h"
-      case 0xcb:
-        goto decode_dd_cb;
-      default:
-        goto decode_ko;
-    }
-    goto decode_ok;
 #undef XX
+    case 0xcb:
+      goto decode_dd_cb;
+    default:
+      goto decode_ko;
+  }
+  goto decode_ok;
 
 decode_dd_cb:
+  J.W = self->IX.W + (offset) cpu_z80_mm_rd(self, self->PC.W++);
+  I = cpu_z80_mm_rd(self, self->PC.W++);
+  self->ICount -= CyclesXXCB[I];
+  switch(I) {
 #define XX IX
-    J.W = self->XX.W + (offset) cpu_z80_mm_rd(self, self->PC.W++);
-    I = cpu_z80_mm_rd(self, self->PC.W++);
-    self->ICount -= CyclesXXCB[I];
-    switch(I) {
-#include "Z80OpcodesXCB.h"
-      default:
-        goto decode_ko;
-    }
-    goto decode_ok;
+#include "Z80OpcodesXXCB.h"
 #undef XX
+    default:
+      goto decode_ko;
+  }
+  goto decode_ok;
 
 decode_ed:
-    I = cpu_z80_mm_rd(self, self->PC.W++);
-    self->ICount -= CyclesED[I];
-    switch(I) {
+  I = cpu_z80_mm_rd(self, self->PC.W++);
+  self->ICount -= CyclesED[I];
+  switch(I) {
 #include "Z80OpcodesED.h"
-      default:
-        goto decode_ko;
-    }
-    goto decode_ok;
+    default:
+      goto decode_ko;
+  }
+  goto decode_ok;
 
 decode_fd:
+  I = cpu_z80_mm_rd(self, self->PC.W++);
+  self->ICount -= CyclesXX[I];
+  switch(I) {
 #define XX IY
-    I = cpu_z80_mm_rd(self, self->PC.W++);
-    self->ICount -= CyclesXX[I];
-    switch(I) {
 #include "Z80OpcodesXX.h"
-      case 0xcb:
-        goto decode_fd_cb;
-      default:
-        goto decode_ko;
-    }
-    goto decode_ok;
 #undef XX
+    case 0xcb:
+      goto decode_fd_cb;
+    default:
+      goto decode_ko;
+  }
+  goto decode_ok;
 
 decode_fd_cb:
+  J.W = self->IY.W + (offset) cpu_z80_mm_rd(self, self->PC.W++);
+  I = cpu_z80_mm_rd(self, self->PC.W++);
+  self->ICount -= CyclesXXCB[I];
+  switch(I) {
 #define XX IY
-    J.W = self->XX.W + (offset) cpu_z80_mm_rd(self, self->PC.W++);
-    I = cpu_z80_mm_rd(self, self->PC.W++);
-    self->ICount -= CyclesXXCB[I];
-    switch(I) {
-#include "Z80OpcodesXCB.h"
-      default:
-        goto decode_ko;
-    }
-    goto decode_ok;
+#include "Z80OpcodesXXCB.h"
 #undef XX
+    default:
+      goto decode_ko;
+  }
+  goto decode_ok;
 
 decode_ko:
-    (void) fprintf(stderr, "CPU-Z80: Bad opcode ... \n");
-    (void) fflush(stderr);
+  (void) fprintf(stderr, "CPU-Z80: Bad opcode ... \n");
+  (void) fflush(stderr);
 
 decode_ok:
-    if(self->ICount <= 0) {
-      if(self->IFF & IFF_EI) {
-        self->IFF = (self->IFF & ~IFF_EI) | IFF_1; /* Done with AfterEI state */
-        self->ICount += self->IBackup - 1;         /* Restore the ICount      */
-        if(self->ICount > 0) {
-          J.W = self->IRequest;
-        }
-        else {
-          J.W = cpu_z80_timer(self);                /* Call periodic handler   */
-          self->ICount += self->IPeriod;            /* Reset the cycle counter */
-          if(J.W == INT_NONE) J.W = self->IRequest; /* Pending IRQ             */
-        }
+  if(self->ICount <= 0) {
+    if(self->IFF & IFF_EI) {
+      self->IFF = (self->IFF & ~IFF_EI) | IFF_1; /* Done with AfterEI state */
+      self->ICount += self->IBackup - 1;         /* Restore the ICount      */
+      if(self->ICount > 0) {
+        J.W = self->IRequest;
       }
       else {
         J.W = cpu_z80_timer(self);                /* Call periodic handler   */
         self->ICount += self->IPeriod;            /* Reset the cycle counter */
         if(J.W == INT_NONE) J.W = self->IRequest; /* Pending IRQ             */
       }
-      if(J.W == INT_QUIT) return;            /* Exit if INT_QUIT */
-      if(J.W != INT_NONE) IntZ80(self, J.W); /* Int-pt if needed */
     }
+    else {
+      J.W = cpu_z80_timer(self);                /* Call periodic handler   */
+      self->ICount += self->IPeriod;            /* Reset the cycle counter */
+      if(J.W == INT_NONE) J.W = self->IRequest; /* Pending IRQ             */
+    }
+    if(J.W == INT_QUIT) return;            /* Exit if INT_QUIT */
+    if(J.W != INT_NONE) IntZ80(self, J.W); /* Int-pt if needed */
   }
+  goto decode_op;
 }
 
 /**
