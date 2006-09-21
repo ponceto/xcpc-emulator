@@ -25,9 +25,9 @@
 #include "crtc_6845.h"
 
 /**
- * CRTC-6845::init()
+ * CRTC_6845::init()
  *
- * @param self specifies the CRTC-6845 instance
+ * @param self specifies the CRTC_6845 instance
  */
 void crtc_6845_init(CRTC_6845 *self)
 {
@@ -35,18 +35,18 @@ void crtc_6845_init(CRTC_6845 *self)
 }
 
 /**
- * CRTC-6845::clock()
+ * CRTC_6845::clock()
  *
- * @param self specifies the CRTC-6845 instance
+ * @param self specifies the CRTC_6845 instance
  */
 void crtc_6845_clock(CRTC_6845 *self)
 {
 }
 
 /**
- * CRTC-6845::reset()
+ * CRTC_6845::reset()
  *
- * @param self specifies the CRTC-6845 instance
+ * @param self specifies the CRTC_6845 instance
  */
 void crtc_6845_reset(CRTC_6845 *self)
 {
@@ -59,9 +59,9 @@ void crtc_6845_reset(CRTC_6845 *self)
 }
 
 /**
- * CRTC-6845::exit()
+ * CRTC_6845::exit()
  *
- * @param self specifies the CRTC-6845 instance
+ * @param self specifies the CRTC_6845 instance
  */
 void crtc_6845_exit(CRTC_6845 *self)
 {

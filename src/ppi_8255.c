@@ -25,9 +25,9 @@
 #include "ppi_8255.h"
 
 /**
- * PPI-8255::init()
+ * PPI_8255::init()
  *
- * @param self specifies the PPI-8255 instance
+ * @param self specifies the PPI_8255 instance
  */
 void ppi_8255_init(PPI_8255 *self)
 {
@@ -35,18 +35,18 @@ void ppi_8255_init(PPI_8255 *self)
 }
 
 /**
- * PPI-8255::clock()
+ * PPI_8255::clock()
  *
- * @param self specifies the PPI-8255 instance
+ * @param self specifies the PPI_8255 instance
  */
 void ppi_8255_clock(PPI_8255 *self)
 {
 }
 
 /**
- * PPI-8255::reset()
+ * PPI_8255::reset()
  *
- * @param self specifies the PPI-8255 instance
+ * @param self specifies the PPI_8255 instance
  */
 void ppi_8255_reset(PPI_8255 *self)
 {
@@ -57,9 +57,9 @@ void ppi_8255_reset(PPI_8255 *self)
 }
 
 /**
- * PPI-8255::exit()
+ * PPI_8255::exit()
  *
- * @param self specifies the PPI-8255 instance
+ * @param self specifies the PPI_8255 instance
  */
 void ppi_8255_exit(PPI_8255 *self)
 {

@@ -26,9 +26,9 @@
 #include "Z80Core.h"
 
 /**
- * CPU-Z80::init()
+ * CPU_Z80::init()
  *
- * @param self specifies the CPU-Z80 instance
+ * @param self specifies the CPU_Z80 instance
  */
 void cpu_z80_init(CPU_Z80 *self)
 {
@@ -36,9 +36,9 @@ void cpu_z80_init(CPU_Z80 *self)
 }
 
 /**
- * CPU-Z80::clock()
+ * CPU_Z80::clock()
  *
- * @param self specifies the CPU-Z80 instance
+ * @param self specifies the CPU_Z80 instance
  */
 void cpu_z80_clock(CPU_Z80 *self)
 {
@@ -139,7 +139,7 @@ decode_fd_cb:
   goto decode_ok;
 
 decode_ko:
-  (void) fprintf(stderr, "CPU-Z80: Bad opcode ... \n");
+  (void) fprintf(stderr, "CPU_Z80: Bad opcode ... \n");
   (void) fflush(stderr);
 
 decode_ok:
@@ -168,9 +168,9 @@ decode_ok:
 }
 
 /**
- * CPU-Z80::reset()
+ * CPU_Z80::reset()
  *
- * @param self specifies the CPU-Z80 instance
+ * @param self specifies the CPU_Z80 instance
  */
 void cpu_z80_reset(CPU_Z80 *self)
 {
@@ -194,9 +194,9 @@ void cpu_z80_reset(CPU_Z80 *self)
 }
 
 /**
- * CPU-Z80::exit()
+ * CPU_Z80::exit()
  *
- * @param self specifies the CPU-Z80 instance
+ * @param self specifies the CPU_Z80 instance
  */
 void cpu_z80_exit(CPU_Z80 *self)
 {

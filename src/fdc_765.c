@@ -25,9 +25,9 @@
 #include "fdc_765.h"
 
 /**
- * FDC-765::init()
+ * FDC_765::init()
  *
- * @param self specifies the FDC-765 instance
+ * @param self specifies the FDC_765 instance
  */
 void fdc_765_init(FDC_765 *self)
 {
@@ -35,18 +35,18 @@ void fdc_765_init(FDC_765 *self)
 }
 
 /**
- * FDC-765::clock()
+ * FDC_765::clock()
  *
- * @param self specifies the FDC-765 instance
+ * @param self specifies the FDC_765 instance
  */
 void fdc_765_clock(FDC_765 *self)
 {
 }
 
 /**
- * FDC-765::reset()
+ * FDC_765::reset()
  *
- * @param self specifies the FDC-765 instance
+ * @param self specifies the FDC_765 instance
  */
 void fdc_765_reset(FDC_765 *self)
 {
@@ -55,9 +55,9 @@ void fdc_765_reset(FDC_765 *self)
 }
 
 /**
- * FDC-765::exit()
+ * FDC_765::exit()
  *
- * @param self specifies the FDC-765 instance
+ * @param self specifies the FDC_765 instance
  */
 void fdc_765_exit(FDC_765 *self)
 {

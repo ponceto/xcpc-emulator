@@ -25,9 +25,9 @@
 #include "ay_3_8910.h"
 
 /**
- * AY-3-8910::init()
+ * AY_3_8910::init()
  *
- * @param self specifies the AY-3-8910 instance
+ * @param self specifies the AY_3_8910 instance
  */
 void ay_3_8910_init(AY_3_8910 *self)
 {
@@ -35,18 +35,18 @@ void ay_3_8910_init(AY_3_8910 *self)
 }
 
 /**
- * AY-3-8910::clock()
+ * AY_3_8910::clock()
  *
- * @param self specifies the AY-3-8910 instance
+ * @param self specifies the AY_3_8910 instance
  */
 void ay_3_8910_clock(AY_3_8910 *self)
 {
 }
 
 /**
- * AY-3-8910::reset()
+ * AY_3_8910::reset()
  *
- * @param self specifies the AY-3-8910 instance
+ * @param self specifies the AY_3_8910 instance
  */
 void ay_3_8910_reset(AY_3_8910 *self)
 {
@@ -59,9 +59,9 @@ void ay_3_8910_reset(AY_3_8910 *self)
 }
 
 /**
- * AY-3-8910::exit()
+ * AY_3_8910::exit()
  *
- * @param self specifies the AY-3-8910 instance
+ * @param self specifies the AY_3_8910 instance
  */
 void ay_3_8910_exit(AY_3_8910 *self)
 {
