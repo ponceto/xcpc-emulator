@@ -44,11 +44,11 @@ extern "C" {
 #define C_FLAG      0x01       /* 1: Carry/Borrow occured    */
 
 #define IFF_1       0x01       /* IFF1 flip-flop             */
-#define IFF_IM1     0x02       /* 1: IM1 mode                */
-#define IFF_IM2     0x04       /* 1: IM2 mode                */
-#define IFF_2       0x08       /* IFF2 flip-flop             */
-#define IFF_EI      0x20       /* 1: EI pending              */
-#define IFF_HALT    0x80       /* 1: CPU HALTed              */
+#define IFF_2       0x02       /* IFF2 flip-flop             */
+#define IFF_EI      0x04       /* After EI                   */
+#define IFF_IM1     0x10       /* IM1 mode                   */
+#define IFF_IM2     0x20       /* IM2 mode                   */
+#define IFF_HALT    0x80       /* CPU HALTed                 */
 
 typedef union _pair {
 #ifdef LSB_FIRST
@@ -67,10 +67,8 @@ typedef struct _CPU_Z80 {
   pair SP, PC;          /* Control registers   */
   pair IR;              /* Interrupt & Refresh */
   byte IFF;             /* Interrupt Flip-Flop */
-  word IRequest;        /* pending IRQ         */
   int  IPeriod;
-  int  IBackup;
-  int  ICount;
+  int  TStates;
 } CPU_Z80;
 
 extern void cpu_z80_init (CPU_Z80 *cpu_z80);

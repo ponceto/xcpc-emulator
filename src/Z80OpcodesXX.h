@@ -11,10 +11,10 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-case JR_NZ:   if(R->AF.B.l&Z_FLAG) R->PC.W++; else { R->ICount-=5;M_JR; } break;
-case JR_NC:   if(R->AF.B.l&C_FLAG) R->PC.W++; else { R->ICount-=5;M_JR; } break;
-case JR_Z:    if(R->AF.B.l&Z_FLAG) { R->ICount-=5;M_JR; } else R->PC.W++; break;
-case JR_C:    if(R->AF.B.l&C_FLAG) { R->ICount-=5;M_JR; } else R->PC.W++; break;
+case JR_NZ:   if(R->AF.B.l&Z_FLAG) R->PC.W++; else { R->TStates-=5;M_JR; } break;
+case JR_NC:   if(R->AF.B.l&C_FLAG) R->PC.W++; else { R->TStates-=5;M_JR; } break;
+case JR_Z:    if(R->AF.B.l&Z_FLAG) { R->TStates-=5;M_JR; } else R->PC.W++; break;
+case JR_C:    if(R->AF.B.l&C_FLAG) { R->TStates-=5;M_JR; } else R->PC.W++; break;
 
 case JP_NZ:   if(R->AF.B.l&Z_FLAG) R->PC.W+=2; else { M_JP; } break;
 case JP_NC:   if(R->AF.B.l&C_FLAG) R->PC.W+=2; else { M_JP; } break;
@@ -25,23 +25,23 @@ case JP_C:    if(R->AF.B.l&C_FLAG) { M_JP; } else R->PC.W+=2; break;
 case JP_PE:   if(R->AF.B.l&P_FLAG) { M_JP; } else R->PC.W+=2; break;
 case JP_M:    if(R->AF.B.l&S_FLAG) { M_JP; } else R->PC.W+=2; break;
 
-case RET_NZ:  if(!(R->AF.B.l&Z_FLAG)) { R->ICount-=6;M_RET; } break;
-case RET_NC:  if(!(R->AF.B.l&C_FLAG)) { R->ICount-=6;M_RET; } break;
-case RET_PO:  if(!(R->AF.B.l&P_FLAG)) { R->ICount-=6;M_RET; } break;
-case RET_P:   if(!(R->AF.B.l&S_FLAG)) { R->ICount-=6;M_RET; } break;
-case RET_Z:   if(R->AF.B.l&Z_FLAG)    { R->ICount-=6;M_RET; } break;
-case RET_C:   if(R->AF.B.l&C_FLAG)    { R->ICount-=6;M_RET; } break;
-case RET_PE:  if(R->AF.B.l&P_FLAG)    { R->ICount-=6;M_RET; } break;
-case RET_M:   if(R->AF.B.l&S_FLAG)    { R->ICount-=6;M_RET; } break;
+case RET_NZ:  if(!(R->AF.B.l&Z_FLAG)) { R->TStates-=6;M_RET; } break;
+case RET_NC:  if(!(R->AF.B.l&C_FLAG)) { R->TStates-=6;M_RET; } break;
+case RET_PO:  if(!(R->AF.B.l&P_FLAG)) { R->TStates-=6;M_RET; } break;
+case RET_P:   if(!(R->AF.B.l&S_FLAG)) { R->TStates-=6;M_RET; } break;
+case RET_Z:   if(R->AF.B.l&Z_FLAG)    { R->TStates-=6;M_RET; } break;
+case RET_C:   if(R->AF.B.l&C_FLAG)    { R->TStates-=6;M_RET; } break;
+case RET_PE:  if(R->AF.B.l&P_FLAG)    { R->TStates-=6;M_RET; } break;
+case RET_M:   if(R->AF.B.l&S_FLAG)    { R->TStates-=6;M_RET; } break;
 
-case CALL_NZ: if(R->AF.B.l&Z_FLAG) R->PC.W+=2; else { R->ICount-=7;M_CALL; } break;
-case CALL_NC: if(R->AF.B.l&C_FLAG) R->PC.W+=2; else { R->ICount-=7;M_CALL; } break;
-case CALL_PO: if(R->AF.B.l&P_FLAG) R->PC.W+=2; else { R->ICount-=7;M_CALL; } break;
-case CALL_P:  if(R->AF.B.l&S_FLAG) R->PC.W+=2; else { R->ICount-=7;M_CALL; } break;
-case CALL_Z:  if(R->AF.B.l&Z_FLAG) { R->ICount-=7;M_CALL; } else R->PC.W+=2; break;
-case CALL_C:  if(R->AF.B.l&C_FLAG) { R->ICount-=7;M_CALL; } else R->PC.W+=2; break;
-case CALL_PE: if(R->AF.B.l&P_FLAG) { R->ICount-=7;M_CALL; } else R->PC.W+=2; break;
-case CALL_M:  if(R->AF.B.l&S_FLAG) { R->ICount-=7;M_CALL; } else R->PC.W+=2; break;
+case CALL_NZ: if(R->AF.B.l&Z_FLAG) R->PC.W+=2; else { R->TStates-=7;M_CALL; } break;
+case CALL_NC: if(R->AF.B.l&C_FLAG) R->PC.W+=2; else { R->TStates-=7;M_CALL; } break;
+case CALL_PO: if(R->AF.B.l&P_FLAG) R->PC.W+=2; else { R->TStates-=7;M_CALL; } break;
+case CALL_P:  if(R->AF.B.l&S_FLAG) R->PC.W+=2; else { R->TStates-=7;M_CALL; } break;
+case CALL_Z:  if(R->AF.B.l&Z_FLAG) { R->TStates-=7;M_CALL; } else R->PC.W+=2; break;
+case CALL_C:  if(R->AF.B.l&C_FLAG) { R->TStates-=7;M_CALL; } else R->PC.W+=2; break;
+case CALL_PE: if(R->AF.B.l&P_FLAG) { R->TStates-=7;M_CALL; } else R->PC.W+=2; break;
+case CALL_M:  if(R->AF.B.l&S_FLAG) { R->TStates-=7;M_CALL; } else R->PC.W+=2; break;
 
 case ADD_B:    M_ADD(R->BC.B.h);break;
 case ADD_C:    M_ADD(R->BC.B.l);break;
@@ -218,7 +218,7 @@ case POP_DE:   M_POP(DE);break;
 case POP_HL:   M_POP(XX);break;
 case POP_AF:   M_POP(AF);break;
 
-case DJNZ: if(--R->BC.B.h) { R->ICount-=5;M_JR; } else R->PC.W++;break;
+case DJNZ: if(--R->BC.B.h) { R->TStates-=5;M_JR; } else R->PC.W++;break;
 case JP:   M_JP;break;
 case JR:   M_JR;break;
 case CALL: M_CALL;break;
@@ -232,22 +232,15 @@ case INA:  I=RdZ80(R->PC.W++);R->AF.B.h=InZ80((R->AF.W & 0xff00) | (I & 0x00ff))
 case HALT:
   R->PC.W--;
   R->IFF|=IFF_HALT;
-  R->IBackup=0;
-  R->ICount=0;
+  R->TStates=0;
   break;
 
 case DI:
-  if(R->IFF&IFF_EI) R->ICount+=R->IBackup-1;
-  R->IFF&=~(IFF_1|IFF_2|IFF_EI);
+  R->IFF &= ~(IFF_1 | IFF_2 | IFF_EI);
   break;
 
 case EI:
-  if(!(R->IFF&(IFF_1|IFF_EI)))
-  {
-    R->IFF|=IFF_2|IFF_EI;
-    R->IBackup=R->ICount;
-    R->ICount=1;
-  }
+  R->IFF |=  (IFF_1 | IFF_2 | IFF_EI);
   break;
 
 case CCF:
