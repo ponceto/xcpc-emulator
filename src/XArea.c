@@ -120,6 +120,7 @@ static void Resize(Widget widget)
  */
 static void Redisplay(Widget widget, XEvent *xevent, Region region)
 {
+  XtCallCallbackList(widget, ((XAreaWidget) widget)->xarea.expose_callback, xevent);
 }
 
 /**
