@@ -150,7 +150,10 @@ decode_ko:
 decode_ok:
   if(self->TStates <= 0) {
     J.W = cpu_z80_timer(self);
-    if((J.W != INT_NONE) && (self->IFF & IFF_EI) == 0) {
+    if(J.W == INT_QUIT) {
+      return;
+    }
+    else if((J.W != INT_NONE) && (self->IFF & IFF_EI) == 0) {
       IntZ80(self, J.W);
     }
     self->TStates += self->IPeriod;
