@@ -35,7 +35,6 @@ extern void _XEditResCheckMessages(Widget widget, XtPointer closure, XEvent *eve
 #endif
 
 extern XtAppContext appcontext;
-extern Widget xarea;
 
 #ifdef __cplusplus
 }

@@ -48,7 +48,8 @@ extern "C" {
 #define IFF_EI      0x04       /* After EI                   */
 #define IFF_IM1     0x10       /* IM1 mode                   */
 #define IFF_IM2     0x20       /* IM2 mode                   */
-#define IFF_HALT    0x80       /* CPU HALTed                 */
+#define IFF_HALT    0x40       /* CPU HALTed                 */
+#define IFF_STOP    0x80       /* CPU Emulation STOPped      */
 
 typedef union _pair {
 #ifdef LSB_FIRST

@@ -464,245 +464,11 @@ static byte _key[256][4] = {
   { 0x00, 0x00, 0x00, 0x00 },
 };
 
-static void amstrad_cpc_key_press_cbk(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch)
-{
-  char buffer[8], ascii;
-  KeySym keysym;
-  byte row, value, shift;
-
-  if(dispatch != NULL) {
-    *dispatch = FALSE;
-  }
-  XLookupString((XKeyEvent *) event, buffer, 8, &keysym, NULL);
-  ascii = buffer[0];
-  if(IsCursorKey(keysym)) {
-    switch(keysym) {
-      case XK_Up:
-        row = 0x00; value = 0x01; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Down:
-        row = 0x00; value = 0x04; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Left:
-        row = 0x01; value = 0x01; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Right:
-        row = 0x00; value = 0x02; shift = event->xkey.state & ShiftMask;
-        break;
-      default:
-        return;
-        break;
-    }
-  }
-  else if(IsKeypadKey(keysym)) {
-    switch(keysym) {
-      case XK_KP_Enter:
-        row = 0x00; value = 0x40; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Decimal:
-        row = 0x00; value = 0x80; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_0:
-        row = 0x01; value = 0x80; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_1:
-        row = 0x01; value = 0x20; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_2:
-        row = 0x01; value = 0x40; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_3:
-        row = 0x00; value = 0x20; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_4:
-        row = 0x02; value = 0x10; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_5:
-        row = 0x01; value = 0x10; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_6:
-        row = 0x00; value = 0x10; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_7:
-        row = 0x01; value = 0x04; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_8:
-        row = 0x01; value = 0x08; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_9:
-        row = 0x00; value = 0x08; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Up:
-        row = 0x00; value = 0x01; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Down:
-        row = 0x00; value = 0x04; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Left:
-        row = 0x01; value = 0x01; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Right:
-        row = 0x00; value = 0x02; shift = event->xkey.state & ShiftMask;
-        break;
-      default:
-        return;
-        break;
-    }
-  }
-  else if(IsModifierKey(keysym)) {
-    switch(keysym) {
-      case XK_Shift_L:
-        row = 0x02; value = 0x20; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Control_L:
-        row = 0x02; value = 0x80; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Caps_Lock:
-        row = 0x08; value = 0x40; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Alt_L:
-        row = 0x01; value = 0x02; shift = event->xkey.state & ShiftMask;
-        break;
-      default:
-        return;
-        break;
-    }
-  }
-  else {
-    if(!_key[ascii][0]) {
-      return;
-    }
-    row = _key[ascii][1];
-    value = _key[ascii][2];
-    shift = _key[ascii][3];
-  }
-  amstrad_cpc.keyboard.line[row] &= ~value;
-  if(shift) {
-    amstrad_cpc.keyboard.line[0x02] &= ~0x20;
-  }
-}
-
-static void amstrad_cpc_key_release_cbk(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch)
-{
-  char buffer[8], ascii;
-  KeySym keysym;
-  byte row, value, shift;
-
-  if(dispatch != NULL) {
-    *dispatch = FALSE;
-  }
-  XLookupString((XKeyEvent *) event, buffer, 8, &keysym, NULL);
-  ascii = buffer[0];
-  if(IsCursorKey(keysym)) {
-    switch(keysym) {
-      case XK_Up:
-        row = 0x00; value = 0x01; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Down:
-        row = 0x00; value = 0x04; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Left:
-        row = 0x01; value = 0x01; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Right:
-        row = 0x00; value = 0x02; shift = event->xkey.state & ShiftMask;
-        break;
-      default:
-        return;
-        break;
-    }
-  }
-  else if(IsKeypadKey(keysym)) {
-    switch(keysym) {
-      case XK_KP_Enter:
-        row = 0x00; value = 0x40; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Decimal:
-        row = 0x00; value = 0x80; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_0:
-        row = 0x01; value = 0x80; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_1:
-        row = 0x01; value = 0x20; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_2:
-        row = 0x01; value = 0x40; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_3:
-        row = 0x00; value = 0x20; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_4:
-        row = 0x02; value = 0x10; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_5:
-        row = 0x01; value = 0x10; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_6:
-        row = 0x00; value = 0x10; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_7:
-        row = 0x01; value = 0x04; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_8:
-        row = 0x01; value = 0x08; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_9:
-        row = 0x00; value = 0x08; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Up:
-        row = 0x00; value = 0x01; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Down:
-        row = 0x00; value = 0x04; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Left:
-        row = 0x01; value = 0x01; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_KP_Right:
-        row = 0x00; value = 0x02; shift = event->xkey.state & ShiftMask;
-        break;
-      default:
-        return;
-        break;
-    }
-  }
-  else if(IsModifierKey(keysym)) {
-    switch(keysym) {
-      case XK_Shift_L:
-        row = 0x02; value = 0x20; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Control_L:
-        row = 0x02; value = 0x80; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Caps_Lock:
-        row = 0x08; value = 0x40; shift = event->xkey.state & ShiftMask;
-        break;
-      case XK_Alt_L:
-        row = 0x01; value = 0x02; shift = event->xkey.state & ShiftMask;
-        break;
-      default:
-        return;
-        break;
-    }
-  }
-  else {
-    if(!_key[ascii][0]) {
-      return;
-    }
-    row = _key[ascii][1];
-    value = _key[ascii][2];
-    shift = _key[ascii][3];
-  }
-  amstrad_cpc.keyboard.line[row] |= value;
-  amstrad_cpc.keyboard.line[0x02] |= 0x20;
-}
-
 static Screen *_screen = NULL;
-static Display *_display = NULL;
-static Window _window = None;
-static GC _gc = None;
+static Window  _window = None;
 static XImage *_ximage = NULL;
+static struct itimerval new_timer;
+static struct itimerval old_timer;
 
 static unsigned short _palette[32][3] = {
   { 0x7F7F, 0x7F7F, 0x7F7F }, /* White                        */
@@ -812,7 +578,7 @@ XColor xcolor;
       xcolor.green = _palette[ix][1];
       xcolor.blue = _palette[ix][2];
     }
-    if(XAllocColor(_display, DefaultColormapOfScreen(_screen), &xcolor) == False) {
+    if(XAllocColor(DisplayOfScreen(_screen), DefaultColormapOfScreen(_screen), &xcolor) == False) {
       fprintf(stderr, "amstrad_cpc: cannot allocate color ... %04x/%04x/%04x\n", xcolor.red, xcolor.green, xcolor.blue);
     }
     _col[ix] = xcolor.pixel;
@@ -997,7 +763,9 @@ int col, row = 0;
     }
     row += 2;
   }
-  XPutImage(_display, _window, _gc, _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+  if(_window != None) {
+    XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+  }
 }
 
 static void amstrad_cpc_redraw_8(void)
@@ -1107,7 +875,9 @@ unsigned char *nxt = (unsigned char *) _ximage->data;
     }
     dst = nxt;
   }
-  XPutImage(_display, _window, _gc, _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+  if(_window != None) {
+    XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+  }
 }
 
 static void amstrad_cpc_redraw_16(void)
@@ -1217,7 +987,9 @@ unsigned short *nxt = (unsigned short *) _ximage->data;
     }
     dst = nxt;
   }
-  XPutImage(_display, _window, _gc, _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+  if(_window != None) {
+    XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+  }
 }
 
 static void amstrad_cpc_redraw_32(void)
@@ -1327,147 +1099,12 @@ unsigned int *nxt = (unsigned int *) _ximage->data;
     }
     dst = nxt;
   }
-  XPutImage(_display, _window, _gc, _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+  if(_window != None) {
+    XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+  }
 }
 
 static void (*amstrad_cpc_redraw)(void) = amstrad_cpc_redraw_0;
-
-static void amstrad_cpc_expose_cbk(Widget widget, XtPointer data, XEvent *event)
-{
-  XPutImage(event->xexpose.display, event->xexpose.window, _gc, _ximage, event->xexpose.x, event->xexpose.y, event->xexpose.x, event->xexpose.y, event->xexpose.width, event->xexpose.height);
-}
-
-void amstrad_cpc_init(void)
-{
-int ix;
-FILE *file;
-int cx, cy;
-int clock, interrupt;
-
-  fprintf(stderr, "amstrad_cpc: version ................. %s\n", tbl_version[cfg.version]);
-  fprintf(stderr, "amstrad_cpc: monitor ................. %s\n", tbl_monitor[cfg.monitor]);
-  fprintf(stderr, "amstrad_cpc: clock ................... %s\n", tbl_clock[cfg.clock]);
-  fprintf(stderr, "amstrad_cpc: cassette ................ %s\n", tbl_cassette[cfg.cassette]);
-  fprintf(stderr, "amstrad_cpc: printer ................. %s\n", tbl_printer[cfg.printer]);
-  fprintf(stderr, "amstrad_cpc: expansion ............... %s\n", tbl_expansion[cfg.expansion]);
-  fprintf(stderr, "amstrad_cpc: refresh ................. %s\n", tbl_refresh[cfg.refresh]);
-  fprintf(stderr, "amstrad_cpc: manufacturer ............ %s\n", tbl_manufacturer[cfg.manufacturer]);
-  fprintf(stderr, "amstrad_cpc: vsync ................... %s\n", tbl_vsync[cfg.vsync]);
-
-  _screen = XtScreen(xarea);
-  _display = XtDisplay(xarea);
-  _window = XtWindow(xarea);
-  _gc = XCreateGC(_display, _window, 0L, NULL);
-  if((_ximage = XCreateImage(_display, DefaultVisualOfScreen(_screen), DefaultDepthOfScreen(_screen), ZPixmap, 0, NULL, cfg.width, cfg.height, 8, 0)) == NULL) {
-    perror("xmcpc");
-    exit(-1);
-  }
-  _ximage->data = (char *) XtMalloc(_ximage->bytes_per_line * _ximage->height);
-  for(cy = 0; cy < _ximage->height; cy++) {
-    for(cx = 0; cx < _ximage->width; cx++) {
-      XPutPixel(_ximage, cx, cy, BlackPixelOfScreen(_screen));
-    }
-  }
-  switch(_ximage->depth) {
-    case 8:
-      fprintf(stderr, "amstrad_cpc: screen driver ........... optimized 8 bpp\n");
-      amstrad_cpc_redraw = amstrad_cpc_redraw_8;
-      break;
-    case 15:
-    case 16:
-      fprintf(stderr, "amstrad_cpc: screen driver ........... optimized 16 bpp\n");
-      amstrad_cpc_redraw = amstrad_cpc_redraw_16;
-      break;
-    case 24:
-    case 32:
-      fprintf(stderr, "amstrad_cpc: screen driver ........... optimized 32 bpp\n");
-      amstrad_cpc_redraw = amstrad_cpc_redraw_32;
-      break;
-    default:
-      fprintf(stderr, "amstrad_cpc: screen driver ........... generic (%d bpp)\n", _ximage->depth);
-      amstrad_cpc_redraw = amstrad_cpc_redraw_0;
-      break;
-  }
-  amstrad_cpc_init_palette();
-  XtVaSetValues(xarea, XtNwidth, cfg.width, XtNheight, cfg.height, NULL);
-  XtAddEventHandler(xarea, KeyPressMask,   FALSE, (XtEventHandler) amstrad_cpc_key_press_cbk,   (XtPointer) NULL);
-  XtAddEventHandler(xarea, KeyReleaseMask, FALSE, (XtEventHandler) amstrad_cpc_key_release_cbk, (XtPointer) NULL);
-  XtAddCallback(xarea, "exposeCallback", (XtCallbackProc) amstrad_cpc_expose_cbk, NULL);
-
-  fprintf(stderr, "amstrad_cpc: on-board ram ............ %d Kb\n", cfg.ramsize);
-  if((amstrad_cpc.memory.ram = (byte *) malloc(cfg.ramsize * 1024)) == NULL) {
-    perror("amstrad_cpc"); exit(-1);
-  }
-  if((file = fopen(cfg.rom[0], "r")) == NULL) {
-    perror("amstrad_cpc"); exit(-1);
-  }
-  fprintf(stderr, "amstrad_cpc: system lower rom ........ %s\n", cfg.rom[0]);
-  if((amstrad_cpc.memory.lower_rom = (byte *) malloc(16384)) == NULL) {
-    perror("amstrad_cpc"); exit(-1);
-  }
-  fread(amstrad_cpc.memory.lower_rom, 1, 16384, file);
-  fprintf(stderr, "amstrad_cpc: system upper rom ........ %s\n", cfg.rom[0]);
-  if((amstrad_cpc.memory.upper_rom[0] = (byte *) malloc(16384)) == NULL) {
-    perror("amstrad_cpc"); exit(-1);
-  }
-  fread(amstrad_cpc.memory.upper_rom[0], 1, 16384, file);
-  fclose(file);
-  for(ix = 1; ix < 8; ix++) {
-    amstrad_cpc.memory.upper_rom[ix] = NULL;
-    fprintf(stderr, "amstrad_cpc: expansion rom #%d ........ %s\n", ix, (cfg.rom[ix] == NULL ? "(not present)" : cfg.rom[ix]));
-    if(cfg.rom[ix] != NULL) {
-      if((file = fopen(cfg.rom[ix], "r")) == NULL) {
-        perror("amstrad_cpc"); continue;
-      }
-      if((amstrad_cpc.memory.upper_rom[ix] = (byte *) malloc(16384)) == NULL) {
-        perror("amstrad_cpc"); exit(-1);
-      }
-      fread(amstrad_cpc.memory.upper_rom[ix], 1, 16384, file);
-      fclose(file);
-    }
-  }
-  switch(cfg.clock) {
-    case AMSTRAD_CPC_1_6MHZ:
-      clock = 1650000;
-      break;
-    case AMSTRAD_CPC_2MHZ:
-      clock = 2000000;
-      break;
-    case AMSTRAD_CPC_3_3MHZ:
-      clock = 3300000;
-      break;
-    case AMSTRAD_CPC_4MHZ:
-      clock = 4000000;
-      break;
-    case AMSTRAD_CPC_6_6MHZ:
-      clock = 6600000;
-      break;
-    case AMSTRAD_CPC_8MHZ:
-      clock = 8000000;
-      break;
-    case AMSTRAD_CPC_9_9MHZ:
-      clock = 9900000;
-      break;
-    case AMSTRAD_CPC_16MHZ:
-      clock = 16000000;
-      break;
-  }
-  switch(cfg.refresh) {
-    case AMSTRAD_CPC_50HZ:
-      interrupt = 64;
-      break;
-    case AMSTRAD_CPC_60HZ:
-      interrupt = 53;
-      break;
-  }
-  cpu_z80.IPeriod = (clock * interrupt) / 1000000;
-  cpu_z80_init(&cpu_z80);
-  crtc_6845_init(&crtc_6845);
-  ay_3_8910_init(&ay_3_8910);
-  ppi_8255_init(&ppi_8255);
-  fdc_765_init(&fdc_765);
-  amstrad_cpc_reset();
-}
 
 void amstrad_cpc_reset(void)
 {
@@ -1495,40 +1132,6 @@ int ix;
   ppi_8255_reset(&ppi_8255);
   ppi_8255.port_b = (cfg.cassette << 7) | (cfg.printer << 6) | (cfg.expansion << 5) | (cfg.refresh << 4) | (cfg.manufacturer << 1) | (cfg.vsync << 0);
   fdc_765_reset(&fdc_765);
-}
-
-void amstrad_cpc_exit(void)
-{
-int ix;
-
-  XFreeGC(_display, _gc);
-  XtFree(_ximage->data);
-  _ximage->data = NULL;
-  XDestroyImage(_ximage);
-  _screen = NULL;
-  _display = NULL;
-  _window = None;
-  _gc = None;
-  _ximage = NULL;
-  XtRemoveEventHandler(xarea, KeyPressMask,   FALSE, (XtEventHandler) amstrad_cpc_key_press_cbk,   (XtPointer) NULL);
-  XtRemoveEventHandler(xarea, KeyReleaseMask, FALSE, (XtEventHandler) amstrad_cpc_key_release_cbk, (XtPointer) NULL);
-  XtRemoveCallback(xarea, "exposeCallback", (XtCallbackProc) amstrad_cpc_expose_cbk, NULL);
-  amstrad_cpc_redraw = amstrad_cpc_redraw_0;
-  free(amstrad_cpc.memory.lower_rom);
-  amstrad_cpc.memory.lower_rom = NULL;
-  free(amstrad_cpc.memory.ram);
-  amstrad_cpc.memory.ram = NULL;
-  for(ix = 0; ix < 8; ix++) {
-    if(amstrad_cpc.memory.upper_rom[ix] != NULL) {
-      free(amstrad_cpc.memory.upper_rom[ix]);
-      amstrad_cpc.memory.upper_rom[ix] = NULL;
-    }
-  }
-  cpu_z80_exit(&cpu_z80);
-  crtc_6845_exit(&crtc_6845);
-  ay_3_8910_exit(&ay_3_8910);
-  ppi_8255_exit(&ppi_8255);
-  fdc_765_exit(&fdc_765);
 }
 
 static void amstrad_cpc_synchronize(int signum)
@@ -1682,29 +1285,6 @@ int amstrad_cpc_parse(int argc, char *argv[])
     }
   }
   return(EXIT_SUCCESS);
-}
-
-void amstrad_cpc_clock(void)
-{
-  struct itimerval new;
-  struct itimerval old;
-
-  switch(cfg.refresh) {
-    default:
-    case AMSTRAD_CPC_50HZ:
-      new.it_interval.tv_sec  = new.it_value.tv_sec  = 0;
-      new.it_interval.tv_usec = new.it_value.tv_usec = 1000000 / 50;
-      (void) signal(SIGALRM, amstrad_cpc_synchronize);
-      break;
-    case AMSTRAD_CPC_60HZ:
-      new.it_interval.tv_sec  = new.it_value.tv_sec  = 0;
-      new.it_interval.tv_usec = new.it_value.tv_usec = 1000000 / 60;
-      (void) signal(SIGALRM, amstrad_cpc_synchronize);
-      break;
-  }
-  setitimer(ITIMER_REAL, &new, &old);
-  cpu_z80_clock(&cpu_z80);
-  setitimer(ITIMER_REAL, &old, &new);
 }
 
 void amstrad_cpc_load_snapshot(char *filename)
@@ -2057,9 +1637,7 @@ word cpu_z80_timer(CPU_Z80 *cpu_z80)
         amstrad_cpc_redraw();
         pause(); /* 50Hz real-time synchronization */
       }
-      if(XtAppGetExitFlag(appcontext) != FALSE) {
-        return(INT_QUIT);
-      }
+      cpu_z80->IFF |= IFF_STOP;
     }
     else {
       ppi_8255.port_b &= 0xFE; /* reset VSYNC */
@@ -2069,3 +1647,322 @@ word cpu_z80_timer(CPU_Z80 *cpu_z80)
   return(INT_NONE); /* DO NOTHING */
 }
 
+void amstrad_cpc_start_handler(Widget widget, XtPointer data)
+{
+  int ix;
+  FILE *file;
+  int cx, cy;
+  int clock, interrupt;
+  Arg arglist[8];
+  Cardinal argcount;
+
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNwidth,  cfg.width ); argcount++;
+  XtSetArg(arglist[argcount], XtNheight, cfg.height); argcount++;
+  XtSetValues(widget, arglist, argcount);
+  fprintf(stderr, "amstrad_cpc: version ................. %s\n", tbl_version[cfg.version]);
+  fprintf(stderr, "amstrad_cpc: monitor ................. %s\n", tbl_monitor[cfg.monitor]);
+  fprintf(stderr, "amstrad_cpc: clock ................... %s\n", tbl_clock[cfg.clock]);
+  fprintf(stderr, "amstrad_cpc: cassette ................ %s\n", tbl_cassette[cfg.cassette]);
+  fprintf(stderr, "amstrad_cpc: printer ................. %s\n", tbl_printer[cfg.printer]);
+  fprintf(stderr, "amstrad_cpc: expansion ............... %s\n", tbl_expansion[cfg.expansion]);
+  fprintf(stderr, "amstrad_cpc: refresh ................. %s\n", tbl_refresh[cfg.refresh]);
+  fprintf(stderr, "amstrad_cpc: manufacturer ............ %s\n", tbl_manufacturer[cfg.manufacturer]);
+  fprintf(stderr, "amstrad_cpc: vsync ................... %s\n", tbl_vsync[cfg.vsync]);
+
+  _screen = XtScreen(widget);
+  _window = XtWindow(widget);
+  if((_ximage = XCreateImage(DisplayOfScreen(_screen), DefaultVisualOfScreen(_screen), DefaultDepthOfScreen(_screen), ZPixmap, 0, NULL, cfg.width, cfg.height, 8, 0)) == NULL) {
+    perror("xmcpc");
+    exit(-1);
+  }
+  _ximage->data = (char *) XtMalloc(_ximage->bytes_per_line * _ximage->height);
+  for(cy = 0; cy < _ximage->height; cy++) {
+    for(cx = 0; cx < _ximage->width; cx++) {
+      XPutPixel(_ximage, cx, cy, BlackPixelOfScreen(_screen));
+    }
+  }
+  switch(_ximage->depth) {
+    case 8:
+      fprintf(stderr, "amstrad_cpc: screen driver ........... optimized 8 bpp\n");
+      amstrad_cpc_redraw = amstrad_cpc_redraw_8;
+      break;
+    case 15:
+    case 16:
+      fprintf(stderr, "amstrad_cpc: screen driver ........... optimized 16 bpp\n");
+      amstrad_cpc_redraw = amstrad_cpc_redraw_16;
+      break;
+    case 24:
+    case 32:
+      fprintf(stderr, "amstrad_cpc: screen driver ........... optimized 32 bpp\n");
+      amstrad_cpc_redraw = amstrad_cpc_redraw_32;
+      break;
+    default:
+      fprintf(stderr, "amstrad_cpc: screen driver ........... generic (%d bpp)\n", _ximage->depth);
+      amstrad_cpc_redraw = amstrad_cpc_redraw_0;
+      break;
+  }
+  amstrad_cpc_init_palette();
+  fprintf(stderr, "amstrad_cpc: on-board ram ............ %d Kb\n", cfg.ramsize);
+  if((amstrad_cpc.memory.ram = (byte *) malloc(cfg.ramsize * 1024)) == NULL) {
+    perror("amstrad_cpc"); exit(-1);
+  }
+  if((file = fopen(cfg.rom[0], "r")) == NULL) {
+    perror("amstrad_cpc"); exit(-1);
+  }
+  fprintf(stderr, "amstrad_cpc: system lower rom ........ %s\n", cfg.rom[0]);
+  if((amstrad_cpc.memory.lower_rom = (byte *) malloc(16384)) == NULL) {
+    perror("amstrad_cpc"); exit(-1);
+  }
+  fread(amstrad_cpc.memory.lower_rom, 1, 16384, file);
+  fprintf(stderr, "amstrad_cpc: system upper rom ........ %s\n", cfg.rom[0]);
+  if((amstrad_cpc.memory.upper_rom[0] = (byte *) malloc(16384)) == NULL) {
+    perror("amstrad_cpc"); exit(-1);
+  }
+  fread(amstrad_cpc.memory.upper_rom[0], 1, 16384, file);
+  fclose(file);
+  for(ix = 1; ix < 8; ix++) {
+    amstrad_cpc.memory.upper_rom[ix] = NULL;
+    fprintf(stderr, "amstrad_cpc: expansion rom #%d ........ %s\n", ix, (cfg.rom[ix] == NULL ? "(not present)" : cfg.rom[ix]));
+    if(cfg.rom[ix] != NULL) {
+      if((file = fopen(cfg.rom[ix], "r")) == NULL) {
+        perror("amstrad_cpc"); continue;
+      }
+      if((amstrad_cpc.memory.upper_rom[ix] = (byte *) malloc(16384)) == NULL) {
+        perror("amstrad_cpc"); exit(-1);
+      }
+      fread(amstrad_cpc.memory.upper_rom[ix], 1, 16384, file);
+      fclose(file);
+    }
+  }
+  switch(cfg.clock) {
+    case AMSTRAD_CPC_1_6MHZ:
+      clock = 1650000;
+      break;
+    case AMSTRAD_CPC_2MHZ:
+      clock = 2000000;
+      break;
+    case AMSTRAD_CPC_3_3MHZ:
+      clock = 3300000;
+      break;
+    case AMSTRAD_CPC_4MHZ:
+      clock = 4000000;
+      break;
+    case AMSTRAD_CPC_6_6MHZ:
+      clock = 6600000;
+      break;
+    case AMSTRAD_CPC_8MHZ:
+      clock = 8000000;
+      break;
+    case AMSTRAD_CPC_9_9MHZ:
+      clock = 9900000;
+      break;
+    case AMSTRAD_CPC_16MHZ:
+      clock = 16000000;
+      break;
+  }
+  switch(cfg.refresh) {
+    case AMSTRAD_CPC_50HZ:
+      interrupt = 64;
+      break;
+    case AMSTRAD_CPC_60HZ:
+      interrupt = 53;
+      break;
+  }
+  cpu_z80.IPeriod = (clock * interrupt) / 1000000;
+  cpu_z80_init(&cpu_z80);
+  crtc_6845_init(&crtc_6845);
+  ay_3_8910_init(&ay_3_8910);
+  ppi_8255_init(&ppi_8255);
+  fdc_765_init(&fdc_765);
+  amstrad_cpc_reset();
+  switch(cfg.refresh) {
+    default:
+    case AMSTRAD_CPC_50HZ:
+      new_timer.it_interval.tv_sec  = new_timer.it_value.tv_sec  = 0;
+      new_timer.it_interval.tv_usec = new_timer.it_value.tv_usec = 1000000 / 50;
+      (void) signal(SIGALRM, amstrad_cpc_synchronize);
+      break;
+    case AMSTRAD_CPC_60HZ:
+      new_timer.it_interval.tv_sec  = new_timer.it_value.tv_sec  = 0;
+      new_timer.it_interval.tv_usec = new_timer.it_value.tv_usec = 1000000 / 60;
+      (void) signal(SIGALRM, amstrad_cpc_synchronize);
+      break;
+  }
+  setitimer(ITIMER_REAL, &new_timer, &old_timer);
+}
+
+void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
+{
+  cpu_z80_clock(&cpu_z80);
+}
+
+void amstrad_cpc_close_handler(Widget widget, XtPointer data)
+{
+  int ix;
+
+  setitimer(ITIMER_REAL, &old_timer, &new_timer);
+  if(_ximage != NULL) {
+    if(_ximage->data != NULL) {
+      XtFree((char *) _ximage->data);
+      _ximage->data = NULL;
+    }
+    XDestroyImage(_ximage);
+    _ximage = NULL;
+  }
+  _window = None;
+  _screen = NULL;
+  amstrad_cpc_redraw = amstrad_cpc_redraw_0;
+  free(amstrad_cpc.memory.lower_rom);
+  amstrad_cpc.memory.lower_rom = NULL;
+  free(amstrad_cpc.memory.ram);
+  amstrad_cpc.memory.ram = NULL;
+  for(ix = 0; ix < 8; ix++) {
+    if(amstrad_cpc.memory.upper_rom[ix] != NULL) {
+      free(amstrad_cpc.memory.upper_rom[ix]);
+      amstrad_cpc.memory.upper_rom[ix] = NULL;
+    }
+  }
+  cpu_z80_exit(&cpu_z80);
+  crtc_6845_exit(&crtc_6845);
+  ay_3_8910_exit(&ay_3_8910);
+  ppi_8255_exit(&ppi_8255);
+  fdc_765_exit(&fdc_765);
+}
+
+void amstrad_cpc_keybd_handler(Widget widget, XEvent *xevent)
+{
+  char buffer[8], ascii;
+  KeySym keysym;
+  byte row, value, shift;
+
+  XLookupString((XKeyEvent *) xevent, buffer, 8, &keysym, NULL);
+  ascii = buffer[0];
+  if(IsCursorKey(keysym)) {
+    switch(keysym) {
+      case XK_Up:
+        row = 0x00; value = 0x01; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_Down:
+        row = 0x00; value = 0x04; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_Left:
+        row = 0x01; value = 0x01; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_Right:
+        row = 0x00; value = 0x02; shift = xevent->xkey.state & ShiftMask;
+        break;
+      default:
+        return;
+        break;
+    }
+  }
+  else if(IsKeypadKey(keysym)) {
+    switch(keysym) {
+      case XK_KP_Enter:
+        row = 0x00; value = 0x40; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_Decimal:
+        row = 0x00; value = 0x80; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_0:
+        row = 0x01; value = 0x80; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_1:
+        row = 0x01; value = 0x20; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_2:
+        row = 0x01; value = 0x40; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_3:
+        row = 0x00; value = 0x20; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_4:
+        row = 0x02; value = 0x10; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_5:
+        row = 0x01; value = 0x10; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_6:
+        row = 0x00; value = 0x10; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_7:
+        row = 0x01; value = 0x04; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_8:
+        row = 0x01; value = 0x08; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_9:
+        row = 0x00; value = 0x08; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_Up:
+        row = 0x00; value = 0x01; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_Down:
+        row = 0x00; value = 0x04; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_Left:
+        row = 0x01; value = 0x01; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_KP_Right:
+        row = 0x00; value = 0x02; shift = xevent->xkey.state & ShiftMask;
+        break;
+      default:
+        return;
+        break;
+    }
+  }
+  else if(IsModifierKey(keysym)) {
+    switch(keysym) {
+      case XK_Shift_L:
+        row = 0x02; value = 0x20; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_Control_L:
+        row = 0x02; value = 0x80; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_Caps_Lock:
+        row = 0x08; value = 0x40; shift = xevent->xkey.state & ShiftMask;
+        break;
+      case XK_Alt_L:
+        row = 0x01; value = 0x02; shift = xevent->xkey.state & ShiftMask;
+        break;
+      default:
+        return;
+        break;
+    }
+  }
+  else {
+    if(!_key[ascii][0]) {
+      return;
+    }
+    row = _key[ascii][1];
+    value = _key[ascii][2];
+    shift = _key[ascii][3];
+  }
+  if(xevent->type == KeyPress) {
+    amstrad_cpc.keyboard.line[row] &= ~value;
+    if(shift) {
+      amstrad_cpc.keyboard.line[0x02] &= ~0x20;
+    }
+  }
+  else {
+    amstrad_cpc.keyboard.line[row] |= value;
+    amstrad_cpc.keyboard.line[0x02] |= 0x20;
+  }
+}
+
+void amstrad_cpc_mouse_handler(Widget widget, XEvent *xevent)
+{
+}
+
+void amstrad_cpc_paint_handler(Widget widget, XEvent *xevent)
+{
+  _screen = XtScreen(widget);
+  _window = XtWindow(widget);
+  (void) XPutImage(xevent->xexpose.display,
+                   xevent->xexpose.window,
+                   DefaultGCOfScreen(_screen), _ximage,
+                   xevent->xexpose.x,     xevent->xexpose.y,
+                   xevent->xexpose.x,     xevent->xexpose.y,
+                   xevent->xexpose.width, xevent->xexpose.height);
+}

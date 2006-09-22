@@ -37,7 +37,13 @@ typedef struct _XAreaClassRec {
 externalref XAreaClassRec xAreaClassRec;
 
 typedef struct _XAreaPart {
-  XtCallbackList expose_callback;
+  void (*start_handler)(Widget widget, XtPointer data);
+  void (*clock_handler)(Widget widget, XtPointer data);
+  void (*close_handler)(Widget widget, XtPointer data);
+  void (*keybd_handler)(Widget widget, XEvent *xevent);
+  void (*mouse_handler)(Widget widget, XEvent *xevent);
+  void (*paint_handler)(Widget widget, XEvent *xevent);
+  XtWorkProcId work_proc_id;
 } XAreaPart;
 
 typedef struct _XAreaRec {

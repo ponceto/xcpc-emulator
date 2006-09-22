@@ -27,14 +27,41 @@
 
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args);
 static void Destroy(Widget widget);
-static void Resize(Widget widget);
 static void Redisplay(Widget widget, XEvent *event, Region region);
 static Boolean SetValues(Widget cur_w, Widget req_w, Widget new_w, ArgList args, Cardinal *num_args);
+static Boolean ClockHnd(Widget widget);
+static void MouseHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch);
+static void KeybdHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch);
 
 static XtResource resources[] = {
-  /* exposeCallback */ {
-    "exposeCallback", XtCCallback, XtRCallback,
-    sizeof(XtCallbackList), XtOffsetOf(XAreaRec, xarea.expose_callback),
+  /* XtNemuStartHandler */ {
+    XtNemuStartHandler, XtCFunction, XtRFunction,
+    sizeof(XtWidgetProc), XtOffsetOf(XAreaRec, xarea.start_handler),
+    XtRImmediate, (XtPointer) NULL
+  },
+  /* XtNemuClockHandler */ {
+    XtNemuClockHandler, XtCFunction, XtRFunction,
+    sizeof(XtWidgetProc), XtOffsetOf(XAreaRec, xarea.clock_handler),
+    XtRImmediate, (XtPointer) NULL
+  },
+  /* XtNemuCloseHandler */ {
+    XtNemuCloseHandler, XtCFunction, XtRFunction,
+    sizeof(XtWidgetProc), XtOffsetOf(XAreaRec, xarea.close_handler),
+    XtRImmediate, (XtPointer) NULL
+  },
+  /* XtNemuKeybdHandler */ {
+    XtNemuKeybdHandler, XtCFunction, XtRFunction,
+    sizeof(XtWidgetProc), XtOffsetOf(XAreaRec, xarea.keybd_handler),
+    XtRImmediate, (XtPointer) NULL
+  },
+  /* XtNemuMouseHandler */ {
+    XtNemuMouseHandler, XtCFunction, XtRFunction,
+    sizeof(XtWidgetProc), XtOffsetOf(XAreaRec, xarea.mouse_handler),
+    XtRImmediate, (XtPointer) NULL
+  },
+  /* XtNemuPaintHandler */ {
+    XtNemuPaintHandler, XtCFunction, XtRFunction,
+    sizeof(XtWidgetProc), XtOffsetOf(XAreaRec, xarea.paint_handler),
     XtRImmediate, (XtPointer) NULL
   },
 };
@@ -60,7 +87,7 @@ externaldef(xareaclassrec) XAreaClassRec xAreaClassRec = {
     TRUE,                                   /* compress_enterleave          */
     FALSE,                                  /* visible_interest             */
     Destroy,                                /* destroy                      */
-    Resize,                                 /* resize                       */
+    XtInheritResize,                        /* resize                       */
     Redisplay,                              /* expose                       */
     SetValues,                              /* set_values                   */
     NULL,                                   /* set_values_hook              */
@@ -82,53 +109,69 @@ externaldef(xareaclassrec) XAreaClassRec xAreaClassRec = {
 externaldef(xareawidgetclass) WidgetClass xAreaWidgetClass = (WidgetClass) &xAreaClassRec;
 
 /**
- * XArea::Initialize
+ * XAreaWidget::Initialize()
  *
- * @param request specifies the XArea widget
- * @param widget specifies the XArea widget
+ * @param request specifies the requested XAreaWidget instance
+ * @param widget specifies the XAreaWidget instance
  * @param args specifies the argument list
  * @param num_args specifies the argument count
  */
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args)
 {
+  XAreaWidget self = (XAreaWidget) widget;
+  Widget shell = XtParent(widget);
+
+  while((shell != NULL) && (XtIsShell(shell) == FALSE)) {
+    shell = XtParent(shell);
+  }
+  XtAddEventHandler(widget, (KeyPressMask    | KeyReleaseMask   ), FALSE, (XtEventHandler) KeybdHnd, (XtPointer) shell);
+  XtAddEventHandler(widget, (ButtonPressMask | ButtonReleaseMask), FALSE, (XtEventHandler) MouseHnd, (XtPointer) shell);
+  if(self->xarea.start_handler != NULL) {
+    (*self->xarea.start_handler)(widget, NULL);
+  }
+  self->xarea.work_proc_id = XtAppAddWorkProc(XtWidgetToApplicationContext(widget), (XtWorkProc) ClockHnd, (XtPointer) widget);
 }
 
 /**
- * XArea::Destroy
+ * XAreaWidget::Destroy()
  *
- * @param widget specifies the XArea widget
+ * @param widget specifies the XAreaWidget instance
  */
 static void Destroy(Widget widget)
 {
+  XAreaWidget self = (XAreaWidget) widget;
+
+  if(self->xarea.work_proc_id != 0) {
+    XtRemoveWorkProc(self->xarea.work_proc_id);
+    self->xarea.work_proc_id = (XtWorkProcId) 0;
+  }
+  if(self->xarea.close_handler != NULL) {
+    (*self->xarea.close_handler)(widget, NULL);
+  }
 }
 
 /**
- * XArea::Resize
+ * XAreaWidget::Redisplay()
  *
- * @param widget specifies the XArea widget
- */
-static void Resize(Widget widget)
-{
-}
-
-/**
- * XArea::Redisplay
- *
- * @param widget specifies the XArea widget
+ * @param widget specifies the XAreaWidget instance
  * @param xevent specifies the XEvent
  * @param region specifies the Region
  */
 static void Redisplay(Widget widget, XEvent *xevent, Region region)
 {
-  XtCallCallbackList(widget, ((XAreaWidget) widget)->xarea.expose_callback, xevent);
+  XAreaWidget self = (XAreaWidget) widget;
+
+  if(self->xarea.paint_handler != NULL) {
+    (*self->xarea.paint_handler)(widget, xevent);
+  }
 }
 
 /**
- * XArea::SetValues
+ * XAreaWidget::SetValues()
  *
- * @param cur_w specifies the XArea widget
- * @param req_w specifies the XArea widget
- * @param new_w specifies the XArea widget
+ * @param cur_w specifies the current XAreaWidget instance
+ * @param req_w specifies the requested XAreaWidget instance
+ * @param new_w specifies the new XAreaWidget instance
  */
 static Boolean SetValues(Widget ow, Widget rw, Widget nw, ArgList args, Cardinal *num_args)
 {
@@ -136,14 +179,71 @@ static Boolean SetValues(Widget ow, Widget rw, Widget nw, ArgList args, Cardinal
 }
 
 /**
- * XArea::Create
+ * XAreaWidget::ClockHnd()
+ *
+ * @param wpdata is not used
+ */
+static Boolean ClockHnd(Widget widget)
+{
+  XAreaWidget self = (XAreaWidget) widget;
+
+  if(self->xarea.clock_handler != NULL) {
+    (*self->xarea.clock_handler)(widget, NULL);
+  }
+  return(FALSE);
+}
+
+/**
+ * XAreaWidget::KeybdHnd()
+ *
+ * @param widget specifies the XAreaWidget instance
+ * @param shell specifies the TopLevelShell instance
+ * @param xevent specifies the XEvent
+ * @param dispatch specifies the 'continue to dispatch' flag
+ */
+static void KeybdHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch)
+{
+  XAreaWidget self = (XAreaWidget) widget;
+  KeySym keysym;
+  Modifiers modifiers;
+
+  if((xevent->type == KeyPress) || (xevent->type == KeyRelease)) {
+    XtTranslateKeycode(xevent->xany.display, xevent->xkey.keycode, xevent->xkey.state, &modifiers, &keysym);
+    if(self->xarea.keybd_handler != NULL) {
+      (*self->xarea.keybd_handler)(widget, xevent);
+    }
+  }
+}
+
+/**
+ * XAreaWidget::MouseHnd()
+ *
+ * @param widget specifies the XAreaWidget instance
+ * @param shell specifies the TopLevelShell instance
+ * @param xevent specifies the XEvent
+ * @param dispatch specifies the 'continue to dispatch' flag
+ */
+static void MouseHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch)
+{
+  XAreaWidget self = (XAreaWidget) widget;
+
+  if((xevent->type == ButtonPress) || (xevent->type == ButtonRelease)) {
+    XtSetKeyboardFocus(shell, widget);
+    if(self->xarea.mouse_handler != NULL) {
+      (*self->xarea.mouse_handler)(widget, xevent);
+    }
+  }
+}
+
+/**
+ * XAreaWidget::Create()
  *
  * @param parent specifies the parent widget
  * @param name specifies the name of the created widget
  * @param args specifies the argument list
  * @param num_args specifies the argument count
  *
- * @return the XArea widget
+ * @return the XAreaWidget instance
  */
 Widget XAreaCreate(Widget parent, String name, ArgList args, Cardinal num_args)
 {

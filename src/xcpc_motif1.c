@@ -131,19 +131,6 @@ static void DestroyCbk(Widget widget, Widget *widref, XtPointer cbdata)
 }
 
 /**
- * RunXcpc Work Procedure
- *
- * @param wpdata is not used
- */
-static Boolean RunXcpc(XtPointer wpdata)
-{
-  amstrad_cpc_init();
-  amstrad_cpc_clock();
-  amstrad_cpc_exit();
-  return(TRUE);
-}
-
-/**
  * main
  *
  * @param argc specifies the argument count
@@ -196,7 +183,6 @@ int main(int argc, char *argv[])
   /* XXX */ {
     void create_gui(Widget toplevel);
     (void) create_gui(toplevel);
-    (void) XtAppAddWorkProc(appcontext, (XtWorkProc) RunXcpc, (XtPointer) NULL);
   }
   XtRealizeWidget(toplevel);
   if(XtIsRealized(toplevel) != FALSE) {
@@ -222,7 +208,6 @@ int main(int argc, char *argv[])
  * XXX
  */
 XtAppContext appcontext = NULL;
-Widget       xarea      = NULL;
 
 typedef struct {
   Widget shell;
@@ -378,7 +363,7 @@ void create_gui(Widget toplevel)
 {
 GUI *gui;
 Cardinal argcount;
-Arg arglist[2];
+Arg arglist[8];
 
   gui = (GUI *) XtMalloc(sizeof(GUI));
 
@@ -436,6 +421,14 @@ Arg arglist[2];
   gui->about = XmCreatePushButtonGadget(gui->help_pulldown, "about", NULL, 0);
   XtManageChild(gui->about);
   XtAddCallback(gui->about, XmNactivateCallback, (XtCallbackProc) xcpc_about_cbk, gui);
-  xarea = gui->screen = XAreaCreate(gui->main_window, "screen", NULL, 0);
+
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNemuStartHandler, amstrad_cpc_start_handler); argcount++;
+  XtSetArg(arglist[argcount], XtNemuClockHandler, amstrad_cpc_clock_handler); argcount++;
+  XtSetArg(arglist[argcount], XtNemuCloseHandler, amstrad_cpc_close_handler); argcount++;
+  XtSetArg(arglist[argcount], XtNemuKeybdHandler, amstrad_cpc_keybd_handler); argcount++;
+  XtSetArg(arglist[argcount], XtNemuMouseHandler, amstrad_cpc_mouse_handler); argcount++;
+  XtSetArg(arglist[argcount], XtNemuPaintHandler, amstrad_cpc_paint_handler); argcount++;
+  gui->screen = XAreaCreate(gui->main_window, "screen", arglist, argcount);
   XtManageChild(gui->screen);
 }

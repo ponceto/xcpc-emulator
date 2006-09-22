@@ -24,6 +24,25 @@
 extern "C" {
 #endif
 
+#ifndef XtNemuStartHandler
+#define XtNemuStartHandler "emuStartHandler"
+#endif
+#ifndef XtNemuClockHandler
+#define XtNemuClockHandler "emuClockHandler"
+#endif
+#ifndef XtNemuCloseHandler
+#define XtNemuCloseHandler "emuCloseHandler"
+#endif
+#ifndef XtNemuKeybdHandler
+#define XtNemuKeybdHandler "emuKeybdHandler"
+#endif
+#ifndef XtNemuMouseHandler
+#define XtNemuMouseHandler "emuMouseHandler"
+#endif
+#ifndef XtNemuPaintHandler
+#define XtNemuPaintHandler "emuPaintHandler"
+#endif
+
 externalref WidgetClass xAreaWidgetClass;
 
 typedef struct _XAreaClassRec *XAreaWidgetClass;

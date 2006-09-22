@@ -46,7 +46,9 @@ void cpu_z80_clock(CPU_Z80 *self)
   byte I;
   pair J;
 
+  self->IFF &= ~IFF_STOP;
 decode_op:
+  self->IFF &= ~IFF_EI;
   self->IR.B.l = (self->IR.B.l & 0x80) | ((self->IR.B.l + 1) & 0x7f);
   I = cpu_z80_mm_rd(self, self->PC.W++);
   self->TStates -= Cycles[I];
@@ -150,16 +152,14 @@ decode_ko:
 decode_ok:
   if(self->TStates <= 0) {
     J.W = cpu_z80_timer(self);
-    if(J.W == INT_QUIT) {
-      return;
-    }
-    else if((J.W != INT_NONE) && (self->IFF & IFF_EI) == 0) {
+    if((J.W != INT_NONE) && (self->IFF & IFF_EI) == 0) {
       IntZ80(self, J.W);
     }
     self->TStates += self->IPeriod;
   }
-  self->IFF &= ~IFF_EI;
-  goto decode_op;
+  if((self->IFF & IFF_STOP) == 0) {
+    goto decode_op;
+  }
 }
 
 /**

@@ -113,13 +113,17 @@ typedef struct {
 
 extern AMSTRAD_CPC amstrad_cpc;
 
-extern void amstrad_cpc_init(void);
-extern void amstrad_cpc_clock(void);
 extern void amstrad_cpc_reset(void);
-extern void amstrad_cpc_exit(void);
 extern int  amstrad_cpc_parse(int argc, char *argv[]);
 extern void amstrad_cpc_load_snapshot(char *filename);
 extern void amstrad_cpc_save_snapshot(char *filename);
+
+extern void amstrad_cpc_start_handler(Widget widget, XtPointer data);
+extern void amstrad_cpc_clock_handler(Widget widget, XtPointer data);
+extern void amstrad_cpc_close_handler(Widget widget, XtPointer data);
+extern void amstrad_cpc_keybd_handler(Widget widget, XEvent *xevent);
+extern void amstrad_cpc_mouse_handler(Widget widget, XEvent *xevent);
+extern void amstrad_cpc_paint_handler(Widget widget, XEvent *xevent);
 
 #ifdef __cplusplus
 }
