@@ -22,10 +22,20 @@
 extern "C" {
 #endif
 
+typedef struct _XcpcResourcesRec {
+  Boolean about_flag;
+  Boolean usage_flag;
+  Boolean edres_flag;
+} XcpcResourcesRec, *XcpcResources;
+
+extern int main(int argc, char *argv[]);
+
+#ifndef _XMU_H_
+extern void _XEditResCheckMessages(Widget widget, XtPointer closure, XEvent *event, Boolean *continue_to_dispatch);
+#endif
+
 extern XtAppContext appcontext;
 extern Widget xarea;
-
-extern int main(int, char **);
 
 #ifdef __cplusplus
 }

@@ -114,9 +114,10 @@ typedef struct {
 extern AMSTRAD_CPC amstrad_cpc;
 
 extern void amstrad_cpc_init(void);
+extern void amstrad_cpc_clock(void);
 extern void amstrad_cpc_reset(void);
 extern void amstrad_cpc_exit(void);
-extern int  amstrad_cpc_main(int argc, char **argv);
+extern int  amstrad_cpc_parse(int argc, char *argv[]);
 extern void amstrad_cpc_load_snapshot(char *filename);
 extern void amstrad_cpc_save_snapshot(char *filename);
 

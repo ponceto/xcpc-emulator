@@ -1538,19 +1538,14 @@ static void amstrad_cpc_synchronize(int signum)
   }
 }
 
-int amstrad_cpc_main(int argc, char **argv)
+int amstrad_cpc_parse(int argc, char *argv[])
 {
-char *progname = *argv;
-struct itimerval new;
-struct itimerval old;
-int refresh;
-
   while(--argc) {
     argv++;
     if(!strcmp("-cpc464", *argv)) {
       cfg.version = AMSTRAD_CPC_464;
       cfg.monitor = AMSTRAD_CPC_CTM644;
-      cfg.clock = AMSTRAD_CPC_3_3MHZ;
+      cfg.clock = AMSTRAD_CPC_4MHZ;
       cfg.expansion = AMSTRAD_CPC_NOT_PRESENT;
       cfg.refresh = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
@@ -1583,7 +1578,7 @@ int refresh;
     else if(!strcmp("-cpc464+", *argv)) {
       cfg.version = AMSTRAD_CPC_464_PLUS;
       cfg.monitor = AMSTRAD_CPC_CTM644;
-      cfg.clock = AMSTRAD_CPC_3_3MHZ;
+      cfg.clock = AMSTRAD_CPC_4MHZ;
       cfg.expansion = AMSTRAD_CPC_NOT_PRESENT;
       cfg.refresh = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
@@ -1683,35 +1678,33 @@ int refresh;
       cfg.height = 624;
     }
     else {
-      fprintf(stderr, "usage: %s [-h]\n", progname);
-      fprintf(stderr, "             [-cpc464] [-cpc664] [-cpc6128]\n");
-      fprintf(stderr, "             [-CTM65] [-CTM644]\n");
-      fprintf(stderr, "             [-1.6MHz] [-2MHz] [-3.3MHz] [-4MHz]\n");
-      fprintf(stderr, "             [-6.6MHz] [-8MHz] [-9.9MHz] [-16MHz]\n");
-      fprintf(stderr, "             [-50Hz] [-60Hz]\n");
-      fprintf(stderr, "             [-isp] [-triumph] [-saisho] [-solavox]\n");
-      fprintf(stderr, "             [-awa] [-schneider] [-orion] [-amstrad]\n");
-      fprintf(stderr, "             [-tiny] [-small] [-medium] [-big] [-huge]\n");
-      return(-1);
+      return(EXIT_FAILURE);
     }
   }
-  amstrad_cpc_init();
+  return(EXIT_SUCCESS);
+}
+
+void amstrad_cpc_clock(void)
+{
+  struct itimerval new;
+  struct itimerval old;
+
   switch(cfg.refresh) {
+    default:
     case AMSTRAD_CPC_50HZ:
-      refresh = 50;
+      new.it_interval.tv_sec  = new.it_value.tv_sec  = 0;
+      new.it_interval.tv_usec = new.it_value.tv_usec = 1000000 / 50;
+      (void) signal(SIGALRM, amstrad_cpc_synchronize);
       break;
     case AMSTRAD_CPC_60HZ:
-      refresh = 60;
+      new.it_interval.tv_sec  = new.it_value.tv_sec  = 0;
+      new.it_interval.tv_usec = new.it_value.tv_usec = 1000000 / 60;
+      (void) signal(SIGALRM, amstrad_cpc_synchronize);
       break;
   }
-  new.it_interval.tv_sec = new.it_value.tv_sec = 0;
-  new.it_interval.tv_usec = new.it_value.tv_usec = 1000000 / refresh;
-  signal(SIGALRM, amstrad_cpc_synchronize);
   setitimer(ITIMER_REAL, &new, &old);
   cpu_z80_clock(&cpu_z80);
   setitimer(ITIMER_REAL, &old, &new);
-  amstrad_cpc_exit();
-  return(0);
 }
 
 void amstrad_cpc_load_snapshot(char *filename)
@@ -2050,7 +2043,7 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte value)
 
 word cpu_z80_timer(CPU_Z80 *cpu_z80)
 {
-XtInputMask mask;
+  XtInputMask mask;
 
   if(amstrad_cpc.gate_array.counter++ >= 51) { /* 300Hz irq */
     amstrad_cpc.gate_array.counter = 0;
@@ -2063,6 +2056,9 @@ XtInputMask mask;
       if(amstrad_cpc.ticks-- <= 0) {
         amstrad_cpc_redraw();
         pause(); /* 50Hz real-time synchronization */
+      }
+      if(XtAppGetExitFlag(appcontext) != FALSE) {
+        return(INT_QUIT);
       }
     }
     else {
