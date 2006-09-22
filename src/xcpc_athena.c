@@ -293,7 +293,7 @@ int status;
   gui->help_menu = XtCreatePopupShell("menu", simpleMenuWidgetClass, gui->help, NULL, 0);
   gui->about = XtCreateManagedWidget("about", smeBSBObjectClass, gui->help_menu, NULL, 0);
   XtAddCallback(gui->about, XtNcallback, (XtCallbackProc) xawcpc_about_cbk, gui);
-  xarea = gui->screen = XtCreateManagedWidget("screen", xareaWidgetClass, gui->main_window, NULL, 0);
+  xarea = gui->screen = XtCreateManagedWidget("screen", xAreaWidgetClass, gui->main_window, NULL, 0);
   XtOverrideTranslations(gui->shell, XtParseTranslationTable("<Message>WM_PROTOCOLS: xawcpc_quit()"));
   XtRealizeWidget(gui->shell);
   XSetWMProtocols(XtDisplay(gui->shell), XtWindow(gui->shell), &XA_WM_DELETE_WINDOW, 1);

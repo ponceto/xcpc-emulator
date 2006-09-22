@@ -1,5 +1,5 @@
 /*
- * XAreaP.h - Copyright (c) 2001, 2006 Olivier Poncet
+ * XAreaP.h - Copyright (c) 2006 Olivier Poncet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,40 +15,33 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef __XAREAP_H__
-#define __XAREAP_H__
+#ifndef _XAreaP_h
+#define _XAreaP_h
+
+#include <X11/CoreP.h>
+#include "XArea.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "XArea.h"
-#include <X11/CoreP.h>
-
-typedef struct {
-  int empty;
+typedef struct _XAreaClassPart {
+  XtPointer extension;
 } XAreaClassPart;
 
 typedef struct _XAreaClassRec {
-  CoreClassPart core_class;
+  CoreClassPart  core_class;
   XAreaClassPart xarea_class;
 } XAreaClassRec;
 
-extern XAreaClassRec xareaClassRec;
+externalref XAreaClassRec xAreaClassRec;
 
-typedef struct {
-  XtCallbackList KeyPressCbk;
-  XtCallbackList KeyReleaseCbk;
-  XtCallbackList ButtonPressCbk;
-  XtCallbackList ButtonReleaseCbk;
-  XtCallbackList MotionNotifyCbk;
-  XtCallbackList EnterNotifyCbk;
-  XtCallbackList LeaveNotifyCbk;
-  XtCallbackList ExposeCbk;
+typedef struct _XAreaPart {
+  XtCallbackList expose_callback;
 } XAreaPart;
 
 typedef struct _XAreaRec {
-  CorePart core;
+  CorePart  core;
   XAreaPart xarea;
 } XAreaRec;
 

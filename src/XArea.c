@@ -1,5 +1,5 @@
 /*
- * XArea.c - Copyright (c) 2001, 2006 Olivier Poncet
+ * XArea.c - Copyright (c) 2006 Olivier Poncet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,105 +25,126 @@
 #include <X11/StringDefs.h>
 #include "XAreaP.h"
 
+static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args);
+static void Destroy(Widget widget);
+static void Resize(Widget widget);
+static void Redisplay(Widget widget, XEvent *event, Region region);
+static Boolean SetValues(Widget cur_w, Widget req_w, Widget new_w, ArgList args, Cardinal *num_args);
+
 static XtResource resources[] = {
-  { XtNkeyPressCallback,      XtCCallback, XtRCallback, sizeof(XtPointer), XtOffsetOf(XAreaRec, xarea.KeyPressCbk),      XtRCallback, NULL },
-  { XtNkeyReleaseCallback,    XtCCallback, XtRCallback, sizeof(XtPointer), XtOffsetOf(XAreaRec, xarea.KeyReleaseCbk),    XtRCallback, NULL },
-  { XtNbuttonPressCallback,   XtCCallback, XtRCallback, sizeof(XtPointer), XtOffsetOf(XAreaRec, xarea.ButtonPressCbk),   XtRCallback, NULL },
-  { XtNbuttonReleaseCallback, XtCCallback, XtRCallback, sizeof(XtPointer), XtOffsetOf(XAreaRec, xarea.ButtonReleaseCbk), XtRCallback, NULL },
-  { XtNmotionNotifyCallback,  XtCCallback, XtRCallback, sizeof(XtPointer), XtOffsetOf(XAreaRec, xarea.MotionNotifyCbk),  XtRCallback, NULL },
-  { XtNenterNotifyCallback,   XtCCallback, XtRCallback, sizeof(XtPointer), XtOffsetOf(XAreaRec, xarea.EnterNotifyCbk),   XtRCallback, NULL },
-  { XtNleaveNotifyCallback,   XtCCallback, XtRCallback, sizeof(XtPointer), XtOffsetOf(XAreaRec, xarea.LeaveNotifyCbk),   XtRCallback, NULL },
-  { XtNexposeCallback,        XtCCallback, XtRCallback, sizeof(XtPointer), XtOffsetOf(XAreaRec, xarea.ExposeCbk),        XtRCallback, NULL },
+  /* exposeCallback */ {
+    "exposeCallback", XtCCallback, XtRCallback,
+    sizeof(XtCallbackList), XtOffsetOf(XAreaRec, xarea.expose_callback),
+    XtRImmediate, (XtPointer) NULL
+  },
 };
 
-static void XAreaXEvent(Widget widget, XEvent *event, String *params, Cardinal *num_params)
-{
-  switch(event->type) {
-    case KeyPress:
-      XtCallCallbackList(widget, ((XAreaRec *) widget)->xarea.KeyPressCbk, (XtPointer) event);
-      break;
-    case KeyRelease:
-      XtCallCallbackList(widget, ((XAreaRec *) widget)->xarea.KeyReleaseCbk, (XtPointer) event);
-      break;
-    case ButtonPress:
-      XtCallCallbackList(widget, ((XAreaRec *) widget)->xarea.ButtonPressCbk, (XtPointer) event);
-      break;
-    case ButtonRelease:
-      XtCallCallbackList(widget, ((XAreaRec *) widget)->xarea.ButtonReleaseCbk, (XtPointer) event);
-      break;
-    case MotionNotify:
-      XtCallCallbackList(widget, ((XAreaRec *) widget)->xarea.MotionNotifyCbk, (XtPointer) event);
-      break;
-    case EnterNotify:
-      XtCallCallbackList(widget, ((XAreaRec *) widget)->xarea.EnterNotifyCbk, (XtPointer) event);
-      break;
-    case LeaveNotify:
-      XtCallCallbackList(widget, ((XAreaRec *) widget)->xarea.LeaveNotifyCbk, (XtPointer) event);
-      break;
-    case Expose:
-      XtCallCallbackList(widget, ((XAreaRec *) widget)->xarea.ExposeCbk, (XtPointer) event);
-      break;
+externaldef(xareaclassrec) XAreaClassRec xAreaClassRec = {
+  /* CoreClassPart */ {
+    (WidgetClass) &coreClassRec,            /* superclass                   */
+    "XArea",                                /* class_name                   */
+    sizeof(XAreaRec),                       /* widget_size                  */
+    NULL,                                   /* class_initialize             */
+    NULL,                                   /* class_part_initialize        */
+    FALSE,                                  /* class_inited                 */
+    Initialize,                             /* initialize                   */
+    NULL,                                   /* initialize_hook              */
+    XtInheritRealize,                       /* realize                      */
+    NULL,                                   /* actions                      */
+    0,                                      /* num_actions                  */
+    resources,                              /* resources                    */
+    XtNumber(resources),                    /* num_resources                */
+    NULLQUARK,                              /* xrm_class                    */
+    TRUE,                                   /* compress_motion              */
+    TRUE,                                   /* compress_exposure            */
+    TRUE,                                   /* compress_enterleave          */
+    FALSE,                                  /* visible_interest             */
+    Destroy,                                /* destroy                      */
+    Resize,                                 /* resize                       */
+    Redisplay,                              /* expose                       */
+    SetValues,                              /* set_values                   */
+    NULL,                                   /* set_values_hook              */
+    XtInheritSetValuesAlmost,               /* set_values_almost            */
+    NULL,                                   /* get_values_hook              */
+    XtInheritAcceptFocus,                   /* accept_focus                 */
+    XtVersion,                              /* version                      */
+    NULL,                                   /* callback_private             */
+    XtInheritTranslations,                  /* tm_table                     */
+    XtInheritQueryGeometry,                 /* query_geometry               */
+    XtInheritDisplayAccelerator,            /* display_accelerator          */
+    NULL                                    /* extension                    */
+  },
+  /* XAreaClassPart */ {
+    NULL                                    /* extension                    */
   }
+};
+
+externaldef(xareawidgetclass) WidgetClass xAreaWidgetClass = (WidgetClass) &xAreaClassRec;
+
+/**
+ * XArea::Initialize
+ *
+ * @param request specifies the XArea widget
+ * @param widget specifies the XArea widget
+ * @param args specifies the argument list
+ * @param num_args specifies the argument count
+ */
+static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args)
+{
 }
 
-static XtActionsRec actions[] = {
-  { "xevent", XAreaXEvent },
-};
-
-static char translations[] = "\
-<KeyDown>:  xevent()\n\
-<KeyUp>:    xevent()\n\
-<BtnDown>:  xevent()\n\
-<BtnUp>:    xevent()\n\
-<Motion>:   xevent()\n\
-<Enter>:    xevent()\n\
-<Leave>:    xevent()\n\
-<Expose>:   xevent()\n\
-";
-
-XAreaClassRec xareaClassRec = {
-  {                                /* core fields              */
-    (WidgetClass) &widgetClassRec, /* superclass               */
-    "XArea",                       /* class_name               */
-    sizeof(XAreaRec),              /* widget_size              */
-    NULL,                          /* class_initialize         */
-    NULL,                          /* class_part_initialize    */
-    FALSE,                         /* class_inited             */
-    NULL,                          /* initialize               */
-    NULL,                          /* initialize_hook          */
-    XtInheritRealize,              /* realize                  */
-    actions,                       /* actions                  */
-    XtNumber(actions),             /* num_actions              */
-    resources,                     /* resources                */
-    XtNumber(resources),           /* num_resources            */
-    NULLQUARK,                     /* xrm_class                */
-    TRUE,                          /* compress_motion          */
-    XtExposeCompressMaximal,       /* compress_exposure        */
-    TRUE,                          /* compress_enterleave      */
-    FALSE,                         /* visible_interest         */
-    NULL,                          /* destroy                  */
-    NULL,                          /* resize                   */
-    NULL,                          /* expose                   */
-    NULL,                          /* set_values               */
-    NULL,                          /* set_values_hook          */
-    XtInheritSetValuesAlmost,      /* set_values_almost        */
-    NULL,                          /* get_values_hook          */
-    NULL,                          /* accept_focus             */
-    XtVersion,                     /* version                  */
-    NULL,                          /* callback_private         */
-    translations,                  /* tm_table                 */
-    XtInheritQueryGeometry,        /* query_geometry           */
-    XtInheritDisplayAccelerator,   /* display_accelerator      */
-    NULL                           /* extension                */
-  },
-  {                                /* xarea fields             */
-    0                              /* empty                    */
-  }
-};
-
-WidgetClass xareaWidgetClass = (WidgetClass) &xareaClassRec;
-
-Widget XtCreateXArea(Widget p, String name, ArgList args, Cardinal n)
+/**
+ * XArea::Destroy
+ *
+ * @param widget specifies the XArea widget
+ */
+static void Destroy(Widget widget)
 {
-  return(XtCreateWidget(name, xareaWidgetClass, p, args, n));
+}
+
+/**
+ * XArea::Resize
+ *
+ * @param widget specifies the XArea widget
+ */
+static void Resize(Widget widget)
+{
+}
+
+/**
+ * XArea::Redisplay
+ *
+ * @param widget specifies the XArea widget
+ * @param xevent specifies the XEvent
+ * @param region specifies the Region
+ */
+static void Redisplay(Widget widget, XEvent *xevent, Region region)
+{
+}
+
+/**
+ * XArea::SetValues
+ *
+ * @param cur_w specifies the XArea widget
+ * @param req_w specifies the XArea widget
+ * @param new_w specifies the XArea widget
+ */
+static Boolean SetValues(Widget ow, Widget rw, Widget nw, ArgList args, Cardinal *num_args)
+{
+  return(FALSE);
+}
+
+/**
+ * XArea::Create
+ *
+ * @param parent specifies the parent widget
+ * @param name specifies the name of the created widget
+ * @param args specifies the argument list
+ * @param num_args specifies the argument count
+ *
+ * @return the XArea widget
+ */
+Widget XAreaCreate(Widget parent, String name, ArgList args, Cardinal num_args)
+{
+  return(XtCreateWidget(name, xAreaWidgetClass, parent, args, num_args));
 }

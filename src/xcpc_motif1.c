@@ -282,7 +282,7 @@ int status;
   gui->about = XmCreatePushButtonGadget(gui->help_pulldown, "about", NULL, 0);
   XtManageChild(gui->about);
   XtAddCallback(gui->about, XmNactivateCallback, (XtCallbackProc) xmcpc_about_cbk, gui);
-  xarea = gui->screen = XtCreateXArea(gui->main_window, "screen", NULL, 0);
+  xarea = gui->screen = XAreaCreate(gui->main_window, "screen", NULL, 0);
   XtManageChild(gui->screen);
   XtRealizeWidget(gui->shell);
 

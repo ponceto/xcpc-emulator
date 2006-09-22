@@ -1,5 +1,5 @@
 /*
- * XArea.h - Copyright (c) 2001, 2006 Olivier Poncet
+ * XArea.h - Copyright (c) 2006 Olivier Poncet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,53 +15,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef __XAREA_H__
-#define __XAREA_H__
+#ifndef _XArea_h
+#define _XArea_h
+
+#include <X11/Core.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Resources:
-
- Name                  Class              RepType         Default Value
- ----                  -----              -------         -------------
- background            Background         Pixel           XtDefaultBackground
- border                BorderColor        Pixel           XtDefaultForeground
- borderWidth           BorderWidth        Dimension       1
- buttonPressCallback   Callback           Callback        NULL
- buttonReleaseCallback Callback           Callback        NULL
- destroyCallback       Callback           Pointer         NULL
- enterNotifyCallback   Callback           Callback        NULL
- exposeCallback        Callback           Callback        NULL
- height                Height             Dimension       0
- keyPressCallback      Callback           Callback        NULL
- keyReleaseCallback    Callback           Callback        NULL
- leaveNotifyCallback   Callback           Callback        NULL
- mappedWhenManaged     MappedWhenManaged  Boolean         True
- motionNotifyCallback  Callback           Callback        NULL
- sensitive             Sensitive          Boolean         True
- width                 Width              Dimension       0
- x                     Position           Position        0
- y                     Position           Position        0
-
-*/
-
-#define XtNkeyPressCallback      "keyPressCallback"
-#define XtNkeyReleaseCallback    "keyReleaseCallback"
-#define XtNbuttonPressCallback   "buttonPressCallback"
-#define XtNbuttonReleaseCallback "buttonReleaseCallback"
-#define XtNmotionNotifyCallback  "motionNotifyCallback"
-#define XtNenterNotifyCallback   "enterNotifyCallback"
-#define XtNleaveNotifyCallback   "leaveNotifyCallback"
-#define XtNexposeCallback        "exposeCallback"
+externalref WidgetClass xAreaWidgetClass;
 
 typedef struct _XAreaClassRec *XAreaWidgetClass;
 typedef struct _XAreaRec *XAreaWidget;
 
-extern WidgetClass xareaWidgetClass;
+#ifndef XIsArea
+#define XIsArea(w) XtIsSubclass(w, xAreaWidgetClass)
+#endif
 
-extern Widget XtCreateXArea(Widget p, String name, ArgList args, Cardinal n);
+extern Widget XAreaCreate(Widget parent, String name, ArgList args, Cardinal num_args);
 
 #ifdef __cplusplus
 }

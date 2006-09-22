@@ -464,12 +464,15 @@ static byte _key[256][4] = {
   { 0x00, 0x00, 0x00, 0x00 },
 };
 
-static void amstrad_cpc_key_press_cbk(Widget widget, XtPointer data, XEvent *event)
+static void amstrad_cpc_key_press_cbk(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch)
 {
-char buffer[8], ascii;
-KeySym keysym;
-byte row, value, shift;
+  char buffer[8], ascii;
+  KeySym keysym;
+  byte row, value, shift;
 
+  if(dispatch != NULL) {
+    *dispatch = FALSE;
+  }
   XLookupString((XKeyEvent *) event, buffer, 8, &keysym, NULL);
   ascii = buffer[0];
   if(IsCursorKey(keysym)) {
@@ -579,12 +582,15 @@ byte row, value, shift;
   }
 }
 
-static void amstrad_cpc_key_release_cbk(Widget widget, XtPointer data, XEvent *event)
+static void amstrad_cpc_key_release_cbk(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch)
 {
-char buffer[8], ascii;
-KeySym keysym;
-byte row, value, shift;
+  char buffer[8], ascii;
+  KeySym keysym;
+  byte row, value, shift;
 
+  if(dispatch != NULL) {
+    *dispatch = FALSE;
+  }
   XLookupString((XKeyEvent *) event, buffer, 8, &keysym, NULL);
   ascii = buffer[0];
   if(IsCursorKey(keysym)) {
@@ -1384,9 +1390,9 @@ int clock, interrupt;
   }
   amstrad_cpc_init_palette();
   XtVaSetValues(xarea, XtNwidth, cfg.width, XtNheight, cfg.height, NULL);
-  XtAddCallback(xarea, XtNkeyPressCallback, (XtCallbackProc) amstrad_cpc_key_press_cbk, NULL);
-  XtAddCallback(xarea, XtNkeyReleaseCallback, (XtCallbackProc) amstrad_cpc_key_release_cbk, NULL);
-  XtAddCallback(xarea, XtNexposeCallback, (XtCallbackProc) amstrad_cpc_expose_cbk, NULL);
+  XtAddEventHandler(xarea, KeyPressMask,   FALSE, (XtEventHandler) amstrad_cpc_key_press_cbk,   (XtPointer) NULL);
+  XtAddEventHandler(xarea, KeyReleaseMask, FALSE, (XtEventHandler) amstrad_cpc_key_release_cbk, (XtPointer) NULL);
+  XtAddCallback(xarea, "exposeCallback", (XtCallbackProc) amstrad_cpc_expose_cbk, NULL);
 
   fprintf(stderr, "amstrad_cpc: on-board ram ............ %d Kb\n", cfg.ramsize);
   if((amstrad_cpc.memory.ram = (byte *) malloc(cfg.ramsize * 1024)) == NULL) {
@@ -1504,9 +1510,9 @@ int ix;
   _window = None;
   _gc = None;
   _ximage = NULL;
-  XtRemoveCallback(xarea, XtNkeyPressCallback, (XtCallbackProc) amstrad_cpc_key_press_cbk, NULL);
-  XtRemoveCallback(xarea, XtNkeyReleaseCallback, (XtCallbackProc) amstrad_cpc_key_release_cbk, NULL);
-  XtRemoveCallback(xarea, XtNexposeCallback, (XtCallbackProc) amstrad_cpc_expose_cbk, NULL);
+  XtRemoveEventHandler(xarea, KeyPressMask,   FALSE, (XtEventHandler) amstrad_cpc_key_press_cbk,   (XtPointer) NULL);
+  XtRemoveEventHandler(xarea, KeyReleaseMask, FALSE, (XtEventHandler) amstrad_cpc_key_release_cbk, (XtPointer) NULL);
+  XtRemoveCallback(xarea, "exposeCallback", (XtCallbackProc) amstrad_cpc_expose_cbk, NULL);
   amstrad_cpc_redraw = amstrad_cpc_redraw_0;
   free(amstrad_cpc.memory.lower_rom);
   amstrad_cpc.memory.lower_rom = NULL;
