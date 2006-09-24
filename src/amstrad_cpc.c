@@ -765,6 +765,7 @@ int col, row = 0;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+    XFlush(DisplayOfScreen(_screen));
   }
 }
 
@@ -877,6 +878,7 @@ unsigned char *nxt = (unsigned char *) _ximage->data;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+    XFlush(DisplayOfScreen(_screen));
   }
 }
 
@@ -989,6 +991,7 @@ unsigned short *nxt = (unsigned short *) _ximage->data;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+    XFlush(DisplayOfScreen(_screen));
   }
 }
 
@@ -1101,6 +1104,7 @@ unsigned int *nxt = (unsigned int *) _ximage->data;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
+    XFlush(DisplayOfScreen(_screen));
   }
 }
 
@@ -1136,7 +1140,7 @@ int ix;
 
 static void amstrad_cpc_synchronize(int signum)
 {
-  if(!paused) {
+  if(paused == 0) {
     amstrad_cpc.ticks++;
   }
 }
@@ -1629,9 +1633,6 @@ word cpu_z80_timer(CPU_Z80 *cpu_z80)
     amstrad_cpc.gate_array.counter = 0;
     if(amstrad_cpc.cycle++ >= 5) { /* 50Hz irq */
       amstrad_cpc.cycle = 0;
-      while(mask = (!paused ? XtAppPending(appcontext) : XtIMAll)) {
-        XtAppProcessEvent(appcontext, mask);
-      }
       ppi_8255.port_b |= 0x01; /* set VSYNC */
       if(amstrad_cpc.ticks-- <= 0) {
         amstrad_cpc_redraw();
@@ -1965,4 +1966,5 @@ void amstrad_cpc_paint_handler(Widget widget, XEvent *xevent)
                    xevent->xexpose.x,     xevent->xexpose.y,
                    xevent->xexpose.x,     xevent->xexpose.y,
                    xevent->xexpose.width, xevent->xexpose.height);
+  (void) XFlush(DisplayOfScreen(_screen));
 }

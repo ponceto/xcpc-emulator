@@ -43,7 +43,7 @@ typedef struct _XAreaPart {
   void (*keybd_handler)(Widget widget, XEvent *xevent);
   void (*mouse_handler)(Widget widget, XEvent *xevent);
   void (*paint_handler)(Widget widget, XEvent *xevent);
-  XtWorkProcId work_proc_id;
+  XtIntervalId interval_id;
 } XAreaPart;
 
 typedef struct _XAreaRec {

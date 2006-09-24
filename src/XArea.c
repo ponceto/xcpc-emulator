@@ -29,7 +29,7 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
 static void Destroy(Widget widget);
 static void Redisplay(Widget widget, XEvent *event, Region region);
 static Boolean SetValues(Widget cur_w, Widget req_w, Widget new_w, ArgList args, Cardinal *num_args);
-static Boolean ClockHnd(Widget widget);
+static void ClockHnd(Widget widget);
 static void MouseHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch);
 static void KeybdHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch);
 
@@ -129,7 +129,7 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
   if(self->xarea.start_handler != NULL) {
     (*self->xarea.start_handler)(widget, NULL);
   }
-  self->xarea.work_proc_id = XtAppAddWorkProc(XtWidgetToApplicationContext(widget), (XtWorkProc) ClockHnd, (XtPointer) widget);
+  self->xarea.interval_id = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), 10, (XtTimerCallbackProc) ClockHnd, (XtPointer) widget);
 }
 
 /**
@@ -141,9 +141,9 @@ static void Destroy(Widget widget)
 {
   XAreaWidget self = (XAreaWidget) widget;
 
-  if(self->xarea.work_proc_id != 0) {
-    XtRemoveWorkProc(self->xarea.work_proc_id);
-    self->xarea.work_proc_id = (XtWorkProcId) 0;
+  if(self->xarea.interval_id != (XtIntervalId) 0) {
+    XtRemoveTimeOut(self->xarea.interval_id);
+    self->xarea.interval_id = (XtIntervalId) 0;
   }
   if(self->xarea.close_handler != NULL) {
     (*self->xarea.close_handler)(widget, NULL);
@@ -181,16 +181,17 @@ static Boolean SetValues(Widget ow, Widget rw, Widget nw, ArgList args, Cardinal
 /**
  * XAreaWidget::ClockHnd()
  *
- * @param wpdata is not used
+ * @param widget specifies the XAreaWidget instance
  */
-static Boolean ClockHnd(Widget widget)
+static void ClockHnd(Widget widget)
 {
   XAreaWidget self = (XAreaWidget) widget;
+  extern int paused;
 
-  if(self->xarea.clock_handler != NULL) {
+  self->xarea.interval_id = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), 10, (XtTimerCallbackProc) ClockHnd, (XtPointer) widget);
+  if((self->xarea.clock_handler != NULL) && (paused == 0)) {
     (*self->xarea.clock_handler)(widget, NULL);
   }
-  return(FALSE);
 }
 
 /**
@@ -204,9 +205,19 @@ static Boolean ClockHnd(Widget widget)
 static void KeybdHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch)
 {
   XAreaWidget self = (XAreaWidget) widget;
+  XEvent pevent;
   KeySym keysym;
   Modifiers modifiers;
 
+  if(xevent->type == KeyRelease) {
+    if(XPending(XtDisplay(widget)) > 0) {
+      if(XPeekEvent(XtDisplay(widget), &pevent) != 0) {
+        if((pevent.type == KeyPress) && (pevent.xkey.keycode == xevent->xkey.keycode) && ((pevent.xkey.time - xevent->xkey.time) < 5)) {
+          return;
+        }
+      }
+    }
+  }
   if((xevent->type == KeyPress) || (xevent->type == KeyRelease)) {
     XtTranslateKeycode(xevent->xany.display, xevent->xkey.keycode, xevent->xkey.state, &modifiers, &keysym);
     if(self->xarea.keybd_handler != NULL) {
