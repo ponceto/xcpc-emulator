@@ -1,17 +1,10 @@
-2006-09-20	Olivier Poncet <ponceto@noos.fr>
+2006-09-25	Olivier Poncet <ponceto@noos.fr>
 
-	* 'snap/' directory preselection removed when loading snapshot ...
-
-2006-09-20	Olivier Poncet <ponceto@noos.fr>
-
-	* Improved CPU-Z80.
-
-2006-09-19	Olivier Poncet <ponceto@noos.fr>
-
-	* Improved CRTC-6845.
-	* Improved AY-3-8910.
-	* Improved PPI-8255.
-	* Improved FDC-765.
+	* Source code cleanup.
+	* Improved Z80 emulation.
+	* UI source code cleanup.
+	* XArea widget rewritten.
+	* Improved keyboard handling.
 
 2006-09-11	Olivier Poncet <ponceto@noos.fr>
 

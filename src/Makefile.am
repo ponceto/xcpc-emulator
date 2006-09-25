@@ -30,7 +30,7 @@ xcpc_SOURCES = \
 	Z80OpcodesCB.h \
 	Z80OpcodesED.h \
 	Z80OpcodesXX.h \
-	Z80OpcodesXCB.h \
+	Z80OpcodesXXCB.h \
 	common.c common.h
 
 if MOTIF1
