@@ -205,21 +205,25 @@ static void ClockHnd(Widget widget)
 static void KeybdHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch)
 {
   XAreaWidget self = (XAreaWidget) widget;
+  Display *dpy = DisplayOfScreen(self->core.screen);
   XEvent pevent;
-  KeySym keysym;
-  Modifiers modifiers;
 
   if(xevent->type == KeyRelease) {
-    if(XPending(XtDisplay(widget)) > 0) {
-      if(XPeekEvent(XtDisplay(widget), &pevent) != 0) {
-        if((pevent.type == KeyPress) && (pevent.xkey.keycode == xevent->xkey.keycode) && ((pevent.xkey.time - xevent->xkey.time) < 5)) {
-          return;
-        }
+    if(XPending(dpy) > 0) {
+      (void) XPeekEvent(dpy, &pevent);
+      if((pevent.type == KeyPress)
+      && (pevent.xkey.display == xevent->xkey.display)
+      && (pevent.xkey.window  == xevent->xkey.window )
+      && (pevent.xkey.keycode == xevent->xkey.keycode)
+      && ((pevent.xkey.time - xevent->xkey.time) < 5)) {
+        (void) XNextEvent(dpy, &pevent); return;
       }
     }
+    if(self->xarea.keybd_handler != NULL) {
+      (*self->xarea.keybd_handler)(widget, xevent);
+    }
   }
-  if((xevent->type == KeyPress) || (xevent->type == KeyRelease)) {
-    XtTranslateKeycode(xevent->xany.display, xevent->xkey.keycode, xevent->xkey.state, &modifiers, &keysym);
+  else if(xevent->type == KeyPress) {
     if(self->xarea.keybd_handler != NULL) {
       (*self->xarea.keybd_handler)(widget, xevent);
     }
@@ -238,7 +242,12 @@ static void MouseHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispa
 {
   XAreaWidget self = (XAreaWidget) widget;
 
-  if((xevent->type == ButtonPress) || (xevent->type == ButtonRelease)) {
+  if(xevent->type == ButtonRelease) {
+    if(self->xarea.mouse_handler != NULL) {
+      (*self->xarea.mouse_handler)(widget, xevent);
+    }
+  }
+  else if (xevent->type == ButtonPress) {
     XtSetKeyboardFocus(shell, widget);
     if(self->xarea.mouse_handler != NULL) {
       (*self->xarea.mouse_handler)(widget, xevent);

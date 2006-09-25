@@ -99,8 +99,9 @@ typedef struct {
     byte expansion;
   } memory;
   struct {
-    byte row;
-    byte line[16];
+    byte mods;
+    byte line;
+    byte bits[16];
   } keyboard;
   struct {
     byte pen;
