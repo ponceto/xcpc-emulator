@@ -26,22 +26,20 @@ extern "C" {
 #define AMSTRAD_CPC_464         0x01
 #define AMSTRAD_CPC_664         0x02
 #define AMSTRAD_CPC_6128        0x03
-#define AMSTRAD_CPC_464_PLUS    0x04
-#define AMSTRAD_CPC_6128_PLUS   0x05
 
-/* monitor type */
-#define AMSTRAD_CPC_CTM65       0x00
+/* Keyboard type */
+#define AMSTRAD_CPC_QWERTY      0x00
+#define AMSTRAD_CPC_AZERTY      0x01
+
+/* Monitor type */
+#define AMSTRAD_CPC_GT65        0x00
 #define AMSTRAD_CPC_CTM644      0x01
 
 /* Computer clock */
-#define AMSTRAD_CPC_1_6MHZ      0x00
-#define AMSTRAD_CPC_2MHZ        0x01
-#define AMSTRAD_CPC_3_3MHZ      0x02
-#define AMSTRAD_CPC_4MHZ        0x03
-#define AMSTRAD_CPC_6_6MHZ      0x04
-#define AMSTRAD_CPC_8MHZ        0x05
-#define AMSTRAD_CPC_9_9MHZ      0x06
-#define AMSTRAD_CPC_16MHZ       0x07
+#define AMSTRAD_CPC_4MHZ        0x00
+#define AMSTRAD_CPC_8MHZ        0x01
+#define AMSTRAD_CPC_12MHZ       0x02
+#define AMSTRAD_CPC_16MHZ       0x03
 
 /* Cassette read data */
 #define AMSTRAD_CPC_NO_DATA     0x00
@@ -75,6 +73,7 @@ extern "C" {
 
 typedef struct {
   int version;
+  int keyboard;
   int monitor;
   int clock;
   int cassette;

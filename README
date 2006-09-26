@@ -32,10 +32,8 @@ EXECUTION
 
   Usage: xcpc [-toolkitoptions] [-h]
               [-cpc464] [-cpc664] [-cpc6128]
-              [-CTM65] [-CTM644]
-              [-1.6MHz] [-2MHz] [-3.3MHz] [-4MHz]
-              [-6.6MHz] [-8MHz] [-9.9MHz] [-16MHz]
-              [-50Hz] [-60Hz]
+              [-GT65] [-CTM644] [-50Hz] [-60Hz]
+              [-4MHz] [-8MHz] [-12MHz] [-16MHz]
               [-isp] [-triumph] [-saisho] [-solavox]
               [-awa] [-schneider] [-orion] [-amstrad]
               [-tiny] [-small] [-medium] [-big] [-huge]
@@ -44,18 +42,14 @@ EXECUTION
   [-cpc464] ......... CPC 464 mode (64 Kb, no fdd).
   [-cpc664] ......... CPC 664 mode (64 Kb, fdd).
   [-cpc6128] ........ CPC 6128 mode (128 Kb, fdd).
-  [-CTM65] .......... CTM65 (green) monitor emulation.
+  [-GT65] ........... GT65 (green) monitor emulation.
   [-CTM644] ......... CTM644 (color) monitor emulation.
-  [-1.6MHz] ......... 1.6 MHz speed.
-  [-2MHz] ........... 2 MHz speed.
-  [-3.3MHz] ......... 3.3 MHz speed (normal for CPC 464).
+  [-50Hz] ........... 50Hz monitor refresh frequency.
+  [-60Hz] ........... 60Hz monitor refresh frequency.
   [-4MHz] ........... 4 MHz speed (normal for CPC 6128 and CPC 664).
-  [-6.6MHz] ......... 6.6 MHz speed.
   [-8MHz] ........... 8 MHz speed.
-  [-9.9MHz] ......... 9.9 MHz speed.
+  [-12MHz] .......... 12 MHz speed.
   [-16MHz] .......... 16 MHz speed.
-  [-50Hz] ........... 50Hz refresh frequency.
-  [-60Hz] ........... 60Hz refresh frequency.
   [-isp] ............ Isp manufacturer.
   [-triumph] ........ Triumph manufacturer.
   [-saisho] ......... Saisho manufacturer.
