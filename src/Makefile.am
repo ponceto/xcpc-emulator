@@ -28,7 +28,11 @@ xcpc_SOURCES = \
 	Z80Core.h \
 	Z80Opcodes.h \
 	Z80OpcodesCB.h \
+	Z80OpcodesDD.h \
+	Z80OpcodesDDCB.h \
 	Z80OpcodesED.h \
+	Z80OpcodesFD.h \
+	Z80OpcodesFDCB.h \
 	Z80OpcodesXX.h \
 	Z80OpcodesXXCB.h \
 	common.c common.h

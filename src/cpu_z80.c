@@ -83,9 +83,7 @@ decode_dd:
   I = cpu_z80_mm_rd(self, self->PC.W++);
   self->TStates -= CyclesXX[I];
   switch(I) {
-#define XX IX
-#include "Z80OpcodesXX.h"
-#undef XX
+#include "Z80OpcodesDD.h"
     case 0xcb:
       goto decode_dd_cb;
     default:
@@ -98,9 +96,7 @@ decode_dd_cb:
   I = cpu_z80_mm_rd(self, self->PC.W++);
   self->TStates -= CyclesXXCB[I];
   switch(I) {
-#define XX IX
-#include "Z80OpcodesXXCB.h"
-#undef XX
+#include "Z80OpcodesDDCB.h"
     default:
       goto decode_ko;
   }
@@ -122,9 +118,7 @@ decode_fd:
   I = cpu_z80_mm_rd(self, self->PC.W++);
   self->TStates -= CyclesXX[I];
   switch(I) {
-#define XX IY
-#include "Z80OpcodesXX.h"
-#undef XX
+#include "Z80OpcodesFD.h"
     case 0xcb:
       goto decode_fd_cb;
     default:
@@ -137,9 +131,7 @@ decode_fd_cb:
   I = cpu_z80_mm_rd(self, self->PC.W++);
   self->TStates -= CyclesXXCB[I];
   switch(I) {
-#define XX IY
-#include "Z80OpcodesXXCB.h"
-#undef XX
+#include "Z80OpcodesFDCB.h"
     default:
       goto decode_ko;
   }
