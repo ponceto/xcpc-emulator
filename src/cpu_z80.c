@@ -46,7 +46,9 @@ void cpu_z80_clock(CPU_Z80 *self)
   byte I;
   pair J;
 
-  self->IFF &= ~IFF_STOP;
+  if((self->TStates += self->IPeriod) <= 0) {
+    return;
+  }
 decode_op:
   self->IFF &= ~IFF_EI;
   self->IR.B.l = (self->IR.B.l & 0x80) | ((self->IR.B.l + 1) & 0x7f);
@@ -138,18 +140,11 @@ decode_fd_cb:
   goto decode_ok;
 
 decode_ko:
-  (void) fprintf(stderr, "CPU_Z80: Bad opcode ... \n");
+  (void) fprintf(stderr, "CPU_Z80: illegal opcode ... \n");
   (void) fflush(stderr);
 
 decode_ok:
-  if(self->TStates <= 0) {
-    J.W = cpu_z80_timer(self);
-    if((J.W != INT_NONE) && (self->IFF & IFF_EI) == 0) {
-      IntZ80(self, J.W);
-    }
-    self->TStates += self->IPeriod;
-  }
-  if((self->IFF & IFF_STOP) == 0) {
+  if(self->TStates > 0) {
     goto decode_op;
   }
 }
@@ -161,22 +156,22 @@ decode_ok:
  */
 void cpu_z80_reset(CPU_Z80 *self)
 {
-  self->AF.W     = 0x0000;
-  self->BC.W     = 0x0000;
-  self->DE.W     = 0x0000;
-  self->HL.W     = 0x0000;
-  self->AF1.W    = 0x0000;
-  self->BC1.W    = 0x0000;
-  self->DE1.W    = 0x0000;
-  self->HL1.W    = 0x0000;
-  self->IX.W     = 0x0000;
-  self->IY.W     = 0x0000;
-  self->SP.W     = 0x0000;
-  self->PC.W     = 0x0000;
-  self->IR.W     = 0x0000;
-  self->IFF      = 0x00;
-  self->IPeriod  = self->IPeriod;
-  self->TStates  = self->IPeriod;
+  self->AF.W    = 0x0000;
+  self->BC.W    = 0x0000;
+  self->DE.W    = 0x0000;
+  self->HL.W    = 0x0000;
+  self->AF1.W   = 0x0000;
+  self->BC1.W   = 0x0000;
+  self->DE1.W   = 0x0000;
+  self->HL1.W   = 0x0000;
+  self->IX.W    = 0x0000;
+  self->IY.W    = 0x0000;
+  self->SP.W    = 0x0000;
+  self->PC.W    = 0x0000;
+  self->IR.W    = 0x0000;
+  self->IFF     = 0x00;
+  self->IPeriod = self->IPeriod;
+  self->TStates = self->IPeriod;
 }
 
 /**
@@ -186,4 +181,63 @@ void cpu_z80_reset(CPU_Z80 *self)
  */
 void cpu_z80_exit(CPU_Z80 *self)
 {
+}
+
+/**
+ * CPU_Z80::intr()
+ *
+ * @param self specifies the CPU_Z80 instance
+ */
+void cpu_z80_intr(CPU_Z80 *self, word vector)
+{
+  if((self->IFF & IFF_EI) != 0) {
+    return;
+  }
+  if((self->IFF & IFF_1) || (vector == INT_NMI)) {
+    /* If HALTed, take CPU off HALT instruction */
+    if(self->IFF & IFF_HALT) {
+      self->PC.W++;
+      self->IFF &= ~IFF_HALT;
+    }
+    /* PUSH PC */
+    cpu_z80_mm_wr(self, --self->SP.W, self->PC.B.h);
+    cpu_z80_mm_wr(self, --self->SP.W, self->PC.B.l);
+    /* If it is NMI... */
+    if(vector==INT_NMI) {
+      if(self->IFF & IFF_1) {
+        self->IFF |=  IFF_2;
+      }
+      else {
+        self->IFF &= ~IFF_2;
+      }
+      self->IFF &= ~(IFF_1 | IFF_EI);
+      self->PC.W = 0x0066;
+      return;
+    }
+    /* Further interrupts off */
+    self->IFF &= ~(IFF_1 | IFF_2 | IFF_EI);
+    /* If in IM2 mode ... */
+    if(self->IFF & IFF_IM2) {
+      vector = (self->IR.W & 0xff00) | (vector & 0x00ff);
+      self->PC.B.l = cpu_z80_mm_rd(self, vector++);
+      self->PC.B.h = cpu_z80_mm_rd(self, vector++);
+      return;
+    }
+    /* If in IM1 mode ... */
+    if(self->IFF & IFF_IM1) {
+      self->PC.W = 0x0038;
+      return;
+    }
+    /* If in IM0 mode ... */
+    switch(vector) {
+      case INT_RST00: self->PC.W = 0x0000; break;
+      case INT_RST08: self->PC.W = 0x0008; break;
+      case INT_RST10: self->PC.W = 0x0010; break;
+      case INT_RST18: self->PC.W = 0x0018; break;
+      case INT_RST20: self->PC.W = 0x0020; break;
+      case INT_RST28: self->PC.W = 0x0028; break;
+      case INT_RST30: self->PC.W = 0x0030; break;
+      case INT_RST38: self->PC.W = 0x0038; break;
+    }
+  }
 }

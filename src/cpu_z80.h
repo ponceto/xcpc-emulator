@@ -48,8 +48,7 @@ extern "C" {
 #define IFF_EI      0x04       /* After EI                   */
 #define IFF_IM1     0x10       /* IM1 mode                   */
 #define IFF_IM2     0x20       /* IM2 mode                   */
-#define IFF_HALT    0x40       /* CPU HALTed                 */
-#define IFF_STOP    0x80       /* CPU Emulation STOPped      */
+#define IFF_HALT    0x80       /* CPU HALTed                 */
 
 typedef union _pair {
 #ifdef LSB_FIRST
@@ -77,11 +76,11 @@ extern void cpu_z80_clock(CPU_Z80 *cpu_z80);
 extern void cpu_z80_reset(CPU_Z80 *cpu_z80);
 extern void cpu_z80_exit (CPU_Z80 *cpu_z80);
 
+extern void cpu_z80_intr (CPU_Z80 *cpu_z80, word vector);
 extern void cpu_z80_mm_wr(CPU_Z80 *cpu_z80, word addr, byte data);
 extern byte cpu_z80_mm_rd(CPU_Z80 *cpu_z80, word addr);
 extern void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word addr, byte data);
 extern byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word addr);
-extern word cpu_z80_timer(CPU_Z80 *cpu_z80);
 
 #ifdef __cplusplus
 }

@@ -153,8 +153,8 @@ static void amstrad_cpc_ram_select(void)
 static Screen *_screen = NULL;
 static Window  _window = None;
 static XImage *_ximage = NULL;
-static struct itimerval new_timer;
-static struct itimerval old_timer;
+static struct timeval   timeval_1;
+static struct timeval   timeval_2;
 
 static unsigned short _palette[32][3] = {
   { 0x7F7F, 0x7F7F, 0x7F7F }, /* White                        */
@@ -1616,7 +1616,6 @@ void amstrad_cpc_reset(void)
 {
 int ix;
 
-  amstrad_cpc.ticks = 0;
   amstrad_cpc.cycle = 0;
   amstrad_cpc.memory.expansion = 0x00;
   amstrad_cpc.keyboard.mods = 0x00;
@@ -1637,15 +1636,11 @@ int ix;
   crtc_6845_reset(&crtc_6845);
   ay_3_8910_reset(&ay_3_8910);
   ppi_8255_reset(&ppi_8255);
-  ppi_8255.port_b = (cfg.cassette << 7) | (cfg.printer << 6) | (cfg.expansion << 5) | (cfg.refresh << 4) | (cfg.manufacturer << 1) | (cfg.vsync << 0);
   fdc_765_reset(&fdc_765);
-}
-
-static void amstrad_cpc_synchronize(int signum)
-{
-  if(paused == 0) {
-    amstrad_cpc.ticks++;
-  }
+  /* XXX */
+  ppi_8255.port_b = (cfg.cassette << 7) | (cfg.printer << 6) | (cfg.expansion << 5) | (cfg.refresh << 4) | (cfg.manufacturer << 1) | (cfg.vsync << 0);
+  (void) gettimeofday(&timeval_1, NULL);
+  (void) gettimeofday(&timeval_2, NULL);
 }
 
 int amstrad_cpc_parse(int argc, char *argv[])
@@ -2097,29 +2092,6 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte value)
   }
 }
 
-word cpu_z80_timer(CPU_Z80 *cpu_z80)
-{
-  XtInputMask mask;
-
-  if(amstrad_cpc.gate_array.counter++ >= 51) { /* 300Hz irq */
-    amstrad_cpc.gate_array.counter = 0;
-    if(amstrad_cpc.cycle++ >= 5) { /* 50Hz irq */
-      amstrad_cpc.cycle = 0;
-      ppi_8255.port_b |= 0x01; /* set VSYNC */
-      if(amstrad_cpc.ticks-- <= 0) {
-        amstrad_cpc_redraw();
-        pause(); /* 50Hz real-time synchronization */
-      }
-      cpu_z80->IFF |= IFF_STOP;
-    }
-    else {
-      ppi_8255.port_b &= 0xFE; /* reset VSYNC */
-    }
-    return(INT_RST38); /* DO IRQ */
-  }
-  return(INT_NONE); /* DO NOTHING */
-}
-
 void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 {
   int ix;
@@ -2222,32 +2194,71 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   ppi_8255_init(&ppi_8255);
   fdc_765_init(&fdc_765);
   amstrad_cpc_reset();
-  switch(cfg.refresh) {
-    default:
-    case AMSTRAD_CPC_50HZ:
-      new_timer.it_interval.tv_sec  = new_timer.it_value.tv_sec  = 0;
-      new_timer.it_interval.tv_usec = new_timer.it_value.tv_usec = 1000000 / 50;
-      (void) signal(SIGALRM, amstrad_cpc_synchronize);
-      break;
-    case AMSTRAD_CPC_60HZ:
-      new_timer.it_interval.tv_sec  = new_timer.it_value.tv_sec  = 0;
-      new_timer.it_interval.tv_usec = new_timer.it_value.tv_usec = 1000000 / 60;
-      (void) signal(SIGALRM, amstrad_cpc_synchronize);
-      break;
-  }
-  setitimer(ITIMER_REAL, &new_timer, &old_timer);
+  (void) gettimeofday(&timeval_1, NULL);
+  (void) gettimeofday(&timeval_2, NULL);
 }
 
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
-  cpu_z80_clock(&cpu_z80);
+  static int frames = 0;
+  unsigned long timestamp1;
+  unsigned long timestamp2;
+  unsigned long timestamp3;
+  int scanline = 0;
+
+  do {
+    cpu_z80_clock(&cpu_z80);
+    if(++amstrad_cpc.gate_array.counter >= 52) {
+      amstrad_cpc.gate_array.counter = 0;
+      if(++amstrad_cpc.cycle >= 6) {
+        amstrad_cpc.cycle = 0;
+        ppi_8255.port_b |= 0x01; /* set VSYNC */
+      }
+      else {
+        ppi_8255.port_b &= 0xFE; /* reset VSYNC */
+      }
+      cpu_z80_intr(&cpu_z80, INT_RST38);
+    }
+  } while(++scanline < 312);
+  /* XXX */
+  if(++frames >= 25) {
+    (void) gettimeofday(&timeval_1, NULL);
+    frames = 0;
+  }
+  (void) gettimeofday(&timeval_2, NULL);
+  timestamp1 = (timeval_1.tv_sec * 1000) + (timeval_1.tv_usec / 1000);
+  timestamp2 = (timeval_2.tv_sec * 1000) + (timeval_2.tv_usec / 1000);
+  switch(cfg.refresh) {
+    case AMSTRAD_CPC_50HZ:
+      if((timestamp2 > timestamp1) && ((timestamp2 - timestamp1) <= 20)) {
+        amstrad_cpc_redraw();
+      }
+      if((timeval_1.tv_usec += 20000) >= 1000000) {
+        timeval_1.tv_usec -= 1000000; timeval_1.tv_sec++;
+      }
+      break;
+    case AMSTRAD_CPC_60HZ:
+      if((timestamp2 > timestamp1) && ((timestamp2 - timestamp1) <= 16)) {
+        amstrad_cpc_redraw();
+      }
+      if((timeval_1.tv_usec += 16666) >= 1000000) {
+        timeval_1.tv_usec -= 1000000; timeval_1.tv_sec++;
+      }
+      break;
+  }
+  timestamp3 = (timeval_1.tv_sec * 1000) + (timeval_1.tv_usec / 1000);
+  if(timestamp3 > timestamp2) {
+    *((unsigned long *) data) = (timestamp3 - timestamp2) - 1;
+  }
+  else {
+    *((unsigned long *) data) = 0;
+  }
 }
 
 void amstrad_cpc_close_handler(Widget widget, XtPointer data)
 {
   int ix;
 
-  setitimer(ITIMER_REAL, &old_timer, &new_timer);
   if(_ximage != NULL) {
     if(_ximage->data != NULL) {
       XtFree((char *) _ximage->data);

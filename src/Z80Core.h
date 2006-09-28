@@ -458,7 +458,7 @@ static word DAATable[2048] = {
     Rg=(Rg>>1)|(R->AF.B.l<<7);     \
     R->AF.B.l=PZSTable[Rg];        \
   }
-  
+
 #define M_SLA(Rg)      \
   R->AF.B.l=Rg>>7;Rg<<=1;R->AF.B.l|=PZSTable[Rg]
 #define M_SRA(Rg)      \
@@ -570,7 +570,7 @@ static word DAATable[2048] = {
     ((R->HL.W^R->Rg.W^J.W)&0x1000? H_FLAG:0)|                  \
     (J.W? 0:Z_FLAG)|(J.B.h&S_FLAG);                            \
   R->HL.W=J.W
-   
+
 #define M_SBCW(Rg)      \
   I=R->AF.B.l&C_FLAG;J.W=(R->HL.W-R->Rg.W-I)&0xFFFF;           \
   R->AF.B.l=                                                   \
@@ -650,7 +650,7 @@ enum CodesCB {
   SET6_B,SET6_C,SET6_D,SET6_E,SET6_H,SET6_L,SET6_xHL,SET6_A,
   SET7_B,SET7_C,SET7_D,SET7_E,SET7_H,SET7_L,SET7_xHL,SET7_A
 };
-  
+
 enum CodesED {
   DB_00,DB_01,DB_02,DB_03,DB_04,DB_05,DB_06,DB_07,
   DB_08,DB_09,DB_0A,DB_0B,DB_0C,DB_0D,DB_0E,DB_0F,
@@ -685,64 +685,3 @@ enum CodesED {
   DB_F0,DB_F1,DB_F2,DB_F3,DB_F4,DB_F5,DB_F6,DB_F7,
   DB_F8,DB_F9,DB_FA,DB_FB,DB_FC,DB_FD,DB_FE,DB_FF
 };
-
-/** IntZ80() *************************************************/
-/** This function will generate interrupt of given vector.  **/
-/*************************************************************/
-void IntZ80(CPU_Z80 *R,word Vector)
-{
-  if((R->IFF&IFF_1)||(Vector==INT_NMI))
-  {
-    /* If HALTed, take CPU off HALT instruction */
-    if(R->IFF&IFF_HALT) { R->PC.W++;R->IFF&=~IFF_HALT; }
-
-    /* Save PC on stack */
-    M_PUSH(PC);
-
-    /* If it is NMI... */
-    if(Vector==INT_NMI)
-    {
-      /* Copy IFF1 to IFF2 */
-      if(R->IFF&IFF_1) R->IFF|=IFF_2; else R->IFF&=~IFF_2;
-      /* Clear IFF1 */
-      R->IFF&=~(IFF_1|IFF_EI);
-      /* Jump to hardwired NMI vector */
-      R->PC.W=0x0066;
-      /* Done */
-      return;
-    }
-
-    /* Further interrupts off */
-    R->IFF&=~(IFF_1|IFF_2|IFF_EI);
-
-    /* If in IM2 mode... */
-    if(R->IFF&IFF_IM2)
-    {
-      /* Make up the vector address */
-      Vector=(Vector&0xFF)|((word)(R->IR.B.h)<<8);
-      /* Read the vector */
-      R->PC.B.l=RdZ80(Vector++);
-      R->PC.B.h=RdZ80(Vector);
-      /* Done */
-      return;
-    }
-
-    /* If in IM1 mode, just jump to hardwired IRQ vector */
-    if(R->IFF&IFF_IM1) { R->PC.W=0x0038;return; }
-
-    /* If in IM0 mode... */
-
-    /* Jump to a vector */
-    switch(Vector)
-    {
-      case INT_RST00: R->PC.W=0x0000;break;
-      case INT_RST08: R->PC.W=0x0008;break;
-      case INT_RST10: R->PC.W=0x0010;break;
-      case INT_RST18: R->PC.W=0x0018;break;
-      case INT_RST20: R->PC.W=0x0020;break;
-      case INT_RST28: R->PC.W=0x0028;break;
-      case INT_RST30: R->PC.W=0x0030;break;
-      case INT_RST38: R->PC.W=0x0038;break;
-    }
-  }
-}

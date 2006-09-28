@@ -186,12 +186,13 @@ static Boolean SetValues(Widget ow, Widget rw, Widget nw, ArgList args, Cardinal
 static void ClockHnd(Widget widget)
 {
   XAreaWidget self = (XAreaWidget) widget;
+  unsigned long timeout = 10;
   extern int paused;
 
-  self->xarea.interval_id = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), 10, (XtTimerCallbackProc) ClockHnd, (XtPointer) widget);
   if((self->xarea.clock_handler != NULL) && (paused == 0)) {
-    (*self->xarea.clock_handler)(widget, NULL);
+    (*self->xarea.clock_handler)(widget, &timeout);
   }
+  self->xarea.interval_id = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), timeout, (XtTimerCallbackProc) ClockHnd, (XtPointer) widget);
 }
 
 /**
