@@ -2199,7 +2199,6 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
-  static int frames = 0;
   unsigned long timestamp1;
   unsigned long timestamp2;
   unsigned long timestamp3;
@@ -2219,11 +2218,6 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       cpu_z80_intr(&cpu_z80, INT_RST38);
     }
   } while(++scanline < 312);
-  /* XXX */
-  if(++frames >= 25) {
-    (void) gettimeofday(&timeval_1, NULL);
-    frames = 0;
-  }
   (void) gettimeofday(&timeval_2, NULL);
   timestamp1 = (timeval_1.tv_sec * 1000) + (timeval_1.tv_usec / 1000);
   timestamp2 = (timeval_2.tv_sec * 1000) + (timeval_2.tv_usec / 1000);
@@ -2250,7 +2244,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     *((unsigned long *) data) = (timestamp3 - timestamp2) - 1;
   }
   else {
-    *((unsigned long *) data) = 0;
+    *((unsigned long *) data) = 1;
   }
 }
 
