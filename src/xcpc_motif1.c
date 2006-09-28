@@ -140,6 +140,7 @@ static void DestroyCbk(Widget widget, Widget *widref, XtPointer cbdata)
  */
 int main(int argc, char *argv[])
 {
+  XtAppContext appcontext;
   String appname  = NULL;
   String appclass = NULL;
   Widget toplevel = NULL;
@@ -205,8 +206,6 @@ int main(int argc, char *argv[])
 /*
  * XXX
  */
-XtAppContext appcontext = NULL;
-
 typedef struct {
   Widget shell;
   Widget main_window;

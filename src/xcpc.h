@@ -34,8 +34,6 @@ extern int main(int argc, char *argv[]);
 extern void _XEditResCheckMessages(Widget widget, XtPointer closure, XEvent *event, Boolean *continue_to_dispatch);
 #endif
 
-extern XtAppContext appcontext;
-
 #ifdef __cplusplus
 }
 #endif

@@ -146,6 +146,7 @@ static void DestroyCbk(Widget widget, Widget *widref, XtPointer cbdata)
  */
 int main(int argc, char *argv[])
 {
+  XtAppContext appcontext;
   String appname  = NULL;
   String appclass = NULL;
   Widget toplevel = NULL;
@@ -216,8 +217,6 @@ int main(int argc, char *argv[])
 #include <X11/Xaw/SmeBSB.h>
 #include <X11/Xaw/SmeLine.h>
 #include <X11/Xaw/Dialog.h>
-
-XtAppContext appcontext;
 
 Atom XA_WM_DELETE_WINDOW = None;
 
