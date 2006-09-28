@@ -2097,7 +2097,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   int ix;
   FILE *file;
   int cx, cy;
-  int clock, interrupt;
+  int clock;
   Arg arglist[8];
   Cardinal argcount;
 
@@ -2181,13 +2181,12 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   switch(cfg.refresh) {
     default:
     case AMSTRAD_CPC_50HZ:
-      interrupt = 64;
+      cpu_z80.IPeriod = (clock * 64) / 1000000;
       break;
     case AMSTRAD_CPC_60HZ:
-      interrupt = 53;
+      cpu_z80.IPeriod = (clock * 53) / 1000000;
       break;
   }
-  cpu_z80.IPeriod = (clock * interrupt) / 1000000;
   cpu_z80_init(&cpu_z80);
   crtc_6845_init(&crtc_6845);
   ay_3_8910_init(&ay_3_8910);
