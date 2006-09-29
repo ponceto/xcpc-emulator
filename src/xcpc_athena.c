@@ -29,6 +29,8 @@
 #include "amstrad_cpc.h"
 #include "xcpc.h"
 
+static Widget CreateGUI(Widget toplevel);
+
 /*
  * command line options
  */
@@ -150,6 +152,7 @@ int main(int argc, char *argv[])
   String appname  = NULL;
   String appclass = NULL;
   Widget toplevel = NULL;
+  Widget apwindow = NULL;
   Cardinal argcount = 0;
   Arg arglist[4];
 
@@ -185,9 +188,9 @@ int main(int argc, char *argv[])
     XtAddEventHandler(toplevel, NoEventMask, TRUE, (XtEventHandler) _XEditResCheckMessages, (XtPointer) NULL);
   }
   /* XXX */ {
-    void create_gui(Widget toplevel);
-    (void) create_gui(toplevel);
+    apwindow = CreateGUI(toplevel);
   }
+  XtManageChild(apwindow);
   XtRealizeWidget(toplevel);
   if(XtIsRealized(toplevel) != FALSE) {
     Atom atom = XInternAtom(XtDisplay(toplevel), "WM_DELETE_WINDOW", FALSE);
@@ -374,13 +377,11 @@ Widget shell, dialog;
   xcpc_popup(shell, XtGrabExclusive);
 }
 
-void create_gui(Widget toplevel)
+static Widget CreateGUI(Widget toplevel)
 {
-GUI *gui;
+GUI *gui = (GUI *) XtMalloc(sizeof(GUI));
 Cardinal argcount;
 Arg arglist[8];
-
-  gui = (GUI *) XtMalloc(sizeof(GUI));
 
   gui->shell = toplevel;
   XA_WM_DELETE_WINDOW = XInternAtom(XtDisplay(gui->shell), "WM_DELETE_WINDOW", False);
@@ -422,4 +423,5 @@ Arg arglist[8];
   XtSetArg(arglist[argcount], XtNemuPaintHandler, amstrad_cpc_paint_handler); argcount++;
   gui->screen = XAreaCreate(gui->main_window, "screen", arglist, argcount);
   XtManageChild(gui->screen);
+  return(gui->main_window);
 }

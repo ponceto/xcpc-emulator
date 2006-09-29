@@ -22,6 +22,11 @@
 extern "C" {
 #endif
 
+#ifndef ENABLE_NLS
+#define  _(String) (String)
+#define N_(String) (String)
+#endif
+
 typedef struct _XcpcResourcesRec {
   Boolean about_flag;
   Boolean usage_flag;

@@ -27,6 +27,8 @@
 #include "amstrad_cpc.h"
 #include "xcpc.h"
 
+static Widget CreateGUI(Widget toplevel);
+
 /*
  * command line options
  */
@@ -40,30 +42,7 @@ static XrmOptionDescRec options[] = {
  * fallback resources
  */
 static String fallback_resources[] = {
-  "*about_dialog.dialogType:       XmDIALOG_QUESTION",
-  "*about_dialog.messageAlignment: XmALIGNMENT_CENTER",
-  "*screen.width:                  656",
-  "*screen.height:                 416",
-  "*title:                         XCPC - Amstrad CPC emulator",
-  "*menu_bar*file.labelString:     File",
-  "*menu_bar*insert.labelString:   Insert floppy ...",
-  "*menu_bar*remove.labelString:   Remove floppy",
-  "*menu_bar*open.labelString:     Open a snapshot ...",
-  "*menu_bar*save.labelString:     Save a snapshot ...",
-  "*menu_bar*exit.labelString:     Exit",
-  "*menu_bar*controls.labelString: Controls",
-  "*menu_bar*play.labelString:     Play",
-  "*menu_bar*pause.labelString:    Pause",
-  "*menu_bar*reset.labelString:    Reset",
-  "*menu_bar*help.labelString:     Help",
-  "*menu_bar*about.labelString:    About ...",
-  "*open_dialog.dialogTitle:       Open a snapshot ...",
-  "*open_dialog.okLabelString:     Open",
-  "*save_dialog.dialogTitle:       Save a snapshot ...",
-  "*save_dialog.okLabelString:     Save",
-  "*about_dialog.dialogTitle:      About ...",
-  "*about_dialog.messageString:    XCPC - Motif1 version\\nAmstrad CPC emulator for UNIX\\nCoded by Olivier Poncet <ponceto@noos.fr>",
-  "*about_dialog.okLabelString:    Close",
+  "*title: XCPC - Amstrad CPC emulator",
   NULL
 };
 
@@ -144,6 +123,7 @@ int main(int argc, char *argv[])
   String appname  = NULL;
   String appclass = NULL;
   Widget toplevel = NULL;
+  Widget apwindow = NULL;
   Cardinal argcount = 0;
   Arg arglist[4];
 
@@ -180,9 +160,9 @@ int main(int argc, char *argv[])
     XtAddEventHandler(toplevel, NoEventMask, TRUE, (XtEventHandler) _XEditResCheckMessages, (XtPointer) NULL);
   }
   /* XXX */ {
-    void create_gui(Widget toplevel);
-    (void) create_gui(toplevel);
+    apwindow = CreateGUI(toplevel);
   }
+  XtManageChild(apwindow);
   XtRealizeWidget(toplevel);
   if(XtIsRealized(toplevel) != FALSE) {
     Atom atom = XInternAtom(XtDisplay(toplevel), "WM_DELETE_WINDOW", FALSE);
@@ -204,221 +184,424 @@ int main(int argc, char *argv[])
 }
 
 /*
- * XXX
+ * GUI instance structure
  */
-typedef struct {
-  Widget shell;
+typedef struct _GUI {
   Widget main_window;
   Widget menu_bar;
-  Widget file_pulldown;
-  Widget file;
-  Widget insert;
-  Widget remove;
-  Widget sep1;
-  Widget open;
-  Widget save;
-  Widget sep2;
-  Widget exit;
-  Widget controls_pulldown;
-  Widget controls;
-  Widget play;
+  Widget file_pldn;
+  Widget file_menu;
+  Widget load_snapshot;
+  Widget save_snapshot;
+  Widget separator1;
+  Widget exit_emulator;
+  Widget ctrl_pldn;
+  Widget ctrl_menu;
   Widget pause;
   Widget reset;
-  Widget help_pulldown;
-  Widget help;
-  Widget about;
-  Widget screen;
+  Widget help_pldn;
+  Widget help_menu;
+  Widget legal_info;
+  Widget separator2;
+  Widget about_xcpc;
+  Widget xarea;
 } GUI;
 
-void xcpc_popup_cbk(Widget widget)
+/**
+ * GUI::OnCloseCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnCloseCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 {
-  paused = 1;
-  XtManageChild(widget);
+  if(cbs != NULL) {
+    while((widget != NULL) && (XtIsShell(widget) == FALSE)) {
+      widget = XtParent(widget);
+    }
+    if(widget != NULL) {
+      XtDestroyWidget(widget);
+    }
+  }
+  else {
+    paused = 0;
+  }
 }
 
-void xcpc_popdown_cbk(Widget widget)
+/**
+ * GUI::OnLoadSnapshotOkCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnLoadSnapshotOkCbk(Widget widget, GUI *gui, XmFileSelectionBoxCallbackStruct *cbs)
 {
-  while(XtIsShell(widget) == False) {
+  char *filename = NULL;
+
+  if(XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
+    if(filename != NULL) {
+      amstrad_cpc_load_snapshot(filename);
+      XtFree((char *) filename);
+      filename = NULL;
+    }
+  }
+  OnCloseCbk(widget, gui, (XmAnyCallbackStruct *) cbs);
+}
+
+/**
+ * GUI::OnLoadSnapshotCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
+{
+  Widget dialog;
+  Arg arglist[8];
+  Cardinal argcount;
+  XmString title = XmStringCreateLocalized(_("Load a snapshot ..."));
+
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
-  XtDestroyWidget(widget);
-  paused = 0;
-}
-
-void xcpc_cancel_cbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
-{
-  xcpc_popdown_cbk(widget);
-}
-
-void xcpc_insert_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
-{
-  fprintf(stderr, "xcpc_insert_cbk\n");
-}
-
-void xcpc_remove_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
-{
-  fprintf(stderr, "xcpc_remove_cbk\n");
-}
-
-void xcpc_open_ok_cbk(Widget widget, GUI *gui, XmFileSelectionBoxCallbackStruct *cbs)
-{
-char *filename;
-
-  XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename);
-  amstrad_cpc_load_snapshot(filename);
-  XtFree(filename);
-  xcpc_popdown_cbk(widget);
-}
-
-void xcpc_open_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
-{
-Cardinal argcount;
-Arg arglist[1];
-Widget shell, dialog;
-
   argcount = 0;
   XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY); argcount++;
-  shell = XmCreateDialogShell(gui->shell, "open_shell", arglist, argcount);
-  argcount = 0;
   XtSetArg(arglist[argcount], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); argcount++;
-  dialog = XmCreateFileSelectionBox(shell, "open_dialog", arglist, argcount);
+  XtSetArg(arglist[argcount], XmNdialogTitle, title); argcount++;
+  dialog = XmCreateFileSelectionDialog(widget, "xcpc-load-snapshot-dlg", arglist, argcount);
+  XtAddCallback(dialog, XmNokCallback,      (XtCallbackProc) OnLoadSnapshotOkCbk, (XtPointer) gui);
+  XtAddCallback(dialog, XmNcancelCallback,  (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtAddCallback(dialog, XmNunmapCallback,   (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtAddCallback(dialog, XmNdestroyCallback, (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
   XtManageChild(dialog);
-  XtAddCallback(dialog, XmNokCallback, (XtCallbackProc) xcpc_open_ok_cbk, NULL);
-  XtAddCallback(dialog, XmNcancelCallback, (XtCallbackProc) xcpc_cancel_cbk, NULL);
-  xcpc_popup_cbk(shell);
-}
-
-void xcpc_save_ok_cbk(Widget widget, GUI *gui, XmFileSelectionBoxCallbackStruct *cbs)
-{
-char *filename;
-
-  XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename);
-  amstrad_cpc_save_snapshot(filename);
-  XtFree(filename);
-  xcpc_popdown_cbk(widget);
-}
-
-void xcpc_save_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
-{
-Cardinal argcount;
-Arg arglist[1];
-Widget shell, dialog;
-
-  argcount = 0;
-  XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY); argcount++;
-  shell = XmCreateDialogShell(gui->shell, "save_shell", arglist, argcount);
-  argcount = 0;
-  XtSetArg(arglist[argcount], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); argcount++;
-  dialog = XmCreateFileSelectionBox(shell, "save_dialog", arglist, argcount);
-  XtManageChild(dialog);
-  XtAddCallback(dialog, XmNokCallback, (XtCallbackProc) xcpc_save_ok_cbk, NULL);
-  XtAddCallback(dialog, XmNcancelCallback, (XtCallbackProc) xcpc_cancel_cbk, NULL);
-  xcpc_popup_cbk(shell);
-}
-
-void xcpc_exit_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
-{
-  exit(0);
-}
-
-void xcpc_play_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
-{
-  paused = 0;
-}
-
-void xcpc_pause_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
-{
+  XmStringFree(title);
+  title = NULL;
   paused = 1;
 }
 
-void xcpc_reset_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
+/**
+ * GUI::OnSaveSnapshotOkCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnSaveSnapshotOkCbk(Widget widget, GUI *gui, XmFileSelectionBoxCallbackStruct *cbs)
+{
+  char *filename = NULL;
+
+  if(XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
+    if(filename != NULL) {
+      amstrad_cpc_save_snapshot(filename);
+      XtFree((char *) filename);
+      filename = NULL;
+    }
+  }
+  OnCloseCbk(widget, gui, (XmAnyCallbackStruct *) cbs);
+}
+
+/**
+ * GUI::OnSaveSnapshotCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
+{
+  Widget dialog;
+  Arg arglist[8];
+  Cardinal argcount;
+  XmString title = XmStringCreateLocalized(_("Save a snapshot ..."));
+
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    widget = XtParent(widget);
+  }
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY); argcount++;
+  XtSetArg(arglist[argcount], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); argcount++;
+  XtSetArg(arglist[argcount], XmNdialogTitle, title); argcount++;
+  dialog = XmCreateFileSelectionDialog(widget, "xcpc-save-snapshot-dlg", arglist, argcount);
+  XtAddCallback(dialog, XmNokCallback,      (XtCallbackProc) OnSaveSnapshotOkCbk, (XtPointer) gui);
+  XtAddCallback(dialog, XmNcancelCallback,  (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtAddCallback(dialog, XmNunmapCallback,   (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtAddCallback(dialog, XmNdestroyCallback, (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtManageChild(dialog);
+  XmStringFree(title);
+  title = NULL;
+  paused = 1;
+}
+
+/**
+ * GUI::OnExitEmulatorCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnExitEmulatorCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
+{
+  XtAppSetExitFlag(XtWidgetToApplicationContext(widget));
+}
+
+/**
+ * GUI::OnPauseCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnPauseCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
+{
+  if(paused == 0) {
+    paused = 1;
+  }
+  else {
+    paused = 0;
+  }
+}
+
+/**
+ * GUI::OnResetCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnResetCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 {
   amstrad_cpc_reset();
   paused = 0;
 }
 
-void xcpc_about_cbk(Widget widget, GUI *gui, XmPushButtonCallbackStruct *cbs)
+/**
+ * GUI::OnLegalInfoCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnLegalInfoCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 {
-Cardinal argcount;
-Arg arglist[1];
-Widget shell, dialog;
+  Widget dialog;
+  Arg arglist[8];
+  Cardinal argcount;
+  XmString title = XmStringCreateLocalized(_("Legal Info ..."));
+  XmString message = XmStringCreateLocalized(_(
+    "Amstrad has kindly given it's permission for it's copyrighted\n"
+    "material to be redistributed but Amstrad retains it's copyright.\n\n"
+    "Some of the Amstrad CPC ROM code is copyright Locomotive Software.\n\n"
+    "ROM and DISK images are protected under the copyrights of their authors,\n"
+    "and cannot be distributed in this package. You can download and/or use\n"
+    "ROM and DISK images at your own risk and responsibility."
+  ));
 
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    widget = XtParent(widget);
+  }
   argcount = 0;
   XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY); argcount++;
-  shell = XmCreateDialogShell(gui->shell, "about_shell", arglist, argcount);
-  argcount = 0;
   XtSetArg(arglist[argcount], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); argcount++;
-  dialog = XmCreateMessageBox(shell, "about_dialog", arglist, argcount);
+  XtSetArg(arglist[argcount], XmNdialogTitle, title); argcount++;
+  XtSetArg(arglist[argcount], XmNmessageAlignment, XmALIGNMENT_CENTER); argcount++;
+  XtSetArg(arglist[argcount], XmNmessageString, message); argcount++;
+  dialog = XmCreateMessageDialog(widget, "xcpc-legal-info-dlg", arglist, argcount);
+  XtAddCallback(dialog, XmNokCallback,      (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtAddCallback(dialog, XmNunmapCallback,   (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtAddCallback(dialog, XmNdestroyCallback, (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
   XtUnmanageChild(XmMessageBoxGetChild(dialog, XmDIALOG_CANCEL_BUTTON));
   XtUnmanageChild(XmMessageBoxGetChild(dialog, XmDIALOG_HELP_BUTTON));
   XtManageChild(dialog);
-  XtAddCallback(dialog, XmNokCallback, (XtCallbackProc) xcpc_cancel_cbk, NULL);
-  xcpc_popup_cbk(shell);
+  XmStringFree(message);
+  message = NULL;
+  XmStringFree(title);
+  title = NULL;
+  paused = 1;
 }
 
-void create_gui(Widget toplevel)
+/**
+ * GUI::OnAboutXcpcCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnAboutXcpcCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 {
-GUI *gui;
-Cardinal argcount;
-Arg arglist[8];
+  Widget dialog;
+  Arg arglist[8];
+  Cardinal argcount;
+  XmString title = XmStringCreateLocalized(_("About Xcpc ..."));
+  XmString message = XmStringCreateLocalized(_(
+    "Xcpc - Amstrad CPC Emulator - Copyright (c) 2001, 2006 Olivier Poncet\n\n"
+    "This program is free software; you can redistribute it and/or modify\n"
+    "it under the terms of the GNU General Public License as published by\n"
+    "the Free Software Foundation; either version 2 of the License, or\n"
+    "(at your option) any later version.\n\n"
+    "This program is distributed in the hope that it will be useful,\n"
+    "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+    "GNU General Public License for more details.\n\n"
+    "You should have received a copy of the GNU General Public License\n"
+    "along with this program; if not, write to the Free Software\n"
+    "Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA"
+  ));
 
-  gui = (GUI *) XtMalloc(sizeof(GUI));
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    widget = XtParent(widget);
+  }
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY); argcount++;
+  XtSetArg(arglist[argcount], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); argcount++;
+  XtSetArg(arglist[argcount], XmNdialogTitle, title); argcount++;
+  XtSetArg(arglist[argcount], XmNmessageAlignment, XmALIGNMENT_CENTER); argcount++;
+  XtSetArg(arglist[argcount], XmNmessageString, message); argcount++;
+  dialog = XmCreateMessageDialog(widget, "xcpc-about-xcpc-dlg", arglist, argcount);
+  XtAddCallback(dialog, XmNokCallback,      (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtAddCallback(dialog, XmNunmapCallback,   (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtAddCallback(dialog, XmNdestroyCallback, (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtUnmanageChild(XmMessageBoxGetChild(dialog, XmDIALOG_CANCEL_BUTTON));
+  XtUnmanageChild(XmMessageBoxGetChild(dialog, XmDIALOG_HELP_BUTTON));
+  XtManageChild(dialog);
+  XmStringFree(message);
+  message = NULL;
+  XmStringFree(title);
+  title = NULL;
+  paused = 1;
+}
 
-  gui->shell = toplevel;
-  gui->main_window = XmCreateMainWindow(gui->shell, "main_window", NULL, 0);
-  XtManageChild(gui->main_window);
-  gui->menu_bar = XmCreateMenuBar(gui->main_window, "menu_bar", NULL, 0);
+/**
+ * GUI::Create
+ *
+ * @param toplevel specifies the TopLevel Shell
+ *
+ * @return the main-window instance
+ */
+static Widget CreateGUI(Widget toplevel)
+{
+  GUI *gui = (GUI *) XtMalloc(sizeof(GUI));
+  Arg arglist[8];
+  Cardinal argcount;
+  XmString string;
+
+  /* main-wnd */
+  argcount = 0;
+  gui->main_window = XmCreateMainWindow(toplevel, "main-wnd", arglist, argcount);
+  /* menu-bar */
+  argcount = 0;
+  gui->menu_bar = XmCreateMenuBar(gui->main_window, "menu-bar", arglist, argcount);
   XtManageChild(gui->menu_bar);
-  gui->file_pulldown = XmCreatePulldownMenu(gui->menu_bar, "file_pulldown", NULL, 0);
+  /* file-pldn */
   argcount = 0;
-  XtSetArg(arglist[argcount], XmNsubMenuId, gui->file_pulldown); argcount++;
-  gui->file = XmCreateCascadeButtonGadget(gui->menu_bar, "file", arglist, argcount);
-  XtManageChild(gui->file);
-  gui->insert = XmCreatePushButtonGadget(gui->file_pulldown, "insert", NULL, 0);
-  XtManageChild(gui->insert);
-  XtAddCallback(gui->insert, XmNactivateCallback, (XtCallbackProc) xcpc_insert_cbk, gui);
-  gui->remove = XmCreatePushButtonGadget(gui->file_pulldown, "remove", NULL, 0);
-  XtManageChild(gui->remove);
-  XtAddCallback(gui->remove, XmNactivateCallback, (XtCallbackProc) xcpc_remove_cbk, gui);
-  gui->sep1 = XmCreateSeparatorGadget(gui->file_pulldown, "sep2", NULL, 0);
-  XtManageChild(gui->sep1);
-  gui->open = XmCreatePushButtonGadget(gui->file_pulldown, "open", NULL, 0);
-  XtManageChild(gui->open);
-  XtAddCallback(gui->open, XmNactivateCallback, (XtCallbackProc) xcpc_open_cbk, gui);
-  gui->save = XmCreatePushButtonGadget(gui->file_pulldown, "save", NULL, 0);
-  XtManageChild(gui->save);
-  XtAddCallback(gui->save, XmNactivateCallback, (XtCallbackProc) xcpc_save_cbk, gui);
-  gui->sep2 = XmCreateSeparatorGadget(gui->file_pulldown, "sep2", NULL, 0);
-  XtManageChild(gui->sep2);
-  gui->exit = XmCreatePushButtonGadget(gui->file_pulldown, "exit", NULL, 0);
-  XtManageChild(gui->exit);
-  XtAddCallback(gui->exit, XmNactivateCallback, (XtCallbackProc) xcpc_exit_cbk, gui);
-  gui->controls_pulldown = XmCreatePulldownMenu(gui->menu_bar, "controls_pulldown", NULL, 0);
+  gui->file_pldn = XmCreatePulldownMenu(gui->menu_bar, "file-pldn", arglist, argcount);
+  /* file-menu */
+  string = XmStringCreateLocalized(_("File"));
   argcount = 0;
-  XtSetArg(arglist[argcount], XmNsubMenuId, gui->controls_pulldown); argcount++;
-  gui->controls = XmCreateCascadeButtonGadget(gui->menu_bar, "controls", arglist, argcount);
-  XtManageChild(gui->controls);
-  gui->play = XmCreatePushButtonGadget(gui->controls_pulldown, "play", NULL, 0);
-  XtManageChild(gui->play);
-  XtAddCallback(gui->play, XmNactivateCallback, (XtCallbackProc) xcpc_play_cbk, gui);
-  gui->pause = XmCreatePushButtonGadget(gui->controls_pulldown, "pause", NULL, 0);
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  XtSetArg(arglist[argcount], XmNsubMenuId, gui->file_pldn); argcount++;
+  gui->file_menu = XmCreateCascadeButtonGadget(gui->menu_bar, "file-menu", arglist, argcount);
+  XtManageChild(gui->file_menu);
+  XmStringFree(string);
+  string = NULL;
+  /* load-snapshot */
+  string = XmStringCreateLocalized(_("Load Snapshot"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->load_snapshot = XmCreatePushButtonGadget(gui->file_pldn, "load-snapshot", arglist, argcount);
+  XtAddCallback(gui->load_snapshot, XmNactivateCallback, (XtCallbackProc) OnLoadSnapshotCbk, (XtPointer) gui);
+  XtManageChild(gui->load_snapshot);
+  XmStringFree(string);
+  string = NULL;
+  /* save-snapshot */
+  string = XmStringCreateLocalized(_("Save Snapshot"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->save_snapshot = XmCreatePushButtonGadget(gui->file_pldn, "save-snapshot", arglist, argcount);
+  XtAddCallback(gui->save_snapshot, XmNactivateCallback, (XtCallbackProc) OnSaveSnapshotCbk, (XtPointer) gui);
+  XtManageChild(gui->save_snapshot);
+  XmStringFree(string);
+  string = NULL;
+  /* separator1 */
+  argcount = 0;
+  gui->separator1 = XmCreateSeparatorGadget(gui->file_pldn, "separator1", arglist, argcount);
+  XtManageChild(gui->separator1);
+  /* exit-emulator */
+  string = XmStringCreateLocalized(_("Exit"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->exit_emulator = XmCreatePushButtonGadget(gui->file_pldn, "exit-emulator", arglist, argcount);
+  XtAddCallback(gui->exit_emulator, XmNactivateCallback, (XtCallbackProc) OnExitEmulatorCbk, (XtPointer) gui);
+  XtManageChild(gui->exit_emulator);
+  XmStringFree(string);
+  string = NULL;
+  /* ctrl-pldn */
+  argcount = 0;
+  gui->ctrl_pldn = XmCreatePulldownMenu(gui->menu_bar, "ctrl-pldn", arglist, argcount);
+  /* ctrl-menu */
+  string = XmStringCreateLocalized(_("Controls"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  XtSetArg(arglist[argcount], XmNsubMenuId, gui->ctrl_pldn); argcount++;
+  gui->ctrl_menu = XmCreateCascadeButtonGadget(gui->menu_bar, "ctrl-menu", arglist, argcount);
+  XtManageChild(gui->ctrl_menu);
+  XmStringFree(string);
+  string = NULL;
+  /* pause */
+  string = XmStringCreateLocalized(_("Play / Pause"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->pause = XmCreatePushButtonGadget(gui->ctrl_pldn, "pause", arglist, argcount);
+  XtAddCallback(gui->pause, XmNactivateCallback, (XtCallbackProc) OnPauseCbk, (XtPointer) gui);
   XtManageChild(gui->pause);
-  XtAddCallback(gui->pause, XmNactivateCallback, (XtCallbackProc) xcpc_pause_cbk, gui);
-  gui->reset = XmCreatePushButtonGadget(gui->controls_pulldown, "reset", NULL, 0);
+  XmStringFree(string);
+  string = NULL;
+  /* reset */
+  string = XmStringCreateLocalized(_("Reset"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->reset = XmCreatePushButtonGadget(gui->ctrl_pldn, "reset", arglist, argcount);
+  XtAddCallback(gui->reset, XmNactivateCallback, (XtCallbackProc) OnResetCbk, (XtPointer) gui);
   XtManageChild(gui->reset);
-  XtAddCallback(gui->reset, XmNactivateCallback, (XtCallbackProc) xcpc_reset_cbk, gui);
-  gui->help_pulldown = XmCreatePulldownMenu(gui->menu_bar, "help_pulldown", NULL, 0);
+  XmStringFree(string);
+  string = NULL;
+  /* help-pldn */
   argcount = 0;
-  XtSetArg(arglist[argcount], XmNsubMenuId, gui->help_pulldown); argcount++;
-  gui->help = XmCreateCascadeButtonGadget(gui->menu_bar, "help", arglist, argcount);
-  XtManageChild(gui->help);
+  gui->help_pldn = XmCreatePulldownMenu(gui->menu_bar, "help-pldn", arglist, argcount);
+  /* help-menu */
+  string = XmStringCreateLocalized(_("Help"));
   argcount = 0;
-  XtSetArg(arglist[argcount], XmNmenuHelpWidget, gui->help); argcount++;
-  XtSetValues(gui->menu_bar, arglist, argcount);
-  gui->about = XmCreatePushButtonGadget(gui->help_pulldown, "about", NULL, 0);
-  XtManageChild(gui->about);
-  XtAddCallback(gui->about, XmNactivateCallback, (XtCallbackProc) xcpc_about_cbk, gui);
-
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  XtSetArg(arglist[argcount], XmNsubMenuId, gui->help_pldn); argcount++;
+  gui->help_menu = XmCreateCascadeButtonGadget(gui->menu_bar, "help-menu", arglist, argcount);
+  XtManageChild(gui->help_menu);
+  XmStringFree(string);
+  string = NULL;
+  /* legal-info */
+  string = XmStringCreateLocalized(_("Legal Info"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->legal_info = XmCreatePushButtonGadget(gui->help_pldn, "legal-info", arglist, argcount);
+  XtAddCallback(gui->legal_info, XmNactivateCallback, (XtCallbackProc) OnLegalInfoCbk, (XtPointer) gui);
+  XtManageChild(gui->legal_info);
+  XmStringFree(string);
+  string = NULL;
+  /* separator2 */
+  argcount = 0;
+  gui->separator2 = XmCreateSeparatorGadget(gui->help_pldn, "separator2", arglist, argcount);
+  XtManageChild(gui->separator2);
+  /* about-xcpc */
+  string = XmStringCreateLocalized(_("About Xcpc"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->about_xcpc = XmCreatePushButtonGadget(gui->help_pldn, "about-xcpc", arglist, argcount);
+  XtAddCallback(gui->about_xcpc, XmNactivateCallback, (XtCallbackProc) OnAboutXcpcCbk, (XtPointer) gui);
+  XtManageChild(gui->about_xcpc);
+  XmStringFree(string);
+  string = NULL;
+  /* xarea */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNemuStartHandler, amstrad_cpc_start_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuClockHandler, amstrad_cpc_clock_handler); argcount++;
@@ -426,6 +609,11 @@ Arg arglist[8];
   XtSetArg(arglist[argcount], XtNemuKeybdHandler, amstrad_cpc_keybd_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuMouseHandler, amstrad_cpc_mouse_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuPaintHandler, amstrad_cpc_paint_handler); argcount++;
-  gui->screen = XAreaCreate(gui->main_window, "screen", arglist, argcount);
-  XtManageChild(gui->screen);
+  gui->xarea = XAreaCreate(gui->main_window, "xarea", arglist, argcount);
+  XtManageChild(gui->xarea);
+  /* XXX */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNmenuHelpWidget, gui->help_menu); argcount++;
+  XtSetValues(gui->menu_bar, arglist, argcount);
+  return(gui->main_window);
 }
