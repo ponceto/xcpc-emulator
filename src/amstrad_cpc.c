@@ -153,8 +153,8 @@ static void amstrad_cpc_ram_select(void)
 static Screen *_screen = NULL;
 static Window  _window = None;
 static XImage *_ximage = NULL;
-static struct timeval   timeval_1;
-static struct timeval   timeval_2;
+static struct timeval timer1;
+static struct timeval timer2;
 
 static unsigned short _palette[32][3] = {
   { 0x7F7F, 0x7F7F, 0x7F7F }, /* White                        */
@@ -1639,8 +1639,8 @@ int ix;
   fdc_765_reset(&fdc_765);
   /* XXX */
   ppi_8255.port_b = (cfg.cassette << 7) | (cfg.printer << 6) | (cfg.expansion << 5) | (cfg.refresh << 4) | (cfg.manufacturer << 1) | (cfg.vsync << 0);
-  (void) gettimeofday(&timeval_1, NULL);
-  (void) gettimeofday(&timeval_2, NULL);
+  (void) gettimeofday(&timer1, NULL);
+  (void) gettimeofday(&timer2, NULL);
 }
 
 int amstrad_cpc_parse(int argc, char *argv[])
@@ -2193,15 +2193,13 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   ppi_8255_init(&ppi_8255);
   fdc_765_init(&fdc_765);
   amstrad_cpc_reset();
-  (void) gettimeofday(&timeval_1, NULL);
-  (void) gettimeofday(&timeval_2, NULL);
+  (void) gettimeofday(&timer1, NULL);
+  (void) gettimeofday(&timer2, NULL);
 }
 
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
-  unsigned long timestamp1;
-  unsigned long timestamp2;
-  unsigned long timestamp3;
+  long delay;
   int scanline = 0;
 
   do {
@@ -2218,33 +2216,37 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       cpu_z80_intr(&cpu_z80, INT_RST38);
     }
   } while(++scanline < 312);
-  (void) gettimeofday(&timeval_2, NULL);
-  timestamp1 = (timeval_1.tv_sec * 1000) + (timeval_1.tv_usec / 1000);
-  timestamp2 = (timeval_2.tv_sec * 1000) + (timeval_2.tv_usec / 1000);
+  (void) gettimeofday(&timer2, NULL);
+  delay = ((long) (timer2.tv_sec  -  timer1.tv_sec) * 1000)
+        + ((long) (timer2.tv_usec - timer1.tv_usec) / 1000);
+  if(delay >= 1000) {
+    *(&timer1) = *(&timer2); delay = 0;
+  }
   switch(cfg.refresh) {
     case AMSTRAD_CPC_50HZ:
-      if((timestamp2 > timestamp1) && ((timestamp2 - timestamp1) <= 20)) {
+      if((delay >= 0) && (delay <= 20)) {
         amstrad_cpc_redraw();
       }
-      if((timeval_1.tv_usec += 20000) >= 1000000) {
-        timeval_1.tv_usec -= 1000000; timeval_1.tv_sec++;
+      if((timer1.tv_usec += 20000) >= 1000000) {
+        timer1.tv_usec -= 1000000; timer1.tv_sec++;
       }
       break;
     case AMSTRAD_CPC_60HZ:
-      if((timestamp2 > timestamp1) && ((timestamp2 - timestamp1) <= 16)) {
+      if((delay >= 0) && (delay <= 16)) {
         amstrad_cpc_redraw();
       }
-      if((timeval_1.tv_usec += 16666) >= 1000000) {
-        timeval_1.tv_usec -= 1000000; timeval_1.tv_sec++;
+      if((timer1.tv_usec += 16667) >= 1000000) {
+        timer1.tv_usec -= 1000000; timer1.tv_sec++;
       }
       break;
   }
-  timestamp3 = (timeval_1.tv_sec * 1000) + (timeval_1.tv_usec / 1000);
-  if(timestamp3 > timestamp2) {
-    *((unsigned long *) data) = (timestamp3 - timestamp2) - 1;
+  delay = ((long) (timer1.tv_sec  -  timer2.tv_sec) * 1000)
+        + ((long) (timer1.tv_usec - timer2.tv_usec) / 1000);
+  if(delay > 0) {
+    *((unsigned long *) data) = (unsigned long) (delay - 1);
   }
   else {
-    *((unsigned long *) data) = 1;
+    *((unsigned long *) data) = (unsigned long) (1);
   }
 }
 
