@@ -26,8 +26,6 @@ typedef unsigned char byte;
 typedef unsigned short word;
 typedef signed char offset;
 
-extern int paused;
-
 #ifdef __cplusplus
 }
 #endif

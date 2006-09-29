@@ -1,5 +1,5 @@
 /*
- * XArea.c - Copyright (c) 2006 Olivier Poncet
+ * XArea.c - Copyright (c) 2001, 2006 Olivier Poncet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,9 +187,8 @@ static void ClockHnd(Widget widget)
 {
   XAreaWidget self = (XAreaWidget) widget;
   unsigned long timeout = 10;
-  extern int paused;
 
-  if((self->xarea.clock_handler != NULL) && (paused == 0)) {
+  if((self->xarea.clock_handler != NULL) && (self->core.sensitive != FALSE) && (self->core.ancestor_sensitive != FALSE)) {
     (*self->xarea.clock_handler)(widget, &timeout);
   }
   self->xarea.interval_id = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), timeout, (XtTimerCallbackProc) ClockHnd, (XtPointer) widget);
@@ -214,7 +213,6 @@ static void KeybdHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispa
       (void) XPeekEvent(dpy, &pevent);
       if((pevent.type == KeyPress)
       && (pevent.xkey.display == xevent->xkey.display)
-      && (pevent.xkey.window  == xevent->xkey.window )
       && (pevent.xkey.keycode == xevent->xkey.keycode)
       && ((pevent.xkey.time - xevent->xkey.time) < 5)) {
         (void) XNextEvent(dpy, &pevent); return;

@@ -42,7 +42,7 @@ static XrmOptionDescRec options[] = {
  * fallback resources
  */
 static String fallback_resources[] = {
-  "*title: XCPC - Amstrad CPC emulator",
+  "*title: Xcpc - Amstrad CPC emulator",
   NULL
 };
 
@@ -91,7 +91,6 @@ static void WMCloseCbk(Widget widget, XEvent *xevent, String *params, Cardinal *
   }
   else if(XtIsShell(widget) != FALSE) {
     XtDestroyWidget(widget);
-    paused = 0;
   }
 }
 
@@ -187,7 +186,7 @@ int main(int argc, char *argv[])
  * GUI instance structure
  */
 typedef struct _GUI {
-  Widget main_window;
+  Widget main_wnd;
   Widget menu_bar;
   Widget file_pldn;
   Widget file_menu;
@@ -204,6 +203,7 @@ typedef struct _GUI {
   Widget legal_info;
   Widget separator2;
   Widget about_xcpc;
+  Widget frame;
   Widget xarea;
 } GUI;
 
@@ -225,7 +225,7 @@ static void OnCloseCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
     }
   }
   else {
-    paused = 0;
+    XtSetSensitive(gui->xarea, TRUE);
   }
 }
 
@@ -264,6 +264,7 @@ static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
   Cardinal argcount;
   XmString title = XmStringCreateLocalized(_("Load a snapshot ..."));
 
+  XtSetSensitive(gui->xarea, FALSE);
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
@@ -279,7 +280,6 @@ static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
   XtManageChild(dialog);
   XmStringFree(title);
   title = NULL;
-  paused = 1;
 }
 
 /**
@@ -317,6 +317,7 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
   Cardinal argcount;
   XmString title = XmStringCreateLocalized(_("Save a snapshot ..."));
 
+  XtSetSensitive(gui->xarea, FALSE);
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
@@ -332,7 +333,6 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
   XtManageChild(dialog);
   XmStringFree(title);
   title = NULL;
-  paused = 1;
 }
 
 /**
@@ -356,11 +356,11 @@ static void OnExitEmulatorCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
  */
 static void OnPauseCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 {
-  if(paused == 0) {
-    paused = 1;
+  if(XtIsSensitive(gui->xarea) != FALSE) {
+    XtSetSensitive(gui->xarea, FALSE);
   }
   else {
-    paused = 0;
+    XtSetSensitive(gui->xarea, TRUE);
   }
 }
 
@@ -374,7 +374,7 @@ static void OnPauseCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 static void OnResetCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 {
   amstrad_cpc_reset();
-  paused = 0;
+  XtSetSensitive(gui->xarea, TRUE);
 }
 
 /**
@@ -399,6 +399,7 @@ static void OnLegalInfoCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
     "ROM and DISK images at your own risk and responsibility."
   ));
 
+  XtSetSensitive(gui->xarea, FALSE);
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
@@ -419,7 +420,6 @@ static void OnLegalInfoCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
   message = NULL;
   XmStringFree(title);
   title = NULL;
-  paused = 1;
 }
 
 /**
@@ -450,6 +450,7 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
     "Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA"
   ));
 
+  XtSetSensitive(gui->xarea, FALSE);
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
@@ -470,7 +471,6 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
   message = NULL;
   XmStringFree(title);
   title = NULL;
-  paused = 1;
 }
 
 /**
@@ -489,10 +489,10 @@ static Widget CreateGUI(Widget toplevel)
 
   /* main-wnd */
   argcount = 0;
-  gui->main_window = XmCreateMainWindow(toplevel, "main-wnd", arglist, argcount);
+  gui->main_wnd = XmCreateMainWindow(toplevel, "main-wnd", arglist, argcount);
   /* menu-bar */
   argcount = 0;
-  gui->menu_bar = XmCreateMenuBar(gui->main_window, "menu-bar", arglist, argcount);
+  gui->menu_bar = XmCreateMenuBar(gui->main_wnd, "menu-bar", arglist, argcount);
   XtManageChild(gui->menu_bar);
   /* file-pldn */
   argcount = 0;
@@ -601,6 +601,13 @@ static Widget CreateGUI(Widget toplevel)
   XtManageChild(gui->about_xcpc);
   XmStringFree(string);
   string = NULL;
+  /* frame */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNshadowType, XmSHADOW_OUT); argcount++;
+  XtSetArg(arglist[argcount], XmNmarginWidth, 4); argcount++;
+  XtSetArg(arglist[argcount], XmNmarginHeight, 4); argcount++;
+  gui->frame = XmCreateFrame(gui->main_wnd, "frame", arglist, argcount);
+  XtManageChild(gui->frame);
   /* xarea */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNemuStartHandler, amstrad_cpc_start_handler); argcount++;
@@ -609,11 +616,11 @@ static Widget CreateGUI(Widget toplevel)
   XtSetArg(arglist[argcount], XtNemuKeybdHandler, amstrad_cpc_keybd_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuMouseHandler, amstrad_cpc_mouse_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuPaintHandler, amstrad_cpc_paint_handler); argcount++;
-  gui->xarea = XAreaCreate(gui->main_window, "xarea", arglist, argcount);
+  gui->xarea = XAreaCreate(gui->frame, "xarea", arglist, argcount);
   XtManageChild(gui->xarea);
   /* XXX */
   argcount = 0;
   XtSetArg(arglist[argcount], XmNmenuHelpWidget, gui->help_menu); argcount++;
   XtSetValues(gui->menu_bar, arglist, argcount);
-  return(gui->main_window);
+  return(gui->main_wnd);
 }
