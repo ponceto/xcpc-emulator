@@ -193,12 +193,12 @@ int main(int argc, char *argv[])
 #include <X11/Xaw/SmeLine.h>
 #include <X11/Xaw/Dialog.h>
 
-XtTranslations translations = NULL;
-
 /*
  * GUI instance structure
  */
 typedef struct _GUI {
+  Atom WM_DELETE_WINDOW;
+  XtTranslations translations;
   Widget main_wnd;
   Widget menu_bar;
   Widget file_menu;
@@ -209,8 +209,8 @@ typedef struct _GUI {
   Widget exit_emulator;
   Widget ctrl_menu;
   Widget ctrl_pldn;
-  Widget pause;
-  Widget reset;
+  Widget pause_emu;
+  Widget reset_emu;
   Widget help_menu;
   Widget help_pldn;
   Widget legal_info;
@@ -248,8 +248,6 @@ static void OnLoadSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
     amstrad_cpc_load_snapshot(value);
-    /* XtFree((char *) value);
-    value = NULL; */
   }
   OnCloseCbk(widget, gui, cbs);
 }
@@ -263,27 +261,40 @@ static void OnLoadSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
  */
 static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
 {
-  Widget shell, dialog;
+  Widget shell, dialog, btn_ok, cancel;
   Arg arglist[8];
   Cardinal argcount;
 
-  while((widget != NULL) && (XtIsShell(widget) == FALSE)) {
+  XtSetSensitive(gui->xarea, FALSE);
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
+  /* load-snapshot-shell */
   argcount = 0;
-  shell = XtCreatePopupShell("load_shell", transientShellWidgetClass, widget, arglist, argcount);
+  shell = XtCreatePopupShell("load-snapshot-shell", transientShellWidgetClass, widget, arglist, argcount);
+  /* load-snapshot-dialog */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Load a snapshot ...")); argcount++;
   XtSetArg(arglist[argcount], XtNvalue, ""); argcount++;
-  dialog = XtCreateManagedWidget("load_dialog", dialogWidgetClass, shell, arglist, argcount);
-  XawDialogAddButton(dialog, "ok", (XtCallbackProc) OnLoadSnapshotOkCbk, (XtPointer) gui);
-  XawDialogAddButton(dialog, "cancel", (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  dialog = XtCreateWidget("load-snapshot-dialog", dialogWidgetClass, shell, arglist, argcount);
+  XtManageChild(dialog);
+  /* load-snapshot-btn-ok */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _(" Load ")); argcount++;
+  btn_ok = XtCreateManagedWidget("load-snapshot-btn-ok", commandWidgetClass, dialog, arglist, argcount);
+  XtAddCallback(btn_ok, XtNcallback, (XtCallbackProc) OnLoadSnapshotOkCbk, (XtPointer) gui);
+  XtManageChild(btn_ok);
+  /* load-snapshot-cancel */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Cancel")); argcount++;
+  cancel = XtCreateManagedWidget("load-snapshot-cancel", commandWidgetClass, dialog, arglist, argcount);
+  XtAddCallback(cancel, XtNcallback, (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtManageChild(cancel);
+  /* load-snapshot-popup */
   XtPopup(shell, XtGrabExclusive);
   if(XtIsRealized(shell) != FALSE) {
-    Atom atom = XInternAtom(XtDisplay(shell), "WM_DELETE_WINDOW", FALSE);
-    if(atom != None) {
-      XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &atom, 1);
-      XtOverrideTranslations(shell, translations);
-    }
+    XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &gui->WM_DELETE_WINDOW, 1);
+    XtOverrideTranslations(shell, gui->translations);
   }
 }
 
@@ -299,8 +310,6 @@ static void OnSaveSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
     amstrad_cpc_save_snapshot(value);
-    /* XtFree((char *) value);
-    value = NULL; */
   }
   OnCloseCbk(widget, gui, cbs);
 }
@@ -314,27 +323,40 @@ static void OnSaveSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
  */
 static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
 {
-  Widget shell, dialog;
+  Widget shell, dialog, btn_ok, cancel;
   Arg arglist[8];
   Cardinal argcount;
 
-  while((widget != NULL) && (XtIsShell(widget) == FALSE)) {
+  XtSetSensitive(gui->xarea, FALSE);
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
+  /* save-snapshot-shell */
   argcount = 0;
-  shell = XtCreatePopupShell("save_shell", transientShellWidgetClass, widget, arglist, argcount);
+  shell = XtCreatePopupShell("save-snapshot-shell", transientShellWidgetClass, widget, arglist, argcount);
+  /* save-snapshot-dialog */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Save a snapshot ...")); argcount++;
   XtSetArg(arglist[argcount], XtNvalue, ""); argcount++;
-  dialog = XtCreateManagedWidget("save_dialog", dialogWidgetClass, shell, arglist, argcount);
-  XawDialogAddButton(dialog, "ok", (XtCallbackProc) OnSaveSnapshotOkCbk, (XtPointer) gui);
-  XawDialogAddButton(dialog, "cancel", (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  dialog = XtCreateWidget("save-snapshot-dialog", dialogWidgetClass, shell, arglist, argcount);
+  XtManageChild(dialog);
+  /* save-snapshot-btn-ok */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _(" Save ")); argcount++;
+  btn_ok = XtCreateManagedWidget("save-snapshot-btn-ok", commandWidgetClass, dialog, arglist, argcount);
+  XtAddCallback(btn_ok, XtNcallback, (XtCallbackProc) OnSaveSnapshotOkCbk, (XtPointer) gui);
+  XtManageChild(btn_ok);
+  /* save-snapshot-cancel */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Cancel")); argcount++;
+  cancel = XtCreateManagedWidget("save-snapshot-cancel", commandWidgetClass, dialog, arglist, argcount);
+  XtAddCallback(cancel, XtNcallback, (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtManageChild(cancel);
+  /* save-snapshot-popup */
   XtPopup(shell, XtGrabExclusive);
   if(XtIsRealized(shell) != FALSE) {
-    Atom atom = XInternAtom(XtDisplay(shell), "WM_DELETE_WINDOW", FALSE);
-    if(atom != None) {
-      XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &atom, 1);
-      XtOverrideTranslations(shell, translations);
-    }
+    XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &gui->WM_DELETE_WINDOW, 1);
+    XtOverrideTranslations(shell, gui->translations);
   }
 }
 
@@ -405,24 +427,25 @@ static void OnLegalInfoCbk(Widget widget, GUI *gui, XtPointer cbs)
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
+  /* legal-info-shell */
   argcount = 0;
-  shell = XtCreatePopupShell("xcpc-legal-xcpc-shl", transientShellWidgetClass, widget, arglist, argcount);
+  shell = XtCreatePopupShell("legal-info-shell", transientShellWidgetClass, widget, arglist, argcount);
+  /* legal-info-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, message); argcount++;
-  dialog = XtCreateWidget("xcpc-legal-xcpc-dlg", dialogWidgetClass, shell, arglist, argcount);
+  dialog = XtCreateWidget("legal-info-dialog", dialogWidgetClass, shell, arglist, argcount);
   XtManageChild(dialog);
+  /* legal-info-btn-ok */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("OK")); argcount++;
-  button = XtCreateManagedWidget("xcpc-legal-xcpc-btn", commandWidgetClass, dialog, arglist, argcount);
+  button = XtCreateManagedWidget("legal-info-btn-ok", commandWidgetClass, dialog, arglist, argcount);
   XtAddCallback(button, XtNcallback, (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
   XtManageChild(button);
+  /* legal-info-popup */
   XtPopup(shell, XtGrabExclusive);
   if(XtIsRealized(shell) != FALSE) {
-    Atom atom = XInternAtom(XtDisplay(shell), "WM_DELETE_WINDOW", FALSE);
-    if(atom != None) {
-      XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &atom, 1);
-      XtOverrideTranslations(shell, translations);
-    }
+    XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &gui->WM_DELETE_WINDOW, 1);
+    XtOverrideTranslations(shell, gui->translations);
   }
 }
 
@@ -457,24 +480,25 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
+  /* about-xcpc-shell */
   argcount = 0;
-  shell = XtCreatePopupShell("xcpc-about-xcpc-shl", transientShellWidgetClass, widget, arglist, argcount);
+  shell = XtCreatePopupShell("about-xcpc-shell", transientShellWidgetClass, widget, arglist, argcount);
+  /* about-xcpc-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, message); argcount++;
-  dialog = XtCreateWidget("xcpc-about-xcpc-dlg", dialogWidgetClass, shell, arglist, argcount);
+  dialog = XtCreateWidget("about-xcpc-dialog", dialogWidgetClass, shell, arglist, argcount);
   XtManageChild(dialog);
+  /* about-xcpc-btn-ok */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("OK")); argcount++;
-  button = XtCreateManagedWidget("xcpc-about-xcpc-btn", commandWidgetClass, dialog, arglist, argcount);
+  button = XtCreateManagedWidget("about-xcpc-btn-ok", commandWidgetClass, dialog, arglist, argcount);
   XtAddCallback(button, XtNcallback, (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
   XtManageChild(button);
+  /* about-xcpc-popup */
   XtPopup(shell, XtGrabExclusive);
   if(XtIsRealized(shell) != FALSE) {
-    Atom atom = XInternAtom(XtDisplay(shell), "WM_DELETE_WINDOW", FALSE);
-    if(atom != None) {
-      XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &atom, 1);
-      XtOverrideTranslations(shell, translations);
-    }
+    XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &gui->WM_DELETE_WINDOW, 1);
+    XtOverrideTranslations(shell, gui->translations);
   }
 }
 
@@ -491,7 +515,8 @@ static Widget CreateGUI(Widget toplevel)
   Arg arglist[8];
   Cardinal argcount;
 
-  translations = XtParseTranslationTable("<Message>WM_PROTOCOLS: XcpcWMClose()");
+  gui->WM_DELETE_WINDOW = XInternAtom(XtDisplay(toplevel), "WM_DELETE_WINDOW", FALSE);
+  gui->translations = XtParseTranslationTable("<Message>WM_PROTOCOLS: XcpcWMClose()");
   /* main-wnd */
   argcount = 0;
   gui->main_wnd = XtCreateWidget("main-wnd", boxWidgetClass, toplevel, arglist, argcount);
@@ -541,18 +566,18 @@ static Widget CreateGUI(Widget toplevel)
   /* ctrl-pldn */
   argcount = 0;
   gui->ctrl_pldn = XtCreatePopupShell("ctrl-pldn", simpleMenuWidgetClass, gui->ctrl_menu, arglist, argcount);
-  /* pause */
+  /* pause-emu */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("Play / Pause")); argcount++;
-  gui->pause = XtCreateWidget("pause", smeBSBObjectClass, gui->ctrl_pldn, arglist, argcount);
-  XtAddCallback(gui->pause, XtNcallback, (XtCallbackProc) OnPauseCbk, (XtPointer) gui);
-  XtManageChild(gui->pause);
-  /* reset */
+  gui->pause_emu = XtCreateWidget("pause-emu", smeBSBObjectClass, gui->ctrl_pldn, arglist, argcount);
+  XtAddCallback(gui->pause_emu, XtNcallback, (XtCallbackProc) OnPauseCbk, (XtPointer) gui);
+  XtManageChild(gui->pause_emu);
+  /* reset-emu */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("Reset")); argcount++;
-  gui->reset = XtCreateWidget("reset", smeBSBObjectClass, gui->ctrl_pldn, arglist, argcount);
-  XtAddCallback(gui->reset, XtNcallback, (XtCallbackProc) OnResetCbk, (XtPointer) gui);
-  XtManageChild(gui->reset);
+  gui->reset_emu = XtCreateWidget("reset-emu", smeBSBObjectClass, gui->ctrl_pldn, arglist, argcount);
+  XtAddCallback(gui->reset_emu, XtNcallback, (XtCallbackProc) OnResetCbk, (XtPointer) gui);
+  XtManageChild(gui->reset_emu);
   /* help-menu */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("Help")); argcount++;

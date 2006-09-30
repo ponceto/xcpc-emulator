@@ -196,8 +196,8 @@ typedef struct _GUI {
   Widget exit_emulator;
   Widget ctrl_pldn;
   Widget ctrl_menu;
-  Widget pause;
-  Widget reset;
+  Widget pause_emu;
+  Widget reset_emu;
   Widget help_pldn;
   Widget help_menu;
   Widget legal_info;
@@ -549,22 +549,22 @@ static Widget CreateGUI(Widget toplevel)
   XtManageChild(gui->ctrl_menu);
   XmStringFree(string);
   string = NULL;
-  /* pause */
+  /* pause-emu */
   string = XmStringCreateLocalized(_("Play / Pause"));
   argcount = 0;
   XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
-  gui->pause = XmCreatePushButtonGadget(gui->ctrl_pldn, "pause", arglist, argcount);
-  XtAddCallback(gui->pause, XmNactivateCallback, (XtCallbackProc) OnPauseCbk, (XtPointer) gui);
-  XtManageChild(gui->pause);
+  gui->pause_emu = XmCreatePushButtonGadget(gui->ctrl_pldn, "pause-emu", arglist, argcount);
+  XtAddCallback(gui->pause_emu, XmNactivateCallback, (XtCallbackProc) OnPauseCbk, (XtPointer) gui);
+  XtManageChild(gui->pause_emu);
   XmStringFree(string);
   string = NULL;
-  /* reset */
+  /* reset-emu */
   string = XmStringCreateLocalized(_("Reset"));
   argcount = 0;
   XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
-  gui->reset = XmCreatePushButtonGadget(gui->ctrl_pldn, "reset", arglist, argcount);
-  XtAddCallback(gui->reset, XmNactivateCallback, (XtCallbackProc) OnResetCbk, (XtPointer) gui);
-  XtManageChild(gui->reset);
+  gui->reset_emu = XmCreatePushButtonGadget(gui->ctrl_pldn, "reset-emu", arglist, argcount);
+  XtAddCallback(gui->reset_emu, XmNactivateCallback, (XtCallbackProc) OnResetCbk, (XtPointer) gui);
+  XtManageChild(gui->reset_emu);
   XmStringFree(string);
   string = NULL;
   /* help-pldn */
