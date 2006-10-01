@@ -48,8 +48,8 @@ static AMSTRAD_CPC_CFG cfg = {
   AMSTRAD_CPC_50HZ,       /* refresh           */
   AMSTRAD_CPC_AMSTRAD,    /* manufacturer      */
   AMSTRAD_CPC_NOT_ACTIVE, /* vsync             */
-  800,                    /* width             */
-  624,                    /* height            */
+  768,                    /* width             */
+  576,                    /* height            */
   128,                    /* ramsize           */
   ROMSDIR "/cpc6128.rom", /* system rom        */
   NULL,                   /* expansion rom #1  */
