@@ -171,8 +171,9 @@ int main(int argc, char *argv[])
         { "XcpcWMClose", WMCloseCbk }
       };
       XtAppAddActions(appcontext, actions, XtNumber(actions));
-      XSetWMProtocols(XtDisplay(toplevel), XtWindow(toplevel), &atom, 1);
-      XtOverrideTranslations(toplevel, XtParseTranslationTable("<Message>WM_PROTOCOLS: XcpcWMClose()"));
+      if(XSetWMProtocols(XtDisplay(toplevel), XtWindow(toplevel), &atom, 1) != False) {
+        XtOverrideTranslations(toplevel, XtParseTranslationTable("<Message>WM_PROTOCOLS: XcpcWMClose()"));
+      }
     }
   }
   XtAppMainLoop(appcontext);
@@ -218,6 +219,74 @@ typedef struct _GUI {
   Widget about_xcpc;
   Widget xarea;
 } GUI;
+
+/**
+ * GUI::OnPopupCbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnPopupCbk(Widget widget, GUI *gui, XtPointer cbs)
+{
+  Widget parent = XtParent(widget);
+  Position  x1, y1;
+  Dimension w1, h1;
+  Position  x2, y2;
+  Dimension w2, h2;
+  Arg arglist[4];
+  Cardinal argcount;
+
+  while((parent != NULL) && (XtIsTopLevelShell(parent) == FALSE)) {
+    parent = XtParent(parent);
+  }
+  if((parent != NULL) && (XtIsRealized(parent) != FALSE) && (XtIsTransientShell(widget) != FALSE)) {
+    if(XtIsRealized(widget) == FALSE) {
+      XtRealizeWidget(widget);
+    }
+    argcount = 0;
+    XtSetArg(arglist[argcount], XtNx, &x1); argcount++;
+    XtSetArg(arglist[argcount], XtNy, &y1); argcount++;
+    XtSetArg(arglist[argcount], XtNwidth, &w1); argcount++;
+    XtSetArg(arglist[argcount], XtNheight, &h1); argcount++;
+    XtGetValues(parent, arglist, argcount);
+    argcount = 0;
+    XtSetArg(arglist[argcount], XtNwidth, &w2); argcount++;
+    XtSetArg(arglist[argcount], XtNheight, &h2); argcount++;
+    XtGetValues(widget, arglist, argcount);
+    if(w1 > w2) {
+      x2 = x1 + ((w1 - w2) / 2);
+    }
+    else {
+      x2 = x1 - ((w2 - w1) / 2);
+    }
+    if((x2 + w2) > WidthOfScreen(XtScreen(widget))) {
+      x2 = WidthOfScreen(XtScreen(widget)) - w2;
+    }
+    if(x2 < 0) {
+      x2 = 0;
+    }
+    if(h1 > h2) {
+      y2 = y1 + ((h1 - h2) / 2);
+    }
+    else {
+      y2 = y1 - ((h2 - h1) / 2);
+    }
+    if((y2 + h2) > HeightOfScreen(XtScreen(widget))) {
+      y2 = HeightOfScreen(XtScreen(widget)) - h2;
+    }
+    if(y2 < 0) {
+      y2 = 0;
+    }
+    argcount = 0;
+    XtSetArg(arglist[argcount], XtNx, x2); argcount++;
+    XtSetArg(arglist[argcount], XtNy, y2); argcount++;
+    XtSetValues(widget, arglist, argcount);
+    if(XSetWMProtocols(XtDisplay(widget), XtWindow(widget), &gui->WM_DELETE_WINDOW, 1) != False) {
+      XtOverrideTranslations(widget, gui->translations);
+    }
+  }
+}
 
 /**
  * GUI::OnCloseCbk
@@ -271,7 +340,9 @@ static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
   }
   /* load-snapshot-shell */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
   shell = XtCreatePopupShell("load-snapshot-shell", transientShellWidgetClass, widget, arglist, argcount);
+  XtAddCallback(shell, XtNpopupCallback, (XtCallbackProc) OnPopupCbk, (XtPointer) gui);
   /* load-snapshot-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("Load a snapshot ...")); argcount++;
@@ -292,10 +363,6 @@ static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
   XtManageChild(cancel);
   /* load-snapshot-popup */
   XtPopup(shell, XtGrabExclusive);
-  if(XtIsRealized(shell) != FALSE) {
-    XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &gui->WM_DELETE_WINDOW, 1);
-    XtOverrideTranslations(shell, gui->translations);
-  }
 }
 
 /**
@@ -333,7 +400,9 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
   }
   /* save-snapshot-shell */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
   shell = XtCreatePopupShell("save-snapshot-shell", transientShellWidgetClass, widget, arglist, argcount);
+  XtAddCallback(shell, XtNpopupCallback, (XtCallbackProc) OnPopupCbk, (XtPointer) gui);
   /* save-snapshot-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("Save a snapshot ...")); argcount++;
@@ -354,10 +423,6 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
   XtManageChild(cancel);
   /* save-snapshot-popup */
   XtPopup(shell, XtGrabExclusive);
-  if(XtIsRealized(shell) != FALSE) {
-    XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &gui->WM_DELETE_WINDOW, 1);
-    XtOverrideTranslations(shell, gui->translations);
-  }
 }
 
 /**
@@ -429,7 +494,9 @@ static void OnLegalInfoCbk(Widget widget, GUI *gui, XtPointer cbs)
   }
   /* legal-info-shell */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
   shell = XtCreatePopupShell("legal-info-shell", transientShellWidgetClass, widget, arglist, argcount);
+  XtAddCallback(shell, XtNpopupCallback, (XtCallbackProc) OnPopupCbk, (XtPointer) gui);
   /* legal-info-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, message); argcount++;
@@ -443,10 +510,6 @@ static void OnLegalInfoCbk(Widget widget, GUI *gui, XtPointer cbs)
   XtManageChild(button);
   /* legal-info-popup */
   XtPopup(shell, XtGrabExclusive);
-  if(XtIsRealized(shell) != FALSE) {
-    XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &gui->WM_DELETE_WINDOW, 1);
-    XtOverrideTranslations(shell, gui->translations);
-  }
 }
 
 /**
@@ -482,7 +545,9 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
   }
   /* about-xcpc-shell */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
   shell = XtCreatePopupShell("about-xcpc-shell", transientShellWidgetClass, widget, arglist, argcount);
+  XtAddCallback(shell, XtNpopupCallback, (XtCallbackProc) OnPopupCbk, (XtPointer) gui);
   /* about-xcpc-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, message); argcount++;
@@ -496,10 +561,6 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
   XtManageChild(button);
   /* about-xcpc-popup */
   XtPopup(shell, XtGrabExclusive);
-  if(XtIsRealized(shell) != FALSE) {
-    XSetWMProtocols(XtDisplay(shell), XtWindow(shell), &gui->WM_DELETE_WINDOW, 1);
-    XtOverrideTranslations(shell, gui->translations);
-  }
 }
 
 /**

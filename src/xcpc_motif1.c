@@ -170,8 +170,9 @@ int main(int argc, char *argv[])
         { "XcpcWMClose", WMCloseCbk }
       };
       XtAppAddActions(appcontext, actions, XtNumber(actions));
-      XSetWMProtocols(XtDisplay(toplevel), XtWindow(toplevel), &atom, 1);
-      XtOverrideTranslations(toplevel, XtParseTranslationTable("<Message>WM_PROTOCOLS: XcpcWMClose()"));
+      if(XSetWMProtocols(XtDisplay(toplevel), XtWindow(toplevel), &atom, 1) != False) {
+        XtOverrideTranslations(toplevel, XtParseTranslationTable("<Message>WM_PROTOCOLS: XcpcWMClose()"));
+      }
     }
   }
   XtAppMainLoop(appcontext);
