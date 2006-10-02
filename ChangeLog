@@ -1,3 +1,11 @@
+2006-10-02	Olivier Poncet <ponceto@noos.fr>
+
+	* Source code cleanup (continued).
+	* GUI code cleanup & improvements.
+	* Improved real-time synchronization.
+	* Improved Z80 emulation.
+	* Improved keyboard handling (qwerty & azerty layout).
+
 2006-09-25	Olivier Poncet <ponceto@noos.fr>
 
 	* Source code cleanup.
