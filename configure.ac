@@ -24,20 +24,57 @@ AC_PROG_INSTALL
 AC_PATH_X
 AC_PATH_XTRA
 AC_ARG_WITH([motif1], AC_HELP_STRING([--with-motif1], [build the Motif1 version]))
+AC_CHECK_HEADER([Xm/Xm.h],
+[have_motif1="yes"], [have_motif1="no"], [
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+])
 AC_ARG_WITH([athena], AC_HELP_STRING([--with-athena], [build the Athena version]))
+AC_CHECK_HEADER([X11/Xaw/XawInit.h],
+[have_athena="yes"], [have_athena="no"], [
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+])
 if   test "x${with_motif1}" = "xyes"; then
-  AM_CONDITIONAL([MOTIF1], true )
-  AM_CONDITIONAL([ATHENA], false)
+  if test "x${have_motif1}" = "xyes"; then
+    AM_CONDITIONAL([MOTIF1], true )
+    AM_CONDITIONAL([ATHENA], false)
+    gui_toolkit="Motif1"
+  else
+    AC_MSG_ERROR([Motif1 toolkit not found])
+  fi
 elif test "x${with_athena}" = "xyes"; then
-  AM_CONDITIONAL([MOTIF1], false)
-  AM_CONDITIONAL([ATHENA], true )
+  if test "x${have_athena}" = "xyes"; then
+    AM_CONDITIONAL([MOTIF1], false)
+    AM_CONDITIONAL([ATHENA], true )
+    gui_toolkit="Athena"
+  else
+    AC_MSG_ERROR([Athena toolkit not found])
+  fi
 else
-  AM_CONDITIONAL([MOTIF1], true )
-  AM_CONDITIONAL([ATHENA], false)
+  if   test "x${have_motif1}" = "xyes"; then
+    AM_CONDITIONAL([MOTIF1], true )
+    AM_CONDITIONAL([ATHENA], false)
+    gui_toolkit="Motif1"
+  elif test "x${have_athena}" = "xyes"; then
+    AM_CONDITIONAL([MOTIF1], false)
+    AM_CONDITIONAL([ATHENA], true )
+    gui_toolkit="Athena"
+  else
+    AC_MSG_ERROR([no gui toolkit found ...])
+  fi
 fi
 AC_C_BIGENDIAN([AC_DEFINE([MSB_FIRST], [1], [MSB First: 68k, sparc, ...])],
                [AC_DEFINE([LSB_FIRST], [1], [LSB First: x86, alpha, ...])],
-               [AC_ERROR([Unsupported byte-order ...])])
+               [AC_MSG_ERROR([unsupported byte-order ...])])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile src/Makefile src/Xem/Makefile])
 AC_OUTPUT
+AC_MSG_NOTICE([Configured to build Xcpc:
+
+  Motif1 sdk .... ${have_motif1}
+  Athena sdk .... ${have_athena}
+  gui toolkit ... ${gui_toolkit}
+
+Have fun with Xcpc ;-)
+])
