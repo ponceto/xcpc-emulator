@@ -23,7 +23,7 @@ AC_PROG_LIBTOOL
 AC_PROG_INSTALL
 AC_PATH_X
 AC_PATH_XTRA
-AM_PATH_GLIB_2_0([2.4.0], [have_glib20="yes"], [have_glib20="no"])
+AM_PATH_GLIB_2_0([2.4.0], [have_glib20="yes"], [have_glib20="no"], [gobject])
 if test "x${have_glib20}" = "xno"; then
   AC_MSG_ERROR([Glib - version >= 2.4.0 is required])
 fi
