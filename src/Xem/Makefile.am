@@ -14,7 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-AM_CPPFLAGS = -I$(top_srcdir) $(X_CFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir) $(X_CFLAGS) $(GLIB_CFLAGS)
 
 noinst_LIBRARIES = libXem.a
 

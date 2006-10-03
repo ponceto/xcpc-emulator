@@ -17,7 +17,7 @@
 SUBDIRS = \
 	Xem
 
-AM_CPPFLAGS = -I$(top_srcdir) $(X_CFLAGS) -DROMSDIR=\"$(datadir)/@PACKAGE@/roms\"
+AM_CPPFLAGS = -I$(top_srcdir) $(X_CFLAGS) $(GLIB_CFLAGS) -DROMSDIR=\"$(datadir)/@PACKAGE@/roms\"
 
 bin_PROGRAMS = xcpc
 
@@ -38,28 +38,25 @@ xcpc_SOURCES = \
 	Z80OpcodesFDCB.h \
 	Z80OpcodesXX.h \
 	Z80OpcodesXXCB.h \
-	common.c common.h
+	common.c common.h \
+	xcpc.h
 
 if MOTIF1
-xcpc_SOURCES += \
-	xcpc_motif1.c xcpc.h
+xcpc_SOURCES += xcpc_motif1.c
 
-xcpc_LDADD = \
-	./Xem/libXem.a \
+xcpc_LDADD = ./Xem/libXem.a \
 	$(X_LIBS) -lXm -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
-	$(X_EXTRA_LIBS) -lm
+	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm
 endif
 
 if ATHENA
-xcpc_SOURCES += \
-	xcpc_athena.c xcpc.h
+xcpc_SOURCES += xcpc_athena.c
 
-xcpc_LDADD = \
-	./Xem/libXem.a \
+xcpc_LDADD = ./Xem/libXem.a \
 	$(X_LIBS) -lXaw -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
-	$(X_EXTRA_LIBS) -lm
+	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm
 endif
 
 romsdir = "$(datadir)/@PACKAGE@/roms"
