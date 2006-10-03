@@ -14,6 +14,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+SUBDIRS = \
+	Xem
+
 AM_CPPFLAGS = -I$(top_srcdir) $(X_CFLAGS) -DROMSDIR=\"$(datadir)/@PACKAGE@/roms\"
 
 bin_PROGRAMS = xcpc
@@ -39,10 +42,10 @@ xcpc_SOURCES = \
 
 if MOTIF1
 xcpc_SOURCES += \
-	XArea.c XArea.h XAreaP.h \
 	xcpc_motif1.c xcpc.h
 
 xcpc_LDADD = \
+	./Xem/libXem.a \
 	$(X_LIBS) -lXm -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm
@@ -50,10 +53,10 @@ endif
 
 if ATHENA
 xcpc_SOURCES += \
-	XArea.c XArea.h XAreaP.h \
 	xcpc_athena.c xcpc.h
 
 xcpc_LDADD = \
+	./Xem/libXem.a \
 	$(X_LIBS) -lXaw -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm

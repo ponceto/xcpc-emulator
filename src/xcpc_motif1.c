@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Xm/XmAll.h>
-#include "XArea.h"
+#include <Xem/XArea.h>
 #include "common.h"
 #include "amstrad_cpc.h"
 #include "xcpc.h"

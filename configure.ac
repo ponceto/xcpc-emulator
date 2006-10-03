@@ -39,5 +39,5 @@ AC_C_BIGENDIAN([AC_DEFINE([MSB_FIRST], [1], [MSB First: 68k, sparc, ...])],
                [AC_DEFINE([LSB_FIRST], [1], [LSB First: x86, alpha, ...])],
                [AC_ERROR([Unsupported byte-order ...])])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/Xem/Makefile])
 AC_OUTPUT

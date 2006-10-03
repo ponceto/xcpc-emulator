@@ -24,7 +24,7 @@
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/Shell.h>
-#include "XArea.h"
+#include <Xem/XArea.h>
 #include "common.h"
 #include "amstrad_cpc.h"
 #include "xcpc.h"
