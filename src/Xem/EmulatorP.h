@@ -1,5 +1,5 @@
 /*
- * XAreaP.h - Copyright (c) 2001, 2006 Olivier Poncet
+ * EmulatorP.h - Copyright (c) 2001, 2006 Olivier Poncet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +15,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef _XAreaP_h
-#define _XAreaP_h
+#ifndef _XemEmulatorP_h
+#define _XemEmulatorP_h
 
 #include <X11/CoreP.h>
-#include "XArea.h"
+#include <Xem/Emulator.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _XAreaClassPart {
+typedef struct _XemEmulatorClassPart {
   XtPointer extension;
-} XAreaClassPart;
+} XemEmulatorClassPart;
 
-typedef struct _XAreaClassRec {
-  CoreClassPart  core_class;
-  XAreaClassPart xarea_class;
-} XAreaClassRec;
+typedef struct _XemEmulatorClassRec {
+  CoreClassPart        core_class;
+  XemEmulatorClassPart emulator_class;
+} XemEmulatorClassRec;
 
-externalref XAreaClassRec xAreaClassRec;
+externalref XemEmulatorClassRec xemEmulatorClassRec;
 
-typedef struct _XAreaPart {
+typedef struct _XemEmulatorPart {
   void (*start_handler)(Widget widget, XtPointer data);
   void (*clock_handler)(Widget widget, XtPointer data);
   void (*close_handler)(Widget widget, XtPointer data);
@@ -44,12 +44,12 @@ typedef struct _XAreaPart {
   void (*mouse_handler)(Widget widget, XEvent *xevent);
   void (*paint_handler)(Widget widget, XEvent *xevent);
   XtIntervalId interval_id;
-} XAreaPart;
+} XemEmulatorPart;
 
-typedef struct _XAreaRec {
-  CorePart  core;
-  XAreaPart xarea;
-} XAreaRec;
+typedef struct _XemEmulatorRec {
+  CorePart        core;
+  XemEmulatorPart emulator;
+} XemEmulatorRec;
 
 #ifdef __cplusplus
 }

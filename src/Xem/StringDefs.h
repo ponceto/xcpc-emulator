@@ -1,5 +1,5 @@
 /*
- * XArea.h - Copyright (c) 2001, 2006 Olivier Poncet
+ * StringDefs.h - Copyright (c) 2001, 2006 Olivier Poncet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +15,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef _XArea_h
-#define _XArea_h
+#ifndef _XemStringDefs_h
+#define _XemStringDefs_h
 
-#include <X11/Core.h>
+#include <X11/StringDefs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,17 +42,6 @@ extern "C" {
 #ifndef XtNemuPaintHandler
 #define XtNemuPaintHandler "emuPaintHandler"
 #endif
-
-externalref WidgetClass xAreaWidgetClass;
-
-typedef struct _XAreaClassRec *XAreaWidgetClass;
-typedef struct _XAreaRec *XAreaWidget;
-
-#ifndef XIsArea
-#define XIsArea(w) XtIsSubclass(w, xAreaWidgetClass)
-#endif
-
-extern Widget XAreaCreate(Widget parent, String name, ArgList args, Cardinal num_args);
 
 #ifdef __cplusplus
 }

@@ -22,9 +22,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-#include <X11/Shell.h>
-#include <Xem/XArea.h>
+#include <Xem/StringDefs.h>
+#include <Xem/AppShell.h>
+#include <Xem/DlgShell.h>
+#include <Xem/Emulator.h>
 #include "common.h"
 #include "amstrad_cpc.h"
 #include "xcpc.h"
@@ -79,24 +80,6 @@ static XcpcResourcesRec xcpc_resources = {
 };
 
 /**
- * WMClose Callback
- *
- * @param widget specifies the Shell
- * @param xevent specifies the XEvent
- * @param params specifies the parameter list
- * @param num_params specifies the parameter count
- */
-static void WMCloseCbk(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
-{
-  if(XtIsApplicationShell(widget) != FALSE) {
-    XtAppSetExitFlag(XtWidgetToApplicationContext(widget));
-  }
-  else if(XtIsShell(widget) != FALSE) {
-    XtDestroyWidget(widget);
-  }
-}
-
-/**
  * Destroy Callback
  *
  * @param widget specifies the Widget instance
@@ -105,6 +88,9 @@ static void WMCloseCbk(Widget widget, XEvent *xevent, String *params, Cardinal *
  */
 static void DestroyCbk(Widget widget, Widget *widref, XtPointer cbdata)
 {
+  if(XtIsApplicationShell(widget) != FALSE) {
+    XtAppSetExitFlag(XtWidgetToApplicationContext(widget));
+  }
   if((widget != NULL) && (widref != NULL) && (widget == *widref)) {
     *widref = NULL;
   }
@@ -132,7 +118,7 @@ int main(int argc, char *argv[])
   argcount = 0;
   XtSetArg(arglist[argcount], XtNmappedWhenManaged, TRUE); argcount++;
   XtSetArg(arglist[argcount], XtNallowShellResize, TRUE); argcount++;
-  toplevel = XtOpenApplication(&appcontext, "Xcpc", options, XtNumber(options), &argc, argv, fallback_resources, applicationShellWidgetClass, arglist, argcount);
+  toplevel = XtOpenApplication(&appcontext, "Xcpc", options, XtNumber(options), &argc, argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
   XtAddCallback(toplevel, XtNdestroyCallback, (XtCallbackProc) DestroyCbk, (XtPointer) &toplevel);
   argcount = 0;
   XtGetApplicationResources(toplevel, (XtPointer) &xcpc_resources, application_resources, XtNumber(application_resources), arglist, argcount);
@@ -164,18 +150,6 @@ int main(int argc, char *argv[])
   }
   XtManageChild(apwindow);
   XtRealizeWidget(toplevel);
-  if(XtIsRealized(toplevel) != FALSE) {
-    Atom atom = XInternAtom(XtDisplay(toplevel), "WM_DELETE_WINDOW", FALSE);
-    if(atom != None) {
-      static XtActionsRec actions[] = {
-        { "XcpcWMClose", WMCloseCbk }
-      };
-      XtAppAddActions(appcontext, actions, XtNumber(actions));
-      if(XSetWMProtocols(XtDisplay(toplevel), XtWindow(toplevel), &atom, 1) != False) {
-        XtOverrideTranslations(toplevel, XtParseTranslationTable("<Message>WM_PROTOCOLS: XcpcWMClose()"));
-      }
-    }
-  }
   XtAppMainLoop(appcontext);
   if(toplevel != NULL) {
     XtDestroyWidget(toplevel);
@@ -185,21 +159,9 @@ int main(int argc, char *argv[])
 }
 
 /*
- * XXX
- */
-#include <X11/Xaw/Box.h>
-#include <X11/Xaw/MenuButton.h>
-#include <X11/Xaw/SimpleMenu.h>
-#include <X11/Xaw/SmeBSB.h>
-#include <X11/Xaw/SmeLine.h>
-#include <X11/Xaw/Dialog.h>
-
-/*
  * GUI instance structure
  */
 typedef struct _GUI {
-  Atom WM_DELETE_WINDOW;
-  XtTranslations translations;
   Widget main_wnd;
   Widget menu_bar;
   Widget file_menu;
@@ -217,76 +179,15 @@ typedef struct _GUI {
   Widget legal_info;
   Widget separator2;
   Widget about_xcpc;
-  Widget xarea;
+  Widget emulator;
 } GUI;
 
-/**
- * GUI::OnPopupCbk
- *
- * @param widget specifies the Widget
- * @param gui specifies the GUI
- * @param cbs specifies the callback info
- */
-static void OnPopupCbk(Widget widget, GUI *gui, XtPointer cbs)
-{
-  Widget parent = XtParent(widget);
-  Position  x1, y1;
-  Dimension w1, h1;
-  Position  x2, y2;
-  Dimension w2, h2;
-  Arg arglist[4];
-  Cardinal argcount;
-
-  while((parent != NULL) && (XtIsTopLevelShell(parent) == FALSE)) {
-    parent = XtParent(parent);
-  }
-  if((parent != NULL) && (XtIsRealized(parent) != FALSE) && (XtIsTransientShell(widget) != FALSE)) {
-    if(XtIsRealized(widget) == FALSE) {
-      XtRealizeWidget(widget);
-    }
-    argcount = 0;
-    XtSetArg(arglist[argcount], XtNx, &x1); argcount++;
-    XtSetArg(arglist[argcount], XtNy, &y1); argcount++;
-    XtSetArg(arglist[argcount], XtNwidth, &w1); argcount++;
-    XtSetArg(arglist[argcount], XtNheight, &h1); argcount++;
-    XtGetValues(parent, arglist, argcount);
-    argcount = 0;
-    XtSetArg(arglist[argcount], XtNwidth, &w2); argcount++;
-    XtSetArg(arglist[argcount], XtNheight, &h2); argcount++;
-    XtGetValues(widget, arglist, argcount);
-    if(w1 > w2) {
-      x2 = x1 + ((w1 - w2) / 2);
-    }
-    else {
-      x2 = x1 - ((w2 - w1) / 2);
-    }
-    if((x2 + w2) > WidthOfScreen(XtScreen(widget))) {
-      x2 = WidthOfScreen(XtScreen(widget)) - w2;
-    }
-    if(x2 < 0) {
-      x2 = 0;
-    }
-    if(h1 > h2) {
-      y2 = y1 + ((h1 - h2) / 2);
-    }
-    else {
-      y2 = y1 - ((h2 - h1) / 2);
-    }
-    if((y2 + h2) > HeightOfScreen(XtScreen(widget))) {
-      y2 = HeightOfScreen(XtScreen(widget)) - h2;
-    }
-    if(y2 < 0) {
-      y2 = 0;
-    }
-    argcount = 0;
-    XtSetArg(arglist[argcount], XtNx, x2); argcount++;
-    XtSetArg(arglist[argcount], XtNy, y2); argcount++;
-    XtSetValues(widget, arglist, argcount);
-    if(XSetWMProtocols(XtDisplay(widget), XtWindow(widget), &gui->WM_DELETE_WINDOW, 1) != False) {
-      XtOverrideTranslations(widget, gui->translations);
-    }
-  }
-}
+#include <X11/Xaw/Box.h>
+#include <X11/Xaw/MenuButton.h>
+#include <X11/Xaw/SimpleMenu.h>
+#include <X11/Xaw/SmeBSB.h>
+#include <X11/Xaw/SmeLine.h>
+#include <X11/Xaw/Dialog.h>
 
 /**
  * GUI::OnCloseCbk
@@ -302,7 +203,7 @@ static void OnCloseCbk(Widget widget, GUI *gui, XtPointer cbs)
   }
   XtPopdown(widget);
   XtDestroyWidget(widget);
-  XtSetSensitive(gui->xarea, TRUE);
+  XtSetSensitive(gui->emulator, TRUE);
 }
 
 /**
@@ -334,15 +235,15 @@ static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
   Arg arglist[8];
   Cardinal argcount;
 
-  XtSetSensitive(gui->xarea, FALSE);
+  XtSetSensitive(gui->emulator, FALSE);
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
   /* load-snapshot-shell */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransient, TRUE); argcount++;
   XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
-  shell = XtCreatePopupShell("load-snapshot-shell", transientShellWidgetClass, widget, arglist, argcount);
-  XtAddCallback(shell, XtNpopupCallback, (XtCallbackProc) OnPopupCbk, (XtPointer) gui);
+  shell = XtCreatePopupShell("load-snapshot-shell", xemDlgShellWidgetClass, widget, arglist, argcount);
   /* load-snapshot-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("Load a snapshot ...")); argcount++;
@@ -394,15 +295,15 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
   Arg arglist[8];
   Cardinal argcount;
 
-  XtSetSensitive(gui->xarea, FALSE);
+  XtSetSensitive(gui->emulator, FALSE);
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
   /* save-snapshot-shell */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransient, TRUE); argcount++;
   XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
-  shell = XtCreatePopupShell("save-snapshot-shell", transientShellWidgetClass, widget, arglist, argcount);
-  XtAddCallback(shell, XtNpopupCallback, (XtCallbackProc) OnPopupCbk, (XtPointer) gui);
+  shell = XtCreatePopupShell("save-snapshot-shell", xemDlgShellWidgetClass, widget, arglist, argcount);
   /* save-snapshot-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("Save a snapshot ...")); argcount++;
@@ -446,11 +347,11 @@ static void OnExitEmulatorCbk(Widget widget, GUI *gui, XtPointer cbs)
  */
 static void OnPauseCbk(Widget widget, GUI *gui, XtPointer cbs)
 {
-  if(XtIsSensitive(gui->xarea) != FALSE) {
-    XtSetSensitive(gui->xarea, FALSE);
+  if(XtIsSensitive(gui->emulator) != FALSE) {
+    XtSetSensitive(gui->emulator, FALSE);
   }
   else {
-    XtSetSensitive(gui->xarea, TRUE);
+    XtSetSensitive(gui->emulator, TRUE);
   }
 }
 
@@ -464,7 +365,7 @@ static void OnPauseCbk(Widget widget, GUI *gui, XtPointer cbs)
 static void OnResetCbk(Widget widget, GUI *gui, XtPointer cbs)
 {
   amstrad_cpc_reset();
-  XtSetSensitive(gui->xarea, TRUE);
+  XtSetSensitive(gui->emulator, TRUE);
 }
 
 /**
@@ -488,15 +389,15 @@ static void OnLegalInfoCbk(Widget widget, GUI *gui, XtPointer cbs)
     "ROM and DISK images at your own risk and responsibility."
   );
 
-  XtSetSensitive(gui->xarea, FALSE);
+  XtSetSensitive(gui->emulator, FALSE);
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
   /* legal-info-shell */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransient, TRUE); argcount++;
   XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
-  shell = XtCreatePopupShell("legal-info-shell", transientShellWidgetClass, widget, arglist, argcount);
-  XtAddCallback(shell, XtNpopupCallback, (XtCallbackProc) OnPopupCbk, (XtPointer) gui);
+  shell = XtCreatePopupShell("legal-info-shell", xemDlgShellWidgetClass, widget, arglist, argcount);
   /* legal-info-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, message); argcount++;
@@ -539,15 +440,15 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
     "Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA"
   );
 
-  XtSetSensitive(gui->xarea, FALSE);
+  XtSetSensitive(gui->emulator, FALSE);
   while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
     widget = XtParent(widget);
   }
   /* about-xcpc-shell */
   argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransient, TRUE); argcount++;
   XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
-  shell = XtCreatePopupShell("about-xcpc-shell", transientShellWidgetClass, widget, arglist, argcount);
-  XtAddCallback(shell, XtNpopupCallback, (XtCallbackProc) OnPopupCbk, (XtPointer) gui);
+  shell = XtCreatePopupShell("about-xcpc-shell", xemDlgShellWidgetClass, widget, arglist, argcount);
   /* about-xcpc-dialog */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, message); argcount++;
@@ -576,8 +477,6 @@ static Widget CreateGUI(Widget toplevel)
   Arg arglist[8];
   Cardinal argcount;
 
-  gui->WM_DELETE_WINDOW = XInternAtom(XtDisplay(toplevel), "WM_DELETE_WINDOW", FALSE);
-  gui->translations = XtParseTranslationTable("<Message>WM_PROTOCOLS: XcpcWMClose()");
   /* main-wnd */
   argcount = 0;
   gui->main_wnd = XtCreateWidget("main-wnd", boxWidgetClass, toplevel, arglist, argcount);
@@ -664,7 +563,7 @@ static Widget CreateGUI(Widget toplevel)
   gui->about_xcpc = XtCreateWidget("about-xcpc", smeBSBObjectClass, gui->help_pldn, arglist, argcount);
   XtAddCallback(gui->about_xcpc, XtNcallback, (XtCallbackProc) OnAboutXcpcCbk, (XtPointer) gui);
   XtManageChild(gui->about_xcpc);
-  /* xarea */
+  /* emulator */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNemuStartHandler, amstrad_cpc_start_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuClockHandler, amstrad_cpc_clock_handler); argcount++;
@@ -672,8 +571,8 @@ static Widget CreateGUI(Widget toplevel)
   XtSetArg(arglist[argcount], XtNemuKeybdHandler, amstrad_cpc_keybd_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuMouseHandler, amstrad_cpc_mouse_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuPaintHandler, amstrad_cpc_paint_handler); argcount++;
-  gui->xarea = XAreaCreate(gui->main_wnd, "xarea", arglist, argcount);
-  XtManageChild(gui->xarea);
+  gui->emulator = XemCreateEmulator(gui->main_wnd, "emulator", arglist, argcount);
+  XtManageChild(gui->emulator);
   /* XXX */
   return(gui->main_wnd);
 }

@@ -14,9 +14,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-AM_CPPFLAGS = -I$(top_srcdir) $(X_CFLAGS) $(GLIB_CFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/src $(X_CFLAGS) $(GLIB_CFLAGS)
 
 noinst_LIBRARIES = libXem.a
 
 libXem_a_SOURCES = \
-	XArea.c XArea.h XAreaP.h
+	AppShell.c AppShell.h AppShellP.h \
+	DlgShell.c DlgShell.h DlgShellP.h \
+	Emulator.c Emulator.h EmulatorP.h \
+	StringDefs.h

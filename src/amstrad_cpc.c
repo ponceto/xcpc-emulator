@@ -27,7 +27,7 @@
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/keysym.h>
-#include <Xem/XArea.h>
+#include <Xem/Emulator.h>
 #include "common.h"
 #include "xcpc.h"
 #include "cpu_z80.h"
