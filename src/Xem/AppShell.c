@@ -24,25 +24,49 @@
 #include <X11/IntrinsicP.h>
 #include <Xem/StringDefs.h>
 #include <Xem/AppShellP.h>
+#include <X11/Xatom.h>
 
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args);
 static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attributes);
 static void Destroy(Widget widget);
 static void OnWMProtocols(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
+static void OnXdndEnter(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
+static void OnXdndLeave(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
+static void OnXdndPosition(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
+static void OnXdndDrop(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
 
 /**
  * XemAppShellWidget::actions[]
  */
 static XtActionsRec actions[] = {
-  { "OnWMProtocols", OnWMProtocols }
+  { "OnWMProtocols",  OnWMProtocols  },
+  { "OnXdndEnter",    OnXdndEnter    },
+  { "OnXdndLeave",    OnXdndLeave    },
+  { "OnXdndPosition", OnXdndPosition },
+  { "OnXdndDrop",     OnXdndDrop     }
 };
 
 /**
  * XemAppShellWidget::translations[]
  */
 static char translations[] = "\
-<Message>WM_PROTOCOLS: OnWMProtocols()\
+<Message>WM_PROTOCOLS: OnWMProtocols()\n\
+<Message>XdndEnter:    OnXdndEnter()\n\
+<Message>XdndLeave:    OnXdndLeave()\n\
+<Message>XdndPosition: OnXdndPosition()\n\
+<Message>XdndDrop:     OnXdndDrop()\n\
 ";
+
+/**
+ * XemAppShellWidget::resources[]
+ */
+static XtResource resources[] = {
+  /* XtNdropURICallback */ {
+    XtNdropURICallback, XtCCallback, XtRCallback,
+    sizeof(XtCallbackList), XtOffsetOf(XemAppShellRec, app_shell.drop_uri_callback),
+    XtRImmediate, (XtPointer) NULL
+  },
+};
 
 /*
  * XemAppShellWidget::Class
@@ -60,8 +84,8 @@ externaldef(xemappshellclassrec) XemAppShellClassRec xemAppShellClassRec = {
     Realize,                                 /* realize                      */
     actions,                                 /* actions                      */
     XtNumber(actions),                       /* num_actions                  */
-    NULL,                                    /* resources                    */
-    0,                                       /* num_resources                */
+    resources,                               /* resources                    */
+    XtNumber(resources),                     /* num_resources                */
     NULLQUARK,                               /* xrm_class                    */
     TRUE,                                    /* compress_motion              */
     TRUE,                                    /* compress_exposure            */
@@ -123,7 +147,25 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
 {
   XemAppShellWidget self = (XemAppShellWidget) widget;
 
-  self->app_shell.WM_DELETE_WINDOW = XInternAtom(DisplayOfScreen(self->core.screen), "WM_DELETE_WINDOW", FALSE);
+  self->app_shell.WM_DELETE_WINDOW  = XInternAtom(DisplayOfScreen(self->core.screen), "WM_DELETE_WINDOW",  FALSE);
+  self->app_shell.XdndAware         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndAware",         FALSE);
+  self->app_shell.XdndSelection     = XInternAtom(DisplayOfScreen(self->core.screen), "XdndSelection",     FALSE);
+  self->app_shell.XdndEnter         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndEnter",         FALSE);
+  self->app_shell.XdndLeave         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndLeave",         FALSE);
+  self->app_shell.XdndPosition      = XInternAtom(DisplayOfScreen(self->core.screen), "XdndPosition",      FALSE);
+  self->app_shell.XdndDrop          = XInternAtom(DisplayOfScreen(self->core.screen), "XdndDrop",          FALSE);
+  self->app_shell.XdndStatus        = XInternAtom(DisplayOfScreen(self->core.screen), "XdndStatus",        FALSE);
+  self->app_shell.XdndFinished      = XInternAtom(DisplayOfScreen(self->core.screen), "XdndFinished",      FALSE);
+  self->app_shell.XdndActionCopy    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionCopy",    FALSE);
+  self->app_shell.XdndActionMove    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionMove",    FALSE);
+  self->app_shell.XdndActionLink    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionLink",    FALSE);
+  self->app_shell.XdndActionAsk     = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionAsk",     FALSE);
+  self->app_shell.XdndActionPrivate = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionPrivate", FALSE);
+  self->app_shell.XdndSource        = None;
+  self->app_shell.XdndDataT1        = None;
+  self->app_shell.XdndDataT2        = None;
+  self->app_shell.XdndDataT3        = None;
+  self->app_shell.XdndDataT4        = None;
 }
 
 /**
@@ -136,6 +178,7 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
 static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attributes)
 {
   XemAppShellWidget self = (XemAppShellWidget) widget;
+  unsigned int xdnd_version = 5;
 
   if(self->core.parent != NULL) {
     XtWidgetGeometry request;
@@ -172,6 +215,9 @@ static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attr
       XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::Realize(): cannot set WM_DELETE_WINDOW");
     }
   }
+  if((self->core.window != None) && (self->app_shell.XdndAware != None)) {
+    (void) XChangeProperty(XtDisplay(widget), XtWindow(widget), self->app_shell.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *) &xdnd_version, 1);
+  }
 }
 
 /**
@@ -197,6 +243,174 @@ static void OnWMProtocols(Widget widget, XEvent *xevent, String *params, Cardina
 
   if(xevent->xclient.data.l[0] == self->app_shell.WM_DELETE_WINDOW) {
     XtDestroyWidget(widget);
+  }
+}
+
+/**
+ * XemAppShellWidget::ConvertSelection()
+ *
+ * @param widget specifies the XemAppShellWidget instance
+ * @param data specifies the user data
+ * @param selection specifies the selection atom
+ * @param type specifies the type atom
+ * @param value specifies the converted value
+ * @param length specifies the value length
+ * @param format specifies the value format
+ */
+static void ConvertSelection(
+  Widget         widget,
+  XtPointer      data,
+  Atom          *selection,
+  Atom          *type,
+  XtPointer      value,
+  unsigned long *length,
+  int           *format
+)
+{
+  XemAppShellWidget self = (XemAppShellWidget) widget;
+
+  if(value != NULL) {
+    XtCallCallbackList(widget, self->app_shell.drop_uri_callback, value);
+    XtFree((char *) value); value = NULL;
+  }
+}
+
+/**
+ * XemAppShellWidget::OnXdndEnter()
+ *
+ * @param widget specifies the XemAppShellWidget instance
+ * @param xevent specifies the XEvent structure
+ * @param params specifies the parameter list
+ * @param num_params specifies the parameter count
+ */
+static void OnXdndEnter(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+{
+  XemAppShellWidget self = (XemAppShellWidget) widget;
+
+  if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndEnter)) {
+    if(self->app_shell.XdndSource != xevent->xclient.data.l[0]) {
+      self->app_shell.XdndSource = xevent->xclient.data.l[0];
+      self->app_shell.XdndDataT1 = xevent->xclient.data.l[2];
+      self->app_shell.XdndDataT2 = xevent->xclient.data.l[3];
+      self->app_shell.XdndDataT3 = xevent->xclient.data.l[4];
+      self->app_shell.XdndDataT4 = XA_STRING;
+    }
+    else {
+      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndEnter()");
+    }
+  }
+}
+
+/**
+ * XemAppShellWidget::OnXdndLeave()
+ *
+ * @param widget specifies the XemAppShellWidget instance
+ * @param xevent specifies the XEvent structure
+ * @param params specifies the parameter list
+ * @param num_params specifies the parameter count
+ */
+static void OnXdndLeave(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+{
+  XemAppShellWidget self = (XemAppShellWidget) widget;
+
+  if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndLeave)) {
+    if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
+      self->app_shell.XdndSource = None;
+      self->app_shell.XdndDataT1 = None;
+      self->app_shell.XdndDataT2 = None;
+      self->app_shell.XdndDataT3 = None;
+      self->app_shell.XdndDataT4 = None;
+    }
+    else {
+      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndLeave()");
+    }
+  }
+}
+
+/**
+ * XemAppShellWidget::OnXdndPosition()
+ *
+ * @param widget specifies the XemAppShellWidget instance
+ * @param xevent specifies the XEvent structure
+ * @param params specifies the parameter list
+ * @param num_params specifies the parameter count
+ */
+static void OnXdndPosition(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+{
+  XemAppShellWidget self = (XemAppShellWidget) widget;
+  XEvent reply;
+
+  if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndPosition)) {
+    if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
+      reply.xclient.type         = ClientMessage;
+      reply.xclient.serial       = 0;
+      reply.xclient.send_event   = True;
+      reply.xclient.display      = XtDisplay(widget);
+      reply.xclient.window       = xevent->xclient.data.l[0];
+      reply.xclient.message_type = self->app_shell.XdndStatus;
+      reply.xclient.format       = 32;
+      reply.xclient.data.l[0]    = XtWindow(widget);
+      reply.xclient.data.l[1]    = 0x03;
+      reply.xclient.data.l[2]    = 0;
+      reply.xclient.data.l[3]    = 0;
+      reply.xclient.data.l[4]    = self->app_shell.XdndActionCopy;
+      (void) XSendEvent(XtDisplay(widget), self->app_shell.XdndSource, False, 0, &reply);
+    }
+    else {
+      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndPosition()");
+    }
+  }
+}
+
+/**
+ * XemAppShellWidget::OnXdndDrop()
+ *
+ * @param widget specifies the XemAppShellWidget instance
+ * @param xevent specifies the XEvent structure
+ * @param params specifies the parameter list
+ * @param num_params specifies the parameter count
+ */
+static void OnXdndDrop(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+{
+  XemAppShellWidget self = (XemAppShellWidget) widget;
+  XEvent reply;
+
+  if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndDrop)) {
+    if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
+      if(self->app_shell.XdndDataT1 != None) {
+        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT1, ConvertSelection, NULL, xevent->xclient.data.l[2]);
+      }
+      if(self->app_shell.XdndDataT2 != None) {
+        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT2, ConvertSelection, NULL, xevent->xclient.data.l[2]);
+      }
+      if(self->app_shell.XdndDataT3 != None) {
+        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT3, ConvertSelection, NULL, xevent->xclient.data.l[2]);
+      }
+      if(self->app_shell.XdndDataT4 != None) {
+        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT4, ConvertSelection, NULL, xevent->xclient.data.l[2]);
+      }
+      reply.xclient.type         = ClientMessage;
+      reply.xclient.serial       = 0;
+      reply.xclient.send_event   = True;
+      reply.xclient.display      = XtDisplay(widget);
+      reply.xclient.window       = xevent->xclient.data.l[0];
+      reply.xclient.message_type = self->app_shell.XdndFinished;
+      reply.xclient.format       = 32;
+      reply.xclient.data.l[0]    = XtWindow(widget);
+      reply.xclient.data.l[1]    = 0x01;
+      reply.xclient.data.l[2]    = self->app_shell.XdndActionCopy;
+      reply.xclient.data.l[3]    = 0;
+      reply.xclient.data.l[4]    = 0;
+      (void) XSendEvent(XtDisplay(widget), self->app_shell.XdndSource, False, 0, &reply);
+      self->app_shell.XdndSource = None;
+      self->app_shell.XdndDataT1 = None;
+      self->app_shell.XdndDataT2 = None;
+      self->app_shell.XdndDataT3 = None;
+      self->app_shell.XdndDataT4 = None;
+    }
+    else {
+      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndDrop()");
+    }
   }
 }
 

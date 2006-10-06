@@ -44,6 +44,25 @@ externalref XemAppShellClassRec xemAppShellClassRec;
 
 typedef struct _XemAppShellPart {
   Atom WM_DELETE_WINDOW;
+  Atom XdndAware;
+  Atom XdndSelection;
+  Atom XdndEnter;
+  Atom XdndLeave;
+  Atom XdndPosition;
+  Atom XdndDrop;
+  Atom XdndStatus;
+  Atom XdndFinished;
+  Atom XdndActionCopy;
+  Atom XdndActionMove;
+  Atom XdndActionLink;
+  Atom XdndActionAsk;
+  Atom XdndActionPrivate;
+  Window XdndSource;
+  Atom   XdndDataT1;
+  Atom   XdndDataT2;
+  Atom   XdndDataT3;
+  Atom   XdndDataT4;
+  XtCallbackList drop_uri_callback;
 } XemAppShellPart;
 
 typedef struct _XemAppShellRec {

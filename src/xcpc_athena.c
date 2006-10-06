@@ -465,6 +465,26 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
+ * GUI::OnDropURICbk
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param uri specifies the callback info
+ */
+static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
+{
+  if((uri != NULL) && (strncmp(uri, "file://", 7) == 0)) {
+    char *str = &uri[7], *ptr = strstr(str, "\r\n");
+    if(ptr != NULL) {
+      *ptr = '\0';
+    }
+    if(strlen(str) > 0) {
+      amstrad_cpc_load_snapshot(str);
+    }
+  }
+}
+
+/**
  * GUI::Create
  *
  * @param toplevel specifies the TopLevel Shell
@@ -574,5 +594,6 @@ static Widget CreateGUI(Widget toplevel)
   gui->emulator = XemCreateEmulator(gui->main_wnd, "emulator", arglist, argcount);
   XtManageChild(gui->emulator);
   /* XXX */
+  XtAddCallback(toplevel, XtNdropURICallback, (XtCallbackProc) OnDropURICbk, (XtPointer) gui);
   return(gui->main_wnd);
 }

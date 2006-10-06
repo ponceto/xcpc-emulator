@@ -24,6 +24,9 @@
 extern "C" {
 #endif
 
+#ifndef XtNdropURICallback
+#define XtNdropURICallback "dropURICallback"
+#endif
 #ifndef XtNemuStartHandler
 #define XtNemuStartHandler "emuStartHandler"
 #endif
