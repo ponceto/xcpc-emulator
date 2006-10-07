@@ -25,6 +25,7 @@
 #include <Xem/StringDefs.h>
 #include <Xem/AppShellP.h>
 #include <X11/Xatom.h>
+#include <X11/Xutil.h>
 
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args);
 static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attributes);
@@ -61,11 +62,16 @@ static char translations[] = "\
  * XemAppShellWidget::resources[]
  */
 static XtResource resources[] = {
+  /* XtNwmCloseCallback */ {
+    XtNwmCloseCallback, XtCCallback, XtRCallback,
+    sizeof(XtCallbackList), XtOffsetOf(XemAppShellRec, app_shell.wm_close_callback),
+    XtRImmediate, (XtPointer) NULL
+  },
   /* XtNdropURICallback */ {
     XtNdropURICallback, XtCCallback, XtRCallback,
     sizeof(XtCallbackList), XtOffsetOf(XemAppShellRec, app_shell.drop_uri_callback),
     XtRImmediate, (XtPointer) NULL
-  },
+  }
 };
 
 /*
@@ -147,6 +153,7 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
 {
   XemAppShellWidget self = (XemAppShellWidget) widget;
 
+  self->app_shell.WM_PROTOCOLS      = XInternAtom(DisplayOfScreen(self->core.screen), "WM_PROTOCOLS",      FALSE);
   self->app_shell.WM_DELETE_WINDOW  = XInternAtom(DisplayOfScreen(self->core.screen), "WM_DELETE_WINDOW",  FALSE);
   self->app_shell.XdndAware         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndAware",         FALSE);
   self->app_shell.XdndSelection     = XInternAtom(DisplayOfScreen(self->core.screen), "XdndSelection",     FALSE);
@@ -210,13 +217,13 @@ static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attr
     (void) XtMakeGeometryRequest(widget, &request, &request);
   }
   (*xemAppShellWidgetClass->core_class.superclass->core_class.realize)(widget, mask, attributes);
-  if((self->core.window != None) && (self->app_shell.WM_DELETE_WINDOW != None)) {
-    if(XSetWMProtocols(DisplayOfScreen(self->core.screen), self->core.window, &self->app_shell.WM_DELETE_WINDOW, 1) == False) {
-      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::Realize(): cannot set WM_DELETE_WINDOW");
+  if(self->core.window != None) {
+    if(self->app_shell.WM_DELETE_WINDOW != None) {
+      (void) XSetWMProtocols(DisplayOfScreen(self->core.screen), self->core.window, &self->app_shell.WM_DELETE_WINDOW, 1);
     }
-  }
-  if((self->core.window != None) && (self->app_shell.XdndAware != None)) {
-    (void) XChangeProperty(XtDisplay(widget), XtWindow(widget), self->app_shell.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *) &xdnd_version, 1);
+    if(self->app_shell.XdndAware != None) {
+      (void) XChangeProperty(XtDisplay(widget), XtWindow(widget), self->app_shell.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *) &xdnd_version, 1);
+    }
   }
 }
 
@@ -241,8 +248,15 @@ static void OnWMProtocols(Widget widget, XEvent *xevent, String *params, Cardina
 {
   XemAppShellWidget self = (XemAppShellWidget) widget;
 
-  if(xevent->xclient.data.l[0] == self->app_shell.WM_DELETE_WINDOW) {
-    XtDestroyWidget(widget);
+  if((xevent->type                 == ClientMessage                   )
+  && (xevent->xclient.message_type == self->app_shell.WM_PROTOCOLS    )
+  && (xevent->xclient.data.l[0]    == self->app_shell.WM_DELETE_WINDOW)) {
+    if(XtHasCallbacks(widget, XtNwmCloseCallback) == XtCallbackHasSome) {
+      XtCallCallbackList(widget, self->app_shell.wm_close_callback, NULL);
+    }
+    else {
+      XtDestroyWidget(widget);
+    }
   }
 }
 

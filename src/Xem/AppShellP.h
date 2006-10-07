@@ -43,6 +43,7 @@ typedef struct _XemAppShellClassRec {
 externalref XemAppShellClassRec xemAppShellClassRec;
 
 typedef struct _XemAppShellPart {
+  Atom WM_PROTOCOLS;
   Atom WM_DELETE_WINDOW;
   Atom XdndAware;
   Atom XdndSelection;
@@ -62,6 +63,7 @@ typedef struct _XemAppShellPart {
   Atom   XdndDataT2;
   Atom   XdndDataT3;
   Atom   XdndDataT4;
+  XtCallbackList wm_close_callback;
   XtCallbackList drop_uri_callback;
 } XemAppShellPart;
 

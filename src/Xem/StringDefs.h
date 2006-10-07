@@ -24,6 +24,9 @@
 extern "C" {
 #endif
 
+#ifndef XtNwmCloseCallback
+#define XtNwmCloseCallback "wmCloseCallback"
+#endif
 #ifndef XtNdropURICallback
 #define XtNdropURICallback "dropURICallback"
 #endif

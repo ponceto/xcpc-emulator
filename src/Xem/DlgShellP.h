@@ -42,7 +42,10 @@ typedef struct _XemDlgShellClassRec {
 externalref XemDlgShellClassRec xemDlgShellClassRec;
 
 typedef struct _XemDlgShellPart {
+  Atom WM_PROTOCOLS;
   Atom WM_DELETE_WINDOW;
+  XtCallbackList wm_close_callback;
+  XtCallbackList drop_uri_callback;
 } XemDlgShellPart;
 
 typedef struct _XemDlgShellRec {

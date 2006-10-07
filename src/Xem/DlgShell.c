@@ -24,6 +24,8 @@
 #include <X11/IntrinsicP.h>
 #include <Xem/StringDefs.h>
 #include <Xem/DlgShellP.h>
+#include <X11/Xatom.h>
+#include <X11/Xutil.h>
 
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args);
 static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attributes);
@@ -44,6 +46,22 @@ static char translations[] = "\
 <Message>WM_PROTOCOLS: OnWMProtocols()\
 ";
 
+/**
+ * XemDlgShellWidget::resources[]
+ */
+static XtResource resources[] = {
+  /* XtNwmCloseCallback */ {
+    XtNwmCloseCallback, XtCCallback, XtRCallback,
+    sizeof(XtCallbackList), XtOffsetOf(XemDlgShellRec, dlg_shell.wm_close_callback),
+    XtRImmediate, (XtPointer) NULL
+  },
+  /* XtNdropURICallback */ {
+    XtNdropURICallback, XtCCallback, XtRCallback,
+    sizeof(XtCallbackList), XtOffsetOf(XemDlgShellRec, dlg_shell.drop_uri_callback),
+    XtRImmediate, (XtPointer) NULL
+  }
+};
+
 /*
  * XemDlgShellWidget::Class
  */
@@ -60,8 +78,8 @@ externaldef(xemdlgshellclassrec) XemDlgShellClassRec xemDlgShellClassRec = {
     Realize,                                 /* realize                      */
     actions,                                 /* actions                      */
     XtNumber(actions),                       /* num_actions                  */
-    NULL,                                    /* resources                    */
-    0,                                       /* num_resources                */
+    resources,                               /* resources                    */
+    XtNumber(resources),                     /* num_resources                */
     NULLQUARK,                               /* xrm_class                    */
     TRUE,                                    /* compress_motion              */
     TRUE,                                    /* compress_exposure            */
@@ -120,6 +138,7 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
 {
   XemDlgShellWidget self = (XemDlgShellWidget) widget;
 
+  self->dlg_shell.WM_PROTOCOLS     = XInternAtom(DisplayOfScreen(self->core.screen), "WM_PROTOCOLS",     FALSE);
   self->dlg_shell.WM_DELETE_WINDOW = XInternAtom(DisplayOfScreen(self->core.screen), "WM_DELETE_WINDOW", FALSE);
 }
 
@@ -164,9 +183,9 @@ static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attr
     (void) XtMakeGeometryRequest(widget, &request, &request);
   }
   (*xemDlgShellWidgetClass->core_class.superclass->core_class.realize)(widget, mask, attributes);
-  if((self->core.window != None) && (self->dlg_shell.WM_DELETE_WINDOW != None)) {
-    if(XSetWMProtocols(DisplayOfScreen(self->core.screen), self->core.window, &self->dlg_shell.WM_DELETE_WINDOW, 1) == False) {
-      XtAppWarning(XtWidgetToApplicationContext(widget), "XemDlgShellWidget::Realize(): cannot set WM_DELETE_WINDOW");
+  if(self->core.window != None) {
+    if(self->dlg_shell.WM_DELETE_WINDOW != None) {
+      (void) XSetWMProtocols(DisplayOfScreen(self->core.screen), self->core.window, &self->dlg_shell.WM_DELETE_WINDOW, 1);
     }
   }
 }
@@ -192,8 +211,15 @@ static void OnWMProtocols(Widget widget, XEvent *xevent, String *params, Cardina
 {
   XemDlgShellWidget self = (XemDlgShellWidget) widget;
 
-  if(xevent->xclient.data.l[0] == self->dlg_shell.WM_DELETE_WINDOW) {
-    XtDestroyWidget(widget);
+  if((xevent->type                 == ClientMessage                   )
+  && (xevent->xclient.message_type == self->dlg_shell.WM_PROTOCOLS    )
+  && (xevent->xclient.data.l[0]    == self->dlg_shell.WM_DELETE_WINDOW)) {
+    if(XtHasCallbacks(widget, XtNwmCloseCallback) == XtCallbackHasSome) {
+      XtCallCallbackList(widget, self->dlg_shell.wm_close_callback, NULL);
+    }
+    else {
+      XtDestroyWidget(widget);
+    }
   }
 }
 
