@@ -480,6 +480,7 @@ static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
     }
     if(strlen(str) > 0) {
       amstrad_cpc_load_snapshot(str);
+      XtSetSensitive(gui->emulator, TRUE);
     }
   }
 }
