@@ -1,3 +1,15 @@
+2006-10-09	Olivier Poncet <ponceto@noos.fr>
+
+	* GLib-2.0 / GObject-2.0 support added.
+	* Autoconf / Automake enhancements (GUI autodetection).
+	* Athena & Motif1 GUI code improvements.
+	* Xem internal library creation.
+	* XArea translated to XemEmulator (in libXem).
+	* XemAppShell WidgetClass created (in libXem).
+	* XemDlgShell WidgetClass created (in libXem).
+	* Preliminary (but working) support of X Drag & Drop protocol (Xdnd).
+	* Snapshot loading with Drag & Drop from a file manager (i.e nautilus).
+
 2006-10-02	Olivier Poncet <ponceto@noos.fr>
 
 	* Source code cleanup (continued).
