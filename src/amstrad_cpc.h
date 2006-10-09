@@ -108,6 +108,10 @@ typedef struct {
     byte ram_cfg;
     byte counter;
   } gate_array;
+  struct {
+    unsigned int mode;
+    unsigned long ink[17];
+  } scanline[312];
 } AMSTRAD_CPC;
 
 extern AMSTRAD_CPC amstrad_cpc;

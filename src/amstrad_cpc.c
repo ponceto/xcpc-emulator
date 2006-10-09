@@ -457,41 +457,44 @@ int col, row = 0;
 
 static void amstrad_cpc_redraw_8(void)
 {
-byte *src = _write[crtc_6845.registers[12] >> 4];
-word base = 0x0000;
-word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
-unsigned int hd = crtc_6845.registers[1] << 1;
-unsigned int hp = (cfg.width - (hd << 3)) >> 1;
-unsigned int mr = crtc_6845.registers[9] + 1;
-unsigned int mask = (mr << 11) - 1;
-unsigned int vd = crtc_6845.registers[6];
-unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-unsigned int cx, cy, cxx, cyy;
-byte value;
-unsigned char color;
-unsigned char border = _ink[0x10];
-unsigned char *dst = (unsigned char *) _ximage->data;
-unsigned char *nxt = (unsigned char *) _ximage->data;
+  byte *src = _write[crtc_6845.registers[12] >> 4];
+  word base = 0x0000;
+  word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
+  unsigned int hd = crtc_6845.registers[1] << 1;
+  unsigned int hp = (cfg.width - (hd << 3)) >> 1;
+  unsigned int mr = crtc_6845.registers[9] + 1;
+  unsigned int mask = (mr << 11) - 1;
+  unsigned int vd = crtc_6845.registers[6];
+  unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
+  unsigned int cx, cy, cxx, cyy;
+  unsigned int color, border;
+  unsigned char *dst = (unsigned char *) _ximage->data;
+  unsigned char *nxt = (unsigned char *) _ximage->data;
+  int scanline = 0;
+  byte value;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
+    border = amstrad_cpc.scanline[scanline].ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
       *dst++ = *nxt++ = border;
     }
     dst = nxt;
+    scanline++;
   }
-  switch(amstrad_cpc.gate_array.rom_cfg & 0x03) {
-    case 0x00:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+  for(cy = 0; cy < vd; cy++) {
+    for(cyy = 0; cyy < mr; cyy++) {
+      nxt += cfg.width;
+      border = amstrad_cpc.scanline[scanline].ink[16];
+      switch(amstrad_cpc.scanline[scanline].mode) {
+        case 0x00:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 2; cxx++) {
-              color = _ink[_mode0[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode0[value]];
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
@@ -502,22 +505,15 @@ unsigned char *nxt = (unsigned char *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-    case 0x01:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+          break;
+        case 0x01:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 4; cxx++) {
-              color = _ink[_mode1[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode1[value]];
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
               value <<= 1;
@@ -526,22 +522,15 @@ unsigned char *nxt = (unsigned char *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-    case 0x02:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+          break;
+        case 0x02:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 8; cxx++) {
-              color = _ink[_mode2[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode2[value]];
               *dst++ = *nxt++ = color;
               value <<= 1;
             }
@@ -549,18 +538,23 @@ unsigned char *nxt = (unsigned char *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
+          break;
+	case 0x03:
+          break;
       }
-      break;
+      dst = nxt;
+      scanline++;
+      base = (base + 2048) & mask;
+    }
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
+    border = amstrad_cpc.scanline[scanline].ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
       *dst++ = *nxt++ = border;
     }
     dst = nxt;
+    scanline++;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
@@ -570,41 +564,44 @@ unsigned char *nxt = (unsigned char *) _ximage->data;
 
 static void amstrad_cpc_redraw_16(void)
 {
-byte *src = _write[crtc_6845.registers[12] >> 4];
-word base = 0x0000;
-word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
-unsigned int hd = crtc_6845.registers[1] << 1;
-unsigned int hp = (cfg.width - (hd << 3)) >> 1;
-unsigned int mr = crtc_6845.registers[9] + 1;
-unsigned int mask = (mr << 11) - 1;
-unsigned int vd = crtc_6845.registers[6];
-unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-unsigned int cx, cy, cxx, cyy;
-byte value;
-unsigned short color;
-unsigned short border = _ink[0x10];
-unsigned short *dst = (unsigned short *) _ximage->data;
-unsigned short *nxt = (unsigned short *) _ximage->data;
+  byte *src = _write[crtc_6845.registers[12] >> 4];
+  word base = 0x0000;
+  word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
+  unsigned int hd = crtc_6845.registers[1] << 1;
+  unsigned int hp = (cfg.width - (hd << 3)) >> 1;
+  unsigned int mr = crtc_6845.registers[9] + 1;
+  unsigned int mask = (mr << 11) - 1;
+  unsigned int vd = crtc_6845.registers[6];
+  unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
+  unsigned int cx, cy, cxx, cyy;
+  unsigned int color, border;
+  unsigned short *dst = (unsigned short *) _ximage->data;
+  unsigned short *nxt = (unsigned short *) _ximage->data;
+  int scanline = 0;
+  byte value;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
+    border = amstrad_cpc.scanline[scanline].ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
       *dst++ = *nxt++ = border;
     }
     dst = nxt;
+    scanline++;
   }
-  switch(amstrad_cpc.gate_array.rom_cfg & 0x03) {
-    case 0x00:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+  for(cy = 0; cy < vd; cy++) {
+    for(cyy = 0; cyy < mr; cyy++) {
+      nxt += cfg.width;
+      border = amstrad_cpc.scanline[scanline].ink[16];
+      switch(amstrad_cpc.scanline[scanline].mode) {
+        case 0x00:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 2; cxx++) {
-              color = _ink[_mode0[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode0[value]];
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
@@ -615,22 +612,15 @@ unsigned short *nxt = (unsigned short *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-    case 0x01:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+          break;
+        case 0x01:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 4; cxx++) {
-              color = _ink[_mode1[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode1[value]];
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
               value <<= 1;
@@ -639,22 +629,15 @@ unsigned short *nxt = (unsigned short *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-    case 0x02:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+          break;
+        case 0x02:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 8; cxx++) {
-              color = _ink[_mode2[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode2[value]];
               *dst++ = *nxt++ = color;
               value <<= 1;
             }
@@ -662,18 +645,23 @@ unsigned short *nxt = (unsigned short *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
+          break;
+	case 0x03:
+          break;
       }
-      break;
+      dst = nxt;
+      scanline++;
+      base = (base + 2048) & mask;
+    }
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
+    border = amstrad_cpc.scanline[scanline].ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
       *dst++ = *nxt++ = border;
     }
     dst = nxt;
+    scanline++;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
@@ -683,41 +671,44 @@ unsigned short *nxt = (unsigned short *) _ximage->data;
 
 static void amstrad_cpc_redraw_32(void)
 {
-byte *src = _write[crtc_6845.registers[12] >> 4];
-word base = 0x0000;
-word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
-unsigned int hd = crtc_6845.registers[1] << 1;
-unsigned int hp = (cfg.width - (hd << 3)) >> 1;
-unsigned int mr = crtc_6845.registers[9] + 1;
-unsigned int mask = (mr << 11) - 1;
-unsigned int vd = crtc_6845.registers[6];
-unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-unsigned int cx, cy, cxx, cyy;
-byte value;
-unsigned int color;
-unsigned int border = _ink[0x10];
-unsigned int *dst = (unsigned int *) _ximage->data;
-unsigned int *nxt = (unsigned int *) _ximage->data;
+  byte *src = _write[crtc_6845.registers[12] >> 4];
+  word base = 0x0000;
+  word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
+  unsigned int hd = crtc_6845.registers[1] << 1;
+  unsigned int hp = (cfg.width - (hd << 3)) >> 1;
+  unsigned int mr = crtc_6845.registers[9] + 1;
+  unsigned int mask = (mr << 11) - 1;
+  unsigned int vd = crtc_6845.registers[6];
+  unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
+  unsigned int cx, cy, cxx, cyy;
+  unsigned int color, border;
+  unsigned int *dst = (unsigned int *) _ximage->data;
+  unsigned int *nxt = (unsigned int *) _ximage->data;
+  int scanline = 0;
+  byte value;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
+    border = amstrad_cpc.scanline[scanline].ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
       *dst++ = *nxt++ = border;
     }
     dst = nxt;
+    scanline++;
   }
-  switch(amstrad_cpc.gate_array.rom_cfg & 0x03) {
-    case 0x00:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+  for(cy = 0; cy < vd; cy++) {
+    for(cyy = 0; cyy < mr; cyy++) {
+      nxt += cfg.width;
+      border = amstrad_cpc.scanline[scanline].ink[16];
+      switch(amstrad_cpc.scanline[scanline].mode) {
+        case 0x00:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 2; cxx++) {
-              color = _ink[_mode0[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode0[value]];
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
@@ -728,22 +719,15 @@ unsigned int *nxt = (unsigned int *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-    case 0x01:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+          break;
+        case 0x01:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 4; cxx++) {
-              color = _ink[_mode1[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode1[value]];
               *dst++ = *nxt++ = color;
               *dst++ = *nxt++ = color;
               value <<= 1;
@@ -752,22 +736,15 @@ unsigned int *nxt = (unsigned int *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-    case 0x02:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          nxt += cfg.width;
+          break;
+        case 0x02:
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
             value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
             for(cxx = 0; cxx < 8; cxx++) {
-              color = _ink[_mode2[value]];
+              color = amstrad_cpc.scanline[scanline].ink[_mode2[value]];
               *dst++ = *nxt++ = color;
               value <<= 1;
             }
@@ -775,18 +752,23 @@ unsigned int *nxt = (unsigned int *) _ximage->data;
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          dst = nxt;
-          base = (base + 2048) & mask;
-        }
+          break;
+	case 0x03:
+          break;
       }
-      break;
+      dst = nxt;
+      scanline++;
+      base = (base + 2048) & mask;
+    }
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
+    border = amstrad_cpc.scanline[scanline].ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
       *dst++ = *nxt++ = border;
     }
     dst = nxt;
+    scanline++;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
@@ -2199,19 +2181,27 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
-  long delay;
+  long delay, ix;
   int scanline = 0;
+  int vsyncpos = 0;
 
+  vsyncpos = crtc_6845.registers[7] * (crtc_6845.registers[9] + 1);
   do {
+    amstrad_cpc.scanline[(scanline + 26) % 312].mode = amstrad_cpc.gate_array.rom_cfg & 0x03;
+    for(ix = 0; ix < 17; ix++) {
+      amstrad_cpc.scanline[(scanline + 26) % 312].ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
+    }
+    if((scanline >= vsyncpos) && (scanline < (vsyncpos + 32))) {
+      ppi_8255.port_b |= 0x01; /* set VSYNC */
+    }
+    else {
+      ppi_8255.port_b &= 0xfe; /* reset VSYNC */
+    }
     cpu_z80_clock(&cpu_z80);
     if(++amstrad_cpc.gate_array.counter >= 52) {
       amstrad_cpc.gate_array.counter = 0;
       if(++amstrad_cpc.cycle >= 6) {
         amstrad_cpc.cycle = 0;
-        ppi_8255.port_b |= 0x01; /* set VSYNC */
-      }
-      else {
-        ppi_8255.port_b &= 0xFE; /* reset VSYNC */
       }
       cpu_z80_intr(&cpu_z80, INT_RST38);
     }
