@@ -89,7 +89,6 @@ typedef struct {
 } AMSTRAD_CPC_CFG;
 
 typedef struct {
-  int cycle;
   struct {
     byte *lower_rom;
     byte *ram;

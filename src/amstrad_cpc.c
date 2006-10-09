@@ -226,26 +226,6 @@ static unsigned long _col[32] = {
   0L  /* color 31 */
 };
 
-static unsigned long _ink[17] = {
-  0L, /* ink 0  */
-  0L, /* ink 1  */
-  0L, /* ink 2  */
-  0L, /* ink 3  */
-  0L, /* ink 4  */
-  0L, /* ink 5  */
-  0L, /* ink 6  */
-  0L, /* ink 7  */
-  0L, /* ink 8  */
-  0L, /* ink 9  */
-  0L, /* ink 10 */
-  0L, /* ink 11 */
-  0L, /* ink 12 */
-  0L, /* ink 13 */
-  0L, /* ink 14 */
-  0L, /* ink 15 */
-  0L, /* border */
-};
-
 static void amstrad_cpc_init_palette(void)
 {
 int ix;
@@ -330,129 +310,6 @@ static byte _mode2[256] = {
 
 static void amstrad_cpc_redraw_0(void)
 {
-byte *src = _write[crtc_6845.registers[12] >> 4];
-word base = 0x0000;
-word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
-unsigned int hd = crtc_6845.registers[1] << 1;
-unsigned int hp = (cfg.width - (hd << 3)) >> 1;
-unsigned int mr = crtc_6845.registers[9] + 1;
-unsigned int mask = (mr << 11) - 1;
-unsigned int vd = crtc_6845.registers[6];
-unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-unsigned int cx, cy, cxx, cyy;
-byte value;
-unsigned long color;
-unsigned long border = _ink[0x10];
-int col, row = 0;
-
-  for(cy = 0; cy < vp; cy++) {
-    col = 0;
-    for(cx = 0; cx < cfg.width; cx++) {
-      XPutPixel(_ximage, col, row++, border);
-      XPutPixel(_ximage, col++, row--, border);
-    }
-    row += 2;
-  }
-  switch(amstrad_cpc.gate_array.rom_cfg & 0x03) {
-    case 0x00:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          col = 0;
-          for(cx = 0; cx < hp; cx++) {
-            XPutPixel(_ximage, col, row++, border);
-            XPutPixel(_ximage, col++, row--, border);
-          }
-          for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 2; cxx++) {
-              color = _ink[_mode0[value]];
-              XPutPixel(_ximage, col, row++, color);
-              XPutPixel(_ximage, col++, row, color);
-              XPutPixel(_ximage, col, row--, color);
-              XPutPixel(_ximage, col++, row, color);
-              XPutPixel(_ximage, col, row++, color);
-              XPutPixel(_ximage, col++, row, color);
-              XPutPixel(_ximage, col, row--, color);
-              XPutPixel(_ximage, col++, row, color);
-              value <<= 1;
-            }
-          }
-          for(cx = 0; cx < hp; cx++) {
-            XPutPixel(_ximage, col, row++, border);
-            XPutPixel(_ximage, col++, row--, border);
-          }
-          row += 2;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-    case 0x01:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          col = 0;
-          for(cx = 0; cx < hp; cx++) {
-            XPutPixel(_ximage, col, row++, border);
-            XPutPixel(_ximage, col++, row--, border);
-          }
-          for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 4; cxx++) {
-              color = _ink[_mode1[value]];
-              XPutPixel(_ximage, col, row++, color);
-              XPutPixel(_ximage, col++, row, color);
-              XPutPixel(_ximage, col, row--, color);
-              XPutPixel(_ximage, col++, row, color);
-              value <<= 1;
-            }
-          }
-          for(cx = 0; cx < hp; cx++) {
-            XPutPixel(_ximage, col, row++, border);
-            XPutPixel(_ximage, col++, row--, border);
-          }
-          row += 2;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-    case 0x02:
-      for(cy = 0; cy < vd; cy++) {
-        for(cyy = 0; cyy < mr; cyy++) {
-          col = 0;
-          for(cx = 0; cx < hp; cx++) {
-            XPutPixel(_ximage, col, row++, border);
-            XPutPixel(_ximage, col++, row--, border);
-          }
-          for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 8; cxx++) {
-              color = _ink[_mode2[value]];
-              XPutPixel(_ximage, col, row++, color);
-              XPutPixel(_ximage, col++, row--, color);
-              value <<= 1;
-            }
-          }
-          for(cx = 0; cx < hp; cx++) {
-            XPutPixel(_ximage, col, row++, border);
-            XPutPixel(_ximage, col++, row--, border);
-          }
-          row += 2;
-          base = (base + 2048) & mask;
-        }
-      }
-      break;
-  }
-  for(cy = 0; cy < vp; cy++) {
-    col = 0;
-    for(cx = 0; cx < cfg.width; cx++) {
-      XPutPixel(_ximage, col, row++, border);
-      XPutPixel(_ximage, col++, row--, border);
-    }
-    row += 2;
-  }
-  if(_window != None) {
-    XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
-    XFlush(DisplayOfScreen(_screen));
-  }
 }
 
 static void amstrad_cpc_redraw_8(void)
@@ -1598,7 +1455,6 @@ void amstrad_cpc_reset(void)
 {
 int ix;
 
-  amstrad_cpc.cycle = 0;
   amstrad_cpc.memory.expansion = 0x00;
   amstrad_cpc.keyboard.mods = 0x00;
   amstrad_cpc.keyboard.line = 0x00;
@@ -1608,7 +1464,6 @@ int ix;
   amstrad_cpc.gate_array.pen = 0x00;
   for(ix = 0; ix < 17; ix++) {
     amstrad_cpc.gate_array.ink[ix] = 0x00;
-    _ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
   }
   amstrad_cpc.gate_array.rom_cfg = 0x00;
   amstrad_cpc.gate_array.ram_cfg = 0x00;
@@ -1801,7 +1656,6 @@ int ramsize;
   amstrad_cpc.gate_array.pen = *bufptr++;
   for(ix = 0; ix < 17; ix++) {
     amstrad_cpc.gate_array.ink[ix] = *bufptr++;
-    _ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
   }
   amstrad_cpc.gate_array.rom_cfg = *bufptr++;
   amstrad_cpc.gate_array.ram_cfg = *bufptr++;
@@ -1999,7 +1853,6 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte value)
         break;
       case 0x40: /* Select color */
         amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen] = value & 0x1F;
-        _ink[amstrad_cpc.gate_array.pen] = _col[amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen]];
         break;
       case 0x80: /* Interrupt control, ROM configuration and screen mode */
         amstrad_cpc.gate_array.rom_cfg = value;
@@ -2078,7 +1931,6 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 {
   int ix;
   FILE *file;
-  int cx, cy;
   int clock;
   Arg arglist[8];
   Cardinal argcount;
@@ -2095,11 +1947,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     exit(-1);
   }
   _ximage->data = (char *) XtMalloc(_ximage->bytes_per_line * _ximage->height);
-  for(cy = 0; cy < _ximage->height; cy++) {
-    for(cx = 0; cx < _ximage->width; cx++) {
-      XPutPixel(_ximage, cx, cy, BlackPixelOfScreen(_screen));
-    }
-  }
+  (void) memset(_ximage->data, 0, _ximage->bytes_per_line * _ximage->height);
   switch(_ximage->depth) {
     case 8:
       amstrad_cpc_redraw = amstrad_cpc_redraw_8;
@@ -2191,7 +2039,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     for(ix = 0; ix < 17; ix++) {
       amstrad_cpc.scanline[(scanline + 26) % 312].ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
     }
-    if((scanline >= vsyncpos) && (scanline < (vsyncpos + 32))) {
+    if((scanline >= vsyncpos) && (scanline < (vsyncpos + 26))) {
       ppi_8255.port_b |= 0x01; /* set VSYNC */
     }
     else {
@@ -2200,9 +2048,6 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     cpu_z80_clock(&cpu_z80);
     if(++amstrad_cpc.gate_array.counter >= 52) {
       amstrad_cpc.gate_array.counter = 0;
-      if(++amstrad_cpc.cycle >= 6) {
-        amstrad_cpc.cycle = 0;
-      }
       cpu_z80_intr(&cpu_z80, INT_RST38);
     }
   } while(++scanline < 312);
