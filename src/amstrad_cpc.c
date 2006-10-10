@@ -396,8 +396,6 @@ static void amstrad_cpc_redraw_8(void)
             *dst++ = *nxt++ = border;
           }
           break;
-	case 0x03:
-          break;
       }
       dst = nxt;
       scanline++;
@@ -503,8 +501,6 @@ static void amstrad_cpc_redraw_16(void)
             *dst++ = *nxt++ = border;
           }
           break;
-	case 0x03:
-          break;
       }
       dst = nxt;
       scanline++;
@@ -609,8 +605,6 @@ static void amstrad_cpc_redraw_32(void)
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
           }
-          break;
-	case 0x03:
           break;
       }
       dst = nxt;
@@ -2031,15 +2025,25 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
   long delay, ix;
   int scanline = 0;
-  int vsyncpos = 0;
+  int vsync_length;
+  int vsyncpos_min;
+  int vsyncpos_max;
 
-  vsyncpos = crtc_6845.registers[7] * (crtc_6845.registers[9] + 1);
+  vsync_length = (crtc_6845.registers[3] >> 4) & 0x0f;
+  if(vsync_length == 0) {
+    vsync_length = 16;
+  }
+  vsyncpos_min = crtc_6845.registers[7] * (crtc_6845.registers[9] + 1);
+  vsyncpos_max = vsyncpos_min + vsync_length;
   do {
-    amstrad_cpc.scanline[(scanline + 26) % 312].mode = amstrad_cpc.gate_array.rom_cfg & 0x03;
+    amstrad_cpc.scanline[(scanline + 40) % 312].mode = amstrad_cpc.gate_array.rom_cfg & 0x03;
     for(ix = 0; ix < 17; ix++) {
-      amstrad_cpc.scanline[(scanline + 26) % 312].ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
+      amstrad_cpc.scanline[(scanline + 40) % 312].ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
     }
-    if((scanline >= vsyncpos) && (scanline < (vsyncpos + 26))) {
+    if((scanline >= vsyncpos_min) && (scanline < vsyncpos_max)) {
+      if((ppi_8255.port_b & 0x01) == 0) {
+        amstrad_cpc.gate_array.counter = 52 - vsync_length + 2;
+      }
       ppi_8255.port_b |= 0x01; /* set VSYNC */
     }
     else {

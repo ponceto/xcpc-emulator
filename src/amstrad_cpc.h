@@ -105,7 +105,7 @@ typedef struct {
     byte ink[17];
     byte rom_cfg;
     byte ram_cfg;
-    byte counter;
+    char counter;
   } gate_array;
   struct {
     unsigned int mode;
