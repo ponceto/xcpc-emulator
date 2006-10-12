@@ -106,11 +106,15 @@ typedef struct {
     byte rom_cfg;
     byte ram_cfg;
     char counter;
+    byte set_irq;
   } gate_array;
   struct {
     unsigned int mode;
     unsigned long ink[17];
   } scanline[312];
+  struct {
+    int x, y;
+  } beam;
 } AMSTRAD_CPC;
 
 extern AMSTRAD_CPC amstrad_cpc;

@@ -327,7 +327,7 @@ static void amstrad_cpc_redraw_8(void)
   unsigned int color, border;
   unsigned char *dst = (unsigned char *) _ximage->data;
   unsigned char *nxt = (unsigned char *) _ximage->data;
-  int scanline = 0;
+  int scanline = 20;
   byte value;
 
   for(cy = 0; cy < vp; cy++) {
@@ -432,7 +432,7 @@ static void amstrad_cpc_redraw_16(void)
   unsigned int color, border;
   unsigned short *dst = (unsigned short *) _ximage->data;
   unsigned short *nxt = (unsigned short *) _ximage->data;
-  int scanline = 0;
+  int scanline = 20;
   byte value;
 
   for(cy = 0; cy < vp; cy++) {
@@ -537,7 +537,7 @@ static void amstrad_cpc_redraw_32(void)
   unsigned int color, border;
   unsigned int *dst = (unsigned int *) _ximage->data;
   unsigned int *nxt = (unsigned int *) _ximage->data;
-  int scanline = 0;
+  int scanline = 20;
   byte value;
 
   for(cy = 0; cy < vp; cy++) {
@@ -1462,7 +1462,10 @@ int ix;
   amstrad_cpc.gate_array.rom_cfg = 0x00;
   amstrad_cpc.gate_array.ram_cfg = 0x00;
   amstrad_cpc.gate_array.counter = 0x00;
+  amstrad_cpc.gate_array.set_irq = 0x00;
   amstrad_cpc_ram_select();
+  amstrad_cpc.beam.x = 0;
+  amstrad_cpc.beam.y = 0;
   cpu_z80_reset(&cpu_z80);
   crtc_6845_reset(&crtc_6845);
   ay_3_8910_reset(&ay_3_8910);
@@ -1849,6 +1852,10 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte value)
         amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen] = value & 0x1F;
         break;
       case 0x80: /* Interrupt control, ROM configuration and screen mode */
+        if((value & 0x10) != 0) {
+          amstrad_cpc.gate_array.counter = 0;
+          amstrad_cpc.gate_array.set_irq = 0;
+        }
         amstrad_cpc.gate_array.rom_cfg = value;
         amstrad_cpc_rom_select();
         break;
@@ -2034,25 +2041,48 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     vsync_length = 16;
   }
   vsyncpos_min = crtc_6845.registers[7] * (crtc_6845.registers[9] + 1);
-  vsyncpos_max = vsyncpos_min + vsync_length;
+  vsyncpos_max = vsyncpos_min + vsync_length - 1;
   do {
-    amstrad_cpc.scanline[(scanline + 40) % 312].mode = amstrad_cpc.gate_array.rom_cfg & 0x03;
+    amstrad_cpc.scanline[amstrad_cpc.beam.y].mode = amstrad_cpc.gate_array.rom_cfg & 0x03;
     for(ix = 0; ix < 17; ix++) {
-      amstrad_cpc.scanline[(scanline + 40) % 312].ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
+      amstrad_cpc.scanline[amstrad_cpc.beam.y].ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
     }
-    if((scanline >= vsyncpos_min) && (scanline < vsyncpos_max)) {
+    if((scanline >= vsyncpos_min) && (scanline <= vsyncpos_max)) {
       if((ppi_8255.port_b & 0x01) == 0) {
-        amstrad_cpc.gate_array.counter = 52 - vsync_length + 2;
+        /* rising edge of V-SYNC */
       }
-      ppi_8255.port_b |= 0x01; /* set VSYNC */
+      if((scanline - vsyncpos_min) == 2) {
+        if((amstrad_cpc.gate_array.counter & 32) != 0) {
+          amstrad_cpc.gate_array.counter = 0;
+        }
+        else {
+          amstrad_cpc.gate_array.counter = 0;
+          amstrad_cpc.gate_array.set_irq = 1;
+        }
+      }
+      ppi_8255.port_b |= 0x01; /* set V-SYNC */
+      amstrad_cpc.beam.y = 0;
     }
     else {
-      ppi_8255.port_b &= 0xfe; /* reset VSYNC */
+      if((ppi_8255.port_b & 0x01) != 0) {
+        /* falling edge of V-SYNC */
+      }
+      ppi_8255.port_b &= 0xfe; /* reset V-SYNC */
+    }
+    if(amstrad_cpc.gate_array.set_irq != 0) {
+      if((cpu_z80.IFF & IFF_1) != 0) {
+        cpu_z80_intr(&cpu_z80, INT_RST38);
+        amstrad_cpc.gate_array.counter &= 31;
+        amstrad_cpc.gate_array.set_irq  = 0;
+      }
     }
     cpu_z80_clock(&cpu_z80);
     if(++amstrad_cpc.gate_array.counter >= 52) {
       amstrad_cpc.gate_array.counter = 0;
-      cpu_z80_intr(&cpu_z80, INT_RST38);
+      amstrad_cpc.gate_array.set_irq = 1;
+    }
+    if(++amstrad_cpc.beam.y > 311) {
+      amstrad_cpc.beam.y = 311;
     }
   } while(++scanline < 312);
   (void) gettimeofday(&timer2, NULL);
