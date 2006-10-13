@@ -25,6 +25,7 @@ extern "C" {
 typedef struct _FDC_765 {
   byte status;
   byte motors;
+  byte data;
 } FDC_765;
 
 extern void fdc_765_init (FDC_765 *fdc_765);

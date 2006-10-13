@@ -52,6 +52,7 @@ void fdc_765_reset(FDC_765 *self)
 {
   self->status = 0x80;
   self->motors = 0x00;
+  self->data   = 0x00;
 }
 
 /**

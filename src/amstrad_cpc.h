@@ -41,14 +41,6 @@ extern "C" {
 #define AMSTRAD_CPC_12MHZ       0x02
 #define AMSTRAD_CPC_16MHZ       0x03
 
-/* Cassette read data */
-#define AMSTRAD_CPC_NO_DATA     0x00
-#define AMSTRAD_CPC_DATA        0x01
-
-/* Printer configuration */
-#define AMSTRAD_CPC_NOT_READY   0x01
-#define AMSTRAD_CPC_READY       0x00
-
 /* Expansion peripheral detect */
 #define AMSTRAD_CPC_NOT_PRESENT 0x00
 #define AMSTRAD_CPC_PRESENT     0x01
@@ -67,21 +59,14 @@ extern "C" {
 #define AMSTRAD_CPC_ORION       0x06
 #define AMSTRAD_CPC_AMSTRAD     0x07
 
-/* VSYNC status */
-#define AMSTRAD_CPC_NOT_ACTIVE  0x00
-#define AMSTRAD_CPC_ACTIVE      0x01
-
 typedef struct {
   int version;
   int keyboard;
   int monitor;
   int clock;
-  int cassette;
-  int printer;
   int expansion;
-  int refresh;
+  int framerate;
   int manufacturer;
-  int vsync;
   unsigned int width;
   unsigned int height;
   int ramsize;
@@ -92,7 +77,7 @@ typedef struct {
   struct {
     byte *lower_rom;
     byte *ram;
-    byte *upper_rom[8];
+    byte *upper_rom[256];
     byte expansion;
   } memory;
   struct {

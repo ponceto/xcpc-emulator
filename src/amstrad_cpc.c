@@ -42,12 +42,9 @@ static AMSTRAD_CPC_CFG cfg = {
   AMSTRAD_CPC_QWERTY,     /* keyboard          */
   AMSTRAD_CPC_CTM644,     /* monitor           */
   AMSTRAD_CPC_4MHZ,       /* clock             */
-  AMSTRAD_CPC_DATA,       /* cassette          */
-  AMSTRAD_CPC_READY,      /* printer           */
   AMSTRAD_CPC_PRESENT,    /* expansion         */
-  AMSTRAD_CPC_50HZ,       /* refresh           */
+  AMSTRAD_CPC_50HZ,       /* framerate         */
   AMSTRAD_CPC_AMSTRAD,    /* manufacturer      */
-  AMSTRAD_CPC_NOT_ACTIVE, /* vsync             */
   768,                    /* width             */
   576,                    /* height            */
   128,                    /* ramsize           */
@@ -139,6 +136,10 @@ static void amstrad_cpc_ram_select(void)
       _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x1C000;
       _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
                  _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      break;
+    default:
+      (void) fprintf(stderr, "RAM-SELECT: Bad Configuration (%02x) !!\n", amstrad_cpc.gate_array.ram_cfg);
+      (void) fflush(stderr);
       break;
   }
   _read[0] = (!(amstrad_cpc.gate_array.rom_cfg & 0x04) ? amstrad_cpc.memory.lower_rom : _bank[0]);
@@ -245,7 +246,7 @@ XColor xcolor;
       xcolor.blue = _palette[ix][2];
     }
     if(XAllocColor(DisplayOfScreen(_screen), DefaultColormapOfScreen(_screen), &xcolor) == False) {
-      fprintf(stderr, "amstrad_cpc: cannot allocate color ... %04x/%04x/%04x\n", xcolor.red, xcolor.green, xcolor.blue);
+      fprintf(stderr, "cannot allocate color ... %04x/%04x/%04x\n", xcolor.red, xcolor.green, xcolor.blue);
     }
     _col[ix] = xcolor.pixel;
   }
@@ -314,14 +315,14 @@ static void amstrad_cpc_redraw_0(void)
 
 static void amstrad_cpc_redraw_8(void)
 {
-  byte *src = _write[crtc_6845.registers[12] >> 4];
+  byte *src = _write[crtc_6845.reg_file[12] >> 4];
   word base = 0x0000;
-  word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
-  unsigned int hd = crtc_6845.registers[1] << 1;
+  word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
+  unsigned int hd = crtc_6845.reg_file[1] << 1;
   unsigned int hp = (cfg.width - (hd << 3)) >> 1;
-  unsigned int mr = crtc_6845.registers[9] + 1;
+  unsigned int mr = crtc_6845.reg_file[9] + 1;
   unsigned int mask = (mr << 11) - 1;
-  unsigned int vd = crtc_6845.registers[6];
+  unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
   unsigned int cx, cy, cxx, cyy;
   unsigned int color, border;
@@ -419,14 +420,14 @@ static void amstrad_cpc_redraw_8(void)
 
 static void amstrad_cpc_redraw_16(void)
 {
-  byte *src = _write[crtc_6845.registers[12] >> 4];
+  byte *src = _write[crtc_6845.reg_file[12] >> 4];
   word base = 0x0000;
-  word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
-  unsigned int hd = crtc_6845.registers[1] << 1;
+  word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
+  unsigned int hd = crtc_6845.reg_file[1] << 1;
   unsigned int hp = (cfg.width - (hd << 3)) >> 1;
-  unsigned int mr = crtc_6845.registers[9] + 1;
+  unsigned int mr = crtc_6845.reg_file[9] + 1;
   unsigned int mask = (mr << 11) - 1;
-  unsigned int vd = crtc_6845.registers[6];
+  unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
   unsigned int cx, cy, cxx, cyy;
   unsigned int color, border;
@@ -524,14 +525,14 @@ static void amstrad_cpc_redraw_16(void)
 
 static void amstrad_cpc_redraw_32(void)
 {
-  byte *src = _write[crtc_6845.registers[12] >> 4];
+  byte *src = _write[crtc_6845.reg_file[12] >> 4];
   word base = 0x0000;
-  word offset = ((crtc_6845.registers[12] << 8) | crtc_6845.registers[13]) << 1;
-  unsigned int hd = crtc_6845.registers[1] << 1;
+  word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
+  unsigned int hd = crtc_6845.reg_file[1] << 1;
   unsigned int hp = (cfg.width - (hd << 3)) >> 1;
-  unsigned int mr = crtc_6845.registers[9] + 1;
+  unsigned int mr = crtc_6845.reg_file[9] + 1;
   unsigned int mask = (mr << 11) - 1;
-  unsigned int vd = crtc_6845.registers[6];
+  unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
   unsigned int cx, cy, cxx, cyy;
   unsigned int color, border;
@@ -1472,7 +1473,6 @@ int ix;
   ppi_8255_reset(&ppi_8255);
   fdc_765_reset(&fdc_765);
   /* XXX */
-  ppi_8255.port_b = (cfg.cassette << 7) | (cfg.printer << 6) | (cfg.expansion << 5) | (cfg.refresh << 4) | (cfg.manufacturer << 1) | (cfg.vsync << 0);
   (void) gettimeofday(&timer1, NULL);
   (void) gettimeofday(&timer2, NULL);
 }
@@ -1487,7 +1487,7 @@ int amstrad_cpc_parse(int argc, char *argv[])
       cfg.monitor = AMSTRAD_CPC_CTM644;
       cfg.clock = AMSTRAD_CPC_4MHZ;
       cfg.expansion = AMSTRAD_CPC_NOT_PRESENT;
-      cfg.refresh = AMSTRAD_CPC_50HZ;
+      cfg.framerate = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
       cfg.ramsize = 64;
       cfg.rom[0x00] = ROMSDIR "/cpc464.rom";
@@ -1499,7 +1499,7 @@ int amstrad_cpc_parse(int argc, char *argv[])
       cfg.monitor = AMSTRAD_CPC_CTM644;
       cfg.clock = AMSTRAD_CPC_4MHZ;
       cfg.expansion = AMSTRAD_CPC_PRESENT;
-      cfg.refresh = AMSTRAD_CPC_50HZ;
+      cfg.framerate = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
       cfg.ramsize = 64;
       cfg.rom[0x00] = ROMSDIR "/cpc664.rom";
@@ -1511,7 +1511,7 @@ int amstrad_cpc_parse(int argc, char *argv[])
       cfg.monitor = AMSTRAD_CPC_CTM644;
       cfg.clock = AMSTRAD_CPC_4MHZ;
       cfg.expansion = AMSTRAD_CPC_PRESENT;
-      cfg.refresh = AMSTRAD_CPC_50HZ;
+      cfg.framerate = AMSTRAD_CPC_50HZ;
       cfg.manufacturer = AMSTRAD_CPC_AMSTRAD;
       cfg.ramsize = 128;
       cfg.rom[0x00] = ROMSDIR "/cpc6128.rom";
@@ -1530,10 +1530,10 @@ int amstrad_cpc_parse(int argc, char *argv[])
       cfg.clock = AMSTRAD_CPC_16MHZ;
     }
     else if(!strcmp("-50Hz", *argv)) {
-      cfg.refresh = AMSTRAD_CPC_50HZ;
+      cfg.framerate = AMSTRAD_CPC_50HZ;
     }
     else if(!strcmp("-60Hz", *argv)) {
-      cfg.refresh = AMSTRAD_CPC_60HZ;
+      cfg.framerate = AMSTRAD_CPC_60HZ;
     }
     else if(!strcmp("-isp", *argv)) {
       cfg.manufacturer = AMSTRAD_CPC_ISP;
@@ -1605,7 +1605,7 @@ int ramsize;
   }
   fread(buffer, 1, 256, file);
   if(memcmp(bufptr, "MV - SNA", 8)) {
-    fprintf(stderr, "amstrad_cpc: not a valid snapshot file (bad signature)\n");
+    fprintf(stderr, "not a valid snapshot file (bad signature)\n");
     fclose(file);
     return;
   } bufptr += 8;
@@ -1657,9 +1657,9 @@ int ramsize;
   amstrad_cpc.gate_array.rom_cfg = *bufptr++;
   amstrad_cpc.gate_array.ram_cfg = *bufptr++;
   amstrad_cpc_ram_select();
-  crtc_6845.current = *bufptr++;
+  crtc_6845.addr_reg = *bufptr++;
   for(ix = 0; ix < 18; ix++) {
-    crtc_6845.registers[ix] = *bufptr++;
+    crtc_6845.reg_file[ix] = *bufptr++;
   }
   amstrad_cpc.memory.expansion = *bufptr++;
   ppi_8255.port_a = *bufptr++;
@@ -1673,7 +1673,7 @@ int ramsize;
   ramsize = *bufptr++;
   ramsize |= *bufptr++ << 8;
   if(ramsize > cfg.ramsize) {
-    fprintf(stderr, "amstrad_cpc: snapshot file too large (%d Kb)\n", ramsize);
+    fprintf(stderr, "snapshot file too large (%d Kb)\n", ramsize);
     amstrad_cpc_reset();
     fclose(file);
     return;
@@ -1741,9 +1741,9 @@ int ramsize;
   }
   *bufptr++ = amstrad_cpc.gate_array.rom_cfg;
   *bufptr++ = amstrad_cpc.gate_array.ram_cfg;
-  *bufptr++ = crtc_6845.current;
+  *bufptr++ = crtc_6845.addr_reg;
   for(ix = 0; ix < 18; ix++) {
-    *bufptr++ = crtc_6845.registers[ix];
+    *bufptr++ = crtc_6845.reg_file[ix];
   }
   *bufptr++ = amstrad_cpc.memory.expansion;
   *bufptr++ = ppi_8255.port_a;
@@ -1775,154 +1775,183 @@ void cpu_z80_mm_wr(CPU_Z80 *cpu_z80, word address, byte value)
 
 byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word port)
 {
-  if(!(port & 0x8000)) { /* Gate-Array (bit 15 = 0; Port 7Fxx) */
-    fprintf(stderr, "amstrad_cpc: (Gate-Array) ............. IN (%04X) (Illegal; write only)\n", port);
+  byte data = 0x00;
+
+  /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
+  if((port & 0x8000) == 0) {
+    (void) fprintf(stderr, "IO_RD[0x%04x]: Gate-Array   [---- Illegal ----]\n", port);
+    (void) fflush(stderr);
   }
-  if(!(port & 0x4000)) { /* CRTC 6845 (bit 14 = 0; Port BCxx-BFxx) */
-    switch(port & 0x0300) {
-      case 0x0000: /* Register select (port BCxx) */
-        fprintf(stderr, "amstrad_cpc: (CRTC 6845 select) ....... IN (%04X) (Illegal; write only)\n", port);
+  /* CRTC-6845    [-0------xxxxxxxx] [0xbfxx] */
+  if((port & 0x4000) == 0) {
+    switch((port >> 8) & 3) {
+      case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
+        (void) fprintf(stderr, "IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0100: /* Register write (port BDxx) */
-        fprintf(stderr, "amstrad_cpc: (CRTC 6845 write) ........ IN (%04X) (Illegal; write only)\n", port);
+      case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
+        (void) fprintf(stderr, "IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0200: /* Dependent of version (port BExx) */
-        fprintf(stderr, "amstrad_cpc: (CRTC 6845) .............. IN (%04X) (What to do ?)\n", port);
+      case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
+        (void) fprintf(stderr, "IO_RD[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0300: /* Register read (port BFxx) */
-        return(crtc_6845.registers[crtc_6845.current]);
+      case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
+        data = crtc_6845.reg_file[crtc_6845.addr_reg];
         break;
     }
   }
-  if(!(port & 0x2000)) { /* ROM select (bit 13 = 0; Port DFxx) */
-    fprintf(stderr, "amstrad_cpc: (ROM select) ............. IN (%04X)\n", port);
+  /* ROM Select   [--0-----xxxxxxxx] [0xdfxx] */
+  if((port & 0x2000) == 0) {
+    (void) fprintf(stderr, "IO_RD[0x%04x]: ROM Select   [---- Illegal ----]\n", port);
+    (void) fflush(stderr);
   }
-  if(!(port & 0x1000)) { /* Printer port (bit 12 = 0; Port EFxx) */
-    fprintf(stderr, "amstrad_cpc: (Printer port) ........... IN (%04X)\n", port);
+  /* Printer Port [---0----xxxxxxxx] [0xefxx] */
+  if((port & 0x1000) == 0) {
+    (void) fprintf(stderr, "IO_RD[0x%04x]: Printer Port [---- Illegal ----]\n", port);
+    (void) fflush(stderr);
   }
-  if(!(port & 0x0800)) { /* PPI 8255 (bit 11 = 0; Port F4xx-F7xx) */
-    switch(port & 0x0300) {
-      case 0x0000: /* Port A (port F4xx) */
-        return(amstrad_cpc.keyboard.bits[amstrad_cpc.keyboard.line]);
-        /*return(ppi_8255.port_a);*/
+  /* PPI-8255     [----0---xxxxxxxx] [0xf7xx] */
+  if((port & 0x0800) == 0) {
+    switch((port >> 8) & 3) {
+      case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
+        ppi_8255.port_a = amstrad_cpc.keyboard.bits[amstrad_cpc.keyboard.line];
+        data = ppi_8255.port_a;
         break;
-      case 0x0100: /* Port B (port F5xx) */
-        return(ppi_8255.port_b);
+      case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
+        ppi_8255.port_b = ((0                & 0x01) << 7)
+                        | ((1                & 0x01) << 6)
+                        | ((cfg.expansion    & 0x01) << 5)
+                        | ((cfg.framerate    & 0x01) << 4)
+                        | ((cfg.manufacturer & 0x07) << 1)
+                        | ((crtc_6845.vsync  & 0x01) << 0);
+        data = ppi_8255.port_b;
         break;
-      case 0x0200: /* Port C (port F6xx) */
-        return(ppi_8255.port_c);
+      case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
+        data = ppi_8255.port_c;
         break;
-      case 0x0300: /* Control register (port F7xx) */
-        fprintf(stderr, "amstrad_cpc: (PPI 8255 CTRL) .......... IN (%04X) (Illegal; write only)\n", port);
+      case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
+        (void) fprintf(stderr, "IO_RD[0x%04x]: PPI-8255     [---- Illegal ----]\n", port);
+        (void) fflush(stderr);
         break;
     }
   }
-  if(!(port & 0x0400)) { /* Expansion (bit 10 = 0; Port F8xx-FBxx) */
-    switch(port & 0x300) {
-      case 0x0000: /* Serial port (port F8xx) */
-        fprintf(stderr, "amstrad_cpc: (Serial port) ............ IN (%04X)\n", port);
+  /* FDC-765      [-----0--0xxxxxxx] [0xfb7f] */
+  if((port & 0x0480) == 0) {
+    switch(((port >> 7) & 2) | (port & 1)) {
+      case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
+        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0100: /* (port F9xx) */
-        fprintf(stderr, "amstrad_cpc: (F9xx) ................... IN (%04X)\n", port);
+      case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
+        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [------ N/A ------]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0200: /* FDC motor (port FAxx) */
-        return(fdc_765.motors & 0x01);
+      case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
+        data = fdc_765.status;
+        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [--- RD_STATUS ---]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0300: /* FDC register (port FBxx) */
-        if(!(port & 0x0001)) { /* status (port FB7E) */
-          return(fdc_765.status);
-        }
-        else { /* data  (port FB7F) */
-          fprintf(stderr, "amstrad_cpc: (FDC 765 - FB7F) ......... IN (%04X)\n", port);
-        }
+      case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
+        data = fdc_765.data;
+        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [---- RD_DATA ----]\n", port);
+        (void) fflush(stderr);
         break;
     }
   }
-  return(0x00);
+  return(data);
 }
 
-void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte value)
+void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte data)
 {
-  if(!(port & 0x8000)) { /* Gate-Array (bit 15 = 0; Port 7Fxx) */
-    switch(value & 0xC0) { /* Select function */
-      case 0x00: /* Select pen */
-        amstrad_cpc.gate_array.pen = (value & 0x10 ? 0x10 : value & 0x0F);
+  /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
+  if((port & 0x8000) == 0) {
+    switch((data >> 6) & 3) {
+      case 0: /* Select pen */
+        amstrad_cpc.gate_array.pen = (data & 0x10 ? 0x10 : data & 0x0f);
         break;
-      case 0x40: /* Select color */
-        amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen] = value & 0x1F;
+      case 1: /* Select color */
+        amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen] = data & 0x1f;
         break;
-      case 0x80: /* Interrupt control, ROM configuration and screen mode */
-        if((value & 0x10) != 0) {
+      case 2: /* Interrupt control, ROM configuration and screen mode */
+        if((data & 0x10) != 0) {
           amstrad_cpc.gate_array.counter = 0;
           amstrad_cpc.gate_array.set_irq = 0;
         }
-        amstrad_cpc.gate_array.rom_cfg = value;
+        amstrad_cpc.gate_array.rom_cfg = data & 0x1f;
         amstrad_cpc_rom_select();
         break;
-      case 0xC0: /* RAM memory management */
-        amstrad_cpc.gate_array.ram_cfg = value & 0x07;
+      case 3: /* RAM memory management */
+        amstrad_cpc.gate_array.ram_cfg = data & 0x3f;
         amstrad_cpc_ram_select();
         break;
     }
   }
-  if(!(port & 0x4000)) { /* CRTC 6845 (bit 14 = 0; Port BCxx-BFxx) */
-    switch(port & 0x0300) {
-      case 0x0000: /* Register select (port BCxx) */
-        crtc_6845.current = value;
+  /* CRTC-6845    [-0------xxxxxxxx] [0xbfxx] */
+  if((port & 0x4000) == 0) {
+    switch((port >> 8) & 3) {
+      case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
+        crtc_6845.addr_reg = data;
         break;
-      case 0x0100: /* Register write (port BDxx) */
-        crtc_6845.registers[crtc_6845.current] = value;
+      case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
+        crtc_6845.reg_file[crtc_6845.addr_reg] = data;
         break;
-      case 0x0200: /* Dependent of version (port BExx) */
-        fprintf(stderr, "amstrad_cpc: (CRTC 6845) ............. OUT (%04X),%02X (What to do ?)\n", port, value);
+      case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
+        (void) fprintf(stderr, "IO_WR[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0300: /* Register read (port BFxx) */
-        fprintf(stderr, "amstrad_cpc: (CRTC 6845 read) ........ OUT (%04X),%02X\n (Illegal; read only)\n", port, value);
+      case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
+        (void) fprintf(stderr, "IO_WR[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
+        (void) fflush(stderr);
         break;
     }
   }
-  if(!(port & 0x2000)) { /* ROM select (bit 13 = 0; Port DFxx) */
-    amstrad_cpc.memory.expansion = value & 0x07;
+  /* ROM Select   [--0-----xxxxxxxx] [0xdfxx] */
+  if((port & 0x2000) == 0) {
+    amstrad_cpc.memory.expansion = data;
     amstrad_cpc_rom_select();
   }
-  if(!(port & 0x1000)) { /* Printer port (bit 12 = 0; Port EFxx) */
-    /*printf("cpc (Printer port) ...... OUT (%04X),%02X\n", port, value);*/
+  /* Printer Port [---0----xxxxxxxx] [0xefxx] */
+  if((port & 0x1000) == 0) {
   }
-  if(!(port & 0x0800)) { /* PPI 8255 (bit 11 = 0; Port F4xx-F7xx) */
-    switch(port & 0x0300) {
-      case 0x0000: /* Port A (port F4xx) */
-        ppi_8255.port_a = value;
+  /* PPI-8255     [----0---xxxxxxxx] [0xf7xx] */
+  if((port & 0x0800) == 0) {
+    switch((port >> 8) & 3) {
+      case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
+        ppi_8255.port_a = data;
         break;
-      case 0x0100: /* Port B (port F5xx) */
-        /*ppi_8255.port_b = value;*/
+      case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
+        /*ppi_8255.port_b = data;*/
         break;
-      case 0x0200: /* Port C (port F6xx) */
-        ppi_8255.port_c = value;
-        amstrad_cpc.keyboard.line = value & 0x0F;
+      case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
+        ppi_8255.port_c = data;
+        amstrad_cpc.keyboard.line = data & 0x0F;
         break;
-      case 0x0300: /* Control register (port F7xx) */
-        ppi_8255.control = value;
+      case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
+        ppi_8255.control = data;
         break;
     }
   }
-  if(!(port & 0x0400)) { /* Expansion (bit 10 = 0; Port F8xx-FBxx) */
-    switch(port & 0x0300) {
-      case 0x0000: /* Serial port (port F8xx) */
-        fprintf(stderr, "amstrad_cpc: (Serial port) ........... OUT (%04X),%02X\n", port, value);
+  /* FDC-765      [-----0--0xxxxxxx] [0xfb7f] */
+  if((port & 0x0480) == 0) {
+    switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
+      case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
+        fdc_765.motors = data & 0x01;
+        (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [--- MOTOR_CTL ---]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0100: /* (port F9xx) */
-        fprintf(stderr, "amstrad_cpc: (F9xx) .................. OUT (%04X),%02X\n", port, value);
+      case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
+        (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [------ N/A ------]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0200: /* FDC motor (port FAxx) */
-        fdc_765.motors = value & 0x01;
+      case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
+        (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
+        (void) fflush(stderr);
         break;
-      case 0x0300: /* FDC register (port FBxx) */
-        if(!(port & 0x0001)) { /* status (port FB7E) */
-          fprintf(stderr, "amstrad_cpc: (FDC status) ............ OUT (%04X),%02X\n", port, value);
-        }
-        else { /* data (port FB7F) */
-          fprintf(stderr, "amstrad_cpc: (FDC data) .............. OUT (%04X),%02X\n", port, value);
-        }
+      case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
+        (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [---- WR_DATA ----]\n", port);
+        (void) fflush(stderr);
         break;
     }
   }
@@ -1981,9 +2010,9 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   }
   fread(amstrad_cpc.memory.upper_rom[0], 1, 16384, file);
   fclose(file);
-  for(ix = 1; ix < 8; ix++) {
+  for(ix = 1; ix < 256; ix++) {
     amstrad_cpc.memory.upper_rom[ix] = NULL;
-    if(cfg.rom[ix] != NULL) {
+    if((ix < 8) && (cfg.rom[ix] != NULL)) {
       if((file = fopen(cfg.rom[ix], "r")) == NULL) {
         perror("amstrad_cpc"); continue;
       }
@@ -2009,7 +2038,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
       clock = 16000000;
       break;
   }
-  switch(cfg.refresh) {
+  switch(cfg.framerate) {
     default:
     case AMSTRAD_CPC_50HZ:
       cpu_z80.IPeriod = (clock * 64) / 1000000;
@@ -2036,19 +2065,27 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   int vsyncpos_min;
   int vsyncpos_max;
 
-  vsync_length = (crtc_6845.registers[3] >> 4) & 0x0f;
+  vsync_length = (crtc_6845.reg_file[3] >> 4) & 0x0f;
   if(vsync_length == 0) {
     vsync_length = 16;
   }
-  vsyncpos_min = crtc_6845.registers[7] * (crtc_6845.registers[9] + 1);
+  vsyncpos_min = crtc_6845.reg_file[7] * (crtc_6845.reg_file[9] + 1);
   vsyncpos_max = vsyncpos_min + vsync_length - 1;
   do {
     amstrad_cpc.scanline[amstrad_cpc.beam.y].mode = amstrad_cpc.gate_array.rom_cfg & 0x03;
     for(ix = 0; ix < 17; ix++) {
       amstrad_cpc.scanline[amstrad_cpc.beam.y].ink[ix] = _col[amstrad_cpc.gate_array.ink[ix]];
     }
+    if(amstrad_cpc.gate_array.set_irq != 0) {
+      if((cpu_z80.IFF & IFF_1) != 0) {
+        cpu_z80_intr(&cpu_z80, INT_RST38);
+        amstrad_cpc.gate_array.counter &= 31;
+        amstrad_cpc.gate_array.set_irq  = 0;
+      }
+    }
+    cpu_z80_clock(&cpu_z80);
     if((scanline >= vsyncpos_min) && (scanline <= vsyncpos_max)) {
-      if((ppi_8255.port_b & 0x01) == 0) {
+      if(crtc_6845.vsync == 0) {
         /* rising edge of V-SYNC */
       }
       if((scanline - vsyncpos_min) == 2) {
@@ -2060,23 +2097,15 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
           amstrad_cpc.gate_array.set_irq = 1;
         }
       }
-      ppi_8255.port_b |= 0x01; /* set V-SYNC */
-      amstrad_cpc.beam.y = 0;
+      crtc_6845.vsync = 1; /* set V-SYNC */
     }
     else {
-      if((ppi_8255.port_b & 0x01) != 0) {
+      if(crtc_6845.vsync != 0) {
         /* falling edge of V-SYNC */
+        amstrad_cpc.beam.y = 0;
       }
-      ppi_8255.port_b &= 0xfe; /* reset V-SYNC */
+      crtc_6845.vsync = 0; /* reset V-SYNC */
     }
-    if(amstrad_cpc.gate_array.set_irq != 0) {
-      if((cpu_z80.IFF & IFF_1) != 0) {
-        cpu_z80_intr(&cpu_z80, INT_RST38);
-        amstrad_cpc.gate_array.counter &= 31;
-        amstrad_cpc.gate_array.set_irq  = 0;
-      }
-    }
-    cpu_z80_clock(&cpu_z80);
     if(++amstrad_cpc.gate_array.counter >= 52) {
       amstrad_cpc.gate_array.counter = 0;
       amstrad_cpc.gate_array.set_irq = 1;
@@ -2091,7 +2120,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   if(delay >= 1000) {
     *(&timer1) = *(&timer2); delay = 0;
   }
-  switch(cfg.refresh) {
+  switch(cfg.framerate) {
     case AMSTRAD_CPC_50HZ:
       if((delay >= 0) && (delay <= 20)) {
         amstrad_cpc_redraw();
@@ -2138,7 +2167,7 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
   amstrad_cpc.memory.lower_rom = NULL;
   free(amstrad_cpc.memory.ram);
   amstrad_cpc.memory.ram = NULL;
-  for(ix = 0; ix < 8; ix++) {
+  for(ix = 0; ix < 256; ix++) {
     if(amstrad_cpc.memory.upper_rom[ix] != NULL) {
       free(amstrad_cpc.memory.upper_rom[ix]);
       amstrad_cpc.memory.upper_rom[ix] = NULL;

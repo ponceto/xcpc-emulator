@@ -50,12 +50,27 @@ void crtc_6845_clock(CRTC_6845 *self)
  */
 void crtc_6845_reset(CRTC_6845 *self)
 {
-  int ix;
-
-  self->current = 0x00;
-  for(ix = 0; ix < 18; ix++) {
-    self->registers[ix] = 0x00;
-  }
+  self->addr_reg     = 0x00; /* Address Register      [---xxxxx] */
+  self->reg_file[ 0] = 0x65; /* Horiz. Total          [hhhhhhhh] */
+  self->reg_file[ 1] = 0x50; /* Horiz. Displayed      [hhhhhhhh] */
+  self->reg_file[ 2] = 0x56; /* Horiz. Sync Position  [hhhhhhhh] */
+  self->reg_file[ 3] = 0x09; /* H // V Sync Width     [vvvvhhhh] */
+  self->reg_file[ 4] = 0x18; /* Verti. Total          [-vvvvvvv] */
+  self->reg_file[ 5] = 0x0a; /* Verti. Total Adjust   [---vvvvv] */
+  self->reg_file[ 6] = 0x18; /* Verti. Displayed      [-vvvvvvv] */
+  self->reg_file[ 7] = 0x18; /* Verti. Sync Position  [-vvvvvvv] */
+  self->reg_file[ 8] = 0x00; /* Interlace Mode        [------xx] */
+  self->reg_file[ 9] = 0x0b; /* Max Scan Line Address [---xxxxx] */
+  self->reg_file[10] = 0x00; /* Cursor Start          [-xxxxxxx] */
+  self->reg_file[11] = 0x0b; /* Cursor End            [---xxxxx] */
+  self->reg_file[12] = 0x00; /* Start Address (MSB)   [--xxxxxx] */
+  self->reg_file[13] = 0x80; /* Start Address (LSB)   [xxxxxxxx] */
+  self->reg_file[14] = 0x00; /* Cursor (MSB)          [--xxxxxx] */
+  self->reg_file[15] = 0x80; /* Cursor (LSB)          [xxxxxxxx] */
+  self->reg_file[16] = 0x00; /* Light Pen (MSB)       [--xxxxxx] */
+  self->reg_file[17] = 0x00; /* Light Pen (LSB)       [xxxxxxxx] */
+  self->hsync = 0;
+  self->vsync = 0;
 }
 
 /**
