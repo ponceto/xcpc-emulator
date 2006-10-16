@@ -75,10 +75,12 @@ typedef struct {
 
 typedef struct {
   struct {
+    byte *rd_bank[4];
+    byte *wr_bank[4];
     byte *lower_rom;
     byte *ram;
     byte *upper_rom[256];
-    byte expansion;
+    byte  expansion;
   } memory;
   struct {
     byte mods;

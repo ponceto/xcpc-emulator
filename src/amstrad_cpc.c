@@ -71,83 +71,72 @@ FDC_765 fdc_765;
 #define CTRL_L_MASK 0x04
 #define CTRL_R_MASK 0x08
 
-static byte *_bank[4];
-static byte *_read[4];
-static byte *_write[4];
-
-static void amstrad_cpc_rom_select(void)
-{
-  _read[0] = (!(amstrad_cpc.gate_array.rom_cfg & 0x04) ? amstrad_cpc.memory.lower_rom : _bank[0]);
-  if(!(amstrad_cpc.gate_array.rom_cfg & 0x08)) {
-    _read[3] = (amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion] == NULL ? amstrad_cpc.memory.upper_rom[0] : amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion]);
-  }
-  else {
-    _read[3] = _bank[3];
-  }
-}
-
-static void amstrad_cpc_ram_select(void)
+static void amstrad_cpc_mem_select(void)
 {
   switch(amstrad_cpc.gate_array.ram_cfg) {
     case 0x00:
-                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
-      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.wr_bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      amstrad_cpc.memory.rd_bank[1] = amstrad_cpc.memory.wr_bank[1] = amstrad_cpc.memory.ram + 0x04000;
+      amstrad_cpc.memory.rd_bank[2] = amstrad_cpc.memory.wr_bank[2] = amstrad_cpc.memory.ram + 0x08000;
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.wr_bank[3] = amstrad_cpc.memory.ram + 0x0c000;
       break;
     case 0x01:
-                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
-      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
+      amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.wr_bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      amstrad_cpc.memory.rd_bank[1] = amstrad_cpc.memory.wr_bank[1] = amstrad_cpc.memory.ram + 0x04000;
+      amstrad_cpc.memory.rd_bank[2] = amstrad_cpc.memory.wr_bank[2] = amstrad_cpc.memory.ram + 0x08000;
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.wr_bank[3] = amstrad_cpc.memory.ram + 0x1c000;
       break;
     case 0x02:
-                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x10000;
-      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x14000;
-      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x18000;
-                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
+      amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.wr_bank[0] = amstrad_cpc.memory.ram + 0x10000;
+      amstrad_cpc.memory.rd_bank[1] = amstrad_cpc.memory.wr_bank[1] = amstrad_cpc.memory.ram + 0x14000;
+      amstrad_cpc.memory.rd_bank[2] = amstrad_cpc.memory.wr_bank[2] = amstrad_cpc.memory.ram + 0x18000;
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.wr_bank[3] = amstrad_cpc.memory.ram + 0x1c000;
       break;
     case 0x03:
-                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x04000;
-      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x1C000;
+      amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.wr_bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      amstrad_cpc.memory.rd_bank[1] = amstrad_cpc.memory.wr_bank[1] = amstrad_cpc.memory.ram + 0x04000;
+      amstrad_cpc.memory.rd_bank[2] = amstrad_cpc.memory.wr_bank[2] = amstrad_cpc.memory.ram + 0x08000;
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.wr_bank[3] = amstrad_cpc.memory.ram + 0x1c000;
       break;
     case 0x04:
-                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x10000;
-      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.wr_bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      amstrad_cpc.memory.rd_bank[1] = amstrad_cpc.memory.wr_bank[1] = amstrad_cpc.memory.ram + 0x10000;
+      amstrad_cpc.memory.rd_bank[2] = amstrad_cpc.memory.wr_bank[2] = amstrad_cpc.memory.ram + 0x08000;
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.wr_bank[3] = amstrad_cpc.memory.ram + 0x0c000;
       break;
     case 0x05:
-                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x14000;
-      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.wr_bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      amstrad_cpc.memory.rd_bank[1] = amstrad_cpc.memory.wr_bank[1] = amstrad_cpc.memory.ram + 0x14000;
+      amstrad_cpc.memory.rd_bank[2] = amstrad_cpc.memory.wr_bank[2] = amstrad_cpc.memory.ram + 0x08000;
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.wr_bank[3] = amstrad_cpc.memory.ram + 0x0c000;
       break;
     case 0x06:
-                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x18000;
-      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.wr_bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      amstrad_cpc.memory.rd_bank[1] = amstrad_cpc.memory.wr_bank[1] = amstrad_cpc.memory.ram + 0x18000;
+      amstrad_cpc.memory.rd_bank[2] = amstrad_cpc.memory.wr_bank[2] = amstrad_cpc.memory.ram + 0x08000;
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.wr_bank[3] = amstrad_cpc.memory.ram + 0x0c000;
       break;
     case 0x07:
-                 _write[0] = _bank[0] = amstrad_cpc.memory.ram + 0x00000;
-      _read[1] = _write[1] = _bank[1] = amstrad_cpc.memory.ram + 0x1C000;
-      _read[2] = _write[2] = _bank[2] = amstrad_cpc.memory.ram + 0x08000;
-                 _write[3] = _bank[3] = amstrad_cpc.memory.ram + 0x0C000;
+      amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.wr_bank[0] = amstrad_cpc.memory.ram + 0x00000;
+      amstrad_cpc.memory.rd_bank[1] = amstrad_cpc.memory.wr_bank[1] = amstrad_cpc.memory.ram + 0x1c000;
+      amstrad_cpc.memory.rd_bank[2] = amstrad_cpc.memory.wr_bank[2] = amstrad_cpc.memory.ram + 0x08000;
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.wr_bank[3] = amstrad_cpc.memory.ram + 0x0c000;
       break;
     default:
       (void) fprintf(stderr, "RAM-SELECT: Bad Configuration (%02x) !!\n", amstrad_cpc.gate_array.ram_cfg);
       (void) fflush(stderr);
       break;
   }
-  _read[0] = (!(amstrad_cpc.gate_array.rom_cfg & 0x04) ? amstrad_cpc.memory.lower_rom : _bank[0]);
-  if(!(amstrad_cpc.gate_array.rom_cfg & 0x08)) {
-    _read[3] = (amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion] == NULL ? amstrad_cpc.memory.upper_rom[0] : amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion]);
+  if((amstrad_cpc.gate_array.rom_cfg & 0x04) == 0) {
+    amstrad_cpc.memory.rd_bank[0] = amstrad_cpc.memory.lower_rom;
   }
-  else {
-    _read[3] = _bank[3];
+  if((amstrad_cpc.gate_array.rom_cfg & 0x08) == 0) {
+    if(amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion] != NULL) {
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.upper_rom[amstrad_cpc.memory.expansion];
+    }
+    else {
+      amstrad_cpc.memory.rd_bank[3] = amstrad_cpc.memory.upper_rom[0];
+    }
   }
 }
 
@@ -315,7 +304,7 @@ static void amstrad_cpc_redraw_0(void)
 
 static void amstrad_cpc_redraw_8(void)
 {
-  byte *src = _write[crtc_6845.reg_file[12] >> 4];
+  byte *src = amstrad_cpc.memory.wr_bank[crtc_6845.reg_file[12] >> 4];
   word base = 0x0000;
   word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
   unsigned int hd = crtc_6845.reg_file[1] << 1;
@@ -420,7 +409,7 @@ static void amstrad_cpc_redraw_8(void)
 
 static void amstrad_cpc_redraw_16(void)
 {
-  byte *src = _write[crtc_6845.reg_file[12] >> 4];
+  byte *src = amstrad_cpc.memory.wr_bank[crtc_6845.reg_file[12] >> 4];
   word base = 0x0000;
   word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
   unsigned int hd = crtc_6845.reg_file[1] << 1;
@@ -525,7 +514,7 @@ static void amstrad_cpc_redraw_16(void)
 
 static void amstrad_cpc_redraw_32(void)
 {
-  byte *src = _write[crtc_6845.reg_file[12] >> 4];
+  byte *src = amstrad_cpc.memory.wr_bank[crtc_6845.reg_file[12] >> 4];
   word base = 0x0000;
   word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
   unsigned int hd = crtc_6845.reg_file[1] << 1;
@@ -1464,7 +1453,7 @@ int ix;
   amstrad_cpc.gate_array.ram_cfg = 0x00;
   amstrad_cpc.gate_array.counter = 0x00;
   amstrad_cpc.gate_array.set_irq = 0x00;
-  amstrad_cpc_ram_select();
+  amstrad_cpc_mem_select();
   amstrad_cpc.beam.x = 0;
   amstrad_cpc.beam.y = 0;
   cpu_z80_reset(&cpu_z80);
@@ -1656,7 +1645,7 @@ int ramsize;
   }
   amstrad_cpc.gate_array.rom_cfg = *bufptr++;
   amstrad_cpc.gate_array.ram_cfg = *bufptr++;
-  amstrad_cpc_ram_select();
+  amstrad_cpc_mem_select();
   crtc_6845.addr_reg = *bufptr++;
   for(ix = 0; ix < 18; ix++) {
     crtc_6845.reg_file[ix] = *bufptr++;
@@ -1765,12 +1754,12 @@ int ramsize;
 
 byte cpu_z80_mm_rd(CPU_Z80 *cpu_z80, word address)
 {
-  return(_read[address >> 14][address & 0x3FFF]);
+  return(amstrad_cpc.memory.rd_bank[address >> 14][address & 0x3FFF]);
 }
 
 void cpu_z80_mm_wr(CPU_Z80 *cpu_z80, word address, byte value)
 {
-  _write[address >> 14][address & 0x3FFF] = value;
+  amstrad_cpc.memory.wr_bank[address >> 14][address & 0x3FFF] = value;
 }
 
 byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word port)
@@ -1880,11 +1869,11 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte data)
           amstrad_cpc.gate_array.set_irq = 0;
         }
         amstrad_cpc.gate_array.rom_cfg = data & 0x1f;
-        amstrad_cpc_rom_select();
+        amstrad_cpc_mem_select();
         break;
       case 3: /* RAM memory management */
         amstrad_cpc.gate_array.ram_cfg = data & 0x3f;
-        amstrad_cpc_ram_select();
+        amstrad_cpc_mem_select();
         break;
     }
   }
@@ -1910,7 +1899,7 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte data)
   /* ROM Select   [--0-----xxxxxxxx] [0xdfxx] */
   if((port & 0x2000) == 0) {
     amstrad_cpc.memory.expansion = data;
-    amstrad_cpc_rom_select();
+    amstrad_cpc_mem_select();
   }
   /* Printer Port [---0----xxxxxxxx] [0xefxx] */
   if((port & 0x1000) == 0) {
@@ -2091,10 +2080,10 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       if((scanline - vsyncpos_min) == 2) {
         if((amstrad_cpc.gate_array.counter & 32) != 0) {
           amstrad_cpc.gate_array.counter = 0;
+          amstrad_cpc.gate_array.set_irq = 0;
         }
         else {
           amstrad_cpc.gate_array.counter = 0;
-          amstrad_cpc.gate_array.set_irq = 1;
         }
       }
       crtc_6845.vsync = 1; /* set V-SYNC */
