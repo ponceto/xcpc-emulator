@@ -2080,7 +2080,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       if((scanline - vsyncpos_min) == 2) {
         if((amstrad_cpc.gate_array.counter & 32) != 0) {
           amstrad_cpc.gate_array.counter = 0;
-          amstrad_cpc.gate_array.set_irq = 0;
+          amstrad_cpc.gate_array.set_irq = 1;
         }
         else {
           amstrad_cpc.gate_array.counter = 0;
