@@ -241,62 +241,9 @@ XColor xcolor;
   }
 }
 
-static byte _mode0[256] = {
-  0x00, 0x00, 0x08, 0x08, 0x00, 0x00, 0x08, 0x08, 0x02, 0x02, 0x0A, 0x0A, 0x02, 0x02, 0x0A, 0x0A,
-  0x00, 0x00, 0x08, 0x08, 0x00, 0x00, 0x08, 0x08, 0x02, 0x02, 0x0A, 0x0A, 0x02, 0x02, 0x0A, 0x0A,
-  0x04, 0x04, 0x0C, 0x0C, 0x04, 0x04, 0x0C, 0x0C, 0x06, 0x06, 0x0E, 0x0E, 0x06, 0x06, 0x0E, 0x0E,
-  0x04, 0x04, 0x0C, 0x0C, 0x04, 0x04, 0x0C, 0x0C, 0x06, 0x06, 0x0E, 0x0E, 0x06, 0x06, 0x0E, 0x0E,
-  0x00, 0x00, 0x08, 0x08, 0x00, 0x00, 0x08, 0x08, 0x02, 0x02, 0x0A, 0x0A, 0x02, 0x02, 0x0A, 0x0A,
-  0x00, 0x00, 0x08, 0x08, 0x00, 0x00, 0x08, 0x08, 0x02, 0x02, 0x0A, 0x0A, 0x02, 0x02, 0x0A, 0x0A,
-  0x04, 0x04, 0x0C, 0x0C, 0x04, 0x04, 0x0C, 0x0C, 0x06, 0x06, 0x0E, 0x0E, 0x06, 0x06, 0x0E, 0x0E,
-  0x04, 0x04, 0x0C, 0x0C, 0x04, 0x04, 0x0C, 0x0C, 0x06, 0x06, 0x0E, 0x0E, 0x06, 0x06, 0x0E, 0x0E,
-  0x01, 0x01, 0x09, 0x09, 0x01, 0x01, 0x09, 0x09, 0x03, 0x03, 0x0B, 0x0B, 0x03, 0x03, 0x0B, 0x0B,
-  0x01, 0x01, 0x09, 0x09, 0x01, 0x01, 0x09, 0x09, 0x03, 0x03, 0x0B, 0x0B, 0x03, 0x03, 0x0B, 0x0B,
-  0x05, 0x05, 0x0D, 0x0D, 0x05, 0x05, 0x0D, 0x0D, 0x07, 0x07, 0x0F, 0x0F, 0x07, 0x07, 0x0F, 0x0F,
-  0x05, 0x05, 0x0D, 0x0D, 0x05, 0x05, 0x0D, 0x0D, 0x07, 0x07, 0x0F, 0x0F, 0x07, 0x07, 0x0F, 0x0F,
-  0x01, 0x01, 0x09, 0x09, 0x01, 0x01, 0x09, 0x09, 0x03, 0x03, 0x0B, 0x0B, 0x03, 0x03, 0x0B, 0x0B,
-  0x01, 0x01, 0x09, 0x09, 0x01, 0x01, 0x09, 0x09, 0x03, 0x03, 0x0B, 0x0B, 0x03, 0x03, 0x0B, 0x0B,
-  0x05, 0x05, 0x0D, 0x0D, 0x05, 0x05, 0x0D, 0x0D, 0x07, 0x07, 0x0F, 0x0F, 0x07, 0x07, 0x0F, 0x0F,
-  0x05, 0x05, 0x0D, 0x0D, 0x05, 0x05, 0x0D, 0x0D, 0x07, 0x07, 0x0F, 0x0F, 0x07, 0x07, 0x0F, 0x0F
-};
-
-static byte _mode1[256] = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03
-};
-
-static byte _mode2[256] = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-  0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-};
+static byte _mode0[256];
+static byte _mode1[256];
+static byte _mode2[256];
 
 static void amstrad_cpc_redraw_0(void)
 {
@@ -304,21 +251,19 @@ static void amstrad_cpc_redraw_0(void)
 
 static void amstrad_cpc_redraw_8(void)
 {
-  byte *src = amstrad_cpc.memory.wr_bank[crtc_6845.reg_file[12] >> 4];
-  word base = 0x0000;
-  word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
-  unsigned int hd = crtc_6845.reg_file[1] << 1;
-  unsigned int hp = (cfg.width - (hd << 3)) >> 1;
+  unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
+  unsigned int hd = crtc_6845.reg_file[1];
+  unsigned int hp = (cfg.width - (hd << 4)) >> 1;
   unsigned int mr = crtc_6845.reg_file[9] + 1;
-  unsigned int mask = (mr << 11) - 1;
   unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-  unsigned int cx, cy, cxx, cyy;
+  unsigned int cx, cy, ra;
   unsigned int color, border;
   unsigned char *dst = (unsigned char *) _ximage->data;
   unsigned char *nxt = (unsigned char *) _ximage->data;
   int scanline = 20;
-  byte value;
+  word addr;
+  byte data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
@@ -330,7 +275,7 @@ static void amstrad_cpc_redraw_8(void)
     scanline++;
   }
   for(cy = 0; cy < vd; cy++) {
-    for(cyy = 0; cyy < mr; cyy++) {
+    for(ra = 0; ra < mr; ra++) {
       nxt += cfg.width;
       border = amstrad_cpc.scanline[scanline].ink[16];
       switch(amstrad_cpc.scanline[scanline].mode) {
@@ -339,15 +284,35 @@ static void amstrad_cpc_redraw_8(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 2; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode0[value]];
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 4;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 4;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -358,13 +323,47 @@ static void amstrad_cpc_redraw_8(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 4; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode1[value]];
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -375,12 +374,71 @@ static void amstrad_cpc_redraw_8(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 8; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode2[value]];
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 4 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 5 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 6 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 7 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 4 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 5 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 6 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 7 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -389,8 +447,8 @@ static void amstrad_cpc_redraw_8(void)
       }
       dst = nxt;
       scanline++;
-      base = (base + 2048) & mask;
     }
+    sa += hd;
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
@@ -409,21 +467,19 @@ static void amstrad_cpc_redraw_8(void)
 
 static void amstrad_cpc_redraw_16(void)
 {
-  byte *src = amstrad_cpc.memory.wr_bank[crtc_6845.reg_file[12] >> 4];
-  word base = 0x0000;
-  word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
-  unsigned int hd = crtc_6845.reg_file[1] << 1;
-  unsigned int hp = (cfg.width - (hd << 3)) >> 1;
+  unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
+  unsigned int hd = crtc_6845.reg_file[1];
+  unsigned int hp = (cfg.width - (hd << 4)) >> 1;
   unsigned int mr = crtc_6845.reg_file[9] + 1;
-  unsigned int mask = (mr << 11) - 1;
   unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-  unsigned int cx, cy, cxx, cyy;
+  unsigned int cx, cy, ra;
   unsigned int color, border;
   unsigned short *dst = (unsigned short *) _ximage->data;
   unsigned short *nxt = (unsigned short *) _ximage->data;
   int scanline = 20;
-  byte value;
+  word addr;
+  byte data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
@@ -435,7 +491,7 @@ static void amstrad_cpc_redraw_16(void)
     scanline++;
   }
   for(cy = 0; cy < vd; cy++) {
-    for(cyy = 0; cyy < mr; cyy++) {
+    for(ra = 0; ra < mr; ra++) {
       nxt += cfg.width;
       border = amstrad_cpc.scanline[scanline].ink[16];
       switch(amstrad_cpc.scanline[scanline].mode) {
@@ -444,15 +500,35 @@ static void amstrad_cpc_redraw_16(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 2; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode0[value]];
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 4;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 4;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -463,13 +539,47 @@ static void amstrad_cpc_redraw_16(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 4; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode1[value]];
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -480,12 +590,71 @@ static void amstrad_cpc_redraw_16(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 8; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode2[value]];
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 4 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 5 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 6 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 7 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 4 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 5 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 6 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 7 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -494,8 +663,8 @@ static void amstrad_cpc_redraw_16(void)
       }
       dst = nxt;
       scanline++;
-      base = (base + 2048) & mask;
     }
+    sa += hd;
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
@@ -514,21 +683,19 @@ static void amstrad_cpc_redraw_16(void)
 
 static void amstrad_cpc_redraw_32(void)
 {
-  byte *src = amstrad_cpc.memory.wr_bank[crtc_6845.reg_file[12] >> 4];
-  word base = 0x0000;
-  word offset = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]) << 1;
-  unsigned int hd = crtc_6845.reg_file[1] << 1;
-  unsigned int hp = (cfg.width - (hd << 3)) >> 1;
+  unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
+  unsigned int hd = crtc_6845.reg_file[1];
+  unsigned int hp = (cfg.width - (hd << 4)) >> 1;
   unsigned int mr = crtc_6845.reg_file[9] + 1;
-  unsigned int mask = (mr << 11) - 1;
   unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-  unsigned int cx, cy, cxx, cyy;
+  unsigned int cx, cy, ra;
   unsigned int color, border;
   unsigned int *dst = (unsigned int *) _ximage->data;
   unsigned int *nxt = (unsigned int *) _ximage->data;
   int scanline = 20;
-  byte value;
+  word addr;
+  byte data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
@@ -540,7 +707,7 @@ static void amstrad_cpc_redraw_32(void)
     scanline++;
   }
   for(cy = 0; cy < vd; cy++) {
-    for(cyy = 0; cyy < mr; cyy++) {
+    for(ra = 0; ra < mr; ra++) {
       nxt += cfg.width;
       border = amstrad_cpc.scanline[scanline].ink[16];
       switch(amstrad_cpc.scanline[scanline].mode) {
@@ -549,15 +716,35 @@ static void amstrad_cpc_redraw_32(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 2; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode0[value]];
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 4;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 4;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -568,13 +755,47 @@ static void amstrad_cpc_redraw_32(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 4; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode1[value]];
-              *dst++ = *nxt++ = color;
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 2;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
+            *dst++ = *nxt++ = color;
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -585,12 +806,71 @@ static void amstrad_cpc_redraw_32(void)
             *dst++ = *nxt++ = border;
           }
           for(cx = 0; cx < hd; cx++) {
-            value = src[base + ((offset + hd * cy + cx) & 0x07FF)];
-            for(cxx = 0; cxx < 8; cxx++) {
-              color = amstrad_cpc.scanline[scanline].ink[_mode2[value]];
-              *dst++ = *nxt++ = color;
-              value <<= 1;
-            }
+            addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
+            /* pixel 0 */
+            data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 4 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 5 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 6 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 7 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 0 */
+            data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 1 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 2 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 3 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 4 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 5 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 6 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
+            /* pixel 7 */
+            data >>= 1;
+            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
+            *dst++ = *nxt++ = color;
           }
           for(cx = 0; cx < hp; cx++) {
             *dst++ = *nxt++ = border;
@@ -599,8 +879,8 @@ static void amstrad_cpc_redraw_32(void)
       }
       dst = nxt;
       scanline++;
-      base = (base + 2048) & mask;
     }
+    sa += hd;
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
@@ -1954,6 +2234,23 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   Arg arglist[8];
   Cardinal argcount;
 
+  for(ix = 0; ix < 256; ix++) {
+    /* Initialize mode 0 lookup table */
+    _mode0[ix] = ((ix & 0x80) >> 7) | ((ix & 0x08) >> 2)
+               | ((ix & 0x20) >> 3) | ((ix & 0x02) << 2)
+               | ((ix & 0x40) >> 2) | ((ix & 0x04) << 3)
+               | ((ix & 0x10) << 2) | ((ix & 0x01) << 7);
+    /* Initialize mode 1 lookup table */
+    _mode1[ix] = ((ix & 0x80) >> 7) | ((ix & 0x08) >> 2)
+               | ((ix & 0x40) >> 4) | ((ix & 0x04) << 1)
+               | ((ix & 0x20) >> 1) | ((ix & 0x02) << 4)
+               | ((ix & 0x10) << 2) | ((ix & 0x01) << 7);
+    /* Initialize mode 2 lookup table */
+    _mode2[ix] = ((ix & 0x80) >> 7) | ((ix & 0x40) >> 5)
+               | ((ix & 0x20) >> 3) | ((ix & 0x10) >> 1)
+               | ((ix & 0x08) << 1) | ((ix & 0x04) << 3)
+               | ((ix & 0x02) << 5) | ((ix & 0x01) << 7);
+  }
   argcount = 0;
   XtSetArg(arglist[argcount], XtNwidth,  cfg.width ); argcount++;
   XtSetArg(arglist[argcount], XtNheight, cfg.height); argcount++;
