@@ -253,211 +253,213 @@ static void amstrad_cpc_redraw_8(void)
 {
   unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
   unsigned int hd = crtc_6845.reg_file[1];
-  unsigned int hp = (cfg.width - (hd << 4)) >> 1;
+  unsigned int hp = ((cfg.width  >> 0) - (hd << 4)) >> 1;
   unsigned int mr = crtc_6845.reg_file[9] + 1;
   unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-  unsigned int cx, cy, ra;
-  unsigned int color, border;
+  struct _scanline *sl = &amstrad_cpc.scanline[20];
   unsigned char *dst = (unsigned char *) _ximage->data;
   unsigned char *nxt = (unsigned char *) _ximage->data;
-  int scanline = 20;
+  unsigned char pixel;
+  unsigned int cx, cy, ra;
   word addr;
   byte data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
-    border = amstrad_cpc.scanline[scanline].ink[16];
+    pixel = sl->ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
-      *dst++ = *nxt++ = border;
+      *dst++ = *nxt++ = pixel;
     }
-    dst = nxt;
-    scanline++;
+    dst = nxt; sl++;
   }
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += cfg.width;
-      border = amstrad_cpc.scanline[scanline].ink[16];
-      switch(amstrad_cpc.scanline[scanline].mode) {
+      switch(sl->mode) {
         case 0x00:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 4;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 4;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
         case 0x01:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
         case 0x02:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 4 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 5 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 6 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 7 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 4 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 5 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 6 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 7 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
       }
-      dst = nxt;
-      scanline++;
+      dst = nxt; sl++;
     }
     sa += hd;
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
-    border = amstrad_cpc.scanline[scanline].ink[16];
+    pixel = sl->ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
-      *dst++ = *nxt++ = border;
+      *dst++ = *nxt++ = pixel;
     }
-    dst = nxt;
-    scanline++;
+    dst = nxt; sl++;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
@@ -469,211 +471,213 @@ static void amstrad_cpc_redraw_16(void)
 {
   unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
   unsigned int hd = crtc_6845.reg_file[1];
-  unsigned int hp = (cfg.width - (hd << 4)) >> 1;
+  unsigned int hp = ((cfg.width  >> 0) - (hd << 4)) >> 1;
   unsigned int mr = crtc_6845.reg_file[9] + 1;
   unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-  unsigned int cx, cy, ra;
-  unsigned int color, border;
+  struct _scanline *sl = &amstrad_cpc.scanline[20];
   unsigned short *dst = (unsigned short *) _ximage->data;
   unsigned short *nxt = (unsigned short *) _ximage->data;
-  int scanline = 20;
+  unsigned short pixel;
+  unsigned int cx, cy, ra;
   word addr;
   byte data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
-    border = amstrad_cpc.scanline[scanline].ink[16];
+    pixel = sl->ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
-      *dst++ = *nxt++ = border;
+      *dst++ = *nxt++ = pixel;
     }
-    dst = nxt;
-    scanline++;
+    dst = nxt; sl++;
   }
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += cfg.width;
-      border = amstrad_cpc.scanline[scanline].ink[16];
-      switch(amstrad_cpc.scanline[scanline].mode) {
+      switch(sl->mode) {
         case 0x00:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 4;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 4;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
         case 0x01:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
         case 0x02:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 4 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 5 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 6 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 7 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 4 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 5 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 6 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 7 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
       }
-      dst = nxt;
-      scanline++;
+      dst = nxt; sl++;
     }
     sa += hd;
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
-    border = amstrad_cpc.scanline[scanline].ink[16];
+    pixel = sl->ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
-      *dst++ = *nxt++ = border;
+      *dst++ = *nxt++ = pixel;
     }
-    dst = nxt;
-    scanline++;
+    dst = nxt; sl++;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
@@ -685,211 +689,213 @@ static void amstrad_cpc_redraw_32(void)
 {
   unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
   unsigned int hd = crtc_6845.reg_file[1];
-  unsigned int hp = (cfg.width - (hd << 4)) >> 1;
+  unsigned int hp = ((cfg.width  >> 0) - (hd << 4)) >> 1;
   unsigned int mr = crtc_6845.reg_file[9] + 1;
   unsigned int vd = crtc_6845.reg_file[6];
   unsigned int vp = ((cfg.height >> 1) - (vd * mr)) >> 1;
-  unsigned int cx, cy, ra;
-  unsigned int color, border;
+  struct _scanline *sl = &amstrad_cpc.scanline[20];
   unsigned int *dst = (unsigned int *) _ximage->data;
   unsigned int *nxt = (unsigned int *) _ximage->data;
-  int scanline = 20;
+  unsigned int pixel;
+  unsigned int cx, cy, ra;
   word addr;
   byte data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
-    border = amstrad_cpc.scanline[scanline].ink[16];
+    pixel = sl->ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
-      *dst++ = *nxt++ = border;
+      *dst++ = *nxt++ = pixel;
     }
-    dst = nxt;
-    scanline++;
+    dst = nxt; sl++;
   }
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += cfg.width;
-      border = amstrad_cpc.scanline[scanline].ink[16];
-      switch(amstrad_cpc.scanline[scanline].mode) {
+      switch(sl->mode) {
         case 0x00:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 4;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode0[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 4;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x0f];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x0f];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
         case 0x01:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode1[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 2;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x03];
-            *dst++ = *nxt++ = color;
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x03];
+            *dst++ = *nxt++ = pixel;
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
         case 0x02:
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
             data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 4 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 5 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 6 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 7 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 0 */
             data = _mode2[amstrad_cpc.memory.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 1 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 2 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 3 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 4 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 5 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 6 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
             /* pixel 7 */
             data >>= 1;
-            color = amstrad_cpc.scanline[scanline].ink[data & 0x01];
-            *dst++ = *nxt++ = color;
+            pixel = sl->ink[data & 0x01];
+            *dst++ = *nxt++ = pixel;
           }
+          pixel = sl->ink[16];
           for(cx = 0; cx < hp; cx++) {
-            *dst++ = *nxt++ = border;
+            *dst++ = *nxt++ = pixel;
           }
           break;
       }
-      dst = nxt;
-      scanline++;
+      dst = nxt; sl++;
     }
     sa += hd;
   }
   for(cy = 0; cy < vp; cy++) {
     nxt += cfg.width;
-    border = amstrad_cpc.scanline[scanline].ink[16];
+    pixel = sl->ink[16];
     for(cx = 0; cx < cfg.width; cx++) {
-      *dst++ = *nxt++ = border;
+      *dst++ = *nxt++ = pixel;
     }
-    dst = nxt;
-    scanline++;
+    dst = nxt; sl++;
   }
   if(_window != None) {
     XPutImage(DisplayOfScreen(_screen), _window, DefaultGCOfScreen(_screen), _ximage, 0, 0, 0, 0, cfg.width, cfg.height);
