@@ -95,7 +95,7 @@ typedef struct {
     char counter;
     byte set_irq;
   } gate_array;
-  struct {
+  struct _scanline {
     unsigned int mode;
     unsigned long ink[17];
   } scanline[312];
