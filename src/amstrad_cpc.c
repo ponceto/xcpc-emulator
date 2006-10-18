@@ -909,7 +909,6 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
 
 static void amstrad_cpc_qwerty_hnd(Widget widget, XEvent *xevent)
 {
-  char buffer[8];
   KeySym keysym;
   byte line = 0x09;
   byte mask = 0x40;
@@ -921,7 +920,7 @@ static void amstrad_cpc_qwerty_hnd(Widget widget, XEvent *xevent)
   if((amstrad_cpc.keyboard.mods & CTRL_R_MASK) == 0) {
     xevent->xkey.state &= ~ControlMask;
   }
-  (void) XLookupString((XKeyEvent *) xevent, buffer, 8, &keysym, NULL);
+  (void) XLookupString((XKeyEvent *) xevent, NULL, 0, &keysym, NULL);
   if((keysym >> 8) == 0x00) {
     switch(keysym) {
       case XK_space:
@@ -1317,7 +1316,6 @@ static void amstrad_cpc_qwerty_hnd(Widget widget, XEvent *xevent)
 
 static void amstrad_cpc_azerty_hnd(Widget widget, XEvent *xevent)
 {
-  char buffer[8];
   KeySym keysym;
   byte line = 0x09;
   byte mask = 0x40;
@@ -1329,7 +1327,7 @@ static void amstrad_cpc_azerty_hnd(Widget widget, XEvent *xevent)
   if((amstrad_cpc.keyboard.mods & CTRL_R_MASK) == 0) {
     xevent->xkey.state &= ~ControlMask;
   }
-  (void) XLookupString((XKeyEvent *) xevent, buffer, 8, &keysym, NULL);
+  (void) XLookupString((XKeyEvent *) xevent, NULL, 0, &keysym, NULL);
   if((keysym >> 8) == 0x00) {
     switch(keysym) {
       case XK_space:
