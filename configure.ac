@@ -23,9 +23,9 @@ AC_PROG_LIBTOOL
 AC_PROG_INSTALL
 AC_PATH_X
 AC_PATH_XTRA
-AM_PATH_GLIB_2_0([2.4.0], [have_glib20="yes"], [have_glib20="no"], [gobject])
+AM_PATH_GLIB_2_0([2.6.0], [have_glib20="yes"], [have_glib20="no"], [gobject])
 if test "x${have_glib20}" = "xno"; then
-  AC_MSG_ERROR([Glib - version >= 2.4.0 is required])
+  AC_MSG_ERROR([Glib - version >= 2.6.0 is required])
 fi
 AC_ARG_WITH([motif1], AC_HELP_STRING([--with-motif1], [build the Motif1 version]))
 AC_CHECK_HEADER([Xm/Xm.h],

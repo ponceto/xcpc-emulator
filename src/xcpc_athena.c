@@ -128,17 +128,11 @@ int main(int argc, char *argv[])
     (void) fflush(stdout);
     exit(EXIT_SUCCESS);
   }
-  if((xcpc_resources.usage_flag != FALSE) || (amstrad_cpc_parse(argc, argv) == EXIT_FAILURE)) {
+  if((xcpc_resources.usage_flag != FALSE) || (amstrad_cpc_parse(&argc, &argv) == EXIT_FAILURE)) {
     (void) fprintf(stdout, "Usage: %s [toolkit-options] [program-options]\n\n", appname);
     (void) fprintf(stdout, "Options:\n");
     (void) fprintf(stdout, "  -version  print version and exit.\n");
     (void) fprintf(stdout, "  -help     display this help and exit.\n");
-    (void) fprintf(stderr, "            [-cpc464] [-cpc664] [-cpc6128]\n");
-    (void) fprintf(stderr, "            [-GT65] [-CTM644] [-50Hz] [-60Hz]\n");
-    (void) fprintf(stderr, "            [-4MHz] [-8MHz] [-12MHz] [-16MHz]\n");
-    (void) fprintf(stderr, "            [-isp] [-triumph] [-saisho] [-solavox]\n");
-    (void) fprintf(stderr, "            [-awa] [-schneider] [-orion] [-amstrad]\n");
-    (void) fprintf(stderr, "            [-tiny] [-small] [-medium] [-big] [-huge]\n");
     (void) fflush(stdout);
     exit(EXIT_SUCCESS);
   }

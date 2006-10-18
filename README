@@ -17,9 +17,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 GENERAL
 -------
 
-This software is based on the Marat Fayzullin's Z80 emulator
-(http://www.komkon.org/fms/).
-But a complete rewrite of the Z80 emulator is in progress.
+This software is partially based on the Marat Fayzullin's Z80 emulator
+(http://www.komkon.org/fms/), but a complete rewrite of the Z80 emulator
+is in progress.
 At this time, the emulator only supports SNAPSHOTS (*.sna) for loading games.
 
 COMPILATION
@@ -29,47 +29,32 @@ See 'INSTALL'
 
 EXECUTION
 ---------
+Usage:
+  xcpc [OPTION...]
 
-  Usage: xcpc [-toolkitoptions] [-h]
-              [-cpc464] [-cpc664] [-cpc6128]
-              [-GT65] [-CTM644] [-50Hz] [-60Hz]
-              [-4MHz] [-8MHz] [-12MHz] [-16MHz]
-              [-isp] [-triumph] [-saisho] [-solavox]
-              [-awa] [-schneider] [-orion] [-amstrad]
-              [-tiny] [-small] [-medium] [-big] [-huge]
+Help Options:
+  -?, --help           Show help options
 
-  [-h] .............. help.
-  [-cpc464] ......... CPC 464 mode (64 Kb, no fdd).
-  [-cpc664] ......... CPC 664 mode (64 Kb, fdd).
-  [-cpc6128] ........ CPC 6128 mode (128 Kb, fdd).
-  [-GT65] ........... GT65 (green) monitor emulation.
-  [-CTM644] ......... CTM644 (color) monitor emulation.
-  [-50Hz] ........... 50Hz monitor refresh frequency.
-  [-60Hz] ........... 60Hz monitor refresh frequency.
-  [-4MHz] ........... 4 MHz speed (normal for CPC 6128 and CPC 664).
-  [-8MHz] ........... 8 MHz speed.
-  [-12MHz] .......... 12 MHz speed.
-  [-16MHz] .......... 16 MHz speed.
-  [-isp] ............ Isp manufacturer.
-  [-triumph] ........ Triumph manufacturer.
-  [-saisho] ......... Saisho manufacturer.
-  [-solavox] ........ Solavox manufacturer.
-  [-awa] ............ Awa manufacturer.
-  [-schneider] ...... Schneider manufacturer.
-  [-orion] .......... Orion manufacturer.
-  [-amstrad] ........ Amstrad manufacturer.
-  [-tiny] ........... tiny border size .
-  [-small] .......... small border size.
-  [-medium] ......... medium border size.
-  [-big] ............ big border size.
-  [-huge] ........... huge border size (real cpc size, default).
+Application Options:
+  --model=value         cpc464|cpc664|cpc6128
+  --monitor=value       color|green
+  --keyboard=value      qwerty|azerty
+  --firmname=value      isp|triumph|saisho|solavox|awa|schneider|orion|amstrad
+  --sysrom=filename     32Kb system rom
+  --rom000=filename     16Kb expansion rom #000
+  --rom001=filename     16Kb expansion rom #001
+  --rom002=filename     16Kb expansion rom #002
+  --rom003=filename     16Kb expansion rom #003
+  --rom004=filename     16Kb expansion rom #004
+  --rom005=filename     16Kb expansion rom #005
+  --rom006=filename     16Kb expansion rom #006
+  --rom007=filename     16Kb expansion rom #007
+  --rom008=filename     16Kb expansion rom #008
+  --rom009=filename     16Kb expansion rom #009
+  --rom010=filename     16Kb expansion rom #010
+  --rom011=filename     16Kb expansion rom #011
+  --rom012=filename     16Kb expansion rom #012
+  --rom013=filename     16Kb expansion rom #013
+  --rom014=filename     16Kb expansion rom #014
+  --rom015=filename     16Kb expansion rom #015
 
-NOTES
------
-
-  -cpc464 ... cpc464 hardware and -4MHz -50Hz -amstrad -CTM644.
-  -cpc664 ... cpc664 hardware and -4MHz -50Hz -amstrad -CTM644.
-  -cpc6128 .. cpc6128 hardware and -4MHz -50Hz -amstrad -CTM644.
-
-If no options are given, the software emulates a CPC 6128 @ 4MHz, with a CTM644
-monitor @ 50Hz, made by Amstrad.
