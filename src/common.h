@@ -18,13 +18,15 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+#include <glib-object.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef unsigned char byte;
-typedef unsigned short word;
-typedef signed char offset;
+typedef guint8  byte;
+typedef guint16 word;
+typedef gint8   offset;
 
 #ifdef __cplusplus
 }
