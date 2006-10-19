@@ -19,6 +19,7 @@
 #define __AMSTRAD_CPC_H__
 
 #include <drv/driver.h>
+#include <dev/z80cpu.h>
 #include <dev/mc6845.h>
 #include <dev/ay8910.h>
 #include <dev/upd765.h>
@@ -30,6 +31,7 @@ extern "C" {
 #endif
 
 typedef struct _AMSTRAD_CPC {
+  GdevZ80CPU *z80cpu;
   GdevMC6845 *mc6845;
   GdevAY8910 *ay8910;
   GdevUPD765 *upd765;

@@ -1737,6 +1737,7 @@ int ix;
   cpu_z80_reset(&cpu_z80);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
+    gdev_device_reset(GDEV_DEVICE(self->z80cpu));
     gdev_device_reset(GDEV_DEVICE(self->mc6845));
     gdev_device_reset(GDEV_DEVICE(self->ay8910));
     gdev_device_reset(GDEV_DEVICE(self->upd765));
@@ -2348,6 +2349,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   cpu_z80_init(&cpu_z80);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
+    self->z80cpu = gdev_z80cpu_new();
     self->mc6845 = gdev_mc6845_new();
     self->ay8910 = gdev_ay8910_new();
     self->upd765 = gdev_upd765_new();
@@ -2484,6 +2486,7 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
   cpu_z80_exit(&cpu_z80);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
+    g_object_unref(self->z80cpu); self->z80cpu = NULL;
     g_object_unref(self->mc6845); self->mc6845 = NULL;
     g_object_unref(self->ay8910); self->ay8910 = NULL;
     g_object_unref(self->upd765); self->upd765 = NULL;
