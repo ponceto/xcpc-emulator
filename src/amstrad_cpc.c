@@ -30,10 +30,6 @@
 #include "common.h"
 #include "xcpc.h"
 #include "cpu_z80.h"
-#include "crtc_6845.h"
-#include "ay_3_8910.h"
-#include "ppi_8255.h"
-#include "fdc_765.h"
 #include "amstrad_cpc.h"
 
 #define AMSTRAD_CPC_SCR_W 768
@@ -131,10 +127,6 @@ static unsigned short hw_palette[32][3] = {
 AMSTRAD_CPC amstrad_cpc;
 
 CPU_Z80 cpu_z80;
-CRTC_6845 crtc_6845;
-AY_3_8910 ay_3_8910;
-PPI_8255 ppi_8255;
-FDC_765 fdc_765;
 
 static void amstrad_cpc_mem_select(AMSTRAD_CPC *self)
 {
@@ -255,11 +247,11 @@ static void amstrad_cpc_render00(Widget widget, XtPointer user)
 
 static void amstrad_cpc_render08(Widget widget, XtPointer user)
 {
-  unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
-  unsigned int hd = crtc_6845.reg_file[1];
+  unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
+  unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = crtc_6845.reg_file[9] + 1;
-  unsigned int vd = crtc_6845.reg_file[6];
+  unsigned int mr = amstrad_cpc.mc6845->reg_file[9] + 1;
+  unsigned int vd = amstrad_cpc.mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = &amstrad_cpc.scanline[20];
   unsigned char *dst = (unsigned char *) amstrad_cpc.ximage->data;
@@ -473,11 +465,11 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
 
 static void amstrad_cpc_render16(Widget widget, XtPointer user)
 {
-  unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
-  unsigned int hd = crtc_6845.reg_file[1];
+  unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
+  unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = crtc_6845.reg_file[9] + 1;
-  unsigned int vd = crtc_6845.reg_file[6];
+  unsigned int mr = amstrad_cpc.mc6845->reg_file[9] + 1;
+  unsigned int vd = amstrad_cpc.mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = &amstrad_cpc.scanline[20];
   unsigned short *dst = (unsigned short *) amstrad_cpc.ximage->data;
@@ -691,11 +683,11 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
 
 static void amstrad_cpc_render32(Widget widget, XtPointer user)
 {
-  unsigned int sa = ((crtc_6845.reg_file[12] << 8) | crtc_6845.reg_file[13]);
-  unsigned int hd = crtc_6845.reg_file[1];
+  unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
+  unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = crtc_6845.reg_file[9] + 1;
-  unsigned int vd = crtc_6845.reg_file[6];
+  unsigned int mr = amstrad_cpc.mc6845->reg_file[9] + 1;
+  unsigned int vd = amstrad_cpc.mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = &amstrad_cpc.scanline[20];
   unsigned int *dst = (unsigned int *) amstrad_cpc.ximage->data;
@@ -1743,10 +1735,6 @@ int ix;
   amstrad_cpc.beam.x = 0;
   amstrad_cpc.beam.y = 0;
   cpu_z80_reset(&cpu_z80);
-  crtc_6845_reset(&crtc_6845);
-  ay_3_8910_reset(&ay_3_8910);
-  ppi_8255_reset(&ppi_8255);
-  fdc_765_reset(&fdc_765);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     gdev_device_reset(GDEV_DEVICE(self->mc6845));
@@ -1838,18 +1826,18 @@ int ramsize;
   amstrad_cpc.gate_array.rom_cfg = *bufptr++;
   amstrad_cpc.gate_array.ram_cfg = *bufptr++;
   amstrad_cpc_mem_select(&amstrad_cpc);
-  crtc_6845.addr_reg = *bufptr++;
+  amstrad_cpc.mc6845->addr_reg = *bufptr++;
   for(ix = 0; ix < 18; ix++) {
-    crtc_6845.reg_file[ix] = *bufptr++;
+    amstrad_cpc.mc6845->reg_file[ix] = *bufptr++;
   }
   amstrad_cpc.memory.expansion = *bufptr++;
-  ppi_8255.port_a = *bufptr++;
-  ppi_8255.port_b = *bufptr++;
-  ppi_8255.port_c = *bufptr++;
-  ppi_8255.control = *bufptr++;
-  ay_3_8910.current = *bufptr++;
+  amstrad_cpc.i8255->port_a = *bufptr++;
+  amstrad_cpc.i8255->port_b = *bufptr++;
+  amstrad_cpc.i8255->port_c = *bufptr++;
+  amstrad_cpc.i8255->control = *bufptr++;
+  amstrad_cpc.ay8910->addr_reg = *bufptr++;
   for(ix = 0; ix < 16; ix++) {
-    ay_3_8910.registers[ix] = *bufptr++;
+    amstrad_cpc.ay8910->reg_file[ix] = *bufptr++;
   }
   ramsize = *bufptr++;
   ramsize |= *bufptr++ << 8;
@@ -1922,18 +1910,18 @@ int ramsize;
   }
   *bufptr++ = amstrad_cpc.gate_array.rom_cfg;
   *bufptr++ = amstrad_cpc.gate_array.ram_cfg;
-  *bufptr++ = crtc_6845.addr_reg;
+  *bufptr++ = amstrad_cpc.mc6845->addr_reg;
   for(ix = 0; ix < 18; ix++) {
-    *bufptr++ = crtc_6845.reg_file[ix];
+    *bufptr++ = amstrad_cpc.mc6845->reg_file[ix];
   }
   *bufptr++ = amstrad_cpc.memory.expansion;
-  *bufptr++ = ppi_8255.port_a;
-  *bufptr++ = ppi_8255.port_b;
-  *bufptr++ = ppi_8255.port_c;
-  *bufptr++ = ppi_8255.control;
-  *bufptr++ = ay_3_8910.current;
+  *bufptr++ = amstrad_cpc.i8255->port_a;
+  *bufptr++ = amstrad_cpc.i8255->port_b;
+  *bufptr++ = amstrad_cpc.i8255->port_c;
+  *bufptr++ = amstrad_cpc.i8255->control;
+  *bufptr++ = amstrad_cpc.ay8910->addr_reg;
   for(ix = 0; ix < 16; ix++) {
-    *bufptr++ = ay_3_8910.registers[ix];
+    *bufptr++ = amstrad_cpc.ay8910->reg_file[ix];
   }
   *bufptr++ = amstrad_cpc.ramsize & 0xff;
   *bufptr++ = (amstrad_cpc.ramsize >> 8) & 0xff;
@@ -1979,7 +1967,7 @@ byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word port)
         (void) fflush(stderr);
         break;
       case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
-        data = crtc_6845.reg_file[crtc_6845.addr_reg];
+        data = amstrad_cpc.mc6845->reg_file[amstrad_cpc.mc6845->addr_reg];
         break;
     }
   }
@@ -1997,20 +1985,20 @@ byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word port)
   if((port & 0x0800) == 0) {
     switch((port >> 8) & 3) {
       case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-        ppi_8255.port_a = amstrad_cpc.keyboard.bits[amstrad_cpc.keyboard.line];
-        data = ppi_8255.port_a;
+        amstrad_cpc.i8255->port_a = amstrad_cpc.keyboard.bits[amstrad_cpc.keyboard.line];
+        data = amstrad_cpc.i8255->port_a;
         break;
       case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-        ppi_8255.port_b = ((0                    & 0x01) << 7)
-                        | ((1                    & 0x01) << 6)
-                        | ((1                    & 0x01) << 5)
-                        | ((amstrad_cpc.refresh  & 0x01) << 4)
-                        | ((amstrad_cpc.firmname & 0x07) << 1)
-                        | ((crtc_6845.vsync      & 0x01) << 0);
-        data = ppi_8255.port_b;
+        amstrad_cpc.i8255->port_b = ((0                         & 0x01) << 7)
+                                  | ((1                         & 0x01) << 6)
+                                  | ((1                         & 0x01) << 5)
+                                  | ((amstrad_cpc.refresh       & 0x01) << 4)
+                                  | ((amstrad_cpc.firmname      & 0x07) << 1)
+                                  | ((amstrad_cpc.mc6845->vsync & 0x01) << 0);
+        data = amstrad_cpc.i8255->port_b;
         break;
       case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
-        data = ppi_8255.port_c;
+        data = amstrad_cpc.i8255->port_c;
         break;
       case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
         (void) fprintf(stderr, "IO_RD[0x%04x]: PPI-8255     [---- Illegal ----]\n", port);
@@ -2030,12 +2018,12 @@ byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word port)
         (void) fflush(stderr);
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        data = fdc_765.status;
+        data = amstrad_cpc.upd765->status;
         (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [--- RD_STATUS ---]\n", port);
         (void) fflush(stderr);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        data = fdc_765.data;
+        data = amstrad_cpc.upd765->data;
         (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [---- RD_DATA ----]\n", port);
         (void) fflush(stderr);
         break;
@@ -2073,10 +2061,10 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte data)
   if((port & 0x4000) == 0) {
     switch((port >> 8) & 3) {
       case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
-        crtc_6845.addr_reg = data;
+        amstrad_cpc.mc6845->addr_reg = data;
         break;
       case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
-        crtc_6845.reg_file[crtc_6845.addr_reg] = data;
+        amstrad_cpc.mc6845->reg_file[amstrad_cpc.mc6845->addr_reg] = data;
         break;
       case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
         (void) fprintf(stderr, "IO_WR[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
@@ -2100,17 +2088,17 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte data)
   if((port & 0x0800) == 0) {
     switch((port >> 8) & 3) {
       case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-        ppi_8255.port_a = data;
+        amstrad_cpc.i8255->port_a = data;
         break;
       case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-        /*ppi_8255.port_b = data;*/
+        /*amstrad_cpc.i8255->port_b = data;*/
         break;
       case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
-        ppi_8255.port_c = data;
+        amstrad_cpc.i8255->port_c = data;
         amstrad_cpc.keyboard.line = data & 0x0F;
         break;
       case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
-        ppi_8255.control = data;
+        amstrad_cpc.i8255->control = data;
         break;
     }
   }
@@ -2118,7 +2106,7 @@ void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte data)
   if((port & 0x0480) == 0) {
     switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
       case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-        fdc_765.motors = data & 0x01;
+        amstrad_cpc.upd765->motors = data & 0x01;
         (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [--- MOTOR_CTL ---]\n", port);
         (void) fflush(stderr);
         break;
@@ -2358,10 +2346,6 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
       break;
   }
   cpu_z80_init(&cpu_z80);
-  crtc_6845_init(&crtc_6845);
-  ay_3_8910_init(&ay_3_8910);
-  ppi_8255_init(&ppi_8255);
-  fdc_765_init(&fdc_765);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     self->mc6845 = gdev_mc6845_new();
@@ -2382,11 +2366,11 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   int vsyncpos_min;
   int vsyncpos_max;
 
-  vsync_length = (crtc_6845.reg_file[3] >> 4) & 0x0f;
+  vsync_length = (amstrad_cpc.mc6845->reg_file[3] >> 4) & 0x0f;
   if(vsync_length == 0) {
     vsync_length = 16;
   }
-  vsyncpos_min = crtc_6845.reg_file[7] * (crtc_6845.reg_file[9] + 1);
+  vsyncpos_min = amstrad_cpc.mc6845->reg_file[7] * (amstrad_cpc.mc6845->reg_file[9] + 1);
   vsyncpos_max = vsyncpos_min + vsync_length - 1;
   do {
     amstrad_cpc.scanline[amstrad_cpc.beam.y].mode = amstrad_cpc.gate_array.rom_cfg & 0x03;
@@ -2402,7 +2386,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     }
     cpu_z80_clock(&cpu_z80);
     if((scanline >= vsyncpos_min) && (scanline <= vsyncpos_max)) {
-      if(crtc_6845.vsync == 0) {
+      if(amstrad_cpc.mc6845->vsync == 0) {
         /* rising edge of V-SYNC */
       }
       if((scanline - vsyncpos_min) == 2) {
@@ -2414,14 +2398,14 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
           amstrad_cpc.gate_array.counter = 0;
         }
       }
-      crtc_6845.vsync = 1; /* set V-SYNC */
+      amstrad_cpc.mc6845->vsync = 1; /* set V-SYNC */
     }
     else {
-      if(crtc_6845.vsync != 0) {
+      if(amstrad_cpc.mc6845->vsync != 0) {
         /* falling edge of V-SYNC */
         amstrad_cpc.beam.y = 0;
       }
-      crtc_6845.vsync = 0; /* reset V-SYNC */
+      amstrad_cpc.mc6845->vsync = 0; /* reset V-SYNC */
     }
     if(++amstrad_cpc.gate_array.counter >= 52) {
       amstrad_cpc.gate_array.counter = 0;
@@ -2498,10 +2482,6 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
     }
   }
   cpu_z80_exit(&cpu_z80);
-  crtc_6845_exit(&crtc_6845);
-  ay_3_8910_exit(&ay_3_8910);
-  ppi_8255_exit(&ppi_8255);
-  fdc_765_exit(&fdc_765);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     g_object_unref(self->mc6845); self->mc6845 = NULL;

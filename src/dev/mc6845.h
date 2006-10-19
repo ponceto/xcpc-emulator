@@ -34,6 +34,10 @@ typedef struct _GdevMC6845Class GdevMC6845Class;
 
 struct _GdevMC6845 {
   GdevDevice device;
+  guint8 addr_reg;
+  guint8 reg_file[18];
+  guint  hsync;
+  guint  vsync;
 };
 
 struct _GdevMC6845Class {

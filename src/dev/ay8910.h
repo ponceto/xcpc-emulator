@@ -34,6 +34,8 @@ typedef struct _GdevAY8910Class GdevAY8910Class;
 
 struct _GdevAY8910 {
   GdevDevice device;
+  guint8 addr_reg;
+  guint8 reg_file[16];
 };
 
 struct _GdevAY8910Class {

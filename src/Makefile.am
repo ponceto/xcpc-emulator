@@ -23,10 +23,6 @@ bin_PROGRAMS = xcpc
 
 xcpc_SOURCES = \
 	amstrad_cpc.c amstrad_cpc.h \
-	crtc_6845.c crtc_6845.h \
-	ay_3_8910.c ay_3_8910.h \
-	ppi_8255.c ppi_8255.h \
-	fdc_765.c fdc_765.h \
 	cpu_z80.c cpu_z80.h \
 	Z80Core.h \
 	Z80Opcodes.h \

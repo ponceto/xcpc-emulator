@@ -69,6 +69,23 @@ static void gdev_ay8910_debug(GdevAY8910 *ay8910)
  */
 static void gdev_ay8910_reset(GdevAY8910 *ay8910)
 {
+  ay8910->addr_reg     = 0x00;
+  ay8910->reg_file[ 0] = 0x00;
+  ay8910->reg_file[ 1] = 0x00;
+  ay8910->reg_file[ 2] = 0x00;
+  ay8910->reg_file[ 3] = 0x00;
+  ay8910->reg_file[ 4] = 0x00;
+  ay8910->reg_file[ 5] = 0x00;
+  ay8910->reg_file[ 6] = 0x00;
+  ay8910->reg_file[ 7] = 0x00;
+  ay8910->reg_file[ 8] = 0x00;
+  ay8910->reg_file[ 9] = 0x00;
+  ay8910->reg_file[10] = 0x00;
+  ay8910->reg_file[11] = 0x00;
+  ay8910->reg_file[12] = 0x00;
+  ay8910->reg_file[13] = 0x00;
+  ay8910->reg_file[14] = 0x00;
+  ay8910->reg_file[15] = 0x00;
 }
 
 /**

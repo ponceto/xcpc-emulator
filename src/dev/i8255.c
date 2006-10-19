@@ -69,6 +69,10 @@ static void gdev_i8255_debug(GdevI8255 *i8255)
  */
 static void gdev_i8255_reset(GdevI8255 *i8255)
 {
+  i8255->control = 0x00;
+  i8255->port_a  = 0x00;
+  i8255->port_b  = 0x00;
+  i8255->port_c  = 0x00;
 }
 
 /**

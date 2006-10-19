@@ -69,6 +69,27 @@ static void gdev_mc6845_debug(GdevMC6845 *mc6845)
  */
 static void gdev_mc6845_reset(GdevMC6845 *mc6845)
 {
+  mc6845->addr_reg     = 0x00; /* Address Register      [---xxxxx] */
+  mc6845->reg_file[ 0] = 0x65; /* Horiz. Total          [hhhhhhhh] */
+  mc6845->reg_file[ 1] = 0x50; /* Horiz. Displayed      [hhhhhhhh] */
+  mc6845->reg_file[ 2] = 0x56; /* Horiz. Sync Position  [hhhhhhhh] */
+  mc6845->reg_file[ 3] = 0x09; /* H // V Sync Width     [vvvvhhhh] */
+  mc6845->reg_file[ 4] = 0x18; /* Verti. Total          [-vvvvvvv] */
+  mc6845->reg_file[ 5] = 0x0a; /* Verti. Total Adjust   [---vvvvv] */
+  mc6845->reg_file[ 6] = 0x18; /* Verti. Displayed      [-vvvvvvv] */
+  mc6845->reg_file[ 7] = 0x18; /* Verti. Sync Position  [-vvvvvvv] */
+  mc6845->reg_file[ 8] = 0x00; /* Interlace Mode        [------xx] */
+  mc6845->reg_file[ 9] = 0x0b; /* Max Scan Line Address [---xxxxx] */
+  mc6845->reg_file[10] = 0x00; /* Cursor Start          [-xxxxxxx] */
+  mc6845->reg_file[11] = 0x0b; /* Cursor End            [---xxxxx] */
+  mc6845->reg_file[12] = 0x00; /* Start Address (MSB)   [--xxxxxx] */
+  mc6845->reg_file[13] = 0x80; /* Start Address (LSB)   [xxxxxxxx] */
+  mc6845->reg_file[14] = 0x00; /* Cursor (MSB)          [--xxxxxx] */
+  mc6845->reg_file[15] = 0x80; /* Cursor (LSB)          [xxxxxxxx] */
+  mc6845->reg_file[16] = 0x00; /* Light Pen (MSB)       [--xxxxxx] */
+  mc6845->reg_file[17] = 0x00; /* Light Pen (LSB)       [xxxxxxxx] */
+  mc6845->hsync = 0;
+  mc6845->vsync = 0;
 }
 
 /**

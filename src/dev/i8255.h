@@ -34,6 +34,10 @@ typedef struct _GdevI8255Class GdevI8255Class;
 
 struct _GdevI8255 {
   GdevDevice device;
+  guint8 control;
+  guint8 port_a;
+  guint8 port_b;
+  guint8 port_c;
 };
 
 struct _GdevI8255Class {

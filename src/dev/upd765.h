@@ -34,6 +34,9 @@ typedef struct _GdevUPD765Class GdevUPD765Class;
 
 struct _GdevUPD765 {
   GdevDevice device;
+  guint8 status;
+  guint8 motors;
+  guint8 data;
 };
 
 struct _GdevUPD765Class {

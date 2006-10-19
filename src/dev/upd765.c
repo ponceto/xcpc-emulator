@@ -69,6 +69,9 @@ static void gdev_upd765_debug(GdevUPD765 *upd765)
  */
 static void gdev_upd765_reset(GdevUPD765 *upd765)
 {
+  upd765->status = 0x80;
+  upd765->motors = 0x00;
+  upd765->data   = 0x00;
 }
 
 /**
