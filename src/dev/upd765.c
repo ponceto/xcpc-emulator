@@ -23,6 +23,10 @@
 #include <string.h>
 #include "upd765.h"
 
+static void gdev_upd765_debug(GdevUPD765 *upd765);
+static void gdev_upd765_reset(GdevUPD765 *upd765);
+static void gdev_upd765_clock(GdevUPD765 *upd765);
+
 G_DEFINE_TYPE(GdevUPD765, gdev_upd765, GDEV_TYPE_DEVICE)
 
 /**
@@ -32,6 +36,11 @@ G_DEFINE_TYPE(GdevUPD765, gdev_upd765, GDEV_TYPE_DEVICE)
  */
 static void gdev_upd765_class_init(GdevUPD765Class *upd765_class)
 {
+  GdevDeviceClass *device_class = GDEV_DEVICE_CLASS(upd765_class);
+
+  device_class->debug = (GdevDeviceProc) gdev_upd765_debug;
+  device_class->reset = (GdevDeviceProc) gdev_upd765_reset;
+  device_class->clock = (GdevDeviceProc) gdev_upd765_clock;
 }
 
 /**
@@ -40,6 +49,34 @@ static void gdev_upd765_class_init(GdevUPD765Class *upd765_class)
  * @param upd765 specifies the GdevUPD765 instance
  */
 static void gdev_upd765_init(GdevUPD765 *upd765)
+{
+  gdev_upd765_reset(upd765);
+}
+
+/**
+ * GdevUPD765::debug()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+static void gdev_upd765_debug(GdevUPD765 *upd765)
+{
+}
+
+/**
+ * GdevUPD765::reset()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+static void gdev_upd765_reset(GdevUPD765 *upd765)
+{
+}
+
+/**
+ * GdevUPD765::clock()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+static void gdev_upd765_clock(GdevUPD765 *upd765)
 {
 }
 

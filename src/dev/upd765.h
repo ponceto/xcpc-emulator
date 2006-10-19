@@ -33,7 +33,7 @@ typedef struct _GdevUPD765      GdevUPD765;
 typedef struct _GdevUPD765Class GdevUPD765Class;
 
 struct _GdevUPD765 {
-  GdevDevice parent_instance;
+  GdevDevice device;
 };
 
 struct _GdevUPD765Class {
