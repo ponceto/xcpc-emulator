@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 SUBDIRS = \
-	Xem
+	dev drv Xem
 
 AM_CPPFLAGS = -I$(top_srcdir) $(X_CFLAGS) $(GLIB_CFLAGS) -DROMSDIR=\"$(datadir)/@PACKAGE@/roms\"
 
@@ -44,7 +44,10 @@ xcpc_SOURCES = \
 if MOTIF1
 xcpc_SOURCES += xcpc_motif1.c
 
-xcpc_LDADD = ./Xem/libXem.a \
+xcpc_LDADD = \
+	./Xem/libXem.a \
+	./drv/libdrv.a \
+	./dev/libdev.a \
 	$(X_LIBS) -lXm -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm
@@ -53,7 +56,10 @@ endif
 if ATHENA
 xcpc_SOURCES += xcpc_athena.c
 
-xcpc_LDADD = ./Xem/libXem.a \
+xcpc_LDADD = \
+	./Xem/libXem.a \
+	./drv/libdrv.a \
+	./dev/libdev.a \
 	$(X_LIBS) -lXaw -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm

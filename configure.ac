@@ -72,7 +72,7 @@ AC_C_BIGENDIAN([AC_DEFINE([MSB_FIRST], [1], [MSB First: 68k, sparc, ...])],
                [AC_DEFINE([LSB_FIRST], [1], [LSB First: x86, alpha, ...])],
                [AC_MSG_ERROR([unsupported byte-order ...])])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile src/Xem/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/dev/Makefile src/drv/Makefile src/Xem/Makefile])
 AC_OUTPUT
 AC_MSG_NOTICE([Configured to build Xcpc:
 
