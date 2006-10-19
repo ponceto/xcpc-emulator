@@ -33,7 +33,7 @@ typedef struct _GdevAY8910      GdevAY8910;
 typedef struct _GdevAY8910Class GdevAY8910Class;
 
 struct _GdevAY8910 {
-  GdevDevice parent_instance;
+  GdevDevice device;
 };
 
 struct _GdevAY8910Class {
