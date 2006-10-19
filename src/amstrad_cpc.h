@@ -18,7 +18,11 @@
 #ifndef __AMSTRAD_CPC_H__
 #define __AMSTRAD_CPC_H__
 
-#include <glib-object.h>
+#include <drv/driver.h>
+#include <dev/mc6845.h>
+#include <dev/ay8910.h>
+#include <dev/upd765.h>
+#include <dev/i8255.h>
 #include <sys/time.h>
 
 #ifdef __cplusplus
@@ -26,6 +30,10 @@ extern "C" {
 #endif
 
 typedef struct _AMSTRAD_CPC {
+  GdevMC6845 *mc6845;
+  GdevAY8910 *ay8910;
+  GdevUPD765 *upd765;
+  GdevI8255  *i8255;
   byte *rd_bank[4];
   byte *wr_bank[4];
   struct {

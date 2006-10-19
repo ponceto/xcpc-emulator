@@ -1747,6 +1747,13 @@ int ix;
   ay_3_8910_reset(&ay_3_8910);
   ppi_8255_reset(&ppi_8255);
   fdc_765_reset(&fdc_765);
+  /* XXX */ {
+    AMSTRAD_CPC *self = &amstrad_cpc;
+    gdev_device_reset(GDEV_DEVICE(self->mc6845));
+    gdev_device_reset(GDEV_DEVICE(self->ay8910));
+    gdev_device_reset(GDEV_DEVICE(self->upd765));
+    gdev_device_reset(GDEV_DEVICE(self->i8255));
+  }
   /* XXX */
   (void) gettimeofday(&amstrad_cpc.timer1, NULL);
   (void) gettimeofday(&amstrad_cpc.timer2, NULL);
@@ -2355,6 +2362,13 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   ay_3_8910_init(&ay_3_8910);
   ppi_8255_init(&ppi_8255);
   fdc_765_init(&fdc_765);
+  /* XXX */ {
+    AMSTRAD_CPC *self = &amstrad_cpc;
+    self->mc6845 = gdev_mc6845_new();
+    self->ay8910 = gdev_ay8910_new();
+    self->upd765 = gdev_upd765_new();
+    self->i8255  = gdev_i8255_new();
+  }
   amstrad_cpc_reset();
   (void) gettimeofday(&amstrad_cpc.timer1, NULL);
   (void) gettimeofday(&amstrad_cpc.timer2, NULL);
@@ -2488,6 +2502,13 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
   ay_3_8910_exit(&ay_3_8910);
   ppi_8255_exit(&ppi_8255);
   fdc_765_exit(&fdc_765);
+  /* XXX */ {
+    AMSTRAD_CPC *self = &amstrad_cpc;
+    g_object_unref(self->mc6845); self->mc6845 = NULL;
+    g_object_unref(self->ay8910); self->ay8910 = NULL;
+    g_object_unref(self->upd765); self->upd765 = NULL;
+    g_object_unref(self->i8255);  self->i8255  = NULL;
+  }
 }
 
 void amstrad_cpc_keybd_handler(Widget widget, XEvent *xevent)
