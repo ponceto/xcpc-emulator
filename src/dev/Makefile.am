@@ -19,4 +19,6 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/src $(X_CFLAGS) $(GLIB_CFLAGS)
 noinst_LIBRARIES = libdev.a
 
 libdev_a_SOURCES = \
-	device.c device.h
+	device.c device.h \
+	mc6845.c mc6845.h \
+	ay8910.c ay8910.h
