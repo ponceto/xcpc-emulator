@@ -23,6 +23,10 @@
 #include <string.h>
 #include "mc6845.h"
 
+static void gdev_mc6845_debug(GdevMC6845 *mc6845);
+static void gdev_mc6845_reset(GdevMC6845 *mc6845);
+static void gdev_mc6845_clock(GdevMC6845 *mc6845);
+
 G_DEFINE_TYPE(GdevMC6845, gdev_mc6845, GDEV_TYPE_DEVICE)
 
 /**
@@ -32,6 +36,11 @@ G_DEFINE_TYPE(GdevMC6845, gdev_mc6845, GDEV_TYPE_DEVICE)
  */
 static void gdev_mc6845_class_init(GdevMC6845Class *mc6845_class)
 {
+  GdevDeviceClass *device_class = GDEV_DEVICE_CLASS(mc6845_class);
+
+  device_class->debug = (GdevDeviceProc) gdev_mc6845_debug;
+  device_class->reset = (GdevDeviceProc) gdev_mc6845_reset;
+  device_class->clock = (GdevDeviceProc) gdev_mc6845_clock;
 }
 
 /**
@@ -40,6 +49,34 @@ static void gdev_mc6845_class_init(GdevMC6845Class *mc6845_class)
  * @param mc6845 specifies the GdevMC6845 instance
  */
 static void gdev_mc6845_init(GdevMC6845 *mc6845)
+{
+  gdev_mc6845_reset(mc6845);
+}
+
+/**
+ * GdevMC6845::debug()
+ *
+ * @param mc6845 specifies the GdevMC6845 instance
+ */
+static void gdev_mc6845_debug(GdevMC6845 *mc6845)
+{
+}
+
+/**
+ * GdevMC6845::reset()
+ *
+ * @param mc6845 specifies the GdevMC6845 instance
+ */
+static void gdev_mc6845_reset(GdevMC6845 *mc6845)
+{
+}
+
+/**
+ * GdevMC6845::clock()
+ *
+ * @param mc6845 specifies the GdevMC6845 instance
+ */
+static void gdev_mc6845_clock(GdevMC6845 *mc6845)
 {
 }
 

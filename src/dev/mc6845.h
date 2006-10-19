@@ -33,7 +33,7 @@ typedef struct _GdevMC6845      GdevMC6845;
 typedef struct _GdevMC6845Class GdevMC6845Class;
 
 struct _GdevMC6845 {
-  GdevDevice parent_instance;
+  GdevDevice device;
 };
 
 struct _GdevMC6845Class {
