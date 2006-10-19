@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     XtAddEventHandler(toplevel, NoEventMask, TRUE, (XtEventHandler) _XEditResCheckMessages, (XtPointer) NULL);
   }
   /* XXX */ {
-    apwindow = CreateGUI(toplevel);
+    g_type_init(); apwindow = CreateGUI(toplevel);
   }
   XtManageChild(apwindow);
   XtRealizeWidget(toplevel);
