@@ -23,32 +23,32 @@
 #include <string.h>
 #include "driver.h"
 
-G_DEFINE_TYPE(GemuDriver, gemu_driver, G_TYPE_OBJECT)
+G_DEFINE_TYPE(GdrvDriver, gdrv_driver, G_TYPE_OBJECT)
 
 /**
- * GemuDriver::class_init()
+ * GdrvDriver::class_init()
  *
- * @param driver_class specifies the GemuDriver class
+ * @param driver_class specifies the GdrvDriver class
  */
-static void gemu_driver_class_init(GemuDriverClass *driver_class)
+static void gdrv_driver_class_init(GdrvDriverClass *driver_class)
 {
 }
 
 /**
- * GemuDriver::init()
+ * GdrvDriver::init()
  *
- * @param driver specifies the GemuDriver instance
+ * @param driver specifies the GdrvDriver instance
  */
-static void gemu_driver_init(GemuDriver *driver)
+static void gdrv_driver_init(GdrvDriver *driver)
 {
 }
 
 /**
- * GemuDriver::new()
+ * GdrvDriver::new()
  *
- * @return the GemuDriver instance
+ * @return the GdrvDriver instance
  */
-GemuDriver *gemu_driver_new(void)
+GdrvDriver *gdrv_driver_new(void)
 {
-  return(g_object_new(GEMU_TYPE_DRIVER, NULL));
+  return(g_object_new(GDRV_TYPE_DRIVER, NULL));
 }

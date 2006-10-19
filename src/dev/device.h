@@ -15,34 +15,34 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef __GEMU_DEVICE_H__
-#define __GEMU_DEVICE_H__
+#ifndef __GDEV_DEVICE_H__
+#define __GDEV_DEVICE_H__
 
 #include <glib-object.h>
 
 G_BEGIN_DECLS
 
-#define GEMU_TYPE_DEVICE            (gemu_device_get_type())
-#define GEMU_DEVICE(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), GEMU_TYPE_DEVICE, GemuDevice))
-#define GEMU_DEVICE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), GEMU_TYPE_DEVICE, GemuDeviceClass))
-#define GEMU_IS_DEVICE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), GEMU_TYPE_DEVICE))
-#define GEMU_IS_DEVICE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GEMU_TYPE_DEVICE))
-#define GEMU_DEVICE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), GEMU_TYPE_DEVICE, GemuDeviceClass))
+#define GDEV_TYPE_DEVICE            (gdev_device_get_type())
+#define GDEV_DEVICE(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), GDEV_TYPE_DEVICE, GdevDevice))
+#define GDEV_DEVICE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), GDEV_TYPE_DEVICE, GdevDeviceClass))
+#define GDEV_IS_DEVICE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), GDEV_TYPE_DEVICE))
+#define GDEV_IS_DEVICE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GDEV_TYPE_DEVICE))
+#define GDEV_DEVICE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), GDEV_TYPE_DEVICE, GdevDeviceClass))
 
-typedef struct _GemuDevice      GemuDevice;
-typedef struct _GemuDeviceClass GemuDeviceClass;
+typedef struct _GdevDevice      GdevDevice;
+typedef struct _GdevDeviceClass GdevDeviceClass;
 
-struct _GemuDevice {
+struct _GdevDevice {
   GObject parent_instance;
 };
 
-struct _GemuDeviceClass {
+struct _GdevDeviceClass {
   GObjectClass parent_class;
 };
 
-extern GType       gemu_device_get_type (void);
-extern GemuDevice *gemu_device_new      (void);
+extern GType       gdev_device_get_type (void);
+extern GdevDevice *gdev_device_new      (void);
 
 G_END_DECLS
 
-#endif /* __GEMU_DEVICE_H__ */
+#endif /* __GDEV_DEVICE_H__ */

@@ -23,32 +23,32 @@
 #include <string.h>
 #include "device.h"
 
-G_DEFINE_TYPE(GemuDevice, gemu_device, G_TYPE_OBJECT)
+G_DEFINE_TYPE(GdevDevice, gdev_device, G_TYPE_OBJECT)
 
 /**
- * GemuDevice::class_init()
+ * GdevDevice::class_init()
  *
- * @param device_class specifies the GemuDevice class
+ * @param device_class specifies the GdevDevice class
  */
-static void gemu_device_class_init(GemuDeviceClass *device_class)
+static void gdev_device_class_init(GdevDeviceClass *device_class)
 {
 }
 
 /**
- * GemuDevice::init()
+ * GdevDevice::init()
  *
- * @param device specifies the GemuDevice instance
+ * @param device specifies the GdevDevice instance
  */
-static void gemu_device_init(GemuDevice *device)
+static void gdev_device_init(GdevDevice *device)
 {
 }
 
 /**
- * GemuDevice::new()
+ * GdevDevice::new()
  *
- * @return the GemuDevice instance
+ * @return the GdevDevice instance
  */
-GemuDevice *gemu_device_new(void)
+GdevDevice *gdev_device_new(void)
 {
-  return(g_object_new(GEMU_TYPE_DEVICE, NULL));
+  return(g_object_new(GDEV_TYPE_DEVICE, NULL));
 }
