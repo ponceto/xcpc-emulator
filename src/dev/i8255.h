@@ -33,14 +33,14 @@ typedef struct _GdevI8255      GdevI8255;
 typedef struct _GdevI8255Class GdevI8255Class;
 
 struct _GdevI8255 {
-  GdevDevice parent_instance;
+  GdevDevice device;
 };
 
 struct _GdevI8255Class {
   GdevDeviceClass parent_class;
 };
 
-extern GType       gdev_i8255_get_type (void);
+extern GType      gdev_i8255_get_type (void);
 extern GdevI8255 *gdev_i8255_new      (void);
 
 G_END_DECLS
