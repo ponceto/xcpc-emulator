@@ -49,6 +49,16 @@ xcpc_LDADD = \
 	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm
 endif
 
+pixmapsdir = "$(datadir)/pixmaps"
+
+pixmaps_DATA = \
+        xcpc.xpm
+
+desktopdir = "$(datadir)/applications"
+
+desktop_DATA = \
+        xcpc.desktop
+
 romsdir = "$(datadir)/@PACKAGE@/roms"
 
 roms_DATA = \
@@ -58,6 +68,8 @@ roms_DATA = \
 	roms/amsdos.rom
 
 EXTRA_DIST = \
+        xcpc.xpm \
+        xcpc.desktop \
 	roms/cpc6128.rom \
 	roms/cpc664.rom \
 	roms/cpc464.rom \
