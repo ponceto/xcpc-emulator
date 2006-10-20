@@ -2356,6 +2356,8 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
+  static int num_frames = 0;
+  static int drw_frames = 0;
   long delay, ix;
   int scanline = 0;
   int vsync_length;
@@ -2422,18 +2424,26 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   switch(amstrad_cpc.refresh) {
     case 1:
       if((delay >= 0) && (delay <= 20)) {
-        (*amstrad_cpc.paint_hnd)(widget, NULL);
+        (*amstrad_cpc.paint_hnd)(widget, NULL); drw_frames++;
       }
       if((amstrad_cpc.timer1.tv_usec += 20000) >= 1000000) {
         amstrad_cpc.timer1.tv_usec -= 1000000; amstrad_cpc.timer1.tv_sec++;
       }
+      if(++num_frames == 50) {
+        (void) printf("%2d frames -- %2d fps\r", num_frames, drw_frames);
+        (void) fflush(stdout); num_frames = drw_frames = 0;
+      }
       break;
     case 0:
       if((delay >= 0) && (delay <= 16)) {
-        (*amstrad_cpc.paint_hnd)(widget, NULL);
+        (*amstrad_cpc.paint_hnd)(widget, NULL); drw_frames++;
       }
       if((amstrad_cpc.timer1.tv_usec += 16667) >= 1000000) {
         amstrad_cpc.timer1.tv_usec -= 1000000; amstrad_cpc.timer1.tv_sec++;
+      }
+      if(++num_frames == 50) {
+        (void) printf("%2d frames -- %2d fps\r", num_frames, drw_frames);
+        (void) fflush(stdout); num_frames = drw_frames = 0;
       }
       break;
   }
