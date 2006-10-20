@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "z80cpu.h"
-#include "../Z80Core.h"
+#include "z80cpu_tables.h"
 
 static void gdev_z80cpu_debug(GdevZ80CPU *z80cpu);
 static void gdev_z80cpu_reset(GdevZ80CPU *z80cpu);
@@ -104,7 +104,7 @@ decode_op:
   I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= Cycles[I];
   switch(I) {
-#include "../Z80Opcodes.h"
+#include "z80cpu_opcode.h"
     case 0xcb:
       goto decode_cb;
     case 0xdd:
@@ -123,7 +123,7 @@ decode_cb:
   I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesCB[I];
   switch(I) {
-#include "../Z80OpcodesCB.h"
+#include "z80cpu_opcode_CB.h"
     default:
       goto decode_ko;
   }
@@ -134,7 +134,7 @@ decode_dd:
   I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesXX[I];
   switch(I) {
-#include "../Z80OpcodesDD.h"
+#include "z80cpu_opcode_DD.h"
     case 0xcb:
       goto decode_dd_cb;
     default:
@@ -147,7 +147,7 @@ decode_dd_cb:
   I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesXXCB[I];
   switch(I) {
-#include "../Z80OpcodesDDCB.h"
+#include "z80cpu_opcode_DDCB.h"
     default:
       goto decode_ko;
   }
@@ -158,7 +158,7 @@ decode_ed:
   I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesED[I];
   switch(I) {
-#include "../Z80OpcodesED.h"
+#include "z80cpu_opcode_ED.h"
     default:
       goto decode_ko;
   }
@@ -169,7 +169,7 @@ decode_fd:
   I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesXX[I];
   switch(I) {
-#include "../Z80OpcodesFD.h"
+#include "z80cpu_opcode_FD.h"
     case 0xcb:
       goto decode_fd_cb;
     default:
@@ -182,7 +182,7 @@ decode_fd_cb:
   I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesXXCB[I];
   switch(I) {
-#include "../Z80OpcodesFDCB.h"
+#include "z80cpu_opcode_FDCB.h"
     default:
       goto decode_ko;
   }

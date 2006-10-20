@@ -21,6 +21,16 @@ noinst_LIBRARIES = libdev.a
 libdev_a_SOURCES = \
 	device.c device.h \
 	z80cpu.c z80cpu.h \
+	z80cpu_tables.h \
+	z80cpu_opcode.h \
+	z80cpu_opcode_CB.h \
+	z80cpu_opcode_DD.h \
+	z80cpu_opcode_DDCB.h \
+	z80cpu_opcode_ED.h \
+	z80cpu_opcode_FD.h \
+	z80cpu_opcode_FDCB.h \
+	z80cpu_opcode_XX.h \
+	z80cpu_opcode_XXCB.h \
 	mc6845.c mc6845.h \
 	ay8910.c ay8910.h \
 	upd765.c upd765.h \
