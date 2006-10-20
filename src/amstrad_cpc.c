@@ -27,10 +27,8 @@
 #include <X11/StringDefs.h>
 #include <X11/keysym.h>
 #include <Xem/Emulator.h>
-#include "common.h"
-#include "xcpc.h"
-#include "cpu_z80.h"
 #include "amstrad_cpc.h"
+#include "xcpc.h"
 
 #define AMSTRAD_CPC_SCR_W 768
 #define AMSTRAD_CPC_SCR_H 576
@@ -125,8 +123,6 @@ static unsigned short hw_palette[32][3] = {
 };
 
 AMSTRAD_CPC amstrad_cpc;
-
-CPU_Z80 cpu_z80;
 
 static void amstrad_cpc_mem_select(AMSTRAD_CPC *self)
 {
@@ -237,9 +233,9 @@ static void amstrad_cpc_init_palette(AMSTRAD_CPC *self)
   }
 }
 
-static byte decode_mode0[256];
-static byte decode_mode1[256];
-static byte decode_mode2[256];
+static guint8 decode_mode0[256];
+static guint8 decode_mode1[256];
+static guint8 decode_mode2[256];
 
 static void amstrad_cpc_render00(Widget widget, XtPointer user)
 {
@@ -258,8 +254,8 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
   unsigned char *nxt = (unsigned char *) amstrad_cpc.ximage->data;
   unsigned char pixel;
   unsigned int cx, cy, ra;
-  word addr;
-  byte data;
+  guint16 addr;
+  guint8 data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
@@ -476,8 +472,8 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
   unsigned short *nxt = (unsigned short *) amstrad_cpc.ximage->data;
   unsigned short pixel;
   unsigned int cx, cy, ra;
-  word addr;
-  byte data;
+  guint16 addr;
+  guint8 data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
@@ -694,8 +690,8 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
   unsigned int *nxt = (unsigned int *) amstrad_cpc.ximage->data;
   unsigned int pixel;
   unsigned int cx, cy, ra;
-  word addr;
-  byte data;
+  guint16 addr;
+  guint8 data;
 
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
@@ -902,9 +898,9 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
 static void amstrad_cpc_qwerty_hnd(Widget widget, XEvent *xevent)
 {
   KeySym keysym;
-  byte line = 0x09;
-  byte mask = 0x40;
-  byte mods = 0x00;
+  guint8 line = 0x09;
+  guint8 mask = 0x40;
+  guint8 mods = 0x00;
 
   if((amstrad_cpc.keyboard.mods & SHFT_R_MASK) == 0) {
     xevent->xkey.state &= ~ShiftMask;
@@ -1309,9 +1305,9 @@ static void amstrad_cpc_qwerty_hnd(Widget widget, XEvent *xevent)
 static void amstrad_cpc_azerty_hnd(Widget widget, XEvent *xevent)
 {
   KeySym keysym;
-  byte line = 0x09;
-  byte mask = 0x40;
-  byte mods = 0x00;
+  guint8 line = 0x09;
+  guint8 mask = 0x40;
+  guint8 mods = 0x00;
 
   if((amstrad_cpc.keyboard.mods & SHFT_R_MASK) == 0) {
     xevent->xkey.state &= ~ShiftMask;
@@ -1734,7 +1730,6 @@ int ix;
   amstrad_cpc_mem_select(&amstrad_cpc);
   amstrad_cpc.beam.x = 0;
   amstrad_cpc.beam.y = 0;
-  cpu_z80_reset(&cpu_z80);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     gdev_device_reset(GDEV_DEVICE(self->z80cpu));
@@ -1765,7 +1760,7 @@ int amstrad_cpc_parse(int *argc, char ***argv)
 void amstrad_cpc_load_snapshot(char *filename)
 {
 FILE *file;
-byte buffer[256], *bufptr = buffer;
+guint8 buffer[256], *bufptr = buffer;
 int ix;
 int ramsize;
 
@@ -1781,45 +1776,45 @@ int ramsize;
   } bufptr += 8;
   bufptr += 8; /* not used */
   bufptr++; /* snapshot version */
-  cpu_z80.AF.B.l = *bufptr++;
-  cpu_z80.AF.B.h = *bufptr++;
-  cpu_z80.BC.B.l = *bufptr++;
-  cpu_z80.BC.B.h = *bufptr++;
-  cpu_z80.DE.B.l = *bufptr++;
-  cpu_z80.DE.B.h = *bufptr++;
-  cpu_z80.HL.B.l = *bufptr++;
-  cpu_z80.HL.B.h = *bufptr++;
-  cpu_z80.IR.B.l = *bufptr++;
-  cpu_z80.IR.B.h = *bufptr++;
-  cpu_z80.IFF = (*bufptr++ != 0 ? cpu_z80.IFF | IFF_1 : cpu_z80.IFF & (~IFF_2));
-  cpu_z80.IFF = (*bufptr++ != 0 ? cpu_z80.IFF | IFF_1 : cpu_z80.IFF & (~IFF_2));
-  cpu_z80.IX.B.l = *bufptr++;
-  cpu_z80.IX.B.h = *bufptr++;
-  cpu_z80.IY.B.l = *bufptr++;
-  cpu_z80.IY.B.h = *bufptr++;
-  cpu_z80.SP.B.l = *bufptr++;
-  cpu_z80.SP.B.h = *bufptr++;
-  cpu_z80.PC.B.l = *bufptr++;
-  cpu_z80.PC.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->AF.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->AF.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->BC.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->BC.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->DE.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->DE.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->HL.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->HL.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->IR.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->IR.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->IFF = (*bufptr++ != 0 ? amstrad_cpc.z80cpu->IFF | IFF_1 : amstrad_cpc.z80cpu->IFF & (~IFF_2));
+  amstrad_cpc.z80cpu->IFF = (*bufptr++ != 0 ? amstrad_cpc.z80cpu->IFF | IFF_1 : amstrad_cpc.z80cpu->IFF & (~IFF_2));
+  amstrad_cpc.z80cpu->IX.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->IX.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->IY.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->IY.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->SP.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->SP.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->PC.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->PC.B.h = *bufptr++;
   switch(*bufptr++) {
     case 1:
-      cpu_z80.IFF = (cpu_z80.IFF | IFF_IM1) & ~(IFF_IM2);
+      amstrad_cpc.z80cpu->IFF = (amstrad_cpc.z80cpu->IFF | IFF_IM1) & ~(IFF_IM2);
       break;
     case 2:
-      cpu_z80.IFF = (cpu_z80.IFF | IFF_IM2) & ~(IFF_IM1);
+      amstrad_cpc.z80cpu->IFF = (amstrad_cpc.z80cpu->IFF | IFF_IM2) & ~(IFF_IM1);
       break;
     default:
-      cpu_z80.IFF = (cpu_z80.IFF) & ~(IFF_IM1 | IFF_IM2);
+      amstrad_cpc.z80cpu->IFF = (amstrad_cpc.z80cpu->IFF) & ~(IFF_IM1 | IFF_IM2);
       break;
   }
-  cpu_z80.AF1.B.l = *bufptr++;
-  cpu_z80.AF1.B.h = *bufptr++;
-  cpu_z80.BC1.B.l = *bufptr++;
-  cpu_z80.BC1.B.h = *bufptr++;
-  cpu_z80.DE1.B.l = *bufptr++;
-  cpu_z80.DE1.B.h = *bufptr++;
-  cpu_z80.HL1.B.l = *bufptr++;
-  cpu_z80.HL1.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->AF1.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->AF1.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->BC1.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->BC1.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->DE1.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->DE1.B.h = *bufptr++;
+  amstrad_cpc.z80cpu->HL1.B.l = *bufptr++;
+  amstrad_cpc.z80cpu->HL1.B.h = *bufptr++;
   amstrad_cpc.gate_array.pen = *bufptr++;
   for(ix = 0; ix < 17; ix++) {
     amstrad_cpc.gate_array.ink[ix] = *bufptr++;
@@ -1855,7 +1850,7 @@ int ramsize;
 void amstrad_cpc_save_snapshot(char *filename)
 {
 FILE *file;
-byte buffer[256], *bufptr = buffer;
+guint8 buffer[256], *bufptr = buffer;
 int ix;
 int ramsize;
 
@@ -1866,27 +1861,27 @@ int ramsize;
   memcpy(bufptr, "MV - SNA", 8); bufptr += 8;
   memset(bufptr, 0, 8); bufptr += 8; /* not used */
   *bufptr++ = 1; /* snapshot version */
-  *bufptr++ = cpu_z80.AF.B.l;
-  *bufptr++ = cpu_z80.AF.B.h;
-  *bufptr++ = cpu_z80.BC.B.l;
-  *bufptr++ = cpu_z80.BC.B.h;
-  *bufptr++ = cpu_z80.DE.B.l;
-  *bufptr++ = cpu_z80.DE.B.h;
-  *bufptr++ = cpu_z80.HL.B.l;
-  *bufptr++ = cpu_z80.HL.B.h;
-  *bufptr++ = cpu_z80.IR.B.l;
-  *bufptr++ = cpu_z80.IR.B.h;
-  *bufptr++ = (cpu_z80.IFF & IFF_1 ? 0x01 : 0x00);
-  *bufptr++ = (cpu_z80.IFF & IFF_2 ? 0x01 : 0x00);
-  *bufptr++ = cpu_z80.IX.B.l;
-  *bufptr++ = cpu_z80.IX.B.h;
-  *bufptr++ = cpu_z80.IY.B.l;
-  *bufptr++ = cpu_z80.IY.B.h;
-  *bufptr++ = cpu_z80.SP.B.l;
-  *bufptr++ = cpu_z80.SP.B.h;
-  *bufptr++ = cpu_z80.PC.B.l;
-  *bufptr++ = cpu_z80.PC.B.h;
-  switch(cpu_z80.IFF & (IFF_IM1 | IFF_IM2)) {
+  *bufptr++ = amstrad_cpc.z80cpu->AF.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->AF.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->BC.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->BC.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->DE.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->DE.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->HL.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->HL.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->IR.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->IR.B.h;
+  *bufptr++ = (amstrad_cpc.z80cpu->IFF & IFF_1 ? 0x01 : 0x00);
+  *bufptr++ = (amstrad_cpc.z80cpu->IFF & IFF_2 ? 0x01 : 0x00);
+  *bufptr++ = amstrad_cpc.z80cpu->IX.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->IX.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->IY.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->IY.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->SP.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->SP.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->PC.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->PC.B.h;
+  switch(amstrad_cpc.z80cpu->IFF & (IFF_IM1 | IFF_IM2)) {
     case IFF_IM1:
       *bufptr++ = 0x01;
       break;
@@ -1897,14 +1892,14 @@ int ramsize;
       *bufptr++ = 0x00;
       break;
   }
-  *bufptr++ = cpu_z80.AF1.B.l;
-  *bufptr++ = cpu_z80.AF1.B.h;
-  *bufptr++ = cpu_z80.BC1.B.l;
-  *bufptr++ = cpu_z80.BC1.B.h;
-  *bufptr++ = cpu_z80.DE1.B.l;
-  *bufptr++ = cpu_z80.DE1.B.h;
-  *bufptr++ = cpu_z80.HL1.B.l;
-  *bufptr++ = cpu_z80.HL1.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->AF1.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->AF1.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->BC1.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->BC1.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->DE1.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->DE1.B.h;
+  *bufptr++ = amstrad_cpc.z80cpu->HL1.B.l;
+  *bufptr++ = amstrad_cpc.z80cpu->HL1.B.h;
   *bufptr++ = amstrad_cpc.gate_array.pen;
   for(ix = 0; ix < 17; ix++) {
     *bufptr++ = amstrad_cpc.gate_array.ink[ix];
@@ -1933,19 +1928,19 @@ int ramsize;
   fclose(file);
 }
 
-byte cpu_z80_mm_rd(CPU_Z80 *cpu_z80, word addr)
+guint8 gdev_z80cpu_mm_rd(GdevZ80CPU *z80cpu, guint16 addr)
 {
   return(amstrad_cpc.rd_bank[addr >> 14][addr & 0x3fff]);
 }
 
-void cpu_z80_mm_wr(CPU_Z80 *cpu_z80, word addr, byte value)
+void gdev_z80cpu_mm_wr(GdevZ80CPU *z80cpu, guint16 addr, guint8 data)
 {
-  amstrad_cpc.wr_bank[addr >> 14][addr & 0x3fff] = value;
+  amstrad_cpc.wr_bank[addr >> 14][addr & 0x3fff] = data;
 }
 
-byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word port)
+guint8 gdev_z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
 {
-  byte data = 0x00;
+  guint8 data = 0x00;
 
   /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
   if((port & 0x8000) == 0) {
@@ -2033,7 +2028,7 @@ byte cpu_z80_io_rd(CPU_Z80 *cpu_z80, word port)
   return(data);
 }
 
-void cpu_z80_io_wr(CPU_Z80 *cpu_z80, word port, byte data)
+void gdev_z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
 {
   /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
   if((port & 0x8000) == 0) {
@@ -2288,22 +2283,22 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
       break;
   }
   amstrad_cpc_init_palette(&amstrad_cpc);
-  if((amstrad_cpc.memory.total_ram = (byte *) malloc(amstrad_cpc.ramsize * 1024)) == NULL) {
+  if((amstrad_cpc.memory.total_ram = (guint8 *) malloc(amstrad_cpc.ramsize * 1024)) == NULL) {
     perror("amstrad_cpc"); exit(-1);
   }
   /* Load System ROM */
   if((file = fopen(cfg_sys_rom, "r")) != NULL) {
-    if((amstrad_cpc.memory.lower_rom = (byte *) malloc(16384 * sizeof(byte))) != NULL) {
+    if((amstrad_cpc.memory.lower_rom = (guint8 *) malloc(16384 * sizeof(guint8))) != NULL) {
       (void) fseek(file, (0 * 16384), SEEK_SET);
-      (void) fread(amstrad_cpc.memory.lower_rom, sizeof(byte), 16384, file);
+      (void) fread(amstrad_cpc.memory.lower_rom, sizeof(guint8), 16384, file);
     }
     else {
       perror("amstrad_cpc");
       exit(EXIT_FAILURE);
     }
-    if((amstrad_cpc.memory.upper_rom = (byte *) malloc(16384 * sizeof(byte))) != NULL) {
+    if((amstrad_cpc.memory.upper_rom = (guint8 *) malloc(16384 * sizeof(guint8))) != NULL) {
       (void) fseek(file, (1 * 16384), SEEK_SET);
-      (void) fread(amstrad_cpc.memory.upper_rom, sizeof(byte), 16384, file);
+      (void) fread(amstrad_cpc.memory.upper_rom, sizeof(guint8), 16384, file);
     }
     else {
       perror("amstrad_cpc");
@@ -2319,8 +2314,8 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   for(ix = 0; ix < 256; ix++) {
     if(cfg_exp_rom[ix] != NULL) {
       if((file = fopen(cfg_exp_rom[ix], "r")) != NULL) {
-        if((amstrad_cpc.memory.expan_rom[ix] = (byte *) malloc(16384 * sizeof(byte))) != NULL) {
-          (void) fread(amstrad_cpc.memory.expan_rom[ix], sizeof(byte), 16384, file);
+        if((amstrad_cpc.memory.expan_rom[ix] = (guint8 *) malloc(16384 * sizeof(guint8))) != NULL) {
+          (void) fread(amstrad_cpc.memory.expan_rom[ix], sizeof(guint8), 16384, file);
         }
         else {
           perror("amstrad_cpc");
@@ -2340,13 +2335,12 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   switch(amstrad_cpc.refresh) {
     default:
     case 1:
-      cpu_z80.IPeriod = (4000000 * 64) / 1000000;
+      amstrad_cpc.cpu_period = (4000000 * 64) / 1000000;
       break;
     case 0:
-      cpu_z80.IPeriod = (4000000 * 53) / 1000000;
+      amstrad_cpc.cpu_period = (4000000 * 53) / 1000000;
       break;
   }
-  cpu_z80_init(&cpu_z80);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     self->z80cpu = gdev_z80cpu_new();
@@ -2380,13 +2374,15 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       amstrad_cpc.scanline[amstrad_cpc.beam.y].ink[ix] = amstrad_cpc.palette[amstrad_cpc.gate_array.ink[ix]];
     }
     if(amstrad_cpc.gate_array.set_irq != 0) {
-      if((cpu_z80.IFF & IFF_1) != 0) {
-        cpu_z80_intr(&cpu_z80, INT_RST38);
+      if((amstrad_cpc.z80cpu->IFF & IFF_1) != 0) {
+        gdev_z80cpu_intr(amstrad_cpc.z80cpu, INT_RST38);
         amstrad_cpc.gate_array.counter &= 31;
         amstrad_cpc.gate_array.set_irq  = 0;
       }
     }
-    cpu_z80_clock(&cpu_z80);
+    if((amstrad_cpc.z80cpu->TStates += amstrad_cpc.cpu_period) > 0) {
+      GDEV_DEVICE_GET_CLASS((GdevDevice *) amstrad_cpc.z80cpu)->clock((GdevDevice *) amstrad_cpc.z80cpu);
+    }
     if((scanline >= vsyncpos_min) && (scanline <= vsyncpos_max)) {
       if(amstrad_cpc.mc6845->vsync == 0) {
         /* rising edge of V-SYNC */
@@ -2483,7 +2479,6 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
       amstrad_cpc.memory.expan_rom[ix] = NULL;
     }
   }
-  cpu_z80_exit(&cpu_z80);
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     g_object_unref(self->z80cpu); self->z80cpu = NULL;

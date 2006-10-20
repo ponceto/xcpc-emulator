@@ -1,9 +1,9 @@
-#define WrZ80(addr,value)  (cpu_z80_mm_wr((R),(addr),(value)))
-#define RdZ80(addr)        (cpu_z80_mm_rd((R),(addr)))
-#define OutZ80(addr,value) (cpu_z80_io_wr((R),(addr),(value)))
-#define InZ80(addr)        (cpu_z80_io_rd((R),(addr)))
+#define WrZ80(addr,value)  (gdev_z80cpu_mm_wr((R),(addr),(value)))
+#define RdZ80(addr)        (gdev_z80cpu_mm_rd((R),(addr)))
+#define OutZ80(addr,value) (gdev_z80cpu_io_wr((R),(addr),(value)))
+#define InZ80(addr)        (gdev_z80cpu_io_rd((R),(addr)))
 
-static byte Cycles[256] = {
+static guint8 Cycles[256] = {
    4,10, 7, 6, 4, 4, 7, 4, 4,11, 7, 6, 4, 4, 7, 4,
    8,10, 7, 6, 4, 4, 7, 4,12,11, 7, 6, 4, 4, 7, 4,
    7,10,16, 6, 4, 4, 7, 4, 7,11,16, 6, 4, 4, 7, 4,
@@ -22,7 +22,7 @@ static byte Cycles[256] = {
    5,10,10, 4,10,11, 7,11, 5, 6,10, 4,10, 0, 7,11 
 };
 
-static byte CyclesCB[256] = {
+static guint8 CyclesCB[256] = {
    8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
    8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
    8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
@@ -41,7 +41,7 @@ static byte CyclesCB[256] = {
    8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8 
 };
 
-static byte CyclesED[256] = {
+static guint8 CyclesED[256] = {
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -60,7 +60,7 @@ static byte CyclesED[256] = {
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-static byte CyclesXX[256] = {
+static guint8 CyclesXX[256] = {
    0, 0, 0, 0, 0, 0, 0, 0, 0,15, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0, 0,15, 0, 0, 0, 0, 0, 0,
    0,14,20,10, 9, 9, 9, 0, 0,15,20,10, 9, 9, 9, 0,
@@ -79,7 +79,7 @@ static byte CyclesXX[256] = {
    0, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 0, 0, 0
 };
 
-static byte CyclesXXCB[256] = {
+static guint8 CyclesXXCB[256] = {
    0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
    0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
    0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
@@ -98,7 +98,7 @@ static byte CyclesXXCB[256] = {
    0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0
 };
 
-static byte ZSTable[256] = {
+static guint8 ZSTable[256] = {
   Z_FLAG,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -125,7 +125,7 @@ static byte ZSTable[256] = {
   S_FLAG,S_FLAG,S_FLAG,S_FLAG,S_FLAG,S_FLAG,S_FLAG,S_FLAG
 };
 
-static byte PZSTable[256] = {
+static guint8 PZSTable[256] = {
   Z_FLAG|P_FLAG,0,0,P_FLAG,0,P_FLAG,P_FLAG,0,
   0,P_FLAG,P_FLAG,0,P_FLAG,0,0,P_FLAG,
   0,P_FLAG,P_FLAG,0,P_FLAG,0,0,P_FLAG,P_FLAG,0,0,P_FLAG,0,P_FLAG,P_FLAG,0,
@@ -169,7 +169,7 @@ static byte PZSTable[256] = {
   S_FLAG|P_FLAG,S_FLAG,S_FLAG,S_FLAG|P_FLAG
 };
 
-static word DAATable[2048] = {
+static guint16 DAATable[2048] = {
   0x0044,0x0100,0x0200,0x0304,0x0400,0x0504,0x0604,0x0700,
   0x0808,0x090C,0x1010,0x1114,0x1214,0x1310,0x1414,0x1510,
   0x1000,0x1104,0x1204,0x1300,0x1404,0x1500,0x1600,0x1704,
@@ -486,7 +486,7 @@ static word DAATable[2048] = {
   R->PC.W=J.W
 
 #define M_JP  J.B.l=RdZ80(R->PC.W++);J.B.h=RdZ80(R->PC.W);R->PC.W=J.W
-#define M_JR  R->PC.W+=(offset)RdZ80(R->PC.W)+1
+#define M_JR  R->PC.W+=(gint8)RdZ80(R->PC.W)+1
 #define M_RET R->PC.B.l=RdZ80(R->SP.W++);R->PC.B.h=RdZ80(R->SP.W++)
 
 #define M_RST(Ad)      \

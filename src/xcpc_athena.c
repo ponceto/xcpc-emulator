@@ -26,7 +26,6 @@
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
-#include "common.h"
 #include "amstrad_cpc.h"
 #include "xcpc.h"
 

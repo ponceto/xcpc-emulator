@@ -23,7 +23,6 @@ bin_PROGRAMS = xcpc
 
 xcpc_SOURCES = \
 	amstrad_cpc.c amstrad_cpc.h \
-	cpu_z80.c cpu_z80.h \
 	Z80Core.h \
 	Z80Opcodes.h \
 	Z80OpcodesCB.h \
@@ -34,7 +33,6 @@ xcpc_SOURCES = \
 	Z80OpcodesFDCB.h \
 	Z80OpcodesXX.h \
 	Z80OpcodesXXCB.h \
-	common.c common.h \
 	xcpc.h
 
 if MOTIF1

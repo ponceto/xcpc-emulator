@@ -50,7 +50,7 @@ case ADD_E:    M_ADD(R->DE.B.l);break;
 case ADD_H:    M_ADD(R->XX.B.h);break;
 case ADD_L:    M_ADD(R->XX.B.l);break;
 case ADD_A:    M_ADD(R->AF.B.h);break;
-case ADD_xHL:  I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));
+case ADD_xHL:  I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));
                M_ADD(I);break;
 case ADD_BYTE: I=RdZ80(R->PC.W++);M_ADD(I);break;
 
@@ -61,7 +61,7 @@ case SUB_E:    M_SUB(R->DE.B.l);break;
 case SUB_H:    M_SUB(R->XX.B.h);break;
 case SUB_L:    M_SUB(R->XX.B.l);break;
 case SUB_A:    R->AF.B.h=0;R->AF.B.l=N_FLAG|Z_FLAG;break;
-case SUB_xHL:  I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));
+case SUB_xHL:  I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));
                M_SUB(I);break;
 case SUB_BYTE: I=RdZ80(R->PC.W++);M_SUB(I);break;
 
@@ -72,7 +72,7 @@ case AND_E:    M_AND(R->DE.B.l);break;
 case AND_H:    M_AND(R->XX.B.h);break;
 case AND_L:    M_AND(R->XX.B.l);break;
 case AND_A:    M_AND(R->AF.B.h);break;
-case AND_xHL:  I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));
+case AND_xHL:  I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));
                M_AND(I);break;
 case AND_BYTE: I=RdZ80(R->PC.W++);M_AND(I);break;
 
@@ -83,7 +83,7 @@ case OR_E:     M_OR(R->DE.B.l);break;
 case OR_H:     M_OR(R->XX.B.h);break;
 case OR_L:     M_OR(R->XX.B.l);break;
 case OR_A:     M_OR(R->AF.B.h);break;
-case OR_xHL:   I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));
+case OR_xHL:   I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));
                M_OR(I);break;
 case OR_BYTE:  I=RdZ80(R->PC.W++);M_OR(I);break;
 
@@ -94,7 +94,7 @@ case ADC_E:    M_ADC(R->DE.B.l);break;
 case ADC_H:    M_ADC(R->XX.B.h);break;
 case ADC_L:    M_ADC(R->XX.B.l);break;
 case ADC_A:    M_ADC(R->AF.B.h);break;
-case ADC_xHL:  I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));
+case ADC_xHL:  I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));
                M_ADC(I);break;
 case ADC_BYTE: I=RdZ80(R->PC.W++);M_ADC(I);break;
 
@@ -105,7 +105,7 @@ case SBC_E:    M_SBC(R->DE.B.l);break;
 case SBC_H:    M_SBC(R->XX.B.h);break;
 case SBC_L:    M_SBC(R->XX.B.l);break;
 case SBC_A:    M_SBC(R->AF.B.h);break;
-case SBC_xHL:  I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));
+case SBC_xHL:  I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));
                M_SBC(I);break;
 case SBC_BYTE: I=RdZ80(R->PC.W++);M_SBC(I);break;
 
@@ -116,7 +116,7 @@ case XOR_E:    M_XOR(R->DE.B.l);break;
 case XOR_H:    M_XOR(R->XX.B.h);break;
 case XOR_L:    M_XOR(R->XX.B.l);break;
 case XOR_A:    R->AF.B.h=0;R->AF.B.l=P_FLAG|Z_FLAG;break;
-case XOR_xHL:  I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));
+case XOR_xHL:  I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));
                M_XOR(I);break;
 case XOR_BYTE: I=RdZ80(R->PC.W++);M_XOR(I);break;
 
@@ -127,7 +127,7 @@ case CP_E:     M_CP(R->DE.B.l);break;
 case CP_H:     M_CP(R->XX.B.h);break;
 case CP_L:     M_CP(R->XX.B.l);break;
 case CP_A:     R->AF.B.l=N_FLAG|Z_FLAG;break;
-case CP_xHL:   I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));
+case CP_xHL:   I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));
                M_CP(I);break;
 case CP_BYTE:  I=RdZ80(R->PC.W++);M_CP(I);break;
                
@@ -163,8 +163,8 @@ case DEC_E:    M_DEC(R->DE.B.l);break;
 case DEC_H:    M_DEC(R->XX.B.h);break;
 case DEC_L:    M_DEC(R->XX.B.l);break;
 case DEC_A:    M_DEC(R->AF.B.h);break;
-case DEC_xHL:  I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W));M_DEC(I);
-               WrZ80(R->XX.W+(offset)RdZ80(R->PC.W++),I);
+case DEC_xHL:  I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W));M_DEC(I);
+               WrZ80(R->XX.W+(gint8)RdZ80(R->PC.W++),I);
                break;
 
 case INC_B:    M_INC(R->BC.B.h);break;
@@ -174,8 +174,8 @@ case INC_E:    M_INC(R->DE.B.l);break;
 case INC_H:    M_INC(R->XX.B.h);break;
 case INC_L:    M_INC(R->XX.B.l);break;
 case INC_A:    M_INC(R->AF.B.h);break;
-case INC_xHL:  I=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W));M_INC(I);
-               WrZ80(R->XX.W+(offset)RdZ80(R->PC.W++),I);
+case INC_xHL:  I=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W));M_INC(I);
+               WrZ80(R->XX.W+(gint8)RdZ80(R->PC.W++),I);
                break;
 
 case RLCA:
@@ -264,7 +264,7 @@ case LD_E_B:   R->DE.B.l=R->BC.B.h;break;
 case LD_H_B:   R->XX.B.h=R->BC.B.h;break;
 case LD_L_B:   R->XX.B.l=R->BC.B.h;break;
 case LD_A_B:   R->AF.B.h=R->BC.B.h;break;
-case LD_xHL_B: J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
+case LD_xHL_B: J.W=R->XX.W+(gint8)RdZ80(R->PC.W++);
                WrZ80(J.W,R->BC.B.h);break;
 
 case LD_B_C:   R->BC.B.h=R->BC.B.l;break;
@@ -274,7 +274,7 @@ case LD_E_C:   R->DE.B.l=R->BC.B.l;break;
 case LD_H_C:   R->XX.B.h=R->BC.B.l;break;
 case LD_L_C:   R->XX.B.l=R->BC.B.l;break;
 case LD_A_C:   R->AF.B.h=R->BC.B.l;break;
-case LD_xHL_C: J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
+case LD_xHL_C: J.W=R->XX.W+(gint8)RdZ80(R->PC.W++);
                WrZ80(J.W,R->BC.B.l);break;
 
 case LD_B_D:   R->BC.B.h=R->DE.B.h;break;
@@ -284,7 +284,7 @@ case LD_E_D:   R->DE.B.l=R->DE.B.h;break;
 case LD_H_D:   R->XX.B.h=R->DE.B.h;break;
 case LD_L_D:   R->XX.B.l=R->DE.B.h;break;
 case LD_A_D:   R->AF.B.h=R->DE.B.h;break;
-case LD_xHL_D: J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
+case LD_xHL_D: J.W=R->XX.W+(gint8)RdZ80(R->PC.W++);
                WrZ80(J.W,R->DE.B.h);break;
 
 case LD_B_E:   R->BC.B.h=R->DE.B.l;break;
@@ -294,7 +294,7 @@ case LD_E_E:   R->DE.B.l=R->DE.B.l;break;
 case LD_H_E:   R->XX.B.h=R->DE.B.l;break;
 case LD_L_E:   R->XX.B.l=R->DE.B.l;break;
 case LD_A_E:   R->AF.B.h=R->DE.B.l;break;
-case LD_xHL_E: J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
+case LD_xHL_E: J.W=R->XX.W+(gint8)RdZ80(R->PC.W++);
                WrZ80(J.W,R->DE.B.l);break;
 
 case LD_B_H:   R->BC.B.h=R->XX.B.h;break;
@@ -304,7 +304,7 @@ case LD_E_H:   R->DE.B.l=R->XX.B.h;break;
 case LD_H_H:   R->XX.B.h=R->XX.B.h;break;
 case LD_L_H:   R->XX.B.l=R->XX.B.h;break;
 case LD_A_H:   R->AF.B.h=R->XX.B.h;break;
-case LD_xHL_H: J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
+case LD_xHL_H: J.W=R->XX.W+(gint8)RdZ80(R->PC.W++);
                WrZ80(J.W,R->HL.B.h);break;
 
 case LD_B_L:   R->BC.B.h=R->XX.B.l;break;
@@ -314,7 +314,7 @@ case LD_E_L:   R->DE.B.l=R->XX.B.l;break;
 case LD_H_L:   R->XX.B.h=R->XX.B.l;break;
 case LD_L_L:   R->XX.B.l=R->XX.B.l;break;
 case LD_A_L:   R->AF.B.h=R->XX.B.l;break;
-case LD_xHL_L: J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
+case LD_xHL_L: J.W=R->XX.W+(gint8)RdZ80(R->PC.W++);
                WrZ80(J.W,R->HL.B.l);break;
 
 case LD_B_A:   R->BC.B.h=R->AF.B.h;break;
@@ -324,19 +324,19 @@ case LD_E_A:   R->DE.B.l=R->AF.B.h;break;
 case LD_H_A:   R->XX.B.h=R->AF.B.h;break;
 case LD_L_A:   R->XX.B.l=R->AF.B.h;break;
 case LD_A_A:   R->AF.B.h=R->AF.B.h;break;
-case LD_xHL_A: J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
+case LD_xHL_A: J.W=R->XX.W+(gint8)RdZ80(R->PC.W++);
                WrZ80(J.W,R->AF.B.h);break;
 
 case LD_xBC_A: WrZ80(R->BC.W,R->AF.B.h);break;
 case LD_xDE_A: WrZ80(R->DE.W,R->AF.B.h);break;
 
-case LD_B_xHL:    R->BC.B.h=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));break;
-case LD_C_xHL:    R->BC.B.l=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));break;
-case LD_D_xHL:    R->DE.B.h=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));break;
-case LD_E_xHL:    R->DE.B.l=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));break;
-case LD_H_xHL:    R->HL.B.h=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));break;
-case LD_L_xHL:    R->HL.B.l=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));break;
-case LD_A_xHL:    R->AF.B.h=RdZ80(R->XX.W+(offset)RdZ80(R->PC.W++));break;
+case LD_B_xHL:    R->BC.B.h=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));break;
+case LD_C_xHL:    R->BC.B.l=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));break;
+case LD_D_xHL:    R->DE.B.h=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));break;
+case LD_E_xHL:    R->DE.B.l=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));break;
+case LD_H_xHL:    R->HL.B.h=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));break;
+case LD_L_xHL:    R->HL.B.l=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));break;
+case LD_A_xHL:    R->AF.B.h=RdZ80(R->XX.W+(gint8)RdZ80(R->PC.W++));break;
 
 case LD_B_BYTE:   R->BC.B.h=RdZ80(R->PC.W++);break;
 case LD_C_BYTE:   R->BC.B.l=RdZ80(R->PC.W++);break;
@@ -345,7 +345,7 @@ case LD_E_BYTE:   R->DE.B.l=RdZ80(R->PC.W++);break;
 case LD_H_BYTE:   R->XX.B.h=RdZ80(R->PC.W++);break;
 case LD_L_BYTE:   R->XX.B.l=RdZ80(R->PC.W++);break;
 case LD_A_BYTE:   R->AF.B.h=RdZ80(R->PC.W++);break;
-case LD_xHL_BYTE: J.W=R->XX.W+(offset)RdZ80(R->PC.W++);
+case LD_xHL_BYTE: J.W=R->XX.W+(gint8)RdZ80(R->PC.W++);
                   WrZ80(J.W,RdZ80(R->PC.W++));break;
 
 case LD_xWORD_HL:

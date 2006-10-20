@@ -36,27 +36,27 @@ typedef struct _AMSTRAD_CPC {
   GdevAY8910 *ay8910;
   GdevUPD765 *upd765;
   GdevI8255  *i8255;
-  byte *rd_bank[4];
-  byte *wr_bank[4];
+  guint8 *rd_bank[4];
+  guint8 *wr_bank[4];
   struct {
-    byte *lower_rom;
-    byte *upper_rom;
-    byte *total_ram;
-    byte *expan_rom[256];
-    byte  expansion;
+    guint8 *lower_rom;
+    guint8 *upper_rom;
+    guint8 *total_ram;
+    guint8 *expan_rom[256];
+    guint8  expansion;
   } memory;
   struct {
-    byte mods;
-    byte line;
-    byte bits[16];
+    guint8 mods;
+    guint8 line;
+    guint8 bits[16];
   } keyboard;
   struct {
-    byte pen;
-    byte ink[17];
-    byte rom_cfg;
-    byte ram_cfg;
+    guint8 pen;
+    guint8 ink[17];
+    guint8 rom_cfg;
+    guint8 ram_cfg;
     char counter;
-    byte set_irq;
+    guint8 set_irq;
   } gate_array;
   struct _scanline {
     unsigned int mode;
@@ -77,6 +77,7 @@ typedef struct _AMSTRAD_CPC {
   int ramsize;
   int refresh;
   int firmname;
+  int cpu_period;
 } AMSTRAD_CPC;
 
 extern AMSTRAD_CPC amstrad_cpc;
