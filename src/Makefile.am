@@ -68,8 +68,8 @@ roms_DATA = \
 	roms/amsdos.rom
 
 EXTRA_DIST = \
-        xcpc.xpm \
-        xcpc.desktop \
+	xcpc.xpm \
+	xcpc.desktop \
 	roms/cpc6128.rom \
 	roms/cpc664.rom \
 	roms/cpc464.rom \
