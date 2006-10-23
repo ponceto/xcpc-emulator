@@ -1,3 +1,17 @@
+2006-10-23	Olivier Poncet <ponceto@noos.fr>
+
+	* Source code cleanup.
+	* Requires GLib >= 2.6.0.
+	* Memory management improvements.
+	* IRQ generation bug corrected.
+	* Rendering & screen decoding improvements.
+	* Command-line parsing improvements.
+	* Keyboard decoding improvements.
+	* Desktop menu integration (XFCE, GNOME, KDE, ...).
+	* Internal libdev & libdrv libraries created.
+	* Internal devices rewritten as a GObject subclass.
+	* Preliminary FPS statistics (in terminal).
+
 2006-10-16	Olivier Poncet <ponceto@noos.fr>
 
 	* Port decoding rewritten.
