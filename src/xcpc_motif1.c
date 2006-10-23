@@ -178,7 +178,7 @@ typedef struct _GUI {
 } GUI;
 
 /**
- * GUI::OnCloseCbk
+ * GUI::OnCloseCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -200,7 +200,7 @@ static void OnCloseCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 }
 
 /**
- * GUI::OnLoadSnapshotOkCbk
+ * GUI::OnLoadSnapshotOkCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -221,7 +221,7 @@ static void OnLoadSnapshotOkCbk(Widget widget, GUI *gui, XmFileSelectionBoxCallb
 }
 
 /**
- * GUI::OnLoadSnapshotCbk
+ * GUI::OnLoadSnapshotCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -253,7 +253,7 @@ static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 }
 
 /**
- * GUI::OnSaveSnapshotOkCbk
+ * GUI::OnSaveSnapshotOkCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -274,7 +274,7 @@ static void OnSaveSnapshotOkCbk(Widget widget, GUI *gui, XmFileSelectionBoxCallb
 }
 
 /**
- * GUI::OnSaveSnapshotCbk
+ * GUI::OnSaveSnapshotCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -306,7 +306,7 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 }
 
 /**
- * GUI::OnExitEmulatorCbk
+ * GUI::OnExitEmulatorCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -318,7 +318,7 @@ static void OnExitEmulatorCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 }
 
 /**
- * GUI::OnPauseCbk
+ * GUI::OnPauseCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -335,7 +335,7 @@ static void OnPauseCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 }
 
 /**
- * GUI::OnResetCbk
+ * GUI::OnResetCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -348,7 +348,7 @@ static void OnResetCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 }
 
 /**
- * GUI::OnLegalInfoCbk
+ * GUI::OnLegalInfoCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -393,7 +393,7 @@ static void OnLegalInfoCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 }
 
 /**
- * GUI::OnAboutXcpcCbk
+ * GUI::OnAboutXcpcCbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -444,7 +444,7 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 }
 
 /**
- * GUI::OnDropURICbk
+ * GUI::OnDropURICbk()
  *
  * @param widget specifies the Widget
  * @param gui specifies the GUI
@@ -465,7 +465,7 @@ static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
 }
 
 /**
- * GUI::Create
+ * GUI::Create()
  *
  * @param toplevel specifies the TopLevel Shell
  *
