@@ -126,7 +126,9 @@ AMSTRAD_CPC amstrad_cpc;
 
 static void amstrad_cpc_mem_select(AMSTRAD_CPC *self)
 {
-  switch(self->gate_array.ram_cfg) {
+  GdevGArray *garray = self->garray;
+
+  switch(garray->ram_cfg) {
     case 0x00:
       self->rd_bank[0] = self->wr_bank[0] = self->memory.total_ram + 0x00000;
       self->rd_bank[1] = self->wr_bank[1] = self->memory.total_ram + 0x04000;
@@ -176,16 +178,16 @@ static void amstrad_cpc_mem_select(AMSTRAD_CPC *self)
       self->rd_bank[3] = self->wr_bank[3] = self->memory.total_ram + 0x0c000;
       break;
     default:
-      (void) fprintf(stderr, "RAM-SELECT: Bad Configuration (%02x) !!\n", self->gate_array.ram_cfg);
+      (void) fprintf(stderr, "RAM-SELECT: Bad Configuration (%02x) !!\n", garray->ram_cfg);
       (void) fflush(stderr);
       break;
   }
-  if((self->gate_array.rom_cfg & 0x04) == 0) {
+  if((garray->rom_cfg & 0x04) == 0) {
     if(self->memory.lower_rom != NULL) {
       self->rd_bank[0] = self->memory.lower_rom;
     }
   }
-  if((self->gate_array.rom_cfg & 0x08) == 0) {
+  if((garray->rom_cfg & 0x08) == 0) {
     if(self->memory.upper_rom != NULL) {
       self->rd_bank[3] = self->memory.upper_rom;
     }
@@ -233,16 +235,13 @@ static void amstrad_cpc_init_palette(AMSTRAD_CPC *self)
   }
 }
 
-static guint8 decode_mode0[256];
-static guint8 decode_mode1[256];
-static guint8 decode_mode2[256];
-
 static void amstrad_cpc_render00(Widget widget, XtPointer user)
 {
 }
 
 static void amstrad_cpc_render08(Widget widget, XtPointer user)
 {
+  GdevGArray *garray = amstrad_cpc.garray;
   unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
   unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
@@ -277,7 +276,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -291,7 +290,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -318,7 +317,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -338,7 +337,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -371,7 +370,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -403,7 +402,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -461,6 +460,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
 
 static void amstrad_cpc_render16(Widget widget, XtPointer user)
 {
+  GdevGArray *garray = amstrad_cpc.garray;
   unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
   unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
@@ -495,7 +495,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -509,7 +509,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -536,7 +536,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -556,7 +556,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -589,7 +589,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -621,7 +621,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -679,6 +679,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
 
 static void amstrad_cpc_render32(Widget widget, XtPointer user)
 {
+  GdevGArray *garray = amstrad_cpc.garray;
   unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
   unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
@@ -713,7 +714,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -727,7 +728,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -754,7 +755,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -774,7 +775,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -807,7 +808,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = decode_mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -839,7 +840,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = decode_mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -1719,20 +1720,13 @@ int ix;
   for(ix = 0; ix < 16; ix++) {
     amstrad_cpc.keyboard.bits[ix] = 0xff;
   }
-  amstrad_cpc.gate_array.pen = 0x00;
-  for(ix = 0; ix < 17; ix++) {
-    amstrad_cpc.gate_array.ink[ix] = 0x00;
-  }
-  amstrad_cpc.gate_array.rom_cfg = 0x00;
-  amstrad_cpc.gate_array.ram_cfg = 0x00;
-  amstrad_cpc.gate_array.counter = 0x00;
-  amstrad_cpc.gate_array.set_irq = 0x00;
   amstrad_cpc_mem_select(&amstrad_cpc);
   amstrad_cpc.beam.x = 0;
   amstrad_cpc.beam.y = 0;
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     gdev_device_reset(GDEV_DEVICE(self->z80cpu));
+    gdev_device_reset(GDEV_DEVICE(self->garray));
     gdev_device_reset(GDEV_DEVICE(self->mc6845));
     gdev_device_reset(GDEV_DEVICE(self->ay8910));
     gdev_device_reset(GDEV_DEVICE(self->upd765));
@@ -1815,12 +1809,12 @@ int ramsize;
   amstrad_cpc.z80cpu->DE1.B.h = *bufptr++;
   amstrad_cpc.z80cpu->HL1.B.l = *bufptr++;
   amstrad_cpc.z80cpu->HL1.B.h = *bufptr++;
-  amstrad_cpc.gate_array.pen = *bufptr++;
+  amstrad_cpc.garray->pen = *bufptr++;
   for(ix = 0; ix < 17; ix++) {
-    amstrad_cpc.gate_array.ink[ix] = *bufptr++;
+    amstrad_cpc.garray->ink[ix] = *bufptr++;
   }
-  amstrad_cpc.gate_array.rom_cfg = *bufptr++;
-  amstrad_cpc.gate_array.ram_cfg = *bufptr++;
+  amstrad_cpc.garray->rom_cfg = *bufptr++;
+  amstrad_cpc.garray->ram_cfg = *bufptr++;
   amstrad_cpc_mem_select(&amstrad_cpc);
   amstrad_cpc.mc6845->addr_reg = *bufptr++;
   for(ix = 0; ix < 18; ix++) {
@@ -1900,12 +1894,12 @@ int ramsize;
   *bufptr++ = amstrad_cpc.z80cpu->DE1.B.h;
   *bufptr++ = amstrad_cpc.z80cpu->HL1.B.l;
   *bufptr++ = amstrad_cpc.z80cpu->HL1.B.h;
-  *bufptr++ = amstrad_cpc.gate_array.pen;
+  *bufptr++ = amstrad_cpc.garray->pen;
   for(ix = 0; ix < 17; ix++) {
-    *bufptr++ = amstrad_cpc.gate_array.ink[ix];
+    *bufptr++ = amstrad_cpc.garray->ink[ix];
   }
-  *bufptr++ = amstrad_cpc.gate_array.rom_cfg;
-  *bufptr++ = amstrad_cpc.gate_array.ram_cfg;
+  *bufptr++ = amstrad_cpc.garray->rom_cfg;
+  *bufptr++ = amstrad_cpc.garray->ram_cfg;
   *bufptr++ = amstrad_cpc.mc6845->addr_reg;
   for(ix = 0; ix < 18; ix++) {
     *bufptr++ = amstrad_cpc.mc6845->reg_file[ix];
@@ -2034,21 +2028,21 @@ void gdev_z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
   if((port & 0x8000) == 0) {
     switch((data >> 6) & 3) {
       case 0: /* Select pen */
-        amstrad_cpc.gate_array.pen = (data & 0x10 ? 0x10 : data & 0x0f);
+        amstrad_cpc.garray->pen = (data & 0x10 ? 0x10 : data & 0x0f);
         break;
       case 1: /* Select color */
-        amstrad_cpc.gate_array.ink[amstrad_cpc.gate_array.pen] = data & 0x1f;
+        amstrad_cpc.garray->ink[amstrad_cpc.garray->pen] = data & 0x1f;
         break;
       case 2: /* Interrupt control, ROM configuration and screen mode */
         if((data & 0x10) != 0) {
-          amstrad_cpc.gate_array.counter = 0;
-          amstrad_cpc.gate_array.set_irq = 0;
+          amstrad_cpc.garray->counter = 0;
+          amstrad_cpc.garray->set_irq = 0;
         }
-        amstrad_cpc.gate_array.rom_cfg = data & 0x1f;
+        amstrad_cpc.garray->rom_cfg = data & 0x1f;
         amstrad_cpc_mem_select(&amstrad_cpc);
         break;
       case 3: /* RAM memory management */
-        amstrad_cpc.gate_array.ram_cfg = data & 0x3f;
+        amstrad_cpc.garray->ram_cfg = data & 0x3f;
         amstrad_cpc_mem_select(&amstrad_cpc);
         break;
     }
@@ -2129,24 +2123,6 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   Arg arglist[8];
   Cardinal argcount;
 
-  /* Gate-Array lookup tables */
-  for(ix = 0; ix < 256; ix++) {
-    /* Initialize mode 0 lookup table */
-    decode_mode0[ix] = ((ix & 0x80) >> 7) | ((ix & 0x08) >> 2)
-                     | ((ix & 0x20) >> 3) | ((ix & 0x02) << 2)
-                     | ((ix & 0x40) >> 2) | ((ix & 0x04) << 3)
-                     | ((ix & 0x10) << 2) | ((ix & 0x01) << 7);
-    /* Initialize mode 1 lookup table */
-    decode_mode1[ix] = ((ix & 0x80) >> 7) | ((ix & 0x08) >> 2)
-                     | ((ix & 0x40) >> 4) | ((ix & 0x04) << 1)
-                     | ((ix & 0x20) >> 1) | ((ix & 0x02) << 4)
-                     | ((ix & 0x10) << 2) | ((ix & 0x01) << 7);
-    /* Initialize mode 2 lookup table */
-    decode_mode2[ix] = ((ix & 0x80) >> 7) | ((ix & 0x40) >> 5)
-                     | ((ix & 0x20) >> 3) | ((ix & 0x10) >> 1)
-                     | ((ix & 0x08) << 1) | ((ix & 0x04) << 3)
-                     | ((ix & 0x02) << 5) | ((ix & 0x01) << 7);
-  }
   /* Model */
   if(cfg_model == NULL) {
     if(cfg_sys_rom == NULL) {
@@ -2344,6 +2320,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     self->z80cpu = gdev_z80cpu_new();
+    self->garray = gdev_garray_new();
     self->mc6845 = gdev_mc6845_new();
     self->ay8910 = gdev_ay8910_new();
     self->upd765 = gdev_upd765_new();
@@ -2371,15 +2348,15 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   vsyncpos_min = amstrad_cpc.mc6845->reg_file[7] * (amstrad_cpc.mc6845->reg_file[9] + 1);
   vsyncpos_max = vsyncpos_min + vsync_length - 1;
   do {
-    amstrad_cpc.scanline[amstrad_cpc.beam.y].mode = amstrad_cpc.gate_array.rom_cfg & 0x03;
+    amstrad_cpc.scanline[amstrad_cpc.beam.y].mode = amstrad_cpc.garray->rom_cfg & 0x03;
     for(ix = 0; ix < 17; ix++) {
-      amstrad_cpc.scanline[amstrad_cpc.beam.y].ink[ix] = amstrad_cpc.palette[amstrad_cpc.gate_array.ink[ix]];
+      amstrad_cpc.scanline[amstrad_cpc.beam.y].ink[ix] = amstrad_cpc.palette[amstrad_cpc.garray->ink[ix]];
     }
-    if(amstrad_cpc.gate_array.set_irq != 0) {
+    if(amstrad_cpc.garray->set_irq != 0) {
       if((amstrad_cpc.z80cpu->IFF & IFF_1) != 0) {
         gdev_z80cpu_intr(amstrad_cpc.z80cpu, INT_RST38);
-        amstrad_cpc.gate_array.counter &= 31;
-        amstrad_cpc.gate_array.set_irq  = 0;
+        amstrad_cpc.garray->counter &= 31;
+        amstrad_cpc.garray->set_irq  = 0;
       }
     }
     if((amstrad_cpc.z80cpu->TStates += amstrad_cpc.cpu_period) > 0) {
@@ -2390,12 +2367,12 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
         /* rising edge of V-SYNC */
       }
       if((scanline - vsyncpos_min) == 2) {
-        if((amstrad_cpc.gate_array.counter & 32) != 0) {
-          amstrad_cpc.gate_array.counter = 0;
-          amstrad_cpc.gate_array.set_irq = 1;
+        if((amstrad_cpc.garray->counter & 32) != 0) {
+          amstrad_cpc.garray->counter = 0;
+          amstrad_cpc.garray->set_irq = 1;
         }
         else {
-          amstrad_cpc.gate_array.counter = 0;
+          amstrad_cpc.garray->counter = 0;
         }
       }
       amstrad_cpc.mc6845->vsync = 1; /* set V-SYNC */
@@ -2407,9 +2384,9 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       }
       amstrad_cpc.mc6845->vsync = 0; /* reset V-SYNC */
     }
-    if(++amstrad_cpc.gate_array.counter >= 52) {
-      amstrad_cpc.gate_array.counter = 0;
-      amstrad_cpc.gate_array.set_irq = 1;
+    if(++amstrad_cpc.garray->counter >= 52) {
+      amstrad_cpc.garray->counter = 0;
+      amstrad_cpc.garray->set_irq = 1;
     }
     if(++amstrad_cpc.beam.y > 311) {
       amstrad_cpc.beam.y = 311;
@@ -2492,6 +2469,7 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
   /* XXX */ {
     AMSTRAD_CPC *self = &amstrad_cpc;
     g_object_unref(self->z80cpu); self->z80cpu = NULL;
+    g_object_unref(self->garray); self->garray = NULL;
     g_object_unref(self->mc6845); self->mc6845 = NULL;
     g_object_unref(self->ay8910); self->ay8910 = NULL;
     g_object_unref(self->upd765); self->upd765 = NULL;

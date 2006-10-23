@@ -20,6 +20,7 @@
 
 #include <drv/driver.h>
 #include <dev/z80cpu.h>
+#include <dev/garray.h>
 #include <dev/mc6845.h>
 #include <dev/ay8910.h>
 #include <dev/upd765.h>
@@ -32,6 +33,7 @@ extern "C" {
 
 typedef struct _AMSTRAD_CPC {
   GdevZ80CPU *z80cpu;
+  GdevGArray *garray;
   GdevMC6845 *mc6845;
   GdevAY8910 *ay8910;
   GdevUPD765 *upd765;
@@ -50,14 +52,6 @@ typedef struct _AMSTRAD_CPC {
     guint8 line;
     guint8 bits[16];
   } keyboard;
-  struct {
-    guint8 pen;
-    guint8 ink[17];
-    guint8 rom_cfg;
-    guint8 ram_cfg;
-    char counter;
-    guint8 set_irq;
-  } gate_array;
   struct _scanline {
     unsigned int mode;
     unsigned long ink[17];

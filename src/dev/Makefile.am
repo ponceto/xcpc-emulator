@@ -31,6 +31,7 @@ libdev_a_SOURCES = \
 	z80cpu_opcode_FDCB.h \
 	z80cpu_opcode_XX.h \
 	z80cpu_opcode_XXCB.h \
+	garray.c garray.h \
 	mc6845.c mc6845.h \
 	ay8910.c ay8910.h \
 	upd765.c upd765.h \
