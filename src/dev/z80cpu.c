@@ -94,9 +94,8 @@ static void gdev_z80cpu_reset(GdevZ80CPU *z80cpu)
  */
 static void gdev_z80cpu_clock(GdevZ80CPU *z80cpu)
 {
-  GdevZ80CPU *R = z80cpu;
-  GdevZ80REG  J;
-  guint8      I;
+  GdevZ80REG J;
+  guint8     I;
 
 decode_op:
   z80cpu->IFF &= ~IFF_EI;

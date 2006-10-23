@@ -22,278 +22,278 @@ case SBC_HL_HL: M_SBCW(HL);break;
 case SBC_HL_SP: M_SBCW(SP);break;
 
 case LD_xWORDe_HL:
-  J.B.l=RdZ80(R->PC.W++);
-  J.B.h=RdZ80(R->PC.W++);
-  WrZ80(J.W++,R->HL.B.l);
-  WrZ80(J.W,R->HL.B.h);
+  J.B.l=RdZ80(z80cpu->PC.W++);
+  J.B.h=RdZ80(z80cpu->PC.W++);
+  WrZ80(J.W++,z80cpu->HL.B.l);
+  WrZ80(J.W,z80cpu->HL.B.h);
   break;
 case LD_xWORDe_DE:
-  J.B.l=RdZ80(R->PC.W++);
-  J.B.h=RdZ80(R->PC.W++);
-  WrZ80(J.W++,R->DE.B.l);
-  WrZ80(J.W,R->DE.B.h);
+  J.B.l=RdZ80(z80cpu->PC.W++);
+  J.B.h=RdZ80(z80cpu->PC.W++);
+  WrZ80(J.W++,z80cpu->DE.B.l);
+  WrZ80(J.W,z80cpu->DE.B.h);
   break;
 case LD_xWORDe_BC:
-  J.B.l=RdZ80(R->PC.W++);
-  J.B.h=RdZ80(R->PC.W++);
-  WrZ80(J.W++,R->BC.B.l);
-  WrZ80(J.W,R->BC.B.h);
+  J.B.l=RdZ80(z80cpu->PC.W++);
+  J.B.h=RdZ80(z80cpu->PC.W++);
+  WrZ80(J.W++,z80cpu->BC.B.l);
+  WrZ80(J.W,z80cpu->BC.B.h);
   break;
 case LD_xWORDe_SP:
-  J.B.l=RdZ80(R->PC.W++);
-  J.B.h=RdZ80(R->PC.W++);
-  WrZ80(J.W++,R->SP.B.l);
-  WrZ80(J.W,R->SP.B.h);
+  J.B.l=RdZ80(z80cpu->PC.W++);
+  J.B.h=RdZ80(z80cpu->PC.W++);
+  WrZ80(J.W++,z80cpu->SP.B.l);
+  WrZ80(J.W,z80cpu->SP.B.h);
   break;
 
 case LD_HL_xWORDe:
-  J.B.l=RdZ80(R->PC.W++);
-  J.B.h=RdZ80(R->PC.W++);
-  R->HL.B.l=RdZ80(J.W++);
-  R->HL.B.h=RdZ80(J.W);
+  J.B.l=RdZ80(z80cpu->PC.W++);
+  J.B.h=RdZ80(z80cpu->PC.W++);
+  z80cpu->HL.B.l=RdZ80(J.W++);
+  z80cpu->HL.B.h=RdZ80(J.W);
   break;
 case LD_DE_xWORDe:
-  J.B.l=RdZ80(R->PC.W++);
-  J.B.h=RdZ80(R->PC.W++);
-  R->DE.B.l=RdZ80(J.W++);
-  R->DE.B.h=RdZ80(J.W);
+  J.B.l=RdZ80(z80cpu->PC.W++);
+  J.B.h=RdZ80(z80cpu->PC.W++);
+  z80cpu->DE.B.l=RdZ80(J.W++);
+  z80cpu->DE.B.h=RdZ80(J.W);
   break;
 case LD_BC_xWORDe:
-  J.B.l=RdZ80(R->PC.W++);
-  J.B.h=RdZ80(R->PC.W++);
-  R->BC.B.l=RdZ80(J.W++);
-  R->BC.B.h=RdZ80(J.W);
+  J.B.l=RdZ80(z80cpu->PC.W++);
+  J.B.h=RdZ80(z80cpu->PC.W++);
+  z80cpu->BC.B.l=RdZ80(J.W++);
+  z80cpu->BC.B.h=RdZ80(J.W);
   break;
 case LD_SP_xWORDe:
-  J.B.l=RdZ80(R->PC.W++);
-  J.B.h=RdZ80(R->PC.W++);
-  R->SP.B.l=RdZ80(J.W++);
-  R->SP.B.h=RdZ80(J.W);
+  J.B.l=RdZ80(z80cpu->PC.W++);
+  J.B.h=RdZ80(z80cpu->PC.W++);
+  z80cpu->SP.B.l=RdZ80(J.W++);
+  z80cpu->SP.B.h=RdZ80(J.W);
   break;
 
 case RRD:
-  I=RdZ80(R->HL.W);
-  J.B.l=(I>>4)|(R->AF.B.h<<4);
-  WrZ80(R->HL.W,J.B.l);
-  R->AF.B.h=(I&0x0F)|(R->AF.B.h&0xF0);
-  R->AF.B.l=PZSTable[R->AF.B.h]|(R->AF.B.l&C_FLAG);
+  I=RdZ80(z80cpu->HL.W);
+  J.B.l=(I>>4)|(z80cpu->AF.B.h<<4);
+  WrZ80(z80cpu->HL.W,J.B.l);
+  z80cpu->AF.B.h=(I&0x0F)|(z80cpu->AF.B.h&0xF0);
+  z80cpu->AF.B.l=PZSTable[z80cpu->AF.B.h]|(z80cpu->AF.B.l&C_FLAG);
   break;
 case RLD:
-  I=RdZ80(R->HL.W);
-  J.B.l=(I<<4)|(R->AF.B.h&0x0F);
-  WrZ80(R->HL.W,J.B.l);
-  R->AF.B.h=(I>>4)|(R->AF.B.h&0xF0);
-  R->AF.B.l=PZSTable[R->AF.B.h]|(R->AF.B.l&C_FLAG);
+  I=RdZ80(z80cpu->HL.W);
+  J.B.l=(I<<4)|(z80cpu->AF.B.h&0x0F);
+  WrZ80(z80cpu->HL.W,J.B.l);
+  z80cpu->AF.B.h=(I>>4)|(z80cpu->AF.B.h&0xF0);
+  z80cpu->AF.B.l=PZSTable[z80cpu->AF.B.h]|(z80cpu->AF.B.l&C_FLAG);
   break;
 
 case LD_A_I:
-  R->AF.B.h=R->IR.B.h;
-  R->AF.B.l=(R->AF.B.l&C_FLAG)|(R->IFF&IFF_2? P_FLAG:0)|ZSTable[R->AF.B.h];
+  z80cpu->AF.B.h=z80cpu->IR.B.h;
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|(z80cpu->IFF&IFF_2? P_FLAG:0)|ZSTable[z80cpu->AF.B.h];
   break;
 
 case LD_A_R:
-  R->AF.B.h=R->IR.B.l;
-  R->AF.B.l=(R->AF.B.l&C_FLAG)|(R->IFF&IFF_2? P_FLAG:0)|ZSTable[R->AF.B.h];
+  z80cpu->AF.B.h=z80cpu->IR.B.l;
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|(z80cpu->IFF&IFF_2? P_FLAG:0)|ZSTable[z80cpu->AF.B.h];
   break;
 
-case LD_I_A:   R->IR.B.h=R->AF.B.h;break;
+case LD_I_A:   z80cpu->IR.B.h=z80cpu->AF.B.h;break;
 case LD_R_A:   break;
 
-case IM_0:     R->IFF&=~(IFF_IM1|IFF_IM2);break;
-case IM_1:     R->IFF=(R->IFF&~IFF_IM2)|IFF_IM1;break;
-case IM_2:     R->IFF=(R->IFF&~IFF_IM1)|IFF_IM2;break;
+case IM_0:     z80cpu->IFF&=~(IFF_IM1|IFF_IM2);break;
+case IM_1:     z80cpu->IFF=(z80cpu->IFF&~IFF_IM2)|IFF_IM1;break;
+case IM_2:     z80cpu->IFF=(z80cpu->IFF&~IFF_IM1)|IFF_IM2;break;
 
 case RETI:     M_RET;break;
-case RETN:     if(R->IFF&IFF_2) R->IFF|=IFF_1; else R->IFF&=~IFF_1;
+case RETN:     if(z80cpu->IFF&IFF_2) z80cpu->IFF|=IFF_1; else z80cpu->IFF&=~IFF_1;
                M_RET;break;
 
-case NEG:      I=R->AF.B.h;R->AF.B.h=0;M_SUB(I);break;
+case NEG:      I=z80cpu->AF.B.h;z80cpu->AF.B.h=0;M_SUB(I);break;
 
-case IN_B_xC:  M_IN(R->BC.B.h);break;
-case IN_C_xC:  M_IN(R->BC.B.l);break;
-case IN_D_xC:  M_IN(R->DE.B.h);break;
-case IN_E_xC:  M_IN(R->DE.B.l);break;
-case IN_H_xC:  M_IN(R->HL.B.h);break;
-case IN_L_xC:  M_IN(R->HL.B.l);break;
-case IN_A_xC:  M_IN(R->AF.B.h);break;
+case IN_B_xC:  M_IN(z80cpu->BC.B.h);break;
+case IN_C_xC:  M_IN(z80cpu->BC.B.l);break;
+case IN_D_xC:  M_IN(z80cpu->DE.B.h);break;
+case IN_E_xC:  M_IN(z80cpu->DE.B.l);break;
+case IN_H_xC:  M_IN(z80cpu->HL.B.h);break;
+case IN_L_xC:  M_IN(z80cpu->HL.B.l);break;
+case IN_A_xC:  M_IN(z80cpu->AF.B.h);break;
 case IN_F_xC:  M_IN(J.B.l);break;
 
-case OUT_xC_B: OutZ80(R->BC.W,R->BC.B.h);break;
-case OUT_xC_C: OutZ80(R->BC.W,R->BC.B.l);break;
-case OUT_xC_D: OutZ80(R->BC.W,R->DE.B.h);break;
-case OUT_xC_E: OutZ80(R->BC.W,R->DE.B.l);break;
-case OUT_xC_H: OutZ80(R->BC.W,R->HL.B.h);break;
-case OUT_xC_L: OutZ80(R->BC.W,R->HL.B.l);break;
-case OUT_xC_A: OutZ80(R->BC.W,R->AF.B.h);break;
+case OUT_xC_B: OutZ80(z80cpu->BC.W,z80cpu->BC.B.h);break;
+case OUT_xC_C: OutZ80(z80cpu->BC.W,z80cpu->BC.B.l);break;
+case OUT_xC_D: OutZ80(z80cpu->BC.W,z80cpu->DE.B.h);break;
+case OUT_xC_E: OutZ80(z80cpu->BC.W,z80cpu->DE.B.l);break;
+case OUT_xC_H: OutZ80(z80cpu->BC.W,z80cpu->HL.B.h);break;
+case OUT_xC_L: OutZ80(z80cpu->BC.W,z80cpu->HL.B.l);break;
+case OUT_xC_A: OutZ80(z80cpu->BC.W,z80cpu->AF.B.h);break;
 
 case INI:
-  WrZ80(R->HL.W++,InZ80(R->BC.W));
-  R->BC.B.h--;
-  R->AF.B.l=N_FLAG|(R->BC.B.h? 0:Z_FLAG);
+  WrZ80(z80cpu->HL.W++,InZ80(z80cpu->BC.W));
+  z80cpu->BC.B.h--;
+  z80cpu->AF.B.l=N_FLAG|(z80cpu->BC.B.h? 0:Z_FLAG);
   break;
 
 case INIR:
   do
   {
-    WrZ80(R->HL.W++,InZ80(R->BC.W));
-    R->BC.B.h--;R->TStates-=21;
+    WrZ80(z80cpu->HL.W++,InZ80(z80cpu->BC.W));
+    z80cpu->BC.B.h--;z80cpu->TStates-=21;
   }
-  while(R->BC.B.h&&(R->TStates>0));
-  if(R->BC.B.h) { R->AF.B.l=N_FLAG;R->PC.W-=2; }
-  else { R->AF.B.l=Z_FLAG|N_FLAG;R->TStates+=5; }
+  while(z80cpu->BC.B.h&&(z80cpu->TStates>0));
+  if(z80cpu->BC.B.h) { z80cpu->AF.B.l=N_FLAG;z80cpu->PC.W-=2; }
+  else { z80cpu->AF.B.l=Z_FLAG|N_FLAG;z80cpu->TStates+=5; }
   break;
 
 case IND:
-  WrZ80(R->HL.W--,InZ80(R->BC.W));
-  R->BC.B.h--;
-  R->AF.B.l=N_FLAG|(R->BC.B.h? 0:Z_FLAG);
+  WrZ80(z80cpu->HL.W--,InZ80(z80cpu->BC.W));
+  z80cpu->BC.B.h--;
+  z80cpu->AF.B.l=N_FLAG|(z80cpu->BC.B.h? 0:Z_FLAG);
   break;
 
 case INDR:
   do
   {
-    WrZ80(R->HL.W--,InZ80(R->BC.W));
-    R->BC.B.h--;R->TStates-=21;
+    WrZ80(z80cpu->HL.W--,InZ80(z80cpu->BC.W));
+    z80cpu->BC.B.h--;z80cpu->TStates-=21;
   }
-  while(R->BC.B.h&&(R->TStates>0));
-  if(R->BC.B.h) { R->AF.B.l=N_FLAG;R->PC.W-=2; }
-  else { R->AF.B.l=Z_FLAG|N_FLAG;R->TStates+=5; }
+  while(z80cpu->BC.B.h&&(z80cpu->TStates>0));
+  if(z80cpu->BC.B.h) { z80cpu->AF.B.l=N_FLAG;z80cpu->PC.W-=2; }
+  else { z80cpu->AF.B.l=Z_FLAG|N_FLAG;z80cpu->TStates+=5; }
   break;
 
 case OUTI:
-  I=RdZ80(R->HL.W++);
-  R->BC.B.h--;
-  OutZ80(R->BC.W,I);
-  R->AF.B.l=N_FLAG|(R->BC.B.h? 0:Z_FLAG)|(R->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
+  I=RdZ80(z80cpu->HL.W++);
+  z80cpu->BC.B.h--;
+  OutZ80(z80cpu->BC.W,I);
+  z80cpu->AF.B.l=N_FLAG|(z80cpu->BC.B.h? 0:Z_FLAG)|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
   break;
 
 case OTIR:
   do
   {
-    I=RdZ80(R->HL.W++);
-    R->BC.B.h--;
-    OutZ80(R->BC.W,I);
-    R->TStates-=21;
+    I=RdZ80(z80cpu->HL.W++);
+    z80cpu->BC.B.h--;
+    OutZ80(z80cpu->BC.W,I);
+    z80cpu->TStates-=21;
   }
-  while(R->BC.B.h&&(R->TStates>0));
-  if(R->BC.B.h)
+  while(z80cpu->BC.B.h&&(z80cpu->TStates>0));
+  if(z80cpu->BC.B.h)
   {
-    R->AF.B.l=N_FLAG|(R->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
-    R->PC.W-=2;
+    z80cpu->AF.B.l=N_FLAG|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
+    z80cpu->PC.W-=2;
   }
   else
   {
-    R->AF.B.l=Z_FLAG|N_FLAG|(R->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
-    R->TStates+=5;
+    z80cpu->AF.B.l=Z_FLAG|N_FLAG|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
+    z80cpu->TStates+=5;
   }
   break;
 
 case OUTD:
-  I=RdZ80(R->HL.W--);
-  R->BC.B.h--;
-  OutZ80(R->BC.W,I);
-  R->AF.B.l=N_FLAG|(R->BC.B.h? 0:Z_FLAG)|(R->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
+  I=RdZ80(z80cpu->HL.W--);
+  z80cpu->BC.B.h--;
+  OutZ80(z80cpu->BC.W,I);
+  z80cpu->AF.B.l=N_FLAG|(z80cpu->BC.B.h? 0:Z_FLAG)|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
   break;
 
 case OTDR:
   do
   {
-    I=RdZ80(R->HL.W--);
-    R->BC.B.h--;
-    OutZ80(R->BC.W,I);
-    R->TStates-=21;
+    I=RdZ80(z80cpu->HL.W--);
+    z80cpu->BC.B.h--;
+    OutZ80(z80cpu->BC.W,I);
+    z80cpu->TStates-=21;
   }
-  while(R->BC.B.h&&(R->TStates>0));
-  if(R->BC.B.h)
+  while(z80cpu->BC.B.h&&(z80cpu->TStates>0));
+  if(z80cpu->BC.B.h)
   {
-    R->AF.B.l=N_FLAG|(R->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
-    R->PC.W-=2;
+    z80cpu->AF.B.l=N_FLAG|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
+    z80cpu->PC.W-=2;
   }
   else
   {
-    R->AF.B.l=Z_FLAG|N_FLAG|(R->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
-    R->TStates+=5;
+    z80cpu->AF.B.l=Z_FLAG|N_FLAG|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
+    z80cpu->TStates+=5;
   }
   break;
 
 case LDI:
-  WrZ80(R->DE.W++,RdZ80(R->HL.W++));
-  R->BC.W--;
-  R->AF.B.l=(R->AF.B.l&~(N_FLAG|H_FLAG|P_FLAG))|(R->BC.W? P_FLAG:0);
+  WrZ80(z80cpu->DE.W++,RdZ80(z80cpu->HL.W++));
+  z80cpu->BC.W--;
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&~(N_FLAG|H_FLAG|P_FLAG))|(z80cpu->BC.W? P_FLAG:0);
   break;
 
 case LDIR:
   do
   {
-    WrZ80(R->DE.W++,RdZ80(R->HL.W++));
-    R->BC.W--;R->TStates-=21;
+    WrZ80(z80cpu->DE.W++,RdZ80(z80cpu->HL.W++));
+    z80cpu->BC.W--;z80cpu->TStates-=21;
   }
-  while(R->BC.W&&(R->TStates>0));
-  R->AF.B.l&=~(N_FLAG|H_FLAG|P_FLAG);
-  if(R->BC.W) { R->AF.B.l|=N_FLAG;R->PC.W-=2; }
-  else R->TStates+=5;
+  while(z80cpu->BC.W&&(z80cpu->TStates>0));
+  z80cpu->AF.B.l&=~(N_FLAG|H_FLAG|P_FLAG);
+  if(z80cpu->BC.W) { z80cpu->AF.B.l|=N_FLAG;z80cpu->PC.W-=2; }
+  else z80cpu->TStates+=5;
   break;
 
 case LDD:
-  WrZ80(R->DE.W--,RdZ80(R->HL.W--));
-  R->BC.W--;
-  R->AF.B.l=(R->AF.B.l&~(N_FLAG|H_FLAG|P_FLAG))|(R->BC.W? P_FLAG:0);
+  WrZ80(z80cpu->DE.W--,RdZ80(z80cpu->HL.W--));
+  z80cpu->BC.W--;
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&~(N_FLAG|H_FLAG|P_FLAG))|(z80cpu->BC.W? P_FLAG:0);
   break;
 
 case LDDR:
   do
   {
-    WrZ80(R->DE.W--,RdZ80(R->HL.W--));
-    R->BC.W--;R->TStates-=21;
+    WrZ80(z80cpu->DE.W--,RdZ80(z80cpu->HL.W--));
+    z80cpu->BC.W--;z80cpu->TStates-=21;
   }
-  while(R->BC.W&&(R->TStates>0));
-  R->AF.B.l&=~(N_FLAG|H_FLAG|P_FLAG);
-  if(R->BC.W) { R->AF.B.l|=N_FLAG;R->PC.W-=2; }
-  else R->TStates+=5;
+  while(z80cpu->BC.W&&(z80cpu->TStates>0));
+  z80cpu->AF.B.l&=~(N_FLAG|H_FLAG|P_FLAG);
+  if(z80cpu->BC.W) { z80cpu->AF.B.l|=N_FLAG;z80cpu->PC.W-=2; }
+  else z80cpu->TStates+=5;
   break;
 
 case CPI:
-  I=RdZ80(R->HL.W++);
-  J.B.l=R->AF.B.h-I;
-  R->BC.W--;
-  R->AF.B.l =
-    N_FLAG|(R->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
-    ((R->AF.B.h^I^J.B.l)&H_FLAG)|(R->BC.W? P_FLAG:0);
+  I=RdZ80(z80cpu->HL.W++);
+  J.B.l=z80cpu->AF.B.h-I;
+  z80cpu->BC.W--;
+  z80cpu->AF.B.l =
+    N_FLAG|(z80cpu->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
+    ((z80cpu->AF.B.h^I^J.B.l)&H_FLAG)|(z80cpu->BC.W? P_FLAG:0);
   break;
 
 case CPIR:
   do
   {
-    I=RdZ80(R->HL.W++);
-    J.B.l=R->AF.B.h-I;
-    R->BC.W--;R->TStates-=21;
+    I=RdZ80(z80cpu->HL.W++);
+    J.B.l=z80cpu->AF.B.h-I;
+    z80cpu->BC.W--;z80cpu->TStates-=21;
   }  
-  while(R->BC.W&&J.B.l&&(R->TStates>0));
-  R->AF.B.l =
-    N_FLAG|(R->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
-    ((R->AF.B.h^I^J.B.l)&H_FLAG)|(R->BC.W? P_FLAG:0);
-  if(R->BC.W&&J.B.l) R->PC.W-=2; else R->TStates+=5;
+  while(z80cpu->BC.W&&J.B.l&&(z80cpu->TStates>0));
+  z80cpu->AF.B.l =
+    N_FLAG|(z80cpu->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
+    ((z80cpu->AF.B.h^I^J.B.l)&H_FLAG)|(z80cpu->BC.W? P_FLAG:0);
+  if(z80cpu->BC.W&&J.B.l) z80cpu->PC.W-=2; else z80cpu->TStates+=5;
   break;  
 
 case CPD:
-  I=RdZ80(R->HL.W--);
-  J.B.l=R->AF.B.h-I;
-  R->BC.W--;
-  R->AF.B.l =
-    N_FLAG|(R->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
-    ((R->AF.B.h^I^J.B.l)&H_FLAG)|(R->BC.W? P_FLAG:0);
+  I=RdZ80(z80cpu->HL.W--);
+  J.B.l=z80cpu->AF.B.h-I;
+  z80cpu->BC.W--;
+  z80cpu->AF.B.l =
+    N_FLAG|(z80cpu->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
+    ((z80cpu->AF.B.h^I^J.B.l)&H_FLAG)|(z80cpu->BC.W? P_FLAG:0);
   break;
 
 case CPDR:
   do
   {
-    I=RdZ80(R->HL.W--);
-    J.B.l=R->AF.B.h-I;
-    R->BC.W--;R->TStates-=21;
+    I=RdZ80(z80cpu->HL.W--);
+    J.B.l=z80cpu->AF.B.h-I;
+    z80cpu->BC.W--;z80cpu->TStates-=21;
   }
-  while(R->BC.W&&J.B.l);
-  R->AF.B.l =
-    N_FLAG|(R->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
-    ((R->AF.B.h^I^J.B.l)&H_FLAG)|(R->BC.W? P_FLAG:0);
-  if(R->BC.W&&J.B.l) R->PC.W-=2; else R->TStates+=5;
+  while(z80cpu->BC.W&&J.B.l);
+  z80cpu->AF.B.l =
+    N_FLAG|(z80cpu->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
+    ((z80cpu->AF.B.h^I^J.B.l)&H_FLAG)|(z80cpu->BC.W? P_FLAG:0);
+  if(z80cpu->BC.W&&J.B.l) z80cpu->PC.W-=2; else z80cpu->TStates+=5;
   break;
