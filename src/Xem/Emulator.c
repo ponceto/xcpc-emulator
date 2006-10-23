@@ -130,7 +130,7 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
   while((shell != NULL) && (XtIsShell(shell) == FALSE)) {
     shell = XtParent(shell);
   }
-  XtAddEventHandler(widget, (KeyPressMask    | KeyReleaseMask   ), FALSE, (XtEventHandler) KeybdHnd, (XtPointer) shell);
+  XtAddEventHandler(widget, (KeyPressMask    |    KeyReleaseMask), FALSE, (XtEventHandler) KeybdHnd, (XtPointer) shell);
   XtAddEventHandler(widget, (ButtonPressMask | ButtonReleaseMask), FALSE, (XtEventHandler) MouseHnd, (XtPointer) shell);
   if(self->emulator.start_handler != NULL) {
     (*self->emulator.start_handler)(widget, NULL);
