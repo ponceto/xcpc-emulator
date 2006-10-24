@@ -235,23 +235,24 @@ static void amstrad_cpc_init_palette(AMSTRAD_CPC *self)
   }
 }
 
-static void amstrad_cpc_render00(Widget widget, XtPointer user)
+static void amstrad_cpc_render00(AMSTRAD_CPC *self, XtPointer user)
 {
 }
 
-static void amstrad_cpc_render08(Widget widget, XtPointer user)
+static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
 {
-  GdevGArray *garray = amstrad_cpc.garray;
-  unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
-  unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
+  GdevMC6845 *mc6845 = self->mc6845;
+  GdevGArray *garray = self->garray;
+  unsigned int sa = ((mc6845->reg_file[12] << 8) | mc6845->reg_file[13]);
+  unsigned int hd = mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = amstrad_cpc.mc6845->reg_file[9] + 1;
-  unsigned int vd = amstrad_cpc.mc6845->reg_file[6];
+  unsigned int mr = mc6845->reg_file[9] + 1;
+  unsigned int vd = mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
-  struct _scanline *sl = &amstrad_cpc.scanline[20];
-  unsigned char *dst = (unsigned char *) amstrad_cpc.ximage->data;
-  unsigned char *nxt = (unsigned char *) amstrad_cpc.ximage->data;
-  unsigned char pixel;
+  struct _scanline *sl = &self->scanline[20];
+  guint8 *dst = (guint8 *) self->ximage->data;
+  guint8 *nxt = (guint8 *) self->ximage->data;
+  guint8 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
   guint8 data;
@@ -276,7 +277,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -290,7 +291,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -317,7 +318,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -337,7 +338,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -370,7 +371,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -402,7 +403,7 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -452,25 +453,26 @@ static void amstrad_cpc_render08(Widget widget, XtPointer user)
     }
     dst = nxt; sl++;
   }
-  if(amstrad_cpc.window != None) {
-    XPutImage(DisplayOfScreen(amstrad_cpc.screen), amstrad_cpc.window, DefaultGCOfScreen(amstrad_cpc.screen), amstrad_cpc.ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
-    XFlush(DisplayOfScreen(amstrad_cpc.screen));
+  if(self->window != None) {
+    (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+    (void) XFlush(DisplayOfScreen(self->screen));
   }
 }
 
-static void amstrad_cpc_render16(Widget widget, XtPointer user)
+static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
 {
-  GdevGArray *garray = amstrad_cpc.garray;
-  unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
-  unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
+  GdevMC6845 *mc6845 = self->mc6845;
+  GdevGArray *garray = self->garray;
+  unsigned int sa = ((mc6845->reg_file[12] << 8) | mc6845->reg_file[13]);
+  unsigned int hd = mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = amstrad_cpc.mc6845->reg_file[9] + 1;
-  unsigned int vd = amstrad_cpc.mc6845->reg_file[6];
+  unsigned int mr = mc6845->reg_file[9] + 1;
+  unsigned int vd = mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
-  struct _scanline *sl = &amstrad_cpc.scanline[20];
-  unsigned short *dst = (unsigned short *) amstrad_cpc.ximage->data;
-  unsigned short *nxt = (unsigned short *) amstrad_cpc.ximage->data;
-  unsigned short pixel;
+  struct _scanline *sl = &self->scanline[20];
+  guint16 *dst = (guint16 *) self->ximage->data;
+  guint16 *nxt = (guint16 *) self->ximage->data;
+  guint16 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
   guint8 data;
@@ -495,7 +497,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -509,7 +511,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -536,7 +538,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -556,7 +558,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -589,7 +591,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -621,7 +623,7 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -671,25 +673,26 @@ static void amstrad_cpc_render16(Widget widget, XtPointer user)
     }
     dst = nxt; sl++;
   }
-  if(amstrad_cpc.window != None) {
-    XPutImage(DisplayOfScreen(amstrad_cpc.screen), amstrad_cpc.window, DefaultGCOfScreen(amstrad_cpc.screen), amstrad_cpc.ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
-    XFlush(DisplayOfScreen(amstrad_cpc.screen));
+  if(self->window != None) {
+    (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+    (void) XFlush(DisplayOfScreen(self->screen));
   }
 }
 
-static void amstrad_cpc_render32(Widget widget, XtPointer user)
+static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
 {
-  GdevGArray *garray = amstrad_cpc.garray;
-  unsigned int sa = ((amstrad_cpc.mc6845->reg_file[12] << 8) | amstrad_cpc.mc6845->reg_file[13]);
-  unsigned int hd = amstrad_cpc.mc6845->reg_file[1];
+  GdevMC6845 *mc6845 = self->mc6845;
+  GdevGArray *garray = self->garray;
+  unsigned int sa = ((mc6845->reg_file[12] << 8) | mc6845->reg_file[13]);
+  unsigned int hd = mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = amstrad_cpc.mc6845->reg_file[9] + 1;
-  unsigned int vd = amstrad_cpc.mc6845->reg_file[6];
+  unsigned int mr = mc6845->reg_file[9] + 1;
+  unsigned int vd = mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
-  struct _scanline *sl = &amstrad_cpc.scanline[20];
-  unsigned int *dst = (unsigned int *) amstrad_cpc.ximage->data;
-  unsigned int *nxt = (unsigned int *) amstrad_cpc.ximage->data;
-  unsigned int pixel;
+  struct _scanline *sl = &self->scanline[20];
+  guint32 *dst = (guint32 *) self->ximage->data;
+  guint32 *nxt = (guint32 *) self->ximage->data;
+  guint32 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
   guint8 data;
@@ -714,7 +717,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -728,7 +731,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode0[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -755,7 +758,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -775,7 +778,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode1[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -808,7 +811,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -840,7 +843,7 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode2[amstrad_cpc.wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -890,23 +893,23 @@ static void amstrad_cpc_render32(Widget widget, XtPointer user)
     }
     dst = nxt; sl++;
   }
-  if(amstrad_cpc.window != None) {
-    XPutImage(DisplayOfScreen(amstrad_cpc.screen), amstrad_cpc.window, DefaultGCOfScreen(amstrad_cpc.screen), amstrad_cpc.ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
-    XFlush(DisplayOfScreen(amstrad_cpc.screen));
+  if(self->window != None) {
+    (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+    (void) XFlush(DisplayOfScreen(self->screen));
   }
 }
 
-static void amstrad_cpc_qwerty_hnd(Widget widget, XEvent *xevent)
+static void amstrad_cpc_qwerty_hnd(AMSTRAD_CPC *self, XEvent *xevent)
 {
   KeySym keysym;
   guint8 line = 0x09;
   guint8 mask = 0x40;
   guint8 mods = 0x00;
 
-  if((amstrad_cpc.keyboard.mods & SHFT_R_MASK) == 0) {
+  if((self->keyboard.mods & SHFT_R_MASK) == 0) {
     xevent->xkey.state &= ~ShiftMask;
   }
-  if((amstrad_cpc.keyboard.mods & CTRL_R_MASK) == 0) {
+  if((self->keyboard.mods & CTRL_R_MASK) == 0) {
     xevent->xkey.state &= ~ControlMask;
   }
   (void) XLookupString((XKeyEvent *) xevent, NULL, 0, &keysym, NULL);
@@ -1173,34 +1176,34 @@ static void amstrad_cpc_qwerty_hnd(Widget widget, XEvent *xevent)
         break;
       case XK_Shift_L:
         if(xevent->type == KeyPress) {
-          amstrad_cpc.keyboard.mods |=  SHFT_L_MASK;
+          self->keyboard.mods |=  SHFT_L_MASK;
         }
         else {
-          amstrad_cpc.keyboard.mods &= ~SHFT_L_MASK;
+          self->keyboard.mods &= ~SHFT_L_MASK;
         }
         break;
       case XK_Shift_R:
         if(xevent->type == KeyPress) {
-          amstrad_cpc.keyboard.mods |=  SHFT_R_MASK;
+          self->keyboard.mods |=  SHFT_R_MASK;
         }
         else {
-          amstrad_cpc.keyboard.mods &= ~SHFT_R_MASK;
+          self->keyboard.mods &= ~SHFT_R_MASK;
         }
         break;
       case XK_Control_L:
         if(xevent->type == KeyPress) {
-          amstrad_cpc.keyboard.mods |=  CTRL_L_MASK;
+          self->keyboard.mods |=  CTRL_L_MASK;
         }
         else {
-          amstrad_cpc.keyboard.mods &= ~CTRL_L_MASK;
+          self->keyboard.mods &= ~CTRL_L_MASK;
         }
         break;
       case XK_Control_R:
         if(xevent->type == KeyPress) {
-          amstrad_cpc.keyboard.mods |=  CTRL_R_MASK;
+          self->keyboard.mods |=  CTRL_R_MASK;
         }
         else {
-          amstrad_cpc.keyboard.mods &= ~CTRL_R_MASK;
+          self->keyboard.mods &= ~CTRL_R_MASK;
         }
         break;
       case XK_Alt_L:
@@ -1277,43 +1280,43 @@ static void amstrad_cpc_qwerty_hnd(Widget widget, XEvent *xevent)
         break;
     }
   }
-  if((amstrad_cpc.keyboard.mods & SHFT_L_MASK) != 0) {
-    amstrad_cpc.keyboard.bits[0x02] &= ~0x20;
+  if((self->keyboard.mods & SHFT_L_MASK) != 0) {
+    self->keyboard.bits[0x02] &= ~0x20;
   }
   else {
-    amstrad_cpc.keyboard.bits[0x02] |=  0x20;
+    self->keyboard.bits[0x02] |=  0x20;
   }
-  if((amstrad_cpc.keyboard.mods & CTRL_L_MASK) != 0) {
-    amstrad_cpc.keyboard.bits[0x02] &= ~0x80;
+  if((self->keyboard.mods & CTRL_L_MASK) != 0) {
+    self->keyboard.bits[0x02] &= ~0x80;
   }
   else {
-    amstrad_cpc.keyboard.bits[0x02] |=  0x80;
+    self->keyboard.bits[0x02] |=  0x80;
   }
   if(xevent->type == KeyPress) {
     if((mods & SHFT_L_MASK) != 0) {
-      amstrad_cpc.keyboard.bits[0x02] &= ~0x20;
+      self->keyboard.bits[0x02] &= ~0x20;
     }
     if((mods & CTRL_L_MASK) != 0) {
-      amstrad_cpc.keyboard.bits[0x02] &= ~0x80;
+      self->keyboard.bits[0x02] &= ~0x80;
     }
-    amstrad_cpc.keyboard.bits[line] &= ~mask;
+    self->keyboard.bits[line] &= ~mask;
   }
   else {
-    amstrad_cpc.keyboard.bits[line] |=  mask;
+    self->keyboard.bits[line] |=  mask;
   }
 }
 
-static void amstrad_cpc_azerty_hnd(Widget widget, XEvent *xevent)
+static void amstrad_cpc_azerty_hnd(AMSTRAD_CPC *self, XEvent *xevent)
 {
   KeySym keysym;
   guint8 line = 0x09;
   guint8 mask = 0x40;
   guint8 mods = 0x00;
 
-  if((amstrad_cpc.keyboard.mods & SHFT_R_MASK) == 0) {
+  if((self->keyboard.mods & SHFT_R_MASK) == 0) {
     xevent->xkey.state &= ~ShiftMask;
   }
-  if((amstrad_cpc.keyboard.mods & CTRL_R_MASK) == 0) {
+  if((self->keyboard.mods & CTRL_R_MASK) == 0) {
     xevent->xkey.state &= ~ControlMask;
   }
   (void) XLookupString((XKeyEvent *) xevent, NULL, 0, &keysym, NULL);
@@ -1580,34 +1583,34 @@ static void amstrad_cpc_azerty_hnd(Widget widget, XEvent *xevent)
         break;
       case XK_Shift_L:
         if(xevent->type == KeyPress) {
-          amstrad_cpc.keyboard.mods |=  SHFT_L_MASK;
+          self->keyboard.mods |=  SHFT_L_MASK;
         }
         else {
-          amstrad_cpc.keyboard.mods &= ~SHFT_L_MASK;
+          self->keyboard.mods &= ~SHFT_L_MASK;
         }
         break;
       case XK_Shift_R:
         if(xevent->type == KeyPress) {
-          amstrad_cpc.keyboard.mods |=  SHFT_R_MASK;
+          self->keyboard.mods |=  SHFT_R_MASK;
         }
         else {
-          amstrad_cpc.keyboard.mods &= ~SHFT_R_MASK;
+          self->keyboard.mods &= ~SHFT_R_MASK;
         }
         break;
       case XK_Control_L:
         if(xevent->type == KeyPress) {
-          amstrad_cpc.keyboard.mods |=  CTRL_L_MASK;
+          self->keyboard.mods |=  CTRL_L_MASK;
         }
         else {
-          amstrad_cpc.keyboard.mods &= ~CTRL_L_MASK;
+          self->keyboard.mods &= ~CTRL_L_MASK;
         }
         break;
       case XK_Control_R:
         if(xevent->type == KeyPress) {
-          amstrad_cpc.keyboard.mods |=  CTRL_R_MASK;
+          self->keyboard.mods |=  CTRL_R_MASK;
         }
         else {
-          amstrad_cpc.keyboard.mods &= ~CTRL_R_MASK;
+          self->keyboard.mods &= ~CTRL_R_MASK;
         }
         break;
       case XK_Alt_L:
@@ -1684,29 +1687,29 @@ static void amstrad_cpc_azerty_hnd(Widget widget, XEvent *xevent)
         break;
     }
   }
-  if((amstrad_cpc.keyboard.mods & SHFT_L_MASK) != 0) {
-    amstrad_cpc.keyboard.bits[0x02] &= ~0x20;
+  if((self->keyboard.mods & SHFT_L_MASK) != 0) {
+    self->keyboard.bits[0x02] &= ~0x20;
   }
   else {
-    amstrad_cpc.keyboard.bits[0x02] |=  0x20;
+    self->keyboard.bits[0x02] |=  0x20;
   }
-  if((amstrad_cpc.keyboard.mods & CTRL_L_MASK) != 0) {
-    amstrad_cpc.keyboard.bits[0x02] &= ~0x80;
+  if((self->keyboard.mods & CTRL_L_MASK) != 0) {
+    self->keyboard.bits[0x02] &= ~0x80;
   }
   else {
-    amstrad_cpc.keyboard.bits[0x02] |=  0x80;
+    self->keyboard.bits[0x02] |=  0x80;
   }
   if(xevent->type == KeyPress) {
     if((mods & SHFT_L_MASK) != 0) {
-      amstrad_cpc.keyboard.bits[0x02] &= ~0x20;
+      self->keyboard.bits[0x02] &= ~0x20;
     }
     if((mods & CTRL_L_MASK) != 0) {
-      amstrad_cpc.keyboard.bits[0x02] &= ~0x80;
+      self->keyboard.bits[0x02] &= ~0x80;
     }
-    amstrad_cpc.keyboard.bits[line] &= ~mask;
+    self->keyboard.bits[line] &= ~mask;
   }
   else {
-    amstrad_cpc.keyboard.bits[line] |=  mask;
+    self->keyboard.bits[line] |=  mask;
   }
 }
 
@@ -2401,7 +2404,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   switch(amstrad_cpc.refresh) {
     case 1:
       if((delay >= 0) && (delay <= 20)) {
-        (*amstrad_cpc.paint_hnd)(widget, NULL); drw_frames++;
+        (*amstrad_cpc.paint_hnd)(&amstrad_cpc, NULL); drw_frames++;
       }
       if((amstrad_cpc.timer1.tv_usec += 20000) >= 1000000) {
         amstrad_cpc.timer1.tv_usec -= 1000000; amstrad_cpc.timer1.tv_sec++;
@@ -2413,7 +2416,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       break;
     case 0:
       if((delay >= 0) && (delay <= 16)) {
-        (*amstrad_cpc.paint_hnd)(widget, NULL); drw_frames++;
+        (*amstrad_cpc.paint_hnd)(&amstrad_cpc, NULL); drw_frames++;
       }
       if((amstrad_cpc.timer1.tv_usec += 16667) >= 1000000) {
         amstrad_cpc.timer1.tv_usec -= 1000000; amstrad_cpc.timer1.tv_sec++;
@@ -2480,14 +2483,14 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
 void amstrad_cpc_keybd_handler(Widget widget, XEvent *xevent)
 {
   if(amstrad_cpc.keybd_hnd != NULL) {
-    (*amstrad_cpc.keybd_hnd)(widget, xevent);
+    (*amstrad_cpc.keybd_hnd)(&amstrad_cpc, xevent);
   }
 }
 
 void amstrad_cpc_mouse_handler(Widget widget, XEvent *xevent)
 {
   if(amstrad_cpc.mouse_hnd != NULL) {
-    (*amstrad_cpc.mouse_hnd)(widget, xevent);
+    (*amstrad_cpc.mouse_hnd)(&amstrad_cpc, xevent);
   }
 }
 

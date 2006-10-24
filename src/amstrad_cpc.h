@@ -31,7 +31,9 @@
 extern "C" {
 #endif
 
-typedef struct _AMSTRAD_CPC {
+typedef struct _AMSTRAD_CPC AMSTRAD_CPC;
+
+struct _AMSTRAD_CPC {
   GdevZ80CPU *z80cpu;
   GdevGArray *garray;
   GdevMC6845 *mc6845;
@@ -65,14 +67,14 @@ typedef struct _AMSTRAD_CPC {
   struct timeval timer1;
   struct timeval timer2;
   unsigned long palette[32];
-  void (*keybd_hnd)(Widget widget, XEvent *xevent);
-  void (*mouse_hnd)(Widget widget, XEvent *xevent);
-  void (*paint_hnd)(Widget widget, XtPointer data);
+  void (*keybd_hnd)(AMSTRAD_CPC *self, XEvent *xevent);
+  void (*mouse_hnd)(AMSTRAD_CPC *self, XEvent *xevent);
+  void (*paint_hnd)(AMSTRAD_CPC *self, XtPointer data);
   int ramsize;
   int refresh;
   int firmname;
   int cpu_period;
-} AMSTRAD_CPC;
+};
 
 extern AMSTRAD_CPC amstrad_cpc;
 
