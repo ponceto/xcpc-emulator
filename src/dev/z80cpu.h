@@ -90,12 +90,7 @@ struct _GdevZ80CPUClass {
 
 extern GType       gdev_z80cpu_get_type (void);
 extern GdevZ80CPU *gdev_z80cpu_new      (void);
-
-extern void   gdev_z80cpu_intr (GdevZ80CPU *z80cpu, guint16 vector);
-extern void   gdev_z80cpu_mm_wr(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
-extern guint8 gdev_z80cpu_mm_rd(GdevZ80CPU *z80cpu, guint16 addr);
-extern void   gdev_z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
-extern guint8 gdev_z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 addr);
+extern void        gdev_z80cpu_intr     (GdevZ80CPU *z80cpu, guint16 vector);
 
 G_END_DECLS
 

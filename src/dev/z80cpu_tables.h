@@ -1,7 +1,7 @@
-#define WrZ80(addr,value)  (gdev_z80cpu_mm_wr((z80cpu),(addr),(value)))
-#define RdZ80(addr)        (gdev_z80cpu_mm_rd((z80cpu),(addr)))
-#define OutZ80(addr,value) (gdev_z80cpu_io_wr((z80cpu),(addr),(value)))
-#define InZ80(addr)        (gdev_z80cpu_io_rd((z80cpu),(addr)))
+#define WrZ80(addr,value)  ((*z80cpu->mm_wr)((z80cpu),(addr),(value)))
+#define RdZ80(addr)        ((*z80cpu->mm_rd)((z80cpu),(addr)))
+#define OutZ80(addr,value) ((*z80cpu->io_wr)((z80cpu),(addr),(value)))
+#define InZ80(addr)        ((*z80cpu->io_rd)((z80cpu),(addr)))
 
 static guint8 Cycles[256] = {
    4,10, 7, 6, 4, 4, 7, 4, 4,11, 7, 6, 4, 4, 7, 4,

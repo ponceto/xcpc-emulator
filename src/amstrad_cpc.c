@@ -1925,17 +1925,17 @@ int ramsize;
   fclose(file);
 }
 
-guint8 gdev_z80cpu_mm_rd(GdevZ80CPU *z80cpu, guint16 addr)
+static guint8 z80cpu_mm_rd(GdevZ80CPU *z80cpu, guint16 addr)
 {
   return(amstrad_cpc.rd_bank[addr >> 14][addr & 0x3fff]);
 }
 
-void gdev_z80cpu_mm_wr(GdevZ80CPU *z80cpu, guint16 addr, guint8 data)
+static void z80cpu_mm_wr(GdevZ80CPU *z80cpu, guint16 addr, guint8 data)
 {
   amstrad_cpc.wr_bank[addr >> 14][addr & 0x3fff] = data;
 }
 
-guint8 gdev_z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
+static guint8 z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
 {
   guint8 data = 0x00;
 
@@ -2025,7 +2025,7 @@ guint8 gdev_z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
   return(data);
 }
 
-void gdev_z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
+static void z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
 {
   /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
   if((port & 0x8000) == 0) {
@@ -2328,6 +2328,11 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     self->ay8910 = gdev_ay8910_new();
     self->upd765 = gdev_upd765_new();
     self->i8255  = gdev_i8255_new();
+    /* XXX */
+    self->z80cpu->mm_rd = z80cpu_mm_rd;
+    self->z80cpu->mm_wr = z80cpu_mm_wr;
+    self->z80cpu->io_rd = z80cpu_io_rd;
+    self->z80cpu->io_wr = z80cpu_io_wr;
   }
   amstrad_cpc_reset();
   (void) gettimeofday(&amstrad_cpc.timer1, NULL);

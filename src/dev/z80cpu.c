@@ -104,7 +104,7 @@ static void gdev_z80cpu_clock(GdevZ80CPU *z80cpu)
 decode_op:
   z80cpu->IFF &= ~IFF_EI;
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
-  I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
+  I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= Cycles[I];
   switch(I) {
 #include "z80cpu_opcode.h"
@@ -123,7 +123,7 @@ decode_op:
 
 decode_cb:
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
-  I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
+  I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesCB[I];
   switch(I) {
 #include "z80cpu_opcode_CB.h"
@@ -134,7 +134,7 @@ decode_cb:
 
 decode_dd:
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
-  I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
+  I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesXX[I];
   switch(I) {
 #include "z80cpu_opcode_DD.h"
@@ -146,8 +146,8 @@ decode_dd:
   goto decode_ok;
 
 decode_dd_cb:
-  J.W = z80cpu->IX.W + (gint8) gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
-  I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
+  J.W = z80cpu->IX.W + (gint8) (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
+  I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesXXCB[I];
   switch(I) {
 #include "z80cpu_opcode_DDCB.h"
@@ -158,7 +158,7 @@ decode_dd_cb:
 
 decode_ed:
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
-  I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
+  I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesED[I];
   switch(I) {
 #include "z80cpu_opcode_ED.h"
@@ -169,7 +169,7 @@ decode_ed:
 
 decode_fd:
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
-  I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
+  I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesXX[I];
   switch(I) {
 #include "z80cpu_opcode_FD.h"
@@ -181,8 +181,8 @@ decode_fd:
   goto decode_ok;
 
 decode_fd_cb:
-  J.W = z80cpu->IY.W + (gint8) gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
-  I = gdev_z80cpu_mm_rd(z80cpu, z80cpu->PC.W++);
+  J.W = z80cpu->IY.W + (gint8) (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
+  I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   z80cpu->TStates -= CyclesXXCB[I];
   switch(I) {
 #include "z80cpu_opcode_FDCB.h"
@@ -229,8 +229,8 @@ void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
       z80cpu->IFF &= ~IFF_HALT;
     }
     /* PUSH PC */
-    gdev_z80cpu_mm_wr(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.h);
-    gdev_z80cpu_mm_wr(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.l);
+    (*z80cpu->mm_wr)(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.h);
+    (*z80cpu->mm_wr)(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.l);
     /* If it is NMI... */
     if(vector==INT_NMI) {
       if(z80cpu->IFF & IFF_1) {
@@ -248,8 +248,8 @@ void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
     /* If in IM2 mode ... */
     if(z80cpu->IFF & IFF_IM2) {
       vector = (z80cpu->IR.W & 0xff00) | (vector & 0x00ff);
-      z80cpu->PC.B.l = gdev_z80cpu_mm_rd(z80cpu, vector++);
-      z80cpu->PC.B.h = gdev_z80cpu_mm_rd(z80cpu, vector++);
+      z80cpu->PC.B.l = (*z80cpu->mm_rd)(z80cpu, vector++);
+      z80cpu->PC.B.h = (*z80cpu->mm_rd)(z80cpu, vector++);
       return;
     }
     /* If in IM1 mode ... */
