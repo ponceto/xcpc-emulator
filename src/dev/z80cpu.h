@@ -76,7 +76,12 @@ struct _GdevZ80CPU {
   GdevZ80REG SP, PC;          /* Control registers   */
   GdevZ80REG IR;              /* Interrupt & Refresh */
   guint8     IFF;             /* Interrupt Flip-Flop */
-  gint       TStates;
+  gint       TStates;         /* Z80 T-States        */
+  /* User functions */
+  guint8 (*mm_rd)(GdevZ80CPU *z80cpu, guint16 addr);
+  void   (*mm_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
+  guint8 (*io_rd)(GdevZ80CPU *z80cpu, guint16 addr);
+  void   (*io_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
 };
 
 struct _GdevZ80CPUClass {
