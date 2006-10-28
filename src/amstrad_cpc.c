@@ -2039,7 +2039,7 @@ static void z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
       case 2: /* Interrupt control, ROM configuration and screen mode */
         if((data & 0x10) != 0) {
           amstrad_cpc.garray->counter = 0;
-          amstrad_cpc.garray->set_irq = 0;
+          amstrad_cpc.garray->gen_irq = 0;
         }
         amstrad_cpc.garray->rom_cfg = data & 0x1f;
         amstrad_cpc_mem_select(&amstrad_cpc);
@@ -2360,11 +2360,11 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     for(ix = 0; ix < 17; ix++) {
       amstrad_cpc.scanline[amstrad_cpc.beam.y].ink[ix] = amstrad_cpc.palette[amstrad_cpc.garray->ink[ix]];
     }
-    if(amstrad_cpc.garray->set_irq != 0) {
+    if(amstrad_cpc.garray->gen_irq != 0) {
       if((amstrad_cpc.z80cpu->IFF & IFF_1) != 0) {
         gdev_z80cpu_intr(amstrad_cpc.z80cpu, INT_RST38);
         amstrad_cpc.garray->counter &= 31;
-        amstrad_cpc.garray->set_irq  = 0;
+        amstrad_cpc.garray->gen_irq  = 0;
       }
     }
     if((amstrad_cpc.z80cpu->TStates += amstrad_cpc.cpu_period) > 0) {
@@ -2377,7 +2377,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       if((scanline - vsyncpos_min) == 2) {
         if((amstrad_cpc.garray->counter & 32) != 0) {
           amstrad_cpc.garray->counter = 0;
-          amstrad_cpc.garray->set_irq = 1;
+          amstrad_cpc.garray->gen_irq = 1;
         }
         else {
           amstrad_cpc.garray->counter = 0;
@@ -2394,7 +2394,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     }
     if(++amstrad_cpc.garray->counter >= 52) {
       amstrad_cpc.garray->counter = 0;
-      amstrad_cpc.garray->set_irq = 1;
+      amstrad_cpc.garray->gen_irq = 1;
     }
     if(++amstrad_cpc.beam.y > 311) {
       amstrad_cpc.beam.y = 311;

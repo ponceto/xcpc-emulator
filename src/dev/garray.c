@@ -94,7 +94,7 @@ static void gdev_garray_reset(GdevGArray *garray)
   garray->rom_cfg = 0x00;
   garray->ram_cfg = 0x00;
   garray->counter = 0x00;
-  garray->set_irq = 0x00;
+  garray->gen_irq = 0x00;
 }
 
 /**

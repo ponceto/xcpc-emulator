@@ -19,6 +19,7 @@
 #define __GDEV_DEVICE_H__
 
 #include <glib-object.h>
+#include <drv/driver.h>
 
 G_BEGIN_DECLS
 

@@ -232,7 +232,7 @@ void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
     (*z80cpu->mm_wr)(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.h);
     (*z80cpu->mm_wr)(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.l);
     /* If it is NMI... */
-    if(vector==INT_NMI) {
+    if(vector == INT_NMI) {
       if(z80cpu->IFF & IFF_1) {
         z80cpu->IFF |=  IFF_2;
       }
