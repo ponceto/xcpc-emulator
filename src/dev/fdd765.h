@@ -19,7 +19,6 @@
 #define __GDEV_FDD765_H__
 
 #include <dev/device.h>
-#include <dev/upd765.h>
 
 G_BEGIN_DECLS
 

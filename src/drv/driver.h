@@ -19,7 +19,6 @@
 #define __GDRV_DRIVER_H__
 
 #include <glib-object.h>
-#include <dev/device.h>
 
 G_BEGIN_DECLS
 
