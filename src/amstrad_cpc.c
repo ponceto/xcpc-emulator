@@ -1723,7 +1723,6 @@ int ix;
   for(ix = 0; ix < 16; ix++) {
     amstrad_cpc.keyboard.bits[ix] = 0xff;
   }
-  amstrad_cpc_mem_select(&amstrad_cpc);
   amstrad_cpc.beam.x = 0;
   amstrad_cpc.beam.y = 0;
   /* XXX */ {
@@ -1736,6 +1735,7 @@ int ix;
     gdev_device_reset(GDEV_DEVICE(self->i8255));
   }
   /* XXX */
+  amstrad_cpc_mem_select(&amstrad_cpc);
   (void) gettimeofday(&amstrad_cpc.timer1, NULL);
   (void) gettimeofday(&amstrad_cpc.timer2, NULL);
 }
