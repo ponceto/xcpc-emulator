@@ -32,7 +32,6 @@ G_DEFINE_TYPE(GdevDevice, gdev_device, G_TYPE_OBJECT)
  */
 static void gdev_device_class_init(GdevDeviceClass *device_class)
 {
-  device_class->debug = NULL;
   device_class->reset = NULL;
   device_class->clock = NULL;
 }
@@ -54,21 +53,6 @@ static void gdev_device_init(GdevDevice *device)
 GdevDevice *gdev_device_new(void)
 {
   return(g_object_new(GDEV_TYPE_DEVICE, NULL));
-}
-
-/**
- * GdevDevice::debug()
- *
- * @param device specifies the GdevDevice instance
- */
-void gdev_device_debug(GdevDevice *device)
-{
-  if(GDEV_IS_DEVICE(device) != FALSE) {
-    GdevDeviceClass *device_class = GDEV_DEVICE_GET_CLASS(device);
-    if(device_class->debug != NULL) {
-      (*device_class->debug)(device);
-    }
-  }
 }
 
 /**

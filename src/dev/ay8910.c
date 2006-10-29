@@ -23,7 +23,6 @@
 #include <string.h>
 #include "ay8910.h"
 
-static void gdev_ay8910_debug(GdevAY8910 *ay8910);
 static void gdev_ay8910_reset(GdevAY8910 *ay8910);
 static void gdev_ay8910_clock(GdevAY8910 *ay8910);
 
@@ -38,7 +37,6 @@ static void gdev_ay8910_class_init(GdevAY8910Class *ay8910_class)
 {
   GdevDeviceClass *device_class = GDEV_DEVICE_CLASS(ay8910_class);
 
-  device_class->debug = (GdevDeviceProc) gdev_ay8910_debug;
   device_class->reset = (GdevDeviceProc) gdev_ay8910_reset;
   device_class->clock = (GdevDeviceProc) gdev_ay8910_clock;
 }
@@ -51,15 +49,6 @@ static void gdev_ay8910_class_init(GdevAY8910Class *ay8910_class)
 static void gdev_ay8910_init(GdevAY8910 *ay8910)
 {
   gdev_ay8910_reset(ay8910);
-}
-
-/**
- * GdevAY8910::debug()
- *
- * @param ay8910 specifies the GdevAY8910 instance
- */
-static void gdev_ay8910_debug(GdevAY8910 *ay8910)
-{
 }
 
 /**

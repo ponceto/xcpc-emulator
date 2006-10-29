@@ -24,6 +24,7 @@
 #include <dev/mc6845.h>
 #include <dev/ay8910.h>
 #include <dev/upd765.h>
+#include <dev/fdd765.h>
 #include <dev/i8255.h>
 #include <sys/time.h>
 

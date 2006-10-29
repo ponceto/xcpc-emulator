@@ -23,7 +23,6 @@
 #include <string.h>
 #include "garray.h"
 
-static void gdev_garray_debug(GdevGArray *garray);
 static void gdev_garray_reset(GdevGArray *garray);
 static void gdev_garray_clock(GdevGArray *garray);
 
@@ -38,7 +37,6 @@ static void gdev_garray_class_init(GdevGArrayClass *garray_class)
 {
   GdevDeviceClass *device_class = GDEV_DEVICE_CLASS(garray_class);
 
-  device_class->debug = (GdevDeviceProc) gdev_garray_debug;
   device_class->reset = (GdevDeviceProc) gdev_garray_reset;
   device_class->clock = (GdevDeviceProc) gdev_garray_clock;
 }
@@ -67,15 +65,6 @@ static void gdev_garray_init(GdevGArray *garray)
                       | ((ix & 0x02) << 5) | ((ix & 0x01) << 7);
   }
   gdev_garray_reset(garray);
-}
-
-/**
- * GdevGArray::debug()
- *
- * @param garray specifies the GdevGArray instance
- */
-static void gdev_garray_debug(GdevGArray *garray)
-{
 }
 
 /**

@@ -23,7 +23,6 @@
 #include <string.h>
 #include "upd765.h"
 
-static void gdev_upd765_debug(GdevUPD765 *upd765);
 static void gdev_upd765_reset(GdevUPD765 *upd765);
 static void gdev_upd765_clock(GdevUPD765 *upd765);
 
@@ -38,7 +37,6 @@ static void gdev_upd765_class_init(GdevUPD765Class *upd765_class)
 {
   GdevDeviceClass *device_class = GDEV_DEVICE_CLASS(upd765_class);
 
-  device_class->debug = (GdevDeviceProc) gdev_upd765_debug;
   device_class->reset = (GdevDeviceProc) gdev_upd765_reset;
   device_class->clock = (GdevDeviceProc) gdev_upd765_clock;
 }
@@ -51,15 +49,6 @@ static void gdev_upd765_class_init(GdevUPD765Class *upd765_class)
 static void gdev_upd765_init(GdevUPD765 *upd765)
 {
   gdev_upd765_reset(upd765);
-}
-
-/**
- * GdevUPD765::debug()
- *
- * @param upd765 specifies the GdevUPD765 instance
- */
-static void gdev_upd765_debug(GdevUPD765 *upd765)
-{
 }
 
 /**

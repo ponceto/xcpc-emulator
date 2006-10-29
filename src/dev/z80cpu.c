@@ -24,7 +24,6 @@
 #include "z80cpu.h"
 #include "z80cpu_tables.h"
 
-static void gdev_z80cpu_debug(GdevZ80CPU *z80cpu);
 static void gdev_z80cpu_reset(GdevZ80CPU *z80cpu);
 static void gdev_z80cpu_clock(GdevZ80CPU *z80cpu);
 
@@ -39,7 +38,6 @@ static void gdev_z80cpu_class_init(GdevZ80CPUClass *z80cpu_class)
 {
   GdevDeviceClass *device_class = GDEV_DEVICE_CLASS(z80cpu_class);
 
-  device_class->debug = (GdevDeviceProc) gdev_z80cpu_debug;
   device_class->reset = (GdevDeviceProc) gdev_z80cpu_reset;
   device_class->clock = (GdevDeviceProc) gdev_z80cpu_clock;
 }
@@ -56,15 +54,6 @@ static void gdev_z80cpu_init(GdevZ80CPU *z80cpu)
   z80cpu->mm_wr = NULL;
   z80cpu->io_rd = NULL;
   z80cpu->io_wr = NULL;
-}
-
-/**
- * GdevZ80CPU::debug()
- *
- * @param z80cpu specifies the GdevZ80CPU instance
- */
-static void gdev_z80cpu_debug(GdevZ80CPU *z80cpu)
-{
 }
 
 /**

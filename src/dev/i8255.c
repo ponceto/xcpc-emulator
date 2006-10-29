@@ -23,7 +23,6 @@
 #include <string.h>
 #include "i8255.h"
 
-static void gdev_i8255_debug(GdevI8255 *i8255);
 static void gdev_i8255_reset(GdevI8255 *i8255);
 static void gdev_i8255_clock(GdevI8255 *i8255);
 
@@ -38,7 +37,6 @@ static void gdev_i8255_class_init(GdevI8255Class *i8255_class)
 {
   GdevDeviceClass *device_class = GDEV_DEVICE_CLASS(i8255_class);
 
-  device_class->debug = (GdevDeviceProc) gdev_i8255_debug;
   device_class->reset = (GdevDeviceProc) gdev_i8255_reset;
   device_class->clock = (GdevDeviceProc) gdev_i8255_clock;
 }
@@ -51,15 +49,6 @@ static void gdev_i8255_class_init(GdevI8255Class *i8255_class)
 static void gdev_i8255_init(GdevI8255 *i8255)
 {
   gdev_i8255_reset(i8255);
-}
-
-/**
- * GdevI8255::debug()
- *
- * @param i8255 specifies the GdevI8255 instance
- */
-static void gdev_i8255_debug(GdevI8255 *i8255)
-{
 }
 
 /**
