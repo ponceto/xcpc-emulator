@@ -1,3 +1,13 @@
+2006-10-30	Olivier Poncet <ponceto@noos.fr>
+
+	* Source code cleanup.
+	* Preliminary (but not already working) floppy disk support.
+	* Miscellaneous improvements and minor source code corrections.
+	* Z80 improvements.
+	* Amstrad CPC driver improvements.
+	* Gate-Array GObjectized.
+	* Version number added in the about dialog.
+
 2006-10-23	Olivier Poncet <ponceto@noos.fr>
 
 	* Source code cleanup.
