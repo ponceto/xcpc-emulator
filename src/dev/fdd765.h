@@ -38,7 +38,9 @@ struct _GdevFDD765 {
 
 struct _GdevFDD765Class {
   GdevDeviceClass parent_class;
-  void (*eject)(GdevFDD765 *fdd765);
+  gboolean (*rdsec)(GdevFDD765 *fdd765);
+  gboolean (*wrsec)(GdevFDD765 *fdd765);
+  gboolean (*eject)(GdevFDD765 *fdd765);
 };
 
 extern GType       gdev_fdd765_get_type (void);

@@ -39,6 +39,8 @@ static void gdev_fdd765_class_init(GdevFDD765Class *fdd765_class)
 
   device_class->reset = (GdevDeviceProc) gdev_fdd765_reset;
   device_class->clock = (GdevDeviceProc) gdev_fdd765_clock;
+  fdd765_class->rdsec = NULL;
+  fdd765_class->wrsec = NULL;
   fdd765_class->eject = NULL;
 }
 

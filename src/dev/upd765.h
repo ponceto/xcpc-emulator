@@ -34,7 +34,19 @@ typedef struct _GdevUPD765Class GdevUPD765Class;
 
 struct _GdevUPD765 {
   GdevDevice device;
-  guint8 status;
+  GdevDevice *fdd[4];   /* floppy disc drives      */
+  guint8 cur_fdd;       /* current floppy drive    */
+  guint8 reg_msr;       /* main status register    */
+  guint8 reg_st0;       /* ST0 status register     */
+  guint8 reg_st1;       /* ST1 status register     */
+  guint8 reg_st2;       /* ST2 status register     */
+  guint8 reg_st3;       /* ST3 status register     */
+  guint8 cmd_buffer[9]; /* command buffer          */
+  guint8 cmd_buflen;    /* command buffer length   */
+  guint8 cmd_bufpos;    /* command buffer position */
+  guint8 res_buffer[7]; /* result buffer           */
+  guint8 res_buflen;    /* result buffer length    */
+  guint8 res_bufpos;    /* result buffer position  */
   guint8 motors;
   guint8 data;
 };

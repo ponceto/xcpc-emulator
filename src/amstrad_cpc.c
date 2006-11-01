@@ -2034,7 +2034,7 @@ static guint8 z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
         (void) fflush(stderr);
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        data = amstrad_cpc.upd765->status;
+        data = amstrad_cpc.upd765->reg_msr;
         (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [--- RD_STATUS ---]\n", port);
         (void) fflush(stderr);
         break;

@@ -48,6 +48,10 @@ static void gdev_upd765_class_init(GdevUPD765Class *upd765_class)
  */
 static void gdev_upd765_init(GdevUPD765 *upd765)
 {
+  upd765->fdd[0] = NULL;
+  upd765->fdd[1] = NULL;
+  upd765->fdd[2] = NULL;
+  upd765->fdd[3] = NULL;
   gdev_upd765_reset(upd765);
 }
 
@@ -58,9 +62,18 @@ static void gdev_upd765_init(GdevUPD765 *upd765)
  */
 static void gdev_upd765_reset(GdevUPD765 *upd765)
 {
-  upd765->status = 0x80;
-  upd765->motors = 0x00;
-  upd765->data   = 0x00;
+  upd765->cur_fdd    = 0x00;
+  upd765->reg_msr    = 0x80;
+  upd765->reg_st0    = 0x00;
+  upd765->reg_st1    = 0x00;
+  upd765->reg_st2    = 0x00;
+  upd765->reg_st3    = 0x00;
+  upd765->cmd_buflen = 0x00;
+  upd765->cmd_bufpos = 0x00;
+  upd765->res_buflen = 0x00;
+  upd765->res_bufpos = 0x00;
+  upd765->motors     = 0x00;
+  upd765->data       = 0x00;
 }
 
 /**
