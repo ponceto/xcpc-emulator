@@ -49,11 +49,11 @@ static void gdev_z80cpu_class_init(GdevZ80CPUClass *z80cpu_class)
  */
 static void gdev_z80cpu_init(GdevZ80CPU *z80cpu)
 {
-  gdev_z80cpu_reset(z80cpu);
   z80cpu->mm_rd = NULL;
   z80cpu->mm_wr = NULL;
   z80cpu->io_rd = NULL;
   z80cpu->io_wr = NULL;
+  gdev_z80cpu_reset(z80cpu);
 }
 
 /**
