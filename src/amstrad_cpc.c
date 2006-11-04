@@ -2026,22 +2026,16 @@ static guint8 z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
   if((port & 0x0480) == 0) {
     switch(((port >> 7) & 2) | (port & 1)) {
       case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
-        (void) fflush(stderr);
+        /* MOTORS CTRL */
         break;
       case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [------ N/A ------]\n", port);
-        (void) fflush(stderr);
+        /* MOTORS CTRL */
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        data = amstrad_cpc.upd765->reg_msr;
-        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [--- RD_STATUS ---]\n", port);
-        (void) fflush(stderr);
+        data = gdev_upd765_rd_ctrl(amstrad_cpc.upd765);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        data = amstrad_cpc.upd765->data;
-        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [---- RD_DATA ----]\n", port);
-        (void) fflush(stderr);
+        data = gdev_upd765_rd_data(amstrad_cpc.upd765);
         break;
     }
   }
@@ -2129,21 +2123,16 @@ static void z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
   if((port & 0x0480) == 0) {
     switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
       case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-        amstrad_cpc.upd765->motors = data & 0x01;
-        (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [--- MOTOR_CTL ---]\n", port);
-        (void) fflush(stderr);
+        /* MOTORS CTRL */
         break;
       case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-        (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [------ N/A ------]\n", port);
-        (void) fflush(stderr);
+        /* MOTORS CTRL */
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
-        (void) fflush(stderr);
+        gdev_upd765_wr_ctrl(amstrad_cpc.upd765, data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        (void) fprintf(stderr, "IO_WR[0x%04x]: FDC-765      [---- WR_DATA ----]\n", port);
-        (void) fflush(stderr);
+        gdev_upd765_wr_data(amstrad_cpc.upd765, data);
         break;
     }
   }

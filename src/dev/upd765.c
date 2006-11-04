@@ -94,3 +94,42 @@ GdevUPD765 *gdev_upd765_new(void)
 {
   return(g_object_new(GDEV_TYPE_UPD765, NULL));
 }
+
+/**
+ * GdevUPD765::rd_ctrl()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+guint8 gdev_upd765_rd_ctrl(GdevUPD765 *upd765)
+{
+  return(upd765->reg_msr);
+}
+
+/**
+ * GdevUPD765::wr_ctrl()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+void gdev_upd765_wr_ctrl(GdevUPD765 *upd765, guint8 data)
+{
+}
+
+/**
+ * GdevUPD765::rd_data()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+guint8 gdev_upd765_rd_data(GdevUPD765 *upd765)
+{
+  return(upd765->data);
+}
+
+/**
+ * GdevUPD765::wr_data()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+void gdev_upd765_wr_data(GdevUPD765 *upd765, guint8 data)
+{
+  upd765->data = data;
+}
