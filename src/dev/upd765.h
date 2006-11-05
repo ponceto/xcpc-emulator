@@ -47,7 +47,7 @@ struct _GdevUPD765 {
   guint8 res_buffer[7]; /* result buffer           */
   guint8 res_buflen;    /* result buffer length    */
   guint8 res_bufpos;    /* result buffer position  */
-  guint8 motors;
+  guint8 state;
   guint8 data;
 };
 
