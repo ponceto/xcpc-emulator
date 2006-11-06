@@ -1,3 +1,10 @@
+2006-11-06	Olivier Poncet <ponceto@noos.fr>
+
+	* Preliminary (but working) FDC implementation by using lib765.
+	* Preliminary (but working) FDD implementation by using libDSK.
+	* lib765 & libdsk: http://www.seasip.demon.co.uk/Unix/LibDsk/
+	* Drive A/B floppy disk support.
+
 2006-10-30	Olivier Poncet <ponceto@noos.fr>
 
 	* Source code cleanup.
