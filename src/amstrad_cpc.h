@@ -23,8 +23,8 @@
 #include <dev/garray.h>
 #include <dev/mc6845.h>
 #include <dev/ay8910.h>
-#include <dev/upd765.h>
 #include <dev/fdd765.h>
+#include <dev/upd765.h>
 #include <dev/i8255.h>
 #include <sys/time.h>
 
@@ -40,6 +40,8 @@ struct _AMSTRAD_CPC {
   GdevMC6845 *mc6845;
   GdevAY8910 *ay8910;
   GdevUPD765 *upd765;
+  GdevFDD765 *drivea;
+  GdevFDD765 *driveb;
   GdevI8255  *i8255;
   guint8 *rd_bank[4];
   guint8 *wr_bank[4];

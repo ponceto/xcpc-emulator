@@ -21,77 +21,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libdsk.h>
+#include <765.h>
+#include "fdd765.h"
 #include "upd765.h"
 
 static void gdev_upd765_reset(GdevUPD765 *upd765);
 static void gdev_upd765_clock(GdevUPD765 *upd765);
 
 G_DEFINE_TYPE(GdevUPD765, gdev_upd765, GDEV_TYPE_DEVICE)
-
-enum {
-  FDC_IDLE_STATE,
-  FDC_CMMD_PHASE,
-  FDC_EXEC_PHASE,
-  FDC_RSLT_PHASE,
-};
-
-enum {
-  FDC_CMD_INVALID,
-  FDC_CMD_RD_DATA,
-  FDC_CMD_RD_DELETED_DATA,
-  FDC_CMD_WR_DATA,
-  FDC_CMD_WR_DELETED_DATA,
-  FDC_CMD_RD_DIAGNOSTIC,
-  FDC_CMD_RD_ID,
-  FDC_CMD_WR_ID,
-  FDC_CMD_SCAN_EQU,
-  FDC_CMD_SCAN_LO_OR_EQU,
-  FDC_CMD_SCAN_HI_OR_EQU,
-  FDC_CMD_RECALIBRATE,
-  FDC_CMD_SENSE_INTERRUPT_STATUS,
-  FDC_CMD_SPECIFY,
-  FDC_CMD_SENSE_DRIVE_STATUS,
-  FDC_CMD_SEEK,
-  FDC_CMD_VERSION
-};
-
-static struct {
-  int cmd_id;
-  int cmd_len;
-} fdc_cmd[32] = {
-  { FDC_CMD_INVALID,                0 }, /* 0x00 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x01 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_RD_DIAGNOSTIC,          9 }, /* 0x02 = RD DIAGNOSTIC           */
-  { FDC_CMD_SPECIFY,                3 }, /* 0x03 = SPECIFY                 */
-  { FDC_CMD_SENSE_DRIVE_STATUS,     2 }, /* 0x04 = SENSE DRIVE STATUS      */
-  { FDC_CMD_WR_DATA,                9 }, /* 0x05 = WR DATA                 */
-  { FDC_CMD_RD_DATA,                9 }, /* 0x06 = RD DATA                 */
-  { FDC_CMD_RECALIBRATE,            2 }, /* 0x07 = RECALIBRATE             */
-  { FDC_CMD_SENSE_INTERRUPT_STATUS, 1 }, /* 0x08 = SENSE INTERRUPT STATUS  */
-  { FDC_CMD_WR_DELETED_DATA,        9 }, /* 0x09 = WR DELETED DATA         */
-  { FDC_CMD_RD_ID,                  2 }, /* 0x0a = RD ID                   */
-  { FDC_CMD_INVALID,                0 }, /* 0x0b = [ *** INVALID CMD *** ] */
-  { FDC_CMD_RD_DELETED_DATA,        9 }, /* 0x0c = RD DELETED DATA         */
-  { FDC_CMD_WR_ID,                  6 }, /* 0x0d = WR ID                   */
-  { FDC_CMD_INVALID,                0 }, /* 0x0e = [ *** INVALID CMD *** ] */
-  { FDC_CMD_SEEK,                   3 }, /* 0x0f = SEEK                    */
-  { FDC_CMD_VERSION,                1 }, /* 0x10 = VERSION                 */
-  { FDC_CMD_SCAN_EQU,               9 }, /* 0x11 = SCAN EQUAL              */
-  { FDC_CMD_INVALID,                0 }, /* 0x12 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x13 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x14 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x15 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x16 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x17 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x18 = [ *** INVALID CMD *** ] */
-  { FDC_CMD_SCAN_LO_OR_EQU,         9 }, /* 0x19 = SCAN LOW OR EQUAL       */
-  { FDC_CMD_INVALID,                0 }, /* 0x1a = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x1b = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x1c = [ *** INVALID CMD *** ] */
-  { FDC_CMD_SCAN_HI_OR_EQU,         9 }, /* 0x1d = SCAN HIGH OR EQUAL      */
-  { FDC_CMD_INVALID,                0 }, /* 0x1e = [ *** INVALID CMD *** ] */
-  { FDC_CMD_INVALID,                0 }, /* 0x1f = [ *** INVALID CMD *** ] */
-};
 
 /**
  * GdevUPD765::class_init()
@@ -113,10 +51,7 @@ static void gdev_upd765_class_init(GdevUPD765Class *upd765_class)
  */
 static void gdev_upd765_init(GdevUPD765 *upd765)
 {
-  upd765->fdd[0] = NULL;
-  upd765->fdd[1] = NULL;
-  upd765->fdd[2] = NULL;
-  upd765->fdd[3] = NULL;
+  upd765->impl = (gpointer) fdc_new();
   gdev_upd765_reset(upd765);
 }
 
@@ -127,18 +62,6 @@ static void gdev_upd765_init(GdevUPD765 *upd765)
  */
 static void gdev_upd765_reset(GdevUPD765 *upd765)
 {
-  upd765->cur_fdd    = 0x00;
-  upd765->reg_msr    = 0x80;
-  upd765->reg_st0    = 0x00;
-  upd765->reg_st1    = 0x00;
-  upd765->reg_st2    = 0x00;
-  upd765->reg_st3    = 0x00;
-  upd765->cmd_buflen = 0x00;
-  upd765->cmd_bufpos = 0x00;
-  upd765->res_buflen = 0x00;
-  upd765->res_bufpos = 0x00;
-  upd765->state      = 0x00;
-  upd765->data       = 0x00;
 }
 
 /**
@@ -147,15 +70,6 @@ static void gdev_upd765_reset(GdevUPD765 *upd765)
  * @param upd765 specifies the GdevUPD765 instance
  */
 static void gdev_upd765_clock(GdevUPD765 *upd765)
-{
-}
-
-/**
- * GdevUPD765::decode()
- *
- * @param upd765 specifies the GdevUPD765 instance
- */
-static void gdev_upd765_decode(GdevUPD765 *upd765, guint8 data)
 {
 }
 
@@ -170,13 +84,33 @@ GdevUPD765 *gdev_upd765_new(void)
 }
 
 /**
+ * GdevUPD765::set_drive()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+void gdev_upd765_set_drive(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
+{
+  fdc_setdrive((FDC_PTR) upd765->impl, drive, (FDRV_PTR) fdd765->impl);
+}
+
+/**
+ * GdevUPD765::set_motor()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ */
+void gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data)
+{
+  fdc_set_motor((FDC_PTR) upd765->impl, data);
+}
+
+/**
  * GdevUPD765::rd_ctrl()
  *
  * @param upd765 specifies the GdevUPD765 instance
  */
 guint8 gdev_upd765_rd_ctrl(GdevUPD765 *upd765)
 {
-  return(upd765->reg_msr);
+  return(fdc_read_ctrl((FDC_PTR) upd765->impl));
 }
 
 /**
@@ -195,7 +129,7 @@ void gdev_upd765_wr_ctrl(GdevUPD765 *upd765, guint8 data)
  */
 guint8 gdev_upd765_rd_data(GdevUPD765 *upd765)
 {
-  return(upd765->data);
+  return(fdc_read_data((FDC_PTR) upd765->impl));
 }
 
 /**
@@ -205,15 +139,5 @@ guint8 gdev_upd765_rd_data(GdevUPD765 *upd765)
  */
 void gdev_upd765_wr_data(GdevUPD765 *upd765, guint8 data)
 {
-  switch(upd765->state) {
-    case FDC_IDLE_STATE:
-      break;
-    case FDC_CMMD_PHASE:
-      break;
-    case FDC_EXEC_PHASE:
-      break;
-    case FDC_RSLT_PHASE:
-      break;
-  }
-  upd765->data = data;
+  fdc_write_data((FDC_PTR) upd765->impl, data);
 }

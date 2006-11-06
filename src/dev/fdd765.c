@@ -21,7 +21,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libdsk.h>
+#include <765.h>
 #include "fdd765.h"
+#include "upd765.h"
 
 static void gdev_fdd765_reset(GdevFDD765 *fdd765);
 static void gdev_fdd765_clock(GdevFDD765 *fdd765);
@@ -39,9 +42,6 @@ static void gdev_fdd765_class_init(GdevFDD765Class *fdd765_class)
 
   device_class->reset = (GdevDeviceProc) gdev_fdd765_reset;
   device_class->clock = (GdevDeviceProc) gdev_fdd765_clock;
-  fdd765_class->rdsec = NULL;
-  fdd765_class->wrsec = NULL;
-  fdd765_class->eject = NULL;
 }
 
 /**
@@ -51,6 +51,7 @@ static void gdev_fdd765_class_init(GdevFDD765Class *fdd765_class)
  */
 static void gdev_fdd765_init(GdevFDD765 *fdd765)
 {
+  fdd765->impl = (gpointer) fd_newldsk();
   gdev_fdd765_reset(fdd765);
 }
 
@@ -80,4 +81,20 @@ static void gdev_fdd765_clock(GdevFDD765 *fdd765)
 GdevFDD765 *gdev_fdd765_new(void)
 {
   return(g_object_new(GDEV_TYPE_FDD765, NULL));
+}
+
+/**
+ * GdevFDD765::insert()
+ *
+ * @param fdd765 specifies the GdevFDD765 instance
+ * @param dsk_fn specifies the disk image filename
+ */
+void gdev_fdd765_insert(GdevFDD765 *fdd765, gchar *dsk_fn)
+{
+  if(dsk_fn != NULL) {
+    fdl_setfilename((FDRV_PTR) fdd765->impl, dsk_fn);
+  }
+  else {
+    fd_eject((FDRV_PTR) fdd765->impl);
+  }
 }

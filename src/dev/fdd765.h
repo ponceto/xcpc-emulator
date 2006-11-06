@@ -34,17 +34,16 @@ typedef struct _GdevFDD765Class GdevFDD765Class;
 
 struct _GdevFDD765 {
   GdevDevice device;
+  gpointer  *impl;
 };
 
 struct _GdevFDD765Class {
   GdevDeviceClass parent_class;
-  gboolean (*rdsec)(GdevFDD765 *fdd765);
-  gboolean (*wrsec)(GdevFDD765 *fdd765);
-  gboolean (*eject)(GdevFDD765 *fdd765);
 };
 
 extern GType       gdev_fdd765_get_type (void);
 extern GdevFDD765 *gdev_fdd765_new      (void);
+extern void        gdev_fdd765_insert   (GdevFDD765 *fdd765, gchar *filename);
 
 G_END_DECLS
 

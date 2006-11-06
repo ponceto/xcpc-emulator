@@ -34,21 +34,7 @@ typedef struct _GdevUPD765Class GdevUPD765Class;
 
 struct _GdevUPD765 {
   GdevDevice device;
-  GdevDevice *fdd[4];   /* floppy disc drives      */
-  guint8 cur_fdd;       /* current floppy drive    */
-  guint8 reg_msr;       /* main status register    */
-  guint8 reg_st0;       /* ST0 status register     */
-  guint8 reg_st1;       /* ST1 status register     */
-  guint8 reg_st2;       /* ST2 status register     */
-  guint8 reg_st3;       /* ST3 status register     */
-  guint8 cmd_buffer[9]; /* command buffer          */
-  guint8 cmd_buflen;    /* command buffer length   */
-  guint8 cmd_bufpos;    /* command buffer position */
-  guint8 res_buffer[7]; /* result buffer           */
-  guint8 res_buflen;    /* result buffer length    */
-  guint8 res_bufpos;    /* result buffer position  */
-  guint8 state;
-  guint8 data;
+  gpointer  *impl;
 };
 
 struct _GdevUPD765Class {
@@ -57,6 +43,8 @@ struct _GdevUPD765Class {
 
 extern GType       gdev_upd765_get_type (void);
 extern GdevUPD765 *gdev_upd765_new      (void);
+extern void        gdev_upd765_set_drive(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive);
+extern void        gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data);
 extern guint8      gdev_upd765_rd_ctrl  (GdevUPD765 *upd765);
 extern void        gdev_upd765_wr_ctrl  (GdevUPD765 *upd765, guint8 data);
 extern guint8      gdev_upd765_rd_data  (GdevUPD765 *upd765);

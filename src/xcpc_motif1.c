@@ -163,6 +163,12 @@ typedef struct _GUI {
   Widget load_snapshot;
   Widget save_snapshot;
   Widget separator1;
+  Widget drivea_insert;
+  Widget drivea_eject;
+  Widget separator2;
+  Widget driveb_insert;
+  Widget driveb_eject;
+  Widget separator3;
   Widget exit_emulator;
   Widget ctrl_pldn;
   Widget ctrl_menu;
@@ -171,7 +177,7 @@ typedef struct _GUI {
   Widget help_pldn;
   Widget help_menu;
   Widget legal_info;
-  Widget separator2;
+  Widget separator4;
   Widget about_xcpc;
   Widget frame;
   Widget emulator;
@@ -303,6 +309,136 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
   XtManageChild(dialog);
   XmStringFree(title);
   title = NULL;
+}
+
+/**
+ * GUI::OnDriveAInsertOkCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveAInsertOkCbk(Widget widget, GUI *gui, XmFileSelectionBoxCallbackStruct *cbs)
+{
+  char *filename = NULL;
+
+  if(XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
+    if(filename != NULL) {
+      gdev_fdd765_insert(amstrad_cpc.drivea, filename);
+      XtFree((char *) filename);
+      filename = NULL;
+    }
+  }
+  OnCloseCbk(widget, gui, (XmAnyCallbackStruct *) cbs);
+}
+
+/**
+ * GUI::OnDriveAInsertCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveAInsertCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
+{
+  Widget dialog;
+  Arg arglist[8];
+  Cardinal argcount;
+  XmString title = XmStringCreateLocalized(_("Insert disk into drive A ..."));
+
+  XtSetSensitive(gui->emulator, FALSE);
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    widget = XtParent(widget);
+  }
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY); argcount++;
+  XtSetArg(arglist[argcount], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); argcount++;
+  XtSetArg(arglist[argcount], XmNdialogTitle, title); argcount++;
+  dialog = XmCreateFileSelectionDialog(widget, "xcpc-insert-drivea-dlg", arglist, argcount);
+  XtAddCallback(dialog, XmNokCallback,      (XtCallbackProc) OnDriveAInsertOkCbk, (XtPointer) gui);
+  XtAddCallback(dialog, XmNcancelCallback,  (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtAddCallback(dialog, XmNunmapCallback,   (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtAddCallback(dialog, XmNdestroyCallback, (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtManageChild(dialog);
+  XmStringFree(title);
+  title = NULL;
+}
+
+/**
+ * GUI::OnDriveAEjectCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveAEjectCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
+{
+  gdev_fdd765_insert(amstrad_cpc.drivea, NULL);
+}
+
+/**
+ * GUI::OnDriveBInsertOkCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveBInsertOkCbk(Widget widget, GUI *gui, XmFileSelectionBoxCallbackStruct *cbs)
+{
+  char *filename = NULL;
+
+  if(XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
+    if(filename != NULL) {
+      gdev_fdd765_insert(amstrad_cpc.driveb, filename);
+      XtFree((char *) filename);
+      filename = NULL;
+    }
+  }
+  OnCloseCbk(widget, gui, (XmAnyCallbackStruct *) cbs);
+}
+
+/**
+ * GUI::OnDriveBInsertCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveBInsertCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
+{
+  Widget dialog;
+  Arg arglist[8];
+  Cardinal argcount;
+  XmString title = XmStringCreateLocalized(_("Insert disk into drive B ..."));
+
+  XtSetSensitive(gui->emulator, FALSE);
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    widget = XtParent(widget);
+  }
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY); argcount++;
+  XtSetArg(arglist[argcount], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); argcount++;
+  XtSetArg(arglist[argcount], XmNdialogTitle, title); argcount++;
+  dialog = XmCreateFileSelectionDialog(widget, "xcpc-insert-driveb-dlg", arglist, argcount);
+  XtAddCallback(dialog, XmNokCallback,      (XtCallbackProc) OnDriveBInsertOkCbk, (XtPointer) gui);
+  XtAddCallback(dialog, XmNcancelCallback,  (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtAddCallback(dialog, XmNunmapCallback,   (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtAddCallback(dialog, XmNdestroyCallback, (XtCallbackProc) OnCloseCbk,          (XtPointer) gui);
+  XtManageChild(dialog);
+  XmStringFree(title);
+  title = NULL;
+}
+
+/**
+ * GUI::OnDriveBEjectCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveBEjectCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
+{
+  gdev_fdd765_insert(amstrad_cpc.driveb, NULL);
 }
 
 /**
@@ -452,13 +588,22 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
  */
 static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
 {
+  int length = 0;
+
   if((uri != NULL) && (strncmp(uri, "file://", 7) == 0)) {
     char *str = &uri[7], *ptr = strstr(str, "\r\n");
     if(ptr != NULL) {
       *ptr = '\0';
     }
-    if(strlen(str) > 0) {
-      amstrad_cpc_load_snapshot(str);
+    if((length = strlen(str)) >= 4) {
+      if(strcmp(&str[length - 4], ".sna") == 0) {
+        amstrad_cpc_load_snapshot(str);
+      }
+      if(strcmp(&str[length - 4], ".dsk") == 0) {
+        gdev_fdd765_insert(amstrad_cpc.drivea, str);
+        gdev_fdd765_insert(amstrad_cpc.driveb, str);
+      }
+      XtSetSensitive(gui->emulator, TRUE);
       XtSetSensitive(gui->emulator, TRUE);
     }
   }
@@ -519,6 +664,50 @@ static Widget CreateGUI(Widget toplevel)
   argcount = 0;
   gui->separator1 = XmCreateSeparatorGadget(gui->file_pldn, "separator1", arglist, argcount);
   XtManageChild(gui->separator1);
+  /* drivea-insert */
+  string = XmStringCreateLocalized(_("Insert disk into drive A"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->drivea_insert = XmCreatePushButtonGadget(gui->file_pldn, "drivea-insert", arglist, argcount);
+  XtAddCallback(gui->drivea_insert, XmNactivateCallback, (XtCallbackProc) OnDriveAInsertCbk, (XtPointer) gui);
+  XtManageChild(gui->drivea_insert);
+  XmStringFree(string);
+  string = NULL;
+  /* drivea-eject */
+  string = XmStringCreateLocalized(_("Eject disk from drive A"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->drivea_eject = XmCreatePushButtonGadget(gui->file_pldn, "drivea-eject", arglist, argcount);
+  XtAddCallback(gui->drivea_eject, XmNactivateCallback, (XtCallbackProc) OnDriveAEjectCbk, (XtPointer) gui);
+  XtManageChild(gui->drivea_eject);
+  XmStringFree(string);
+  string = NULL;
+  /* separator2 */
+  argcount = 0;
+  gui->separator2 = XmCreateSeparatorGadget(gui->file_pldn, "separator2", arglist, argcount);
+  XtManageChild(gui->separator2);
+  /* driveb-insert */
+  string = XmStringCreateLocalized(_("Insert disk into drive B"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->driveb_insert = XmCreatePushButtonGadget(gui->file_pldn, "driveb-insert", arglist, argcount);
+  XtAddCallback(gui->driveb_insert, XmNactivateCallback, (XtCallbackProc) OnDriveBInsertCbk, (XtPointer) gui);
+  XtManageChild(gui->driveb_insert);
+  XmStringFree(string);
+  string = NULL;
+  /* driveb-eject */
+  string = XmStringCreateLocalized(_("Eject disk from drive B"));
+  argcount = 0;
+  XtSetArg(arglist[argcount], XmNlabelString, string); argcount++;
+  gui->driveb_eject = XmCreatePushButtonGadget(gui->file_pldn, "driveb-eject", arglist, argcount);
+  XtAddCallback(gui->driveb_eject, XmNactivateCallback, (XtCallbackProc) OnDriveBEjectCbk, (XtPointer) gui);
+  XtManageChild(gui->driveb_eject);
+  XmStringFree(string);
+  string = NULL;
+  /* separator3 */
+  argcount = 0;
+  gui->separator3 = XmCreateSeparatorGadget(gui->file_pldn, "separator3", arglist, argcount);
+  XtManageChild(gui->separator3);
   /* exit-emulator */
   string = XmStringCreateLocalized(_("Exit"));
   argcount = 0;
@@ -579,10 +768,10 @@ static Widget CreateGUI(Widget toplevel)
   XtManageChild(gui->legal_info);
   XmStringFree(string);
   string = NULL;
-  /* separator2 */
+  /* separator4 */
   argcount = 0;
-  gui->separator2 = XmCreateSeparatorGadget(gui->help_pldn, "separator2", arglist, argcount);
-  XtManageChild(gui->separator2);
+  gui->separator4 = XmCreateSeparatorGadget(gui->help_pldn, "separator4", arglist, argcount);
+  XtManageChild(gui->separator4);
   /* about-xcpc */
   string = XmStringCreateLocalized(_("About Xcpc"));
   argcount = 0;

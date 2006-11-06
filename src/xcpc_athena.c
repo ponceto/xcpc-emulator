@@ -162,6 +162,12 @@ typedef struct _GUI {
   Widget load_snapshot;
   Widget save_snapshot;
   Widget separator1;
+  Widget drivea_insert;
+  Widget drivea_eject;
+  Widget separator2;
+  Widget driveb_insert;
+  Widget driveb_eject;
+  Widget separator3;
   Widget exit_emulator;
   Widget ctrl_menu;
   Widget ctrl_pldn;
@@ -170,7 +176,7 @@ typedef struct _GUI {
   Widget help_menu;
   Widget help_pldn;
   Widget legal_info;
-  Widget separator2;
+  Widget separator4;
   Widget about_xcpc;
   Widget emulator;
 } GUI;
@@ -320,6 +326,150 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
+ * GUI::OnDriveAInsertOkCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveAInsertOkCbk(Widget widget, GUI *gui, XtPointer cbs)
+{
+  char *value = XawDialogGetValueString(XtParent(widget));
+  if(value != NULL) {
+    gdev_fdd765_insert(amstrad_cpc.drivea, value);
+  }
+  OnCloseCbk(widget, gui, cbs);
+}
+
+/**
+ * GUI::OnDriveAInsertCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveAInsertCbk(Widget widget, GUI *gui, XtPointer cbs)
+{
+  Widget shell, dialog, btn_ok, cancel;
+  Arg arglist[8];
+  Cardinal argcount;
+
+  XtSetSensitive(gui->emulator, FALSE);
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    widget = XtParent(widget);
+  }
+  /* drivea-insert-shell */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransient, TRUE); argcount++;
+  XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
+  shell = XtCreatePopupShell("drivea-insert-shell", xemDlgShellWidgetClass, widget, arglist, argcount);
+  /* drivea-insert-dialog */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Insert disk into drive A ...")); argcount++;
+  XtSetArg(arglist[argcount], XtNvalue, ""); argcount++;
+  dialog = XtCreateWidget("drivea-insert-dialog", dialogWidgetClass, shell, arglist, argcount);
+  XtManageChild(dialog);
+  /* drivea-insert-btn-ok */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Insert")); argcount++;
+  btn_ok = XtCreateManagedWidget("drivea-insert-btn-ok", commandWidgetClass, dialog, arglist, argcount);
+  XtAddCallback(btn_ok, XtNcallback, (XtCallbackProc) OnDriveAInsertOkCbk, (XtPointer) gui);
+  XtManageChild(btn_ok);
+  /* drivea-insert-cancel */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Cancel")); argcount++;
+  cancel = XtCreateManagedWidget("drivea-insert-cancel", commandWidgetClass, dialog, arglist, argcount);
+  XtAddCallback(cancel, XtNcallback, (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtManageChild(cancel);
+  /* drivea-insert-popup */
+  XtPopup(shell, XtGrabExclusive);
+}
+
+/**
+ * GUI::OnDriveAEjectCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveAEjectCbk(Widget widget, GUI *gui, XtPointer cbs)
+{
+  gdev_fdd765_insert(amstrad_cpc.drivea, NULL);
+}
+
+/**
+ * GUI::OnDriveBInsertOkCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveBInsertOkCbk(Widget widget, GUI *gui, XtPointer cbs)
+{
+  char *value = XawDialogGetValueString(XtParent(widget));
+  if(value != NULL) {
+    gdev_fdd765_insert(amstrad_cpc.driveb, value);
+  }
+  OnCloseCbk(widget, gui, cbs);
+}
+
+/**
+ * GUI::OnDriveBInsertCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveBInsertCbk(Widget widget, GUI *gui, XtPointer cbs)
+{
+  Widget shell, dialog, btn_ok, cancel;
+  Arg arglist[8];
+  Cardinal argcount;
+
+  XtSetSensitive(gui->emulator, FALSE);
+  while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    widget = XtParent(widget);
+  }
+  /* driveb-insert-shell */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNtransient, TRUE); argcount++;
+  XtSetArg(arglist[argcount], XtNtransientFor, widget); argcount++;
+  shell = XtCreatePopupShell("driveb-insert-shell", xemDlgShellWidgetClass, widget, arglist, argcount);
+  /* driveb-insert-dialog */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Insert disk into drive B ...")); argcount++;
+  XtSetArg(arglist[argcount], XtNvalue, ""); argcount++;
+  dialog = XtCreateWidget("driveb-insert-dialog", dialogWidgetClass, shell, arglist, argcount);
+  XtManageChild(dialog);
+  /* driveb-insert-btn-ok */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Insert")); argcount++;
+  btn_ok = XtCreateManagedWidget("driveb-insert-btn-ok", commandWidgetClass, dialog, arglist, argcount);
+  XtAddCallback(btn_ok, XtNcallback, (XtCallbackProc) OnDriveBInsertOkCbk, (XtPointer) gui);
+  XtManageChild(btn_ok);
+  /* driveb-insert-cancel */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Cancel")); argcount++;
+  cancel = XtCreateManagedWidget("driveb-insert-cancel", commandWidgetClass, dialog, arglist, argcount);
+  XtAddCallback(cancel, XtNcallback, (XtCallbackProc) OnCloseCbk, (XtPointer) gui);
+  XtManageChild(cancel);
+  /* driveb-insert-popup */
+  XtPopup(shell, XtGrabExclusive);
+}
+
+/**
+ * GUI::OnDriveBEjectCbk()
+ *
+ * @param widget specifies the Widget
+ * @param gui specifies the GUI
+ * @param cbs specifies the callback info
+ */
+static void OnDriveBEjectCbk(Widget widget, GUI *gui, XtPointer cbs)
+{
+  gdev_fdd765_insert(amstrad_cpc.driveb, NULL);
+}
+
+/**
  * GUI::OnExitEmulatorCbk()
  *
  * @param widget specifies the Widget
@@ -466,13 +616,22 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
  */
 static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
 {
+  int length = 0;
+
   if((uri != NULL) && (strncmp(uri, "file://", 7) == 0)) {
     char *str = &uri[7], *ptr = strstr(str, "\r\n");
     if(ptr != NULL) {
       *ptr = '\0';
     }
-    if(strlen(str) > 0) {
-      amstrad_cpc_load_snapshot(str);
+    if((length = strlen(str)) >= 4) {
+      if(strcmp(&str[length - 4], ".sna") == 0) {
+        amstrad_cpc_load_snapshot(str);
+      }
+      if(strcmp(&str[length - 4], ".dsk") == 0) {
+        gdev_fdd765_insert(amstrad_cpc.drivea, str);
+        gdev_fdd765_insert(amstrad_cpc.driveb, str);
+      }
+      XtSetSensitive(gui->emulator, TRUE);
       XtSetSensitive(gui->emulator, TRUE);
     }
   }
@@ -525,6 +684,38 @@ static Widget CreateGUI(Widget toplevel)
   argcount = 0;
   gui->separator1 = XtCreateWidget("separator1", smeLineObjectClass, gui->file_pldn, arglist, argcount);
   XtManageChild(gui->separator1);
+  /* drivea-insert */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Insert disk into drive A")); argcount++;
+  gui->drivea_insert = XtCreateWidget("drivea-insert", smeBSBObjectClass, gui->file_pldn, arglist, argcount);
+  XtAddCallback(gui->drivea_insert, XtNcallback, (XtCallbackProc) OnDriveAInsertCbk, (XtPointer) gui);
+  XtManageChild(gui->drivea_insert);
+  /* drivea-eject */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Eject disk from drive A")); argcount++;
+  gui->drivea_eject = XtCreateWidget("drivea-eject", smeBSBObjectClass, gui->file_pldn, arglist, argcount);
+  XtAddCallback(gui->drivea_eject, XtNcallback, (XtCallbackProc) OnDriveAEjectCbk, (XtPointer) gui);
+  XtManageChild(gui->drivea_eject);
+  /* separator2 */
+  argcount = 0;
+  gui->separator2 = XtCreateWidget("separator2", smeLineObjectClass, gui->file_pldn, arglist, argcount);
+  XtManageChild(gui->separator2);
+  /* driveb-insert */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Insert disk into drive B")); argcount++;
+  gui->driveb_insert = XtCreateWidget("driveb-insert", smeBSBObjectClass, gui->file_pldn, arglist, argcount);
+  XtAddCallback(gui->driveb_insert, XtNcallback, (XtCallbackProc) OnDriveBInsertCbk, (XtPointer) gui);
+  XtManageChild(gui->driveb_insert);
+  /* driveb-eject */
+  argcount = 0;
+  XtSetArg(arglist[argcount], XtNlabel, _("Eject disk from drive B")); argcount++;
+  gui->driveb_eject = XtCreateWidget("driveb-eject", smeBSBObjectClass, gui->file_pldn, arglist, argcount);
+  XtAddCallback(gui->driveb_eject, XtNcallback, (XtCallbackProc) OnDriveBEjectCbk, (XtPointer) gui);
+  XtManageChild(gui->driveb_eject);
+  /* separator3 */
+  argcount = 0;
+  gui->separator3 = XtCreateWidget("separator3", smeLineObjectClass, gui->file_pldn, arglist, argcount);
+  XtManageChild(gui->separator3);
   /* exit-emulator */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("Exit")); argcount++;
@@ -567,10 +758,10 @@ static Widget CreateGUI(Widget toplevel)
   gui->legal_info = XtCreateWidget("legal-info", smeBSBObjectClass, gui->help_pldn, arglist, argcount);
   XtAddCallback(gui->legal_info, XtNcallback, (XtCallbackProc) OnLegalInfoCbk, (XtPointer) gui);
   XtManageChild(gui->legal_info);
-  /* separator2 */
+  /* separator4 */
   argcount = 0;
-  gui->separator2 = XtCreateWidget("separator2", smeLineObjectClass, gui->help_pldn, arglist, argcount);
-  XtManageChild(gui->separator2);
+  gui->separator4 = XtCreateWidget("separator4", smeLineObjectClass, gui->help_pldn, arglist, argcount);
+  XtManageChild(gui->separator4);
   /* about-xcpc */
   argcount = 0;
   XtSetArg(arglist[argcount], XtNlabel, _("About Xcpc")); argcount++;
