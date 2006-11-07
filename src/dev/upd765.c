@@ -23,7 +23,6 @@
 #include <string.h>
 #include <libdsk.h>
 #include <765.h>
-#include "fdd765.h"
 #include "upd765.h"
 
 static void gdev_upd765_reset(GdevUPD765 *upd765);
@@ -51,7 +50,11 @@ static void gdev_upd765_class_init(GdevUPD765Class *upd765_class)
  */
 static void gdev_upd765_init(GdevUPD765 *upd765)
 {
-  upd765->impl = (gpointer) fdc_new();
+  upd765->fdc    = NULL; /* Floppy Disc Controller */
+  upd765->fdd[0] = NULL; /* Floppy Disc Drive #0   */
+  upd765->fdd[1] = NULL; /* Floppy Disc Drive #1   */
+  upd765->fdd[2] = NULL; /* Floppy Disc Drive #2   */
+  upd765->fdd[3] = NULL; /* Floppy Disc Drive #3   */
   gdev_upd765_reset(upd765);
 }
 
@@ -84,13 +87,26 @@ GdevUPD765 *gdev_upd765_new(void)
 }
 
 /**
- * GdevUPD765::set_drive()
+ * GdevUPD765::set_fdc()
  *
  * @param upd765 specifies the GdevUPD765 instance
+ * @param fdc765 specifies the GdevFDC765 instance
  */
-void gdev_upd765_set_drive(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
+void gdev_upd765_set_fdc(GdevUPD765 *upd765, GdevFDC765 *fdc765)
 {
-  fdc_setdrive((FDC_PTR) upd765->impl, drive, (FDRV_PTR) fdd765->impl);
+  upd765->fdc = fdc765;
+}
+
+/**
+ * GdevUPD765::set_fdd()
+ *
+ * @param upd765 specifies the GdevUPD765 instance
+ * @param fdd765 specifies the GdevFDD765 instance
+ */
+void gdev_upd765_set_fdd(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
+{
+  upd765->fdd[drive] = fdd765;
+  fdc_setdrive((FDC_PTR) upd765->fdc->impl, drive, (FDRV_PTR) fdd765->impl);
 }
 
 /**
@@ -100,7 +116,7 @@ void gdev_upd765_set_drive(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
  */
 void gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data)
 {
-  fdc_set_motor((FDC_PTR) upd765->impl, data);
+  fdc_set_motor((FDC_PTR) upd765->fdc->impl, data);
 }
 
 /**
@@ -110,7 +126,7 @@ void gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data)
  */
 guint8 gdev_upd765_rd_ctrl(GdevUPD765 *upd765)
 {
-  return(fdc_read_ctrl((FDC_PTR) upd765->impl));
+  return(fdc_read_ctrl((FDC_PTR) upd765->fdc->impl));
 }
 
 /**
@@ -129,7 +145,7 @@ void gdev_upd765_wr_ctrl(GdevUPD765 *upd765, guint8 data)
  */
 guint8 gdev_upd765_rd_data(GdevUPD765 *upd765)
 {
-  return(fdc_read_data((FDC_PTR) upd765->impl));
+  return(fdc_read_data((FDC_PTR) upd765->fdc->impl));
 }
 
 /**
@@ -139,5 +155,5 @@ guint8 gdev_upd765_rd_data(GdevUPD765 *upd765)
  */
 void gdev_upd765_wr_data(GdevUPD765 *upd765, guint8 data)
 {
-  fdc_write_data((FDC_PTR) upd765->impl, data);
+  fdc_write_data((FDC_PTR) upd765->fdc->impl, data);
 }

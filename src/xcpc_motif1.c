@@ -324,7 +324,7 @@ static void OnDriveAInsertOkCbk(Widget widget, GUI *gui, XmFileSelectionBoxCallb
 
   if(XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
     if(filename != NULL) {
-      gdev_fdd765_insert(amstrad_cpc.drivea, filename);
+      gdev_fdd765_insert(amstrad_cpc.upd765->fdd[0], filename);
       XtFree((char *) filename);
       filename = NULL;
     }
@@ -373,7 +373,7 @@ static void OnDriveAInsertCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
  */
 static void OnDriveAEjectCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 {
-  gdev_fdd765_insert(amstrad_cpc.drivea, NULL);
+  gdev_fdd765_insert(amstrad_cpc.upd765->fdd[0], NULL);
 }
 
 /**
@@ -389,7 +389,7 @@ static void OnDriveBInsertOkCbk(Widget widget, GUI *gui, XmFileSelectionBoxCallb
 
   if(XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
     if(filename != NULL) {
-      gdev_fdd765_insert(amstrad_cpc.driveb, filename);
+      gdev_fdd765_insert(amstrad_cpc.upd765->fdd[1], filename);
       XtFree((char *) filename);
       filename = NULL;
     }
@@ -438,7 +438,7 @@ static void OnDriveBInsertCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
  */
 static void OnDriveBEjectCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
 {
-  gdev_fdd765_insert(amstrad_cpc.driveb, NULL);
+  gdev_fdd765_insert(amstrad_cpc.upd765->fdd[1], NULL);
 }
 
 /**
@@ -600,8 +600,8 @@ static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
         amstrad_cpc_load_snapshot(str);
       }
       if(strcmp(&str[length - 4], ".dsk") == 0) {
-        gdev_fdd765_insert(amstrad_cpc.drivea, str);
-        gdev_fdd765_insert(amstrad_cpc.driveb, str);
+        gdev_fdd765_insert(amstrad_cpc.upd765->fdd[0], str);
+        gdev_fdd765_insert(amstrad_cpc.upd765->fdd[1], str);
       }
       XtSetSensitive(gui->emulator, TRUE);
       XtSetSensitive(gui->emulator, TRUE);

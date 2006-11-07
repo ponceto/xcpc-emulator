@@ -19,6 +19,8 @@
 #define __GDEV_UPD765_H__
 
 #include <dev/device.h>
+#include <dev/fdc765.h>
+#include <dev/fdd765.h>
 
 G_BEGIN_DECLS
 
@@ -34,7 +36,8 @@ typedef struct _GdevUPD765Class GdevUPD765Class;
 
 struct _GdevUPD765 {
   GdevDevice device;
-  gpointer  *impl;
+  GdevFDC765 *fdc;
+  GdevFDD765 *fdd[4];
 };
 
 struct _GdevUPD765Class {
@@ -43,7 +46,8 @@ struct _GdevUPD765Class {
 
 extern GType       gdev_upd765_get_type (void);
 extern GdevUPD765 *gdev_upd765_new      (void);
-extern void        gdev_upd765_set_drive(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive);
+extern void        gdev_upd765_set_fdc  (GdevUPD765 *upd765, GdevFDC765 *fdc765);
+extern void        gdev_upd765_set_fdd  (GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive);
 extern void        gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data);
 extern guint8      gdev_upd765_rd_ctrl  (GdevUPD765 *upd765);
 extern void        gdev_upd765_wr_ctrl  (GdevUPD765 *upd765, guint8 data);

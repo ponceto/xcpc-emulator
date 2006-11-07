@@ -35,5 +35,6 @@ libdev_a_SOURCES = \
 	mc6845.c mc6845.h \
 	ay8910.c ay8910.h \
 	upd765.c upd765.h \
+	fdc765.c fdc765.h \
 	fdd765.c fdd765.h \
 	 i8255.c  i8255.h

@@ -1732,8 +1732,6 @@ int ix;
     gdev_device_reset(GDEV_DEVICE(self->mc6845));
     gdev_device_reset(GDEV_DEVICE(self->ay8910));
     gdev_device_reset(GDEV_DEVICE(self->upd765));
-    gdev_device_reset(GDEV_DEVICE(self->drivea));
-    gdev_device_reset(GDEV_DEVICE(self->driveb));
     gdev_device_reset(GDEV_DEVICE(self->i8255));
   }
   /* XXX */
@@ -2350,16 +2348,15 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     self->mc6845 = gdev_mc6845_new();
     self->ay8910 = gdev_ay8910_new();
     self->upd765 = gdev_upd765_new();
-    self->drivea = gdev_fdd765_new();
-    self->driveb = gdev_fdd765_new();
     self->i8255  = gdev_i8255_new();
     /* XXX */
     self->z80cpu->mm_rd = z80cpu_mm_rd;
     self->z80cpu->mm_wr = z80cpu_mm_wr;
     self->z80cpu->io_rd = z80cpu_io_rd;
     self->z80cpu->io_wr = z80cpu_io_wr;
-    gdev_upd765_set_drive(self->upd765, self->drivea, 0);
-    gdev_upd765_set_drive(self->upd765, self->driveb, 1);
+    gdev_upd765_set_fdc(self->upd765, gdev_fdc765_new());
+    gdev_upd765_set_fdd(self->upd765, gdev_fdd765_new(), 0);
+    gdev_upd765_set_fdd(self->upd765, gdev_fdd765_new(), 1);
   }
   amstrad_cpc_reset();
   (void) gettimeofday(&amstrad_cpc.timer1, NULL);
@@ -2508,8 +2505,6 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
     g_object_unref(self->mc6845); self->mc6845 = NULL;
     g_object_unref(self->ay8910); self->ay8910 = NULL;
     g_object_unref(self->upd765); self->upd765 = NULL;
-    g_object_unref(self->drivea); self->drivea = NULL;
-    g_object_unref(self->driveb); self->driveb = NULL;
     g_object_unref(self->i8255);  self->i8255  = NULL;
   }
 }

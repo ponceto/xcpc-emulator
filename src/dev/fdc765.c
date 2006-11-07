@@ -1,5 +1,5 @@
 /*
- * fdd765.c - Copyright (c) 2001, 2006 Olivier Poncet
+ * fdc765.c - Copyright (c) 2001, 2006 Olivier Poncet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,49 +25,33 @@
 #include <765.h>
 #include "upd765.h"
 
-G_DEFINE_TYPE(GdevFDD765, gdev_fdd765, G_TYPE_OBJECT)
+G_DEFINE_TYPE(GdevFDC765, gdev_fdc765, G_TYPE_OBJECT)
 
 /**
- * GdevFDD765::class_init()
+ * GdevFDC765::class_init()
  *
- * @param fdd765_class specifies the GdevFDD765 class
+ * @param fdc765_class specifies the GdevFDC765 class
  */
-static void gdev_fdd765_class_init(GdevFDD765Class *fdd765_class)
+static void gdev_fdc765_class_init(GdevFDC765Class *fdc765_class)
 {
 }
 
 /**
- * GdevFDD765::init()
+ * GdevFDC765::init()
  *
- * @param fdd765 specifies the GdevFDD765 instance
+ * @param fdc765 specifies the GdevFDC765 instance
  */
-static void gdev_fdd765_init(GdevFDD765 *fdd765)
+static void gdev_fdc765_init(GdevFDC765 *fdc765)
 {
-  fdd765->impl = (gpointer) fd_newldsk();
+  fdc765->impl = (gpointer) fdc_new();
 }
 
 /**
- * GdevFDD765::new()
+ * GdevFDC765::new()
  *
- * @return the GdevFDD765 instance
+ * @return the GdevFDC765 instance
  */
-GdevFDD765 *gdev_fdd765_new(void)
+GdevFDC765 *gdev_fdc765_new(void)
 {
-  return(g_object_new(GDEV_TYPE_FDD765, NULL));
-}
-
-/**
- * GdevFDD765::insert()
- *
- * @param fdd765 specifies the GdevFDD765 instance
- * @param dsk_fn specifies the disk image filename
- */
-void gdev_fdd765_insert(GdevFDD765 *fdd765, gchar *dsk_fn)
-{
-  if(dsk_fn != NULL) {
-    fdl_setfilename((FDRV_PTR) fdd765->impl, dsk_fn);
-  }
-  else {
-    fd_eject((FDRV_PTR) fdd765->impl);
-  }
+  return(g_object_new(GDEV_TYPE_FDC765, NULL));
 }

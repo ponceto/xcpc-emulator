@@ -40,8 +40,6 @@ struct _AMSTRAD_CPC {
   GdevMC6845 *mc6845;
   GdevAY8910 *ay8910;
   GdevUPD765 *upd765;
-  GdevFDD765 *drivea;
-  GdevFDD765 *driveb;
   GdevI8255  *i8255;
   guint8 *rd_bank[4];
   guint8 *wr_bank[4];

@@ -18,7 +18,7 @@
 #ifndef __GDEV_FDD765_H__
 #define __GDEV_FDD765_H__
 
-#include <dev/device.h>
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
@@ -33,12 +33,12 @@ typedef struct _GdevFDD765      GdevFDD765;
 typedef struct _GdevFDD765Class GdevFDD765Class;
 
 struct _GdevFDD765 {
-  GdevDevice device;
-  gpointer  *impl;
+  GObject parent_instance;
+  gpointer *impl;
 };
 
 struct _GdevFDD765Class {
-  GdevDeviceClass parent_class;
+  GObjectClass parent_class;
 };
 
 extern GType       gdev_fdd765_get_type (void);
