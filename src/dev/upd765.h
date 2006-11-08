@@ -49,10 +49,6 @@ extern GdevUPD765 *gdev_upd765_new      (void);
 extern void        gdev_upd765_set_fdc  (GdevUPD765 *upd765, GdevFDC765 *fdc765);
 extern void        gdev_upd765_set_fdd  (GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive);
 extern void        gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data);
-extern guint8      gdev_upd765_rd_ctrl  (GdevUPD765 *upd765);
-extern void        gdev_upd765_wr_ctrl  (GdevUPD765 *upd765, guint8 data);
-extern guint8      gdev_upd765_rd_data  (GdevUPD765 *upd765);
-extern void        gdev_upd765_wr_data  (GdevUPD765 *upd765, guint8 data);
 
 G_END_DECLS
 

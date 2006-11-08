@@ -29,16 +29,51 @@ G_BEGIN_DECLS
 #define GDEV_IS_FDC765_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GDEV_TYPE_FDC765))
 #define GDEV_FDC765_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), GDEV_TYPE_FDC765, GdevFDC765Class))
 
+typedef struct _GdevUPD765      GdevFDCPXY;
 typedef struct _GdevFDC765      GdevFDC765;
 typedef struct _GdevFDC765Class GdevFDC765Class;
 
 struct _GdevFDC765 {
   GObject parent_instance;
+  GdevFDCPXY *upd765;
+  struct {
+    guint8 xyz;       /* internal phase register   */
+    guint8 msr;       /* main status register      */
+    guint8 st0;       /* status register: ST0      */
+    guint8 st1;       /* status register: ST1      */
+    guint8 st2;       /* status register: ST2      */
+    guint8 st3;       /* status register: ST3      */
+  } reg;
+  struct {
+    guint8 buf[16];   /* command buffer            */
+    guint  len;       /* command buffer length     */
+    guint  pos;       /* command buffer position   */
+  } cmd;
+  struct {
+    guint8 buf[8192]; /* execution buffer          */
+    guint  len;       /* execution buffer length   */
+    guint  pos;       /* execution buffer position */
+  } exe;
+  struct {
+    guint8 buf[16];   /* result buffer             */
+    guint  len;       /* result buffer length      */
+    guint  pos;       /* result buffer position    */
+  } res;
+  struct {
+    guint state;      /* interrupt state           */
+    guint count;      /* interrupt countdown       */
+  } isr;
+  /* XXX */
   gpointer *impl;
 };
 
 struct _GdevFDC765Class {
   GObjectClass parent_class;
+  void (*reset)(GdevFDC765 *fdc765);
+  void (*rstat)(GdevFDC765 *fdc765, guint8 *busptr);
+  void (*wstat)(GdevFDC765 *fdc765, guint8 *busptr);
+  void (*rdata)(GdevFDC765 *fdc765, guint8 *busptr);
+  void (*wdata)(GdevFDC765 *fdc765, guint8 *busptr);
 };
 
 extern GType       gdev_fdc765_get_type (void);

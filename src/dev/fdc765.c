@@ -25,6 +25,12 @@
 #include <765.h>
 #include "upd765.h"
 
+static void gdev_fdc765_reset(GdevFDC765 *fdc765);
+static void gdev_fdc765_rstat(GdevFDC765 *fdc765, guint8 *busptr);
+static void gdev_fdc765_wstat(GdevFDC765 *fdc765, guint8 *busptr);
+static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr);
+static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr);
+
 G_DEFINE_TYPE(GdevFDC765, gdev_fdc765, G_TYPE_OBJECT)
 
 /**
@@ -34,6 +40,11 @@ G_DEFINE_TYPE(GdevFDC765, gdev_fdc765, G_TYPE_OBJECT)
  */
 static void gdev_fdc765_class_init(GdevFDC765Class *fdc765_class)
 {
+  fdc765_class->reset = gdev_fdc765_reset;
+  fdc765_class->rstat = gdev_fdc765_rstat;
+  fdc765_class->wstat = gdev_fdc765_wstat;
+  fdc765_class->rdata = gdev_fdc765_rdata;
+  fdc765_class->wdata = gdev_fdc765_wdata;
 }
 
 /**
@@ -43,7 +54,136 @@ static void gdev_fdc765_class_init(GdevFDC765Class *fdc765_class)
  */
 static void gdev_fdc765_init(GdevFDC765 *fdc765)
 {
-  fdc765->impl = (gpointer) fdc_new();
+  fdc765->upd765 = NULL;
+  fdc765->impl   = (gpointer) fdc_new();
+  gdev_fdc765_reset(fdc765);
+}
+
+/**
+ * GdevFDC765::reset()
+ *
+ * @param fdc765 specifies the GdevFDC765 instance
+ */
+static void gdev_fdc765_reset(GdevFDC765 *fdc765)
+{
+  fdc765->reg.xyz   = 0;
+  fdc765->reg.msr   = 0x80;
+  fdc765->reg.st0   = 0x00;
+  fdc765->reg.st1   = 0x00;
+  fdc765->reg.st2   = 0x00;
+  fdc765->reg.st3   = 0x00;
+  fdc765->cmd.len   = 0;
+  fdc765->cmd.pos   = 0;
+  fdc765->exe.len   = 0;
+  fdc765->exe.pos   = 0;
+  fdc765->res.len   = 0;
+  fdc765->res.pos   = 0;
+  fdc765->isr.state = 0;
+  fdc765->isr.count = 0;
+}
+
+/**
+ * GdevFDC765::rstat()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ * @param busptr specifies the data bus pointer
+ */
+static void gdev_fdc765_rstat(GdevFDC765 *fdc765, guint8 *busptr)
+{
+  if(fdc765->impl != NULL) {
+    *busptr = fdc_read_ctrl((FDC_PTR) fdc765->impl);
+  }
+  else {
+    *busptr = fdc765->reg.msr;
+  }
+}
+
+/**
+ * GdevFDC765::wstat()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ * @param busptr specifies the data bus pointer
+ */
+static void gdev_fdc765_wstat(GdevFDC765 *fdc765, guint8 *busptr)
+{
+}
+
+/**
+ * GdevFDC765::rdata()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ * @param busptr specifies the data bus pointer
+ */
+static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
+{
+  if(fdc765->impl != NULL) {
+    *busptr = fdc_read_data((FDC_PTR) fdc765->impl);
+  }
+  else {
+    switch(fdc765->reg.xyz) {
+      case 0x02: /* EXE PHASE */
+        if(fdc765->exe.pos < fdc765->exe.len) {
+          *busptr = fdc765->exe.buf[fdc765->exe.pos];
+          if(++fdc765->exe.pos >= fdc765->exe.len) {
+            /* TODO: do something here */
+            fdc765->exe.len = 0;
+            fdc765->exe.pos = 0;
+          }
+        }
+        break;
+      case 0x03: /* RES PHASE */
+        if(fdc765->res.pos < fdc765->res.len) {
+          *busptr = fdc765->res.buf[fdc765->res.pos];
+          if(++fdc765->res.pos >= fdc765->res.len) {
+            /* TODO: do something here */
+            fdc765->res.len = 0;
+            fdc765->res.pos = 0;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+/**
+ * GdevFDC765::wdata()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ * @param busptr specifies the data bus pointer
+ */
+static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr)
+{
+  if(fdc765->impl != NULL) {
+    fdc_write_data((FDC_PTR) fdc765->impl, *busptr);
+  }
+  else {
+    switch(fdc765->reg.xyz) {
+      case 0x02: /* EXE PHASE */
+        if(fdc765->exe.pos < fdc765->exe.len) {
+          fdc765->exe.buf[fdc765->exe.pos] = *busptr;
+          if(++fdc765->exe.pos >= fdc765->exe.len) {
+            /* TODO: do something here */
+            fdc765->exe.len = 0;
+            fdc765->exe.pos = 0;
+          }
+        }
+        break;
+      case 0x01: /* CMD PHASE */
+        if(fdc765->cmd.pos < fdc765->cmd.len) {
+          fdc765->cmd.buf[fdc765->cmd.pos] = *busptr;
+          if(++fdc765->cmd.pos >= fdc765->cmd.len) {
+            /* TODO: do something here */
+            fdc765->cmd.len = 0;
+            fdc765->cmd.pos = 0;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
 }
 
 /**

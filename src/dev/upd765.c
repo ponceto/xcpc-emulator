@@ -94,7 +94,8 @@ GdevUPD765 *gdev_upd765_new(void)
  */
 void gdev_upd765_set_fdc(GdevUPD765 *upd765, GdevFDC765 *fdc765)
 {
-  upd765->fdc = fdc765;
+  upd765->fdc    = fdc765;
+  fdc765->upd765 = upd765;
 }
 
 /**
@@ -106,6 +107,7 @@ void gdev_upd765_set_fdc(GdevUPD765 *upd765, GdevFDC765 *fdc765)
 void gdev_upd765_set_fdd(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
 {
   upd765->fdd[drive] = fdd765;
+  fdd765->upd765     = upd765;
   fdc_setdrive((FDC_PTR) upd765->fdc->impl, drive, (FDRV_PTR) fdd765->impl);
 }
 
@@ -117,43 +119,4 @@ void gdev_upd765_set_fdd(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
 void gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data)
 {
   fdc_set_motor((FDC_PTR) upd765->fdc->impl, data);
-}
-
-/**
- * GdevUPD765::rd_ctrl()
- *
- * @param upd765 specifies the GdevUPD765 instance
- */
-guint8 gdev_upd765_rd_ctrl(GdevUPD765 *upd765)
-{
-  return(fdc_read_ctrl((FDC_PTR) upd765->fdc->impl));
-}
-
-/**
- * GdevUPD765::wr_ctrl()
- *
- * @param upd765 specifies the GdevUPD765 instance
- */
-void gdev_upd765_wr_ctrl(GdevUPD765 *upd765, guint8 data)
-{
-}
-
-/**
- * GdevUPD765::rd_data()
- *
- * @param upd765 specifies the GdevUPD765 instance
- */
-guint8 gdev_upd765_rd_data(GdevUPD765 *upd765)
-{
-  return(fdc_read_data((FDC_PTR) upd765->fdc->impl));
-}
-
-/**
- * GdevUPD765::wr_data()
- *
- * @param upd765 specifies the GdevUPD765 instance
- */
-void gdev_upd765_wr_data(GdevUPD765 *upd765, guint8 data)
-{
-  fdc_write_data((FDC_PTR) upd765->fdc->impl, data);
 }

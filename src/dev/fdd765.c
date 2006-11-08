@@ -25,6 +25,8 @@
 #include <765.h>
 #include "upd765.h"
 
+static void gdev_fdd765_reset(GdevFDD765 *fdd765);
+
 G_DEFINE_TYPE(GdevFDD765, gdev_fdd765, G_TYPE_OBJECT)
 
 /**
@@ -34,6 +36,7 @@ G_DEFINE_TYPE(GdevFDD765, gdev_fdd765, G_TYPE_OBJECT)
  */
 static void gdev_fdd765_class_init(GdevFDD765Class *fdd765_class)
 {
+  fdd765_class->reset = gdev_fdd765_reset;
 }
 
 /**
@@ -43,7 +46,18 @@ static void gdev_fdd765_class_init(GdevFDD765Class *fdd765_class)
  */
 static void gdev_fdd765_init(GdevFDD765 *fdd765)
 {
-  fdd765->impl = (gpointer) fd_newldsk();
+  fdd765->upd765 = NULL;
+  fdd765->impl   = (gpointer) fd_newldsk();
+  gdev_fdd765_reset(fdd765);
+}
+
+/**
+ * GdevFDD765::reset()
+ *
+ * @param fdd765 specifies the GdevFDD765 instance
+ */
+static void gdev_fdd765_reset(GdevFDD765 *fdd765)
+{
 }
 
 /**

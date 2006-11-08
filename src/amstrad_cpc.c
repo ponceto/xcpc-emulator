@@ -2034,10 +2034,10 @@ static guint8 z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
         (void) fflush(stderr);
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        data = gdev_upd765_rd_ctrl(amstrad_cpc.upd765);
+        GDEV_FDC765_GET_CLASS(amstrad_cpc.upd765->fdc)->rstat(amstrad_cpc.upd765->fdc, &data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        data = gdev_upd765_rd_data(amstrad_cpc.upd765);
+        GDEV_FDC765_GET_CLASS(amstrad_cpc.upd765->fdc)->rdata(amstrad_cpc.upd765->fdc, &data);
         break;
     }
   }
@@ -2131,10 +2131,10 @@ static void z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
         gdev_upd765_set_motor(amstrad_cpc.upd765, ((data & 1) << 1) | ((data & 1) << 0));
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        gdev_upd765_wr_ctrl(amstrad_cpc.upd765, data);
+        GDEV_FDC765_GET_CLASS(amstrad_cpc.upd765->fdc)->wstat(amstrad_cpc.upd765->fdc, &data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        gdev_upd765_wr_data(amstrad_cpc.upd765, data);
+        GDEV_FDC765_GET_CLASS(amstrad_cpc.upd765->fdc)->wdata(amstrad_cpc.upd765->fdc, &data);
         break;
     }
   }

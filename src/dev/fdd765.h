@@ -29,16 +29,19 @@ G_BEGIN_DECLS
 #define GDEV_IS_FDD765_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GDEV_TYPE_FDD765))
 #define GDEV_FDD765_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), GDEV_TYPE_FDD765, GdevFDD765Class))
 
+typedef struct _GdevUPD765      GdevFDDPXY;
 typedef struct _GdevFDD765      GdevFDD765;
 typedef struct _GdevFDD765Class GdevFDD765Class;
 
 struct _GdevFDD765 {
   GObject parent_instance;
+  GdevFDDPXY *upd765;
   gpointer *impl;
 };
 
 struct _GdevFDD765Class {
   GObjectClass parent_class;
+  void (*reset)(GdevFDD765 *fdd765);
 };
 
 extern GType       gdev_fdd765_get_type (void);
