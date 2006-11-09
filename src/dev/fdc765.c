@@ -30,6 +30,81 @@ static void gdev_fdc765_rstat(GdevFDC765 *fdc765, guint8 *busptr);
 static void gdev_fdc765_wstat(GdevFDC765 *fdc765, guint8 *busptr);
 static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr);
 static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr);
+static void gdev_fdc765_end_of_cmd      (GdevFDC765 *fdc765);
+static void gdev_fdc765_end_of_res      (GdevFDC765 *fdc765);
+static void gdev_fdc765_rd_data         (GdevFDC765 *fdc765);
+static void gdev_fdc765_rd_deleted_data (GdevFDC765 *fdc765);
+static void gdev_fdc765_wr_data         (GdevFDC765 *fdc765);
+static void gdev_fdc765_wr_deleted_data (GdevFDC765 *fdc765);
+static void gdev_fdc765_rd_diagnostic   (GdevFDC765 *fdc765);
+static void gdev_fdc765_rd_id           (GdevFDC765 *fdc765);
+static void gdev_fdc765_wr_id           (GdevFDC765 *fdc765);
+static void gdev_fdc765_scan_equ        (GdevFDC765 *fdc765);
+static void gdev_fdc765_scan_lo_or_equ  (GdevFDC765 *fdc765);
+static void gdev_fdc765_scan_hi_or_equ  (GdevFDC765 *fdc765);
+static void gdev_fdc765_recalibrate     (GdevFDC765 *fdc765);
+static void gdev_fdc765_sense_int_status(GdevFDC765 *fdc765);
+static void gdev_fdc765_specify         (GdevFDC765 *fdc765);
+static void gdev_fdc765_sense_drv_status(GdevFDC765 *fdc765);
+static void gdev_fdc765_seek            (GdevFDC765 *fdc765);
+
+enum {
+  FDC_IDLE,
+  FDC_RD_DATA,
+  FDC_RD_DELETED_DATA,
+  FDC_WR_DATA,
+  FDC_WR_DELETED_DATA,
+  FDC_RD_DIAGNOSTIC,
+  FDC_RD_ID,
+  FDC_WR_ID,
+  FDC_SCAN_EQU,
+  FDC_SCAN_LO_OR_EQU,
+  FDC_SCAN_HI_OR_EQU,
+  FDC_RECALIBRATE,
+  FDC_SENSE_INT_STATUS,
+  FDC_SPECIFY,
+  FDC_SENSE_DRV_STATUS,
+  FDC_SEEK
+};
+
+static struct {
+  int command;
+  int cmd_len;
+  int res_len;
+} fdc_cmd[32] = {
+  { FDC_IDLE,             0, 0 }, /* [ 00 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 01 ]                        */
+  { FDC_RD_DIAGNOSTIC,    9, 7 }, /* [ 02 ] RD DIAGNOSTIC          */
+  { FDC_SPECIFY,          3, 0 }, /* [ 03 ] SPECIFY                */
+  { FDC_SENSE_DRV_STATUS, 2, 1 }, /* [ 04 ] SENSE DRIVE STATUS     */
+  { FDC_WR_DATA,          9, 7 }, /* [ 05 ] WR DATA                */
+  { FDC_RD_DATA,          9, 7 }, /* [ 06 ] RD DATA                */
+  { FDC_RECALIBRATE,      2, 0 }, /* [ 07 ] RECALIBRATE            */
+  { FDC_SENSE_INT_STATUS, 1, 2 }, /* [ 08 ] SENSE INTERRUPT STATUS */
+  { FDC_WR_DELETED_DATA,  9, 7 }, /* [ 09 ] WR DELETED DATA        */
+  { FDC_RD_ID,            2, 7 }, /* [ 00 ] RD ID                  */
+  { FDC_IDLE,             0, 0 }, /* [ 11 ]                        */
+  { FDC_RD_DELETED_DATA,  9, 7 }, /* [ 12 ] RD DELETED DATA        */
+  { FDC_WR_ID,            6, 7 }, /* [ 13 ] WR ID                  */
+  { FDC_IDLE,             0, 0 }, /* [ 14 ]                        */
+  { FDC_SEEK,             3, 0 }, /* [ 15 ] SEEK                   */
+  { FDC_IDLE,             0, 0 }, /* [ 16 ]                        */
+  { FDC_SCAN_EQU,         9, 7 }, /* [ 17 ] SCAN EQUAL             */
+  { FDC_IDLE,             0, 0 }, /* [ 18 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 19 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 20 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 21 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 22 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 23 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 24 ]                        */
+  { FDC_SCAN_LO_OR_EQU,   9, 7 }, /* [ 25 ] SCAN LOW OR EQUAL      */
+  { FDC_IDLE,             0, 0 }, /* [ 26 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 27 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 28 ]                        */
+  { FDC_SCAN_HI_OR_EQU,   9, 7 }, /* [ 29 ] SCAN HIGH OR EQUAL     */
+  { FDC_IDLE,             0, 0 }, /* [ 30 ]                        */
+  { FDC_IDLE,             0, 0 }, /* [ 31 ]                        */
+};
 
 G_DEFINE_TYPE(GdevFDC765, gdev_fdc765, G_TYPE_OBJECT)
 
@@ -66,20 +141,24 @@ static void gdev_fdc765_init(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_reset(GdevFDC765 *fdc765)
 {
-  fdc765->reg.xyz   = 0;
-  fdc765->reg.msr   = 0x80;
-  fdc765->reg.st0   = 0x00;
-  fdc765->reg.st1   = 0x00;
-  fdc765->reg.st2   = 0x00;
-  fdc765->reg.st3   = 0x00;
-  fdc765->cmd.len   = 0;
-  fdc765->cmd.pos   = 0;
-  fdc765->exe.len   = 0;
-  fdc765->exe.pos   = 0;
-  fdc765->res.len   = 0;
-  fdc765->res.pos   = 0;
-  fdc765->isr.state = 0;
-  fdc765->isr.count = 0;
+  fdc765->unit_id    = 0x00;
+  fdc765->head_id    = 0x00;
+  fdc765->specify[0] = 0x00;
+  fdc765->specify[1] = 0x00;
+  fdc765->reg.cmd    = 0;
+  fdc765->reg.msr    = 0x80;
+  fdc765->reg.st0    = 0x00;
+  fdc765->reg.st1    = 0x00;
+  fdc765->reg.st2    = 0x00;
+  fdc765->reg.st3    = 0x00;
+  fdc765->cmd.len    = 0;
+  fdc765->cmd.pos    = 0;
+  fdc765->exe.len    = 0;
+  fdc765->exe.pos    = 0;
+  fdc765->res.len    = 0;
+  fdc765->res.pos    = 0;
+  fdc765->isr.state  = 0;
+  fdc765->isr.count  = 0;
 }
 
 /**
@@ -120,29 +199,17 @@ static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
     *busptr = fdc_read_data((FDC_PTR) fdc765->impl);
   }
   else {
-    switch(fdc765->reg.xyz) {
-      case 0x02: /* EXE PHASE */
-        if(fdc765->exe.pos < fdc765->exe.len) {
-          *busptr = fdc765->exe.buf[fdc765->exe.pos];
-          if(++fdc765->exe.pos >= fdc765->exe.len) {
-            /* TODO: do something here */
-            fdc765->exe.len = 0;
-            fdc765->exe.pos = 0;
-          }
-        }
-        break;
-      case 0x03: /* RES PHASE */
-        if(fdc765->res.pos < fdc765->res.len) {
-          *busptr = fdc765->res.buf[fdc765->res.pos];
-          if(++fdc765->res.pos >= fdc765->res.len) {
-            /* TODO: do something here */
-            fdc765->res.len = 0;
-            fdc765->res.pos = 0;
-          }
-        }
-        break;
-      default:
-        break;
+    if(fdc765->reg.cmd == 0) {
+      /* XXX */
+    }
+    if(fdc765->reg.cmd != 0) {
+      *busptr = fdc765->res.buf[fdc765->res.pos];
+      if(++fdc765->res.pos >= fdc765->res.len) {
+        gdev_fdc765_end_of_res(fdc765);
+      }
+    }
+    else {
+      /* XXX */
     }
   }
 }
@@ -159,31 +226,372 @@ static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr)
     fdc_write_data((FDC_PTR) fdc765->impl, *busptr);
   }
   else {
-    switch(fdc765->reg.xyz) {
-      case 0x02: /* EXE PHASE */
-        if(fdc765->exe.pos < fdc765->exe.len) {
-          fdc765->exe.buf[fdc765->exe.pos] = *busptr;
-          if(++fdc765->exe.pos >= fdc765->exe.len) {
-            /* TODO: do something here */
-            fdc765->exe.len = 0;
-            fdc765->exe.pos = 0;
-          }
-        }
-        break;
-      case 0x01: /* CMD PHASE */
-        if(fdc765->cmd.pos < fdc765->cmd.len) {
-          fdc765->cmd.buf[fdc765->cmd.pos] = *busptr;
-          if(++fdc765->cmd.pos >= fdc765->cmd.len) {
-            /* TODO: do something here */
-            fdc765->cmd.len = 0;
-            fdc765->cmd.pos = 0;
-          }
-        }
-        break;
-      default:
-        break;
+    if(fdc765->reg.cmd == 0) {
+      fdc765->reg.cmd = fdc_cmd[*busptr & 31].command;
+      fdc765->cmd.len = fdc_cmd[*busptr & 31].cmd_len;
+      fdc765->cmd.pos = 0;
+      fdc765->res.len = fdc_cmd[*busptr & 31].res_len;
+      fdc765->res.pos = 0;
+    }
+    if(fdc765->reg.cmd != 0) {
+      fdc765->cmd.buf[fdc765->cmd.pos] = *busptr;
+      if(++fdc765->cmd.pos >= fdc765->cmd.len) {
+        gdev_fdc765_end_of_cmd(fdc765);
+      }
+    }
+    else {
+      /* XXX */
     }
   }
+}
+
+/**
+ * GdevFDC765::end_of_cmd()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_end_of_cmd(GdevFDC765 *fdc765)
+{
+  switch(fdc765->reg.cmd) {
+    case FDC_RD_DATA:          gdev_fdc765_rd_data         (fdc765); break;
+    case FDC_RD_DELETED_DATA:  gdev_fdc765_rd_deleted_data (fdc765); break;
+    case FDC_WR_DATA:          gdev_fdc765_wr_data         (fdc765); break;
+    case FDC_WR_DELETED_DATA:  gdev_fdc765_wr_deleted_data (fdc765); break;
+    case FDC_RD_DIAGNOSTIC:    gdev_fdc765_rd_diagnostic   (fdc765); break;
+    case FDC_RD_ID:            gdev_fdc765_rd_id           (fdc765); break;
+    case FDC_WR_ID:            gdev_fdc765_wr_id           (fdc765); break;
+    case FDC_SCAN_EQU:         gdev_fdc765_scan_equ        (fdc765); break;
+    case FDC_SCAN_LO_OR_EQU:   gdev_fdc765_scan_lo_or_equ  (fdc765); break;
+    case FDC_SCAN_HI_OR_EQU:   gdev_fdc765_scan_hi_or_equ  (fdc765); break;
+    case FDC_RECALIBRATE:      gdev_fdc765_recalibrate     (fdc765); break;
+    case FDC_SENSE_INT_STATUS: gdev_fdc765_sense_int_status(fdc765); break;
+    case FDC_SPECIFY:          gdev_fdc765_specify         (fdc765); break;
+    case FDC_SENSE_DRV_STATUS: gdev_fdc765_sense_drv_status(fdc765); break;
+    case FDC_SEEK:             gdev_fdc765_seek            (fdc765); break;
+    default:
+      fdc765->reg.msr    = 0x80;
+      fdc765->reg.st0    = 0x80;
+      fdc765->res.buf[0] = fdc765->reg.st0;
+      fdc765->res.len    = 1;
+      fdc765->res.pos    = 0;
+      break;
+  }
+  fdc765->cmd.len = 0;
+  fdc765->cmd.pos = 0;
+}
+
+/**
+ * GdevFDC765::end_of_res()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_end_of_res(GdevFDC765 *fdc765)
+{
+  fdc765->res.len = 0;
+  fdc765->res.pos = 0;
+}
+
+/**
+ * GdevFDC765::rd_data()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_rd_data(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_rd_data\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::rd_deleted_data()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_rd_deleted_data(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_rd_deleted_data\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::wr_data()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_wr_data(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_wr_data\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::wr_deleted_data()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_wr_deleted_data(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_wr_deleted_data\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::rd_diagnostic()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_rd_diagnostic(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_rd_diagnostic\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::rd_id()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_rd_id(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_rd_id\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::wr_id()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_wr_id(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_wr_id\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::scan_equ()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_scan_equ(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_scan_equ\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::scan_lo_or_equ()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_scan_lo_or_equ(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_scan_lo_or_equ\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::scan_hi_or_equ()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_scan_hi_or_equ(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_scan_hi_or_equ\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::recalibrate()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_recalibrate(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  fdc765->reg.cmd = 0;
+  fdc765->reg.msr = 0x80;
+  fdc765->reg.st0 = 0x00;
+  fdc765->reg.st1 = 0x00;
+  fdc765->reg.st2 = 0x00;
+  fdc765->reg.st3 = 0x00;
+  (void) fprintf(stdout, "gdev_fdc765_recalibrate\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::sense_int_status()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_sense_int_status(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_sense_int_status\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::specify()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_specify(GdevFDC765 *fdc765)
+{
+  fdc765->specify[0] = fdc765->cmd.buf[1];
+  fdc765->specify[1] = fdc765->cmd.buf[2];
+  fdc765->reg.cmd = 0;
+  fdc765->reg.msr = 0x80;
+  fdc765->reg.st0 = 0x00;
+  fdc765->reg.st1 = 0x00;
+  fdc765->reg.st2 = 0x00;
+  fdc765->reg.st3 = 0x00;
+  (void) fprintf(stdout, "gdev_fdc765_specify\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::sense_drv_status()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_sense_drv_status(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_sense_drv_status\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::seek()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_seek(GdevFDC765 *fdc765)
+{
+  FDRV_PTR fd = NULL;
+
+  fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
+  fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
+  if((fdc765->upd765 != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
+  && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
+    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+  }
+  (void) fprintf(stdout, "gdev_fdc765_seek\n");
+  (void) fflush(stdout);
 }
 
 /**

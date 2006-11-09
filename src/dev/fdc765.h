@@ -36,8 +36,11 @@ typedef struct _GdevFDC765Class GdevFDC765Class;
 struct _GdevFDC765 {
   GObject parent_instance;
   GdevFDCPXY *upd765;
+  guint8 unit_id;
+  guint8 head_id;
+  guint8 specify[2];
   struct {
-    guint8 xyz;       /* internal phase register   */
+    guint8 cmd;       /* current command           */
     guint8 msr;       /* main status register      */
     guint8 st0;       /* status register: ST0      */
     guint8 st1;       /* status register: ST1      */

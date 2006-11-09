@@ -118,5 +118,7 @@ void gdev_upd765_set_fdd(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
  */
 void gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data)
 {
-  fdc_set_motor((FDC_PTR) upd765->fdc->impl, data);
+  if(upd765->fdc->impl != NULL) {
+    fdc_set_motor((FDC_PTR) upd765->fdc->impl, data);
+  }
 }
