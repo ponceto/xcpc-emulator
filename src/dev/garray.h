@@ -15,8 +15,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef __GDEV_GArray_H__
-#define __GDEV_GArray_H__
+#ifndef __GDEV_GARRAY_H__
+#define __GDEV_GARRAY_H__
 
 #include <dev/device.h>
 
