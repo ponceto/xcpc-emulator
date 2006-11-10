@@ -47,6 +47,7 @@ static void gdev_fdc765_sense_int_status(GdevFDC765 *fdc765);
 static void gdev_fdc765_specify         (GdevFDC765 *fdc765);
 static void gdev_fdc765_sense_drv_status(GdevFDC765 *fdc765);
 static void gdev_fdc765_seek            (GdevFDC765 *fdc765);
+static void gdev_fdc765_invalid_cmd     (GdevFDC765 *fdc765);
 
 enum {
   FDC_IDLE,
@@ -64,7 +65,8 @@ enum {
   FDC_SENSE_INT_STATUS,
   FDC_SPECIFY,
   FDC_SENSE_DRV_STATUS,
-  FDC_SEEK
+  FDC_SEEK,
+  FDC_INVALID_CMD
 };
 
 static struct {
@@ -72,39 +74,41 @@ static struct {
   int cmd_len;
   int res_len;
 } fdc_cmd[32] = {
-  { FDC_IDLE,             0, 0 }, /* [ 00 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 01 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 00 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 01 ]                        */
   { FDC_RD_DIAGNOSTIC,    9, 7 }, /* [ 02 ] RD DIAGNOSTIC          */
-  { FDC_SPECIFY,          3, 0 }, /* [ 03 ] SPECIFY                */
+  { FDC_SPECIFY,          3, 1 }, /* [ 03 ] SPECIFY                */
   { FDC_SENSE_DRV_STATUS, 2, 1 }, /* [ 04 ] SENSE DRIVE STATUS     */
   { FDC_WR_DATA,          9, 7 }, /* [ 05 ] WR DATA                */
   { FDC_RD_DATA,          9, 7 }, /* [ 06 ] RD DATA                */
-  { FDC_RECALIBRATE,      2, 0 }, /* [ 07 ] RECALIBRATE            */
+  { FDC_RECALIBRATE,      2, 1 }, /* [ 07 ] RECALIBRATE            */
   { FDC_SENSE_INT_STATUS, 1, 2 }, /* [ 08 ] SENSE INTERRUPT STATUS */
   { FDC_WR_DELETED_DATA,  9, 7 }, /* [ 09 ] WR DELETED DATA        */
   { FDC_RD_ID,            2, 7 }, /* [ 00 ] RD ID                  */
-  { FDC_IDLE,             0, 0 }, /* [ 11 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 11 ]                        */
   { FDC_RD_DELETED_DATA,  9, 7 }, /* [ 12 ] RD DELETED DATA        */
   { FDC_WR_ID,            6, 7 }, /* [ 13 ] WR ID                  */
-  { FDC_IDLE,             0, 0 }, /* [ 14 ]                        */
-  { FDC_SEEK,             3, 0 }, /* [ 15 ] SEEK                   */
-  { FDC_IDLE,             0, 0 }, /* [ 16 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 14 ]                        */
+  { FDC_SEEK,             3, 1 }, /* [ 15 ] SEEK                   */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 16 ]                        */
   { FDC_SCAN_EQU,         9, 7 }, /* [ 17 ] SCAN EQUAL             */
-  { FDC_IDLE,             0, 0 }, /* [ 18 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 19 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 20 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 21 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 22 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 23 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 24 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 18 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 19 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 20 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 21 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 22 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 23 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 24 ]                        */
   { FDC_SCAN_LO_OR_EQU,   9, 7 }, /* [ 25 ] SCAN LOW OR EQUAL      */
-  { FDC_IDLE,             0, 0 }, /* [ 26 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 27 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 28 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 26 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 27 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 28 ]                        */
   { FDC_SCAN_HI_OR_EQU,   9, 7 }, /* [ 29 ] SCAN HIGH OR EQUAL     */
-  { FDC_IDLE,             0, 0 }, /* [ 30 ]                        */
-  { FDC_IDLE,             0, 0 }, /* [ 31 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 30 ]                        */
+  { FDC_INVALID_CMD,      1, 1 }, /* [ 31 ]                        */
 };
+
+static gboolean myfdc = FALSE;
 
 G_DEFINE_TYPE(GdevFDC765, gdev_fdc765, G_TYPE_OBJECT)
 
@@ -143,14 +147,16 @@ static void gdev_fdc765_reset(GdevFDC765 *fdc765)
 {
   fdc765->unit_id    = 0x00;
   fdc765->head_id    = 0x00;
-  fdc765->specify[0] = 0x00;
-  fdc765->specify[1] = 0x00;
-  fdc765->reg.cmd    = 0;
+  fdc765->reg.cmd    = 0x00;
   fdc765->reg.msr    = 0x80;
   fdc765->reg.st0    = 0x00;
   fdc765->reg.st1    = 0x00;
   fdc765->reg.st2    = 0x00;
   fdc765->reg.st3    = 0x00;
+  fdc765->reg.srt    = 0x00;
+  fdc765->reg.hlt    = 0x00;
+  fdc765->reg.hut    = 0x00;
+  fdc765->reg.ndm    = 0x01;
   fdc765->cmd.len    = 0;
   fdc765->cmd.pos    = 0;
   fdc765->exe.len    = 0;
@@ -169,11 +175,13 @@ static void gdev_fdc765_reset(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_rstat(GdevFDC765 *fdc765, guint8 *busptr)
 {
-  if(fdc765->impl != NULL) {
+  if((fdc765->impl != NULL) && (myfdc == FALSE)) {
     *busptr = fdc_read_ctrl((FDC_PTR) fdc765->impl);
+    (void) printf("CPU <-- FDC : MSR=0x%02x\n", *busptr);
   }
   else {
     *busptr = fdc765->reg.msr;
+    (void) printf("CPU <-- FDC : MSR=0x%02x\n", *busptr);
   }
 }
 
@@ -195,21 +203,24 @@ static void gdev_fdc765_wstat(GdevFDC765 *fdc765, guint8 *busptr)
  */
 static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
 {
-  if(fdc765->impl != NULL) {
+  if((fdc765->impl != NULL) && (myfdc == FALSE)) {
     *busptr = fdc_read_data((FDC_PTR) fdc765->impl);
+    (void) printf("CPU <-- FDC : DAT=0x%02x\n", *busptr);
   }
   else {
     if(fdc765->reg.cmd == 0) {
       /* XXX */
     }
     if(fdc765->reg.cmd != 0) {
+      fdc765->reg.msr = 0x90; /* 10010000: RDY + BSY */
       *busptr = fdc765->res.buf[fdc765->res.pos];
+      (void) printf("CPU <-- FDC : DAT=0x%02x\n", *busptr);
       if(++fdc765->res.pos >= fdc765->res.len) {
         gdev_fdc765_end_of_res(fdc765);
       }
     }
     else {
-      /* XXX */
+      fdc765->reg.msr = 0x80; /* 10000000: RDY */
     }
   }
 }
@@ -222,8 +233,9 @@ static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
  */
 static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr)
 {
-  if(fdc765->impl != NULL) {
+  if((fdc765->impl != NULL) && (myfdc == FALSE)) {
     fdc_write_data((FDC_PTR) fdc765->impl, *busptr);
+    (void) printf("CPU --> FDC : DAT=0x%02x\n", *busptr);
   }
   else {
     if(fdc765->reg.cmd == 0) {
@@ -234,13 +246,15 @@ static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr)
       fdc765->res.pos = 0;
     }
     if(fdc765->reg.cmd != 0) {
+      fdc765->reg.msr = 0x90; /* 10010000: RDY + BSY */
       fdc765->cmd.buf[fdc765->cmd.pos] = *busptr;
+      (void) printf("CPU --> FDC : DAT=0x%02x\n", *busptr);
       if(++fdc765->cmd.pos >= fdc765->cmd.len) {
         gdev_fdc765_end_of_cmd(fdc765);
       }
     }
     else {
-      /* XXX */
+      fdc765->reg.msr = 0x80; /* 10000000: RDY */
     }
   }
 }
@@ -268,13 +282,7 @@ static void gdev_fdc765_end_of_cmd(GdevFDC765 *fdc765)
     case FDC_SPECIFY:          gdev_fdc765_specify         (fdc765); break;
     case FDC_SENSE_DRV_STATUS: gdev_fdc765_sense_drv_status(fdc765); break;
     case FDC_SEEK:             gdev_fdc765_seek            (fdc765); break;
-    default:
-      fdc765->reg.msr    = 0x80;
-      fdc765->reg.st0    = 0x80;
-      fdc765->res.buf[0] = fdc765->reg.st0;
-      fdc765->res.len    = 1;
-      fdc765->res.pos    = 0;
-      break;
+    default:                   gdev_fdc765_invalid_cmd     (fdc765); break;
   }
   fdc765->cmd.len = 0;
   fdc765->cmd.pos = 0;
@@ -287,6 +295,7 @@ static void gdev_fdc765_end_of_cmd(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_end_of_res(GdevFDC765 *fdc765)
 {
+  fdc765->reg.msr = 0x80;
   fdc765->res.len = 0;
   fdc765->res.pos = 0;
 }
@@ -507,12 +516,13 @@ static void gdev_fdc765_recalibrate(GdevFDC765 *fdc765)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
     fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
-  fdc765->reg.cmd = 0;
-  fdc765->reg.msr = 0x80;
-  fdc765->reg.st0 = 0x00;
+  fdc765->reg.cmd = 0x00;
+  fdc765->reg.msr = 0x80 | (1 << fdc765->unit_id);
+  fdc765->reg.st0 = 0x20;
   fdc765->reg.st1 = 0x00;
   fdc765->reg.st2 = 0x00;
   fdc765->reg.st3 = 0x00;
+  (void) fd_seek_cylinder(fd, 0);
   (void) fprintf(stdout, "gdev_fdc765_recalibrate\n");
   (void) fflush(stdout);
 }
@@ -531,6 +541,10 @@ static void gdev_fdc765_sense_int_status(GdevFDC765 *fdc765)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
     fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
+  fdc765->reg.msr    = 0xd0 | (fdc765->reg.msr & 0x1f); /* RDY + DIR[FDC=>CPU]  */
+  fdc765->reg.st0   |= (fd_isready(fd) != 0 ? 0x08 : 0x00);
+  fdc765->res.buf[0] = fdc765->reg.st0;
+  fdc765->res.buf[1] = fd_getcurcyl(fd);
   (void) fprintf(stdout, "gdev_fdc765_sense_int_status\n");
   (void) fflush(stdout);
 }
@@ -542,14 +556,16 @@ static void gdev_fdc765_sense_int_status(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_specify(GdevFDC765 *fdc765)
 {
-  fdc765->specify[0] = fdc765->cmd.buf[1];
-  fdc765->specify[1] = fdc765->cmd.buf[2];
-  fdc765->reg.cmd = 0;
+  fdc765->reg.cmd = 0x00;
   fdc765->reg.msr = 0x80;
   fdc765->reg.st0 = 0x00;
   fdc765->reg.st1 = 0x00;
   fdc765->reg.st2 = 0x00;
   fdc765->reg.st3 = 0x00;
+  fdc765->reg.srt = (fdc765->cmd.buf[0] & 0xf0) >> 4;
+  fdc765->reg.hlt = (fdc765->cmd.buf[1] & 0xfe) >> 1;
+  fdc765->reg.hut = (fdc765->cmd.buf[0] & 0x0f) >> 0;
+  fdc765->reg.ndm = (fdc765->cmd.buf[1] & 0x01) >> 0;
   (void) fprintf(stdout, "gdev_fdc765_specify\n");
   (void) fflush(stdout);
 }
@@ -591,6 +607,22 @@ static void gdev_fdc765_seek(GdevFDC765 *fdc765)
     fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_seek\n");
+  (void) fflush(stdout);
+}
+
+/**
+ * GdevFDC765::invalid_cmd()
+ *
+ * @param fdc765 specifies the GdevUPD765 instance
+ */
+static void gdev_fdc765_invalid_cmd(GdevFDC765 *fdc765)
+{
+  fdc765->reg.msr    = 0xc0;                      /* RDY + DIR[FDC=>CPU]  */
+  fdc765->reg.st0    = fdc765->res.buf[0] = 0x80; /* Invalid Command [IC] */
+  fdc765->reg.st1    = fdc765->res.buf[1] = 0x00; /* ST1 resetted         */
+  fdc765->reg.st2    = fdc765->res.buf[2] = 0x00; /* ST2 resetted         */
+  fdc765->reg.st3    = fdc765->res.buf[3] = 0x00; /* ST3 resetted         */
+  (void) fprintf(stdout, "gdev_fdc765_invalid_cmd\n");
   (void) fflush(stdout);
 }
 

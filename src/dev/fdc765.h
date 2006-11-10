@@ -38,7 +38,6 @@ struct _GdevFDC765 {
   GdevFDCPXY *upd765;
   guint8 unit_id;
   guint8 head_id;
-  guint8 specify[2];
   struct {
     guint8 cmd;       /* current command           */
     guint8 msr;       /* main status register      */
@@ -46,6 +45,10 @@ struct _GdevFDC765 {
     guint8 st1;       /* status register: ST1      */
     guint8 st2;       /* status register: ST2      */
     guint8 st3;       /* status register: ST3      */
+    guint8 srt;       /* Step Rate Time            */
+    guint8 hlt;       /* Head Load Time            */
+    guint8 hut;       /* Head Unload Time          */
+    guint8 ndm;       /* Non-DMA Mode              */
   } reg;
   struct {
     guint8 buf[16];   /* command buffer            */
