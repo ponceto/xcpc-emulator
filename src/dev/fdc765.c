@@ -145,26 +145,26 @@ static void gdev_fdc765_init(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_reset(GdevFDC765 *fdc765)
 {
-  fdc765->unit_id    = 0x00;
-  fdc765->head_id    = 0x00;
-  fdc765->reg.cmd    = 0x00;
-  fdc765->reg.msr    = 0x80;
-  fdc765->reg.st0    = 0x00;
-  fdc765->reg.st1    = 0x00;
-  fdc765->reg.st2    = 0x00;
-  fdc765->reg.st3    = 0x00;
-  fdc765->reg.srt    = 0x00;
-  fdc765->reg.hlt    = 0x00;
-  fdc765->reg.hut    = 0x00;
-  fdc765->reg.ndm    = 0x01;
-  fdc765->cmd.len    = 0;
-  fdc765->cmd.pos    = 0;
-  fdc765->exe.len    = 0;
-  fdc765->exe.pos    = 0;
-  fdc765->res.len    = 0;
-  fdc765->res.pos    = 0;
-  fdc765->isr.state  = 0;
-  fdc765->isr.count  = 0;
+  fdc765->unit_id   = 0x00;
+  fdc765->head_id   = 0x00;
+  fdc765->reg.cmd   = 0x00;
+  fdc765->reg.msr   = 0x80;
+  fdc765->reg.st0   = 0x00;
+  fdc765->reg.st1   = 0x00;
+  fdc765->reg.st2   = 0x00;
+  fdc765->reg.st3   = 0x00;
+  fdc765->reg.srt   = 0x00;
+  fdc765->reg.hlt   = 0x00;
+  fdc765->reg.hut   = 0x00;
+  fdc765->reg.ndm   = 0x01;
+  fdc765->cmd.len   = 0;
+  fdc765->cmd.pos   = 0;
+  fdc765->exe.len   = 0;
+  fdc765->exe.pos   = 0;
+  fdc765->res.len   = 0;
+  fdc765->res.pos   = 0;
+  fdc765->isr.state = 0;
+  fdc765->isr.count = 0;
 }
 
 /**
