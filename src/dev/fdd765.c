@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libdsk.h>
-#include <765.h>
+#include "lib765.h"
 #include "upd765.h"
 
 static void gdev_fdd765_reset(GdevFDD765 *fdd765);

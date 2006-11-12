@@ -34,6 +34,7 @@ libdev_a_SOURCES = \
 	garray.c garray.h \
 	mc6845.c mc6845.h \
 	ay8910.c ay8910.h \
+	lib765.c lib765.h \
 	upd765.c upd765.h \
 	fdc765.c fdc765.h \
 	fdd765.c fdd765.h \

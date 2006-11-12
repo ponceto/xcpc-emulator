@@ -28,7 +28,6 @@ if test "x${have_glib20}" = "xno"; then
   AC_MSG_ERROR([Glib - version >= 2.6.0 is required])
 fi
 AC_CHECK_HEADER([libdsk.h], [have_libdsk="yes"], [AC_MSG_ERROR([libdsk is required !!])])
-AC_CHECK_HEADER([765.h],    [have_lib765="yes"], [AC_MSG_ERROR([lib765 is required !!])])
 AC_ARG_WITH([motif1], AC_HELP_STRING([--with-motif1], [build the Motif1 version]))
 AC_CHECK_HEADER([Xm/Xm.h],
 [have_motif1="yes"], [have_motif1="no"], [
@@ -80,7 +79,6 @@ AC_MSG_NOTICE([Configured to build Xcpc:
 
   GLib20 sdk .... ${have_glib20}
   LibDSK sdk .... ${have_libdsk}
-  Lib765 sdk .... ${have_lib765}
   Motif1 sdk .... ${have_motif1}
   Athena sdk .... ${have_athena}
   gui toolkit ... ${gui_toolkit}
