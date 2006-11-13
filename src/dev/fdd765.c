@@ -37,6 +37,7 @@ G_DEFINE_TYPE(GdevFDD765, gdev_fdd765, G_TYPE_OBJECT)
 static void gdev_fdd765_class_init(GdevFDD765Class *fdd765_class)
 {
   fdd765_class->reset = gdev_fdd765_reset;
+  g_type_class_add_private(fdd765_class, sizeof(FDD_765));
 }
 
 /**
@@ -47,7 +48,8 @@ static void gdev_fdd765_class_init(GdevFDD765Class *fdd765_class)
 static void gdev_fdd765_init(GdevFDD765 *fdd765)
 {
   fdd765->upd765 = NULL;
-  fdd765->impl   = (gpointer) fd_newldsk();
+  fdd765->impl   = G_TYPE_INSTANCE_GET_PRIVATE(fdd765, GDEV_TYPE_FDD765, FDD_765);
+  fdl_initialize(fdd765->impl);
   gdev_fdd765_reset(fdd765);
 }
 
@@ -58,6 +60,11 @@ static void gdev_fdd765_init(GdevFDD765 *fdd765)
  */
 static void gdev_fdd765_reset(GdevFDD765 *fdd765)
 {
+  FDD_765 *fdd = fdd765->impl;
+
+  if((fdd != NULL) && (fdd->fd_vtable != NULL) && (fdd->fd_vtable->fdv_reset != NULL)) {
+    (*fdd->fd_vtable->fdv_reset)(fdd);
+  }
 }
 
 /**
@@ -79,9 +86,9 @@ GdevFDD765 *gdev_fdd765_new(void)
 void gdev_fdd765_insert(GdevFDD765 *fdd765, gchar *dsk_fn)
 {
   if(dsk_fn != NULL) {
-    fdl_setfilename((FDRV_PTR) fdd765->impl, dsk_fn);
+    fdl_setfilename(fdd765->impl, dsk_fn);
   }
   else {
-    fd_eject((FDRV_PTR) fdd765->impl);
+    fd_eject(fdd765->impl);
   }
 }

@@ -22,80 +22,60 @@
 #include <string.h>
 #include <libdsk.h>
 #include "lib765.h"
+#include "upd765.h"
 
-lib765_error_function_t lib765_error_function = lib765_default_error_function;
-
-void fdc_dprintf(int debuglevel, char *fmt, ...)
+static void fdc_dprintf(int debuglevel, char *fmt, ...)
 {
-	va_list ap;
+  va_list ap;
 
-	/* If we don't have an error function, do nothing */
-	if( !lib765_error_function ) return;
-
-	/* Otherwise, call that error function */
-	va_start( ap, fmt );
-	lib765_error_function( debuglevel, fmt, ap );
-	va_end( ap );
-}
-
-/* Default error action is just to print a message to stderr */
-void
-lib765_default_error_function(int debuglevel, char *fmt, va_list ap)
-{
-	/* Let's say default action is level 1; showing all messages
-	 * would be just too horribly disturbing. */
-	
-	if (debuglevel > 1) return;	
-	fprintf( stderr, "lib765 level:%d error: ", debuglevel );
-	vfprintf( stderr, fmt, ap );
-	fprintf( stderr, "\n" );
-}
-
-void lib765_register_error_function(lib765_error_function_t ef)
-{
-	lib765_error_function = ef;
+  va_start(ap, fmt);
+  if(debuglevel <= 1) {
+    (void) fprintf(stderr, "lib765 level:%d error: ", debuglevel);
+    (void) vfprintf(stderr, fmt, ap); (void) fputc('\n', stderr);
+  }
+  va_end(ap);
 }
 
 /* The number of bytes in the 32 possible FDC commands */
 
-static int bytes_in_cmd[32] = { 1,  /* 0 = none */
-                                1,  /* 1 = none */
-                                9,  /* 2 = READ TRACK */
-                                3,  /* 3 = SPECIFY */
-                                2,  /* 4 = SENSE DRIVE STATUS */
-                                9,  /* 5 = WRITE DATA */
-                                9,  /* 6 = READ DATA */
-                                2,  /* 7 = RECALIBRATE */
-                                1,  /* 8 = SENSE INTERRUPT STATUS */
-                                9,  /* 9 = WRITE DELETED DATA */
-                                2,  /* 10 = READ SECTOR ID */
-                                1,  /* 11 = none */
-                                9,  /* 12 = READ DELETED DATA */
-                                6,  /* 13 = FORMAT A TRACK */
-                                1,  /* 14 = none */
-                                3,  /* 15 = SEEK */
-                                1,  /* 16 = none */
-                                9,  /* 17 = SCAN EQUAL */
-                                1,  /* 18 = none */
-                                1,  /* 19 = none */
-                                1,  /* 20 = none */
-                                1,  /* 21 = none */
-                                1,  /* 22 = none */
-                                1,  /* 23 = none */
-                                1,  /* 24 = none */
-                                9,  /* 25 = SCAN LOW OR EQUAL */
-                                1,  /* 26 = none */
-                                1,  /* 27 = none */
-                                1,  /* 28 = none */
-                                1,  /* 29 = none */
-                                9,  /* 30 = SCAN HIGH OR EQUAL */
-                                1   /* 31 = none */
-                              };
+static int bytes_in_cmd[32] = {
+  1, /*  0 = none                   */
+  1, /*  1 = none                   */
+  9, /*  2 = READ TRACK             */
+  3, /*  3 = SPECIFY                */
+  2, /*  4 = SENSE DRIVE STATUS     */
+  9, /*  5 = WRITE DATA             */
+  9, /*  6 = READ DATA              */
+  2, /*  7 = RECALIBRATE            */
+  1, /*  8 = SENSE INTERRUPT STATUS */
+  9, /*  9 = WRITE DELETED DATA     */
+  2, /* 10 = READ SECTOR ID         */
+  1, /* 11 = none                   */
+  9, /* 12 = READ DELETED DATA      */
+  6, /* 13 = FORMAT A TRACK         */
+  1, /* 14 = none                   */
+  3, /* 15 = SEEK                   */
+  1, /* 16 = none                   */
+  9, /* 17 = SCAN EQUAL             */
+  1, /* 18 = none                   */
+  1, /* 19 = none                   */
+  1, /* 20 = none                   */
+  1, /* 21 = none                   */
+  1, /* 22 = none                   */
+  1, /* 23 = none                   */
+  1, /* 24 = none                   */
+  9, /* 25 = SCAN LOW OR EQUAL      */
+  1, /* 26 = none                   */
+  1, /* 27 = none                   */
+  1, /* 28 = none                   */
+  1, /* 29 = none                   */
+  9, /* 30 = SCAN HIGH OR EQUAL     */
+  1  /* 31 = none                   */
+};
 
 /**********************************************************************
  *                        FDC IMPLEMENTATION                          *
  **********************************************************************/
-
 
 /* Partial reset (done by pulling bit 2 of the DOR low) */
 static void fdc_part_reset(FDC_765 *self)
@@ -157,7 +137,7 @@ static void fdc_dorcheck(FDC_765 *self)
 /* Update the ST3 register based on a drive's status */
 static void fdc_get_st3(FDC_765 *self)
 {	
-	FLOPPY_DRIVE *fd = self->fdc_dor_drive[self->fdc_curunit];
+	FDD_765 *fd = self->fdc_dor_drive[self->fdc_curunit];
 	fdc_byte value = 0;
 
 	/* 0.3.4: Check this, it could be null! */
@@ -172,9 +152,9 @@ static void fdc_get_st3(FDC_765 *self)
 }
 
 /* Check if a drive is ready */
-int fdc_isready(FDC_765 *self, FLOPPY_DRIVE *fd)
+int fdc_isready(FDC_765 *self, FDD_765 *fd)
 {
-        int rdy = fd_isready(fd);
+        int rdy = fd_ready(fd);
  
         if (!rdy) {self->fdc_st3 &= 0xDF; return 0; }
         self->fdc_st3 |= 0x20;
@@ -307,7 +287,7 @@ static void fdc_get_drive(FDC_765 *self)
 /* End of Execution Phase in a write command. Write data. */
 static void fdc_write_end(FDC_765 *self)
 {
-        FLOPPY_DRIVE *fd = self->fdc_dor_drive[self->fdc_curunit];
+        FDD_765 *fd = self->fdc_dor_drive[self->fdc_curunit];
 	int len = (128 << self->fdc_cmd_buf[5]);
 	fd_err_t rv;
 
@@ -335,7 +315,7 @@ static void fdc_write_end(FDC_765 *self)
 /* End of Execution Phase in a format command. Format the track.   */
 static void fdc_format_end(FDC_765 *self)
 {
-        FLOPPY_DRIVE *fd = self->fdc_dor_drive[self->fdc_curunit];
+        FDD_765 *fd = self->fdc_dor_drive[self->fdc_curunit];
 	fd_err_t rv;
 
 
@@ -395,7 +375,7 @@ static void fdc_end_execution_phase(FDC_765 *self)
 static void fdc_read_track(FDC_765 *self)
 {
 	int err;
-	FLOPPY_DRIVE *fd;
+	FDD_765 *fd;
 
 	self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
 	self->fdc_lastidread = 0;
@@ -455,7 +435,7 @@ static void fdc_sense_drive(FDC_765 *self)
 static void fdc_read(FDC_765 *self, int deleted)
 {
 	int err;
-	FLOPPY_DRIVE *fd;
+	FDD_765 *fd;
 
 	self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
 	self->fdc_lastidread = 0;
@@ -502,7 +482,7 @@ static void fdc_read(FDC_765 *self, int deleted)
 static void fdc_write(FDC_765 *self, int deleted)
 {
         int err = FD_E_OK;
-	FLOPPY_DRIVE *fd;
+	FDD_765 *fd;
 
         self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
         self->fdc_lastidread = 0;
@@ -541,7 +521,7 @@ static void fdc_write(FDC_765 *self, int deleted)
 /* RECALIBRATE */
 static void fdc_recalibrate(FDC_765 *self)
 {
-	FLOPPY_DRIVE *fd;
+	FDD_765 *fd;
 
 	self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
 	
@@ -609,7 +589,7 @@ static void fdc_sense_int(FDC_765 *self)
 /* READ SECTOR ID */
 static void fdc_read_id(FDC_765 *self)
 {
-        FLOPPY_DRIVE *fd;
+        FDD_765 *fd;
 	int ret;
 
 	self->fdc_result_len = 7;
@@ -651,7 +631,7 @@ static void fdc_read_id(FDC_765 *self)
 static void fdc_format(FDC_765 *self)
 {
         int err = FD_E_OK;
-	FLOPPY_DRIVE *fd;
+	FDD_765 *fd;
 
         self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
         self->fdc_lastidread = 0;
@@ -685,7 +665,7 @@ static void fdc_format(FDC_765 *self)
 static void fdc_seek(FDC_765 *self)
 {
 	int cylinder = self->fdc_cmd_buf[2];
-	FLOPPY_DRIVE *fd;
+	FDD_765 *fd;
 	
 	self->fdc_st0 = self->fdc_st1 = self->fdc_st1 = 0;
 	fdc_get_drive(self);
@@ -1095,7 +1075,7 @@ fdc_byte fdc_read_dir(FDC_765 *self)
 		return 0;
 	}	
 
-        if (!fd_isready(self->fdc_drive[drv])) 
+        if (!fd_ready(self->fdc_drive[drv])) 
 	{
 		fdc_dprintf(6, "fdc_read_dir: changeline=1 (drive not ready)\n");
 		return 0x80;
@@ -1111,21 +1091,10 @@ fdc_byte fdc_read_dir(FDC_765 *self)
 
 
 
-FDC_PTR fdc_new(void)
+void fdc_initialize(FDC_PTR self)
 {
-	FDC_PTR self = malloc(sizeof(FDC_765));
-
-	if (!self) return NULL;
 	fdc_reset(self);
-	return self;	
 }
-
-void fdc_destroy(FDC_PTR *p)
-{
-	if (*p) free(*p);
-	*p = NULL;
-}
-
 
 /* Reading FDC internal state */
 fdc_byte fdc_readst0(FDC_PTR fdc) { return fdc->fdc_st0; }
@@ -1149,13 +1118,13 @@ FDC_ISR fdc_getisr(FDC_PTR self)
 }
 
 /* The FDC's four drives. You must set these. */
-FDRV_PTR fdc_getdrive(FDC_PTR self, int drive)
+FDD_PTR fdc_getdrive(FDC_PTR self, int drive)
 {
 	if (self == NULL || drive < 0 || drive > 3) return NULL;
 	return self->fdc_drive[drive];
 }
 
-void fdc_setdrive(FDC_PTR self, int drive, FDRV_PTR ptr)
+void fdc_setdrive(FDC_PTR self, int drive, FDD_PTR ptr)
 {
 	if (self == NULL || drive < 0 || drive > 3) return;
 	self->fdc_drive[drive] = ptr;
@@ -1168,7 +1137,7 @@ void fdc_setdrive(FDC_PTR self, int drive, FDRV_PTR ptr)
  */
 
 /* Seek to a cylinder */
-fd_err_t fd_seek_cylinder(FDRV_PTR fd, int cylinder)
+fd_err_t fd_seek_cylinder(FDD_PTR fd, int cylinder)
 {
 	if (fd && (fd->fd_vtable->fdv_seek_cylinder))
 	{
@@ -1181,7 +1150,7 @@ fd_err_t fd_seek_cylinder(FDRV_PTR fd, int cylinder)
 /* Read the ID of the next sector to pass under the head. "sector" is 
  * suggested since most emulated drives don't actually emulate the idea
  * of a head being over one sector at a time */
-fd_err_t  fd_read_id(FDRV_PTR fd, int head, int sector, fdc_byte *buf)
+fd_err_t  fd_read_id(FDD_PTR fd, int head, int sector, fdc_byte *buf)
 {
 	if (fd && (fd->fd_vtable->fdv_read_id))
 	{
@@ -1192,7 +1161,7 @@ fd_err_t  fd_read_id(FDRV_PTR fd, int head, int sector, fdc_byte *buf)
 
 /* Read a sector. xcylinder and xhead are the expected values for the 
  * sector header; head is the actual head to use. */
-fd_err_t  fd_read_sector(FDRV_PTR fd, int xcylinder, 
+fd_err_t  fd_read_sector(FDD_PTR fd, int xcylinder, 
 		int xhead, int head, int sector, fdc_byte *buf, int len, 
 		int *deleted, int skip_deleted, int mfm, int multi)
 {
@@ -1207,7 +1176,7 @@ fd_err_t  fd_read_sector(FDRV_PTR fd, int xcylinder,
 
 /* Read a track. xcylinder and xhead are the expected values for the 
  * sector header; head is the actual head to use. */
-fd_err_t  fd_read_track(FDRV_PTR fd, int xcylinder,
+fd_err_t  fd_read_track(FDD_PTR fd, int xcylinder,
                 int xhead, int head, fdc_byte *buf, int *len)
 {
         if (fd && (fd->fd_vtable->fdv_read_track))
@@ -1222,7 +1191,7 @@ fd_err_t  fd_read_track(FDRV_PTR fd, int xcylinder,
 
 /* Write a sector. xcylinder and xhead are the expected values for the 
  * sector header; head is the actual head to use. */
-fd_err_t  fd_write_sector(FDRV_PTR fd, int xcylinder,
+fd_err_t  fd_write_sector(FDD_PTR fd, int xcylinder,
                 int xhead, int head, int sector, fdc_byte *buf, int len, 
 		int deleted, int skip_deleted, int mfm, int multi)
 {
@@ -1236,7 +1205,7 @@ fd_err_t  fd_write_sector(FDRV_PTR fd, int xcylinder,
 }
 
 /* Format a track */
-fd_err_t  fd_format_track (struct floppy_drive *fd, int head,
+fd_err_t  fd_format_track (FDD_PTR fd, int head,
                 int sectors, fdc_byte *track, fdc_byte filler)
 {
 	if (fd && (fd->fd_vtable->fdv_format_track))
@@ -1248,7 +1217,7 @@ fd_err_t  fd_format_track (struct floppy_drive *fd, int head,
 
 
 /* Get the drive status (as given in bits 7-3 of DD_DRIVE_STATUS) */
-fdc_byte fd_drive_status(FDRV_PTR fd)
+fdc_byte fd_drive_status(FDD_PTR fd)
 {
 	if (fd && (fd->fd_vtable->fdv_drive_status))
 	{
@@ -1259,16 +1228,16 @@ fdc_byte fd_drive_status(FDRV_PTR fd)
 
 
 /* Is the drive ready? */
-fdc_byte fd_isready(FDRV_PTR fd)
+fdc_byte fd_ready(FDD_PTR fd)
 {
-	if (fd && (fd->fd_vtable->fdv_isready)) return (*fd->fd_vtable->fdv_isready)(fd);
+	if (fd && (fd->fd_vtable->fdv_ready)) return (*fd->fd_vtable->fdv_ready)(fd);
 	return 0;
 }
 
 
 
 /* Is the drive ready? */
-fdc_byte fd_changed(FDRV_PTR fd)
+fdc_byte fd_changed(FDD_PTR fd)
 {
 	if (fd && (fd->fd_vtable->fdv_changed)) 
 			return (*fd->fd_vtable->fdv_changed)(fd);
@@ -1276,7 +1245,7 @@ fdc_byte fd_changed(FDRV_PTR fd)
 	return 0;
 }
 
-int fd_dirty(FDRV_PTR fd)
+int fd_dirty(FDD_PTR fd)
 {
 	if (fd && (fd->fd_vtable->fdv_dirty))
 			return (*fd->fd_vtable->fdv_dirty)(fd);
@@ -1284,7 +1253,7 @@ int fd_dirty(FDRV_PTR fd)
 }
 
 /* Eject under computer's control */
-void fd_eject(FDRV_PTR fd)
+void fd_eject(FDD_PTR fd)
 {
 	if (fd && (fd->fd_vtable->fdv_eject)) 
 		(*fd->fd_vtable->fdv_eject)(fd);
@@ -1293,167 +1262,53 @@ void fd_eject(FDRV_PTR fd)
 }
 
 /* Reset the drive */
-void fd_reset(FDRV_PTR fd)
+void fd_reset(FDD_PTR fd)
 {
 	if (fd && (fd->fd_vtable->fdv_reset)) 
 		(*fd->fd_vtable->fdv_reset)(fd);
 }
 
 /* Set data rate */
-void fd_set_datarate(FDRV_PTR fd, fdc_byte rate)
+void fd_set_datarate(FDD_PTR fd, fdc_byte rate)
 {
 	if (fd && (fd->fd_vtable->fdv_set_datarate)) 
 		(*fd->fd_vtable->fdv_set_datarate)(fd, rate);
 }
 
-/* On the PCW9256, drives 2 and 3 always return ready. Drive 2 at least
- * passes all its other commands to drive 1. */
+int fd_gettype    (FDD_PTR fd) { return fd->fd_type; } 
+int fd_getheads   (FDD_PTR fd) { return fd->fd_heads; }
+int fd_getcyls    (FDD_PTR fd) { return fd->fd_cylinders; }
+int fd_getreadonly(FDD_PTR fd) { return fd->fd_readonly; }
 
-static fd_err_t n9256_seek_cylinder(FDRV_PTR fd, int cylinder)
-{
-        NC9_FLOPPY_DRIVE *nc9 = (NC9_FLOPPY_DRIVE *)fd;
-        if (nc9->nc9_fdd) return fd_seek_cylinder(nc9->nc9_fdd, cylinder);
+void fd_settype    (FDD_PTR fd, int type)  { fd->fd_type  = type;  }
+void fd_setheads   (FDD_PTR fd, int heads) { fd->fd_heads = heads; }
+void fd_setcyls    (FDD_PTR fd, int cyls)  { fd->fd_cylinders  = cyls;  }
+void fd_setreadonly(FDD_PTR fd, int ro)    { fd->fd_readonly = ro; }
 
-	return FD_E_NOTRDY;
-}
-
-
-static fdc_byte n9256_drive_status(FDRV_PTR fd)
-{
-	fdc_byte b = 0;
-	
-	NC9_FLOPPY_DRIVE *nc9 = (NC9_FLOPPY_DRIVE *)fd;
-	if (nc9->nc9_fdd) b = fd_drive_status(nc9->nc9_fdd);
-
-	return 0x20 | b;	/* Drive is always ready */
-}
-
-
-static FLOPPY_DRIVE_VTABLE dummy_vtbl;	/* all NULLs */
-static FLOPPY_DRIVE_VTABLE d9256_vtbl =	/* nearly all NULLs */
-{
-	n9256_seek_cylinder,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-        n9256_drive_status,
-	NULL,
-	NULL,
-	NULL,
-	NULL
-};
-
-/* Initialise a FLOPPY_DRIVE structure */
-FDRV_PTR fd_inew(size_t size)
-{
-	FDRV_PTR fd;
-
-	if (size < sizeof(FLOPPY_DRIVE)) return NULL;
-	fd = malloc(size);
-	if (!fd) return NULL;
-
-	fd->fd_type      = FD_NONE;
-	fd->fd_heads     = 0;
-	fd->fd_cylinders = 0;
-	fd->fd_motor     = 0;
-	fd->fd_cylinder  = 0;
-	fd->fd_readonly  = 0;	
-	fd->fd_vtable    = &dummy_vtbl;
-	return fd;
-}
-
-FDRV_PTR fd_new(void)
-{
-	return fd_inew(sizeof(FLOPPY_DRIVE));
-}
-
-/* Initialise a 9256 dummy drive */
-FDRV_PTR fd_newnc9(FDRV_PTR fd)
-{
-	FDRV_PTR p = fd_inew(sizeof(NC9_FLOPPY_DRIVE));
-
-	fd_settype(p, FD_NC9256);
-	((NC9_FLOPPY_DRIVE *)p)->nc9_fdd = fd;
-//
-// These are the only commands which CP/M executes on a 9256 dummy drive,
-// and so these are the only ones I'm going to pass through to the 
-// underlying drive.
-//
-	p->fd_vtable    = &d9256_vtbl;
-	return p;
-}
-
-
-void     fd_destroy(FDRV_PTR *fd)
-{
-	if (!(*fd)) return;
-
-	fd_eject(*fd);	
-	if ((*fd)->fd_vtable->fdv_destroy)
-	{
-		(*(*fd)->fd_vtable->fdv_destroy)(*fd);
-	}
-	free(*fd);
-	*fd = NULL;
-}
-
-
-int fd_gettype    (FDRV_PTR fd) { return fd->fd_type; } 
-int fd_getheads   (FDRV_PTR fd) { return fd->fd_heads; }
-int fd_getcyls    (FDRV_PTR fd) { return fd->fd_cylinders; }
-int fd_getreadonly(FDRV_PTR fd) { return fd->fd_readonly; }
-
-void fd_settype    (FDRV_PTR fd, int type)  { fd->fd_type  = type;  }
-void fd_setheads   (FDRV_PTR fd, int heads) { fd->fd_heads = heads; }
-void fd_setcyls    (FDRV_PTR fd, int cyls)  { fd->fd_cylinders  = cyls;  }
-void fd_setreadonly(FDRV_PTR fd, int ro)    { fd->fd_readonly = ro; }
-
-int fd_getmotor    (FDRV_PTR fd) { return fd->fd_motor; }
-int fd_getcurcyl   (FDRV_PTR fd) { return fd->fd_cylinder; }
-
-
-FDRV_PTR fd9_getproxy(FDRV_PTR self)
-{
-	if (self->fd_vtable == &d9256_vtbl)
-	{
-		return ((NC9_FLOPPY_DRIVE *)self)->nc9_fdd;
-	}
-	return NULL;
-}
-
-void     fd9_setproxy(FDRV_PTR self, FDRV_PTR proxy)
-{
-	if (self->fd_vtable == &d9256_vtbl)
-	{
-		((NC9_FLOPPY_DRIVE *)self)->nc9_fdd = proxy;
-	}
-
-}
+int fd_getmotor    (FDD_PTR fd) { return fd->fd_motor; }
+int fd_getcurcyl   (FDD_PTR fd) { return fd->fd_cylinder; }
 
 #define SHORT_TIMEOUT	1000
 #define LONGER_TIMEOUT  1333333L
 
-extern fdc_byte fdd_drive_status(FLOPPY_DRIVE *fd);
+extern fdc_byte fdd_drive_status(FDD_765 *fd);
 
 
 /* Reset variables: No DSK loaded. Called on eject and on initialisation */
-void fdl_reset(FLOPPY_DRIVE *fd)
+void fdl_reset(FDD_765 *fd)
 {
-	LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
-        fdl->fdl_filename[0] = 0;	
-	fdl->fdl_type = NULL;
-	fdl->fdl_compress = NULL;
-        fdl->fdl_diskp = NULL;
+        fd->fdl_filename[0] = 0;	
+	fd->fdl_type = NULL;
+	fd->fdl_compress = NULL;
+        fd->fdl_diskp = NULL;
 }
 
 
-static int fdl_regeom(LIBDSK_FLOPPY_DRIVE *fdl)
+static int fdl_regeom(FDD_765 *fd)
 {
 	dsk_err_t err;
 
-	err = dsk_getgeom(fdl->fdl_diskp, &fdl->fdl_diskg);
+	err = dsk_getgeom(fd->fdl_diskp, &fd->fdl_diskg);
 	// Note that some errors (which could result from 
 	// unformatted discs) are ignored here.
 	if (err && 
@@ -1462,8 +1317,8 @@ static int fdl_regeom(LIBDSK_FLOPPY_DRIVE *fdl)
 	    err != DSK_ERR_BADFMT)
 	{
 		fdc_dprintf(0, "Could not get geometry for %s: %s.\n", 
-			fdl->fdl_filename, dsk_strerror(err));
-		fdl_reset(&fdl->fdl);
+			fd->fdl_filename, dsk_strerror(err));
+		fdl_reset(fd);
 		return err;
 	}
         return 0;
@@ -1473,27 +1328,26 @@ static int fdl_regeom(LIBDSK_FLOPPY_DRIVE *fdl)
 /* Return 1 if this drive is ready, else 0
  * Attempts to open the DSK and load its DSK header, and must
  * therefore be called before any attempted DSK file access. */
-static int fdl_isready(FLOPPY_DRIVE *fd)
+static int fdl_ready(FDD_765 *fd)
 {
-	LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 	dsk_err_t err;
 
 	if (!fd->fd_motor) return 0;	/* Motor is not running */
 
-	if (fdl->fdl_diskp) return 1;		 /* DSK file is open and OK */	
-	if (fdl->fdl_filename[0] == 0) return 0; /* No filename */
+	if (fd->fdl_diskp) return 1;		 /* DSK file is open and OK */	
+	if (fd->fdl_filename[0] == 0) return 0; /* No filename */
 
-	err = dsk_open(&fdl->fdl_diskp, fdl->fdl_filename, fdl->fdl_type, 
-			fdl->fdl_compress);
+	err = dsk_open(&fd->fdl_diskp, fd->fdl_filename, fd->fdl_type, 
+			fd->fdl_compress);
 
-	if (err || !fdl->fdl_diskp)
+	if (err || !fd->fdl_diskp)
 	{
 		fdc_dprintf(0, "Could not open %s: %s.\n", 
-			fdl->fdl_filename, dsk_strerror(err));
+			fd->fdl_filename, dsk_strerror(err));
 		fdl_reset(fd);
 		return 0;
 	}
-	return (fdl_regeom(fdl) == 0);
+	return (fdl_regeom(fd) == 0);
 }
 
 
@@ -1515,19 +1369,18 @@ static fd_err_t fdl_xlt_error(dsk_err_t err)
 
 /* Seek to a cylinder. */
 
-static fd_err_t fdl_seek_cylinder(FLOPPY_DRIVE *fd, int cylinder)
+static fd_err_t fdl_seek_cylinder(FDD_765 *fd, int cylinder)
 {
 	int req_cyl = cylinder;
 	dsk_err_t err;
-        LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 
 	fdc_dprintf(4, "fdl_seek_cylinder: cylinder=%d\n",cylinder);
 
-	if (!fdl->fdl_diskp) return FD_E_NOTRDY;
+	if (!fd->fdl_diskp) return FD_E_NOTRDY;
 
 	fdc_dprintf(6, "fdl_seek_cylinder: image open OK\n");
 
-	err = dsk_pseek(fdl->fdl_diskp, &fdl->fdl_diskg, cylinder, 0);
+	err = dsk_pseek(fd->fdl_diskp, &fd->fdl_diskg, cylinder, 0);
 	if (err == DSK_ERR_NOTIMPL || err == DSK_ERR_OK)
 	{
 		fdc_dprintf(6, "fdl_seek_cylinder: OK\n");
@@ -1540,22 +1393,21 @@ static fd_err_t fdl_seek_cylinder(FLOPPY_DRIVE *fd, int cylinder)
 }
 
 /* Read a sector ID from the current track */
-static fd_err_t fdl_read_id(FLOPPY_DRIVE *fd, int head, int sector, fdc_byte *buf)
+static fd_err_t fdl_read_id(FDD_765 *fd, int head, int sector, fdc_byte *buf)
 {
-	LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 	dsk_err_t err;
 	DSK_FORMAT fmt;
 
 	fdc_dprintf(4, "fdl_read_id: head=%d\n", head);
-	if (!fdl->fdl_diskp) return FD_E_NOTRDY;
-	err = dsk_psecid(fdl->fdl_diskp, &fdl->fdl_diskg, fd->fd_cylinder,
+	if (!fd->fdl_diskp) return FD_E_NOTRDY;
+	err = dsk_psecid(fd->fdl_diskp, &fd->fdl_diskg, fd->fd_cylinder,
 			 head, &fmt);
 	if (err == DSK_ERR_NOTIMPL)
 	{
 		buf[0] = fd->fd_cylinder;
 		buf[1] = head;
 		buf[2] = sector;
-		buf[3] = dsk_get_psh(fdl->fdl_diskg.dg_secsize);	
+		buf[3] = dsk_get_psh(fd->fdl_diskg.dg_secsize);	
 		return 0;
 	}
 	if (err) return fdl_xlt_error(err);
@@ -1569,22 +1421,21 @@ static fd_err_t fdl_read_id(FLOPPY_DRIVE *fd, int head, int sector, fdc_byte *bu
 
 
 /* Read a sector */
-static fd_err_t fdl_read_sector(FLOPPY_DRIVE *fd, int xcylinder, int xhead, 
+static fd_err_t fdl_read_sector(FDD_765 *fd, int xcylinder, int xhead, 
 		int head,  int sector, fdc_byte *buf, int len, int *deleted,
 		int skip_deleted, int mfm, int multi)
 {
-	LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 	dsk_err_t err;
 
 	fdc_dprintf(4, "fdl_read_sector: cyl=%d xc=%d xh=%d h=%d s=%d len=%d\n", 
 			fd->fd_cylinder, xcylinder, xhead, head, sector, len);
-	if (!fdl->fdl_diskp) return FD_E_NOTRDY;
+	if (!fd->fdl_diskp) return FD_E_NOTRDY;
 
-	fdl->fdl_diskg.dg_noskip  = skip_deleted ? 0 : 1;
-	fdl->fdl_diskg.dg_fm      = mfm ? 0 : 1;
-	fdl->fdl_diskg.dg_nomulti = multi ? 0 : 1;
+	fd->fdl_diskg.dg_noskip  = skip_deleted ? 0 : 1;
+	fd->fdl_diskg.dg_fm      = mfm ? 0 : 1;
+	fd->fdl_diskg.dg_nomulti = multi ? 0 : 1;
 
-	err = dsk_xread(fdl->fdl_diskp, &fdl->fdl_diskg, buf,
+	err = dsk_xread(fd->fdl_diskp, &fd->fdl_diskg, buf,
 		fd->fd_cylinder, head, xcylinder, xhead, sector, len, deleted);
 
 	if (err == DSK_ERR_NOTIMPL)
@@ -1592,25 +1443,24 @@ static fd_err_t fdl_read_sector(FLOPPY_DRIVE *fd, int xcylinder, int xhead,
 /* lib765 v0.3.2: If 'deleted' is passed but points to zero, treat it as if
  * 'deleted' is not passed at all. */
 		if (deleted && *deleted) return FD_E_NOADDR;
-		err = dsk_pread(fdl->fdl_diskp, &fdl->fdl_diskg, buf,
+		err = dsk_pread(fd->fdl_diskp, &fd->fdl_diskg, buf,
 			fd->fd_cylinder, head, sector);
 	}	
 	return fdl_xlt_error(err);
 }		
 
 /* Read a track */
-static fd_err_t fdl_read_track(FLOPPY_DRIVE *fd, int xcylinder, int xhead,
+static fd_err_t fdl_read_track(FDD_765 *fd, int xcylinder, int xhead,
                 int head,  fdc_byte *buf, int *len)
 {
-	LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 	fd_err_t err; 
 
 	// Use LIBDSK's track-reading abilities
 	fdc_dprintf(4, "fdl_read_track: xc=%d xh=%d h=%d\n", 
 			xcylinder, xhead, head);
-	if (!fdl->fdl_diskp) return FD_E_NOTRDY;
+	if (!fd->fdl_diskp) return FD_E_NOTRDY;
 
-	err = dsk_xtread(fdl->fdl_diskp, &fdl->fdl_diskg, buf,
+	err = dsk_xtread(fd->fdl_diskp, &fd->fdl_diskg, buf,
 			fd->fd_cylinder, head, xcylinder, xhead);
 	return fdl_xlt_error(err);
 }
@@ -1618,45 +1468,43 @@ static fd_err_t fdl_read_track(FLOPPY_DRIVE *fd, int xcylinder, int xhead,
 
 
 /* Write a sector */
-static fd_err_t fdl_write_sector(FLOPPY_DRIVE *fd, int xcylinder, int xhead, 
+static fd_err_t fdl_write_sector(FDD_765 *fd, int xcylinder, int xhead, 
 		int head,  int sector, fdc_byte *buf, int len, int deleted, 
 		int skip_deleted, int mfm, int multi)
 {
-	LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 	dsk_err_t err;
 
 	fdc_dprintf(4, "fdl_write_sector: xc=%d xh=%d h=%d s=%d\n", 
 			xcylinder, xhead, head, sector);
-	if (!fdl->fdl_diskp) return FD_E_NOTRDY;
+	if (!fd->fdl_diskp) return FD_E_NOTRDY;
 
-	fdl->fdl_diskg.dg_noskip  = skip_deleted ? 0 : 1;
+	fd->fdl_diskg.dg_noskip  = skip_deleted ? 0 : 1;
 /* lib765 0.3.3: Oops. Get the FM/MFM flag round the right way. */
-	fdl->fdl_diskg.dg_fm      = mfm ? 0 : 1;
-	fdl->fdl_diskg.dg_nomulti = multi ? 0 : 1;
-	err = dsk_xwrite(fdl->fdl_diskp, &fdl->fdl_diskg, buf,
+	fd->fdl_diskg.dg_fm      = mfm ? 0 : 1;
+	fd->fdl_diskg.dg_nomulti = multi ? 0 : 1;
+	err = dsk_xwrite(fd->fdl_diskp, &fd->fdl_diskg, buf,
 		fd->fd_cylinder, head, xcylinder, xhead, sector, len, deleted);
 	if (err == DSK_ERR_NOTIMPL)
 	{
 		if (deleted) return FD_E_NOADDR;
 	
-		err = dsk_pwrite(fdl->fdl_diskp, &fdl->fdl_diskg, buf,
+		err = dsk_pwrite(fd->fdl_diskp, &fd->fdl_diskg, buf,
 			fd->fd_cylinder, head, sector);
 	}	
 	return fdl_xlt_error(err);
 }		
 
 /* Format a track on a DSK. Can grow the DSK file. */
-static fd_err_t fdl_format_track(FLOPPY_DRIVE *fd, int head,
+static fd_err_t fdl_format_track(FDD_765 *fd, int head,
                 int sectors, fdc_byte *track, fdc_byte filler)
 {
-	LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 	int n, os;
 	dsk_err_t err;
 	DSK_FORMAT *formbuf;
 	
 	fdc_dprintf(4, "fdl_format_track: cyl=%d h=%d s=%d\n", 
 			fd->fd_cylinder, head, sectors);
-	if (!fdl->fdl_diskp) return FD_E_NOTRDY;
+	if (!fd->fdl_diskp) return FD_E_NOTRDY;
 
 	formbuf = malloc(sectors * sizeof(DSK_FORMAT));
 	if (!formbuf) return FD_E_READONLY;
@@ -1668,18 +1516,18 @@ static fd_err_t fdl_format_track(FLOPPY_DRIVE *fd, int head,
 		formbuf[n].fmt_sector   = track[n * 4 + 2];
 		formbuf[n].fmt_secsize  = 128 << track[n * 4 + 3];
 	}
-	os = fdl->fdl_diskg.dg_sectors;
-	fdl->fdl_diskg.dg_sectors = sectors;
-	err = dsk_pformat(fdl->fdl_diskp, &fdl->fdl_diskg, fd->fd_cylinder,
+	os = fd->fdl_diskg.dg_sectors;
+	fd->fdl_diskg.dg_sectors = sectors;
+	err = dsk_pformat(fd->fdl_diskp, &fd->fdl_diskg, fd->fd_cylinder,
 			head, formbuf, filler);
-	fdl->fdl_diskg.dg_sectors = os;
+	fd->fdl_diskg.dg_sectors = os;
 
 	free(formbuf);
 	// 
 	// If track 0 has been reformatted, try to redetermine the 
 	// geometry.
 	//
-	if (fd->fd_cylinder == 0 && !fd->fd_cylinder) fdl_regeom(fdl);
+	if (fd->fd_cylinder == 0 && !fd->fd_cylinder) fdl_regeom(fd);
 	if (!err) 
 	{
 		return 0;
@@ -1688,14 +1536,12 @@ static fd_err_t fdl_format_track(FLOPPY_DRIVE *fd, int head,
 }		
 
 /* Has this floppy been written to since it was inserted? */
-static int fdl_dirty(FLOPPY_DRIVE *fd)
+static int fdl_dirty(FDD_765 *fd)
 {
-	LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
-
 #ifdef LIBDSK_EXPOSES_DIRTY
-	if (fdl->fdl_diskp)
+	if (fd->fdl_diskp)
 	{
-		return dsk_dirty(fdl->fdl_diskp);
+		return dsk_dirty(fd->fdl_diskp);
 	}
 	else
 	{
@@ -1707,30 +1553,27 @@ static int fdl_dirty(FLOPPY_DRIVE *fd)
 }
 
 /* Eject a DSK - close the image file */
-static void fdl_eject(FLOPPY_DRIVE *fd)
+static void fdl_eject(FDD_765 *fd)
 {
-        LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
-
-	if (fdl->fdl_diskp) dsk_close(&fdl->fdl_diskp);
+	if (fd->fdl_diskp) dsk_close(&fd->fdl_diskp);
 
 	fdl_reset(fd);
 }
 
 
-static fdc_byte fdl_drive_status(FLOPPY_DRIVE *fd)
+static fdc_byte fdl_drive_status(FDD_765 *fd)
 {
-        LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 	fdc_byte st;
 	dsk_err_t err;
 
-        if (fdl->fdl_diskp)
+        if (fd->fdl_diskp)
 	{
-		err = dsk_drive_status(fdl->fdl_diskp, &fdl->fdl_diskg, 0, &st);
+		err = dsk_drive_status(fd->fdl_diskp, &fd->fdl_diskg, 0, &st);
 	}
 	else 
 	{
 		st = 0;
-		if (fdl_isready(fd)) st = DSK_ST3_READY;
+		if (fdl_ready(fd)) st = DSK_ST3_READY;
 	}
 
 	/* 5.25" drives don't report read-only when they're not ready */
@@ -1762,21 +1605,20 @@ static fdc_byte fdl_drive_status(FLOPPY_DRIVE *fd)
 }
 
 
-void fdl_set_datarate(FLOPPY_DRIVE *fd, fdc_byte rate)
+void fdl_set_datarate(FDD_765 *fd, fdc_byte rate)
 {
-        LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
 	switch (rate & 3)
 	{
-		case 0: fdl->fdl_diskg.dg_datarate = RATE_HD; break;
-		case 1: fdl->fdl_diskg.dg_datarate = RATE_DD; break;
-		case 2: fdl->fdl_diskg.dg_datarate = RATE_SD; break;
-		case 3: fdl->fdl_diskg.dg_datarate = RATE_ED; break;
+		case 0: fd->fdl_diskg.dg_datarate = RATE_HD; break;
+		case 1: fd->fdl_diskg.dg_datarate = RATE_DD; break;
+		case 2: fd->fdl_diskg.dg_datarate = RATE_SD; break;
+		case 3: fd->fdl_diskg.dg_datarate = RATE_ED; break;
 	}
 }
 
 
 
-static FLOPPY_DRIVE_VTABLE fdv_libdsk = 
+static FDD_765_VTABLE fdv_libdsk = 
 {
 	fdl_seek_cylinder,
 	fdl_read_id,
@@ -1785,7 +1627,7 @@ static FLOPPY_DRIVE_VTABLE fdv_libdsk =
 	fdl_write_sector,
 	fdl_format_track,
 	fdl_drive_status,
-	fdl_isready,
+	fdl_ready,
 	fdl_dirty,
 	fdl_eject,
 	fdl_set_datarate,
@@ -1794,89 +1636,85 @@ static FLOPPY_DRIVE_VTABLE fdv_libdsk =
 };
 
 /* Initialise a DSK-based drive */
-FDRV_PTR fd_newldsk(void)
+void fdl_initialize(FDD_PTR fd)
 {
-	FDRV_PTR fd = fd_inew(sizeof(LIBDSK_FLOPPY_DRIVE));
-
-	fd->fd_vtable = &fdv_libdsk;
+	fd->fd_type      = FD_NONE;
+	fd->fd_heads     = 0;
+	fd->fd_cylinders = 0;
+	fd->fd_motor     = 0;
+	fd->fd_cylinder  = 0;
+	fd->fd_readonly  = 0;	
+	fd->fd_vtable    = &fdv_libdsk;
 	fdl_reset(fd);
-	return fd;
-	}
-
+}
 
 /* Create a new DSK file. Not necessary for emulation but well worth having  */
-fd_err_t fdl_new_dsk(LIBDSK_FLOPPY_DRIVE *fdl)
+fd_err_t fdl_new_dsk(FDD_765 *fd)
 {
 	dsk_err_t err;
 
-	if (fdl->fdl_filename[0] == 0) return 0; /* No filename */
-	if (!fdl->fdl_type == 0) return 0; /* No type */
+	if (fd->fdl_filename[0] == 0) return 0; /* No filename */
+	if (!fd->fdl_type == 0) return 0; /* No type */
 
-	err = dsk_creat(&fdl->fdl_diskp, fdl->fdl_filename, fdl->fdl_type,
-			 fdl->fdl_compress);
+	err = dsk_creat(&fd->fdl_diskp, fd->fdl_filename, fd->fdl_type,
+			 fd->fdl_compress);
 	if (err) return fdl_xlt_error(err);
-	dsk_close(&fdl->fdl_diskp);
+	dsk_close(&fd->fdl_diskp);
 	return 0;
 }
 
 /* Get / set DSK file associated with this drive.
  * Note that doing fdl_setfilename() causes an implicit eject on the 
  * previous disc in the drive. */
-char *   fdl_getfilename(FDRV_PTR fd)
+char *   fdl_getfilename(FDD_PTR fd)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
-                return ((LIBDSK_FLOPPY_DRIVE *)fd)->fdl_filename;
+                return fd->fdl_filename;
         }
         return "Called fdl_getfilename() on wrong drive type";
 }
 
-void     fdl_setfilename(FDRV_PTR fd, const char *s)
+void     fdl_setfilename(FDD_PTR fd, const char *s)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
-                LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
-
 		fd_eject(fd);
-                strncpy(fdl->fdl_filename, s, sizeof(fdl->fdl_filename) - 1);
-                fdl->fdl_filename[sizeof(fdl->fdl_filename) - 1] = 0;
+                strncpy(fd->fdl_filename, s, sizeof(fd->fdl_filename) - 1);
+                fd->fdl_filename[sizeof(fd->fdl_filename) - 1] = 0;
         }
 }
 
-const char *   fdl_gettype(FDRV_PTR fd)
+const char *   fdl_gettype(FDD_PTR fd)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
-                return ((LIBDSK_FLOPPY_DRIVE *)fd)->fdl_type;
+                return fd->fdl_type;
         }
         return "Called fdl_gettype() on wrong drive type";
 }
 
-void     fdl_settype(FDRV_PTR fd, const char *s)
+void     fdl_settype(FDD_PTR fd, const char *s)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
-                LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
-
-                fdl->fdl_type = s;
+                fd->fdl_type = s;
         }
 }
 
-const char *   fdl_getcomp(FDRV_PTR fd)
+const char *   fdl_getcomp(FDD_PTR fd)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
-                return ((LIBDSK_FLOPPY_DRIVE *)fd)->fdl_compress;
+                return fd->fdl_compress;
         }
         return "Called fdl_getcomp() on wrong drive type";
 }
 
-void     fdl_setcomp(FDRV_PTR fd, const char *s)
+void     fdl_setcomp(FDD_PTR fd, const char *s)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
-                LIBDSK_FLOPPY_DRIVE *fdl = (LIBDSK_FLOPPY_DRIVE *)fd;
-
-                fdl->fdl_compress = s;
+                fd->fdl_compress = s;
 	}
 }

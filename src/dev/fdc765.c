@@ -124,6 +124,7 @@ static void gdev_fdc765_class_init(GdevFDC765Class *fdc765_class)
   fdc765_class->wstat = gdev_fdc765_wstat;
   fdc765_class->rdata = gdev_fdc765_rdata;
   fdc765_class->wdata = gdev_fdc765_wdata;
+  g_type_class_add_private(fdc765_class, sizeof(FDC_765));
 }
 
 /**
@@ -134,7 +135,8 @@ static void gdev_fdc765_class_init(GdevFDC765Class *fdc765_class)
 static void gdev_fdc765_init(GdevFDC765 *fdc765)
 {
   fdc765->upd765 = NULL;
-  fdc765->impl   = (gpointer) fdc_new();
+  fdc765->impl   = G_TYPE_INSTANCE_GET_PRIVATE(fdc765, GDEV_TYPE_FDC765, FDC_765);
+  fdc_initialize(fdc765->impl);
   gdev_fdc765_reset(fdc765);
 }
 
@@ -176,12 +178,16 @@ static void gdev_fdc765_reset(GdevFDC765 *fdc765)
 static void gdev_fdc765_rstat(GdevFDC765 *fdc765, guint8 *busptr)
 {
   if((fdc765->impl != NULL) && (myfdc == FALSE)) {
-    *busptr = fdc_read_ctrl((FDC_PTR) fdc765->impl);
+    *busptr = fdc_read_ctrl(fdc765->impl);
+#ifdef DEBUG_FDC
     (void) printf("CPU <-- FDC : MSR=0x%02x\n", *busptr);
+#endif
   }
   else {
     *busptr = fdc765->reg.msr;
+#ifdef DEBUG_FDC
     (void) printf("CPU <-- FDC : MSR=0x%02x\n", *busptr);
+#endif
   }
 }
 
@@ -204,8 +210,10 @@ static void gdev_fdc765_wstat(GdevFDC765 *fdc765, guint8 *busptr)
 static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
 {
   if((fdc765->impl != NULL) && (myfdc == FALSE)) {
-    *busptr = fdc_read_data((FDC_PTR) fdc765->impl);
+    *busptr = fdc_read_data(fdc765->impl);
+#ifdef DEBUG_FDC
     (void) printf("CPU <-- FDC : DAT=0x%02x\n", *busptr);
+#endif
   }
   else {
     if(fdc765->reg.cmd == 0) {
@@ -214,7 +222,9 @@ static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
     if(fdc765->reg.cmd != 0) {
       fdc765->reg.msr = 0x90; /* 10010000: RDY + BSY */
       *busptr = fdc765->res.buf[fdc765->res.pos];
+#ifdef DEBUG_FDC
       (void) printf("CPU <-- FDC : DAT=0x%02x\n", *busptr);
+#endif
       if(++fdc765->res.pos >= fdc765->res.len) {
         gdev_fdc765_end_of_res(fdc765);
       }
@@ -234,8 +244,10 @@ static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
 static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr)
 {
   if((fdc765->impl != NULL) && (myfdc == FALSE)) {
-    fdc_write_data((FDC_PTR) fdc765->impl, *busptr);
+    fdc_write_data(fdc765->impl, *busptr);
+#ifdef DEBUG_FDC
     (void) printf("CPU --> FDC : DAT=0x%02x\n", *busptr);
+#endif
   }
   else {
     if(fdc765->reg.cmd == 0) {
@@ -248,7 +260,9 @@ static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr)
     if(fdc765->reg.cmd != 0) {
       fdc765->reg.msr = 0x90; /* 10010000: RDY + BSY */
       fdc765->cmd.buf[fdc765->cmd.pos] = *busptr;
+#ifdef DEBUG_FDC
       (void) printf("CPU --> FDC : DAT=0x%02x\n", *busptr);
+#endif
       if(++fdc765->cmd.pos >= fdc765->cmd.len) {
         gdev_fdc765_end_of_cmd(fdc765);
       }
@@ -307,14 +321,14 @@ static void gdev_fdc765_end_of_res(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_rd_data(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_rd_data\n");
   (void) fflush(stdout);
@@ -327,14 +341,14 @@ static void gdev_fdc765_rd_data(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_rd_deleted_data(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_rd_deleted_data\n");
   (void) fflush(stdout);
@@ -347,14 +361,14 @@ static void gdev_fdc765_rd_deleted_data(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_wr_data(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_wr_data\n");
   (void) fflush(stdout);
@@ -367,14 +381,14 @@ static void gdev_fdc765_wr_data(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_wr_deleted_data(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_wr_deleted_data\n");
   (void) fflush(stdout);
@@ -387,14 +401,14 @@ static void gdev_fdc765_wr_deleted_data(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_rd_diagnostic(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_rd_diagnostic\n");
   (void) fflush(stdout);
@@ -407,14 +421,14 @@ static void gdev_fdc765_rd_diagnostic(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_rd_id(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_rd_id\n");
   (void) fflush(stdout);
@@ -427,14 +441,14 @@ static void gdev_fdc765_rd_id(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_wr_id(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_wr_id\n");
   (void) fflush(stdout);
@@ -447,14 +461,14 @@ static void gdev_fdc765_wr_id(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_scan_equ(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_scan_equ\n");
   (void) fflush(stdout);
@@ -467,14 +481,14 @@ static void gdev_fdc765_scan_equ(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_scan_lo_or_equ(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_scan_lo_or_equ\n");
   (void) fflush(stdout);
@@ -487,14 +501,14 @@ static void gdev_fdc765_scan_lo_or_equ(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_scan_hi_or_equ(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_scan_hi_or_equ\n");
   (void) fflush(stdout);
@@ -507,14 +521,14 @@ static void gdev_fdc765_scan_hi_or_equ(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_recalibrate(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   fdc765->reg.cmd = 0x00;
   fdc765->reg.msr = 0x80 | (1 << fdc765->unit_id);
@@ -534,15 +548,15 @@ static void gdev_fdc765_recalibrate(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_sense_int_status(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   fdc765->reg.msr    = 0xd0 | (fdc765->reg.msr & 0x1f); /* RDY + DIR[FDC=>CPU]  */
-  fdc765->reg.st0   |= (fd_isready(fd) != 0 ? 0x08 : 0x00);
+  fdc765->reg.st0   |= (fd_ready(fd) != 0 ? 0x08 : 0x00);
   fdc765->res.buf[0] = fdc765->reg.st0;
   fdc765->res.buf[1] = fd_getcurcyl(fd);
   (void) fprintf(stdout, "gdev_fdc765_sense_int_status\n");
@@ -577,14 +591,14 @@ static void gdev_fdc765_specify(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_sense_drv_status(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_sense_drv_status\n");
   (void) fflush(stdout);
@@ -597,14 +611,14 @@ static void gdev_fdc765_sense_drv_status(GdevFDC765 *fdc765)
  */
 static void gdev_fdc765_seek(GdevFDC765 *fdc765)
 {
-  FDRV_PTR fd = NULL;
+  FDD_765 *fd = NULL;
 
   fdc765->unit_id = (fdc765->cmd.buf[1] & 0x03) >> 0;
   fdc765->head_id = (fdc765->cmd.buf[1] & 0x04) >> 2;
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
-    fd = (FDRV_PTR) fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
   }
   (void) fprintf(stdout, "gdev_fdc765_seek\n");
   (void) fflush(stdout);

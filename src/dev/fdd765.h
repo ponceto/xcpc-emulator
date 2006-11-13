@@ -36,7 +36,11 @@ typedef struct _GdevFDD765Class GdevFDD765Class;
 struct _GdevFDD765 {
   GObject parent_instance;
   GdevFDDPXY *upd765;
-  gpointer *impl;
+#ifdef __LIB765_H__
+  FDD_765 *impl;
+#else
+  gpointer impl;
+#endif
 };
 
 struct _GdevFDD765Class {

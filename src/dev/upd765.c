@@ -108,7 +108,7 @@ void gdev_upd765_set_fdd(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
 {
   upd765->fdd[drive] = fdd765;
   fdd765->upd765     = upd765;
-  fdc_setdrive((FDC_PTR) upd765->fdc->impl, drive, (FDRV_PTR) fdd765->impl);
+  fdc_setdrive(upd765->fdc->impl, drive, fdd765->impl);
 }
 
 /**
@@ -119,6 +119,6 @@ void gdev_upd765_set_fdd(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
 void gdev_upd765_set_motor(GdevUPD765 *upd765, guint8 data)
 {
   if(upd765->fdc->impl != NULL) {
-    fdc_set_motor((FDC_PTR) upd765->fdc->impl, data);
+    fdc_set_motor(upd765->fdc->impl, data);
   }
 }

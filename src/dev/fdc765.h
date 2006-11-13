@@ -36,6 +36,11 @@ typedef struct _GdevFDC765Class GdevFDC765Class;
 struct _GdevFDC765 {
   GObject parent_instance;
   GdevFDCPXY *upd765;
+#ifdef __LIB765_H__
+  FDC_765 *impl;
+#else
+  gpointer impl;
+#endif
   guint8 unit_id;
   guint8 head_id;
   struct {
@@ -69,8 +74,6 @@ struct _GdevFDC765 {
     guint state;      /* interrupt state           */
     guint count;      /* interrupt countdown       */
   } isr;
-  /* XXX */
-  gpointer *impl;
 };
 
 struct _GdevFDC765Class {
