@@ -1,3 +1,11 @@
+2006-11-13	Olivier Poncet <ponceto@noos.fr>
+
+	* Embedded lib765 (heavyly hacked).
+	* FDC/FDD support improvements.
+	* FDC/FDD rewrite in progress.
+	* Some minor corrections.
+	* Just require libdsk: http://www.seasip.demon.co.uk/Unix/LibDsk/
+
 2006-11-06	Olivier Poncet <ponceto@noos.fr>
 
 	* Preliminary (but working) FDC implementation by using lib765.
