@@ -49,7 +49,7 @@ static void gdev_fdd765_init(GdevFDD765 *fdd765)
 {
   fdd765->upd765 = NULL;
   fdd765->impl   = G_TYPE_INSTANCE_GET_PRIVATE(fdd765, GDEV_TYPE_FDD765, FDD_765);
-  fdl_initialize(fdd765->impl);
+  fdd_initialize(fdd765->impl);
   gdev_fdd765_reset(fdd765);
 }
 
@@ -86,7 +86,7 @@ GdevFDD765 *gdev_fdd765_new(void)
 void gdev_fdd765_insert(GdevFDD765 *fdd765, gchar *dsk_fn)
 {
   if(dsk_fn != NULL) {
-    fdl_setfilename(fdd765->impl, dsk_fn);
+    fdd_setfilename(fdd765->impl, dsk_fn);
   }
   else {
     fd_eject(fdd765->impl);

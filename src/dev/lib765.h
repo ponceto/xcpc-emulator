@@ -95,32 +95,22 @@ int fd_getcurcyl   (FDD_PTR fd); /* What cylinder is this drive on?
                                    * so it could = 24 and be reading cylinder 12
                                    * of a 40-track DSK file. */
 
+/* Subclass of FLOPPY_DRIVE: a drive which emulates discs using LIBDSK
+ * for disc I/O. */
+void fdd_initialize(FDD_PTR fd);
+
 /* Get / set DSK file associated with this drive.
  * Note that doing fdd_setfilename() causes an implicit eject on the 
  * previous disc in the drive. */
 char *   fdd_getfilename(FDD_PTR fd);		
 void	 fdd_setfilename(FDD_PTR fd, const char *s);
 
-/* This function is specific to DSK-type drives, and is not called by the 
- * FDC. It is intended for use by administration interfaces */
-fd_err_t fdd_new_dsk(FDD_PTR fd);
-
-/* Subclass of FLOPPY_DRIVE: a drive which emulates discs using LIBDSK
- * for disc I/O. */
-void fdl_initialize(FDD_PTR fd);
-
-/* Get / set DSK file associated with this drive.
- * Note that doing fdd_setfilename() causes an implicit eject on the 
- * previous disc in the drive. */
-char *   fdl_getfilename(FDD_PTR fd);		
-void	 fdl_setfilename(FDD_PTR fd, const char *s);
-
 /* Set the LIBDSK drive type. NULL for automatic */
-const char *   fdl_gettype(FDD_PTR fd);		
-void	 fdl_settype(FDD_PTR fd, const char *s);
+const char *   fdd_gettype(FDD_PTR fd);		
+void	 fdd_settype(FDD_PTR fd, const char *s);
 /* Set the LIBDSK compression type. NULL for automatic */
-const char *   fdl_getcomp(FDD_PTR fd);		
-void	 fdl_setcomp(FDD_PTR fd, const char *s);
+const char *   fdd_getcomp(FDD_PTR fd);		
+void	 fdd_setcomp(FDD_PTR fd, const char *s);
 
 /* This is called when the FDC interrupts */
 typedef void (*FDC_ISR)(FDC_PTR self, int status);

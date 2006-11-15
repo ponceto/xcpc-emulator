@@ -1093,6 +1093,7 @@ fdc_byte fdc_read_dir(FDC_765 *self)
 
 void fdc_initialize(FDC_PTR self)
 {
+	(void) memset(self, 0, sizeof(FDC_765));
 	fdc_reset(self);
 }
 
@@ -1295,7 +1296,7 @@ extern fdc_byte fdd_drive_status(FDD_765 *fd);
 
 
 /* Reset variables: No DSK loaded. Called on eject and on initialisation */
-void fdl_reset(FDD_765 *fd)
+void fdd_reset(FDD_765 *fd)
 {
         fd->fdl_filename[0] = 0;	
 	fd->fdl_type = NULL;
@@ -1318,7 +1319,7 @@ static int fdl_regeom(FDD_765 *fd)
 	{
 		fdc_dprintf(0, "Could not get geometry for %s: %s.\n", 
 			fd->fdl_filename, dsk_strerror(err));
-		fdl_reset(fd);
+		fdd_reset(fd);
 		return err;
 	}
         return 0;
@@ -1344,7 +1345,7 @@ static int fdl_ready(FDD_765 *fd)
 	{
 		fdc_dprintf(0, "Could not open %s: %s.\n", 
 			fd->fdl_filename, dsk_strerror(err));
-		fdl_reset(fd);
+		fdd_reset(fd);
 		return 0;
 	}
 	return (fdl_regeom(fd) == 0);
@@ -1557,7 +1558,7 @@ static void fdl_eject(FDD_765 *fd)
 {
 	if (fd->fdl_diskp) dsk_close(&fd->fdl_diskp);
 
-	fdl_reset(fd);
+	fdd_reset(fd);
 }
 
 
@@ -1632,41 +1633,27 @@ static FDD_765_VTABLE fdv_libdsk =
 	fdl_eject,
 	fdl_set_datarate,
 	NULL,
-	fdl_reset
+	fdd_reset
 };
 
 /* Initialise a DSK-based drive */
-void fdl_initialize(FDD_PTR fd)
+void fdd_initialize(FDD_PTR self)
 {
-	fd->fd_type      = FD_NONE;
-	fd->fd_heads     = 0;
-	fd->fd_cylinders = 0;
-	fd->fd_motor     = 0;
-	fd->fd_cylinder  = 0;
-	fd->fd_readonly  = 0;	
-	fd->fd_vtable    = &fdv_libdsk;
-	fdl_reset(fd);
-}
-
-/* Create a new DSK file. Not necessary for emulation but well worth having  */
-fd_err_t fdl_new_dsk(FDD_765 *fd)
-{
-	dsk_err_t err;
-
-	if (fd->fdl_filename[0] == 0) return 0; /* No filename */
-	if (!fd->fdl_type == 0) return 0; /* No type */
-
-	err = dsk_creat(&fd->fdl_diskp, fd->fdl_filename, fd->fdl_type,
-			 fd->fdl_compress);
-	if (err) return fdl_xlt_error(err);
-	dsk_close(&fd->fdl_diskp);
-	return 0;
+	(void) memset(self, 0, sizeof(FDD_765));
+	self->fd_type      = FD_NONE;
+	self->fd_heads     = 0;
+	self->fd_cylinders = 0;
+	self->fd_motor     = 0;
+	self->fd_cylinder  = 0;
+	self->fd_readonly  = 0;	
+	self->fd_vtable    = &fdv_libdsk;
+	fdd_reset(self);
 }
 
 /* Get / set DSK file associated with this drive.
- * Note that doing fdl_setfilename() causes an implicit eject on the 
+ * Note that doing fdd_setfilename() causes an implicit eject on the 
  * previous disc in the drive. */
-char *   fdl_getfilename(FDD_PTR fd)
+char *   fdd_getfilename(FDD_PTR fd)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
@@ -1675,7 +1662,7 @@ char *   fdl_getfilename(FDD_PTR fd)
         return "Called fdl_getfilename() on wrong drive type";
 }
 
-void     fdl_setfilename(FDD_PTR fd, const char *s)
+void     fdd_setfilename(FDD_PTR fd, const char *s)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
@@ -1685,16 +1672,16 @@ void     fdl_setfilename(FDD_PTR fd, const char *s)
         }
 }
 
-const char *   fdl_gettype(FDD_PTR fd)
+const char *   fdd_gettype(FDD_PTR fd)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
                 return fd->fdl_type;
         }
-        return "Called fdl_gettype() on wrong drive type";
+        return "Called fdd_gettype() on wrong drive type";
 }
 
-void     fdl_settype(FDD_PTR fd, const char *s)
+void     fdd_settype(FDD_PTR fd, const char *s)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
@@ -1702,7 +1689,7 @@ void     fdl_settype(FDD_PTR fd, const char *s)
         }
 }
 
-const char *   fdl_getcomp(FDD_PTR fd)
+const char *   fdd_getcomp(FDD_PTR fd)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
@@ -1711,7 +1698,7 @@ const char *   fdl_getcomp(FDD_PTR fd)
         return "Called fdl_getcomp() on wrong drive type";
 }
 
-void     fdl_setcomp(FDD_PTR fd, const char *s)
+void     fdd_setcomp(FDD_PTR fd, const char *s)
 {
         if (fd->fd_vtable == &fdv_libdsk)
         {
