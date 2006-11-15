@@ -108,17 +108,17 @@ static void fdc_part_reset(FDC_765 *self)
 
 
 /* Initialise / reset the FDC */
-void fdc_reset(FDC_765 *self)
+void fdc_reset(FDC_PTR fdc)
 {
-	self->fdc_interrupting   = 0;
-	self->fdc_specify[0]     = self->fdc_specify[1] = 0;
-	self->fdc_lastidread     = 0;
-	self->fdc_terminal_count = 0;
-	self->fdc_isr            = NULL;
-	self->fdc_isr_countdown  = 0L;
-	self->fdc_dor		 = -1;	/* Not using the DOR at all */
-	memset(self->fdc_drive,     0, sizeof(self->fdc_drive));
-	fdc_part_reset(self);
+  fdc->fdc_interrupting   = 0;
+  fdc->fdc_specify[0]     = 0;
+  fdc->fdc_specify[1]     = 0;
+  fdc->fdc_lastidread     = 0;
+  fdc->fdc_terminal_count = 0;
+  fdc->fdc_isr            = NULL;
+  fdc->fdc_isr_countdown  = 0;
+  fdc->fdc_dor            = -1;
+  fdc_part_reset(fdc);
 }
 
 static void fdc_dorcheck(FDC_765 *self)
@@ -1296,12 +1296,12 @@ extern fdc_byte fdd_drive_status(FDD_765 *fd);
 
 
 /* Reset variables: No DSK loaded. Called on eject and on initialisation */
-void fdd_reset(FDD_765 *fd)
+void fdd_reset(FDD_PTR fdd)
 {
-        fd->fdl_filename[0] = 0;	
-	fd->fdl_type = NULL;
-	fd->fdl_compress = NULL;
-        fd->fdl_diskp = NULL;
+  fdd->fdl_filename[0] = 0;
+  fdd->fdl_type        = NULL;
+  fdd->fdl_compress    = NULL;
+  fdd->fdl_diskp       = NULL;
 }
 
 

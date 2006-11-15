@@ -74,6 +74,12 @@ typedef short         fd_err_t; /* Error code returned from disc routines */
 typedef struct fdc_765 *FDC_PTR;
 typedef struct fdd_765 *FDD_PTR;
 
+void fdc_initialize(FDC_PTR fdc);
+void fdc_reset     (FDC_PTR fdc);
+
+void fdd_initialize(FDD_PTR fdd);
+void fdd_reset     (FDD_PTR fdd);
+
 /* Accessor functions replace direct access to structure members */
 
 int fd_gettype    (FDD_PTR fd); /* 0 for none, 1 for 3", 2 for 3.5", 3 for 5.25" */
@@ -95,10 +101,6 @@ int fd_getcurcyl   (FDD_PTR fd); /* What cylinder is this drive on?
                                    * so it could = 24 and be reading cylinder 12
                                    * of a 40-track DSK file. */
 
-/* Subclass of FLOPPY_DRIVE: a drive which emulates discs using LIBDSK
- * for disc I/O. */
-void fdd_initialize(FDD_PTR fd);
-
 /* Get / set DSK file associated with this drive.
  * Note that doing fdd_setfilename() causes an implicit eject on the 
  * previous disc in the drive. */
@@ -114,8 +116,6 @@ void	 fdd_setcomp(FDD_PTR fd, const char *s);
 
 /* This is called when the FDC interrupts */
 typedef void (*FDC_ISR)(FDC_PTR self, int status);
-
-void fdc_initialize(FDC_PTR self);
 
 /* Reading FDC internal state */
 fdc_byte fdc_readst0(FDC_PTR fdc);
