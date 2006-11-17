@@ -49,7 +49,7 @@ static void gdev_fdd765_init(GdevFDD765 *fdd765)
 {
   fdd765->upd765 = NULL;
   fdd765->impl   = G_TYPE_INSTANCE_GET_PRIVATE(fdd765, GDEV_TYPE_FDD765, FDD_765);
-  fdd_initialize(fdd765->impl);
+  fdd_init_impl(fdd765->impl);
   gdev_fdd765_reset(fdd765);
 }
 
@@ -60,11 +60,7 @@ static void gdev_fdd765_init(GdevFDD765 *fdd765)
  */
 static void gdev_fdd765_reset(GdevFDD765 *fdd765)
 {
-  FDD_765 *fdd = fdd765->impl;
-
-  if((fdd != NULL) && (fdd->fd_vtable != NULL) && (fdd->fd_vtable->fdv_reset != NULL)) {
-    (*fdd->fd_vtable->fdv_reset)(fdd);
-  }
+  fdd_reset_impl(fdd765->impl);
 }
 
 /**
@@ -85,10 +81,13 @@ GdevFDD765 *gdev_fdd765_new(void)
  */
 void gdev_fdd765_insert(GdevFDD765 *fdd765, gchar *dsk_fn)
 {
-  if(dsk_fn != NULL) {
-    fdd_setfilename(fdd765->impl, dsk_fn);
-  }
-  else {
-    fd_eject(fdd765->impl);
+  if(fdd765->impl != NULL) {
+    if((fdd765->impl->fd_vtable != NULL)
+    && (fdd765->impl->fd_vtable->fdv_eject != NULL)) {
+      (*fdd765->impl->fd_vtable->fdv_eject)(fdd765->impl);
+    }
+    if(dsk_fn != NULL) {
+      (void) strcpy(fdd765->impl->fdl_filename, dsk_fn);
+    }
   }
 }

@@ -108,7 +108,16 @@ void gdev_upd765_set_fdd(GdevUPD765 *upd765, GdevFDD765 *fdd765, guint8 drive)
 {
   upd765->fdd[drive] = fdd765;
   fdd765->upd765     = upd765;
-  fdc_setdrive(upd765->fdc->impl, drive, fdd765->impl);
+  if((upd765->fdc != NULL)
+  && (upd765->fdc->impl != NULL)) {
+    if((upd765->fdd[drive] != NULL)
+    && (upd765->fdd[drive]->impl != NULL)) {
+      upd765->fdc->impl->fdc_drive[drive] = upd765->fdd[drive]->impl;
+    }
+    else {
+      upd765->fdc->impl->fdc_drive[drive] = NULL;
+    }
+  }
 }
 
 /**

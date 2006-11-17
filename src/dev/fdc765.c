@@ -136,7 +136,7 @@ static void gdev_fdc765_init(GdevFDC765 *fdc765)
 {
   fdc765->upd765 = NULL;
   fdc765->impl   = G_TYPE_INSTANCE_GET_PRIVATE(fdc765, GDEV_TYPE_FDC765, FDC_765);
-  fdc_initialize(fdc765->impl);
+  fdc_init_impl(fdc765->impl);
   gdev_fdc765_reset(fdc765);
 }
 
@@ -178,7 +178,7 @@ static void gdev_fdc765_reset(GdevFDC765 *fdc765)
 static void gdev_fdc765_rstat(GdevFDC765 *fdc765, guint8 *busptr)
 {
   if((fdc765->impl != NULL) && (myfdc == FALSE)) {
-    *busptr = fdc_read_ctrl(fdc765->impl);
+    *busptr = fdc_rd_stat(fdc765->impl);
 #ifdef DEBUG_FDC
     (void) printf("CPU <-- FDC : MSR=0x%02x\n", *busptr);
 #endif
@@ -210,7 +210,7 @@ static void gdev_fdc765_wstat(GdevFDC765 *fdc765, guint8 *busptr)
 static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
 {
   if((fdc765->impl != NULL) && (myfdc == FALSE)) {
-    *busptr = fdc_read_data(fdc765->impl);
+    *busptr = fdc_rd_data(fdc765->impl);
 #ifdef DEBUG_FDC
     (void) printf("CPU <-- FDC : DAT=0x%02x\n", *busptr);
 #endif
@@ -244,7 +244,7 @@ static void gdev_fdc765_rdata(GdevFDC765 *fdc765, guint8 *busptr)
 static void gdev_fdc765_wdata(GdevFDC765 *fdc765, guint8 *busptr)
 {
   if((fdc765->impl != NULL) && (myfdc == FALSE)) {
-    fdc_write_data(fdc765->impl, *busptr);
+    fdc_wr_data(fdc765->impl, *busptr);
 #ifdef DEBUG_FDC
     (void) printf("CPU --> FDC : DAT=0x%02x\n", *busptr);
 #endif
@@ -536,7 +536,7 @@ static void gdev_fdc765_recalibrate(GdevFDC765 *fdc765)
   fdc765->reg.st1 = 0x00;
   fdc765->reg.st2 = 0x00;
   fdc765->reg.st3 = 0x00;
-  (void) fd_seek_cylinder(fd, 0);
+  (void) fdd_seek_cylinder(fd, 0);
   (void) fprintf(stdout, "gdev_fdc765_recalibrate\n");
   (void) fflush(stdout);
 }
@@ -549,16 +549,20 @@ static void gdev_fdc765_recalibrate(GdevFDC765 *fdc765)
 static void gdev_fdc765_sense_int_status(GdevFDC765 *fdc765)
 {
   FDD_765 *fd = NULL;
+  int ready = 0;
 
   if((fdc765->upd765 != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id] != NULL)
   && (fdc765->upd765->fdd[fdc765->unit_id]->impl != NULL)) {
     fd = fdc765->upd765->fdd[fdc765->unit_id]->impl;
+    if((fd->fd_vtable != NULL) && (fd->fd_vtable->fdv_ready != NULL)) {
+      ready = (*fd->fd_vtable->fdv_ready)(fd);
+    }
   }
   fdc765->reg.msr    = 0xd0 | (fdc765->reg.msr & 0x1f); /* RDY + DIR[FDC=>CPU]  */
-  fdc765->reg.st0   |= (fd_ready(fd) != 0 ? 0x08 : 0x00);
+  fdc765->reg.st0   |= (ready & 1) << 3;
   fdc765->res.buf[0] = fdc765->reg.st0;
-  fdc765->res.buf[1] = fd_getcurcyl(fd);
+  fdc765->res.buf[1] = fd->fd_cylinder;
   (void) fprintf(stdout, "gdev_fdc765_sense_int_status\n");
   (void) fflush(stdout);
 }
