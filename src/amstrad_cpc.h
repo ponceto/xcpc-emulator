@@ -65,6 +65,7 @@ struct _AMSTRAD_CPC {
   Screen *screen;
   Window  window;
   XImage *ximage;
+  Bool    useshm;
   struct timeval timer1;
   struct timeval timer2;
   unsigned long palette[32];

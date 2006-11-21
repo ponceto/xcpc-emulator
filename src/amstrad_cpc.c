@@ -23,9 +23,18 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#ifdef HAVE_SYS_IPC_H
+#include <sys/ipc.h>
+#endif
+#ifdef HAVE_SYS_SHM_H
+#include <sys/shm.h>
+#endif
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <X11/keysym.h>
+#ifdef HAVE_XSHM
+#include <X11/extensions/XShm.h>
+#endif
 #include <Xem/Emulator.h>
 #include "amstrad_cpc.h"
 #include "xcpc.h"
@@ -38,12 +47,15 @@
 #define CTRL_L_MASK 0x04
 #define CTRL_R_MASK 0x08
 
-static gchar *cfg_model    = NULL;
-static gchar *cfg_monitor  = NULL;
-static gchar *cfg_keyboard = NULL;
-static gchar *cfg_firmname = NULL;
-static gchar *cfg_sys_rom  = NULL;
-static gchar *cfg_exp_rom[256] = {
+#ifdef HAVE_XSHM
+static gboolean *cfg_no_xshm  = FALSE;
+#endif
+static gchar    *cfg_model    = NULL;
+static gchar    *cfg_monitor  = NULL;
+static gchar    *cfg_keyboard = NULL;
+static gchar    *cfg_firmname = NULL;
+static gchar    *cfg_sys_rom  = NULL;
+static gchar    *cfg_exp_rom[256] = {
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -63,6 +75,9 @@ static gchar *cfg_exp_rom[256] = {
 };
 
 static GOptionEntry options[] = {
+#ifdef HAVE_XSHM
+  { "no-xshm" , 0, 0, G_OPTION_ARG_NONE  , &cfg_no_xshm     , "Don't use the X11-SHM extension"                       , NULL       },
+#endif
   { "model"   , 0, 0, G_OPTION_ARG_STRING, &cfg_model       , "cpc464|cpc664|cpc6128"                                 , "value"    },
   { "monitor" , 0, 0, G_OPTION_ARG_STRING, &cfg_monitor     , "color|green"                                           , "value"    },
   { "keyboard", 0, 0, G_OPTION_ARG_STRING, &cfg_keyboard    , "qwerty|azerty"                                         , "value"    },
@@ -454,8 +469,19 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
     dst = nxt; sl++;
   }
   if(self->window != None) {
+#ifdef HAVE_XSHM
+    if(self->useshm != False) {
+      (void) XShmPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, False);
+      (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+    }
+    else {
+      (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+      (void) XFlush(DisplayOfScreen(self->screen));
+    }
+#else
     (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
     (void) XFlush(DisplayOfScreen(self->screen));
+#endif
   }
 }
 
@@ -674,8 +700,19 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
     dst = nxt; sl++;
   }
   if(self->window != None) {
+#ifdef HAVE_XSHM
+    if(self->useshm != False) {
+      (void) XShmPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, False);
+      (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+    }
+    else {
+      (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+      (void) XFlush(DisplayOfScreen(self->screen));
+    }
+#else
     (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
     (void) XFlush(DisplayOfScreen(self->screen));
+#endif
   }
 }
 
@@ -894,8 +931,19 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
     dst = nxt; sl++;
   }
   if(self->window != None) {
+#ifdef HAVE_XSHM
+    if(self->useshm != False) {
+      (void) XShmPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, False);
+      (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+    }
+    else {
+      (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+      (void) XFlush(DisplayOfScreen(self->screen));
+    }
+#else
     (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
     (void) XFlush(DisplayOfScreen(self->screen));
+#endif
   }
 }
 
@@ -2265,9 +2313,41 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 
   amstrad_cpc.screen = XtScreen(widget);
   amstrad_cpc.window = XtWindow(widget);
-  amstrad_cpc.ximage = XCreateImage(DisplayOfScreen(amstrad_cpc.screen), DefaultVisualOfScreen(amstrad_cpc.screen), DefaultDepthOfScreen(amstrad_cpc.screen), ZPixmap, 0, NULL, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, 8, 0);
-  amstrad_cpc.ximage->data = (char *) XtMalloc(amstrad_cpc.ximage->bytes_per_line * amstrad_cpc.ximage->height);
-  (void) memset(amstrad_cpc.ximage->data, 0, amstrad_cpc.ximage->bytes_per_line * amstrad_cpc.ximage->height);
+  amstrad_cpc.ximage = NULL;
+  amstrad_cpc.useshm = False;
+#ifdef HAVE_XSHM
+  if(cfg_no_xshm == FALSE) {
+    if(XShmQueryExtension(DisplayOfScreen(amstrad_cpc.screen)) != False) {
+      int major = 0;
+      int minor = 0;
+      Bool shpix = False;
+      if(XShmQueryVersion(DisplayOfScreen(amstrad_cpc.screen), &major, &minor, &shpix) != False) {
+        XShmSegmentInfo *shm_info = g_new(XShmSegmentInfo, 1);
+        shm_info->shmseg   = None;
+        shm_info->shmid    = -1;
+        shm_info->shmaddr  = (char *) -1;
+        shm_info->readOnly = False;
+        amstrad_cpc.ximage = XShmCreateImage(DisplayOfScreen(amstrad_cpc.screen), DefaultVisualOfScreen(amstrad_cpc.screen), DefaultDepthOfScreen(amstrad_cpc.screen), ZPixmap, NULL, shm_info, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+        shm_info->shmid    = shmget(IPC_PRIVATE, amstrad_cpc.ximage->bytes_per_line * amstrad_cpc.ximage->height, IPC_CREAT | 0600);
+        if(shm_info->shmid != -1) {
+          shm_info->shmaddr  = shmat(shm_info->shmid, NULL, 0);
+          if(shm_info->shmaddr != (char *) -1) {
+            amstrad_cpc.ximage->data = shm_info->shmaddr;
+            (void) XShmAttach(DisplayOfScreen(amstrad_cpc.screen), shm_info);
+            (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+            (void) shmctl(shm_info->shmid, IPC_RMID, NULL);
+            amstrad_cpc.useshm = True;
+          }
+        }
+      }
+    }
+  }
+#endif
+  if(amstrad_cpc.ximage == NULL) {
+    amstrad_cpc.ximage = XCreateImage(DisplayOfScreen(amstrad_cpc.screen), DefaultVisualOfScreen(amstrad_cpc.screen), DefaultDepthOfScreen(amstrad_cpc.screen), ZPixmap, 0, NULL, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, 8, 0);
+    amstrad_cpc.ximage->data = (char *) XtMalloc(amstrad_cpc.ximage->bytes_per_line * amstrad_cpc.ximage->height);
+    (void) memset(amstrad_cpc.ximage->data, 0, amstrad_cpc.ximage->bytes_per_line * amstrad_cpc.ximage->height);
+  }
   switch(amstrad_cpc.ximage->bits_per_pixel) {
     case 8:
       amstrad_cpc.paint_hnd = amstrad_cpc_render08;
@@ -2471,6 +2551,18 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
   int ix;
 
   if(amstrad_cpc.ximage != NULL) {
+#ifdef HAVE_XSHM
+    if(amstrad_cpc.useshm != False) {
+      XShmSegmentInfo *shm_info = (XShmSegmentInfo *) amstrad_cpc.ximage->obdata;
+      (void) XShmDetach(DisplayOfScreen(amstrad_cpc.screen), shm_info);
+      (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+      (void) shmdt(shm_info->shmaddr);
+      shm_info->shmaddr = (char *) NULL;
+      amstrad_cpc.ximage->data   = NULL;
+      g_free(amstrad_cpc.ximage->obdata);
+      amstrad_cpc.ximage->obdata = NULL;
+    }
+#endif
     if(amstrad_cpc.ximage->data != NULL) {
       XtFree((char *) amstrad_cpc.ximage->data);
       amstrad_cpc.ximage->data = NULL;

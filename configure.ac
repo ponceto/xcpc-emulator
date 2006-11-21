@@ -28,13 +28,13 @@ if test "x${have_glib20}" = "xno"; then
   AC_MSG_ERROR([Glib - version >= 2.6.0 is required])
 fi
 AC_CHECK_HEADER([libdsk.h], [have_libdsk="yes"], [AC_MSG_ERROR([libdsk is required !!])])
-AC_ARG_WITH([motif1], AC_HELP_STRING([--with-motif1], [build the Motif1 version]))
+AC_ARG_WITH([motif1], [AC_HELP_STRING([--with-motif1], [build the Motif1 version])])
 AC_CHECK_HEADER([Xm/Xm.h],
 [have_motif1="yes"], [have_motif1="no"], [
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 ])
-AC_ARG_WITH([athena], AC_HELP_STRING([--with-athena], [build the Athena version]))
+AC_ARG_WITH([athena], [AC_HELP_STRING([--with-athena], [build the Athena version])])
 AC_CHECK_HEADER([X11/Xaw/XawInit.h],
 [have_athena="yes"], [have_athena="no"], [
 #include <X11/Intrinsic.h>
@@ -69,6 +69,29 @@ else
     AC_MSG_ERROR([no gui toolkit found ...])
   fi
 fi
+AC_ARG_ENABLE([xshm], [AC_HELP_STRING([--enable-xshm], [add the support of XShm if available [default=yes]])], [], [enable_xshm="yes"])
+AC_CHECK_HEADER([sys/ipc.h], [], [enable_xshm="no"])
+if test "x${ac_cv_header_sys_ipc_h}" = "xyes"; then
+  AC_DEFINE([HAVE_SYS_IPC_H], [1], [Define to 1 if you have the <sys/ipc.h> header file.])
+fi
+AC_CHECK_HEADER([sys/shm.h], [], [enable_xshm="no"])
+if test "x${ac_cv_header_sys_shm_h}" = "xyes"; then
+  AC_DEFINE([HAVE_SYS_SHM_H], [1], [Define to 1 if you have the <sys/shm.h> header file.])
+fi
+AC_CHECK_HEADER([X11/extensions/XShm.h], [], [enable_xshm="no"], [
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+]
+)
+if test "x${enable_xshm}" = "xyes"; then
+  AC_DEFINE([HAVE_XSHM], [1], [Define to 1 if you have the X11-SHM extension.])
+fi
+
 AC_C_BIGENDIAN([AC_DEFINE([MSB_FIRST], [1], [MSB First: 68k, sparc, ...])],
                [AC_DEFINE([LSB_FIRST], [1], [LSB First: x86, alpha, ...])],
                [AC_MSG_ERROR([unsupported byte-order ...])])
@@ -82,6 +105,7 @@ AC_MSG_NOTICE([Configured to build Xcpc:
   Motif1 sdk .... ${have_motif1}
   Athena sdk .... ${have_athena}
   gui toolkit ... ${gui_toolkit}
+  X11-SHM ....... ${enable_xshm}
 
 Have fun with Xcpc ;-)
 ])
