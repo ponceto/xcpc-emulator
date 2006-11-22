@@ -36,6 +36,9 @@ struct _GdevMC6845 {
   GdevDevice device;
   guint8 addr_reg;
   guint8 reg_file[18];
+  guint8 h_ctr;
+  guint8 r_ctr;
+  guint8 v_ctr;
   guint  hsync;
   guint  vsync;
 };

@@ -77,6 +77,9 @@ static void gdev_mc6845_reset(GdevMC6845 *mc6845)
   mc6845->reg_file[15] = 0x80; /* Cursor (LSB)          [xxxxxxxx] */
   mc6845->reg_file[16] = 0x00; /* Light Pen (MSB)       [--xxxxxx] */
   mc6845->reg_file[17] = 0x00; /* Light Pen (LSB)       [xxxxxxxx] */
+  mc6845->h_ctr = 0;
+  mc6845->r_ctr = 0;
+  mc6845->v_ctr = 0;
   mc6845->hsync = 0;
   mc6845->vsync = 0;
 }
@@ -88,6 +91,15 @@ static void gdev_mc6845_reset(GdevMC6845 *mc6845)
  */
 static void gdev_mc6845_clock(GdevMC6845 *mc6845)
 {
+  if(++mc6845->h_ctr > mc6845->reg_file[0]) { /* Horiz. Total */
+    mc6845->h_ctr = 0;
+    if(++mc6845->r_ctr > mc6845->reg_file[9]) { /* Raster Total */
+      mc6845->r_ctr = 0;
+      if(++mc6845->v_ctr > mc6845->reg_file[4]) { /* Verti. Total */
+        mc6845->v_ctr = 0;
+      }
+    }
+  }
 }
 
 /**

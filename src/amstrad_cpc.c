@@ -2330,7 +2330,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
         amstrad_cpc.ximage = XShmCreateImage(DisplayOfScreen(amstrad_cpc.screen), DefaultVisualOfScreen(amstrad_cpc.screen), DefaultDepthOfScreen(amstrad_cpc.screen), ZPixmap, NULL, shm_info, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
         shm_info->shmid    = shmget(IPC_PRIVATE, amstrad_cpc.ximage->bytes_per_line * amstrad_cpc.ximage->height, IPC_CREAT | 0600);
         if(shm_info->shmid != -1) {
-          shm_info->shmaddr  = shmat(shm_info->shmid, NULL, 0);
+          shm_info->shmaddr  = (char *) shmat(shm_info->shmid, NULL, 0);
           if(shm_info->shmaddr != (char *) -1) {
             amstrad_cpc.ximage->data = shm_info->shmaddr;
             (void) XShmAttach(DisplayOfScreen(amstrad_cpc.screen), shm_info);
@@ -2445,6 +2445,8 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
+  GdevDeviceClass *z80cpu_class = GDEV_DEVICE_GET_CLASS((GdevDevice *) amstrad_cpc.z80cpu);
+  GdevDeviceClass *mc6845_class = GDEV_DEVICE_GET_CLASS((GdevDevice *) amstrad_cpc.mc6845);
   static int num_frames = 0;
   static int drw_frames = 0;
   long delay, ix;
@@ -2453,6 +2455,8 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   int vsyncpos_min;
   int vsyncpos_max;
 
+  amstrad_cpc.mc6845->h_ctr = 0;
+  amstrad_cpc.mc6845->v_ctr = 0;
   vsync_length = (amstrad_cpc.mc6845->reg_file[3] >> 4) & 0x0f;
   if(vsync_length == 0) {
     vsync_length = 16;
@@ -2464,15 +2468,24 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     for(ix = 0; ix < 17; ix++) {
       amstrad_cpc.scanline[amstrad_cpc.beam.y].ink[ix] = amstrad_cpc.palette[amstrad_cpc.garray->ink[ix]];
     }
-    if(amstrad_cpc.garray->gen_irq != 0) {
-      if((amstrad_cpc.z80cpu->IFF & IFF_1) != 0) {
-        gdev_z80cpu_intr(amstrad_cpc.z80cpu, INT_RST38);
-        amstrad_cpc.garray->counter &= 31;
-        amstrad_cpc.garray->gen_irq  = 0;
+    for(ix = 0; ix < amstrad_cpc.cpu_period; ix += 4) {
+      if(amstrad_cpc.garray->gen_irq != 0) {
+        if((amstrad_cpc.z80cpu->IFF & IFF_1) != 0) {
+          gdev_z80cpu_intr(amstrad_cpc.z80cpu, INT_RST38);
+          amstrad_cpc.garray->counter &= 31;
+          amstrad_cpc.garray->gen_irq  = 0;
+        }
       }
-    }
-    if((amstrad_cpc.z80cpu->TStates += amstrad_cpc.cpu_period) > 0) {
-      GDEV_DEVICE_GET_CLASS((GdevDevice *) amstrad_cpc.z80cpu)->clock((GdevDevice *) amstrad_cpc.z80cpu);
+      if((amstrad_cpc.z80cpu->TStates += 4) > 0) {
+        (*z80cpu_class->clock)((GdevDevice *) amstrad_cpc.z80cpu);
+      }
+      (*mc6845_class->clock)((GdevDevice *) amstrad_cpc.mc6845);
+      if(amstrad_cpc.mc6845->h_ctr == amstrad_cpc.mc6845->reg_file[2]) {
+        if(++amstrad_cpc.garray->counter >= 52) {
+          amstrad_cpc.garray->counter = 0;
+          amstrad_cpc.garray->gen_irq = 1;
+        }
+      }
     }
     if((scanline >= vsyncpos_min) && (scanline <= vsyncpos_max)) {
       if(amstrad_cpc.mc6845->vsync == 0) {
@@ -2480,12 +2493,12 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       }
       if((scanline - vsyncpos_min) == 2) {
         if((amstrad_cpc.garray->counter & 32) != 0) {
-          amstrad_cpc.garray->counter = 0;
           amstrad_cpc.garray->gen_irq = 1;
         }
-        else {
-          amstrad_cpc.garray->counter = 0;
+	else {
+          amstrad_cpc.garray->gen_irq = 1;
         }
+        amstrad_cpc.garray->counter = 0;
       }
       amstrad_cpc.mc6845->vsync = 1; /* set V-SYNC */
     }
@@ -2495,10 +2508,6 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
         amstrad_cpc.beam.y = 0;
       }
       amstrad_cpc.mc6845->vsync = 0; /* reset V-SYNC */
-    }
-    if(++amstrad_cpc.garray->counter >= 52) {
-      amstrad_cpc.garray->counter = 0;
-      amstrad_cpc.garray->gen_irq = 1;
     }
     if(++amstrad_cpc.beam.y > 311) {
       amstrad_cpc.beam.y = 311;
