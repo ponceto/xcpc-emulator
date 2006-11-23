@@ -2197,13 +2197,11 @@ static void z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
   }
 }
 
-static int v_delay = 0;
-
 static void mc6845_hsync(GdevMC6845 *mc6845)
 {
   if(mc6845->h_syn != 0) {
-    if(v_delay > 0) {
-      if(--v_delay == 0) {
+    if(amstrad_cpc.garray->delayed > 0) {
+      if(--amstrad_cpc.garray->delayed == 0) {
         if((amstrad_cpc.garray->counter & 32) != 0) {
           amstrad_cpc.garray->gen_irq = 1;
         }
@@ -2225,7 +2223,7 @@ static void mc6845_hsync(GdevMC6845 *mc6845)
 static void mc6845_vsync(GdevMC6845 *mc6845)
 {
   if(mc6845->v_syn != 0) {
-    v_delay = 2;
+    amstrad_cpc.garray->delayed = 2;
   }
 }
 
