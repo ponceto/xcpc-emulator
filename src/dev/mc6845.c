@@ -48,6 +48,8 @@ static void gdev_mc6845_class_init(GdevMC6845Class *mc6845_class)
  */
 static void gdev_mc6845_init(GdevMC6845 *mc6845)
 {
+  mc6845->hsync = NULL;
+  mc6845->vsync = NULL;
   gdev_mc6845_reset(mc6845);
 }
 
@@ -80,8 +82,10 @@ static void gdev_mc6845_reset(GdevMC6845 *mc6845)
   mc6845->h_ctr = 0;
   mc6845->r_ctr = 0;
   mc6845->v_ctr = 0;
-  mc6845->hsync = 0;
-  mc6845->vsync = 0;
+  mc6845->h_syn = 0;
+  mc6845->h_syn_ctr = 0;
+  mc6845->v_syn = 0;
+  mc6845->v_syn_ctr = 0;
 }
 
 /**
@@ -91,13 +95,47 @@ static void gdev_mc6845_reset(GdevMC6845 *mc6845)
  */
 static void gdev_mc6845_clock(GdevMC6845 *mc6845)
 {
-  if(++mc6845->h_ctr > mc6845->reg_file[0]) { /* Horiz. Total */
+  if(mc6845->h_syn_ctr > 0) {
+    if(--mc6845->h_syn_ctr == 0) {
+      mc6845->h_syn = 0;
+      if(mc6845->hsync != NULL) {
+        (*mc6845->hsync)(mc6845);
+      }
+    }
+  }
+  if(++mc6845->h_ctr == (mc6845->reg_file[0] + 1)) { /* Horiz. Total */
     mc6845->h_ctr = 0;
-    if(++mc6845->r_ctr > mc6845->reg_file[9]) { /* Raster Total */
+    if(mc6845->v_syn_ctr > 0) {
+      if(--mc6845->v_syn_ctr == 0) {
+        mc6845->v_syn = 0;
+        if(mc6845->vsync != NULL) {
+          (*mc6845->vsync)(mc6845);
+        }
+      }
+    }
+    if(++mc6845->r_ctr == (mc6845->reg_file[9] + 1)) { /* Raster Total */
       mc6845->r_ctr = 0;
-      if(++mc6845->v_ctr > mc6845->reg_file[4]) { /* Verti. Total */
+      if(++mc6845->v_ctr == (mc6845->reg_file[4] + 1)) { /* Verti. Total */
         mc6845->v_ctr = 0;
       }
+    }
+  }
+  if((mc6845->h_syn == 0) && (mc6845->h_ctr == mc6845->reg_file[2])) { /* Horiz. Sync Pos. */
+    mc6845->h_syn = 1;
+    if((mc6845->h_syn_ctr = (mc6845->reg_file[3] >> 0) & 0x0f) == 0) {
+      mc6845->h_syn_ctr = 16;
+    }
+    if(mc6845->hsync != NULL) {
+      (*mc6845->hsync)(mc6845);
+    }
+  }
+  if((mc6845->v_syn == 0) && (mc6845->v_ctr == mc6845->reg_file[7])) { /* Verti. Sync Pos. */
+    mc6845->v_syn = 1;
+    if((mc6845->v_syn_ctr = (mc6845->reg_file[3] >> 4) & 0x0f) == 0) {
+      mc6845->v_syn_ctr = 16;
+    }
+    if(mc6845->vsync != NULL) {
+      (*mc6845->vsync)(mc6845);
     }
   }
 }

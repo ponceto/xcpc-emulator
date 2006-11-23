@@ -262,16 +262,17 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
   unsigned int hd = mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
   unsigned int mr = mc6845->reg_file[9] + 1;
+  unsigned int vt = mc6845->reg_file[4] + 1;
   unsigned int vd = mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
-  struct _scanline *sl = &self->scanline[20];
-  guint8 *dst = (guint8 *) self->ximage->data;
-  guint8 *nxt = (guint8 *) self->ximage->data;
+  struct _scanline *sl = NULL;
+  guint8 *dst = (guint8 *) self->ximage->data, *nxt = dst;
   guint8 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
   guint8 data;
 
+  sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
     pixel = sl->ink[16];
@@ -280,6 +281,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
     }
     dst = nxt; sl++;
   }
+  sl = &self->scanline[4];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -460,6 +462,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
     }
     sa += hd;
   }
+  sl = &self->scanline[(vd * mr) + (0 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
     pixel = sl->ink[16];
@@ -493,16 +496,17 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
   unsigned int hd = mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
   unsigned int mr = mc6845->reg_file[9] + 1;
+  unsigned int vt = mc6845->reg_file[4] + 1;
   unsigned int vd = mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
-  struct _scanline *sl = &self->scanline[20];
-  guint16 *dst = (guint16 *) self->ximage->data;
-  guint16 *nxt = (guint16 *) self->ximage->data;
+  struct _scanline *sl = NULL;
+  guint16 *dst = (guint16 *) self->ximage->data, *nxt = dst;
   guint16 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
   guint8 data;
 
+  sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
     pixel = sl->ink[16];
@@ -511,6 +515,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
     }
     dst = nxt; sl++;
   }
+  sl = &self->scanline[4];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -691,6 +696,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
     }
     sa += hd;
   }
+  sl = &self->scanline[(vd * mr) + (0 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
     pixel = sl->ink[16];
@@ -724,16 +730,17 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
   unsigned int hd = mc6845->reg_file[1];
   unsigned int hp = ((AMSTRAD_CPC_SCR_W >> 0) - (hd << 4)) >> 1;
   unsigned int mr = mc6845->reg_file[9] + 1;
+  unsigned int vt = mc6845->reg_file[4] + 1;
   unsigned int vd = mc6845->reg_file[6];
   unsigned int vp = ((AMSTRAD_CPC_SCR_H >> 1) - (vd * mr)) >> 1;
-  struct _scanline *sl = &self->scanline[20];
-  guint32 *dst = (guint32 *) self->ximage->data;
-  guint32 *nxt = (guint32 *) self->ximage->data;
+  struct _scanline *sl = NULL;
+  guint32 *dst = (guint32 *) self->ximage->data, *nxt = dst;
   guint32 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
   guint8 data;
 
+  sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
     pixel = sl->ink[16];
@@ -742,6 +749,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
     }
     dst = nxt; sl++;
   }
+  sl = &self->scanline[4];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -922,6 +930,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
     }
     sa += hd;
   }
+  sl = &self->scanline[(vd * mr) + (0 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
     pixel = sl->ink[16];
@@ -2058,7 +2067,7 @@ static guint8 z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
                                   | ((1                         & 0x01) << 5)
                                   | ((amstrad_cpc.refresh       & 0x01) << 4)
                                   | ((amstrad_cpc.firmname      & 0x07) << 1)
-                                  | ((amstrad_cpc.mc6845->vsync & 0x01) << 0);
+                                  | ((amstrad_cpc.mc6845->v_syn & 0x01) << 0);
         data = amstrad_cpc.i8255->port_b;
         break;
       case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
@@ -2185,6 +2194,38 @@ static void z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
         GDEV_FDC765_GET_CLASS(amstrad_cpc.upd765->fdc)->wdata(amstrad_cpc.upd765->fdc, &data);
         break;
     }
+  }
+}
+
+static int v_delay = 0;
+
+static void mc6845_hsync(GdevMC6845 *mc6845)
+{
+  if(mc6845->h_syn != 0) {
+    if(v_delay > 0) {
+      if(--v_delay == 0) {
+        if((amstrad_cpc.garray->counter & 32) != 0) {
+          amstrad_cpc.garray->gen_irq = 1;
+        }
+        else {
+          amstrad_cpc.garray->gen_irq = 0;
+        }
+        amstrad_cpc.garray->counter = 0;
+      }
+    }
+    else {
+      if(++amstrad_cpc.garray->counter == 52) {
+        amstrad_cpc.garray->counter = 0;
+        amstrad_cpc.garray->gen_irq = 1;
+      }
+    }
+  }
+}
+
+static void mc6845_vsync(GdevMC6845 *mc6845)
+{
+  if(mc6845->v_syn != 0) {
+    v_delay = 2;
   }
 }
 
@@ -2434,6 +2475,8 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     self->z80cpu->mm_wr = z80cpu_mm_wr;
     self->z80cpu->io_rd = z80cpu_io_rd;
     self->z80cpu->io_wr = z80cpu_io_wr;
+    self->mc6845->hsync = mc6845_hsync;
+    self->mc6845->vsync = mc6845_vsync;
     gdev_upd765_set_fdc(self->upd765, gdev_fdc765_new());
     gdev_upd765_set_fdd(self->upd765, gdev_fdd765_new(), 0);
     gdev_upd765_set_fdd(self->upd765, gdev_fdd765_new(), 1);
@@ -2451,24 +2494,15 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   static int drw_frames = 0;
   long delay, ix;
   int scanline = 0;
-  int vsync_length;
-  int vsyncpos_min;
-  int vsyncpos_max;
 
-  amstrad_cpc.mc6845->h_ctr = 0;
-  amstrad_cpc.mc6845->v_ctr = 0;
-  vsync_length = (amstrad_cpc.mc6845->reg_file[3] >> 4) & 0x0f;
-  if(vsync_length == 0) {
-    vsync_length = 16;
-  }
-  vsyncpos_min = amstrad_cpc.mc6845->reg_file[7] * (amstrad_cpc.mc6845->reg_file[9] + 1);
-  vsyncpos_max = vsyncpos_min + vsync_length - 1;
+  amstrad_cpc.beam.y = 0;
   do {
     amstrad_cpc.scanline[amstrad_cpc.beam.y].mode = amstrad_cpc.garray->rom_cfg & 0x03;
     for(ix = 0; ix < 17; ix++) {
       amstrad_cpc.scanline[amstrad_cpc.beam.y].ink[ix] = amstrad_cpc.palette[amstrad_cpc.garray->ink[ix]];
     }
     for(ix = 0; ix < amstrad_cpc.cpu_period; ix += 4) {
+      (*mc6845_class->clock)((GdevDevice *) amstrad_cpc.mc6845);
       if(amstrad_cpc.garray->gen_irq != 0) {
         if((amstrad_cpc.z80cpu->IFF & IFF_1) != 0) {
           gdev_z80cpu_intr(amstrad_cpc.z80cpu, INT_RST38);
@@ -2476,38 +2510,10 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
           amstrad_cpc.garray->gen_irq  = 0;
         }
       }
+      amstrad_cpc.z80cpu->TStates -= amstrad_cpc.z80cpu->TStates & 3;
       if((amstrad_cpc.z80cpu->TStates += 4) > 0) {
         (*z80cpu_class->clock)((GdevDevice *) amstrad_cpc.z80cpu);
       }
-      (*mc6845_class->clock)((GdevDevice *) amstrad_cpc.mc6845);
-      if(amstrad_cpc.mc6845->h_ctr == amstrad_cpc.mc6845->reg_file[2]) {
-        if(++amstrad_cpc.garray->counter >= 52) {
-          amstrad_cpc.garray->counter = 0;
-          amstrad_cpc.garray->gen_irq = 1;
-        }
-      }
-    }
-    if((scanline >= vsyncpos_min) && (scanline <= vsyncpos_max)) {
-      if(amstrad_cpc.mc6845->vsync == 0) {
-        /* rising edge of V-SYNC */
-      }
-      if((scanline - vsyncpos_min) == 2) {
-        if((amstrad_cpc.garray->counter & 32) != 0) {
-          amstrad_cpc.garray->gen_irq = 1;
-        }
-	else {
-          amstrad_cpc.garray->gen_irq = 1;
-        }
-        amstrad_cpc.garray->counter = 0;
-      }
-      amstrad_cpc.mc6845->vsync = 1; /* set V-SYNC */
-    }
-    else {
-      if(amstrad_cpc.mc6845->vsync != 0) {
-        /* falling edge of V-SYNC */
-        amstrad_cpc.beam.y = 0;
-      }
-      amstrad_cpc.mc6845->vsync = 0; /* reset V-SYNC */
     }
     if(++amstrad_cpc.beam.y > 311) {
       amstrad_cpc.beam.y = 311;

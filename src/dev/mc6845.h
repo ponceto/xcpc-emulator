@@ -39,8 +39,11 @@ struct _GdevMC6845 {
   guint8 h_ctr;
   guint8 r_ctr;
   guint8 v_ctr;
-  guint  hsync;
-  guint  vsync;
+  guint  h_syn, h_syn_ctr;
+  guint  v_syn, v_syn_ctr;
+  /* User functions */
+  void (*hsync)(GdevMC6845 *mc6845);
+  void (*vsync)(GdevMC6845 *mc6845);
 };
 
 struct _GdevMC6845Class {
