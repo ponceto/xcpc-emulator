@@ -272,6 +272,11 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
   guint16 addr;
   guint8 data;
 
+#ifdef HAVE_XSHM
+  if(self->useshm != False) {
+    (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+  }
+#endif
   sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
@@ -475,7 +480,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
 #ifdef HAVE_XSHM
     if(self->useshm != False) {
       (void) XShmPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, False);
-      (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+      (void) XFlush(DisplayOfScreen(self->screen));
     }
     else {
       (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
@@ -506,6 +511,11 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
   guint16 addr;
   guint8 data;
 
+#ifdef HAVE_XSHM
+  if(self->useshm != False) {
+    (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+  }
+#endif
   sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
@@ -709,7 +719,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
 #ifdef HAVE_XSHM
     if(self->useshm != False) {
       (void) XShmPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, False);
-      (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+      (void) XFlush(DisplayOfScreen(self->screen));
     }
     else {
       (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
@@ -740,6 +750,11 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
   guint16 addr;
   guint8 data;
 
+#ifdef HAVE_XSHM
+  if(self->useshm != False) {
+    (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+  }
+#endif
   sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
     nxt += AMSTRAD_CPC_SCR_W;
@@ -943,7 +958,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
 #ifdef HAVE_XSHM
     if(self->useshm != False) {
       (void) XShmPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, False);
-      (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+      (void) XFlush(DisplayOfScreen(self->screen));
     }
     else {
       (void) XPutImage(DisplayOfScreen(self->screen), self->window, DefaultGCOfScreen(self->screen), self->ximage, 0, 0, 0, 0, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
