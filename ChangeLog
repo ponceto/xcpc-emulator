@@ -1,3 +1,10 @@
+2006-11-27	Olivier Poncet <ponceto@noos.fr>
+
+	* X11-SHM (XShm) support.
+	* CRTC-6845 improvements.
+	* Timing & interrupt generation improvements.
+	* Some minor corrections & cleanup.
+
 2006-11-20	Olivier Poncet <ponceto@noos.fr>
 
 	* Embedded lib765 cleanup.
