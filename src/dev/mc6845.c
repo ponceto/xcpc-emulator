@@ -95,12 +95,12 @@ static void gdev_mc6845_reset(GdevMC6845 *mc6845)
  */
 static void gdev_mc6845_clock(GdevMC6845 *mc6845)
 {
+  guint old_h_syn = mc6845->h_syn;
+  guint old_v_syn = mc6845->v_syn;
+
   if(mc6845->h_syn_ctr > 0) {
     if(--mc6845->h_syn_ctr == 0) {
       mc6845->h_syn = 0;
-      if(mc6845->hsync != NULL) {
-        (*mc6845->hsync)(mc6845);
-      }
     }
   }
   if(++mc6845->h_ctr == (mc6845->reg_file[0] + 1)) { /* Horiz. Total */
@@ -108,9 +108,6 @@ static void gdev_mc6845_clock(GdevMC6845 *mc6845)
     if(mc6845->v_syn_ctr > 0) {
       if(--mc6845->v_syn_ctr == 0) {
         mc6845->v_syn = 0;
-        if(mc6845->vsync != NULL) {
-          (*mc6845->vsync)(mc6845);
-        }
       }
     }
     if(++mc6845->r_ctr == (mc6845->reg_file[9] + 1)) { /* Raster Total */
@@ -125,18 +122,18 @@ static void gdev_mc6845_clock(GdevMC6845 *mc6845)
     if((mc6845->h_syn_ctr = (mc6845->reg_file[3] >> 0) & 0x0f) == 0) {
       mc6845->h_syn_ctr = 16;
     }
-    if(mc6845->hsync != NULL) {
-      (*mc6845->hsync)(mc6845);
-    }
   }
   if((mc6845->v_syn == 0) && (mc6845->v_ctr == mc6845->reg_file[7])) { /* Verti. Sync Pos. */
     mc6845->v_syn = 1;
     if((mc6845->v_syn_ctr = (mc6845->reg_file[3] >> 4) & 0x0f) == 0) {
       mc6845->v_syn_ctr = 16;
     }
-    if(mc6845->vsync != NULL) {
-      (*mc6845->vsync)(mc6845);
-    }
+  }
+  if((mc6845->v_syn != old_v_syn) && (mc6845->vsync != NULL)) {
+    (*mc6845->vsync)(mc6845);
+  }
+  if((mc6845->h_syn != old_h_syn) && (mc6845->hsync != NULL)) {
+    (*mc6845->hsync)(mc6845);
   }
 }
 

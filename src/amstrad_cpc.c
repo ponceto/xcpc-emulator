@@ -274,7 +274,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
 
 #ifdef HAVE_XSHM
   if(self->useshm != False) {
-    (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+    (void) XSync(DisplayOfScreen(self->screen), False);
   }
 #endif
   sl = &self->scanline[(vt * mr) - (1 * vp)];
@@ -513,7 +513,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
 
 #ifdef HAVE_XSHM
   if(self->useshm != False) {
-    (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+    (void) XSync(DisplayOfScreen(self->screen), False);
   }
 #endif
   sl = &self->scanline[(vt * mr) - (1 * vp)];
@@ -752,7 +752,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
 
 #ifdef HAVE_XSHM
   if(self->useshm != False) {
-    (void) XSync(DisplayOfScreen(amstrad_cpc.screen), False);
+    (void) XSync(DisplayOfScreen(self->screen), False);
   }
 #endif
   sl = &self->scanline[(vt * mr) - (1 * vp)];
@@ -2523,9 +2523,10 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
           amstrad_cpc.garray->gen_irq  = 0;
         }
       }
-      amstrad_cpc.z80cpu->TStates -= amstrad_cpc.z80cpu->TStates & 3;
       if((amstrad_cpc.z80cpu->TStates += 4) > 0) {
+        long TStates = amstrad_cpc.z80cpu->TStates;
         (*z80cpu_class->clock)((GdevDevice *) amstrad_cpc.z80cpu);
+        amstrad_cpc.z80cpu->TStates = TStates - ((TStates - amstrad_cpc.z80cpu->TStates) + 3 & (~4));
       }
     }
     if(++amstrad_cpc.beam.y > 311) {
