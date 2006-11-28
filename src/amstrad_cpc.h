@@ -21,6 +21,7 @@
 #include <drv/driver.h>
 #include <dev/z80cpu.h>
 #include <dev/garray.h>
+#include <dev/cpcmem.h>
 #include <dev/mc6845.h>
 #include <dev/ay8910.h>
 #include <dev/fdd765.h>
@@ -44,11 +45,11 @@ struct _AMSTRAD_CPC {
   guint8 *rd_bank[4];
   guint8 *wr_bank[4];
   struct {
-    guint8 *lower_rom;
-    guint8 *upper_rom;
-    guint8 *total_ram;
-    guint8 *expan_rom[256];
-    guint8  expansion;
+    guint8     *total_ram;
+    GdevCPCMEM *lower_rom;
+    GdevCPCMEM *upper_rom;
+    GdevCPCMEM *expan_rom[256];
+    guint8      expansion;
   } memory;
   struct {
     guint8 mods;
