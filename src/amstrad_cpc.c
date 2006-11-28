@@ -297,7 +297,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -311,7 +311,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -338,7 +338,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -358,7 +358,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -391,7 +391,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -423,7 +423,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -536,7 +536,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -550,7 +550,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -577,7 +577,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -597,7 +597,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -630,7 +630,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -662,7 +662,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -775,7 +775,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode0[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -789,7 +789,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode0[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode0[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -816,7 +816,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode1[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -836,7 +836,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode1[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode1[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -869,7 +869,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
           for(cx = 0; cx < hd; cx++) {
             addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
             /* pixel 0 */
-            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 0) & 0x3fff]];
+            data = garray->mode2[self->memory.total_ram[(addr | 0) & 0xffff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -901,7 +901,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = garray->mode2[self->wr_bank[addr >> 14][(addr | 1) & 0x3fff]];
+            data = garray->mode2[self->memory.total_ram[(addr | 1) & 0xffff]];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
