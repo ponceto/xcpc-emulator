@@ -77,6 +77,9 @@ struct _AMSTRAD_CPC {
   int refresh;
   int firmname;
   int cpu_period;
+  int num_frames;
+  int drw_frames;
+  char status[128];
 };
 
 extern AMSTRAD_CPC amstrad_cpc;
