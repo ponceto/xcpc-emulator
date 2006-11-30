@@ -22,6 +22,7 @@
 #include <dev/z80cpu.h>
 #include <dev/garray.h>
 #include <dev/cpcmem.h>
+#include <dev/cpckbd.h>
 #include <dev/mc6845.h>
 #include <dev/ay8910.h>
 #include <dev/fdd765.h>
@@ -38,6 +39,7 @@ typedef struct _AMSTRAD_CPC AMSTRAD_CPC;
 struct _AMSTRAD_CPC {
   GdevZ80CPU *z80cpu;
   GdevGArray *garray;
+  GdevCPCKBD *cpckbd;
   GdevMC6845 *mc6845;
   GdevAY8910 *ay8910;
   GdevUPD765 *upd765;
@@ -51,18 +53,10 @@ struct _AMSTRAD_CPC {
     GdevCPCMEM *expan_rom[256];
     guint8      expansion;
   } memory;
-  struct {
-    guint8 mods;
-    guint8 line;
-    guint8 bits[16];
-  } keyboard;
   struct _scanline {
     unsigned int mode;
     unsigned long ink[17];
   } scanline[312];
-  struct {
-    int x, y;
-  } beam;
   Screen *screen;
   Window  window;
   XImage *ximage;
@@ -70,8 +64,7 @@ struct _AMSTRAD_CPC {
   struct timeval timer1;
   struct timeval timer2;
   unsigned long palette[32];
-  void (*keybd_hnd)(AMSTRAD_CPC *self, XEvent *xevent);
-  void (*mouse_hnd)(AMSTRAD_CPC *self, XEvent *xevent);
+  void (*keybd_hnd)(GdevCPCKBD *keybd, XEvent *xevent);
   void (*paint_hnd)(AMSTRAD_CPC *self, XtPointer data);
   int ramsize;
   int refresh;
@@ -92,8 +85,7 @@ extern void amstrad_cpc_save_snapshot(char *filename);
 extern void amstrad_cpc_start_handler(Widget widget, XtPointer data);
 extern void amstrad_cpc_clock_handler(Widget widget, XtPointer data);
 extern void amstrad_cpc_close_handler(Widget widget, XtPointer data);
-extern void amstrad_cpc_keybd_handler(Widget widget, XEvent *xevent);
-extern void amstrad_cpc_mouse_handler(Widget widget, XEvent *xevent);
+extern void amstrad_cpc_input_handler(Widget widget, XEvent *xevent);
 extern void amstrad_cpc_paint_handler(Widget widget, XEvent *xevent);
 
 #ifdef __cplusplus

@@ -40,8 +40,7 @@ typedef struct _XemEmulatorPart {
   void (*start_handler)(Widget widget, XtPointer data);
   void (*clock_handler)(Widget widget, XtPointer data);
   void (*close_handler)(Widget widget, XtPointer data);
-  void (*keybd_handler)(Widget widget, XEvent *xevent);
-  void (*mouse_handler)(Widget widget, XEvent *xevent);
+  void (*input_handler)(Widget widget, XEvent *xevent);
   void (*paint_handler)(Widget widget, XEvent *xevent);
   XtIntervalId interval_id;
 } XemEmulatorPart;

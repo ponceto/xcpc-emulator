@@ -39,11 +39,8 @@ extern "C" {
 #ifndef XtNemuCloseHandler
 #define XtNemuCloseHandler "emuCloseHandler"
 #endif
-#ifndef XtNemuKeybdHandler
-#define XtNemuKeybdHandler "emuKeybdHandler"
-#endif
-#ifndef XtNemuMouseHandler
-#define XtNemuMouseHandler "emuMouseHandler"
+#ifndef XtNemuInputHandler
+#define XtNemuInputHandler "emuInputHandler"
 #endif
 #ifndef XtNemuPaintHandler
 #define XtNemuPaintHandler "emuPaintHandler"

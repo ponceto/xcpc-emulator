@@ -773,8 +773,7 @@ static Widget CreateGUI(Widget toplevel)
   XtSetArg(arglist[argcount], XtNemuStartHandler, amstrad_cpc_start_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuClockHandler, amstrad_cpc_clock_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuCloseHandler, amstrad_cpc_close_handler); argcount++;
-  XtSetArg(arglist[argcount], XtNemuKeybdHandler, amstrad_cpc_keybd_handler); argcount++;
-  XtSetArg(arglist[argcount], XtNemuMouseHandler, amstrad_cpc_mouse_handler); argcount++;
+  XtSetArg(arglist[argcount], XtNemuInputHandler, amstrad_cpc_input_handler); argcount++;
   XtSetArg(arglist[argcount], XtNemuPaintHandler, amstrad_cpc_paint_handler); argcount++;
   gui->emulator = XemCreateEmulator(gui->main_wnd, "emulator", arglist, argcount);
   XtManageChild(gui->emulator);

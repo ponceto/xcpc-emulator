@@ -30,8 +30,8 @@ static void Destroy(Widget widget);
 static void Redisplay(Widget widget, XEvent *event, Region region);
 static Boolean SetValues(Widget cur_w, Widget req_w, Widget new_w, ArgList args, Cardinal *num_args);
 static void ClockHnd(Widget widget);
-static void MouseHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch);
 static void KeybdHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch);
+static void MouseHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispatch);
 
 /**
  * XemEmulatorWidget::resources[]
@@ -52,14 +52,9 @@ static XtResource resources[] = {
     sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.close_handler),
     XtRImmediate, (XtPointer) NULL
   },
-  /* XtNemuKeybdHandler */ {
-    XtNemuKeybdHandler, XtCFunction, XtRFunction,
-    sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.keybd_handler),
-    XtRImmediate, (XtPointer) NULL
-  },
-  /* XtNemuMouseHandler */ {
-    XtNemuMouseHandler, XtCFunction, XtRFunction,
-    sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.mouse_handler),
+  /* XtNemuInputHandler */ {
+    XtNemuInputHandler, XtCFunction, XtRFunction,
+    sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.input_handler),
     XtRImmediate, (XtPointer) NULL
   },
   /* XtNemuPaintHandler */ {
@@ -224,13 +219,13 @@ static void KeybdHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispa
         (void) XNextEvent(dpy, &pevent); return;
       }
     }
-    if(self->emulator.keybd_handler != NULL) {
-      (*self->emulator.keybd_handler)(widget, xevent);
+    if(self->emulator.input_handler != NULL) {
+      (*self->emulator.input_handler)(widget, xevent);
     }
   }
   else if(xevent->type == KeyPress) {
-    if(self->emulator.keybd_handler != NULL) {
-      (*self->emulator.keybd_handler)(widget, xevent);
+    if(self->emulator.input_handler != NULL) {
+      (*self->emulator.input_handler)(widget, xevent);
     }
   }
 }
@@ -248,14 +243,14 @@ static void MouseHnd(Widget widget, Widget shell, XEvent *xevent, Boolean *dispa
   XemEmulatorWidget self = (XemEmulatorWidget) widget;
 
   if(xevent->type == ButtonRelease) {
-    if(self->emulator.mouse_handler != NULL) {
-      (*self->emulator.mouse_handler)(widget, xevent);
+    if(self->emulator.input_handler != NULL) {
+      (*self->emulator.input_handler)(widget, xevent);
     }
   }
   else if (xevent->type == ButtonPress) {
     XtSetKeyboardFocus(shell, widget);
-    if(self->emulator.mouse_handler != NULL) {
-      (*self->emulator.mouse_handler)(widget, xevent);
+    if(self->emulator.input_handler != NULL) {
+      (*self->emulator.input_handler)(widget, xevent);
     }
   }
 }

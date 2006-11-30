@@ -31,7 +31,6 @@
 #endif
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
-#include <X11/keysym.h>
 #ifdef HAVE_XSHM
 #include <X11/extensions/XShm.h>
 #endif
@@ -42,11 +41,7 @@
 #define AMSTRAD_CPC_SCR_W 768
 #define AMSTRAD_CPC_SCR_H 576
 
-#define SHFT_L_MASK 0x01
-#define SHFT_R_MASK 0x02
-#define CTRL_L_MASK 0x04
-#define CTRL_R_MASK 0x08
-
+static gboolean *cfg_no_fps   = FALSE;
 #ifdef HAVE_XSHM
 static gboolean *cfg_no_xshm  = FALSE;
 #endif
@@ -75,6 +70,7 @@ static gchar    *cfg_exp_rom[256] = {
 };
 
 static GOptionEntry options[] = {
+  { "no-fps"  , 0, 0, G_OPTION_ARG_NONE    , &cfg_no_fps      , "Don't show fps statistics"                             , NULL       },
 #ifdef HAVE_XSHM
   { "no-xshm" , 0, 0, G_OPTION_ARG_NONE    , &cfg_no_xshm     , "Don't use the X11-SHM extension"                       , NULL       },
 #endif
@@ -579,7 +575,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
     }
     dst = nxt; sl++;
   }
-  /* XXX */ {
+  if(cfg_no_fps == FALSE) {
     char *str = self->status; int len = 0;
     guint8 fg = self->palette[garray->ink[0x01]];
     guint8 bg = self->palette[garray->ink[0x10]];
@@ -836,7 +832,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
     }
     dst = nxt; sl++;
   }
-  /* XXX */ {
+  if(cfg_no_fps == FALSE) {
     char *str = self->status; int len = 0;
     guint16 fg = self->palette[garray->ink[0x01]];
     guint16 bg = self->palette[garray->ink[0x10]];
@@ -1093,7 +1089,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
     }
     dst = nxt; sl++;
   }
-  /* XXX */ {
+  if(cfg_no_fps == FALSE) {
     char *str = self->status; int len = 0;
     guint32 fg = self->palette[garray->ink[0x01]];
     guint32 bg = self->palette[garray->ink[0x10]];
@@ -1128,836 +1124,14 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
   }
 }
 
-static void amstrad_cpc_qwerty_hnd(AMSTRAD_CPC *self, XEvent *xevent)
-{
-  KeySym keysym;
-  guint8 line = 0x09;
-  guint8 mask = 0x40;
-  guint8 mods = 0x00;
-
-  if((self->keyboard.mods & SHFT_R_MASK) == 0) {
-    xevent->xkey.state &= ~ShiftMask;
-  }
-  if((self->keyboard.mods & CTRL_R_MASK) == 0) {
-    xevent->xkey.state &= ~ControlMask;
-  }
-  (void) XLookupString((XKeyEvent *) xevent, NULL, 0, &keysym, NULL);
-  if((keysym >> 8) == 0x00) {
-    switch(keysym) {
-      case XK_space:
-        line = 0x05; mask = 0x80;
-        break;
-      case XK_exclam:
-        mods |= SHFT_L_MASK;
-      case XK_1:
-        line = 0x08; mask = 0x01;
-        break;
-      case XK_asciitilde:
-        mods |= CTRL_L_MASK;
-      case XK_quotedbl:
-        mods |= SHFT_L_MASK;
-      case XK_2:
-        line = 0x08; mask = 0x02;
-        break;
-      case XK_numbersign:
-        mods |= SHFT_L_MASK;
-      case XK_3:
-        line = 0x07; mask = 0x02;
-        break;
-      case XK_dollar:
-        mods |= SHFT_L_MASK;
-      case XK_4:
-        line = 0x07; mask = 0x01;
-        break;
-      case XK_percent:
-        mods |= SHFT_L_MASK;
-      case XK_5:
-        line = 0x06; mask = 0x02;
-        break;
-      case XK_ampersand:
-        mods |= SHFT_L_MASK;
-      case XK_6:
-        line = 0x06; mask = 0x01;
-        break;
-      case XK_apostrophe:
-        mods |= SHFT_L_MASK;
-      case XK_7:
-        line = 0x05; mask = 0x02;
-        break;
-      case XK_parenleft:
-        mods |= SHFT_L_MASK;
-      case XK_8:
-        line = 0x05; mask = 0x01;
-        break;
-      case XK_parenright:
-        mods |= SHFT_L_MASK;
-      case XK_9:
-        line = 0x04; mask = 0x02;
-        break;
-      case XK_underscore:
-        mods |= SHFT_L_MASK;
-      case XK_0:
-        line = 0x04; mask = 0x01;
-        break;
-      case XK_equal:
-        mods |= SHFT_L_MASK;
-      case XK_minus:
-        line = 0x03; mask = 0x02;
-        break;
-      case XK_sterling:
-        mods |= SHFT_L_MASK;
-      case XK_asciicircum:
-        line = 0x03; mask = 0x01;
-        break;
-      case XK_Q:
-        mods |= SHFT_L_MASK;
-      case XK_q:
-        line = 0x08; mask = 0x08;
-        break;
-      case XK_W:
-        mods |= SHFT_L_MASK;
-      case XK_w:
-        line = 0x07; mask = 0x08;
-        break;
-      case XK_E:
-        mods |= SHFT_L_MASK;
-      case XK_e:
-        line = 0x07; mask = 0x04;
-        break;
-      case XK_R:
-        mods |= SHFT_L_MASK;
-      case XK_r:
-        line = 0x06; mask = 0x04;
-        break;
-      case XK_T:
-        mods |= SHFT_L_MASK;
-      case XK_t:
-        line = 0x06; mask = 0x08;
-        break;
-      case XK_Y:
-        mods |= SHFT_L_MASK;
-      case XK_y:
-        line = 0x05; mask = 0x08;
-        break;
-      case XK_U:
-        mods |= SHFT_L_MASK;
-      case XK_u:
-        line = 0x05; mask = 0x04;
-        break;
-      case XK_I:
-        mods |= SHFT_L_MASK;
-      case XK_i:
-        line = 0x04; mask = 0x08;
-        break;
-      case XK_O:
-        mods |= SHFT_L_MASK;
-      case XK_o:
-        line = 0x04; mask = 0x04;
-        break;
-      case XK_P:
-        mods |= SHFT_L_MASK;
-      case XK_p:
-        line = 0x03; mask = 0x08;
-        break;
-      case XK_bar:
-        mods |= SHFT_L_MASK;
-      case XK_at:
-        line = 0x03; mask = 0x04;
-        break;
-      case XK_braceleft:
-        mods |= SHFT_L_MASK;
-      case XK_bracketleft:
-        line = 0x02; mask = 0x02;
-        break;
-      case XK_A:
-        mods |= SHFT_L_MASK;
-      case XK_a:
-        line = 0x08; mask = 0x20;
-        break;
-      case XK_S:
-        mods |= SHFT_L_MASK;
-      case XK_s:
-        line = 0x07; mask = 0x10;
-        break;
-      case XK_D:
-        mods |= SHFT_L_MASK;
-      case XK_d:
-        line = 0x07; mask = 0x20;
-        break;
-      case XK_F:
-        mods |= SHFT_L_MASK;
-      case XK_f:
-        line = 0x06; mask = 0x20;
-        break;
-      case XK_G:
-        mods |= SHFT_L_MASK;
-      case XK_g:
-        line = 0x06; mask = 0x10;
-        break;
-      case XK_H:
-        mods |= SHFT_L_MASK;
-      case XK_h:
-        line = 0x05; mask = 0x10;
-        break;
-      case XK_J:
-        mods |= SHFT_L_MASK;
-      case XK_j:
-        line = 0x05; mask = 0x20;
-        break;
-      case XK_K:
-        mods |= SHFT_L_MASK;
-      case XK_k:
-        line = 0x04; mask = 0x20;
-        break;
-      case XK_L:
-        mods |= SHFT_L_MASK;
-      case XK_l:
-        line = 0x04; mask = 0x10;
-        break;
-      case XK_asterisk:
-        mods |= SHFT_L_MASK;
-      case XK_colon:
-        line = 0x03; mask = 0x20;
-        break;
-      case XK_plus:
-        mods |= SHFT_L_MASK;
-      case XK_semicolon:
-        line = 0x03; mask = 0x10;
-        break;
-      case XK_braceright:
-        mods |= SHFT_L_MASK;
-      case XK_bracketright:
-        line = 0x02; mask = 0x08;
-        break;
-      case XK_Z:
-        mods |= SHFT_L_MASK;
-      case XK_z:
-        line = 0x08; mask = 0x80;
-        break;
-      case XK_X:
-        mods |= SHFT_L_MASK;
-      case XK_x:
-        line = 0x07; mask = 0x80;
-        break;
-      case XK_C:
-        mods |= SHFT_L_MASK;
-      case XK_c:
-        line = 0x07; mask = 0x40;
-        break;
-      case XK_V:
-        mods |= SHFT_L_MASK;
-      case XK_v:
-        line = 0x06; mask = 0x80;
-        break;
-      case XK_B:
-        mods |= SHFT_L_MASK;
-      case XK_b:
-        line = 0x06; mask = 0x40;
-        break;
-      case XK_N:
-        mods |= SHFT_L_MASK;
-      case XK_n:
-        line = 0x05; mask = 0x40;
-        break;
-      case XK_M:
-        mods |= SHFT_L_MASK;
-      case XK_m:
-        line = 0x04; mask = 0x40;
-        break;
-      case XK_less:
-        mods |= SHFT_L_MASK;
-      case XK_comma:
-        line = 0x04; mask = 0x80;
-        break;
-      case XK_greater:
-        mods |= SHFT_L_MASK;
-      case XK_period:
-        line = 0x03; mask = 0x80;
-        break;
-      case XK_question:
-        mods |= SHFT_L_MASK;
-      case XK_slash:
-        line = 0x03; mask = 0x40;
-        break;
-      case XK_grave:
-        mods |= SHFT_L_MASK;
-      case XK_backslash:
-        line = 0x02; mask = 0x40;
-        break;
-    }
-  }
-  else if((keysym >> 8) == 0xff) {
-    switch(keysym) {
-      case XK_BackSpace:
-        line = 0x09; mask = 0x80;
-        break;
-      case XK_Tab:
-        line = 0x08; mask = 0x10;
-        break;
-      case XK_Return:
-        line = 0x02; mask = 0x04;
-        break;
-      case XK_Escape:
-        line = 0x08; mask = 0x04;
-        break;
-      case XK_Delete:
-        line = 0x02; mask = 0x01;
-        break;
-      case XK_Shift_L:
-        if(xevent->type == KeyPress) {
-          self->keyboard.mods |=  SHFT_L_MASK;
-        }
-        else {
-          self->keyboard.mods &= ~SHFT_L_MASK;
-        }
-        break;
-      case XK_Shift_R:
-        if(xevent->type == KeyPress) {
-          self->keyboard.mods |=  SHFT_R_MASK;
-        }
-        else {
-          self->keyboard.mods &= ~SHFT_R_MASK;
-        }
-        break;
-      case XK_Control_L:
-        if(xevent->type == KeyPress) {
-          self->keyboard.mods |=  CTRL_L_MASK;
-        }
-        else {
-          self->keyboard.mods &= ~CTRL_L_MASK;
-        }
-        break;
-      case XK_Control_R:
-        if(xevent->type == KeyPress) {
-          self->keyboard.mods |=  CTRL_R_MASK;
-        }
-        else {
-          self->keyboard.mods &= ~CTRL_R_MASK;
-        }
-        break;
-      case XK_Alt_L:
-        line = 0x01; mask = 0x02;
-        break;
-      case XK_Caps_Lock:
-        line = 0x08; mask = 0x40;
-        break;
-      case XK_Up:
-        line = 0x00; mask = 0x01;
-        break;
-      case XK_Down:
-        line = 0x00; mask = 0x04;
-        break;
-      case XK_Left:
-        line = 0x01; mask = 0x01;
-        break;
-      case XK_Right:
-        line = 0x00; mask = 0x02;
-        break;
-      case XK_KP_Up:
-        line = 0x09; mask = 0x01;
-        break;
-      case XK_KP_Down:
-        line = 0x09; mask = 0x02;
-        break;
-      case XK_KP_Left:
-        line = 0x09; mask = 0x04;
-        break;
-      case XK_KP_Right:
-        line = 0x09; mask = 0x08;
-        break;
-      case XK_KP_Insert:
-        line = 0x09; mask = 0x10;
-        break;
-      case XK_KP_Delete:
-        line = 0x09; mask = 0x20;
-        break;
-      case XK_KP_Enter:
-        line = 0x00; mask = 0x40;
-        break;
-      case XK_KP_Decimal:
-        line = 0x00; mask = 0x80;
-        break;
-      case XK_KP_0:
-        line = 0x01; mask = 0x80;
-        break;
-      case XK_KP_1:
-        line = 0x01; mask = 0x20;
-        break;
-      case XK_KP_2:
-        line = 0x01; mask = 0x40;
-        break;
-      case XK_KP_3:
-        line = 0x00; mask = 0x20;
-        break;
-      case XK_KP_4:
-        line = 0x02; mask = 0x10;
-        break;
-      case XK_KP_5:
-        line = 0x01; mask = 0x10;
-        break;
-      case XK_KP_6:
-        line = 0x00; mask = 0x10;
-        break;
-      case XK_KP_7:
-        line = 0x01; mask = 0x04;
-        break;
-      case XK_KP_8:
-        line = 0x01; mask = 0x08;
-        break;
-      case XK_KP_9:
-        line = 0x00; mask = 0x08;
-        break;
-    }
-  }
-  if((self->keyboard.mods & SHFT_L_MASK) != 0) {
-    self->keyboard.bits[0x02] &= ~0x20;
-  }
-  else {
-    self->keyboard.bits[0x02] |=  0x20;
-  }
-  if((self->keyboard.mods & CTRL_L_MASK) != 0) {
-    self->keyboard.bits[0x02] &= ~0x80;
-  }
-  else {
-    self->keyboard.bits[0x02] |=  0x80;
-  }
-  if(xevent->type == KeyPress) {
-    if((mods & SHFT_L_MASK) != 0) {
-      self->keyboard.bits[0x02] &= ~0x20;
-    }
-    if((mods & CTRL_L_MASK) != 0) {
-      self->keyboard.bits[0x02] &= ~0x80;
-    }
-    self->keyboard.bits[line] &= ~mask;
-  }
-  else {
-    self->keyboard.bits[line] |=  mask;
-  }
-}
-
-static void amstrad_cpc_azerty_hnd(AMSTRAD_CPC *self, XEvent *xevent)
-{
-  KeySym keysym;
-  guint8 line = 0x09;
-  guint8 mask = 0x40;
-  guint8 mods = 0x00;
-
-  if((self->keyboard.mods & SHFT_R_MASK) == 0) {
-    xevent->xkey.state &= ~ShiftMask;
-  }
-  if((self->keyboard.mods & CTRL_R_MASK) == 0) {
-    xevent->xkey.state &= ~ControlMask;
-  }
-  (void) XLookupString((XKeyEvent *) xevent, NULL, 0, &keysym, NULL);
-  if((keysym >> 8) == 0x00) {
-    switch(keysym) {
-      case XK_space:
-        line = 0x05; mask = 0x80;
-        break;
-      case XK_1:
-        mods |= SHFT_L_MASK;
-      case XK_ampersand:
-        line = 0x08; mask = 0x01;
-        break;
-      case XK_asciitilde:
-        mods |= CTRL_L_MASK;
-      case XK_2:
-        mods |= SHFT_L_MASK;
-      case XK_eacute:
-        line = 0x08; mask = 0x02;
-        break;
-      case XK_3:
-        mods |= SHFT_L_MASK;
-      case XK_quotedbl:
-        line = 0x07; mask = 0x02;
-        break;
-      case XK_4:
-        mods |= SHFT_L_MASK;
-      case XK_apostrophe:
-        line = 0x07; mask = 0x01;
-        break;
-      case XK_5:
-        mods |= SHFT_L_MASK;
-      case XK_parenleft:
-        line = 0x06; mask = 0x02;
-        break;
-      case XK_6:
-        mods |= SHFT_L_MASK;
-      case XK_bracketright:
-        line = 0x06; mask = 0x01;
-        break;
-      case XK_7:
-        mods |= SHFT_L_MASK;
-      case XK_egrave:
-        line = 0x05; mask = 0x02;
-        break;
-      case XK_8:
-        mods |= SHFT_L_MASK;
-      case XK_exclam:
-        line = 0x05; mask = 0x01;
-        break;
-      case XK_9:
-        mods |= SHFT_L_MASK;
-      case XK_ccedilla:
-        line = 0x04; mask = 0x02;
-        break;
-      case XK_0:
-        mods |= SHFT_L_MASK;
-      case XK_agrave:
-        line = 0x04; mask = 0x01;
-        break;
-      case XK_bracketleft:
-        mods |= SHFT_L_MASK;
-      case XK_parenright:
-        line = 0x03; mask = 0x02;
-        break;
-      case XK_underscore:
-        mods |= SHFT_L_MASK;
-      case XK_minus:
-        line = 0x03; mask = 0x01;
-        break;
-      case XK_A:
-        mods |= SHFT_L_MASK;
-      case XK_a:
-        line = 0x08; mask = 0x08;
-        break;
-      case XK_Z:
-        mods |= SHFT_L_MASK;
-      case XK_z:
-        line = 0x07; mask = 0x08;
-        break;
-      case XK_E:
-        mods |= SHFT_L_MASK;
-      case XK_e:
-        line = 0x07; mask = 0x04;
-        break;
-      case XK_R:
-        mods |= SHFT_L_MASK;
-      case XK_r:
-        line = 0x06; mask = 0x04;
-        break;
-      case XK_T:
-        mods |= SHFT_L_MASK;
-      case XK_t:
-        line = 0x06; mask = 0x08;
-        break;
-      case XK_Y:
-        mods |= SHFT_L_MASK;
-      case XK_y:
-        line = 0x05; mask = 0x08;
-        break;
-      case XK_U:
-        mods |= SHFT_L_MASK;
-      case XK_u:
-        line = 0x05; mask = 0x04;
-        break;
-      case XK_I:
-        mods |= SHFT_L_MASK;
-      case XK_i:
-        line = 0x04; mask = 0x08;
-        break;
-      case XK_O:
-        mods |= SHFT_L_MASK;
-      case XK_o:
-        line = 0x04; mask = 0x04;
-        break;
-      case XK_P:
-        mods |= SHFT_L_MASK;
-      case XK_p:
-        line = 0x03; mask = 0x08;
-        break;
-      case XK_bar:
-        mods |= SHFT_L_MASK;
-      case XK_asciicircum:
-        line = 0x03; mask = 0x04;
-        break;
-      case XK_less:
-        mods |= SHFT_L_MASK;
-      case XK_asterisk:
-        line = 0x02; mask = 0x02;
-        break;
-      case XK_Q:
-        mods |= SHFT_L_MASK;
-      case XK_q:
-        line = 0x08; mask = 0x20;
-        break;
-      case XK_S:
-        mods |= SHFT_L_MASK;
-      case XK_s:
-        line = 0x07; mask = 0x10;
-        break;
-      case XK_D:
-        mods |= SHFT_L_MASK;
-      case XK_d:
-        line = 0x07; mask = 0x20;
-        break;
-      case XK_F:
-        mods |= SHFT_L_MASK;
-      case XK_f:
-        line = 0x06; mask = 0x20;
-        break;
-      case XK_G:
-        mods |= SHFT_L_MASK;
-      case XK_g:
-        line = 0x06; mask = 0x10;
-        break;
-      case XK_H:
-        mods |= SHFT_L_MASK;
-      case XK_h:
-        line = 0x05; mask = 0x10;
-        break;
-      case XK_J:
-        mods |= SHFT_L_MASK;
-      case XK_j:
-        line = 0x05; mask = 0x20;
-        break;
-      case XK_K:
-        mods |= SHFT_L_MASK;
-      case XK_k:
-        line = 0x04; mask = 0x20;
-        break;
-      case XK_L:
-        mods |= SHFT_L_MASK;
-      case XK_l:
-        line = 0x04; mask = 0x10;
-        break;
-      case XK_M:
-        mods |= SHFT_L_MASK;
-      case XK_m:
-        line = 0x03; mask = 0x20;
-        break;
-      case XK_percent:
-        mods |= SHFT_L_MASK;
-      case XK_ugrave:
-        line = 0x03; mask = 0x10;
-        break;
-      case XK_greater:
-        mods |= SHFT_L_MASK;
-      case XK_numbersign:
-        line = 0x02; mask = 0x08;
-        break;
-      case XK_W:
-        mods |= SHFT_L_MASK;
-      case XK_w:
-        line = 0x08; mask = 0x80;
-        break;
-      case XK_X:
-        mods |= SHFT_L_MASK;
-      case XK_x:
-        line = 0x07; mask = 0x80;
-        break;
-      case XK_C:
-        mods |= SHFT_L_MASK;
-      case XK_c:
-        line = 0x07; mask = 0x40;
-        break;
-      case XK_V:
-        mods |= SHFT_L_MASK;
-      case XK_v:
-        line = 0x06; mask = 0x80;
-        break;
-      case XK_B:
-        mods |= SHFT_L_MASK;
-      case XK_b:
-        line = 0x06; mask = 0x40;
-        break;
-      case XK_N:
-        mods |= SHFT_L_MASK;
-      case XK_n:
-        line = 0x05; mask = 0x40;
-        break;
-      case XK_question:
-        mods |= SHFT_L_MASK;
-      case XK_comma:
-        line = 0x04; mask = 0x40;
-        break;
-      case XK_period:
-        mods |= SHFT_L_MASK;
-      case XK_semicolon:
-        line = 0x04; mask = 0x80;
-        break;
-      case XK_slash:
-        mods |= SHFT_L_MASK;
-      case XK_colon:
-        line = 0x03; mask = 0x80;
-        break;
-      case XK_plus:
-        mods |= SHFT_L_MASK;
-      case XK_equal:
-        line = 0x03; mask = 0x40;
-        break;
-      case XK_at:
-        mods |= SHFT_L_MASK;
-      case XK_dollar:
-        line = 0x02; mask = 0x40;
-        break;
-    }
-  }
-  else if((keysym >> 8) == 0xff) {
-    switch(keysym) {
-      case XK_BackSpace:
-        line = 0x09; mask = 0x80;
-        break;
-      case XK_Tab:
-        line = 0x08; mask = 0x10;
-        break;
-      case XK_Return:
-        line = 0x02; mask = 0x04;
-        break;
-      case XK_Escape:
-        line = 0x08; mask = 0x04;
-        break;
-      case XK_Delete:
-        line = 0x02; mask = 0x01;
-        break;
-      case XK_Shift_L:
-        if(xevent->type == KeyPress) {
-          self->keyboard.mods |=  SHFT_L_MASK;
-        }
-        else {
-          self->keyboard.mods &= ~SHFT_L_MASK;
-        }
-        break;
-      case XK_Shift_R:
-        if(xevent->type == KeyPress) {
-          self->keyboard.mods |=  SHFT_R_MASK;
-        }
-        else {
-          self->keyboard.mods &= ~SHFT_R_MASK;
-        }
-        break;
-      case XK_Control_L:
-        if(xevent->type == KeyPress) {
-          self->keyboard.mods |=  CTRL_L_MASK;
-        }
-        else {
-          self->keyboard.mods &= ~CTRL_L_MASK;
-        }
-        break;
-      case XK_Control_R:
-        if(xevent->type == KeyPress) {
-          self->keyboard.mods |=  CTRL_R_MASK;
-        }
-        else {
-          self->keyboard.mods &= ~CTRL_R_MASK;
-        }
-        break;
-      case XK_Alt_L:
-        line = 0x01; mask = 0x02;
-        break;
-      case XK_Caps_Lock:
-        line = 0x08; mask = 0x40;
-        break;
-      case XK_Up:
-        line = 0x00; mask = 0x01;
-        break;
-      case XK_Down:
-        line = 0x00; mask = 0x04;
-        break;
-      case XK_Left:
-        line = 0x01; mask = 0x01;
-        break;
-      case XK_Right:
-        line = 0x00; mask = 0x02;
-        break;
-      case XK_KP_Up:
-        line = 0x09; mask = 0x01;
-        break;
-      case XK_KP_Down:
-        line = 0x09; mask = 0x02;
-        break;
-      case XK_KP_Left:
-        line = 0x09; mask = 0x04;
-        break;
-      case XK_KP_Right:
-        line = 0x09; mask = 0x08;
-        break;
-      case XK_KP_Insert:
-        line = 0x09; mask = 0x10;
-        break;
-      case XK_KP_Delete:
-        line = 0x09; mask = 0x20;
-        break;
-      case XK_KP_Enter:
-        line = 0x00; mask = 0x40;
-        break;
-      case XK_KP_Decimal:
-        line = 0x00; mask = 0x80;
-        break;
-      case XK_KP_0:
-        line = 0x01; mask = 0x80;
-        break;
-      case XK_KP_1:
-        line = 0x01; mask = 0x20;
-        break;
-      case XK_KP_2:
-        line = 0x01; mask = 0x40;
-        break;
-      case XK_KP_3:
-        line = 0x00; mask = 0x20;
-        break;
-      case XK_KP_4:
-        line = 0x02; mask = 0x10;
-        break;
-      case XK_KP_5:
-        line = 0x01; mask = 0x10;
-        break;
-      case XK_KP_6:
-        line = 0x00; mask = 0x10;
-        break;
-      case XK_KP_7:
-        line = 0x01; mask = 0x04;
-        break;
-      case XK_KP_8:
-        line = 0x01; mask = 0x08;
-        break;
-      case XK_KP_9:
-        line = 0x00; mask = 0x08;
-        break;
-    }
-  }
-  if((self->keyboard.mods & SHFT_L_MASK) != 0) {
-    self->keyboard.bits[0x02] &= ~0x20;
-  }
-  else {
-    self->keyboard.bits[0x02] |=  0x20;
-  }
-  if((self->keyboard.mods & CTRL_L_MASK) != 0) {
-    self->keyboard.bits[0x02] &= ~0x80;
-  }
-  else {
-    self->keyboard.bits[0x02] |=  0x80;
-  }
-  if(xevent->type == KeyPress) {
-    if((mods & SHFT_L_MASK) != 0) {
-      self->keyboard.bits[0x02] &= ~0x20;
-    }
-    if((mods & CTRL_L_MASK) != 0) {
-      self->keyboard.bits[0x02] &= ~0x80;
-    }
-    self->keyboard.bits[line] &= ~mask;
-  }
-  else {
-    self->keyboard.bits[line] |=  mask;
-  }
-}
-
 void amstrad_cpc_reset(void)
 {
   AMSTRAD_CPC *self = &amstrad_cpc;
-  int ix;
 
   self->memory.expansion = 0x00;
-  self->keyboard.mods = 0x00;
-  self->keyboard.line = 0x00;
-  for(ix = 0; ix < 16; ix++) {
-    self->keyboard.bits[ix] = 0xff;
-  }
-  self->beam.x = 0;
-  self->beam.y = 0;
-
   gdev_device_reset(GDEV_DEVICE(self->z80cpu));
   gdev_device_reset(GDEV_DEVICE(self->garray));
+  gdev_device_reset(GDEV_DEVICE(self->cpckbd));
   gdev_device_reset(GDEV_DEVICE(self->mc6845));
   gdev_device_reset(GDEV_DEVICE(self->ay8910));
   gdev_device_reset(GDEV_DEVICE(self->upd765));
@@ -2233,7 +1407,7 @@ static guint8 z80cpu_io_rd(GdevZ80CPU *z80cpu, guint16 port)
   if((port & 0x0800) == 0) {
     switch((port >> 8) & 3) {
       case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-        amstrad_cpc.i8255->port_a = amstrad_cpc.keyboard.bits[amstrad_cpc.keyboard.line];
+        amstrad_cpc.i8255->port_a = amstrad_cpc.cpckbd->bits[amstrad_cpc.cpckbd->line];
         data = amstrad_cpc.i8255->port_a;
         break;
       case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
@@ -2346,7 +1520,7 @@ static void z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
         break;
       case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
         amstrad_cpc.i8255->port_c = data;
-        amstrad_cpc.keyboard.line = data & 0x0F;
+        amstrad_cpc.cpckbd->line = data & 0x0F;
         break;
       case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
         amstrad_cpc.i8255->control = data;
@@ -2418,8 +1592,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     if(cfg_exp_rom[7] == NULL) {
       cfg_exp_rom[7] = g_build_filename(ROMSDIR, "amsdos.rom", NULL);
     }
-    self->keybd_hnd = amstrad_cpc_qwerty_hnd;
-    self->mouse_hnd = NULL;
+    self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 128;
     self->refresh   = 1;
     self->firmname  = 7;
@@ -2431,8 +1604,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     if(cfg_exp_rom[7] == NULL) {
       cfg_exp_rom[7] = NULL;
     }
-    self->keybd_hnd = amstrad_cpc_qwerty_hnd;
-    self->mouse_hnd = NULL;
+    self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 64;
     self->refresh   = 1;
     self->firmname  = 7;
@@ -2444,8 +1616,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     if(cfg_exp_rom[7] == NULL) {
       cfg_exp_rom[7] = g_build_filename(ROMSDIR, "amsdos.rom", NULL);
     }
-    self->keybd_hnd = amstrad_cpc_qwerty_hnd;
-    self->mouse_hnd = NULL;
+    self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 64;
     self->refresh   = 1;
     self->firmname  = 7;
@@ -2457,8 +1628,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     if(cfg_exp_rom[7] == NULL) {
       cfg_exp_rom[7] = g_build_filename(ROMSDIR, "amsdos.rom", NULL);
     }
-    self->keybd_hnd = amstrad_cpc_qwerty_hnd;
-    self->mouse_hnd = NULL;
+    self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 128;
     self->refresh   = 1;
     self->firmname  = 7;
@@ -2470,24 +1640,23 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
     if(cfg_exp_rom[7] == NULL) {
       cfg_exp_rom[7] = g_build_filename(ROMSDIR, "amsdos.rom", NULL);
     }
-    self->keybd_hnd = amstrad_cpc_qwerty_hnd;
-    self->mouse_hnd = NULL;
+    self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 128;
     self->refresh   = 1;
     self->firmname  = 7;
   }
   /* Keyboard handler */
   if(cfg_keyboard == NULL) {
-    self->keybd_hnd = amstrad_cpc_qwerty_hnd;
+    self->keybd_hnd = gdev_cpckbd_qwerty;
   }
   else if(strcmp("qwerty", cfg_keyboard) == 0) {
-    self->keybd_hnd = amstrad_cpc_qwerty_hnd;
+    self->keybd_hnd = gdev_cpckbd_qwerty;
   }
   else if(strcmp("azerty", cfg_keyboard) == 0) {
-    self->keybd_hnd = amstrad_cpc_azerty_hnd;
+    self->keybd_hnd = gdev_cpckbd_azerty;
   }
   else {
-    self->keybd_hnd = amstrad_cpc_qwerty_hnd;
+    self->keybd_hnd = gdev_cpckbd_qwerty;
   }
   /* FirmName */
   if(cfg_firmname == NULL) {
@@ -2616,6 +1785,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   }
   self->z80cpu = gdev_z80cpu_new();
   self->garray = gdev_garray_new();
+  self->cpckbd = gdev_cpckbd_new();
   self->mc6845 = gdev_mc6845_new();
   self->ay8910 = gdev_ay8910_new();
   self->upd765 = gdev_upd765_new();
@@ -2643,11 +1813,10 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   long delay, ix;
   int scanline = 0;
 
-  self->beam.y = 0;
   do {
-    self->scanline[self->beam.y].mode = self->garray->rom_cfg & 0x03;
+    self->scanline[scanline].mode = self->garray->rom_cfg & 0x03;
     for(ix = 0; ix < 17; ix++) {
-      self->scanline[self->beam.y].ink[ix] = self->palette[self->garray->ink[ix]];
+      self->scanline[scanline].ink[ix] = self->palette[self->garray->ink[ix]];
     }
     for(ix = 0; ix < self->cpu_period; ix += 4) {
       (*mc6845_class->clock)((GdevDevice *) self->mc6845);
@@ -2663,9 +1832,6 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
         (*z80cpu_class->clock)((GdevDevice *) self->z80cpu);
         self->z80cpu->TStates = TStates - ((TStates - self->z80cpu->TStates) + 3 & (~4));
       }
-    }
-    if(++self->beam.y > 311) {
-      self->beam.y = 311;
     }
   } while(++scanline < 312);
   (void) gettimeofday(&self->timer2, NULL);
@@ -2683,7 +1849,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
         self->timer1.tv_usec -= 1000000; self->timer1.tv_sec++;
       }
       if(++self->num_frames == 50) {
-        (void) sprintf(self->status, "%2d Hz -- %2d fps", self->num_frames, self->drw_frames);
+        (void) sprintf(self->status, "%2d Hz / %2d fps", self->num_frames, self->drw_frames);
         self->num_frames = self->drw_frames = 0;
       }
       break;
@@ -2695,7 +1861,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
         self->timer1.tv_usec -= 1000000; self->timer1.tv_sec++;
       }
       if(++self->num_frames == 60) {
-        (void) sprintf(self->status, "%2d Hz -- %2d fps", self->num_frames, self->drw_frames);
+        (void) sprintf(self->status, "%2d Hz / %2d fps", self->num_frames, self->drw_frames);
         self->num_frames = self->drw_frames = 0;
       }
       break;
@@ -2758,23 +1924,17 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
   }
   g_object_unref(self->z80cpu); self->z80cpu = NULL;
   g_object_unref(self->garray); self->garray = NULL;
+  g_object_unref(self->cpckbd); self->cpckbd = NULL;
   g_object_unref(self->mc6845); self->mc6845 = NULL;
   g_object_unref(self->ay8910); self->ay8910 = NULL;
   g_object_unref(self->upd765); self->upd765 = NULL;
   g_object_unref(self->i8255);  self->i8255  = NULL;
 }
 
-void amstrad_cpc_keybd_handler(Widget widget, XEvent *xevent)
+void amstrad_cpc_input_handler(Widget widget, XEvent *xevent)
 {
   if(amstrad_cpc.keybd_hnd != NULL) {
-    (*amstrad_cpc.keybd_hnd)(&amstrad_cpc, xevent);
-  }
-}
-
-void amstrad_cpc_mouse_handler(Widget widget, XEvent *xevent)
-{
-  if(amstrad_cpc.mouse_hnd != NULL) {
-    (*amstrad_cpc.mouse_hnd)(&amstrad_cpc, xevent);
+    (*amstrad_cpc.keybd_hnd)(amstrad_cpc.cpckbd, xevent);
   }
 }
 

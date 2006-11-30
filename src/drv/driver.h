@@ -18,6 +18,10 @@
 #ifndef __GDRV_DRIVER_H__
 #define __GDRV_DRIVER_H__
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/keysym.h>
 #include <glib-object.h>
 
 G_BEGIN_DECLS
