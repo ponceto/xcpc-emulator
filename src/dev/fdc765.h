@@ -36,15 +36,11 @@ typedef struct _GdevFDC765Class GdevFDC765Class;
 struct _GdevFDC765 {
   GObject parent_instance;
   GdevFDCPXY *upd765;
-#ifdef __LIB765_H__
-  FDC_765 *impl;
-#else
-  gpointer impl;
-#endif
+  FDC_765    *impl;
   guint8 unit_id;
   guint8 head_id;
   struct {
-    guint8 cmd;       /* current command           */
+    gint   cmd;       /* current command           */
     guint8 msr;       /* main status register      */
     guint8 st0;       /* status register: ST0      */
     guint8 st1;       /* status register: ST1      */
@@ -57,18 +53,18 @@ struct _GdevFDC765 {
   } reg;
   struct {
     guint8 buf[16];   /* command buffer            */
-    guint  len;       /* command buffer length     */
-    guint  pos;       /* command buffer position   */
+    gint   len;       /* command buffer length     */
+    gint   pos;       /* command buffer position   */
   } cmd;
   struct {
     guint8 buf[8192]; /* execution buffer          */
-    guint  len;       /* execution buffer length   */
-    guint  pos;       /* execution buffer position */
+    gint   len;       /* execution buffer length   */
+    gint   pos;       /* execution buffer position */
   } exe;
   struct {
     guint8 buf[16];   /* result buffer             */
-    guint  len;       /* result buffer length      */
-    guint  pos;       /* result buffer position    */
+    gint   len;       /* result buffer length      */
+    gint   pos;       /* result buffer position    */
   } res;
   struct {
     guint state;      /* interrupt state           */

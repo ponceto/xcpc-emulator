@@ -19,6 +19,7 @@
 #define __GDEV_UPD765_H__
 
 #include <dev/device.h>
+#include <dev/lib765.h>
 #include <dev/fdc765.h>
 #include <dev/fdd765.h>
 

@@ -19,6 +19,7 @@
 
 #include <stdarg.h>
 #include <limits.h>
+#include <libdsk.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -129,28 +130,41 @@ extern void     fdc_tick     (FDC_765 *fdc);
 struct fdc_765 {
   FDC_ISR  fdc_isr;
   FDD_765 *fdc_drive[4];
-  int      fdc_msr;
-  int      fdc_st0;
-  int      fdc_st1;
-  int      fdc_st2;
-  int      fdc_st3;
-  int      fdc_curunit;
-  int      fdc_curhead;
-  int      fdc_specify[2];
-  fdc_byte fdc_cmd_buf[20];
-  int      fdc_cmd_len;
-  int      fdc_cmd_pos;
-  fdc_byte fdc_exe_buf[MAX_SECTOR_LEN];
-  int      fdc_exe_len;
-  int      fdc_exe_pos;
-  fdc_byte fdc_res_buf[20];
-  int      fdc_res_len;
-  int      fdc_res_pos;
-  int      fdc_interrupting;
-  int      fdc_isr_countdown;
-  int      fdc_write_deleted;
-  int      fdc_lastidread;
-  int      fdc_cmd_id;
+  guint8 unit_id;
+  guint8 head_id;
+  struct {
+    gint   cmd;       /* current command           */
+    guint8 msr;       /* main status register      */
+    guint8 st0;       /* status register: ST0      */
+    guint8 st1;       /* status register: ST1      */
+    guint8 st2;       /* status register: ST2      */
+    guint8 st3;       /* status register: ST3      */
+    guint8 srt;       /* Step Rate Time            */
+    guint8 hlt;       /* Head Load Time            */
+    guint8 hut;       /* Head Unload Time          */
+    guint8 ndm;       /* Non-DMA Mode              */
+  } reg;
+  struct {
+    guint8 buf[16];   /* command buffer            */
+    gint   len;       /* command buffer length     */
+    gint   pos;       /* command buffer position   */
+  } cmd;
+  struct {
+    guint8 buf[8192]; /* execution buffer          */
+    gint   len;       /* execution buffer length   */
+    gint   pos;       /* execution buffer position */
+  } exe;
+  struct {
+    guint8 buf[16];   /* result buffer             */
+    gint   len;       /* result buffer length      */
+    gint   pos;       /* result buffer position    */
+  } res;
+  struct {
+    guint state;      /* interrupt state           */
+    guint count;      /* interrupt countdown       */
+  } isr;
+  int fdc_write_deleted;
+  int fdc_lastidread;
 };
 
 #ifdef __cplusplus

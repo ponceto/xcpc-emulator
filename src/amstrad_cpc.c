@@ -1830,7 +1830,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       if((self->z80cpu->TStates += 4) > 0) {
         gint TStates = self->z80cpu->TStates;
         (*z80cpu_class->clock)((GdevDevice *) self->z80cpu);
-        self->z80cpu->TStates = TStates - ((TStates - self->z80cpu->TStates) + 3 & (~4));
+        self->z80cpu->TStates = TStates - ((TStates - self->z80cpu->TStates) + 3 & (~3));
       }
     }
   } while(++scanline < 312);

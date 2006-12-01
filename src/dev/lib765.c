@@ -20,8 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libdsk.h>
-#include "lib765.h"
 #include "upd765.h"
 
 static void log_dprintf(int debuglevel, char *fmt, ...)
@@ -477,29 +475,31 @@ void fdc_init_impl(FDC_765 *fdc)
 
 void fdc_reset_impl(FDC_765 *fdc)
 {
-  fdc->fdc_msr           = 0x80;
-  fdc->fdc_st0           = 0;
-  fdc->fdc_st1           = 0;
-  fdc->fdc_st2           = 0;
-  fdc->fdc_st3           = 0;
-  fdc->fdc_curunit       = 0;
-  fdc->fdc_curhead       = 0;
-  fdc->fdc_specify[0]    = 0;
-  fdc->fdc_specify[1]    = 0;
-  (void) memset(fdc->fdc_cmd_buf, 0, sizeof(fdc->fdc_cmd_buf));
-  fdc->fdc_cmd_len       = 0;
-  fdc->fdc_cmd_pos       = 0;
-  (void) memset(fdc->fdc_exe_buf, 0, sizeof(fdc->fdc_exe_buf));
-  fdc->fdc_exe_len       = 0;
-  fdc->fdc_exe_pos       = 0;
-  (void) memset(fdc->fdc_res_buf, 0, sizeof(fdc->fdc_res_buf));
-  fdc->fdc_res_len       = 0;
-  fdc->fdc_res_pos       = 0;
-  fdc->fdc_interrupting  = 0;
-  fdc->fdc_isr_countdown = 0;
+  fdc->reg.msr           = 0x80;
+  fdc->reg.st0           = 0;
+  fdc->reg.st1           = 0;
+  fdc->reg.st2           = 0;
+  fdc->reg.st3           = 0;
+  fdc->reg.srt           = 0x00;
+  fdc->reg.hlt           = 0x00;
+  fdc->reg.hut           = 0x00;
+  fdc->reg.ndm           = 0x01;
+  fdc->unit_id           = 0;
+  fdc->head_id           = 0;
+  (void) memset(fdc->cmd.buf, 0, sizeof(fdc->cmd.buf));
+  fdc->cmd.len           = 0;
+  fdc->cmd.pos           = 0;
+  (void) memset(fdc->exe.buf, 0, sizeof(fdc->exe.buf));
+  fdc->exe.len           = 0;
+  fdc->exe.pos           = 0;
+  (void) memset(fdc->res.buf, 0, sizeof(fdc->res.buf));
+  fdc->res.len           = 0;
+  fdc->res.pos           = 0;
+  fdc->isr.state  = 0;
+  fdc->isr.count = 0;
   fdc->fdc_write_deleted = 0;
   fdc->fdc_lastidread    = 0;
-  fdc->fdc_cmd_id        = -1;
+  fdc->reg.cmd           = -1;
 }
 
 static int fdc_ready(FDC_765 *self, FDD_765 *fd)
@@ -507,10 +507,10 @@ static int fdc_ready(FDC_765 *self, FDD_765 *fd)
   int rdy = fdd_ready(fd);
 
   if(rdy == 0) {
-    self->fdc_st3 &= 0xDF;
+    self->reg.st3 &= 0xDF;
   }
   else {
-    self->fdc_st3 |= 0x20;
+    self->reg.st3 |= 0x20;
   }
   return(rdy);
 }
@@ -518,7 +518,7 @@ static int fdc_ready(FDC_765 *self, FDD_765 *fd)
 /* Update the ST3 register based on a drive's status */
 static void fdc_get_st3(FDC_765 *self)
 {
-	FDD_765 *fd = self->fdc_drive[self->fdc_curunit];
+	FDD_765 *fd = self->fdc_drive[self->unit_id];
 	fdc_byte value = 0;
 
 	/* 0.3.4: Check this, it could be null! */
@@ -527,9 +527,9 @@ static void fdc_get_st3(FDC_765 *self)
 		value = (*fd->fd_vtable->fdv_drive_status)(fd);
 	}
 	value &= 0xF8;
-	value |= (self->fdc_curhead ? 4 : 0);
-	value |= (self->fdc_curunit & 3);
-	self->fdc_st3 = value;
+	value |= (self->head_id ? 4 : 0);
+	value |= (self->unit_id & 3);
+	self->reg.st3 = value;
 }
 
 /* Convert an error from the fd_* routines to a value in the status registers */
@@ -538,23 +538,23 @@ static void fdc_xlt_error(FDC_765 *self, fd_err_t error)
 	log_dprintf(4, "FDC: Error from drive: %d\n", error);
         switch(error)
         {
-                case FD_E_NOTRDY: self->fdc_st0 |= 0x48; break;
+                case FD_E_NOTRDY: self->reg.st0 |= 0x48; break;
 		case FD_E_SEEKFAIL:
-				  self->fdc_st0 |= 0x40;
-				  self->fdc_st2 |= 0x02; break;
-                case FD_E_NOADDR: self->fdc_st0 |= 0x40;
-                                  self->fdc_st2 |= 0x01; break;
-                case FD_E_NODATA: self->fdc_st0 |= 0x40;
-                                  self->fdc_st1 |= 0x04; break;
+				  self->reg.st0 |= 0x40;
+				  self->reg.st2 |= 0x02; break;
+                case FD_E_NOADDR: self->reg.st0 |= 0x40;
+                                  self->reg.st2 |= 0x01; break;
+                case FD_E_NODATA: self->reg.st0 |= 0x40;
+                                  self->reg.st1 |= 0x04; break;
 		case FD_E_DATAERR:
-				  self->fdc_st1 |= 0x20;
-				  self->fdc_st2 |= 0x20; break;
+				  self->reg.st1 |= 0x20;
+				  self->reg.st2 |= 0x20; break;
                 case FD_E_NOSECTOR:
-                                  self->fdc_st0 |= 0x40;
-                                  self->fdc_st1 |= 0x82; break;
+                                  self->reg.st0 |= 0x40;
+                                  self->reg.st1 |= 0x82; break;
                 case FD_E_READONLY: 
-				  self->fdc_st0 |= 0x40;
-				  self->fdc_st1 |= 0x02; break;
+				  self->reg.st0 |= 0x40;
+				  self->reg.st1 |= 0x02; break;
         }
 
 }
@@ -563,56 +563,56 @@ static void fdc_xlt_error(FDC_765 *self, fd_err_t error)
  * XXX Bytes 2,3,4,5 should change the way the real FDC does it. */
 static void fdc_results_7(FDC_765 *self)
 {
-	self->fdc_res_buf[0] = self->fdc_st0;	/* 3 status registers */
-        self->fdc_res_buf[1] = self->fdc_st1;
-        self->fdc_res_buf[2] = self->fdc_st2;
-        self->fdc_res_buf[3] = self->fdc_cmd_buf[2];	/* C, H, R, N */
-        self->fdc_res_buf[4] = self->fdc_cmd_buf[3];
-        self->fdc_res_buf[5] = self->fdc_cmd_buf[4];
-        self->fdc_res_buf[6] = self->fdc_cmd_buf[5];
-	self->fdc_msr = 0xD0;	/* Ready to return results */
+	self->res.buf[0] = self->reg.st0;	/* 3 status registers */
+        self->res.buf[1] = self->reg.st1;
+        self->res.buf[2] = self->reg.st2;
+        self->res.buf[3] = self->cmd.buf[2];	/* C, H, R, N */
+        self->res.buf[4] = self->cmd.buf[3];
+        self->res.buf[5] = self->cmd.buf[4];
+        self->res.buf[6] = self->cmd.buf[5];
+	self->reg.msr = 0xD0;	/* Ready to return results */
 }
 
 
 /* End of result phase. Switch FDC back to idle */
 static void fdc_end_result_phase(FDC_765 *self)
 {
-	self->fdc_msr = 0x80;
-	if (self->fdc_interrupting < 3) self->fdc_interrupting = 0;
-	self->fdc_cmd_id = -1;
+	self->reg.msr = 0x80;
+	if (self->isr.state < 3) self->isr.state = 0;
+	self->reg.cmd = -1;
 }
 
 /* Generate a 1-byte result phase containing ST0 */
 static void fdc_error(FDC_765 *self)
 {
-	self->fdc_st0 = (self->fdc_st0 & 0x3F) | 0x80;
-	self->fdc_msr = 0xD0;	/* Result phase */
-	self->fdc_res_len = 1;
-	self->fdc_res_pos = 0;
-	self->fdc_res_buf[0] = self->fdc_st0;
+	self->reg.st0 = (self->reg.st0 & 0x3F) | 0x80;
+	self->reg.msr = 0xD0;	/* Result phase */
+	self->res.len = 1;
+	self->res.pos = 0;
+	self->res.buf[0] = self->reg.st0;
 }
 
 
 /* Interrupt: Start of result phase */
 static void fdc_result_interrupt(FDC_765 *self)
 {
-	self->fdc_isr_countdown = SHORT_TIMEOUT;
-        self->fdc_interrupting  = 1;	/* Result-phase interrupt */
+	self->isr.count = SHORT_TIMEOUT;
+        self->isr.state  = 1;	/* Result-phase interrupt */
 }
 
 
 /* Interrupt: Start of execution phase */
 static void fdc_exec_interrupt(FDC_765 *self)
 {
-        self->fdc_isr_countdown = SHORT_TIMEOUT;
-        self->fdc_interrupting  = 2;    /* Execution-phase interrupt */
+        self->isr.count = SHORT_TIMEOUT;
+        self->isr.state  = 2;    /* Execution-phase interrupt */
 }
 
 /* Compare two bytes - for the SCAN commands */
 static void fdc_scan_byte(FDC_765 *self, fdc_byte fdcbyte, fdc_byte cpubyte)
 {
-        int cmd = self->fdc_cmd_buf[0] & 0x1F;
-        if ((self->fdc_st2 & 0x0C) != 8) return;	/* Mismatched already */
+        int cmd = self->cmd.buf[0] & 0x1F;
+        if ((self->reg.st2 & 0x0C) != 8) return;	/* Mismatched already */
         
         if ((fdcbyte == cpubyte) || (fdcbyte == 0xFF) || (cpubyte == 0xFF)) 
 		return;	/* Bytes match */
@@ -620,17 +620,17 @@ static void fdc_scan_byte(FDC_765 *self, fdc_byte fdcbyte, fdc_byte cpubyte)
         /* They differ */
         if (cmd == 17) /* equal */
         {
-	    self->fdc_st2 = (self->fdc_st2 & 0xF3) | 4; /* != */
+	    self->reg.st2 = (self->reg.st2 & 0xF3) | 4; /* != */
 	}
         if (cmd == 25) /* low or equal */
         {
-            if (fdcbyte < cpubyte) self->fdc_st2 = (self->fdc_st2 & 0xF3);
-            if (fdcbyte > cpubyte) self->fdc_st2 = (self->fdc_st2 & 0xF3) | 4;
+            if (fdcbyte < cpubyte) self->reg.st2 = (self->reg.st2 & 0xF3);
+            if (fdcbyte > cpubyte) self->reg.st2 = (self->reg.st2 & 0xF3) | 4;
         }
         if (cmd == 30) /* high or equal */
         {
-            if (fdcbyte < cpubyte) self->fdc_st2 = (self->fdc_st2 & 0xF3) | 4;
-	    if (fdcbyte > cpubyte) self->fdc_st2 = (self->fdc_st2 & 0xF3);
+            if (fdcbyte < cpubyte) self->reg.st2 = (self->reg.st2 & 0xF3) | 4;
+	    if (fdcbyte > cpubyte) self->reg.st2 = (self->reg.st2 & 0xF3);
         }
 }
 
@@ -640,36 +640,36 @@ static void fdc_scan_byte(FDC_765 *self, fdc_byte fdcbyte, fdc_byte cpubyte)
 static void fdc_get_drive(FDC_765 *self)
 {
 	/* Set current drive & head in FDC struct */
-	self->fdc_curunit =  self->fdc_cmd_buf[1] & 3;
-	self->fdc_curhead = (self->fdc_cmd_buf[1] & 4) >> 2;
+	self->unit_id =  self->cmd.buf[1] & 3;
+	self->head_id = (self->cmd.buf[1] & 4) >> 2;
 
 	/* Set current drive & head in FDC status regs */
-	self->fdc_st0 &= 0xF8;
-	self->fdc_st3 &= 0xF8;
+	self->reg.st0 &= 0xF8;
+	self->reg.st3 &= 0xF8;
 
-	self->fdc_st0 |= (self->fdc_cmd_buf[1] & 7);
-        self->fdc_st3 |= (self->fdc_cmd_buf[1] & 7);
+	self->reg.st0 |= (self->cmd.buf[1] & 7);
+        self->reg.st3 |= (self->cmd.buf[1] & 7);
 }
 
 
 /* End of Execution Phase in a write command. Write data. */
 static void fdc_write_end(FDC_765 *self)
 {
-        FDD_765 *fd = self->fdc_drive[self->fdc_curunit];
-	int len = (128 << self->fdc_cmd_buf[5]);
+        FDD_765 *fd = self->fdc_drive[self->unit_id];
+	int len = (128 << self->cmd.buf[5]);
 	fd_err_t rv;
 
-	if (self->fdc_cmd_buf[8] < 255) len = self->fdc_cmd_buf[8];
+	if (self->cmd.buf[8] < 255) len = self->cmd.buf[8];
 
-	rv = fdd_write_sector(fd, self->fdc_cmd_buf[2], /* xcyl */
-				 self->fdc_cmd_buf[3], /* xhd  */
-				 self->fdc_curhead,    /* head */
-				 self->fdc_cmd_buf[4], /* sec */
-				 self->fdc_exe_buf, len,
+	rv = fdd_write_sector(fd, self->cmd.buf[2], /* xcyl */
+				 self->cmd.buf[3], /* xhd  */
+				 self->head_id,    /* head */
+				 self->cmd.buf[4], /* sec */
+				 self->exe.buf, len,
 				 self->fdc_write_deleted, 
-				 self->fdc_cmd_buf[0] & 0x20,
-				 self->fdc_cmd_buf[0] & 0x40,
-				 self->fdc_cmd_buf[0] & 0x80);
+				 self->cmd.buf[0] & 0x20,
+				 self->cmd.buf[0] & 0x40,
+				 self->cmd.buf[0] & 0x80);
 
 	fdc_xlt_error(self, rv);
 
@@ -683,14 +683,14 @@ static void fdc_write_end(FDC_765 *self)
 /* End of Execution Phase in a format command. Format the track.   */
 static void fdc_format_end(FDC_765 *self)
 {
-        FDD_765 *fd = self->fdc_drive[self->fdc_curunit];
+        FDD_765 *fd = self->fdc_drive[self->unit_id];
 	fd_err_t rv;
 
 
-	rv = fdd_format_track(fd, self->fdc_curhead, /* head */
-			     self->fdc_cmd_buf[3],  /* Sectors/track */
-			     self->fdc_exe_buf,    /* Track template */
-			     self->fdc_cmd_buf[5]); /* Filler byte */
+	rv = fdd_format_track(fd, self->head_id, /* head */
+			     self->cmd.buf[3],  /* Sectors/track */
+			     self->exe.buf,    /* Track template */
+			     self->cmd.buf[5]); /* Filler byte */
 
 	fdc_xlt_error(self, rv);
 
@@ -703,11 +703,11 @@ static void fdc_format_end(FDC_765 *self)
 /* Called when execution phase finishes */
 static void fdc_end_execution_phase(FDC_765 *self)
 {
-        fdc_byte cmd = self->fdc_cmd_buf[0] & 0x1F;
+        fdc_byte cmd = self->cmd.buf[0] & 0x1F;
 
-	self->fdc_msr = 0xD0;	/* Ready to return results */
+	self->reg.msr = 0xD0;	/* Ready to return results */
 
-	self->fdc_res_pos = 0;
+	self->res.pos = 0;
 
         switch(cmd)
         {
@@ -715,7 +715,7 @@ static void fdc_end_execution_phase(FDC_765 *self)
                 case 25:
                 case 30:  fdc_results_7(self);    /* fall through */
 		case 12:
-                case 6:   self->fdc_res_len = 7; 
+                case 6:   self->res.len = 7; 
 			/* Do an fdc_result_interrupt, the command has 
 			 * finished. Would normally happen on buffer
 		 	 * exhaustion, but if you set the terminal count
@@ -725,10 +725,10 @@ static void fdc_end_execution_phase(FDC_765 *self)
 
 		case 9:
                 case 5:   fdc_write_end(self);
-                          self->fdc_res_len = 7; break;  /* WRITE */
+                          self->res.len = 7; break;  /* WRITE */
 
                 case 13:  fdc_format_end(self);
-                          self->fdc_res_len = 7; break;  /* FORMAT */
+                          self->res.len = 7; break;  /* FORMAT */
         }
 }
 
@@ -745,21 +745,21 @@ static void fdc_read_track(FDC_765 *self)
 	int err;
 	FDD_765 *fd;
 
-	self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
+	self->reg.st0 = self->reg.st1 = self->reg.st2 = 0;
 	self->fdc_lastidread = 0;
 
 	fdc_get_drive(self);
 
-	fd = self->fdc_drive[self->fdc_curunit];
+	fd = self->fdc_drive[self->unit_id];
 
-	self->fdc_exe_len = MAX_SECTOR_LEN;
+	self->exe.len = MAX_SECTOR_LEN;
 
         if (!fdc_ready(self, fd)) err = FD_E_NOTRDY;
 	else err = fdd_read_track(fd, 
-		self->fdc_cmd_buf[2], self->fdc_cmd_buf[3],
-		self->fdc_curhead,
-		self->fdc_exe_buf, 
-		&self->fdc_exe_len);
+		self->cmd.buf[2], self->cmd.buf[3],
+		self->head_id,
+		self->exe.buf, 
+		&self->exe.len);
 
 	if (err) fdc_xlt_error(self, err);
 
@@ -772,17 +772,19 @@ static void fdc_read_track(FDC_765 *self)
 	}
 
         fdc_exec_interrupt(self);
-	self->fdc_msr = 0xF0;	/* Ready to transfer data */
-	self->fdc_exe_pos = 0;
+	self->reg.msr = 0xF0;	/* Ready to transfer data */
+	self->exe.pos = 0;
 }
 
 
 /* SPECIFY */
 static void fdc_specify(FDC_765 *self)
 {
-        self->fdc_specify[0] = self->fdc_cmd_buf[1];
-        self->fdc_specify[1] = self->fdc_cmd_buf[2];
-        fdc_end_result_phase(self);
+  self->reg.srt = (self->cmd.buf[0] & 0xf0) >> 4;
+  self->reg.hlt = (self->cmd.buf[1] & 0xfe) >> 1;
+  self->reg.hut = (self->cmd.buf[0] & 0x0f) >> 0;
+  self->reg.ndm = (self->cmd.buf[1] & 0x01) >> 0;
+  fdc_end_result_phase(self);
 }
 
 /* SENSE DRIVE STATUS */
@@ -790,8 +792,8 @@ static void fdc_sense_drive(FDC_765 *self)
 {
 	fdc_get_drive(self);
 	fdc_get_st3(self);
-	self->fdc_res_buf[0] = self->fdc_st3;
-	self->fdc_res_len    = 1;
+	self->res.buf[0] = self->reg.st3;
+	self->res.len    = 1;
 	fdc_end_execution_phase(self);
 }
 
@@ -805,30 +807,30 @@ static void fdc_read(FDC_765 *self, int deleted)
 	int err;
 	FDD_765 *fd;
 
-	self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
+	self->reg.st0 = self->reg.st1 = self->reg.st2 = 0;
 	self->fdc_lastidread = 0;
 
 	fdc_get_drive(self);
 
-	fd = self->fdc_drive[self->fdc_curunit];
-        self->fdc_exe_len = (128 << self->fdc_cmd_buf[5]);
-        if (self->fdc_cmd_buf[8] < 255) 
-		self->fdc_exe_len = self->fdc_cmd_buf[8];
+	fd = self->fdc_drive[self->unit_id];
+        self->exe.len = (128 << self->cmd.buf[5]);
+        if (self->cmd.buf[8] < 255) 
+		self->exe.len = self->cmd.buf[8];
 
-	memset(self->fdc_exe_buf, 0, self->fdc_exe_len);
+	memset(self->exe.buf, 0, self->exe.len);
 
         if (!fdc_ready(self, fd)) err = FD_E_NOTRDY;
 	else err = fdd_read_sector(fd, 
-		self->fdc_cmd_buf[2], self->fdc_cmd_buf[3],
-		self->fdc_curhead,
-		self->fdc_cmd_buf[4], self->fdc_exe_buf, 
-		self->fdc_exe_len, &deleted,
-		self->fdc_cmd_buf[0] & 0x20,
-		self->fdc_cmd_buf[0] & 0x40,
-		self->fdc_cmd_buf[0] & 0x80);
+		self->cmd.buf[2], self->cmd.buf[3],
+		self->head_id,
+		self->cmd.buf[4], self->exe.buf, 
+		self->exe.len, &deleted,
+		self->cmd.buf[0] & 0x20,
+		self->cmd.buf[0] & 0x40,
+		self->cmd.buf[0] & 0x80);
 
 	if (err) fdc_xlt_error(self, err);
-	if (deleted) self->fdc_st2 |= 0x40;
+	if (deleted) self->reg.st2 |= 0x40;
 
 	fdc_results_7(self);
 	if (err && err != FD_E_DATAERR)
@@ -839,8 +841,8 @@ static void fdc_read(FDC_765 *self, int deleted)
 	}
 
         fdc_exec_interrupt(self);
-	self->fdc_msr = 0xF0;	/* Ready to transfer data */
-	self->fdc_exe_pos = 0;
+	self->reg.msr = 0xF0;	/* Ready to transfer data */
+	self->exe.pos = 0;
 }
 
 /* WRITE DATA
@@ -852,18 +854,18 @@ static void fdc_write(FDC_765 *self, int deleted)
         int err = FD_E_OK;
 	FDD_765 *fd;
 
-        self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
+        self->reg.st0 = self->reg.st1 = self->reg.st2 = 0;
         self->fdc_lastidread = 0;
 	self->fdc_write_deleted = deleted;
 
         fdc_get_drive(self);
-	fd = self->fdc_drive[self->fdc_curunit];
+	fd = self->fdc_drive[self->unit_id];
 
-        self->fdc_exe_len = (128 << self->fdc_cmd_buf[5]);
-        if (self->fdc_cmd_buf[8] < 255)
-                self->fdc_exe_len = self->fdc_cmd_buf[8];
+        self->exe.len = (128 << self->cmd.buf[5]);
+        if (self->cmd.buf[8] < 255)
+                self->exe.len = self->cmd.buf[8];
 
-        memset(self->fdc_exe_buf, 0, self->fdc_exe_len);
+        memset(self->exe.buf, 0, self->exe.len);
 
         if (!fdc_ready(self, fd))     err = FD_E_NOTRDY;
 	else if (fd && fd->fd_readonly) err = FD_E_READONLY;
@@ -871,18 +873,18 @@ static void fdc_write(FDC_765 *self, int deleted)
 	if (err) 
 	{
 		fdc_xlt_error(self, err);
-                self->fdc_msr = 0xD0;      /* Ready to return results */
-                self->fdc_res_pos = 0;
+                self->reg.msr = 0xD0;      /* Ready to return results */
+                self->res.pos = 0;
 		fdc_results_7(self);
-		self->fdc_res_pos = 0;
-		self->fdc_res_len = 7;
+		self->res.pos = 0;
+		self->res.len = 7;
 		fdc_result_interrupt(self);
 	}
 	else
 	{
 		fdc_exec_interrupt(self);
-		self->fdc_msr = 0xB0;	/* Ready to receive data */
-		self->fdc_exe_pos = 0;
+		self->reg.msr = 0xB0;	/* Ready to receive data */
+		self->exe.pos = 0;
 	}
 }
 
@@ -891,61 +893,61 @@ static void fdc_recalibrate(FDC_765 *self)
 {
 	FDD_765 *fd;
 
-	self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
+	self->reg.st0 = self->reg.st1 = self->reg.st2 = 0;
 
 	fdc_get_drive(self);
 	self->fdc_lastidread = 0;
 
-	fd = self->fdc_drive[self->fdc_curunit];
+	fd = self->fdc_drive[self->unit_id];
 
 	fdc_end_result_phase(self);
 
-	self->fdc_isr_countdown = SHORT_TIMEOUT;
-	self->fdc_interrupting  = 4;		/* Interrupt: End of seek */
-	self->fdc_st2 &= 0xFD;
-	self->fdc_st0 |= 0x20;
+	self->isr.count = SHORT_TIMEOUT;
+	self->isr.state  = 4;		/* Interrupt: End of seek */
+	self->reg.st2 &= 0xFD;
+	self->reg.st0 |= 0x20;
 
 	/* Seek the drive to track 0 */
         if (!fdc_ready(self, fd))
         {
-                self->fdc_st0 |= 0x48;          /* Drive not ready */
+                self->reg.st0 |= 0x48;          /* Drive not ready */
         }
         else if ( fdd_seek_cylinder(fd, 0) )
         {
                 /* Seek failed */
-                self->fdc_st2 |= 2;
-                self->fdc_st0 |= 0x40;
+                self->reg.st2 |= 2;
+                self->reg.st0 |= 0x40;
         }
 }
 
 /* SENSE INTERRUPT STATUS */
 static void fdc_sense_int(FDC_765 *self)
 {
-        if (self->fdc_interrupting > 2) 
+        if (self->isr.state > 2) 
 		/* FDC interrupted, and is ready to return status */
         {
 		fdc_byte cyl = 0;
-		if (self->fdc_drive[self->fdc_curunit]) 
-			cyl = self->fdc_drive[self->fdc_curunit]->fd_cylinder;
+		if (self->fdc_drive[self->unit_id]) 
+			cyl = self->fdc_drive[self->unit_id]->fd_cylinder;
 
-		self->fdc_res_buf[0] = self->fdc_st0;
-		self->fdc_res_buf[1] = cyl;
-		self->fdc_res_len = 2;
+		self->res.buf[0] = self->reg.st0;
+		self->res.buf[1] = cyl;
+		self->res.len = 2;
 		log_dprintf(7, "SENSE INTERRUPT STATUS: Return %02x %02x\n",
-					self->fdc_st0, cyl);
+					self->reg.st0, cyl);
         }
         else    /* FDC did not interrupt, error */
         {
-                self->fdc_st0 = 0x80;
-		self->fdc_res_buf[0] = self->fdc_st0;
-                self->fdc_res_len = 1;
+                self->reg.st0 = 0x80;
+		self->res.buf[0] = self->reg.st0;
+                self->res.len = 1;
 		log_dprintf(7, "SENSE INTERRUPT STATUS: Return 0x80\n");
         }
 	fdc_end_execution_phase(self);
 
 	/* Drop the interrupt line */
-        self->fdc_isr_countdown = 0;
-        self->fdc_interrupting = 0;
+        self->isr.count = 0;
+        self->isr.state = 0;
         if (self->fdc_isr)
         {
 		(*self->fdc_isr)(self, 0);
@@ -960,31 +962,31 @@ static void fdc_read_id(FDC_765 *self)
         FDD_765 *fd;
 	int ret;
 
-	self->fdc_res_len = 7;
-	self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
+	self->res.len = 7;
+	self->reg.st0 = self->reg.st1 = self->reg.st2 = 0;
 
 	fdc_get_drive(self);
 
-	fd = self->fdc_drive[self->fdc_curunit];
+	fd = self->fdc_drive[self->unit_id];
 
         if (!fdc_ready(self, fd)) 
         {
-                self->fdc_st0 |= 0x48;          /* Drive not ready */
+                self->reg.st0 |= 0x48;          /* Drive not ready */
         }
 	else
 	{
-		ret=(*fd->fd_vtable->fdv_read_id)(fd, self->fdc_curhead,
-				self->fdc_lastidread++, self->fdc_cmd_buf + 2);
+		ret=(*fd->fd_vtable->fdv_read_id)(fd, self->head_id,
+				self->fdc_lastidread++, self->cmd.buf + 2);
 
 		if (ret == FD_E_SEEKFAIL)
 		{
-			self->fdc_st1 |= 1;
-			self->fdc_st0 |= 0x40;
+			self->reg.st1 |= 1;
+			self->reg.st0 |= 0x40;
 		}
 		if (ret == FD_E_NOADDR) 
 		{
-			self->fdc_st2 |= 1;
-			self->fdc_st0 |= 0x40;
+			self->reg.st2 |= 1;
+			self->reg.st0 |= 0x40;
 		}
 	}
 	fdc_results_7(self);
@@ -1001,13 +1003,13 @@ static void fdc_format(FDC_765 *self)
         int err = FD_E_OK;
 	FDD_765 *fd;
 
-        self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
+        self->reg.st0 = self->reg.st1 = self->reg.st2 = 0;
         self->fdc_lastidread = 0;
 
         fdc_get_drive(self);
-        fd = self->fdc_drive[self->fdc_curunit];
+        fd = self->fdc_drive[self->unit_id];
 
-        memset(self->fdc_exe_buf, 0, MAX_SECTOR_LEN);
+        memset(self->exe.buf, 0, MAX_SECTOR_LEN);
 
         if (!fdc_ready(self, fd))     err = FD_E_NOTRDY;
 	else if (fd && fd->fd_readonly) err = FD_E_READONLY;
@@ -1015,47 +1017,47 @@ static void fdc_format(FDC_765 *self)
 	if (err) 
 	{
 		fdc_xlt_error(self, err);
-       		self->fdc_msr = 0xD0;      /* Ready to return results */
-	        self->fdc_res_pos = 0;
+       		self->reg.msr = 0xD0;      /* Ready to return results */
+	        self->res.pos = 0;
 		fdc_results_7(self);
 		fdc_result_interrupt(self);
 	}
 	else
 	{
 		fdc_exec_interrupt(self);
-		self->fdc_msr = 0xB0;	/* Ready to receive data */
-		self->fdc_exe_pos = 0;
-		self->fdc_exe_len = 4 * self->fdc_cmd_buf[3];
+		self->reg.msr = 0xB0;	/* Ready to receive data */
+		self->exe.pos = 0;
+		self->exe.len = 4 * self->cmd.buf[3];
 	}
 }
 
 /* SEEK */
 static void fdc_seek(FDC_765 *self)
 {
-	int cylinder = self->fdc_cmd_buf[2];
+	int cylinder = self->cmd.buf[2];
 	FDD_765 *fd;
 
-	self->fdc_st0 = self->fdc_st1 = self->fdc_st1 = 0;
+	self->reg.st0 = self->reg.st1 = self->reg.st1 = 0;
 	fdc_get_drive(self);
 	self->fdc_lastidread = 0;
 
 	fdc_end_result_phase(self);
-	self->fdc_isr_countdown = SHORT_TIMEOUT;
-	self->fdc_interrupting  = 4;	/* End of seek */
-	self->fdc_st2 &= 0xFD;
-	self->fdc_st0 |= 0x20;
+	self->isr.count = SHORT_TIMEOUT;
+	self->isr.state  = 4;	/* End of seek */
+	self->reg.st2 &= 0xFD;
+	self->reg.st0 |= 0x20;
 
-	fd = self->fdc_drive[self->fdc_curunit];
+	fd = self->fdc_drive[self->unit_id];
 
         if (!fdc_ready(self, fd))
         {
-                self->fdc_st0 |= 0x48;          /* Drive not ready */
+                self->reg.st0 |= 0x48;          /* Drive not ready */
         }
 	else if ( fdd_seek_cylinder(fd, cylinder) )
 	{
 		/* Seek failed */
-		self->fdc_st2 |= 2;
-		self->fdc_st0 |= 0x40;
+		self->reg.st2 |= 2;
+		self->reg.st0 |= 0x40;
 	}
 }
 
@@ -1070,25 +1072,25 @@ static void fdc_scan(FDC_765 *self)
 
 	/* Load the sector we were working on */
 
-        self->fdc_st0 = self->fdc_st1 = self->fdc_st2 = 0;
+        self->reg.st0 = self->reg.st1 = self->reg.st2 = 0;
         self->fdc_lastidread = 0;
 
         fdc_get_drive(self);
 
-        self->fdc_exe_len = (128 << self->fdc_cmd_buf[5]);
-        if (self->fdc_cmd_buf[8] < 255)
-                self->fdc_exe_len = self->fdc_cmd_buf[8];
+        self->exe.len = (128 << self->cmd.buf[5]);
+        if (self->cmd.buf[8] < 255)
+                self->exe.len = self->cmd.buf[8];
 
-        memset(self->fdc_exe_buf, 0, self->fdc_exe_len);
+        memset(self->exe.buf, 0, self->exe.len);
 
-        err = fdd_read_sector(self->fdc_drive[self->fdc_curunit],
-                self->fdc_cmd_buf[2], self->fdc_cmd_buf[3],
-                self->fdc_curhead,
-                self->fdc_cmd_buf[4], self->fdc_exe_buf,
-                self->fdc_exe_len, 0, 
-		self->fdc_cmd_buf[0] & 0x20,
-		self->fdc_cmd_buf[0] & 0x40,
-		self->fdc_cmd_buf[0] & 0x80);
+        err = fdd_read_sector(self->fdc_drive[self->unit_id],
+                self->cmd.buf[2], self->cmd.buf[3],
+                self->head_id,
+                self->cmd.buf[4], self->exe.buf,
+                self->exe.len, 0, 
+		self->cmd.buf[0] & 0x20,
+		self->cmd.buf[0] & 0x40,
+		self->cmd.buf[0] & 0x80);
 
         if (err) fdc_xlt_error(self, err);
 
@@ -1100,9 +1102,9 @@ static void fdc_scan(FDC_765 *self)
                 return;
         }
         fdc_exec_interrupt(self);
-	self->fdc_st2 |= 8;
-        self->fdc_msr = 0xB0;      /* Ready to transfer data */
-	self->fdc_exe_pos = 0;
+	self->reg.st2 |= 8;
+        self->reg.msr = 0xB0;      /* Ready to transfer data */
+	self->exe.pos = 0;
 }
 
 
@@ -1115,16 +1117,16 @@ static void fdc_execute(FDC_765 *self)
  * */
 	int NC;
 	log_dprintf(5, "FDC: ");
-	for (NC = 0; NC < bytes_in_cmd[self->fdc_cmd_buf[0] & 0x1F]; NC++)
-		log_dprintf(5, "%02x ", self->fdc_cmd_buf[NC]);
+	for (NC = 0; NC < bytes_in_cmd[self->cmd.buf[0] & 0x1F]; NC++)
+		log_dprintf(5, "%02x ", self->cmd.buf[NC]);
 	log_dprintf(5, "\n");
  /* */
 	/* Check if the DOR (ugh!) is being used to force us to a 
 	   different drive. */
 
 	/* Reset "seek finished" flag */
-	self->fdc_st0 &= 0xBF;	 
-	switch(self->fdc_cmd_buf[0] & 0x1F)
+	self->reg.st0 &= 0xBF;	 
+	switch(self->cmd.buf[0] & 0x1F)
 	{
 		case 2: fdc_read_track(self);	break;	/* 2: READ TRACK */
 		case 3: fdc_specify(self);	break;	/* 3: SPECIFY */
@@ -1143,7 +1145,7 @@ static void fdc_execute(FDC_765 *self)
 		case 30:fdc_scan(self);		break;	/*30: SCAN HIGH/EQUAL*/
 		default:
 			log_dprintf(2, "Unknown FDC command %d\n", 
-					self->fdc_cmd_buf[0] & 0x1F);
+					self->cmd.buf[0] & 0x1F);
 			fdc_error(self);	break;
 	}
 
@@ -1152,10 +1154,10 @@ static void fdc_execute(FDC_765 *self)
 /* Make the FDC drop its "interrupt" line */
 static void fdc_clear_pending_interrupt(FDC_765 *self)
 {
-        if (self->fdc_interrupting > 0 && self->fdc_interrupting < 4)
+        if (self->isr.state > 0 && self->isr.state < 4)
         {
-                self->fdc_isr_countdown = 0;
-                self->fdc_interrupting = 0;
+                self->isr.count = 0;
+                self->isr.state = 0;
                 if (self->fdc_isr)
                 {
                         (*self->fdc_isr)(self, 0);
@@ -1170,26 +1172,26 @@ void fdc_wr_data(FDC_765 *self, fdc_byte value)
 	fdc_byte curcmd;
 
 	fdc_clear_pending_interrupt(self);
-	if (self->fdc_msr & 0x20)	/* In execution phase */
+	if (self->reg.msr & 0x20)	/* In execution phase */
 	{
-		curcmd = self->fdc_cmd_buf[0] & 0x1F;
+		curcmd = self->cmd.buf[0] & 0x1F;
 		switch(curcmd)
 		{
 			case 17:
 			case 25:	/* SCAN commands */
 			case 30:
 				fdc_scan_byte(self,
-					self->fdc_exe_buf[self->fdc_exe_pos],
+					self->exe.buf[self->exe.pos],
 					value);
 				break;
 			default:	/* WRITE commands */
-				self->fdc_exe_buf[self->fdc_exe_pos] = value;
+				self->exe.buf[self->exe.pos] = value;
 				break;
 		}
-		++self->fdc_exe_pos;
-		--self->fdc_exe_len;
+		++self->exe.pos;
+		--self->exe.len;
                 /* If at end of exec-phase, switch to result phase */
-                if (!self->fdc_exe_len)
+                if (!self->exe.len)
                 {
                 	fdc_end_execution_phase(self);
                         fdc_result_interrupt(self);
@@ -1197,30 +1199,30 @@ void fdc_wr_data(FDC_765 *self, fdc_byte value)
                 /* Interrupt SHORT_TIMEOUT cycles from now to say that the
                  * next byte is ready */
 /* [JCE 8-3-2002] Changed > to >= for xjoyce 2.1.0 */
-                if (self->fdc_interrupting >= 0 &&
-                    self->fdc_interrupting < 3)
+                if (self->isr.state >= 0 &&
+                    self->isr.state < 3)
                 {
-                	self->fdc_isr_countdown = SHORT_TIMEOUT;
+                	self->isr.count = SHORT_TIMEOUT;
 		}
 		return;
 	}
-	if (self->fdc_cmd_id < 0)	/* FDC is idle */
+	if (self->reg.cmd < 0)	/* FDC is idle */
 	{
-		self->fdc_cmd_id  = value;	/* Entering command phase */
-		self->fdc_cmd_pos = 0;
-		self->fdc_cmd_buf[0] = value;
-		self->fdc_cmd_len = bytes_in_cmd[value & 0x1F] - 1;
+		self->reg.cmd  = value;	/* Entering command phase */
+		self->cmd.pos = 0;
+		self->cmd.buf[0] = value;
+		self->cmd.len = bytes_in_cmd[value & 0x1F] - 1;
 
-		if (self->fdc_cmd_len     == 0) fdc_execute(self);
-		else if (self->fdc_cmd_len < 0)	fdc_error(self);
-		self->fdc_msr |= 0x10;	/* In a command */
+		if (self->cmd.len     == 0) fdc_execute(self);
+		else if (self->cmd.len < 0)	fdc_error(self);
+		self->reg.msr |= 0x10;	/* In a command */
 		return;
 	}
 	/* FDC is not idle, nor in execution phase; so it must be 
 	 * accepting a multibyte command */
-	self->fdc_cmd_buf[++self->fdc_cmd_pos] = value;
-	--self->fdc_cmd_len;
-	if (!self->fdc_cmd_len) fdc_execute(self);
+	self->cmd.buf[++self->cmd.pos] = value;
+	--self->cmd.len;
+	if (!self->cmd.len) fdc_execute(self);
 }
 
 
@@ -1230,16 +1232,16 @@ fdc_byte fdc_rd_data (FDC_765 *self)
 	log_dprintf(5, "FDC: Read main data register, value = ");
 
 	fdc_clear_pending_interrupt(self);
-       	if (self->fdc_msr & 0x80) /* Ready to output data */
+       	if (self->reg.msr & 0x80) /* Ready to output data */
 	{
 		fdc_byte v;
-		if (self->fdc_msr & 0x20) /* In exec phase */
+		if (self->reg.msr & 0x20) /* In exec phase */
 		{
 			/* Output an exec-phase byte */
-			v = self->fdc_exe_buf[self->fdc_exe_pos++];
-			--self->fdc_exe_len;
+			v = self->exe.buf[self->exe.pos++];
+			--self->exe.len;
 			/* If at end of exec-phase, switch to result phase */
-			if (!self->fdc_exe_len)
+			if (!self->exe.len)
 			{
 				fdc_end_execution_phase(self);
 				fdc_result_interrupt(self);
@@ -1247,33 +1249,33 @@ fdc_byte fdc_rd_data (FDC_765 *self)
 			/* Interrupt SHORT_TIMEOUT cycles from now to say that
 			 * the next byte is ready */
 /* [JCE 8-3-2002] Changed > to >= for xjoyce 2.1.0 */
-			if (self->fdc_interrupting >= 0 &&
-		            self->fdc_interrupting < 3) 
+			if (self->isr.state >= 0 &&
+		            self->isr.state < 3) 
 			{
-				self->fdc_isr_countdown = SHORT_TIMEOUT;
+				self->isr.count = SHORT_TIMEOUT;
 			}
-			log_dprintf(7, "fdc_interrupting=%d\n", self->fdc_interrupting);
-			log_dprintf(5, "%c:%02x\n", self->fdc_isr_countdown ? 'E' : 'e', v);
+			log_dprintf(7, "isr.state=%d\n", self->isr.state);
+			log_dprintf(5, "%c:%02x\n", self->isr.count ? 'E' : 'e', v);
 			return v;
 		}
 		/* Not in execution phase. So we must be in the result phase */
-		v = self->fdc_res_buf[self->fdc_res_pos++];
-		--self->fdc_res_len;
-		if (self->fdc_res_len == 0) fdc_end_result_phase(self);
-		log_dprintf(5, "R:%02x  (%d remaining)\n", v, self->fdc_res_len);
+		v = self->res.buf[self->res.pos++];
+		--self->res.len;
+		if (self->res.len == 0) fdc_end_result_phase(self);
+		log_dprintf(5, "R:%02x  (%d remaining)\n", v, self->res.len);
 		return v;
 	}
 	/* FDC is not ready to return data! */
-	log_dprintf(5, "N:%02x\n", self->fdc_msr | (1 << self->fdc_curunit));
-	return self->fdc_msr | (1 << self->fdc_curunit);
+	log_dprintf(5, "N:%02x\n", self->reg.msr | (1 << self->unit_id));
+	return self->reg.msr | (1 << self->unit_id);
 }
 
 
 /* Read the FDC's main control register */
 fdc_byte fdc_rd_stat (FDC_765 *self)
 {
-	log_dprintf(5, "FDC: Read main status: %02x\n", self->fdc_msr);
-	return self->fdc_msr;
+	log_dprintf(5, "FDC: Read main status: %02x\n", self->reg.msr);
+	return self->reg.msr;
 }
 
 /* Start or stop drive motors */
@@ -1305,32 +1307,32 @@ void fdc_set_motor(FDC_765 *self, fdc_byte state)
             else newmotor[n] = 0;
 
 	/* If motor of active drive hasn't changed, return */
-	if (newmotor[self->fdc_curunit] == oldmotor[self->fdc_curunit]) return;
+	if (newmotor[self->unit_id] == oldmotor[self->unit_id]) return;
 
-	n = newmotor[self->fdc_curunit];
+	n = newmotor[self->unit_id];
 	/* The status of the active drive is changing. Wait for a while, then
 	 * interrupt */
 
 	log_dprintf(5, "FDC: queued interrupt for drive motor change.\n");
-	self->fdc_isr_countdown = LONGER_TIMEOUT;
+	self->isr.count = LONGER_TIMEOUT;
 
-	if (n) self->fdc_st0 &= 0xF7;	/* Motor -> on ; drive is ready */
-	else   self->fdc_st0 |= 8;	/* Motor -> off; drive not ready*/
+	if (n) self->reg.st0 &= 0xF7;	/* Motor -> on ; drive is ready */
+	else   self->reg.st0 |= 8;	/* Motor -> off; drive not ready*/
 	fdc_get_st3(self);	/* Recalculate ST3 */
 
 	/* FDC is doing something and the motor has stopped! */
-	if ((self->fdc_msr & 0xF0) != 0x80 && (n == 0))
+	if ((self->reg.msr & 0xF0) != 0x80 && (n == 0))
 	{
 		log_dprintf(5, "FDC: Motor stopped during command.\n");
-		self->fdc_st0 |= 0xC0;
+		self->reg.st0 |= 0xC0;
 		fdc_end_execution_phase(self);
 	}
 }
 
 void fdc_tick(FDC_765 *fdc)
 {
-  if(fdc->fdc_isr_countdown > 0) {
-    if((--fdc->fdc_isr_countdown == 0) && (fdc->fdc_isr != NULL)) {
+  if(fdc->isr.count > 0) {
+    if((--fdc->isr.count == 0) && (fdc->fdc_isr != NULL)) {
       (*fdc->fdc_isr)(fdc, 1);
     } 
   }

@@ -232,7 +232,6 @@ case INA:  I=RdZ80(z80cpu->PC.W++);z80cpu->AF.B.h=InZ80((z80cpu->AF.W & 0xff00) 
 case HALT:
   z80cpu->PC.W--;
   z80cpu->IFF|=IFF_HALT;
-  z80cpu->TStates=0;
   break;
 
 case DI:

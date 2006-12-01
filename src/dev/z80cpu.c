@@ -91,6 +91,10 @@ static void gdev_z80cpu_clock(GdevZ80CPU *z80cpu)
   guint8     I;
 
 decode_op:
+  if((z80cpu->IFF & IFF_HALT) != 0) {
+    z80cpu->TStates -= 4;
+    goto decode_ok;
+  }
   z80cpu->IFF &= ~IFF_EI;
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
   I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
@@ -181,8 +185,7 @@ decode_fd_cb:
   goto decode_ok;
 
 decode_ko:
-  (void) fprintf(stderr, "CPU_Z80: illegal opcode ... \n");
-  (void) fflush(stderr);
+  g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "illegal opcode");
 
 decode_ok:
   if(z80cpu->TStates > 0) {
