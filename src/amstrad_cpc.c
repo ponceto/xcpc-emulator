@@ -1548,22 +1548,22 @@ static void z80cpu_io_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
 
 static void mc6845_hsync(GdevMC6845 *mc6845)
 {
+  GdevGArray *garray = amstrad_cpc.garray;
+
   if(mc6845->h_syn != 0) {
-    if(amstrad_cpc.garray->delayed > 0) {
-      if(--amstrad_cpc.garray->delayed == 0) {
-        if((amstrad_cpc.garray->counter & 32) != 0) {
-          amstrad_cpc.garray->gen_irq = 1;
+    garray->counter++;
+    if(garray->delayed > 0) {
+      if(--garray->delayed == 0) {
+        if(garray->counter >= 32) {
+          garray->gen_irq = 1;
         }
-        else {
-          amstrad_cpc.garray->gen_irq = 0;
-        }
-        amstrad_cpc.garray->counter = 0;
+        garray->counter = 0;
       }
     }
     else {
-      if(++amstrad_cpc.garray->counter == 52) {
-        amstrad_cpc.garray->counter = 0;
-        amstrad_cpc.garray->gen_irq = 1;
+      if(garray->counter == 52) {
+        garray->counter = 0;
+        garray->gen_irq = 1;
       }
     }
   }
@@ -1571,8 +1571,10 @@ static void mc6845_hsync(GdevMC6845 *mc6845)
 
 static void mc6845_vsync(GdevMC6845 *mc6845)
 {
+  GdevGArray *garray = amstrad_cpc.garray;
+
   if(mc6845->v_syn != 0) {
-    amstrad_cpc.garray->delayed = 2;
+    garray->delayed = 2;
   }
 }
 
@@ -1808,29 +1810,35 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
   AMSTRAD_CPC *self = &amstrad_cpc;
-  GdevDeviceClass *z80cpu_class = GDEV_DEVICE_GET_CLASS((GdevDevice *) self->z80cpu);
-  GdevDeviceClass *mc6845_class = GDEV_DEVICE_GET_CLASS((GdevDevice *) self->mc6845);
+  GdevZ80CPU *z80cpu = self->z80cpu;
+  GdevDeviceClass *z80cpu_class = GDEV_DEVICE_GET_CLASS((GdevDevice *) z80cpu);
+  GdevMC6845 *mc6845 = self->mc6845;
+  GdevDeviceClass *mc6845_class = GDEV_DEVICE_GET_CLASS((GdevDevice *) mc6845);
+  GdevGArray *garray = self->garray;
   long delay, ix;
   int scanline = 0;
 
   do {
-    self->scanline[scanline].mode = self->garray->rom_cfg & 0x03;
+    struct _scanline *sl = &self->scanline[scanline];
+    sl->mode = garray->rom_cfg & 0x03;
     for(ix = 0; ix < 17; ix++) {
-      self->scanline[scanline].ink[ix] = self->palette[self->garray->ink[ix]];
+      sl->ink[ix] = self->palette[garray->ink[ix]];
     }
     for(ix = 0; ix < self->cpu_period; ix += 4) {
-      (*mc6845_class->clock)((GdevDevice *) self->mc6845);
-      if(self->garray->gen_irq != 0) {
-        if((self->z80cpu->IFF & IFF_1) != 0) {
-          gdev_z80cpu_intr(self->z80cpu, INT_RST38);
-          self->garray->counter &= 31;
-          self->garray->gen_irq  = 0;
+      (*mc6845_class->clock)((GdevDevice *) mc6845);
+      if(garray->gen_irq > 0) {
+        if(--garray->gen_irq == 0) {
+          if((z80cpu->IFF & IFF_1) != 0) {
+            gdev_z80cpu_intr(z80cpu, INT_RST38);
+            garray->counter &= 31;
+            garray->gen_irq  = 0;
+          }
         }
       }
-      if((self->z80cpu->TStates += 4) > 0) {
-        gint TStates = self->z80cpu->TStates;
-        (*z80cpu_class->clock)((GdevDevice *) self->z80cpu);
-        self->z80cpu->TStates = TStates - ((TStates - self->z80cpu->TStates) + 3 & (~3));
+      if((z80cpu->TStates += 4) > 0) {
+        gint TStates = z80cpu->TStates;
+        (*z80cpu_class->clock)((GdevDevice *) z80cpu);
+        z80cpu->TStates = TStates - ((TStates - z80cpu->TStates) + 3 & (~3));
       }
     }
   } while(++scanline < 312);
