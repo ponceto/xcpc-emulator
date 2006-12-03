@@ -1828,11 +1828,8 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       (*mc6845_class->clock)((GdevDevice *) mc6845);
       if(garray->gen_irq > 0) {
         if(--garray->gen_irq == 0) {
-          if((z80cpu->IFF & IFF_1) != 0) {
-            gdev_z80cpu_intr(z80cpu, INT_RST38);
-            garray->counter &= 31;
-            garray->gen_irq  = 0;
-          }
+          gdev_z80cpu_intr(z80cpu, INT_RST38);
+          garray->counter &= 31;
         }
       }
       if((z80cpu->TStates += 4) > 0) {
