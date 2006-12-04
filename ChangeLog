@@ -1,3 +1,15 @@
+2006-12-04	Olivier Poncet <ponceto@noos.fr>
+
+	* X11-SHM (XShm) permissions corrections (0600->0666).
+	* FPS statistics (can be disabled with the '--no-fps' option).
+	* Timing & Interrupt generation corrections.
+	* RAM/ROM banks GObjectized.
+	* Keyboard GObjectized.
+	* Renderer bug correction.
+	* FDC/FDD cleanup & improvements.
+	* Misc. corrections & improvements.
+	* Z80 improvements.
+
 2006-11-27	Olivier Poncet <ponceto@noos.fr>
 
 	* X11-SHM (XShm) support.
