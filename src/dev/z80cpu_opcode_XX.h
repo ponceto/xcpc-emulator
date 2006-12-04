@@ -11,10 +11,10 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-case JR_NZ:   if(z80cpu->AF.B.l&Z_FLAG) z80cpu->PC.W++; else { z80cpu->TStates-=5;M_JR; } break;
-case JR_NC:   if(z80cpu->AF.B.l&C_FLAG) z80cpu->PC.W++; else { z80cpu->TStates-=5;M_JR; } break;
-case JR_Z:    if(z80cpu->AF.B.l&Z_FLAG) { z80cpu->TStates-=5;M_JR; } else z80cpu->PC.W++; break;
-case JR_C:    if(z80cpu->AF.B.l&C_FLAG) { z80cpu->TStates-=5;M_JR; } else z80cpu->PC.W++; break;
+case JR_NZ:   if(z80cpu->AF.B.l&Z_FLAG) z80cpu->PC.W++; else { z80cpu->t_states-=5;M_JR; } break;
+case JR_NC:   if(z80cpu->AF.B.l&C_FLAG) z80cpu->PC.W++; else { z80cpu->t_states-=5;M_JR; } break;
+case JR_Z:    if(z80cpu->AF.B.l&Z_FLAG) { z80cpu->t_states-=5;M_JR; } else z80cpu->PC.W++; break;
+case JR_C:    if(z80cpu->AF.B.l&C_FLAG) { z80cpu->t_states-=5;M_JR; } else z80cpu->PC.W++; break;
 
 case JP_NZ:   if(z80cpu->AF.B.l&Z_FLAG) z80cpu->PC.W+=2; else { M_JP; } break;
 case JP_NC:   if(z80cpu->AF.B.l&C_FLAG) z80cpu->PC.W+=2; else { M_JP; } break;
@@ -25,23 +25,23 @@ case JP_C:    if(z80cpu->AF.B.l&C_FLAG) { M_JP; } else z80cpu->PC.W+=2; break;
 case JP_PE:   if(z80cpu->AF.B.l&P_FLAG) { M_JP; } else z80cpu->PC.W+=2; break;
 case JP_M:    if(z80cpu->AF.B.l&S_FLAG) { M_JP; } else z80cpu->PC.W+=2; break;
 
-case RET_NZ:  if(!(z80cpu->AF.B.l&Z_FLAG)) { z80cpu->TStates-=6;M_RET; } break;
-case RET_NC:  if(!(z80cpu->AF.B.l&C_FLAG)) { z80cpu->TStates-=6;M_RET; } break;
-case RET_PO:  if(!(z80cpu->AF.B.l&P_FLAG)) { z80cpu->TStates-=6;M_RET; } break;
-case RET_P:   if(!(z80cpu->AF.B.l&S_FLAG)) { z80cpu->TStates-=6;M_RET; } break;
-case RET_Z:   if(z80cpu->AF.B.l&Z_FLAG)    { z80cpu->TStates-=6;M_RET; } break;
-case RET_C:   if(z80cpu->AF.B.l&C_FLAG)    { z80cpu->TStates-=6;M_RET; } break;
-case RET_PE:  if(z80cpu->AF.B.l&P_FLAG)    { z80cpu->TStates-=6;M_RET; } break;
-case RET_M:   if(z80cpu->AF.B.l&S_FLAG)    { z80cpu->TStates-=6;M_RET; } break;
+case RET_NZ:  if(!(z80cpu->AF.B.l&Z_FLAG)) { z80cpu->t_states-=6;M_RET; } break;
+case RET_NC:  if(!(z80cpu->AF.B.l&C_FLAG)) { z80cpu->t_states-=6;M_RET; } break;
+case RET_PO:  if(!(z80cpu->AF.B.l&P_FLAG)) { z80cpu->t_states-=6;M_RET; } break;
+case RET_P:   if(!(z80cpu->AF.B.l&S_FLAG)) { z80cpu->t_states-=6;M_RET; } break;
+case RET_Z:   if(z80cpu->AF.B.l&Z_FLAG)    { z80cpu->t_states-=6;M_RET; } break;
+case RET_C:   if(z80cpu->AF.B.l&C_FLAG)    { z80cpu->t_states-=6;M_RET; } break;
+case RET_PE:  if(z80cpu->AF.B.l&P_FLAG)    { z80cpu->t_states-=6;M_RET; } break;
+case RET_M:   if(z80cpu->AF.B.l&S_FLAG)    { z80cpu->t_states-=6;M_RET; } break;
 
-case CALL_NZ: if(z80cpu->AF.B.l&Z_FLAG) z80cpu->PC.W+=2; else { z80cpu->TStates-=7;M_CALL; } break;
-case CALL_NC: if(z80cpu->AF.B.l&C_FLAG) z80cpu->PC.W+=2; else { z80cpu->TStates-=7;M_CALL; } break;
-case CALL_PO: if(z80cpu->AF.B.l&P_FLAG) z80cpu->PC.W+=2; else { z80cpu->TStates-=7;M_CALL; } break;
-case CALL_P:  if(z80cpu->AF.B.l&S_FLAG) z80cpu->PC.W+=2; else { z80cpu->TStates-=7;M_CALL; } break;
-case CALL_Z:  if(z80cpu->AF.B.l&Z_FLAG) { z80cpu->TStates-=7;M_CALL; } else z80cpu->PC.W+=2; break;
-case CALL_C:  if(z80cpu->AF.B.l&C_FLAG) { z80cpu->TStates-=7;M_CALL; } else z80cpu->PC.W+=2; break;
-case CALL_PE: if(z80cpu->AF.B.l&P_FLAG) { z80cpu->TStates-=7;M_CALL; } else z80cpu->PC.W+=2; break;
-case CALL_M:  if(z80cpu->AF.B.l&S_FLAG) { z80cpu->TStates-=7;M_CALL; } else z80cpu->PC.W+=2; break;
+case CALL_NZ: if(z80cpu->AF.B.l&Z_FLAG) z80cpu->PC.W+=2; else { z80cpu->t_states-=7;M_CALL; } break;
+case CALL_NC: if(z80cpu->AF.B.l&C_FLAG) z80cpu->PC.W+=2; else { z80cpu->t_states-=7;M_CALL; } break;
+case CALL_PO: if(z80cpu->AF.B.l&P_FLAG) z80cpu->PC.W+=2; else { z80cpu->t_states-=7;M_CALL; } break;
+case CALL_P:  if(z80cpu->AF.B.l&S_FLAG) z80cpu->PC.W+=2; else { z80cpu->t_states-=7;M_CALL; } break;
+case CALL_Z:  if(z80cpu->AF.B.l&Z_FLAG) { z80cpu->t_states-=7;M_CALL; } else z80cpu->PC.W+=2; break;
+case CALL_C:  if(z80cpu->AF.B.l&C_FLAG) { z80cpu->t_states-=7;M_CALL; } else z80cpu->PC.W+=2; break;
+case CALL_PE: if(z80cpu->AF.B.l&P_FLAG) { z80cpu->t_states-=7;M_CALL; } else z80cpu->PC.W+=2; break;
+case CALL_M:  if(z80cpu->AF.B.l&S_FLAG) { z80cpu->t_states-=7;M_CALL; } else z80cpu->PC.W+=2; break;
 
 case ADD_B:    M_ADD(z80cpu->BC.B.h);break;
 case ADD_C:    M_ADD(z80cpu->BC.B.l);break;
@@ -218,7 +218,7 @@ case POP_DE:   M_POP(DE);break;
 case POP_HL:   M_POP(XX);break;
 case POP_AF:   M_POP(AF);break;
 
-case DJNZ: if(--z80cpu->BC.B.h) { z80cpu->TStates-=5;M_JR; } else z80cpu->PC.W++;break;
+case DJNZ: if(--z80cpu->BC.B.h) { z80cpu->t_states-=5;M_JR; } else z80cpu->PC.W++;break;
 case JP:   M_JP;break;
 case JR:   M_JR;break;
 case CALL: M_CALL;break;
@@ -235,11 +235,11 @@ case HALT:
   break;
 
 case DI:
-  z80cpu->IFF &= ~(IFF_1 | IFF_2 | IFF_EI);
+  z80cpu->IFF &= ~(IFF_1 | IFF_2 | IFF_3);
   break;
 
 case EI:
-  z80cpu->IFF |=  (IFF_1 | IFF_2 | IFF_EI);
+  z80cpu->IFF |=  (IFF_1 | IFF_2 | IFF_3);
   break;
 
 case CCF:

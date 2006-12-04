@@ -3,6 +3,43 @@
 #define OutZ80(addr,value) ((*z80cpu->io_wr)((z80cpu),(addr),(value)))
 #define InZ80(addr)        ((*z80cpu->io_rd)((z80cpu),(addr)))
 
+#define AF_W z80cpu->AF.W
+#define AF_H z80cpu->AF.B.h
+#define AF_L z80cpu->AF.B.l
+#define BC_W z80cpu->BC.W
+#define BC_H z80cpu->BC.B.h
+#define BC_L z80cpu->BC.B.l
+#define DE_W z80cpu->DE.W
+#define DE_H z80cpu->DE.B.h
+#define DE_L z80cpu->DE.B.l
+#define HL_W z80cpu->HL.W
+#define HL_H z80cpu->HL.B.h
+#define HL_L z80cpu->HL.B.l
+#define IX_W z80cpu->IX.W
+#define IX_H z80cpu->IX.B.h
+#define IX_L z80cpu->IX.B.l
+#define IY_W z80cpu->IY.W
+#define IY_H z80cpu->IY.B.h
+#define IY_L z80cpu->IY.B.l
+#define SP_W z80cpu->SP.W
+#define SP_H z80cpu->SP.B.h
+#define SP_L z80cpu->SP.B.l
+#define PC_W z80cpu->PC.W
+#define PC_H z80cpu->PC.B.h
+#define PC_L z80cpu->PC.B.l
+#define IR_W z80cpu->IR.W
+#define IR_H z80cpu->IR.B.h
+#define IR_L z80cpu->IR.B.l
+
+#define OP_NOP(xxxx,yyyy,mc,ts)
+#define OP_MOV(reg1,reg2,mc,ts) (reg1=reg2)
+#define OP_MRD(addr,data,mc,ts) (data=(*z80cpu->mm_rd)(z80cpu,addr))
+#define OP_MWR(addr,data,mc,ts) ((*z80cpu->mm_wr)(z80cpu,addr,data))
+#define OP_ADD(addr,data,mc,ts)
+#define OP_ADC(addr,data,mc,ts)
+#define OP_SUB(addr,data,mc,ts)
+#define OP_SBC(addr,data,mc,ts)
+
 static guint8 Cycles[256] = {
    4,10, 7, 6, 4, 4, 7, 4, 4,11, 7, 6, 4, 4, 7, 4,
    8,10, 7, 6, 4, 4, 7, 4,12,11, 7, 6, 4, 4, 7, 4,

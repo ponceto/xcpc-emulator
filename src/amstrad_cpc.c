@@ -1832,10 +1832,10 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
           garray->counter &= 31;
         }
       }
-      if((z80cpu->TStates += 4) > 0) {
-        gint TStates = z80cpu->TStates;
+      if((z80cpu->t_states += 4) > 0) {
+        gint t_states = z80cpu->t_states;
         (*z80cpu_class->clock)((GdevDevice *) z80cpu);
-        z80cpu->TStates = TStates - ((TStates - z80cpu->TStates) + 3 & (~3));
+        z80cpu->t_states = t_states - ((t_states - z80cpu->t_states) + 3 & (~3));
       }
     }
   } while(++scanline < 312);

@@ -63,21 +63,22 @@ static void gdev_z80cpu_init(GdevZ80CPU *z80cpu)
  */
 static void gdev_z80cpu_reset(GdevZ80CPU *z80cpu)
 {
-  z80cpu->AF.W    = 0x0000;
-  z80cpu->BC.W    = 0x0000;
-  z80cpu->DE.W    = 0x0000;
-  z80cpu->HL.W    = 0x0000;
-  z80cpu->AF1.W   = 0x0000;
-  z80cpu->BC1.W   = 0x0000;
-  z80cpu->DE1.W   = 0x0000;
-  z80cpu->HL1.W   = 0x0000;
-  z80cpu->IX.W    = 0x0000;
-  z80cpu->IY.W    = 0x0000;
-  z80cpu->SP.W    = 0x0000;
-  z80cpu->PC.W    = 0x0000;
-  z80cpu->IR.W    = 0x0000;
-  z80cpu->IFF     = 0x00;
-  z80cpu->TStates = 0;
+  z80cpu->AF.W     = 0x0000;
+  z80cpu->BC.W     = 0x0000;
+  z80cpu->DE.W     = 0x0000;
+  z80cpu->HL.W     = 0x0000;
+  z80cpu->AF1.W    = 0x0000;
+  z80cpu->BC1.W    = 0x0000;
+  z80cpu->DE1.W    = 0x0000;
+  z80cpu->HL1.W    = 0x0000;
+  z80cpu->IX.W     = 0x0000;
+  z80cpu->IY.W     = 0x0000;
+  z80cpu->SP.W     = 0x0000;
+  z80cpu->PC.W     = 0x0000;
+  z80cpu->IR.W     = 0x0000;
+  z80cpu->IFF      = 0x00;
+  z80cpu->m_cycles = 0;
+  z80cpu->t_states = 0;
 }
 
 /**
@@ -92,15 +93,79 @@ static void gdev_z80cpu_clock(GdevZ80CPU *z80cpu)
 
 decode_op:
   if((z80cpu->IFF & IFF_HALT) != 0) {
-    z80cpu->TStates -= 4;
+    z80cpu->t_states -= 4;
     goto decode_ok;
   }
-  z80cpu->IFF &= ~IFF_EI;
+  z80cpu->IFF &= ~IFF_3;
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
   I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
-  z80cpu->TStates -= Cycles[I];
+  z80cpu->t_states -= Cycles[I];
   switch(I) {
 #include "z80cpu_opcode.h"
+    case 0x00: /* NOP        */ OP_NOP(NULL, NULL, 1, 4); break;
+    case 0x40: /* LD B,B     */ OP_MOV(BC_H, BC_H, 1, 4); break;
+    case 0x41: /* LD B,C     */ OP_MOV(BC_H, BC_L, 1, 4); break;
+    case 0x42: /* LD B,D     */ OP_MOV(BC_H, DE_H, 1, 4); break;
+    case 0x43: /* LD B,E     */ OP_MOV(BC_H, DE_L, 1, 4); break;
+    case 0x44: /* LD B,H     */ OP_MOV(BC_H, HL_H, 1, 4); break;
+    case 0x45: /* LD B,L     */ OP_MOV(BC_H, HL_L, 1, 4); break;
+    case 0x46: /* LD B,(HL)  */ OP_MRD(HL_W, BC_H, 2, 7); break;
+    case 0x47: /* LD B,A     */ OP_MOV(BC_H, AF_H, 1, 4); break;
+    case 0x48: /* LD C,B     */ OP_MOV(BC_L, BC_H, 1, 4); break;
+    case 0x49: /* LD C,C     */ OP_MOV(BC_L, BC_L, 1, 4); break;
+    case 0x4a: /* LD C,D     */ OP_MOV(BC_L, DE_H, 1, 4); break;
+    case 0x4b: /* LD C,E     */ OP_MOV(BC_L, DE_L, 1, 4); break;
+    case 0x4c: /* LD C,H     */ OP_MOV(BC_L, HL_H, 1, 4); break;
+    case 0x4d: /* LD C,L     */ OP_MOV(BC_L, HL_L, 1, 4); break;
+    case 0x4e: /* LD C,(HL)  */ OP_MRD(HL_W, BC_L, 2, 7); break;
+    case 0x4f: /* LD C,A     */ OP_MOV(BC_L, AF_H, 1, 4); break;
+    case 0x50: /* LD D,B     */ OP_MOV(DE_H, BC_H, 1, 4); break;
+    case 0x51: /* LD D,C     */ OP_MOV(DE_H, BC_L, 1, 4); break;
+    case 0x52: /* LD D,D     */ OP_MOV(DE_H, DE_H, 1, 4); break;
+    case 0x53: /* LD D,E     */ OP_MOV(DE_H, DE_L, 1, 4); break;
+    case 0x54: /* LD D,H     */ OP_MOV(DE_H, HL_H, 1, 4); break;
+    case 0x55: /* LD D,L     */ OP_MOV(DE_H, HL_L, 1, 4); break;
+    case 0x56: /* LD D,(HL)  */ OP_MRD(HL_W, DE_H, 2, 7); break;
+    case 0x57: /* LD D,A     */ OP_MOV(DE_H, AF_H, 1, 4); break;
+    case 0x58: /* LD E,B     */ OP_MOV(DE_L, BC_H, 1, 4); break;
+    case 0x59: /* LD E,C     */ OP_MOV(DE_L, BC_L, 1, 4); break;
+    case 0x5a: /* LD E,D     */ OP_MOV(DE_L, DE_H, 1, 4); break;
+    case 0x5b: /* LD E,E     */ OP_MOV(DE_L, DE_L, 1, 4); break;
+    case 0x5c: /* LD E,H     */ OP_MOV(DE_L, HL_H, 1, 4); break;
+    case 0x5d: /* LD E,L     */ OP_MOV(DE_L, HL_L, 1, 4); break;
+    case 0x5e: /* LD E,(HL)  */ OP_MRD(HL_W, DE_L, 2, 7); break;
+    case 0x5f: /* LD E,A     */ OP_MOV(DE_L, AF_H, 1, 4); break;
+    case 0x60: /* LD H,B     */ OP_MOV(HL_H, BC_H, 1, 4); break;
+    case 0x61: /* LD H,C     */ OP_MOV(HL_H, BC_L, 1, 4); break;
+    case 0x62: /* LD H,D     */ OP_MOV(HL_H, DE_H, 1, 4); break;
+    case 0x63: /* LD H,E     */ OP_MOV(HL_H, DE_L, 1, 4); break;
+    case 0x64: /* LD H,H     */ OP_MOV(HL_H, HL_H, 1, 4); break;
+    case 0x65: /* LD H,L     */ OP_MOV(HL_H, HL_L, 1, 4); break;
+    case 0x66: /* LD H,(HL)  */ OP_MRD(HL_W, HL_H, 2, 7); break;
+    case 0x67: /* LD H,A     */ OP_MOV(HL_H, AF_H, 1, 4); break;
+    case 0x68: /* LD L,B     */ OP_MOV(HL_L, BC_H, 1, 4); break;
+    case 0x69: /* LD L,C     */ OP_MOV(HL_L, BC_L, 1, 4); break;
+    case 0x6a: /* LD L,D     */ OP_MOV(HL_L, DE_H, 1, 4); break;
+    case 0x6b: /* LD L,E     */ OP_MOV(HL_L, DE_L, 1, 4); break;
+    case 0x6c: /* LD L,H     */ OP_MOV(HL_L, HL_H, 1, 4); break;
+    case 0x6d: /* LD L,L     */ OP_MOV(HL_L, HL_L, 1, 4); break;
+    case 0x6e: /* LD L,(HL)  */ OP_MRD(HL_W, HL_L, 2, 7); break;
+    case 0x6f: /* LD L,A     */ OP_MOV(HL_L, AF_H, 1, 4); break;
+    case 0x70: /* LD (HL),B  */ OP_MWR(HL_W, BC_H, 2, 7); break;
+    case 0x71: /* LD (HL),C  */ OP_MWR(HL_W, BC_L, 2, 7); break;
+    case 0x72: /* LD (HL),D  */ OP_MWR(HL_W, DE_H, 2, 7); break;
+    case 0x73: /* LD (HL),E  */ OP_MWR(HL_W, DE_L, 2, 7); break;
+    case 0x74: /* LD (HL),H  */ OP_MWR(HL_W, HL_H, 2, 7); break;
+    case 0x75: /* LD (HL),L  */ OP_MWR(HL_W, HL_L, 2, 7); break;
+    case 0x77: /* LD (HL),A  */ OP_MWR(HL_W, AF_H, 2, 7); break;
+    case 0x78: /* LD A,B     */ OP_MOV(AF_H, BC_H, 1, 4); break;
+    case 0x79: /* LD A,C     */ OP_MOV(AF_H, BC_L, 1, 4); break;
+    case 0x7a: /* LD A,D     */ OP_MOV(AF_H, DE_H, 1, 4); break;
+    case 0x7b: /* LD A,E     */ OP_MOV(AF_H, DE_L, 1, 4); break;
+    case 0x7c: /* LD A,H     */ OP_MOV(AF_H, HL_H, 1, 4); break;
+    case 0x7d: /* LD A,L     */ OP_MOV(AF_H, HL_L, 1, 4); break;
+    case 0x7e: /* LD A,(HL)  */ OP_MRD(HL_W, AF_H, 2, 7); break;
+    case 0x7f: /* LD A,A     */ OP_MOV(AF_H, AF_H, 1, 4); break;
     case 0xcb:
       goto decode_cb;
     case 0xdd:
@@ -117,7 +182,7 @@ decode_op:
 decode_cb:
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
   I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
-  z80cpu->TStates -= CyclesCB[I];
+  z80cpu->t_states -= CyclesCB[I];
   switch(I) {
 #include "z80cpu_opcode_CB.h"
     default:
@@ -128,7 +193,7 @@ decode_cb:
 decode_dd:
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
   I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
-  z80cpu->TStates -= CyclesXX[I];
+  z80cpu->t_states -= CyclesXX[I];
   switch(I) {
 #include "z80cpu_opcode_DD.h"
     case 0xcb:
@@ -141,7 +206,7 @@ decode_dd:
 decode_dd_cb:
   J.W = z80cpu->IX.W + (gint8) (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
-  z80cpu->TStates -= CyclesXXCB[I];
+  z80cpu->t_states -= CyclesXXCB[I];
   switch(I) {
 #include "z80cpu_opcode_DDCB.h"
     default:
@@ -152,7 +217,7 @@ decode_dd_cb:
 decode_ed:
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
   I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
-  z80cpu->TStates -= CyclesED[I];
+  z80cpu->t_states -= CyclesED[I];
   switch(I) {
 #include "z80cpu_opcode_ED.h"
     default:
@@ -163,7 +228,7 @@ decode_ed:
 decode_fd:
   z80cpu->IR.B.l = (z80cpu->IR.B.l & 0x80) | ((z80cpu->IR.B.l + 1) & 0x7f);
   I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
-  z80cpu->TStates -= CyclesXX[I];
+  z80cpu->t_states -= CyclesXX[I];
   switch(I) {
 #include "z80cpu_opcode_FD.h"
     case 0xcb:
@@ -176,7 +241,7 @@ decode_fd:
 decode_fd_cb:
   J.W = z80cpu->IY.W + (gint8) (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
   I = (*z80cpu->mm_rd)(z80cpu, z80cpu->PC.W++);
-  z80cpu->TStates -= CyclesXXCB[I];
+  z80cpu->t_states -= CyclesXXCB[I];
   switch(I) {
 #include "z80cpu_opcode_FDCB.h"
     default:
@@ -188,7 +253,7 @@ decode_ko:
   g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "illegal opcode");
 
 decode_ok:
-  if(z80cpu->TStates > 0) {
+  if(z80cpu->t_states > 0) {
     goto decode_op;
   }
 }
@@ -211,14 +276,14 @@ GdevZ80CPU *gdev_z80cpu_new(void)
  */
 void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
 {
-  if((z80cpu->IFF & IFF_EI) != 0) {
+  if((z80cpu->IFF & IFF_3) != 0) {
     return;
   }
   if((z80cpu->IFF & IFF_1) || (vector == INT_NMI)) {
     /* If HALTed, take CPU off HALT instruction */
-    if(z80cpu->IFF & IFF_HALT) {
-      z80cpu->PC.W++;
+    if((z80cpu->IFF & IFF_HALT) != 0) {
       z80cpu->IFF &= ~IFF_HALT;
+      z80cpu->PC.W++;
     }
     /* PUSH PC */
     (*z80cpu->mm_wr)(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.h);
@@ -231,12 +296,12 @@ void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
       else {
         z80cpu->IFF &= ~IFF_2;
       }
-      z80cpu->IFF &= ~(IFF_1 | IFF_EI);
+      z80cpu->IFF &= ~(IFF_1 | IFF_3);
       z80cpu->PC.W = 0x0066;
       return;
     }
     /* Further interrupts off */
-    z80cpu->IFF &= ~(IFF_1 | IFF_2 | IFF_EI);
+    z80cpu->IFF &= ~(IFF_1 | IFF_2 | IFF_3);
     /* If in IM2 mode ... */
     if(z80cpu->IFF & IFF_IM2) {
       vector = (z80cpu->IR.W & 0xff00) | (vector & 0x00ff);
@@ -261,4 +326,34 @@ void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
       case INT_RST38: z80cpu->PC.W = 0x0038; break;
     }
   }
+}
+
+/**
+ * GdevZ80CPU::assert_irq()
+ *
+ * @param z80cpu specifies the GdevZ80CPU instance
+ */
+void gdev_z80cpu_assert_irq(GdevZ80CPU *z80cpu)
+{
+  /* if cpu is halted, wake up */
+  if((z80cpu->IFF & IFF_HALT) != 0) {
+    z80cpu->IFF &= ~IFF_HALT;
+    z80cpu->PC.W++;
+  }
+  z80cpu->IFF |= IFF_IRQ;
+}
+
+/**
+ * GdevZ80CPU::assert_nmi()
+ *
+ * @param z80cpu specifies the GdevZ80CPU instance
+ */
+void gdev_z80cpu_assert_nmi(GdevZ80CPU *z80cpu)
+{
+  /* if cpu is halted, wake up */
+  if((z80cpu->IFF & IFF_HALT) != 0) {
+    z80cpu->IFF &= ~IFF_HALT;
+    z80cpu->PC.W++;
+  }
+  z80cpu->IFF |= IFF_NMI;
 }

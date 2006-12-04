@@ -136,11 +136,11 @@ case INIR:
   do
   {
     WrZ80(z80cpu->HL.W++,InZ80(z80cpu->BC.W));
-    z80cpu->BC.B.h--;z80cpu->TStates-=21;
+    z80cpu->BC.B.h--;z80cpu->t_states-=21;
   }
-  while(z80cpu->BC.B.h&&(z80cpu->TStates>0));
+  while(z80cpu->BC.B.h&&(z80cpu->t_states>0));
   if(z80cpu->BC.B.h) { z80cpu->AF.B.l=N_FLAG;z80cpu->PC.W-=2; }
-  else { z80cpu->AF.B.l=Z_FLAG|N_FLAG;z80cpu->TStates+=5; }
+  else { z80cpu->AF.B.l=Z_FLAG|N_FLAG;z80cpu->t_states+=5; }
   break;
 
 case IND:
@@ -153,11 +153,11 @@ case INDR:
   do
   {
     WrZ80(z80cpu->HL.W--,InZ80(z80cpu->BC.W));
-    z80cpu->BC.B.h--;z80cpu->TStates-=21;
+    z80cpu->BC.B.h--;z80cpu->t_states-=21;
   }
-  while(z80cpu->BC.B.h&&(z80cpu->TStates>0));
+  while(z80cpu->BC.B.h&&(z80cpu->t_states>0));
   if(z80cpu->BC.B.h) { z80cpu->AF.B.l=N_FLAG;z80cpu->PC.W-=2; }
-  else { z80cpu->AF.B.l=Z_FLAG|N_FLAG;z80cpu->TStates+=5; }
+  else { z80cpu->AF.B.l=Z_FLAG|N_FLAG;z80cpu->t_states+=5; }
   break;
 
 case OUTI:
@@ -173,9 +173,9 @@ case OTIR:
     I=RdZ80(z80cpu->HL.W++);
     z80cpu->BC.B.h--;
     OutZ80(z80cpu->BC.W,I);
-    z80cpu->TStates-=21;
+    z80cpu->t_states-=21;
   }
-  while(z80cpu->BC.B.h&&(z80cpu->TStates>0));
+  while(z80cpu->BC.B.h&&(z80cpu->t_states>0));
   if(z80cpu->BC.B.h)
   {
     z80cpu->AF.B.l=N_FLAG|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
@@ -184,7 +184,7 @@ case OTIR:
   else
   {
     z80cpu->AF.B.l=Z_FLAG|N_FLAG|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
-    z80cpu->TStates+=5;
+    z80cpu->t_states+=5;
   }
   break;
 
@@ -201,9 +201,9 @@ case OTDR:
     I=RdZ80(z80cpu->HL.W--);
     z80cpu->BC.B.h--;
     OutZ80(z80cpu->BC.W,I);
-    z80cpu->TStates-=21;
+    z80cpu->t_states-=21;
   }
-  while(z80cpu->BC.B.h&&(z80cpu->TStates>0));
+  while(z80cpu->BC.B.h&&(z80cpu->t_states>0));
   if(z80cpu->BC.B.h)
   {
     z80cpu->AF.B.l=N_FLAG|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
@@ -212,7 +212,7 @@ case OTDR:
   else
   {
     z80cpu->AF.B.l=Z_FLAG|N_FLAG|(z80cpu->HL.B.l+I>255? (C_FLAG|H_FLAG):0);
-    z80cpu->TStates+=5;
+    z80cpu->t_states+=5;
   }
   break;
 
@@ -226,12 +226,12 @@ case LDIR:
   do
   {
     WrZ80(z80cpu->DE.W++,RdZ80(z80cpu->HL.W++));
-    z80cpu->BC.W--;z80cpu->TStates-=21;
+    z80cpu->BC.W--;z80cpu->t_states-=21;
   }
-  while(z80cpu->BC.W&&(z80cpu->TStates>0));
+  while(z80cpu->BC.W&&(z80cpu->t_states>0));
   z80cpu->AF.B.l&=~(N_FLAG|H_FLAG|P_FLAG);
   if(z80cpu->BC.W) { z80cpu->AF.B.l|=N_FLAG;z80cpu->PC.W-=2; }
-  else z80cpu->TStates+=5;
+  else z80cpu->t_states+=5;
   break;
 
 case LDD:
@@ -244,12 +244,12 @@ case LDDR:
   do
   {
     WrZ80(z80cpu->DE.W--,RdZ80(z80cpu->HL.W--));
-    z80cpu->BC.W--;z80cpu->TStates-=21;
+    z80cpu->BC.W--;z80cpu->t_states-=21;
   }
-  while(z80cpu->BC.W&&(z80cpu->TStates>0));
+  while(z80cpu->BC.W&&(z80cpu->t_states>0));
   z80cpu->AF.B.l&=~(N_FLAG|H_FLAG|P_FLAG);
   if(z80cpu->BC.W) { z80cpu->AF.B.l|=N_FLAG;z80cpu->PC.W-=2; }
-  else z80cpu->TStates+=5;
+  else z80cpu->t_states+=5;
   break;
 
 case CPI:
@@ -266,13 +266,13 @@ case CPIR:
   {
     I=RdZ80(z80cpu->HL.W++);
     J.B.l=z80cpu->AF.B.h-I;
-    z80cpu->BC.W--;z80cpu->TStates-=21;
+    z80cpu->BC.W--;z80cpu->t_states-=21;
   }  
-  while(z80cpu->BC.W&&J.B.l&&(z80cpu->TStates>0));
+  while(z80cpu->BC.W&&J.B.l&&(z80cpu->t_states>0));
   z80cpu->AF.B.l =
     N_FLAG|(z80cpu->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
     ((z80cpu->AF.B.h^I^J.B.l)&H_FLAG)|(z80cpu->BC.W? P_FLAG:0);
-  if(z80cpu->BC.W&&J.B.l) z80cpu->PC.W-=2; else z80cpu->TStates+=5;
+  if(z80cpu->BC.W&&J.B.l) z80cpu->PC.W-=2; else z80cpu->t_states+=5;
   break;  
 
 case CPD:
@@ -289,11 +289,11 @@ case CPDR:
   {
     I=RdZ80(z80cpu->HL.W--);
     J.B.l=z80cpu->AF.B.h-I;
-    z80cpu->BC.W--;z80cpu->TStates-=21;
+    z80cpu->BC.W--;z80cpu->t_states-=21;
   }
   while(z80cpu->BC.W&&J.B.l);
   z80cpu->AF.B.l =
     N_FLAG|(z80cpu->AF.B.l&C_FLAG)|ZSTable[J.B.l]|
     ((z80cpu->AF.B.h^I^J.B.l)&H_FLAG)|(z80cpu->BC.W? P_FLAG:0);
-  if(z80cpu->BC.W&&J.B.l) z80cpu->PC.W-=2; else z80cpu->TStates+=5;
+  if(z80cpu->BC.W&&J.B.l) z80cpu->PC.W-=2; else z80cpu->t_states+=5;
   break;

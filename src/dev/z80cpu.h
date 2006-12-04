@@ -53,9 +53,11 @@ typedef struct _GdevZ80CPUClass GdevZ80CPUClass;
 
 #define IFF_1       0x01       /* IFF1 flip-flop             */
 #define IFF_2       0x02       /* IFF2 flip-flop             */
-#define IFF_EI      0x04       /* After EI                   */
-#define IFF_IM1     0x10       /* IM1 mode                   */
-#define IFF_IM2     0x20       /* IM2 mode                   */
+#define IFF_3       0x04       /* After EI instruction       */
+#define IFF_IM1     0x08       /* IM1 mode                   */
+#define IFF_IM2     0x10       /* IM2 mode                   */
+#define IFF_IRQ     0x20       /* Pending IRQ                */
+#define IFF_NMI     0x40       /* Pending NMI                */
 #define IFF_HALT    0x80       /* CPU HALTed                 */
 
 typedef union _GdevZ80REG {
@@ -76,7 +78,8 @@ struct _GdevZ80CPU {
   GdevZ80REG SP, PC;          /* Control registers   */
   GdevZ80REG IR;              /* Interrupt & Refresh */
   guint8     IFF;             /* Interrupt Flip-Flop */
-  gint       TStates;         /* Z80 T-States        */
+  gint       m_cycles;         /* Z80 m-cycles        */
+  gint       t_states;         /* Z80 t-states        */
   /* User functions */
   guint8 (*mm_rd)(GdevZ80CPU *z80cpu, guint16 addr);
   void   (*mm_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
@@ -88,9 +91,11 @@ struct _GdevZ80CPUClass {
   GdevDeviceClass parent_class;
 };
 
-extern GType       gdev_z80cpu_get_type (void);
-extern GdevZ80CPU *gdev_z80cpu_new      (void);
-extern void        gdev_z80cpu_intr     (GdevZ80CPU *z80cpu, guint16 vector);
+extern GType       gdev_z80cpu_get_type   (void);
+extern GdevZ80CPU *gdev_z80cpu_new        (void);
+extern void        gdev_z80cpu_intr       (GdevZ80CPU *z80cpu, guint16 vector);
+extern void        gdev_z80cpu_assert_irq (GdevZ80CPU *z80cpu);
+extern void        gdev_z80cpu_assert_nmi (GdevZ80CPU *z80cpu);
 
 G_END_DECLS
 
