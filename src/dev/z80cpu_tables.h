@@ -31,14 +31,74 @@
 #define IR_H z80cpu->IR.B.h
 #define IR_L z80cpu->IR.B.l
 
-#define OP_NOP(xxxx,yyyy,mc,ts)
-#define OP_MOV(reg1,reg2,mc,ts) (reg1=reg2)
-#define OP_MRD(addr,data,mc,ts) (data=(*z80cpu->mm_rd)(z80cpu,addr))
-#define OP_MWR(addr,data,mc,ts) ((*z80cpu->mm_wr)(z80cpu,addr,data))
-#define OP_ADD(addr,data,mc,ts)
-#define OP_ADC(addr,data,mc,ts)
-#define OP_SUB(addr,data,mc,ts)
-#define OP_SBC(addr,data,mc,ts)
+#define OP_NOP_NULL_NULL(xxxx,yyyy,mc,ts)
+#define OP_HLT_NULL_NULL(xxxx,yyyy,mc,ts) z80cpu->IFF|=IFF_HALT;z80cpu->PC.W--
+#define OP_MOV_RG08_RG08(reg1,reg2,mc,ts) (reg1=reg2)
+#define OP_MOV_RG08_MM08(data,addr,mc,ts) (data=(*z80cpu->mm_rd)(z80cpu,addr))
+#define OP_MOV_MM08_RG08(addr,data,mc,ts) ((*z80cpu->mm_wr)(z80cpu,addr,data))
+
+#define OP_ADD_RG08_RG08(reg1,reg2,mc,ts) \
+  J.W=(I=reg1)+(K=reg2); reg1=J.B.l; \
+  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_ADD_RG08_MM08(reg1,addr,mc,ts) \
+  J.W=(I=reg1)+(K=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=J.B.l; \
+  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_ADC_RG08_RG08(reg1,reg2,mc,ts) \
+  J.W=(I=reg1)+(K=reg2)+(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
+  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_ADC_RG08_MM08(reg1,addr,mc,ts) \
+  J.W=(I=reg1)+(K=(*z80cpu->mm_rd)(z80cpu,addr))+(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
+  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_SUB_RG08_RG08(reg1,reg2,mc,ts) \
+  J.W=(I=reg1)-(K=reg2); reg1=J.B.l; \
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_SUB_RG08_MM08(reg1,addr,mc,ts) \
+  J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=J.B.l; \
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_SBC_RG08_RG08(reg1,reg2,mc,ts) \
+  J.W=(I=reg1)-(K=reg2)-(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_SBC_RG08_MM08(reg1,addr,mc,ts) \
+  J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr))-(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_AND_RG08_RG08(reg1,reg2,mc,ts) \
+  reg1&=reg2;z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG
+
+#define OP_AND_RG08_MM08(reg1,addr,mc,ts) \
+  reg1&=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG
+
+#define OP_XOR_RG08_RG08(reg1,reg2,mc,ts) \
+  reg1^=reg2;z80cpu->AF.B.l=PZSTable[reg1]
+
+#define OP_XOR_RG08_MM08(reg1,addr,mc,ts) \
+  reg1^=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]
+
+#define OP_IOR_RG08_RG08(reg1,reg2,mc,ts) \
+  reg1|=reg2;z80cpu->AF.B.l=PZSTable[reg1]
+
+#define OP_IOR_RG08_MM08(reg1,addr,mc,ts) \
+  reg1|=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]
+
+#define OP_CMP_RG08_RG08(reg1,reg2,mc,ts) \
+  J.W=(I=reg1)-(K=reg2); \
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_CMP_RG08_MM08(reg1,addr,mc,ts) \
+  J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr)); \
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+
+#define OP_SET_RG08_MASK(dest,mask,mc,ts) dest|= mask
+#define OP_SET_MM08_MASK(addr,mask,mc,ts) (*z80cpu->mm_wr)(z80cpu,addr,((*z80cpu->mm_rd)(z80cpu,addr)| mask))
+#define OP_RES_RG08_MASK(dest,mask,mc,ts) dest&=~mask
+#define OP_RES_MM08_MASK(addr,mask,mc,ts) (*z80cpu->mm_wr)(z80cpu,addr,((*z80cpu->mm_rd)(z80cpu,addr)&~mask))
 
 static guint8 Cycles[256] = {
    4,10, 7, 6, 4, 4, 7, 4, 4,11, 7, 6, 4, 4, 7, 4,
@@ -564,15 +624,15 @@ static guint16 DAATable[2048] = {
     ((z80cpu->AF.B.h^Rg^J.B.l)&H_FLAG);     \
   z80cpu->AF.B.h=J.B.l
 
-#define M_CP(Rg)       \
+#define M_CMP(Rg)       \
   J.W=z80cpu->AF.B.h-Rg;    \
   z80cpu->AF.B.l=           \
     ((z80cpu->AF.B.h^Rg)&(z80cpu->AF.B.h^J.B.l)&0x80? V_FLAG:0)| \
     N_FLAG|-J.B.h|ZSTable[J.B.l]|                      \
     ((z80cpu->AF.B.h^Rg^J.B.l)&H_FLAG)
 
-#define M_AND(Rg) z80cpu->AF.B.h&=Rg;z80cpu->AF.B.l=H_FLAG|PZSTable[z80cpu->AF.B.h]
-#define M_OR(Rg)  z80cpu->AF.B.h|=Rg;z80cpu->AF.B.l=PZSTable[z80cpu->AF.B.h]
+#define M_AND(Rg) z80cpu->AF.B.h&=Rg;z80cpu->AF.B.l=PZSTable[z80cpu->AF.B.h]|H_FLAG
+#define M_IOR(Rg) z80cpu->AF.B.h|=Rg;z80cpu->AF.B.l=PZSTable[z80cpu->AF.B.h]
 #define M_XOR(Rg) z80cpu->AF.B.h^=Rg;z80cpu->AF.B.l=PZSTable[z80cpu->AF.B.h]
 
 #define M_IN(Rg)        \
