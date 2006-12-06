@@ -1188,8 +1188,8 @@ void amstrad_cpc_load_snapshot(char *filename)
   self->z80cpu->HL.B.h = *bufptr++;
   self->z80cpu->IR.B.l = *bufptr++;
   self->z80cpu->IR.B.h = *bufptr++;
-  self->z80cpu->IFF = (*bufptr++ != 0 ? self->z80cpu->IFF | IFF_1 : self->z80cpu->IFF & (~IFF_2));
-  self->z80cpu->IFF = (*bufptr++ != 0 ? self->z80cpu->IFF | IFF_1 : self->z80cpu->IFF & (~IFF_2));
+  self->z80cpu->IF.W = (*bufptr++ != 0 ? self->z80cpu->IF.W | IFF_1 : self->z80cpu->IF.W & (~IFF_2));
+  self->z80cpu->IF.W = (*bufptr++ != 0 ? self->z80cpu->IF.W | IFF_1 : self->z80cpu->IF.W & (~IFF_2));
   self->z80cpu->IX.B.l = *bufptr++;
   self->z80cpu->IX.B.h = *bufptr++;
   self->z80cpu->IY.B.l = *bufptr++;
@@ -1200,13 +1200,13 @@ void amstrad_cpc_load_snapshot(char *filename)
   self->z80cpu->PC.B.h = *bufptr++;
   switch(*bufptr++) {
     case 1:
-      self->z80cpu->IFF = (self->z80cpu->IFF | IFF_IM1) & ~(IFF_IM2);
+      self->z80cpu->IF.W = (self->z80cpu->IF.W | IFF_IM1) & ~(IFF_IM2);
       break;
     case 2:
-      self->z80cpu->IFF = (self->z80cpu->IFF | IFF_IM2) & ~(IFF_IM1);
+      self->z80cpu->IF.W = (self->z80cpu->IF.W | IFF_IM2) & ~(IFF_IM1);
       break;
     default:
-      self->z80cpu->IFF = (self->z80cpu->IFF) & ~(IFF_IM1 | IFF_IM2);
+      self->z80cpu->IF.W = (self->z80cpu->IF.W) & ~(IFF_IM1 | IFF_IM2);
       break;
   }
   self->z80cpu->AF1.B.l = *bufptr++;
@@ -1274,8 +1274,8 @@ void amstrad_cpc_save_snapshot(char *filename)
   *bufptr++ = self->z80cpu->HL.B.h;
   *bufptr++ = self->z80cpu->IR.B.l;
   *bufptr++ = self->z80cpu->IR.B.h;
-  *bufptr++ = (self->z80cpu->IFF & IFF_1 ? 0x01 : 0x00);
-  *bufptr++ = (self->z80cpu->IFF & IFF_2 ? 0x01 : 0x00);
+  *bufptr++ = (self->z80cpu->IF.W & IFF_1 ? 0x01 : 0x00);
+  *bufptr++ = (self->z80cpu->IF.W & IFF_2 ? 0x01 : 0x00);
   *bufptr++ = self->z80cpu->IX.B.l;
   *bufptr++ = self->z80cpu->IX.B.h;
   *bufptr++ = self->z80cpu->IY.B.l;
@@ -1284,7 +1284,7 @@ void amstrad_cpc_save_snapshot(char *filename)
   *bufptr++ = self->z80cpu->SP.B.h;
   *bufptr++ = self->z80cpu->PC.B.l;
   *bufptr++ = self->z80cpu->PC.B.h;
-  switch(self->z80cpu->IFF & (IFF_IM1 | IFF_IM2)) {
+  switch(self->z80cpu->IF.W & (IFF_IM1 | IFF_IM2)) {
     case IFF_IM1:
       *bufptr++ = 0x01;
       break;

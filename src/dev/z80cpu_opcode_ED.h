@@ -88,23 +88,23 @@ case RLD:
 
 case LD_A_I:
   z80cpu->AF.B.h=z80cpu->IR.B.h;
-  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|(z80cpu->IFF&IFF_2? P_FLAG:0)|ZSTable[z80cpu->AF.B.h];
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|(z80cpu->IF.W&IFF_2? P_FLAG:0)|ZSTable[z80cpu->AF.B.h];
   break;
 
 case LD_A_R:
   z80cpu->AF.B.h=z80cpu->IR.B.l;
-  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|(z80cpu->IFF&IFF_2? P_FLAG:0)|ZSTable[z80cpu->AF.B.h];
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|(z80cpu->IF.W&IFF_2? P_FLAG:0)|ZSTable[z80cpu->AF.B.h];
   break;
 
 case LD_I_A:   z80cpu->IR.B.h=z80cpu->AF.B.h;break;
 case LD_R_A:   break;
 
-case IM_0:     z80cpu->IFF&=~(IFF_IM1|IFF_IM2);break;
-case IM_1:     z80cpu->IFF=(z80cpu->IFF&~IFF_IM2)|IFF_IM1;break;
-case IM_2:     z80cpu->IFF=(z80cpu->IFF&~IFF_IM1)|IFF_IM2;break;
+case IM_0:     z80cpu->IF.W&=~(IFF_IM1|IFF_IM2);break;
+case IM_1:     z80cpu->IF.W=(z80cpu->IF.W&~IFF_IM2)|IFF_IM1;break;
+case IM_2:     z80cpu->IF.W=(z80cpu->IF.W&~IFF_IM1)|IFF_IM2;break;
 
 case RETI:     M_RET;break;
-case RETN:     if(z80cpu->IFF&IFF_2) z80cpu->IFF|=IFF_1; else z80cpu->IFF&=~IFF_1;
+case RETN:     if(z80cpu->IF.W&IFF_2) z80cpu->IF.W|=IFF_1; else z80cpu->IF.W&=~IFF_1;
                M_RET;break;
 
 case NEG:      I=z80cpu->AF.B.h;z80cpu->AF.B.h=0;M_SUB(I);break;

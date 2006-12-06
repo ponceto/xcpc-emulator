@@ -76,10 +76,9 @@ struct _GdevZ80CPU {
   GdevZ80REG AF1,BC1,DE1,HL1; /* Prime registers     */
   GdevZ80REG IX, IY;          /* Index registers     */
   GdevZ80REG SP, PC;          /* Control registers   */
-  GdevZ80REG IR;              /* Interrupt & Refresh */
-  guint8     IFF;             /* Interrupt Flip-Flop */
-  gint       m_cycles;         /* Z80 m-cycles        */
-  gint       t_states;         /* Z80 t-states        */
+  GdevZ80REG IR, IF;          /* Interrupt & Refresh */
+  gint32     m_cycles;        /* M-Cycles counter    */
+  gint32     t_states;        /* T-States counter    */
   /* User functions */
   guint8 (*mm_rd)(GdevZ80CPU *z80cpu, guint16 addr);
   void   (*mm_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);

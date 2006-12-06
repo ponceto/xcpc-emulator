@@ -150,11 +150,11 @@ case OUTA: I=RdZ80(z80cpu->PC.W++);OutZ80((z80cpu->AF.W & 0xff00) | (I & 0x00ff)
 case INA:  I=RdZ80(z80cpu->PC.W++);z80cpu->AF.B.h=InZ80((z80cpu->AF.W & 0xff00) | (I & 0x00ff));break;
 
 case DI:
-  z80cpu->IFF &= ~(IFF_1 | IFF_2 | IFF_3);
+  z80cpu->IF.W &= ~(IFF_1 | IFF_2 | IFF_3);
   break;
 
 case EI:
-  z80cpu->IFF |=  (IFF_1 | IFF_2 | IFF_3);
+  z80cpu->IF.W |=  (IFF_1 | IFF_2 | IFF_3);
   break;
 
 case CCF:

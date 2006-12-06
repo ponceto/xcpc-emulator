@@ -1,7 +1,7 @@
-#define WrZ80(addr,value)  ((*z80cpu->mm_wr)((z80cpu),(addr),(value)))
-#define RdZ80(addr)        ((*z80cpu->mm_rd)((z80cpu),(addr)))
-#define OutZ80(addr,value) ((*z80cpu->io_wr)((z80cpu),(addr),(value)))
-#define InZ80(addr)        ((*z80cpu->io_rd)((z80cpu),(addr)))
+#define MM_RD(addr,data) data=(*z80cpu->mm_rd)(z80cpu,addr)
+#define MM_WR(addr,data) (*z80cpu->mm_wr)(z80cpu,addr,data)
+#define IO_RD(addr,data) data=(*z80cpu->io_rd)(z80cpu,addr)
+#define IO_WR(addr,data) (*z80cpu->io_wr)(z80cpu,addr,data)
 
 #define AF_W z80cpu->AF.W
 #define AF_H z80cpu->AF.B.h
@@ -30,75 +30,233 @@
 #define IR_W z80cpu->IR.W
 #define IR_H z80cpu->IR.B.h
 #define IR_L z80cpu->IR.B.l
+#define WZ_W J.W
+#define WZ_H J.B.h
+#define WZ_L J.B.l
 
-#define OP_NOP_NULL_NULL(xxxx,yyyy,mc,ts)
-#define OP_HLT_NULL_NULL(xxxx,yyyy,mc,ts) z80cpu->IFF|=IFF_HALT;z80cpu->PC.W--
-#define OP_MOV_RG08_RG08(reg1,reg2,mc,ts) (reg1=reg2)
-#define OP_MOV_RG08_MM08(data,addr,mc,ts) (data=(*z80cpu->mm_rd)(z80cpu,addr))
-#define OP_MOV_MM08_RG08(addr,data,mc,ts) ((*z80cpu->mm_wr)(z80cpu,addr,data))
+#define NOP_NULL_NULL(xxxx,yyyy,mc,ts) { \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_ADD_RG08_RG08(reg1,reg2,mc,ts) \
+#define HLT_NULL_NULL(xxxx,yyyy,mc,ts) { \
+  z80cpu->IF.W|=IFF_HALT;z80cpu->PC.W--; \
+  z80cpu->t_states-=ts; \
+}
+
+#define MOV_RG08_RG08(reg1,reg2,mc,ts) { \
+  reg1=reg2; \
+  z80cpu->t_states-=ts; \
+}
+
+#define MOV_RG08_MM08(data,addr,mc,ts) { \
+  data=(*z80cpu->mm_rd)(z80cpu,addr); \
+  z80cpu->t_states-=ts; \
+}
+
+#define MOV_MM08_RG08(addr,data,mc,ts) { \
+  (*z80cpu->mm_wr)(z80cpu,addr,data); \
+  z80cpu->t_states-=ts; \
+}
+
+#define ADD_RG08_RG08(reg1,reg2,mc,ts) { \
   J.W=(I=reg1)+(K=reg2); reg1=J.B.l; \
-  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_ADD_RG08_MM08(reg1,addr,mc,ts) \
+#define ADD_RG08_MM08(reg1,addr,mc,ts) { \
   J.W=(I=reg1)+(K=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=J.B.l; \
-  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_ADC_RG08_RG08(reg1,reg2,mc,ts) \
+#define ADC_RG08_RG08(reg1,reg2,mc,ts) { \
   J.W=(I=reg1)+(K=reg2)+(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
-  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_ADC_RG08_MM08(reg1,addr,mc,ts) \
+#define ADC_RG08_MM08(reg1,addr,mc,ts) { \
   J.W=(I=reg1)+(K=(*z80cpu->mm_rd)(z80cpu,addr))+(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
-  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_SUB_RG08_RG08(reg1,reg2,mc,ts) \
+#define SUB_RG08_RG08(reg1,reg2,mc,ts) { \
   J.W=(I=reg1)-(K=reg2); reg1=J.B.l; \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_SUB_RG08_MM08(reg1,addr,mc,ts) \
+#define SUB_RG08_MM08(reg1,addr,mc,ts) { \
   J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=J.B.l; \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_SBC_RG08_RG08(reg1,reg2,mc,ts) \
+#define SBC_RG08_RG08(reg1,reg2,mc,ts) { \
   J.W=(I=reg1)-(K=reg2)-(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_SBC_RG08_MM08(reg1,addr,mc,ts) \
+#define SBC_RG08_MM08(reg1,addr,mc,ts) { \
   J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr))-(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_AND_RG08_RG08(reg1,reg2,mc,ts) \
-  reg1&=reg2;z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG
+#define AND_RG08_RG08(reg1,reg2,mc,ts) { \
+  reg1&=reg2;z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG; \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_AND_RG08_MM08(reg1,addr,mc,ts) \
-  reg1&=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG
+#define AND_RG08_MM08(reg1,addr,mc,ts) { \
+  reg1&=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG; \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_XOR_RG08_RG08(reg1,reg2,mc,ts) \
-  reg1^=reg2;z80cpu->AF.B.l=PZSTable[reg1]
+#define XOR_RG08_RG08(reg1,reg2,mc,ts) { \
+  reg1^=reg2;z80cpu->AF.B.l=PZSTable[reg1]; \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_XOR_RG08_MM08(reg1,addr,mc,ts) \
-  reg1^=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]
+#define XOR_RG08_MM08(reg1,addr,mc,ts) { \
+  reg1^=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]; \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_IOR_RG08_RG08(reg1,reg2,mc,ts) \
-  reg1|=reg2;z80cpu->AF.B.l=PZSTable[reg1]
+#define IOR_RG08_RG08(reg1,reg2,mc,ts) { \
+  reg1|=reg2;z80cpu->AF.B.l=PZSTable[reg1]; \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_IOR_RG08_MM08(reg1,addr,mc,ts) \
-  reg1|=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]
+#define IOR_RG08_MM08(reg1,addr,mc,ts) { \
+  reg1|=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]; \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_CMP_RG08_RG08(reg1,reg2,mc,ts) \
+#define CMP_RG08_RG08(reg1,reg2,mc,ts) { \
   J.W=(I=reg1)-(K=reg2); \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_CMP_RG08_MM08(reg1,addr,mc,ts) \
+#define CMP_RG08_MM08(reg1,addr,mc,ts) { \
   J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr)); \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG)
+  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
 
-#define OP_SET_RG08_MASK(dest,mask,mc,ts) dest|= mask
-#define OP_SET_MM08_MASK(addr,mask,mc,ts) (*z80cpu->mm_wr)(z80cpu,addr,((*z80cpu->mm_rd)(z80cpu,addr)| mask))
-#define OP_RES_RG08_MASK(dest,mask,mc,ts) dest&=~mask
-#define OP_RES_MM08_MASK(addr,mask,mc,ts) (*z80cpu->mm_wr)(z80cpu,addr,((*z80cpu->mm_rd)(z80cpu,addr)&~mask))
+#define RLC_RG08_NULL(dest,null,mc,ts) { \
+  M_RLC(dest); \
+  z80cpu->t_states-=ts; \
+}
+
+#define RLC_MM08_NULL(addr,null,mc,ts) { \
+  I=(*z80cpu->mm_rd)(z80cpu,addr); M_RLC(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  z80cpu->t_states-=ts; \
+}
+
+#define RRC_RG08_NULL(dest,null,mc,ts) { \
+  M_RRC(dest); \
+  z80cpu->t_states-=ts; \
+}
+
+#define RRC_MM08_NULL(addr,null,mc,ts) { \
+  I=(*z80cpu->mm_rd)(z80cpu,addr); M_RRC(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  z80cpu->t_states-=ts; \
+}
+
+#define RL__RG08_NULL(dest,null,mc,ts) { \
+  M_RL(dest); \
+  z80cpu->t_states-=ts; \
+}
+
+#define RL__MM08_NULL(addr,null,mc,ts) { \
+  I=(*z80cpu->mm_rd)(z80cpu,addr); M_RL(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  z80cpu->t_states-=ts; \
+}
+
+#define RR__RG08_NULL(dest,null,mc,ts) { \
+  M_RR(dest); \
+  z80cpu->t_states-=ts; \
+}
+
+#define RR__MM08_NULL(addr,null,mc,ts) { \
+  I=(*z80cpu->mm_rd)(z80cpu,addr); M_RR(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SLA_RG08_NULL(dest,null,mc,ts) { \
+  M_SLA(dest); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SLA_MM08_NULL(addr,null,mc,ts) { \
+  I=(*z80cpu->mm_rd)(z80cpu,addr); M_SLA(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SRA_RG08_NULL(dest,null,mc,ts) { \
+  M_SRA(dest); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SRA_MM08_NULL(addr,null,mc,ts) { \
+  I=(*z80cpu->mm_rd)(z80cpu,addr); M_SRA(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SLL_RG08_NULL(dest,null,mc,ts) { \
+  M_SLL(dest); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SLL_MM08_NULL(addr,null,mc,ts) { \
+  I=(*z80cpu->mm_rd)(z80cpu,addr); M_SLL(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SRL_RG08_NULL(dest,null,mc,ts) { \
+  M_SRL(dest); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SRL_MM08_NULL(addr,null,mc,ts) { \
+  I=(*z80cpu->mm_rd)(z80cpu,addr); M_SRL(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  z80cpu->t_states-=ts; \
+}
+
+#define BIT_RG08_MASK(dest,mask,mc,ts) { \
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|H_FLAG|PZSTable[dest&mask]; \
+  z80cpu->t_states-=ts; \
+}
+
+#define BIT_MM08_MASK(addr,mask,mc,ts) { \
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|H_FLAG|PZSTable[(*z80cpu->mm_rd)(z80cpu,addr)&mask]; \
+  z80cpu->t_states-=ts; \
+}
+
+#define RES_RG08_MASK(dest,mask,mc,ts) { \
+  dest&=~mask; \
+  z80cpu->t_states-=ts; \
+}
+
+#define RES_MM08_MASK(addr,mask,mc,ts) { \
+  (*z80cpu->mm_wr)(z80cpu,addr,((*z80cpu->mm_rd)(z80cpu,addr)&~mask)); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SET_RG08_MASK(dest,mask,mc,ts) { \
+  dest|= mask; \
+  z80cpu->t_states-=ts; \
+}
+
+#define SET_MM08_MASK(addr,mask,mc,ts) { \
+  (*z80cpu->mm_wr)(z80cpu,addr,((*z80cpu->mm_rd)(z80cpu,addr)| mask)); \
+  z80cpu->t_states-=ts; \
+}
 
 static guint8 Cycles[256] = {
    4,10, 7, 6, 4, 4, 7, 4, 4,11, 7, 6, 4, 4, 7, 4,
@@ -524,6 +682,11 @@ static guint16 DAATable[2048] = {
   0x8A9B,0x8B9F,0x8C9B,0x8D9F,0x8E9F,0x8F9B,0x9087,0x9183,
   0x9283,0x9387,0x9483,0x9587,0x9687,0x9783,0x988B,0x998F
 };
+
+#define WrZ80(addr,value)  ((*z80cpu->mm_wr)((z80cpu),(addr),(value)))
+#define RdZ80(addr)        ((*z80cpu->mm_rd)((z80cpu),(addr)))
+#define OutZ80(addr,value) ((*z80cpu->io_wr)((z80cpu),(addr),(value)))
+#define InZ80(addr)        ((*z80cpu->io_rd)((z80cpu),(addr)))
 
 #define S(Fl)        z80cpu->AF.B.l|=Fl
 #define R(Fl)        z80cpu->AF.B.l&=~(Fl)
