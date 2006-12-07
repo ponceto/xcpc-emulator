@@ -3,18 +3,25 @@
 #define IO_RD(addr,data) data=(*z80cpu->io_rd)(z80cpu,addr)
 #define IO_WR(addr,data) (*z80cpu->io_wr)(z80cpu,addr,data)
 
+#define M_CYCLES z80cpu->m_cycles
+#define T_STATES z80cpu->t_states
+
 #define AF_W z80cpu->AF.W
 #define AF_H z80cpu->AF.B.h
 #define AF_L z80cpu->AF.B.l
+#define AF_P z80cpu->AF1.W
 #define BC_W z80cpu->BC.W
 #define BC_H z80cpu->BC.B.h
 #define BC_L z80cpu->BC.B.l
+#define BC_P z80cpu->BC1.W
 #define DE_W z80cpu->DE.W
 #define DE_H z80cpu->DE.B.h
 #define DE_L z80cpu->DE.B.l
+#define DE_P z80cpu->DE1.W
 #define HL_W z80cpu->HL.W
 #define HL_H z80cpu->HL.B.h
 #define HL_L z80cpu->HL.B.l
+#define HL_P z80cpu->HL1.W
 #define IX_W z80cpu->IX.W
 #define IX_H z80cpu->IX.B.h
 #define IX_L z80cpu->IX.B.l
@@ -30,9 +37,12 @@
 #define IR_W z80cpu->IR.W
 #define IR_H z80cpu->IR.B.h
 #define IR_L z80cpu->IR.B.l
-#define WZ_W J.W
-#define WZ_H J.B.h
-#define WZ_L J.B.l
+#define IF_W z80cpu->IF.W
+#define IF_H z80cpu->IF.B.h
+#define IF_L z80cpu->IF.B.l
+#define WZ_W WZ.W
+#define WZ_H WZ.B.h
+#define WZ_L WZ.B.l
 
 #define NOP_NULL_NULL(xxxx,yyyy,mc,ts) { \
   z80cpu->t_states-=ts; \
@@ -59,50 +69,50 @@
 }
 
 #define ADD_RG08_RG08(reg1,reg2,mc,ts) { \
-  J.W=(I=reg1)+(K=reg2); reg1=J.B.l; \
-  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)+(J=reg2); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
 #define ADD_RG08_MM08(reg1,addr,mc,ts) { \
-  J.W=(I=reg1)+(K=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=J.B.l; \
-  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)+(J=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
 #define ADC_RG08_RG08(reg1,reg2,mc,ts) { \
-  J.W=(I=reg1)+(K=reg2)+(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
-  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)+(J=reg2)+(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
 #define ADC_RG08_MM08(reg1,addr,mc,ts) { \
-  J.W=(I=reg1)+(K=(*z80cpu->mm_rd)(z80cpu,addr))+(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
-  z80cpu->AF.B.l=(~(I^K)&(K^J.B.l)&0x80?V_FLAG:0)|J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)+(J=(*z80cpu->mm_rd)(z80cpu,addr))+(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
 #define SUB_RG08_RG08(reg1,reg2,mc,ts) { \
-  J.W=(I=reg1)-(K=reg2); reg1=J.B.l; \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)-(J=reg2); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
 #define SUB_RG08_MM08(reg1,addr,mc,ts) { \
-  J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=J.B.l; \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
 #define SBC_RG08_RG08(reg1,reg2,mc,ts) { \
-  J.W=(I=reg1)-(K=reg2)-(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)-(J=reg2)-(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
 #define SBC_RG08_MM08(reg1,addr,mc,ts) { \
-  J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr))-(z80cpu->AF.B.l&C_FLAG); reg1=J.B.l; \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mm_rd)(z80cpu,addr))-(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
@@ -137,14 +147,14 @@
 }
 
 #define CMP_RG08_RG08(reg1,reg2,mc,ts) { \
-  J.W=(I=reg1)-(K=reg2); \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)-(J=reg2); \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
 #define CMP_RG08_MM08(reg1,addr,mc,ts) { \
-  J.W=(I=reg1)-(K=(*z80cpu->mm_rd)(z80cpu,addr)); \
-  z80cpu->AF.B.l=((I^K)&(I^J.B.l)&0x80?V_FLAG:0)|N_FLAG|-J.B.h|ZSTable[J.B.l]|((I^K^J.B.l)&H_FLAG); \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mm_rd)(z80cpu,addr)); \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
 
@@ -741,11 +751,11 @@ static guint16 DAATable[2048] = {
   WrZ80(--z80cpu->SP.W,z80cpu->Rg.B.h);WrZ80(--z80cpu->SP.W,z80cpu->Rg.B.l)
 
 #define M_CALL         \
-  J.B.l=RdZ80(z80cpu->PC.W++);J.B.h=RdZ80(z80cpu->PC.W++);         \
+  WZ.B.l=RdZ80(z80cpu->PC.W++);WZ.B.h=RdZ80(z80cpu->PC.W++);         \
   WrZ80(--z80cpu->SP.W,z80cpu->PC.B.h);WrZ80(--z80cpu->SP.W,z80cpu->PC.B.l); \
-  z80cpu->PC.W=J.W
+  z80cpu->PC.W=WZ.W
 
-#define M_JP  J.B.l=RdZ80(z80cpu->PC.W++);J.B.h=RdZ80(z80cpu->PC.W);z80cpu->PC.W=J.W
+#define M_JP  WZ.B.l=RdZ80(z80cpu->PC.W++);WZ.B.h=RdZ80(z80cpu->PC.W);z80cpu->PC.W=WZ.W
 #define M_JR  z80cpu->PC.W+=(gint8)RdZ80(z80cpu->PC.W)+1
 #define M_RET z80cpu->PC.B.l=RdZ80(z80cpu->SP.W++);z80cpu->PC.B.h=RdZ80(z80cpu->SP.W++)
 
@@ -756,43 +766,43 @@ static guint16 DAATable[2048] = {
   z80cpu->Rg.B.l=RdZ80(z80cpu->PC.W++);z80cpu->Rg.B.h=RdZ80(z80cpu->PC.W++)
 
 #define M_ADD(Rg)      \
-  J.W=z80cpu->AF.B.h+Rg;     \
+  WZ.W=z80cpu->AF.B.h+Rg;     \
   z80cpu->AF.B.l=            \
-    (~(z80cpu->AF.B.h^Rg)&(Rg^J.B.l)&0x80? V_FLAG:0)| \
-    J.B.h|ZSTable[J.B.l]|                        \
-    ((z80cpu->AF.B.h^Rg^J.B.l)&H_FLAG);               \
-  z80cpu->AF.B.h=J.B.l       
+    (~(z80cpu->AF.B.h^Rg)&(Rg^WZ.B.l)&0x80? V_FLAG:0)| \
+    WZ.B.h|ZSTable[WZ.B.l]|                        \
+    ((z80cpu->AF.B.h^Rg^WZ.B.l)&H_FLAG);               \
+  z80cpu->AF.B.h=WZ.B.l       
 
 #define M_SUB(Rg)      \
-  J.W=z80cpu->AF.B.h-Rg;    \
+  WZ.W=z80cpu->AF.B.h-Rg;    \
   z80cpu->AF.B.l=           \
-    ((z80cpu->AF.B.h^Rg)&(z80cpu->AF.B.h^J.B.l)&0x80? V_FLAG:0)| \
-    N_FLAG|-J.B.h|ZSTable[J.B.l]|                      \
-    ((z80cpu->AF.B.h^Rg^J.B.l)&H_FLAG);                     \
-  z80cpu->AF.B.h=J.B.l
+    ((z80cpu->AF.B.h^Rg)&(z80cpu->AF.B.h^WZ.B.l)&0x80? V_FLAG:0)| \
+    N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|                      \
+    ((z80cpu->AF.B.h^Rg^WZ.B.l)&H_FLAG);                     \
+  z80cpu->AF.B.h=WZ.B.l
 
 #define M_ADC(Rg)      \
-  J.W=z80cpu->AF.B.h+Rg+(z80cpu->AF.B.l&C_FLAG); \
+  WZ.W=z80cpu->AF.B.h+Rg+(z80cpu->AF.B.l&C_FLAG); \
   z80cpu->AF.B.l=                           \
-    (~(z80cpu->AF.B.h^Rg)&(Rg^J.B.l)&0x80? V_FLAG:0)| \
-    J.B.h|ZSTable[J.B.l]|              \
-    ((z80cpu->AF.B.h^Rg^J.B.l)&H_FLAG);     \
-  z80cpu->AF.B.h=J.B.l
+    (~(z80cpu->AF.B.h^Rg)&(Rg^WZ.B.l)&0x80? V_FLAG:0)| \
+    WZ.B.h|ZSTable[WZ.B.l]|              \
+    ((z80cpu->AF.B.h^Rg^WZ.B.l)&H_FLAG);     \
+  z80cpu->AF.B.h=WZ.B.l
 
 #define M_SBC(Rg)      \
-  J.W=z80cpu->AF.B.h-Rg-(z80cpu->AF.B.l&C_FLAG); \
+  WZ.W=z80cpu->AF.B.h-Rg-(z80cpu->AF.B.l&C_FLAG); \
   z80cpu->AF.B.l=                           \
-    ((z80cpu->AF.B.h^Rg)&(z80cpu->AF.B.h^J.B.l)&0x80? V_FLAG:0)| \
-    N_FLAG|-J.B.h|ZSTable[J.B.l]|      \
-    ((z80cpu->AF.B.h^Rg^J.B.l)&H_FLAG);     \
-  z80cpu->AF.B.h=J.B.l
+    ((z80cpu->AF.B.h^Rg)&(z80cpu->AF.B.h^WZ.B.l)&0x80? V_FLAG:0)| \
+    N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|      \
+    ((z80cpu->AF.B.h^Rg^WZ.B.l)&H_FLAG);     \
+  z80cpu->AF.B.h=WZ.B.l
 
 #define M_CMP(Rg)       \
-  J.W=z80cpu->AF.B.h-Rg;    \
+  WZ.W=z80cpu->AF.B.h-Rg;    \
   z80cpu->AF.B.l=           \
-    ((z80cpu->AF.B.h^Rg)&(z80cpu->AF.B.h^J.B.l)&0x80? V_FLAG:0)| \
-    N_FLAG|-J.B.h|ZSTable[J.B.l]|                      \
-    ((z80cpu->AF.B.h^Rg^J.B.l)&H_FLAG)
+    ((z80cpu->AF.B.h^Rg)&(z80cpu->AF.B.h^WZ.B.l)&0x80? V_FLAG:0)| \
+    N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|                      \
+    ((z80cpu->AF.B.h^Rg^WZ.B.l)&H_FLAG)
 
 #define M_AND(Rg) z80cpu->AF.B.h&=Rg;z80cpu->AF.B.l=PZSTable[z80cpu->AF.B.h]|H_FLAG
 #define M_IOR(Rg) z80cpu->AF.B.h|=Rg;z80cpu->AF.B.l=PZSTable[z80cpu->AF.B.h]
@@ -815,31 +825,31 @@ static guint16 DAATable[2048] = {
     (Rg==0x7F? V_FLAG:0)|((Rg&0x0F)==0x0F? H_FLAG:0)
 
 #define M_ADDW(Rg1,Rg2) \
-  J.W=(z80cpu->Rg1.W+z80cpu->Rg2.W)&0xFFFF;                        \
+  WZ.W=(z80cpu->Rg1.W+z80cpu->Rg2.W)&0xFFFF;                        \
   z80cpu->AF.B.l=                                             \
     (z80cpu->AF.B.l&~(H_FLAG|N_FLAG|C_FLAG))|                 \
-    ((z80cpu->Rg1.W^z80cpu->Rg2.W^J.W)&0x1000? H_FLAG:0)|          \
+    ((z80cpu->Rg1.W^z80cpu->Rg2.W^WZ.W)&0x1000? H_FLAG:0)|          \
     (((long)z80cpu->Rg1.W+(long)z80cpu->Rg2.W)&0x10000? C_FLAG:0); \
-  z80cpu->Rg1.W=J.W
+  z80cpu->Rg1.W=WZ.W
 
 #define M_ADCW(Rg)      \
-  I=z80cpu->AF.B.l&C_FLAG;J.W=(z80cpu->HL.W+z80cpu->Rg.W+I)&0xFFFF;           \
+  I=z80cpu->AF.B.l&C_FLAG;WZ.W=(z80cpu->HL.W+z80cpu->Rg.W+I)&0xFFFF;           \
   z80cpu->AF.B.l=                                                   \
     (((long)z80cpu->HL.W+(long)z80cpu->Rg.W+(long)I)&0x10000? C_FLAG:0)| \
-    (~(z80cpu->HL.W^z80cpu->Rg.W)&(z80cpu->Rg.W^J.W)&0x8000? V_FLAG:0)|       \
-    ((z80cpu->HL.W^z80cpu->Rg.W^J.W)&0x1000? H_FLAG:0)|                  \
-    (J.W? 0:Z_FLAG)|(J.B.h&S_FLAG);                            \
-  z80cpu->HL.W=J.W
+    (~(z80cpu->HL.W^z80cpu->Rg.W)&(z80cpu->Rg.W^WZ.W)&0x8000? V_FLAG:0)|       \
+    ((z80cpu->HL.W^z80cpu->Rg.W^WZ.W)&0x1000? H_FLAG:0)|                  \
+    (WZ.W? 0:Z_FLAG)|(WZ.B.h&S_FLAG);                            \
+  z80cpu->HL.W=WZ.W
 
 #define M_SBCW(Rg)      \
-  I=z80cpu->AF.B.l&C_FLAG;J.W=(z80cpu->HL.W-z80cpu->Rg.W-I)&0xFFFF;           \
+  I=z80cpu->AF.B.l&C_FLAG;WZ.W=(z80cpu->HL.W-z80cpu->Rg.W-I)&0xFFFF;           \
   z80cpu->AF.B.l=                                                   \
     N_FLAG|                                                    \
     (((long)z80cpu->HL.W-(long)z80cpu->Rg.W-(long)I)&0x10000? C_FLAG:0)| \
-    ((z80cpu->HL.W^z80cpu->Rg.W)&(z80cpu->HL.W^J.W)&0x8000? V_FLAG:0)|        \
-    ((z80cpu->HL.W^z80cpu->Rg.W^J.W)&0x1000? H_FLAG:0)|                  \
-    (J.W? 0:Z_FLAG)|(J.B.h&S_FLAG);                            \
-  z80cpu->HL.W=J.W
+    ((z80cpu->HL.W^z80cpu->Rg.W)&(z80cpu->HL.W^WZ.W)&0x8000? V_FLAG:0)|        \
+    ((z80cpu->HL.W^z80cpu->Rg.W^WZ.W)&0x1000? H_FLAG:0)|                  \
+    (WZ.W? 0:Z_FLAG)|(WZ.B.h&S_FLAG);                            \
+  z80cpu->HL.W=WZ.W
 
 enum Codes {
   NOP,LD_BC_WORD,LD_xBC_A,INC_BC,INC_B,DEC_B,LD_B_BYTE,RLCA,

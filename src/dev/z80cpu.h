@@ -61,13 +61,13 @@ typedef struct _GdevZ80CPUClass GdevZ80CPUClass;
 #define IFF_HALT    0x80       /* CPU HALTed                 */
 
 typedef union _GdevZ80REG {
+  guint16 W;
 #ifdef LSB_FIRST
   struct { guint8 l, h; } B;
 #endif
 #ifdef MSB_FIRST
   struct { guint8 h, l; } B;
 #endif
-  guint16 W;
 } GdevZ80REG;
 
 struct _GdevZ80CPU {

@@ -88,19 +88,19 @@ static void gdev_z80cpu_reset(GdevZ80CPU *z80cpu)
  */
 static void gdev_z80cpu_clock(GdevZ80CPU *z80cpu)
 {
-  GdevZ80REG J;
-  guint8  I, K;
+  GdevZ80REG WZ;
+  guint8   I, J;
   guint8 opcode;
 
 start:
-  if(z80cpu->t_states <= 0) {
+  if(T_STATES <= 0) {
     return;
   }
-  if((z80cpu->IF.W & IFF_HALT) != 0) {
-    z80cpu->t_states -= 4;
+  if((IF_W & IFF_HALT) != 0) {
+    T_STATES -= 4;
     goto start;
   }
-  z80cpu->IF.W &= ~IFF_3;
+  IF_W &= ~IFF_3;
 
 decode_op:
   IR_L = (IR_L & 0x80) | ((IR_L + 1) & 0x7f);
@@ -247,7 +247,7 @@ decode_op:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: %02X: illegal opcode", (PC_W - 1), opcode);
       goto start;
   }
-  z80cpu->t_states -= Cycles[opcode];
+  T_STATES -= Cycles[opcode];
   goto start;
 
 decode_cb:
@@ -524,7 +524,7 @@ decode_dd:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: DD %02X: illegal opcode", (PC_W - 2), opcode);
       goto start;
   }
-  z80cpu->t_states -= CyclesXX[opcode];
+  T_STATES -= CyclesXX[opcode];
   goto start;
 
 decode_dd_cb:
@@ -575,7 +575,7 @@ decode_ed:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: ED %02X: illegal opcode", (PC_W - 2), opcode);
       goto start;
   }
-  z80cpu->t_states -= CyclesED[opcode];
+  T_STATES -= CyclesED[opcode];
   goto start;
 
 decode_fd:
@@ -588,7 +588,7 @@ decode_fd:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: FD %02X: illegal opcode", (PC_W - 2), opcode);
       goto start;
   }
-  z80cpu->t_states -= CyclesXX[opcode];
+  T_STATES -= CyclesXX[opcode];
   goto start;
 
 decode_fd_cb:
@@ -650,54 +650,54 @@ GdevZ80CPU *gdev_z80cpu_new(void)
  */
 void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
 {
-  if((z80cpu->IF.W & IFF_3) != 0) {
+  if((IF_W & IFF_3) != 0) {
     return;
   }
-  if((z80cpu->IF.W & IFF_1) || (vector == INT_NMI)) {
+  if((IF_W & IFF_1) || (vector == INT_NMI)) {
     /* If HALTed, take CPU off HALT instruction */
-    if((z80cpu->IF.W & IFF_HALT) != 0) {
-      z80cpu->IF.W &= ~IFF_HALT;
-      z80cpu->PC.W++;
+    if((IF_W & IFF_HALT) != 0) {
+      IF_W &= ~IFF_HALT;
+      PC_W++;
     }
     /* PUSH PC */
-    (*z80cpu->mm_wr)(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.h);
-    (*z80cpu->mm_wr)(z80cpu, --z80cpu->SP.W, z80cpu->PC.B.l);
+    (*z80cpu->mm_wr)(z80cpu, --SP_W, PC_H);
+    (*z80cpu->mm_wr)(z80cpu, --SP_W, PC_L);
     /* If it is NMI... */
     if(vector == INT_NMI) {
-      if(z80cpu->IF.W & IFF_1) {
-        z80cpu->IF.W |=  IFF_2;
+      if(IF_W & IFF_1) {
+        IF_W |=  IFF_2;
       }
       else {
-        z80cpu->IF.W &= ~IFF_2;
+        IF_W &= ~IFF_2;
       }
-      z80cpu->IF.W &= ~(IFF_1 | IFF_3);
-      z80cpu->PC.W = 0x0066;
+      IF_W &= ~(IFF_1 | IFF_3);
+      PC_W = 0x0066;
       return;
     }
     /* Further interrupts off */
-    z80cpu->IF.W &= ~(IFF_1 | IFF_2 | IFF_3);
+    IF_W &= ~(IFF_1 | IFF_2 | IFF_3);
     /* If in IM2 mode ... */
-    if(z80cpu->IF.W & IFF_IM2) {
-      vector = (z80cpu->IR.W & 0xff00) | (vector & 0x00ff);
-      z80cpu->PC.B.l = (*z80cpu->mm_rd)(z80cpu, vector++);
-      z80cpu->PC.B.h = (*z80cpu->mm_rd)(z80cpu, vector++);
+    if(IF_W & IFF_IM2) {
+      vector = (IR_W & 0xff00) | (vector & 0x00ff);
+      PC_L = (*z80cpu->mm_rd)(z80cpu, vector++);
+      PC_H = (*z80cpu->mm_rd)(z80cpu, vector++);
       return;
     }
     /* If in IM1 mode ... */
-    if(z80cpu->IF.W & IFF_IM1) {
-      z80cpu->PC.W = 0x0038;
+    if(IF_W & IFF_IM1) {
+      PC_W = 0x0038;
       return;
     }
     /* If in IM0 mode ... */
     switch(vector) {
-      case INT_RST00: z80cpu->PC.W = 0x0000; break;
-      case INT_RST08: z80cpu->PC.W = 0x0008; break;
-      case INT_RST10: z80cpu->PC.W = 0x0010; break;
-      case INT_RST18: z80cpu->PC.W = 0x0018; break;
-      case INT_RST20: z80cpu->PC.W = 0x0020; break;
-      case INT_RST28: z80cpu->PC.W = 0x0028; break;
-      case INT_RST30: z80cpu->PC.W = 0x0030; break;
-      case INT_RST38: z80cpu->PC.W = 0x0038; break;
+      case INT_RST00: PC_W = 0x0000; break;
+      case INT_RST08: PC_W = 0x0008; break;
+      case INT_RST10: PC_W = 0x0010; break;
+      case INT_RST18: PC_W = 0x0018; break;
+      case INT_RST20: PC_W = 0x0020; break;
+      case INT_RST28: PC_W = 0x0028; break;
+      case INT_RST30: PC_W = 0x0030; break;
+      case INT_RST38: PC_W = 0x0038; break;
     }
   }
 }
@@ -710,11 +710,11 @@ void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
 void gdev_z80cpu_assert_irq(GdevZ80CPU *z80cpu)
 {
   /* if cpu is halted, wake up */
-  if((z80cpu->IF.W & IFF_HALT) != 0) {
-    z80cpu->IF.W &= ~IFF_HALT;
-    z80cpu->PC.W++;
+  if((IF_W & IFF_HALT) != 0) {
+    IF_W &= ~IFF_HALT;
+    PC_W++;
   }
-  z80cpu->IF.W |= IFF_IRQ;
+  IF_W |= IFF_IRQ;
 }
 
 /**
@@ -725,9 +725,9 @@ void gdev_z80cpu_assert_irq(GdevZ80CPU *z80cpu)
 void gdev_z80cpu_assert_nmi(GdevZ80CPU *z80cpu)
 {
   /* if cpu is halted, wake up */
-  if((z80cpu->IF.W & IFF_HALT) != 0) {
-    z80cpu->IF.W &= ~IFF_HALT;
-    z80cpu->PC.W++;
+  if((IF_W & IFF_HALT) != 0) {
+    IF_W &= ~IFF_HALT;
+    PC_W++;
   }
-  z80cpu->IF.W |= IFF_NMI;
+  IF_W |= IFF_NMI;
 }
