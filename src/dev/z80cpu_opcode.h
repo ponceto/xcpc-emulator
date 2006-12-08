@@ -71,16 +71,6 @@ case ADD_HL_DE:  M_ADDW(HL,DE);break;
 case ADD_HL_HL:  M_ADDW(HL,HL);break;
 case ADD_HL_SP:  M_ADDW(HL,SP);break;
 
-case DEC_BC:   BC_W--;break;
-case DEC_DE:   DE_W--;break;
-case DEC_HL:   HL_W--;break;
-case DEC_SP:   SP_W--;break;
-
-case INC_BC:   BC_W++;break;
-case INC_DE:   DE_W++;break;
-case INC_HL:   HL_W++;break;
-case INC_SP:   SP_W++;break;
-
 case DEC_B:    M_DEC(BC_H);break;
 case DEC_C:    M_DEC(BC_L);break;
 case DEC_D:    M_DEC(DE_H);break;
@@ -174,13 +164,6 @@ case EX_AF_AF: WZ_W=AF_W;AF_W=AF_P;AF_P=WZ_W;break;
 case LD_xBC_A: WrZ80(BC_W,AF_H);break;
 case LD_xDE_A: WrZ80(DE_W,AF_H);break;
 
-case LD_B_BYTE:   BC_H=RdZ80(PC_W++);break;
-case LD_C_BYTE:   BC_L=RdZ80(PC_W++);break;
-case LD_D_BYTE:   DE_H=RdZ80(PC_W++);break;
-case LD_E_BYTE:   DE_L=RdZ80(PC_W++);break;
-case LD_H_BYTE:   HL_H=RdZ80(PC_W++);break;
-case LD_L_BYTE:   HL_L=RdZ80(PC_W++);break;
-case LD_A_BYTE:   AF_H=RdZ80(PC_W++);break;
 case LD_xHL_BYTE: WrZ80(HL_W,RdZ80(PC_W++));break;
 
 case LD_xWORD_HL:
@@ -213,12 +196,4 @@ case EX_HL_xSP:
   WZ_L=RdZ80(SP_W);WrZ80(SP_W++,HL_L);
   WZ_H=RdZ80(SP_W);WrZ80(SP_W--,HL_H);
   HL_W=WZ_W;
-  break;
-
-case DAA:
-  WZ_W=AF_H;
-  if(AF_L&C_FLAG) WZ_W|=256;
-  if(AF_L&H_FLAG) WZ_W|=512;
-  if(AF_L&N_FLAG) WZ_W|=1024;
-  AF_W=DAATable[WZ_W];
   break;

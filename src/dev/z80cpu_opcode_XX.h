@@ -43,90 +43,34 @@ case CALL_C:  if(AF_L&C_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
 case CALL_PE: if(AF_L&P_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
 case CALL_M:  if(AF_L&S_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
 
-case ADD_B:    M_ADD(BC_H);break;
-case ADD_C:    M_ADD(BC_L);break;
-case ADD_D:    M_ADD(DE_H);break;
-case ADD_E:    M_ADD(DE_L);break;
-case ADD_H:    M_ADD(XX_H);break;
-case ADD_L:    M_ADD(XX_L);break;
-case ADD_A:    M_ADD(AF_H);break;
 case ADD_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
                M_ADD(I);break;
 case ADD_BYTE: I=RdZ80(PC_W++);M_ADD(I);break;
 
-case SUB_B:    M_SUB(BC_H);break;
-case SUB_C:    M_SUB(BC_L);break;
-case SUB_D:    M_SUB(DE_H);break;
-case SUB_E:    M_SUB(DE_L);break;
-case SUB_H:    M_SUB(XX_H);break;
-case SUB_L:    M_SUB(XX_L);break;
-case SUB_A:    AF_H=0;AF_L=N_FLAG|Z_FLAG;break;
 case SUB_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
                M_SUB(I);break;
 case SUB_BYTE: I=RdZ80(PC_W++);M_SUB(I);break;
 
-case AND_B:    M_AND(BC_H);break;
-case AND_C:    M_AND(BC_L);break;
-case AND_D:    M_AND(DE_H);break;
-case AND_E:    M_AND(DE_L);break;
-case AND_H:    M_AND(XX_H);break;
-case AND_L:    M_AND(XX_L);break;
-case AND_A:    M_AND(AF_H);break;
 case AND_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
                M_AND(I);break;
 case AND_BYTE: I=RdZ80(PC_W++);M_AND(I);break;
 
-case OR_B:     M_IOR(BC_H);break;
-case OR_C:     M_IOR(BC_L);break;
-case OR_D:     M_IOR(DE_H);break;
-case OR_E:     M_IOR(DE_L);break;
-case OR_H:     M_IOR(XX_H);break;
-case OR_L:     M_IOR(XX_L);break;
-case OR_A:     M_IOR(AF_H);break;
 case OR_xHL:   I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
                M_IOR(I);break;
 case OR_BYTE:  I=RdZ80(PC_W++);M_IOR(I);break;
 
-case ADC_B:    M_ADC(BC_H);break;
-case ADC_C:    M_ADC(BC_L);break;
-case ADC_D:    M_ADC(DE_H);break;
-case ADC_E:    M_ADC(DE_L);break;
-case ADC_H:    M_ADC(XX_H);break;
-case ADC_L:    M_ADC(XX_L);break;
-case ADC_A:    M_ADC(AF_H);break;
 case ADC_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
                M_ADC(I);break;
 case ADC_BYTE: I=RdZ80(PC_W++);M_ADC(I);break;
 
-case SBC_B:    M_SBC(BC_H);break;
-case SBC_C:    M_SBC(BC_L);break;
-case SBC_D:    M_SBC(DE_H);break;
-case SBC_E:    M_SBC(DE_L);break;
-case SBC_H:    M_SBC(XX_H);break;
-case SBC_L:    M_SBC(XX_L);break;
-case SBC_A:    M_SBC(AF_H);break;
 case SBC_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
                M_SBC(I);break;
 case SBC_BYTE: I=RdZ80(PC_W++);M_SBC(I);break;
 
-case XOR_B:    M_XOR(BC_H);break;
-case XOR_C:    M_XOR(BC_L);break;
-case XOR_D:    M_XOR(DE_H);break;
-case XOR_E:    M_XOR(DE_L);break;
-case XOR_H:    M_XOR(XX_H);break;
-case XOR_L:    M_XOR(XX_L);break;
-case XOR_A:    AF_H=0;AF_L=P_FLAG|Z_FLAG;break;
 case XOR_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
                M_XOR(I);break;
 case XOR_BYTE: I=RdZ80(PC_W++);M_XOR(I);break;
 
-case CP_B:     M_CMP(BC_H);break;
-case CP_C:     M_CMP(BC_L);break;
-case CP_D:     M_CMP(DE_H);break;
-case CP_E:     M_CMP(DE_L);break;
-case CP_H:     M_CMP(XX_H);break;
-case CP_L:     M_CMP(XX_L);break;
-case CP_A:     AF_L=N_FLAG|Z_FLAG;break;
 case CP_xHL:   I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
                M_CMP(I);break;
 case CP_BYTE:  I=RdZ80(PC_W++);M_CMP(I);break;
@@ -145,16 +89,6 @@ case ADD_HL_BC:  M_ADDW(XX,BC);break;
 case ADD_HL_DE:  M_ADDW(XX,DE);break;
 case ADD_HL_HL:  M_ADDW(XX,XX);break;
 case ADD_HL_SP:  M_ADDW(XX,SP);break;
-
-case DEC_BC:   BC_W--;break;
-case DEC_DE:   DE_W--;break;
-case DEC_HL:   XX_W--;break;
-case DEC_SP:   SP_W--;break;
-
-case INC_BC:   BC_W++;break;
-case INC_DE:   DE_W++;break;
-case INC_HL:   XX_W++;break;
-case INC_SP:   SP_W++;break;
 
 case DEC_B:    M_DEC(BC_H);break;
 case DEC_C:    M_DEC(BC_L);break;
@@ -225,14 +159,8 @@ case CALL: M_CALL;break;
 case RET:  M_RET;break;
 case SCF:  S(C_FLAG);R(N_FLAG|H_FLAG);break;
 case CPL:  AF_H=~AF_H;S(N_FLAG|H_FLAG);break;
-case NOP:  break;
 case OUTA: I=RdZ80(PC_W++);OutZ80((AF_W & 0xff00) | (I & 0x00ff), AF_H);break;
 case INA:  I=RdZ80(PC_W++);AF_H=InZ80((AF_W & 0xff00) | (I & 0x00ff));break;
-
-case HALT:
-  PC_W--;
-  IF_W|=IFF_HALT;
-  break;
 
 case DI:
   IF_W &= ~(IFF_1 | IFF_2 | IFF_3);
@@ -256,94 +184,9 @@ case EXX:
 case EX_DE_HL: WZ_W=DE_W;DE_W=HL_W;HL_W=WZ_W;break;
 case EX_AF_AF: WZ_W=AF_W;AF_W=AF_P;AF_P=WZ_W;break;  
   
-case LD_B_B:   BC_H=BC_H;break;
-case LD_C_B:   BC_L=BC_H;break;
-case LD_D_B:   DE_H=BC_H;break;
-case LD_E_B:   DE_L=BC_H;break;
-case LD_H_B:   XX_H=BC_H;break;
-case LD_L_B:   XX_L=BC_H;break;
-case LD_A_B:   AF_H=BC_H;break;
-case LD_xHL_B: WZ_W=XX_W+(gint8)RdZ80(PC_W++);
-               WrZ80(WZ_W,BC_H);break;
-
-case LD_B_C:   BC_H=BC_L;break;
-case LD_C_C:   BC_L=BC_L;break;
-case LD_D_C:   DE_H=BC_L;break;
-case LD_E_C:   DE_L=BC_L;break;
-case LD_H_C:   XX_H=BC_L;break;
-case LD_L_C:   XX_L=BC_L;break;
-case LD_A_C:   AF_H=BC_L;break;
-case LD_xHL_C: WZ_W=XX_W+(gint8)RdZ80(PC_W++);
-               WrZ80(WZ_W,BC_L);break;
-
-case LD_B_D:   BC_H=DE_H;break;
-case LD_C_D:   BC_L=DE_H;break;
-case LD_D_D:   DE_H=DE_H;break;
-case LD_E_D:   DE_L=DE_H;break;
-case LD_H_D:   XX_H=DE_H;break;
-case LD_L_D:   XX_L=DE_H;break;
-case LD_A_D:   AF_H=DE_H;break;
-case LD_xHL_D: WZ_W=XX_W+(gint8)RdZ80(PC_W++);
-               WrZ80(WZ_W,DE_H);break;
-
-case LD_B_E:   BC_H=DE_L;break;
-case LD_C_E:   BC_L=DE_L;break;
-case LD_D_E:   DE_H=DE_L;break;
-case LD_E_E:   DE_L=DE_L;break;
-case LD_H_E:   XX_H=DE_L;break;
-case LD_L_E:   XX_L=DE_L;break;
-case LD_A_E:   AF_H=DE_L;break;
-case LD_xHL_E: WZ_W=XX_W+(gint8)RdZ80(PC_W++);
-               WrZ80(WZ_W,DE_L);break;
-
-case LD_B_H:   BC_H=XX_H;break;
-case LD_C_H:   BC_L=XX_H;break;
-case LD_D_H:   DE_H=XX_H;break;
-case LD_E_H:   DE_L=XX_H;break;
-case LD_H_H:   XX_H=XX_H;break;
-case LD_L_H:   XX_L=XX_H;break;
-case LD_A_H:   AF_H=XX_H;break;
-case LD_xHL_H: WZ_W=XX_W+(gint8)RdZ80(PC_W++);
-               WrZ80(WZ_W,HL_H);break;
-
-case LD_B_L:   BC_H=XX_L;break;
-case LD_C_L:   BC_L=XX_L;break;
-case LD_D_L:   DE_H=XX_L;break;
-case LD_E_L:   DE_L=XX_L;break;
-case LD_H_L:   XX_H=XX_L;break;
-case LD_L_L:   XX_L=XX_L;break;
-case LD_A_L:   AF_H=XX_L;break;
-case LD_xHL_L: WZ_W=XX_W+(gint8)RdZ80(PC_W++);
-               WrZ80(WZ_W,HL_L);break;
-
-case LD_B_A:   BC_H=AF_H;break;
-case LD_C_A:   BC_L=AF_H;break;
-case LD_D_A:   DE_H=AF_H;break;
-case LD_E_A:   DE_L=AF_H;break;
-case LD_H_A:   XX_H=AF_H;break;
-case LD_L_A:   XX_L=AF_H;break;
-case LD_A_A:   AF_H=AF_H;break;
-case LD_xHL_A: WZ_W=XX_W+(gint8)RdZ80(PC_W++);
-               WrZ80(WZ_W,AF_H);break;
-
 case LD_xBC_A: WrZ80(BC_W,AF_H);break;
 case LD_xDE_A: WrZ80(DE_W,AF_H);break;
 
-case LD_B_xHL:    BC_H=RdZ80(XX_W+(gint8)RdZ80(PC_W++));break;
-case LD_C_xHL:    BC_L=RdZ80(XX_W+(gint8)RdZ80(PC_W++));break;
-case LD_D_xHL:    DE_H=RdZ80(XX_W+(gint8)RdZ80(PC_W++));break;
-case LD_E_xHL:    DE_L=RdZ80(XX_W+(gint8)RdZ80(PC_W++));break;
-case LD_H_xHL:    HL_H=RdZ80(XX_W+(gint8)RdZ80(PC_W++));break;
-case LD_L_xHL:    HL_L=RdZ80(XX_W+(gint8)RdZ80(PC_W++));break;
-case LD_A_xHL:    AF_H=RdZ80(XX_W+(gint8)RdZ80(PC_W++));break;
-
-case LD_B_BYTE:   BC_H=RdZ80(PC_W++);break;
-case LD_C_BYTE:   BC_L=RdZ80(PC_W++);break;
-case LD_D_BYTE:   DE_H=RdZ80(PC_W++);break;
-case LD_E_BYTE:   DE_L=RdZ80(PC_W++);break;
-case LD_H_BYTE:   XX_H=RdZ80(PC_W++);break;
-case LD_L_BYTE:   XX_L=RdZ80(PC_W++);break;
-case LD_A_BYTE:   AF_H=RdZ80(PC_W++);break;
 case LD_xHL_BYTE: WZ_W=XX_W+(gint8)RdZ80(PC_W++);
                   WrZ80(WZ_W,RdZ80(PC_W++));break;
 
@@ -377,12 +220,4 @@ case EX_HL_xSP:
   WZ_L=RdZ80(SP_W);WrZ80(SP_W++,XX_L);
   WZ_H=RdZ80(SP_W);WrZ80(SP_W--,XX_H);
   XX_W=WZ_W;
-  break;
-
-case DAA:
-  WZ_W=AF_H;
-  if(AF_L&C_FLAG) WZ_W|=256;
-  if(AF_L&H_FLAG) WZ_W|=512;
-  if(AF_L&N_FLAG) WZ_W|=1024;
-  AF_W=DAATable[WZ_W];
   break;

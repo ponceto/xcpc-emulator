@@ -68,6 +68,40 @@
   z80cpu->t_states-=ts; \
 }
 
+#define MOV_RG08_IM08(data,addr,mc,ts) { \
+  data=(*z80cpu->mm_rd)(z80cpu,addr++); \
+  z80cpu->t_states-=ts; \
+}
+
+#define MOV_RG08_XY08(data,addr,mc,ts) { \
+  data=(*z80cpu->mm_rd)(z80cpu,(addr+(gint8)(*z80cpu->mm_rd)(z80cpu,PC_W++))); \
+  z80cpu->t_states-=ts; \
+}
+
+#define MOV_XY08_RG08(addr,data,mc,ts) { \
+  (*z80cpu->mm_wr)(z80cpu,(addr+(gint8)(*z80cpu->mm_rd)(z80cpu,PC_W++)),data); \
+  z80cpu->t_states-=ts; \
+}
+
+#define INC_RG16_NULL(dest,null,mc,ts) { \
+  dest++; \
+  z80cpu->t_states-=ts; \
+}
+
+#define DEC_RG16_NULL(dest,null,mc,ts) { \
+  dest--; \
+  z80cpu->t_states-=ts; \
+}
+
+#define DAA_NULL_NULL(xxxx,yyyy,mc,ts) { \
+  WZ.W=z80cpu->AF.B.h; \
+  if(z80cpu->AF.B.l&C_FLAG) WZ.W|=0x100; \
+  if(z80cpu->AF.B.l&H_FLAG) WZ.W|=0x200; \
+  if(z80cpu->AF.B.l&N_FLAG) WZ.W|=0x400; \
+  z80cpu->AF.W=DAATable[WZ.W]; \
+  z80cpu->t_states-=ts; \
+}
+
 #define ADD_RG08_RG08(reg1,reg2,mc,ts) { \
   WZ.W=(I=reg1)+(J=reg2); reg1=WZ.B.l; \
   z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
@@ -284,26 +318,7 @@ static guint8 Cycles[256] = {
    5,10,10,10,10,11, 7,11, 5,10,10, 0,10,17, 7,11,
    5,10,10,11,10,11, 7,11, 5, 4,10,11,10, 0, 7,11,
    5,10,10,19,10,11, 7,11, 5, 4,10, 4,10, 0, 7,11,
-   5,10,10, 4,10,11, 7,11, 5, 6,10, 4,10, 0, 7,11 
-};
-
-static guint8 CyclesCB[256] = {
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,12, 8, 8, 8, 8, 8, 8, 8,12, 8,
-   8, 8, 8, 8, 8, 8,12, 8, 8, 8, 8, 8, 8, 8,12, 8,
-   8, 8, 8, 8, 8, 8,12, 8, 8, 8, 8, 8, 8, 8,12, 8,
-   8, 8, 8, 8, 8, 8,12, 8, 8, 8, 8, 8, 8, 8,12, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8,
-   8, 8, 8, 8, 8, 8,15, 8, 8, 8, 8, 8, 8, 8,15, 8 
+   5,10,10, 4,10,11, 7,11, 5, 6,10, 4,10, 0, 7,11
 };
 
 static guint8 CyclesED[256] = {
@@ -342,25 +357,6 @@ static guint8 CyclesXX[256] = {
    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
    0,14, 0,23, 0,15, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0,
    0, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 0, 0, 0
-};
-
-static guint8 CyclesXXCB[256] = {
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-  20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-  20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-  20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-  20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0,
-   0, 0, 0, 0, 0, 0,23, 0, 0, 0, 0, 0, 0, 0,23, 0
 };
 
 static guint8 ZSTable[256] = {
@@ -771,7 +767,7 @@ static guint16 DAATable[2048] = {
     (~(z80cpu->AF.B.h^Rg)&(Rg^WZ.B.l)&0x80? V_FLAG:0)| \
     WZ.B.h|ZSTable[WZ.B.l]|                        \
     ((z80cpu->AF.B.h^Rg^WZ.B.l)&H_FLAG);               \
-  z80cpu->AF.B.h=WZ.B.l       
+  z80cpu->AF.B.h=WZ.B.l
 
 #define M_SUB(Rg)      \
   WZ.W=z80cpu->AF.B.h-Rg;    \
@@ -910,7 +906,7 @@ enum CodesCB {
   RES4_B,RES4_C,RES4_D,RES4_E,RES4_H,RES4_L,RES4_xHL,RES4_A,
   RES5_B,RES5_C,RES5_D,RES5_E,RES5_H,RES5_L,RES5_xHL,RES5_A,
   RES6_B,RES6_C,RES6_D,RES6_E,RES6_H,RES6_L,RES6_xHL,RES6_A,
-  RES7_B,RES7_C,RES7_D,RES7_E,RES7_H,RES7_L,RES7_xHL,RES7_A,  
+  RES7_B,RES7_C,RES7_D,RES7_E,RES7_H,RES7_L,RES7_xHL,RES7_A,
   SET0_B,SET0_C,SET0_D,SET0_E,SET0_H,SET0_L,SET0_xHL,SET0_A,
   SET1_B,SET1_C,SET1_D,SET1_E,SET1_H,SET1_L,SET1_xHL,SET1_A,
   SET2_B,SET2_C,SET2_D,SET2_E,SET2_H,SET2_L,SET2_xHL,SET2_A,
