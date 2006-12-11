@@ -49,10 +49,10 @@ static void gdev_z80cpu_class_init(GdevZ80CPUClass *z80cpu_class)
  */
 static void gdev_z80cpu_init(GdevZ80CPU *z80cpu)
 {
-  z80cpu->mm_rd = NULL;
-  z80cpu->mm_wr = NULL;
-  z80cpu->io_rd = NULL;
-  z80cpu->io_wr = NULL;
+  z80cpu->mreq_rd = NULL;
+  z80cpu->mreq_wr = NULL;
+  z80cpu->iorq_rd = NULL;
+  z80cpu->iorq_wr = NULL;
   gdev_z80cpu_reset(z80cpu);
 }
 
@@ -104,7 +104,7 @@ start:
 
 decode_op:
   IR_L = (IR_L & 0x80) | ((IR_L + 1) & 0x7f);
-  switch(opcode = (*z80cpu->mm_rd)(z80cpu, PC_W++)) {
+  switch(opcode = (*z80cpu->mreq_rd)(z80cpu, PC_W++)) {
 #include "z80cpu_opcode.h"
     case 0x00: /* NOP          */ NOP_NULL_NULL(NULL, NULL, 1,  4); goto start;
     case 0x27: /* DAA          */ DAA_NULL_NULL(NULL, NULL, 1,  4); goto start;
@@ -268,7 +268,7 @@ decode_op:
 
 decode_cb:
   IR_L = (IR_L & 0x80) | ((IR_L + 1) & 0x7f);
-  switch(opcode = (*z80cpu->mm_rd)(z80cpu, PC_W++)) {
+  switch(opcode = (*z80cpu->mreq_rd)(z80cpu, PC_W++)) {
     case 0x00: /* RLC B        */ RLC_RG08_NULL(BC_H, NULL, 2,  8); goto start;
     case 0x01: /* RLC C        */ RLC_RG08_NULL(BC_L, NULL, 2,  8); goto start;
     case 0x02: /* RLC D        */ RLC_RG08_NULL(DE_H, NULL, 2,  8); goto start;
@@ -532,7 +532,7 @@ decode_cb:
 
 decode_dd:
   IR_L = (IR_L & 0x80) | ((IR_L + 1) & 0x7f);
-  switch(opcode = (*z80cpu->mm_rd)(z80cpu, PC_W++)) {
+  switch(opcode = (*z80cpu->mreq_rd)(z80cpu, PC_W++)) {
 #include "z80cpu_opcode_DD.h"
     case 0x00: /* NOP          */ NOP_NULL_NULL(NULL, NULL, 2,  8); goto start;
     case 0x27: /* DAA          */ DAA_NULL_NULL(NULL, NULL, 2,  8); goto start;
@@ -621,6 +621,7 @@ decode_dd:
     case 0x83: /* ADD A,E      */ ADD_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0x84: /* ADD A,IXh    */ ADD_RG08_RG08(AF_H, IX_H, 2,  8); goto start;
     case 0x85: /* ADD A,IXl    */ ADD_RG08_RG08(AF_H, IX_L, 2,  8); goto start;
+    case 0x86: /* ADD A,(IX+d) */ ADD_RG08_XY08(AF_H, IX_W, 5, 19); goto start;
     case 0x87: /* ADD A,A      */ ADD_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0x88: /* ADC A,B      */ ADC_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0x89: /* ADC A,C      */ ADC_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -628,6 +629,7 @@ decode_dd:
     case 0x8b: /* ADC A,E      */ ADC_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0x8c: /* ADC A,IXh    */ ADC_RG08_RG08(AF_H, IX_H, 2,  8); goto start;
     case 0x8d: /* ADC A,IXl    */ ADC_RG08_RG08(AF_H, IX_L, 2,  8); goto start;
+    case 0x8e: /* ADC A,(IX+d) */ ADC_RG08_XY08(AF_H, IX_W, 5, 19); goto start;
     case 0x8f: /* ADC A,A      */ ADC_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0x90: /* SUB A,B      */ SUB_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0x91: /* SUB A,C      */ SUB_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -635,6 +637,7 @@ decode_dd:
     case 0x93: /* SUB A,E      */ SUB_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0x94: /* SUB A,IXh    */ SUB_RG08_RG08(AF_H, IX_H, 2,  8); goto start;
     case 0x95: /* SUB A,IXl    */ SUB_RG08_RG08(AF_H, IX_L, 2,  8); goto start;
+    case 0x96: /* SUB A,(IX+d) */ SUB_RG08_XY08(AF_H, IX_W, 5, 19); goto start;
     case 0x97: /* SUB A,A      */ SUB_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0x98: /* SBC A,B      */ SBC_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0x99: /* SBC A,C      */ SBC_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -642,6 +645,7 @@ decode_dd:
     case 0x9b: /* SBC A,E      */ SBC_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0x9c: /* SBC A,IXh    */ SBC_RG08_RG08(AF_H, IX_H, 2,  8); goto start;
     case 0x9d: /* SBC A,IXl    */ SBC_RG08_RG08(AF_H, IX_L, 2,  8); goto start;
+    case 0x9e: /* SBC A,(IX+d) */ SBC_RG08_XY08(AF_H, IX_W, 5, 19); goto start;
     case 0x9f: /* SBC A,A      */ SBC_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xa0: /* AND A,B      */ AND_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0xa1: /* AND A,C      */ AND_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -649,6 +653,7 @@ decode_dd:
     case 0xa3: /* AND A,E      */ AND_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0xa4: /* AND A,IXh    */ AND_RG08_RG08(AF_H, IX_H, 2,  8); goto start;
     case 0xa5: /* AND A,IXl    */ AND_RG08_RG08(AF_H, IX_L, 2,  8); goto start;
+    case 0xa6: /* AND A,(IX+d) */ AND_RG08_XY08(AF_H, IX_W, 5, 19); goto start;
     case 0xa7: /* AND A,A      */ AND_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xa8: /* XOR A,B      */ XOR_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0xa9: /* XOR A,C      */ XOR_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -656,6 +661,7 @@ decode_dd:
     case 0xab: /* XOR A,E      */ XOR_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0xac: /* XOR A,IXh    */ XOR_RG08_RG08(AF_H, IX_H, 2,  8); goto start;
     case 0xad: /* XOR A,IXl    */ XOR_RG08_RG08(AF_H, IX_L, 2,  8); goto start;
+    case 0xae: /* XOR A,(IX+d) */ XOR_RG08_XY08(AF_H, IX_W, 5, 19); goto start;
     case 0xaf: /* XOR A,A      */ XOR_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xb0: /* OR A,B       */ IOR_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0xb1: /* OR A,C       */ IOR_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -663,6 +669,7 @@ decode_dd:
     case 0xb3: /* OR A,E       */ IOR_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0xb4: /* OR A,IXh     */ IOR_RG08_RG08(AF_H, IX_H, 2,  8); goto start;
     case 0xb5: /* OR A,IXl     */ IOR_RG08_RG08(AF_H, IX_L, 2,  8); goto start;
+    case 0xb6: /* OR A,(IX+d)  */ IOR_RG08_XY08(AF_H, IX_W, 5, 19); goto start;
     case 0xb7: /* OR A,A       */ IOR_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xb8: /* CP A,B       */ CMP_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0xb9: /* CP A,C       */ CMP_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -670,6 +677,7 @@ decode_dd:
     case 0xbb: /* CP A,E       */ CMP_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0xbc: /* CP A,IXh     */ CMP_RG08_RG08(AF_H, IX_H, 2,  8); goto start;
     case 0xbd: /* CP A,IXl     */ CMP_RG08_RG08(AF_H, IX_L, 2,  8); goto start;
+    case 0xbe: /* CP A,(IX+d)  */ CMP_RG08_XY08(AF_H, IX_W, 5, 19); goto start;
     case 0xbf: /* CP A,A       */ CMP_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xcb:
       goto decode_dd_cb;
@@ -681,8 +689,8 @@ decode_dd:
   goto start;
 
 decode_dd_cb:
-  WZ_W = IX_W + (gint8) (*z80cpu->mm_rd)(z80cpu, PC_W++);
-  switch(opcode = (*z80cpu->mm_rd)(z80cpu, PC_W++)) {
+  WZ_W = IX_W + (gint8) (*z80cpu->mreq_rd)(z80cpu, PC_W++);
+  switch(opcode = (*z80cpu->mreq_rd)(z80cpu, PC_W++)) {
     case 0x06: /* RLC   (IX+d) */ RLC_MM08_NULL(WZ_W, NULL, 6, 23); goto start;
     case 0x0e: /* RRC   (IX+d) */ RRC_MM08_NULL(WZ_W, NULL, 6, 23); goto start;
     case 0x16: /* RL    (IX+d) */ RL__MM08_NULL(WZ_W, NULL, 6, 23); goto start;
@@ -722,7 +730,7 @@ decode_dd_cb:
 
 decode_ed:
   IR_L = (IR_L & 0x80) | ((IR_L + 1) & 0x7f);
-  switch(opcode = (*z80cpu->mm_rd)(z80cpu, PC_W++)) {
+  switch(opcode = (*z80cpu->mreq_rd)(z80cpu, PC_W++)) {
 #include "z80cpu_opcode_ED.h"
     default:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: ED %02X: illegal opcode", (PC_W - 2), opcode);
@@ -733,7 +741,7 @@ decode_ed:
 
 decode_fd:
   IR_L = (IR_L & 0x80) | ((IR_L + 1) & 0x7f);
-  switch(opcode = (*z80cpu->mm_rd)(z80cpu, PC_W++)) {
+  switch(opcode = (*z80cpu->mreq_rd)(z80cpu, PC_W++)) {
 #include "z80cpu_opcode_FD.h"
     case 0x00: /* NOP          */ NOP_NULL_NULL(NULL, NULL, 2,  8); goto start;
     case 0x27: /* DAA          */ DAA_NULL_NULL(NULL, NULL, 2,  8); goto start;
@@ -822,6 +830,7 @@ decode_fd:
     case 0x83: /* ADD A,E      */ ADD_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0x84: /* ADD A,IYh    */ ADD_RG08_RG08(AF_H, IY_H, 2,  8); goto start;
     case 0x85: /* ADD A,IYl    */ ADD_RG08_RG08(AF_H, IY_L, 2,  8); goto start;
+    case 0x86: /* ADD A,(IY+d) */ ADD_RG08_XY08(AF_H, IY_W, 5, 19); goto start;
     case 0x87: /* ADD A,A      */ ADD_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0x88: /* ADC A,B      */ ADC_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0x89: /* ADC A,C      */ ADC_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -829,6 +838,7 @@ decode_fd:
     case 0x8b: /* ADC A,E      */ ADC_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0x8c: /* ADC A,IYh    */ ADC_RG08_RG08(AF_H, IY_H, 2,  8); goto start;
     case 0x8d: /* ADC A,IYl    */ ADC_RG08_RG08(AF_H, IY_L, 2,  8); goto start;
+    case 0x8e: /* ADC A,(IY+d) */ ADC_RG08_XY08(AF_H, IY_W, 5, 19); goto start;
     case 0x8f: /* ADC A,A      */ ADC_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0x90: /* SUB A,B      */ SUB_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0x91: /* SUB A,C      */ SUB_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -836,6 +846,7 @@ decode_fd:
     case 0x93: /* SUB A,E      */ SUB_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0x94: /* SUB A,IYh    */ SUB_RG08_RG08(AF_H, IY_H, 2,  8); goto start;
     case 0x95: /* SUB A,IYl    */ SUB_RG08_RG08(AF_H, IY_L, 2,  8); goto start;
+    case 0x96: /* SUB A,(IY+d) */ SUB_RG08_XY08(AF_H, IY_W, 5, 19); goto start;
     case 0x97: /* SUB A,A      */ SUB_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0x98: /* SBC A,B      */ SBC_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0x99: /* SBC A,C      */ SBC_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -843,6 +854,7 @@ decode_fd:
     case 0x9b: /* SBC A,E      */ SBC_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0x9c: /* SBC A,IYh    */ SBC_RG08_RG08(AF_H, IY_H, 2,  8); goto start;
     case 0x9d: /* SBC A,IYl    */ SBC_RG08_RG08(AF_H, IY_L, 2,  8); goto start;
+    case 0x9e: /* SBC A,(IY+d) */ SBC_RG08_XY08(AF_H, IY_W, 5, 19); goto start;
     case 0x9f: /* SBC A,A      */ SBC_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xa0: /* AND A,B      */ AND_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0xa1: /* AND A,C      */ AND_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -850,6 +862,7 @@ decode_fd:
     case 0xa3: /* AND A,E      */ AND_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0xa4: /* AND A,IYh    */ AND_RG08_RG08(AF_H, IY_H, 2,  8); goto start;
     case 0xa5: /* AND A,IYl    */ AND_RG08_RG08(AF_H, IY_L, 2,  8); goto start;
+    case 0xa6: /* AND A,(IY+d) */ AND_RG08_XY08(AF_H, IY_W, 5, 19); goto start;
     case 0xa7: /* AND A,A      */ AND_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xa8: /* XOR A,B      */ XOR_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0xa9: /* XOR A,C      */ XOR_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -857,6 +870,7 @@ decode_fd:
     case 0xab: /* XOR A,E      */ XOR_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0xac: /* XOR A,IYh    */ XOR_RG08_RG08(AF_H, IY_H, 2,  8); goto start;
     case 0xad: /* XOR A,IYl    */ XOR_RG08_RG08(AF_H, IY_L, 2,  8); goto start;
+    case 0xae: /* XOR A,(IY+d) */ XOR_RG08_XY08(AF_H, IY_W, 5, 19); goto start;
     case 0xaf: /* XOR A,A      */ XOR_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xb0: /* OR A,B       */ IOR_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0xb1: /* OR A,C       */ IOR_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -864,6 +878,7 @@ decode_fd:
     case 0xb3: /* OR A,E       */ IOR_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0xb4: /* OR A,IYh     */ IOR_RG08_RG08(AF_H, IY_H, 2,  8); goto start;
     case 0xb5: /* OR A,IYl     */ IOR_RG08_RG08(AF_H, IY_L, 2,  8); goto start;
+    case 0xb6: /* OR A,(IY+d)  */ IOR_RG08_XY08(AF_H, IY_W, 5, 19); goto start;
     case 0xb7: /* OR A,A       */ IOR_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xb8: /* CP A,B       */ CMP_RG08_RG08(AF_H, BC_H, 2,  8); goto start;
     case 0xb9: /* CP A,C       */ CMP_RG08_RG08(AF_H, BC_L, 2,  8); goto start;
@@ -871,6 +886,7 @@ decode_fd:
     case 0xbb: /* CP A,E       */ CMP_RG08_RG08(AF_H, DE_L, 2,  8); goto start;
     case 0xbc: /* CP A,IYh     */ CMP_RG08_RG08(AF_H, IY_H, 2,  8); goto start;
     case 0xbd: /* CP A,IYl     */ CMP_RG08_RG08(AF_H, IY_L, 2,  8); goto start;
+    case 0xbe: /* CP A,(IY+d)  */ CMP_RG08_XY08(AF_H, IY_W, 5, 19); goto start;
     case 0xbf: /* CP A,A       */ CMP_RG08_RG08(AF_H, AF_H, 2,  8); goto start;
     case 0xcb:
       goto decode_fd_cb;
@@ -882,8 +898,8 @@ decode_fd:
   goto start;
 
 decode_fd_cb:
-  WZ_W = IY_W + (gint8) (*z80cpu->mm_rd)(z80cpu, PC_W++);
-  switch(opcode = (*z80cpu->mm_rd)(z80cpu, PC_W++)) {
+  WZ_W = IY_W + (gint8) (*z80cpu->mreq_rd)(z80cpu, PC_W++);
+  switch(opcode = (*z80cpu->mreq_rd)(z80cpu, PC_W++)) {
     case 0x06: /* RLC   (IY+d) */ RLC_MM08_NULL(WZ_W, NULL, 6, 23); goto start;
     case 0x0e: /* RRC   (IY+d) */ RRC_MM08_NULL(WZ_W, NULL, 6, 23); goto start;
     case 0x16: /* RL    (IY+d) */ RL__MM08_NULL(WZ_W, NULL, 6, 23); goto start;
@@ -950,8 +966,8 @@ void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
       PC_W++;
     }
     /* PUSH PC */
-    (*z80cpu->mm_wr)(z80cpu, --SP_W, PC_H);
-    (*z80cpu->mm_wr)(z80cpu, --SP_W, PC_L);
+    (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_H);
+    (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_L);
     /* If it is NMI... */
     if(vector == INT_NMI) {
       if(IF_W & IFF_1) {
@@ -969,8 +985,8 @@ void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
     /* If in IM2 mode ... */
     if(IF_W & IFF_IM2) {
       vector = (IR_W & 0xff00) | (vector & 0x00ff);
-      PC_L = (*z80cpu->mm_rd)(z80cpu, vector++);
-      PC_H = (*z80cpu->mm_rd)(z80cpu, vector++);
+      PC_L = (*z80cpu->mreq_rd)(z80cpu, vector++);
+      PC_H = (*z80cpu->mreq_rd)(z80cpu, vector++);
       return;
     }
     /* If in IM1 mode ... */

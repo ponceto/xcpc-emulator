@@ -1,7 +1,7 @@
-#define MM_RD(addr,data) data=(*z80cpu->mm_rd)(z80cpu,addr)
-#define MM_WR(addr,data) (*z80cpu->mm_wr)(z80cpu,addr,data)
-#define IO_RD(addr,data) data=(*z80cpu->io_rd)(z80cpu,addr)
-#define IO_WR(addr,data) (*z80cpu->io_wr)(z80cpu,addr,data)
+#define MM_RD(addr,data) data=(*z80cpu->mreq_rd)(z80cpu,addr)
+#define MM_WR(addr,data) (*z80cpu->mreq_wr)(z80cpu,addr,data)
+#define IO_RD(addr,data) data=(*z80cpu->iorq_rd)(z80cpu,addr)
+#define IO_WR(addr,data) (*z80cpu->iorq_wr)(z80cpu,addr,data)
 
 #define M_CYCLES z80cpu->m_cycles
 #define T_STATES z80cpu->t_states
@@ -59,27 +59,27 @@
 }
 
 #define MOV_RG08_MM08(data,addr,mc,ts) { \
-  data=(*z80cpu->mm_rd)(z80cpu,addr); \
+  data=(*z80cpu->mreq_rd)(z80cpu,addr); \
   z80cpu->t_states-=ts; \
 }
 
 #define MOV_MM08_RG08(addr,data,mc,ts) { \
-  (*z80cpu->mm_wr)(z80cpu,addr,data); \
+  (*z80cpu->mreq_wr)(z80cpu,addr,data); \
   z80cpu->t_states-=ts; \
 }
 
 #define MOV_RG08_IM08(data,addr,mc,ts) { \
-  data=(*z80cpu->mm_rd)(z80cpu,addr++); \
+  data=(*z80cpu->mreq_rd)(z80cpu,addr++); \
   z80cpu->t_states-=ts; \
 }
 
 #define MOV_RG08_XY08(data,addr,mc,ts) { \
-  data=(*z80cpu->mm_rd)(z80cpu,(addr+(gint8)(*z80cpu->mm_rd)(z80cpu,PC_W++))); \
+  data=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++))); \
   z80cpu->t_states-=ts; \
 }
 
 #define MOV_XY08_RG08(addr,data,mc,ts) { \
-  (*z80cpu->mm_wr)(z80cpu,(addr+(gint8)(*z80cpu->mm_rd)(z80cpu,PC_W++)),data); \
+  (*z80cpu->mreq_wr)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++)),data); \
   z80cpu->t_states-=ts; \
 }
 
@@ -109,7 +109,13 @@
 }
 
 #define ADD_RG08_MM08(reg1,addr,mc,ts) { \
-  WZ.W=(I=reg1)+(J=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=WZ.B.l; \
+  WZ.W=(I=reg1)+(J=(*z80cpu->mreq_rd)(z80cpu,addr)); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
+
+#define ADD_RG08_XY08(reg1,addr,mc,ts) { \
+  WZ.W=(I=reg1)+(J=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++)))); reg1=WZ.B.l; \
   z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
@@ -121,7 +127,13 @@
 }
 
 #define ADC_RG08_MM08(reg1,addr,mc,ts) { \
-  WZ.W=(I=reg1)+(J=(*z80cpu->mm_rd)(z80cpu,addr))+(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
+  WZ.W=(I=reg1)+(J=(*z80cpu->mreq_rd)(z80cpu,addr))+(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
+
+#define ADC_RG08_XY08(reg1,addr,mc,ts) { \
+  WZ.W=(I=reg1)+(J=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++))))+(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
   z80cpu->AF.B.l=(~(I^J)&(J^WZ.B.l)&0x80?V_FLAG:0)|WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
@@ -133,7 +145,13 @@
 }
 
 #define SUB_RG08_MM08(reg1,addr,mc,ts) { \
-  WZ.W=(I=reg1)-(J=(*z80cpu->mm_rd)(z80cpu,addr)); reg1=WZ.B.l; \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mreq_rd)(z80cpu,addr)); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SUB_RG08_XY08(reg1,addr,mc,ts) { \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++)))); reg1=WZ.B.l; \
   z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
@@ -145,7 +163,13 @@
 }
 
 #define SBC_RG08_MM08(reg1,addr,mc,ts) { \
-  WZ.W=(I=reg1)-(J=(*z80cpu->mm_rd)(z80cpu,addr))-(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mreq_rd)(z80cpu,addr))-(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
+
+#define SBC_RG08_XY08(reg1,addr,mc,ts) { \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++))))-(z80cpu->AF.B.l&C_FLAG); reg1=WZ.B.l; \
   z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
@@ -156,7 +180,12 @@
 }
 
 #define AND_RG08_MM08(reg1,addr,mc,ts) { \
-  reg1&=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG; \
+  reg1&=(*z80cpu->mreq_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG; \
+  z80cpu->t_states-=ts; \
+}
+
+#define AND_RG08_XY08(reg1,addr,mc,ts) { \
+  reg1&=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++)));z80cpu->AF.B.l=PZSTable[reg1]|H_FLAG; \
   z80cpu->t_states-=ts; \
 }
 
@@ -166,7 +195,12 @@
 }
 
 #define XOR_RG08_MM08(reg1,addr,mc,ts) { \
-  reg1^=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]; \
+  reg1^=(*z80cpu->mreq_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]; \
+  z80cpu->t_states-=ts; \
+}
+
+#define XOR_RG08_XY08(reg1,addr,mc,ts) { \
+  reg1^=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++)));z80cpu->AF.B.l=PZSTable[reg1]; \
   z80cpu->t_states-=ts; \
 }
 
@@ -176,7 +210,12 @@
 }
 
 #define IOR_RG08_MM08(reg1,addr,mc,ts) { \
-  reg1|=(*z80cpu->mm_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]; \
+  reg1|=(*z80cpu->mreq_rd)(z80cpu,addr);z80cpu->AF.B.l=PZSTable[reg1]; \
+  z80cpu->t_states-=ts; \
+}
+
+#define IOR_RG08_XY08(reg1,addr,mc,ts) { \
+  reg1|=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++)));z80cpu->AF.B.l=PZSTable[reg1]; \
   z80cpu->t_states-=ts; \
 }
 
@@ -187,7 +226,13 @@
 }
 
 #define CMP_RG08_MM08(reg1,addr,mc,ts) { \
-  WZ.W=(I=reg1)-(J=(*z80cpu->mm_rd)(z80cpu,addr)); \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mreq_rd)(z80cpu,addr)); \
+  z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
+  z80cpu->t_states-=ts; \
+}
+
+#define CMP_RG08_XY08(reg1,addr,mc,ts) { \
+  WZ.W=(I=reg1)-(J=(*z80cpu->mreq_rd)(z80cpu,(addr+(gint8)(*z80cpu->mreq_rd)(z80cpu,PC_W++)))); \
   z80cpu->AF.B.l=((I^J)&(I^WZ.B.l)&0x80?V_FLAG:0)|N_FLAG|-WZ.B.h|ZSTable[WZ.B.l]|((I^J^WZ.B.l)&H_FLAG); \
   z80cpu->t_states-=ts; \
 }
@@ -198,7 +243,7 @@
 }
 
 #define RLC_MM08_NULL(addr,null,mc,ts) { \
-  I=(*z80cpu->mm_rd)(z80cpu,addr); M_RLC(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  I=(*z80cpu->mreq_rd)(z80cpu,addr); M_RLC(I); (*z80cpu->mreq_wr)(z80cpu,addr,I); \
   z80cpu->t_states-=ts; \
 }
 
@@ -208,7 +253,7 @@
 }
 
 #define RRC_MM08_NULL(addr,null,mc,ts) { \
-  I=(*z80cpu->mm_rd)(z80cpu,addr); M_RRC(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  I=(*z80cpu->mreq_rd)(z80cpu,addr); M_RRC(I); (*z80cpu->mreq_wr)(z80cpu,addr,I); \
   z80cpu->t_states-=ts; \
 }
 
@@ -218,7 +263,7 @@
 }
 
 #define RL__MM08_NULL(addr,null,mc,ts) { \
-  I=(*z80cpu->mm_rd)(z80cpu,addr); M_RL(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  I=(*z80cpu->mreq_rd)(z80cpu,addr); M_RL(I); (*z80cpu->mreq_wr)(z80cpu,addr,I); \
   z80cpu->t_states-=ts; \
 }
 
@@ -228,7 +273,7 @@
 }
 
 #define RR__MM08_NULL(addr,null,mc,ts) { \
-  I=(*z80cpu->mm_rd)(z80cpu,addr); M_RR(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  I=(*z80cpu->mreq_rd)(z80cpu,addr); M_RR(I); (*z80cpu->mreq_wr)(z80cpu,addr,I); \
   z80cpu->t_states-=ts; \
 }
 
@@ -238,7 +283,7 @@
 }
 
 #define SLA_MM08_NULL(addr,null,mc,ts) { \
-  I=(*z80cpu->mm_rd)(z80cpu,addr); M_SLA(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  I=(*z80cpu->mreq_rd)(z80cpu,addr); M_SLA(I); (*z80cpu->mreq_wr)(z80cpu,addr,I); \
   z80cpu->t_states-=ts; \
 }
 
@@ -248,7 +293,7 @@
 }
 
 #define SRA_MM08_NULL(addr,null,mc,ts) { \
-  I=(*z80cpu->mm_rd)(z80cpu,addr); M_SRA(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  I=(*z80cpu->mreq_rd)(z80cpu,addr); M_SRA(I); (*z80cpu->mreq_wr)(z80cpu,addr,I); \
   z80cpu->t_states-=ts; \
 }
 
@@ -258,7 +303,7 @@
 }
 
 #define SLL_MM08_NULL(addr,null,mc,ts) { \
-  I=(*z80cpu->mm_rd)(z80cpu,addr); M_SLL(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  I=(*z80cpu->mreq_rd)(z80cpu,addr); M_SLL(I); (*z80cpu->mreq_wr)(z80cpu,addr,I); \
   z80cpu->t_states-=ts; \
 }
 
@@ -268,7 +313,7 @@
 }
 
 #define SRL_MM08_NULL(addr,null,mc,ts) { \
-  I=(*z80cpu->mm_rd)(z80cpu,addr); M_SRL(I); (*z80cpu->mm_wr)(z80cpu,addr,I); \
+  I=(*z80cpu->mreq_rd)(z80cpu,addr); M_SRL(I); (*z80cpu->mreq_wr)(z80cpu,addr,I); \
   z80cpu->t_states-=ts; \
 }
 
@@ -278,7 +323,7 @@
 }
 
 #define BIT_MM08_MASK(addr,mask,mc,ts) { \
-  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|H_FLAG|PZSTable[(*z80cpu->mm_rd)(z80cpu,addr)&mask]; \
+  z80cpu->AF.B.l=(z80cpu->AF.B.l&C_FLAG)|H_FLAG|PZSTable[(*z80cpu->mreq_rd)(z80cpu,addr)&mask]; \
   z80cpu->t_states-=ts; \
 }
 
@@ -288,7 +333,7 @@
 }
 
 #define RES_MM08_MASK(addr,mask,mc,ts) { \
-  (*z80cpu->mm_wr)(z80cpu,addr,((*z80cpu->mm_rd)(z80cpu,addr)&~mask)); \
+  (*z80cpu->mreq_wr)(z80cpu,addr,((*z80cpu->mreq_rd)(z80cpu,addr)&~mask)); \
   z80cpu->t_states-=ts; \
 }
 
@@ -298,7 +343,7 @@
 }
 
 #define SET_MM08_MASK(addr,mask,mc,ts) { \
-  (*z80cpu->mm_wr)(z80cpu,addr,((*z80cpu->mm_rd)(z80cpu,addr)| mask)); \
+  (*z80cpu->mreq_wr)(z80cpu,addr,((*z80cpu->mreq_rd)(z80cpu,addr)| mask)); \
   z80cpu->t_states-=ts; \
 }
 
@@ -689,10 +734,10 @@ static guint16 DAATable[2048] = {
   0x9283,0x9387,0x9483,0x9587,0x9687,0x9783,0x988B,0x998F
 };
 
-#define WrZ80(addr,value)  ((*z80cpu->mm_wr)((z80cpu),(addr),(value)))
-#define RdZ80(addr)        ((*z80cpu->mm_rd)((z80cpu),(addr)))
-#define OutZ80(addr,value) ((*z80cpu->io_wr)((z80cpu),(addr),(value)))
-#define InZ80(addr)        ((*z80cpu->io_rd)((z80cpu),(addr)))
+#define WrZ80(addr,value)  ((*z80cpu->mreq_wr)((z80cpu),(addr),(value)))
+#define RdZ80(addr)        ((*z80cpu->mreq_rd)((z80cpu),(addr)))
+#define OutZ80(addr,value) ((*z80cpu->iorq_wr)((z80cpu),(addr),(value)))
+#define InZ80(addr)        ((*z80cpu->iorq_rd)((z80cpu),(addr)))
 
 #define S(Fl)        z80cpu->AF.B.l|=Fl
 #define R(Fl)        z80cpu->AF.B.l&=~(Fl)
@@ -880,41 +925,6 @@ enum Codes {
   RET_PE,LD_PC_HL,JP_PE,EX_DE_HL,CALL_PE,PFX_ED,XOR_BYTE,RST28,
   RET_P,POP_AF,JP_P,DI,CALL_P,PUSH_AF,OR_BYTE,RST30,
   RET_M,LD_SP_HL,JP_M,EI,CALL_M,PFX_FD,CP_BYTE,RST38
-};
-
-enum CodesCB {
-  RLC_B,RLC_C,RLC_D,RLC_E,RLC_H,RLC_L,RLC_xHL,RLC_A,
-  RRC_B,RRC_C,RRC_D,RRC_E,RRC_H,RRC_L,RRC_xHL,RRC_A,
-  RL_B,RL_C,RL_D,RL_E,RL_H,RL_L,RL_xHL,RL_A,
-  RR_B,RR_C,RR_D,RR_E,RR_H,RR_L,RR_xHL,RR_A,
-  SLA_B,SLA_C,SLA_D,SLA_E,SLA_H,SLA_L,SLA_xHL,SLA_A,
-  SRA_B,SRA_C,SRA_D,SRA_E,SRA_H,SRA_L,SRA_xHL,SRA_A,
-  SLL_B,SLL_C,SLL_D,SLL_E,SLL_H,SLL_L,SLL_xHL,SLL_A,
-  SRL_B,SRL_C,SRL_D,SRL_E,SRL_H,SRL_L,SRL_xHL,SRL_A,
-  BIT0_B,BIT0_C,BIT0_D,BIT0_E,BIT0_H,BIT0_L,BIT0_xHL,BIT0_A,
-  BIT1_B,BIT1_C,BIT1_D,BIT1_E,BIT1_H,BIT1_L,BIT1_xHL,BIT1_A,
-  BIT2_B,BIT2_C,BIT2_D,BIT2_E,BIT2_H,BIT2_L,BIT2_xHL,BIT2_A,
-  BIT3_B,BIT3_C,BIT3_D,BIT3_E,BIT3_H,BIT3_L,BIT3_xHL,BIT3_A,
-  BIT4_B,BIT4_C,BIT4_D,BIT4_E,BIT4_H,BIT4_L,BIT4_xHL,BIT4_A,
-  BIT5_B,BIT5_C,BIT5_D,BIT5_E,BIT5_H,BIT5_L,BIT5_xHL,BIT5_A,
-  BIT6_B,BIT6_C,BIT6_D,BIT6_E,BIT6_H,BIT6_L,BIT6_xHL,BIT6_A,
-  BIT7_B,BIT7_C,BIT7_D,BIT7_E,BIT7_H,BIT7_L,BIT7_xHL,BIT7_A,
-  RES0_B,RES0_C,RES0_D,RES0_E,RES0_H,RES0_L,RES0_xHL,RES0_A,
-  RES1_B,RES1_C,RES1_D,RES1_E,RES1_H,RES1_L,RES1_xHL,RES1_A,
-  RES2_B,RES2_C,RES2_D,RES2_E,RES2_H,RES2_L,RES2_xHL,RES2_A,
-  RES3_B,RES3_C,RES3_D,RES3_E,RES3_H,RES3_L,RES3_xHL,RES3_A,
-  RES4_B,RES4_C,RES4_D,RES4_E,RES4_H,RES4_L,RES4_xHL,RES4_A,
-  RES5_B,RES5_C,RES5_D,RES5_E,RES5_H,RES5_L,RES5_xHL,RES5_A,
-  RES6_B,RES6_C,RES6_D,RES6_E,RES6_H,RES6_L,RES6_xHL,RES6_A,
-  RES7_B,RES7_C,RES7_D,RES7_E,RES7_H,RES7_L,RES7_xHL,RES7_A,
-  SET0_B,SET0_C,SET0_D,SET0_E,SET0_H,SET0_L,SET0_xHL,SET0_A,
-  SET1_B,SET1_C,SET1_D,SET1_E,SET1_H,SET1_L,SET1_xHL,SET1_A,
-  SET2_B,SET2_C,SET2_D,SET2_E,SET2_H,SET2_L,SET2_xHL,SET2_A,
-  SET3_B,SET3_C,SET3_D,SET3_E,SET3_H,SET3_L,SET3_xHL,SET3_A,
-  SET4_B,SET4_C,SET4_D,SET4_E,SET4_H,SET4_L,SET4_xHL,SET4_A,
-  SET5_B,SET5_C,SET5_D,SET5_E,SET5_H,SET5_L,SET5_xHL,SET5_A,
-  SET6_B,SET6_C,SET6_D,SET6_E,SET6_H,SET6_L,SET6_xHL,SET6_A,
-  SET7_B,SET7_C,SET7_D,SET7_E,SET7_H,SET7_L,SET7_xHL,SET7_A
 };
 
 enum CodesED {

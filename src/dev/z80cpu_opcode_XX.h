@@ -43,36 +43,20 @@ case CALL_C:  if(AF_L&C_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
 case CALL_PE: if(AF_L&P_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
 case CALL_M:  if(AF_L&S_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
 
-case ADD_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
-               M_ADD(I);break;
 case ADD_BYTE: I=RdZ80(PC_W++);M_ADD(I);break;
 
-case SUB_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
-               M_SUB(I);break;
 case SUB_BYTE: I=RdZ80(PC_W++);M_SUB(I);break;
 
-case AND_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
-               M_AND(I);break;
 case AND_BYTE: I=RdZ80(PC_W++);M_AND(I);break;
 
-case OR_xHL:   I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
-               M_IOR(I);break;
 case OR_BYTE:  I=RdZ80(PC_W++);M_IOR(I);break;
 
-case ADC_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
-               M_ADC(I);break;
 case ADC_BYTE: I=RdZ80(PC_W++);M_ADC(I);break;
 
-case SBC_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
-               M_SBC(I);break;
 case SBC_BYTE: I=RdZ80(PC_W++);M_SBC(I);break;
 
-case XOR_xHL:  I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
-               M_XOR(I);break;
 case XOR_BYTE: I=RdZ80(PC_W++);M_XOR(I);break;
 
-case CP_xHL:   I=RdZ80(XX_W+(gint8)RdZ80(PC_W++));
-               M_CMP(I);break;
 case CP_BYTE:  I=RdZ80(PC_W++);M_CMP(I);break;
                
 case LD_BC_WORD: M_LDWORD(BC);break;

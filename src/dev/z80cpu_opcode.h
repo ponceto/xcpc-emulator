@@ -11,10 +11,6 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-/*
- * XXX
- */
-
 case JR_NZ:   if(AF_L&Z_FLAG) PC_W++; else { T_STATES-=5;M_JR; } break;
 case JR_NC:   if(AF_L&C_FLAG) PC_W++; else { T_STATES-=5;M_JR; } break;
 case JR_Z:    if(AF_L&Z_FLAG) { T_STATES-=5;M_JR; } else PC_W++; break;
