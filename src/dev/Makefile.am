@@ -23,14 +23,10 @@ libdev_a_SOURCES = \
 	z80cpu.c z80cpu.h \
 	z80cpu_tables.h \
 	z80cpu_opcode.h \
-	z80cpu_opcode_CB.h \
 	z80cpu_opcode_DD.h \
-	z80cpu_opcode_DDCB.h \
 	z80cpu_opcode_ED.h \
 	z80cpu_opcode_FD.h \
-	z80cpu_opcode_FDCB.h \
 	z80cpu_opcode_XX.h \
-	z80cpu_opcode_XXCB.h \
 	garray.c garray.h \
 	cpcmem.c cpcmem.h \
 	cpckbd.c cpckbd.h \
