@@ -32,6 +32,9 @@ G_DEFINE_TYPE(GdrvDriver, gdrv_driver, G_TYPE_OBJECT)
  */
 static void gdrv_driver_class_init(GdrvDriverClass *driver_class)
 {
+  driver_class->reset = NULL;
+  driver_class->clock = NULL;
+  driver_class->event = NULL;
 }
 
 /**
@@ -41,6 +44,11 @@ static void gdrv_driver_class_init(GdrvDriverClass *driver_class)
  */
 static void gdrv_driver_init(GdrvDriver *driver)
 {
+  driver->display = NULL;
+  driver->screen  = NULL;
+  driver->visual  = NULL;
+  driver->ximage  = NULL;
+  driver->window  = None;
 }
 
 /**
@@ -51,4 +59,47 @@ static void gdrv_driver_init(GdrvDriver *driver)
 GdrvDriver *gdrv_driver_new(void)
 {
   return(g_object_new(GDRV_TYPE_DRIVER, NULL));
+}
+
+/**
+ * GdrvDriver::reset()
+ *
+ * @param driver specifies the GdrvDriver instance
+ */
+void gdrv_driver_reset(GdrvDriver *driver)
+{
+  GdrvDriverClass *driver_class = GDRV_DRIVER_GET_CLASS(driver);
+
+  if((driver_class != NULL) && (driver_class->reset != NULL)) {
+    (*driver_class->reset)(driver);
+  }
+}
+
+/**
+ * GdrvDriver::clock()
+ *
+ * @param driver specifies the GdrvDriver instance
+ */
+void gdrv_driver_clock(GdrvDriver *driver)
+{
+  GdrvDriverClass *driver_class = GDRV_DRIVER_GET_CLASS(driver);
+
+  if((driver_class != NULL) && (driver_class->clock != NULL)) {
+    (*driver_class->clock)(driver);
+  }
+}
+
+/**
+ * GdrvDriver::event()
+ *
+ * @param driver specifies the GdrvDriver instance
+ * @param xevent specifies the XEvent structure
+ */
+void gdrv_driver_event(GdrvDriver *driver, XEvent *xevent)
+{
+  GdrvDriverClass *driver_class = GDRV_DRIVER_GET_CLASS(driver);
+
+  if((driver_class != NULL) && (driver_class->event != NULL)) {
+    (*driver_class->event)(driver, xevent);
+  }
 }

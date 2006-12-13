@@ -18,13 +18,10 @@
 #ifndef __XCPC_H__
 #define __XCPC_H__
 
+#include <glib/gi18n.h>
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifndef ENABLE_NLS
-#define  _(String) (String)
-#define N_(String) (String)
 #endif
 
 typedef struct _XcpcResourcesRec {

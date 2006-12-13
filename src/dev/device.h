@@ -44,8 +44,8 @@ struct _GdevDevice {
 
 struct _GdevDeviceClass {
   GObjectClass parent_class;
-  GdevDeviceProc reset;
-  GdevDeviceProc clock;
+  void (*reset)(GdevDevice *device);
+  void (*clock)(GdevDevice *device);
 };
 
 extern GType       gdev_device_get_type (void);

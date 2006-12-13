@@ -103,5 +103,5 @@ static void gdev_garray_clock(GdevGArray *garray)
  */
 GdevGArray *gdev_garray_new(void)
 {
-  return(g_object_new(GDEV_TYPE_GArray, NULL));
+  return(g_object_new(GDEV_TYPE_GARRAY, NULL));
 }

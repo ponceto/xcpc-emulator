@@ -1811,9 +1811,9 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
 {
   AMSTRAD_CPC *self = &amstrad_cpc;
   GdevZ80CPU *z80cpu = self->z80cpu;
-  GdevDeviceClass *z80cpu_class = GDEV_DEVICE_GET_CLASS((GdevDevice *) z80cpu);
+  GdevDeviceClass *z80cpu_class = GDEV_DEVICE_GET_CLASS(z80cpu);
   GdevMC6845 *mc6845 = self->mc6845;
-  GdevDeviceClass *mc6845_class = GDEV_DEVICE_GET_CLASS((GdevDevice *) mc6845);
+  GdevDeviceClass *mc6845_class = GDEV_DEVICE_GET_CLASS(mc6845);
   GdevGArray *garray = self->garray;
   long delay, ix;
   int scanline = 0;
@@ -1825,7 +1825,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       sl->ink[ix] = self->palette[garray->ink[ix]];
     }
     for(ix = 0; ix < self->cpu_period; ix += 4) {
-      (*mc6845_class->clock)((GdevDevice *) mc6845);
+      (*mc6845_class->clock)(GDEV_DEVICE(mc6845));
       if(garray->gen_irq > 0) {
         if(--garray->gen_irq == 0) {
           gdev_z80cpu_intr(z80cpu, INT_RST38);
@@ -1834,7 +1834,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       }
       if((z80cpu->t_states += 4) > 0) {
         gint t_states = z80cpu->t_states;
-        (*z80cpu_class->clock)((GdevDevice *) z80cpu);
+        (*z80cpu_class->clock)(GDEV_DEVICE(z80cpu));
         z80cpu->t_states = t_states - ((t_states - z80cpu->t_states) + 3 & (~3));
       }
     }

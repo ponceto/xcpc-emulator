@@ -62,11 +62,10 @@ GdevDevice *gdev_device_new(void)
  */
 void gdev_device_reset(GdevDevice *device)
 {
-  if(GDEV_IS_DEVICE(device) != FALSE) {
-    GdevDeviceClass *device_class = GDEV_DEVICE_GET_CLASS(device);
-    if(device_class->reset != NULL) {
-      (*device_class->reset)(device);
-    }
+  GdevDeviceClass *device_class = GDEV_DEVICE_GET_CLASS(device);
+
+  if((device_class != NULL) && (device_class->reset != NULL)) {
+    (*device_class->reset)(device);
   }
 }
 
@@ -77,10 +76,9 @@ void gdev_device_reset(GdevDevice *device)
  */
 void gdev_device_clock(GdevDevice *device)
 {
-  if(GDEV_IS_DEVICE(device) != FALSE) {
-    GdevDeviceClass *device_class = GDEV_DEVICE_GET_CLASS(device);
-    if(device_class->clock != NULL) {
-      (*device_class->clock)(device);
-    }
+  GdevDeviceClass *device_class = GDEV_DEVICE_GET_CLASS(device);
+
+  if((device_class != NULL) && (device_class->clock != NULL)) {
+    (*device_class->clock)(device);
   }
 }

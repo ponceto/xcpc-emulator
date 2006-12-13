@@ -27,6 +27,12 @@ AM_PATH_GLIB_2_0([2.6.0], [have_glib20="yes"], [have_glib20="no"], [gobject])
 if test "x${have_glib20}" = "xno"; then
   AC_MSG_ERROR([Glib - version >= 2.6.0 is required])
 fi
+AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [turn on debugging [default=no]])], [], [enable_debug="no"])
+if test "x${enable_debug}" != "xyes"; then
+  AC_DEFINE([G_DISABLE_ASSERT],      [1], [Define to 1 to disable GLib/GObject assert.])
+  AC_DEFINE([G_DISABLE_CHECKS],      [1], [Define to 1 to disable GLib/GObject checks.])
+  AC_DEFINE([G_DISABLE_CAST_CHECKS], [1], [Define to 1 to disable GObject cast checks.])
+fi
 AC_CHECK_HEADER([libdsk.h], [have_libdsk="yes"], [AC_MSG_ERROR([libdsk is required !!])])
 AC_ARG_WITH([motif1], [AC_HELP_STRING([--with-motif1], [build the Motif1 version])])
 AC_CHECK_HEADER([Xm/Xm.h],

@@ -22,12 +22,12 @@
 
 G_BEGIN_DECLS
 
-#define GDEV_TYPE_GArray            (gdev_garray_get_type())
-#define GDEV_GArray(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), GDEV_TYPE_GArray, GdevGArray))
-#define GDEV_GArray_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), GDEV_TYPE_GArray, GdevGArrayClass))
-#define GDEV_IS_GArray(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), GDEV_TYPE_GArray))
-#define GDEV_IS_GArray_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GDEV_TYPE_GArray))
-#define GDEV_GArray_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), GDEV_TYPE_GArray, GdevGArrayClass))
+#define GDEV_TYPE_GARRAY            (gdev_garray_get_type())
+#define GDEV_GARRAY(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), GDEV_TYPE_GARRAY, GdevGArray))
+#define GDEV_GARRAY_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), GDEV_TYPE_GARRAY, GdevGArrayClass))
+#define GDEV_IS_GARRAY(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), GDEV_TYPE_GARRAY))
+#define GDEV_IS_GARRAY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GDEV_TYPE_GARRAY))
+#define GDEV_GARRAY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), GDEV_TYPE_GARRAY, GdevGArrayClass))
 
 typedef struct _GdevGArray      GdevGArray;
 typedef struct _GdevGArrayClass GdevGArrayClass;
@@ -55,4 +55,4 @@ extern GdevGArray *gdev_garray_new      (void);
 
 G_END_DECLS
 
-#endif /* __GDEV_GArray_H__ */
+#endif /* __GDEV_GARRAY_H__ */

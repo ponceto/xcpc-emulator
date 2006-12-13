@@ -19,4 +19,5 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/src $(X_CFLAGS) $(GLIB_CFLAGS)
 noinst_LIBRARIES = libdrv.a
 
 libdrv_a_SOURCES = \
-	driver.c driver.h
+	driver.c driver.h \
+	arnold.c arnold.h

@@ -38,14 +38,25 @@ typedef struct _GdrvDriverClass GdrvDriverClass;
 
 struct _GdrvDriver {
   GObject parent_instance;
+  Display *display;
+  Screen  *screen;
+  Visual  *visual;
+  XImage  *ximage;
+  Window   window;
 };
 
 struct _GdrvDriverClass {
   GObjectClass parent_class;
+  void (*reset)(GdrvDriver *driver);
+  void (*clock)(GdrvDriver *driver);
+  void (*event)(GdrvDriver *driver, XEvent *xevent);
 };
 
 extern GType       gdrv_driver_get_type (void);
 extern GdrvDriver *gdrv_driver_new      (void);
+extern void        gdrv_driver_reset    (GdrvDriver *driver);
+extern void        gdrv_driver_clock    (GdrvDriver *driver);
+extern void        gdrv_driver_event    (GdrvDriver *driver, XEvent *xevent);
 
 G_END_DECLS
 
