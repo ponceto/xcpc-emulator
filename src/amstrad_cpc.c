@@ -313,47 +313,7 @@ static void amstrad_cpc_mem_select(AMSTRAD_CPC *self)
   }
 }
 
-static void amstrad_cpc_init_palette(AMSTRAD_CPC *self)
-{
-  int type = 0, ix;
-  XColor xcolor;
-
-  if(cfg_monitor != NULL) {
-    if(strcmp("color", cfg_monitor) == 0) {
-      type = 0;
-    }
-    if(strcmp("green", cfg_monitor) == 0) {
-      type = 1;
-    }
-  }
-  for(ix = 0; ix < 32; ix++) {
-    if(type == 1) {
-      xcolor.flags = DoRed | DoGreen | DoBlue;
-      xcolor.red   = 0;
-      xcolor.green = hw_palette[ix][3];
-      xcolor.blue  = 0;
-      xcolor.pad   = 0;
-    }
-    else {
-      xcolor.flags = DoRed | DoGreen | DoBlue;
-      xcolor.red   = hw_palette[ix][0];
-      xcolor.green = hw_palette[ix][1];
-      xcolor.blue  = hw_palette[ix][2];
-      xcolor.pad   = 0;
-    }
-    if(XAllocColor(DisplayOfScreen(self->screen), DefaultColormapOfScreen(self->screen), &xcolor) == False) {
-      (void) fprintf(stderr, "cannot allocate color ... %04x/%04x/%04x\n", xcolor.red, xcolor.green, xcolor.blue);
-      (void) fflush(stderr);
-    }
-    self->palette[ix] = xcolor.pixel;
-  }
-}
-
-static void amstrad_cpc_render00(AMSTRAD_CPC *self, XtPointer user)
-{
-}
-
-static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
+static void amstrad_cpc_render08(AMSTRAD_CPC *self)
 {
   GdevMC6845 *mc6845 = self->mc6845;
   GdevGArray *garray = self->garray;
@@ -577,8 +537,8 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
   }
   if(cfg_no_fps == FALSE) {
     char *str = self->status; int len = 0;
-    guint8 fg = self->palette[garray->ink[0x01]];
-    guint8 bg = self->palette[garray->ink[0x10]];
+    guint8 fg = self->palette[garray->ink[0x01]].pixel;
+    guint8 bg = self->palette[garray->ink[0x10]].pixel;
     guint8 *pt0 = (guint8 *) ((guint8 *) self->ximage->data + ((self->ximage->height - 9) * self->ximage->bytes_per_line));
     while(*str != 0) {
       guint8 *pt1 = pt0;
@@ -610,7 +570,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self, XtPointer user)
   }
 }
 
-static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
+static void amstrad_cpc_render16(AMSTRAD_CPC *self)
 {
   GdevMC6845 *mc6845 = self->mc6845;
   GdevGArray *garray = self->garray;
@@ -834,8 +794,8 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
   }
   if(cfg_no_fps == FALSE) {
     char *str = self->status; int len = 0;
-    guint16 fg = self->palette[garray->ink[0x01]];
-    guint16 bg = self->palette[garray->ink[0x10]];
+    guint16 fg = self->palette[garray->ink[0x01]].pixel;
+    guint16 bg = self->palette[garray->ink[0x10]].pixel;
     guint16 *pt0 = (guint16 *) ((guint8 *) self->ximage->data + ((self->ximage->height - 9) * self->ximage->bytes_per_line));
     while(*str != 0) {
       guint16 *pt1 = pt0;
@@ -867,7 +827,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self, XtPointer user)
   }
 }
 
-static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
+static void amstrad_cpc_render32(AMSTRAD_CPC *self)
 {
   GdevMC6845 *mc6845 = self->mc6845;
   GdevGArray *garray = self->garray;
@@ -1091,8 +1051,8 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
   }
   if(cfg_no_fps == FALSE) {
     char *str = self->status; int len = 0;
-    guint32 fg = self->palette[garray->ink[0x01]];
-    guint32 bg = self->palette[garray->ink[0x10]];
+    guint32 fg = self->palette[garray->ink[0x01]].pixel;
+    guint32 bg = self->palette[garray->ink[0x10]].pixel;
     guint32 *pt0 = (guint32 *) ((guint8 *) self->ximage->data + ((self->ximage->height - 9) * self->ximage->bytes_per_line));
     while(*str != 0) {
       guint32 *pt1 = pt0;
@@ -1122,6 +1082,151 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self, XtPointer user)
     (void) XFlush(DisplayOfScreen(self->screen));
 #endif
   }
+}
+
+static void amstrad_cpc_init_palette(AMSTRAD_CPC *self)
+{
+  int type = 0, ix;
+
+  if(cfg_monitor != NULL) {
+    if(strcmp("color", cfg_monitor) == 0) {
+      type = 0;
+    }
+    if(strcmp("green", cfg_monitor) == 0) {
+      type = 1;
+    }
+  }
+  for(ix = 0; ix < 32; ix++) {
+    XColor *color = &self->palette[ix];
+    if(type == 1) {
+      color->pixel = (unsigned long) -1;
+      color->red   = 0;
+      color->green = hw_palette[ix][3];
+      color->blue  = 0;
+      color->flags = DoRed | DoGreen | DoBlue;
+      color->pad   = 0;
+    }
+    else {
+      color->pixel = (unsigned long) -1;
+      color->red   = hw_palette[ix][0];
+      color->green = hw_palette[ix][1];
+      color->blue  = hw_palette[ix][2];
+      color->flags = DoRed | DoGreen | DoBlue;
+      color->pad   = 0;
+    }
+    if(XAllocColor(DisplayOfScreen(self->screen), self->colmap, color) == False) {
+      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "cannot allocate color ... %04x/%04x/%04x\n", color->red, color->green, color->blue);
+    }
+  }
+}
+
+static void amstrad_cpc_fini_palette(AMSTRAD_CPC *self)
+{
+  int ix;
+
+  for(ix = 0; ix < 32; ix++) {
+    XColor *color = &self->palette[ix];
+    if(color->pixel != (unsigned long) -1) {
+      (void) XFreeColors(DisplayOfScreen(self->screen), self->colmap, &color->pixel, 1, 0);
+    }
+  }
+}
+
+static void amstrad_cpc_init_image(AMSTRAD_CPC *self)
+{
+  amstrad_cpc_init_palette(self);
+#ifdef HAVE_XSHM
+  if(cfg_no_xshm == FALSE) {
+    if(XShmQueryExtension(DisplayOfScreen(self->screen)) != False) {
+      int major = 0;
+      int minor = 0;
+      Bool shpix = False;
+      if(XShmQueryVersion(DisplayOfScreen(self->screen), &major, &minor, &shpix) != False) {
+        XShmSegmentInfo *shm_info = g_new(XShmSegmentInfo, 1);
+        shm_info->shmseg   = None;
+        shm_info->shmid    = -1;
+        shm_info->shmaddr  = (char *) -1;
+        shm_info->readOnly = False;
+        self->ximage = XShmCreateImage(DisplayOfScreen(self->screen), self->visual, self->depth, ZPixmap, NULL, shm_info, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+        shm_info->shmid = shmget(IPC_PRIVATE, self->ximage->bytes_per_line * self->ximage->height, IPC_CREAT | 0666);
+        if(shm_info->shmid != -1) {
+          shm_info->shmaddr = (char *) shmat(shm_info->shmid, NULL, 0);
+          if(shm_info->shmaddr != (char *) -1) {
+            xshm_erhnd = XSetErrorHandler(XShmErrorHandler);
+            (void) XShmAttach(DisplayOfScreen(self->screen), shm_info);
+            (void) XSync(DisplayOfScreen(self->screen), False);
+            (void) XSetErrorHandler(xshm_erhnd);
+            if(xshm_error == False) {
+              (void) shmctl(shm_info->shmid, IPC_RMID, NULL);
+              self->ximage->data = shm_info->shmaddr;
+              self->useshm = True;
+            }
+            else {
+              (void) shmdt(shm_info->shmaddr);
+              (void) shmctl(shm_info->shmid, IPC_RMID, NULL);
+              g_free(self->ximage->obdata);
+              self->ximage->obdata = NULL;
+              (void) XDestroyImage(self->ximage);
+              self->ximage = NULL;
+            }
+          }
+        }
+      }
+    }
+  }
+#endif
+  if(self->ximage == NULL) {
+    self->ximage = XCreateImage(DisplayOfScreen(self->screen), self->visual, DefaultDepthOfScreen(self->screen), ZPixmap, 0, NULL, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, 8, 0);
+    self->ximage->data = (char *) malloc(self->ximage->bytes_per_line * self->ximage->height);
+    (void) memset(self->ximage->data, 0, self->ximage->bytes_per_line * self->ximage->height);
+  }
+  switch(self->ximage->bits_per_pixel) {
+    case 8:
+      self->render = amstrad_cpc_render08;
+      break;
+    case 16:
+      self->render = amstrad_cpc_render16;
+      break;
+    case 32:
+      self->render = amstrad_cpc_render32;
+      break;
+    default:
+      self->render = NULL;
+      break;
+  }
+}
+
+static void amstrad_cpc_fini_image(AMSTRAD_CPC *self)
+{
+  amstrad_cpc_fini_palette(self);
+  if(self->ximage != NULL) {
+#ifdef HAVE_XSHM
+    if(self->useshm != False) {
+      XShmSegmentInfo *shm_info = (XShmSegmentInfo *) self->ximage->obdata;
+      (void) XShmDetach(DisplayOfScreen(self->screen), shm_info);
+      (void) XSync(DisplayOfScreen(self->screen), False);
+      (void) shmdt(shm_info->shmaddr);
+      shm_info->shmaddr = (char *) NULL;
+      self->ximage->data   = NULL;
+      g_free(self->ximage->obdata);
+      self->ximage->obdata = NULL;
+    }
+#endif
+    if(self->ximage->data != NULL) {
+      free(self->ximage->data);
+      self->ximage->data = NULL;
+    }
+    (void) XDestroyImage(self->ximage);
+    self->ximage = NULL;
+  }
+  self->ximage = NULL;
+  self->screen = NULL;
+  self->visual = NULL;
+  self->window = None;
+  self->colmap = None;
+  self->depth  = 0;
+  self->useshm = False;
+  self->render = NULL;
 }
 
 void amstrad_cpc_reset(void)
@@ -1691,76 +1796,14 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   else {
     self->firmname = 7;
   }
-  /* XXX */
-  argcount = 0;
-  XtSetArg(arglist[argcount], XtNwidth,  AMSTRAD_CPC_SCR_W); argcount++;
-  XtSetArg(arglist[argcount], XtNheight, AMSTRAD_CPC_SCR_H); argcount++;
-  XtSetValues(widget, arglist, argcount);
-
-  self->screen = XtScreen(widget);
-  self->window = XtWindow(widget);
   self->ximage = NULL;
+  self->screen = NULL;
+  self->visual = NULL;
+  self->window = None;
+  self->colmap = None;
+  self->depth  = 0;
   self->useshm = False;
-#ifdef HAVE_XSHM
-  if(cfg_no_xshm == FALSE) {
-    if(XShmQueryExtension(DisplayOfScreen(self->screen)) != False) {
-      int major = 0;
-      int minor = 0;
-      Bool shpix = False;
-      if(XShmQueryVersion(DisplayOfScreen(self->screen), &major, &minor, &shpix) != False) {
-        XShmSegmentInfo *shm_info = g_new(XShmSegmentInfo, 1);
-        shm_info->shmseg   = None;
-        shm_info->shmid    = -1;
-        shm_info->shmaddr  = (char *) -1;
-        shm_info->readOnly = False;
-        self->ximage = XShmCreateImage(DisplayOfScreen(self->screen), DefaultVisualOfScreen(self->screen), DefaultDepthOfScreen(self->screen), ZPixmap, NULL, shm_info, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
-        shm_info->shmid    = shmget(IPC_PRIVATE, self->ximage->bytes_per_line * self->ximage->height, IPC_CREAT | 0666);
-        if(shm_info->shmid != -1) {
-          shm_info->shmaddr  = (char *) shmat(shm_info->shmid, NULL, 0);
-          if(shm_info->shmaddr != (char *) -1) {
-            xshm_erhnd = XSetErrorHandler(XShmErrorHandler);
-            (void) XShmAttach(DisplayOfScreen(self->screen), shm_info);
-            (void) XSync(DisplayOfScreen(self->screen), False);
-            (void) XSetErrorHandler(xshm_erhnd);
-            if(xshm_error == False) {
-              (void) shmctl(shm_info->shmid, IPC_RMID, NULL);
-              self->ximage->data = shm_info->shmaddr;
-              self->useshm = True;
-            }
-            else {
-              (void) shmdt(shm_info->shmaddr);
-              (void) shmctl(shm_info->shmid, IPC_RMID, NULL);
-              g_free(self->ximage->obdata);
-              self->ximage->obdata = NULL;
-              XDestroyImage(self->ximage);
-              self->ximage = NULL;
-            }
-          }
-        }
-      }
-    }
-  }
-#endif
-  if(self->ximage == NULL) {
-    self->ximage = XCreateImage(DisplayOfScreen(self->screen), DefaultVisualOfScreen(self->screen), DefaultDepthOfScreen(self->screen), ZPixmap, 0, NULL, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H, 8, 0);
-    self->ximage->data = (char *) XtMalloc(self->ximage->bytes_per_line * self->ximage->height);
-    (void) memset(self->ximage->data, 0, self->ximage->bytes_per_line * self->ximage->height);
-  }
-  switch(self->ximage->bits_per_pixel) {
-    case 8:
-      self->paint_hnd = amstrad_cpc_render08;
-      break;
-    case 16:
-      self->paint_hnd = amstrad_cpc_render16;
-      break;
-    case 32:
-      self->paint_hnd = amstrad_cpc_render32;
-      break;
-    default:
-      self->paint_hnd = amstrad_cpc_render00;
-      break;
-  }
-  amstrad_cpc_init_palette(self);
+  self->render = NULL;
   if((self->memory.total_ram = (guint8 *) malloc(self->ramsize * 1024)) == NULL) {
     perror("amstrad_cpc"); exit(-1);
   }
@@ -1805,6 +1848,9 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   amstrad_cpc_reset();
   (void) gettimeofday(&self->timer1, NULL);
   (void) gettimeofday(&self->timer2, NULL);
+  self->gtimer = g_timer_new();
+  self->num_frames = 0;
+  self->drw_frames = 0;
 }
 
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
@@ -1822,7 +1868,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     struct _scanline *sl = &self->scanline[scanline];
     sl->mode = garray->rom_cfg & 0x03;
     for(ix = 0; ix < 17; ix++) {
-      sl->ink[ix] = self->palette[garray->ink[ix]];
+      sl->ink[ix] = self->palette[garray->ink[ix]].pixel;
     }
     for(ix = 0; ix < self->cpu_period; ix += 4) {
       (*mc6845_class->clock)(GDEV_DEVICE(mc6845));
@@ -1847,27 +1893,29 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   }
   switch(self->refresh) {
     case 1:
-      if((delay >= 0) && (delay <= 20)) {
-        (*self->paint_hnd)(self, NULL); self->drw_frames++;
+      if((delay >= 0) && (delay <= 20) && (self->render != NULL)) {
+        (*self->render)(self); self->drw_frames++;
       }
       if((self->timer1.tv_usec += 20000) >= 1000000) {
         self->timer1.tv_usec -= 1000000; self->timer1.tv_sec++;
       }
       if(++self->num_frames == 50) {
-        (void) sprintf(self->status, "%2d Hz / %2d fps", self->num_frames, self->drw_frames);
+        (void) sprintf(self->status, "%2d Hz / %.2f fps", self->num_frames, ((gdouble) self->drw_frames / g_timer_elapsed(self->gtimer, NULL)));
         self->num_frames = self->drw_frames = 0;
+        g_timer_start(self->gtimer);
       }
       break;
     case 0:
-      if((delay >= 0) && (delay <= 16)) {
-        (*self->paint_hnd)(self, NULL); self->drw_frames++;
+      if((delay >= 0) && (delay <= 16) && (self->render != NULL)) {
+        (*self->render)(self); self->drw_frames++;
       }
       if((self->timer1.tv_usec += 16667) >= 1000000) {
         self->timer1.tv_usec -= 1000000; self->timer1.tv_sec++;
       }
       if(++self->num_frames == 60) {
-        (void) sprintf(self->status, "%2d Hz / %2d fps", self->num_frames, self->drw_frames);
+        (void) sprintf(self->status, "%2d Hz / %.2f fps", self->num_frames, ((gdouble) self->drw_frames / g_timer_elapsed(self->gtimer, NULL)));
         self->num_frames = self->drw_frames = 0;
+        g_timer_start(self->gtimer);
       }
       break;
   }
@@ -1887,28 +1935,13 @@ void amstrad_cpc_close_handler(Widget widget, XtPointer data)
   AMSTRAD_CPC *self = &amstrad_cpc;
   int ix;
 
-  if(self->ximage != NULL) {
-#ifdef HAVE_XSHM
-    if(self->useshm != False) {
-      XShmSegmentInfo *shm_info = (XShmSegmentInfo *) self->ximage->obdata;
-      (void) XShmDetach(DisplayOfScreen(self->screen), shm_info);
-      (void) XSync(DisplayOfScreen(self->screen), False);
-      (void) shmdt(shm_info->shmaddr);
-      shm_info->shmaddr = (char *) NULL;
-      self->ximage->data   = NULL;
-      g_free(self->ximage->obdata);
-      self->ximage->obdata = NULL;
-    }
-#endif
-    if(self->ximage->data != NULL) {
-      XtFree((char *) self->ximage->data);
-      self->ximage->data = NULL;
-    }
-    XDestroyImage(self->ximage);
-    self->ximage = NULL;
+  if(self->gtimer != NULL) {
+    g_timer_destroy(self->gtimer);
+    self->gtimer = (GTimer *) NULL;
   }
-  self->window = None;
-  self->screen = NULL;
+  if(self->ximage != NULL) {
+    amstrad_cpc_fini_image(self);
+  }
   if(self->memory.lower_rom != NULL) {
     g_object_unref(self->memory.lower_rom);
     self->memory.lower_rom = NULL;
@@ -1945,14 +1978,31 @@ void amstrad_cpc_input_handler(Widget widget, XEvent *xevent)
 
 void amstrad_cpc_paint_handler(Widget widget, XEvent *xevent)
 {
-  amstrad_cpc.screen = XtScreen(widget);
-  amstrad_cpc.window = XtWindow(widget);
-  (void) XPutImage(xevent->xexpose.display,
-                   xevent->xexpose.window,
-                   DefaultGCOfScreen(amstrad_cpc.screen),
-                   amstrad_cpc.ximage,
-                   xevent->xexpose.x,     xevent->xexpose.y,
-                   xevent->xexpose.x,     xevent->xexpose.y,
-                   xevent->xexpose.width, xevent->xexpose.height);
-  (void) XFlush(DisplayOfScreen(amstrad_cpc.screen));
+  AMSTRAD_CPC *self = &amstrad_cpc;
+
+  if(self->window == None) {
+    XWindowAttributes xwinattr;
+    if(XGetWindowAttributes(xevent->xexpose.display, xevent->xexpose.window, &xwinattr) != 0) {
+      self->screen = xwinattr.screen;
+      self->visual = xwinattr.visual;
+      self->window = xevent->xexpose.window;
+      self->colmap = xwinattr.colormap;
+      self->depth  = xwinattr.depth;
+      self->useshm = False;
+    }
+    if(self->ximage == NULL) {
+      amstrad_cpc_init_image(self);
+    }
+    (void) XResizeWindow(xevent->xexpose.display, xevent->xexpose.window, AMSTRAD_CPC_SCR_W, AMSTRAD_CPC_SCR_H);
+  }
+  if(self->ximage != NULL) {
+    (void) XPutImage(xevent->xexpose.display,
+                     xevent->xexpose.window,
+                     DefaultGCOfScreen(self->screen),
+                     self->ximage,
+                     xevent->xexpose.x,     xevent->xexpose.y,
+                     xevent->xexpose.x,     xevent->xexpose.y,
+                     xevent->xexpose.width, xevent->xexpose.height);
+    (void) XFlush(DisplayOfScreen(self->screen));
+  }
 }

@@ -42,7 +42,8 @@ typedef struct _XemEmulatorPart {
   void (*close_handler)(Widget widget, XtPointer data);
   void (*input_handler)(Widget widget, XEvent *xevent);
   void (*paint_handler)(Widget widget, XEvent *xevent);
-  XtIntervalId interval_id;
+  XtIntervalId timer;
+  unsigned long delay;
 } XemEmulatorPart;
 
 typedef struct _XemEmulatorRec {

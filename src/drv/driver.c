@@ -44,11 +44,12 @@ static void gdrv_driver_class_init(GdrvDriverClass *driver_class)
  */
 static void gdrv_driver_init(GdrvDriver *driver)
 {
-  driver->display = NULL;
-  driver->screen  = NULL;
-  driver->visual  = NULL;
-  driver->ximage  = NULL;
-  driver->window  = None;
+  driver->ximage = NULL;
+  driver->screen = NULL;
+  driver->visual = NULL;
+  driver->window = None;
+  driver->colmap = None;
+  driver->depth  = 0;
 }
 
 /**

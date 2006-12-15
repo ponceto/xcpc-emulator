@@ -27,6 +27,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 
+static void ClassInitialize(void);
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args);
 static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attributes);
 static void Destroy(Widget widget);
@@ -75,6 +76,11 @@ static XtResource resources[] = {
 };
 
 /*
+ * XemAppShellWidget::SuperClass
+ */
+static WidgetClass XemAppShellSuperClass = (WidgetClass) NULL;
+
+/*
  * XemAppShellWidget::Class
  */
 externaldef(xemappshellclassrec) XemAppShellClassRec xemAppShellClassRec = {
@@ -82,7 +88,7 @@ externaldef(xemappshellclassrec) XemAppShellClassRec xemAppShellClassRec = {
     (WidgetClass) &applicationShellClassRec, /* superclass                   */
     "XemAppShell",                           /* class_name                   */
     sizeof(XemAppShellRec),                  /* widget_size                  */
-    NULL,                                    /* class_initialize             */
+    ClassInitialize,                         /* class_initialize             */
     NULL,                                    /* class_part_initialize        */
     FALSE,                                   /* class_inited                 */
     Initialize,                              /* initialize                   */
@@ -140,6 +146,14 @@ externaldef(xemappshellclassrec) XemAppShellClassRec xemAppShellClassRec = {
 };
 
 externaldef(xemappshellwidgetclass) WidgetClass xemAppShellWidgetClass = (WidgetClass) &xemAppShellClassRec;
+
+/**
+ * XemAppShellWidget::ClassInitialize()
+ */
+static void ClassInitialize(void)
+{
+  XemAppShellSuperClass = xemAppShellClassRec.core_class.superclass;
+}
 
 /**
  * XemAppShellWidget::Initialize()
@@ -216,7 +230,9 @@ static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attr
     }
     (void) XtMakeGeometryRequest(widget, &request, &request);
   }
-  (*xemAppShellWidgetClass->core_class.superclass->core_class.realize)(widget, mask, attributes);
+  if(XemAppShellSuperClass->core_class.realize != NULL) {
+    (*XemAppShellSuperClass->core_class.realize)(widget, mask, attributes);
+  }
   if(self->core.window != None) {
     if(self->app_shell.WM_DELETE_WINDOW != None) {
       (void) XSetWMProtocols(DisplayOfScreen(self->core.screen), self->core.window, &self->app_shell.WM_DELETE_WINDOW, 1);
@@ -356,6 +372,22 @@ static void OnXdndPosition(Widget widget, XEvent *xevent, String *params, Cardin
 
   if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndPosition)) {
     if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
+      Display *dpy = XtDisplay(widget);
+      Window src = RootWindowOfScreen(XtScreen(widget));
+      Window dst = XtWindow(widget), kid = None;
+      int sx = (xevent->xclient.data.l[2] >> 16) & 0xffff, dx = 0;
+      int sy = (xevent->xclient.data.l[2] >>  0) & 0xffff, dy = 0;
+      while((src != None) && (dst != None) && (XTranslateCoordinates(dpy, src, dst, sx, sy, &dx, &dy, &kid) != False)) {
+        src = dst;
+        sx  = dx;
+        sy  = dy;
+        dst = kid;
+      }
+      /*
+      if(src != None) {
+        (void) printf("XdndPosition => %s: %4d - %4d\n\n", XtName(XtWindowToWidget(dpy, src)), sx, sy);
+      }
+      */
       reply.xclient.type         = ClientMessage;
       reply.xclient.serial       = 0;
       reply.xclient.send_event   = True;

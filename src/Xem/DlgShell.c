@@ -27,6 +27,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 
+static void ClassInitialize(void);
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args);
 static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attributes);
 static void Destroy(Widget widget);
@@ -63,6 +64,11 @@ static XtResource resources[] = {
 };
 
 /*
+ * XemDlgShellWidget::SuperClass
+ */
+static WidgetClass XemDlgShellSuperClass = (WidgetClass) NULL;
+
+/*
  * XemDlgShellWidget::Class
  */
 externaldef(xemdlgshellclassrec) XemDlgShellClassRec xemDlgShellClassRec = {
@@ -70,7 +76,7 @@ externaldef(xemdlgshellclassrec) XemDlgShellClassRec xemDlgShellClassRec = {
     (WidgetClass) &transientShellClassRec,   /* superclass                   */
     "XemDlgShell",                           /* class_name                   */
     sizeof(XemDlgShellRec),                  /* widget_size                  */
-    NULL,                                    /* class_initialize             */
+    ClassInitialize,                         /* class_initialize             */
     NULL,                                    /* class_part_initialize        */
     FALSE,                                   /* class_inited                 */
     Initialize,                              /* initialize                   */
@@ -125,6 +131,14 @@ externaldef(xemdlgshellclassrec) XemDlgShellClassRec xemDlgShellClassRec = {
 };
 
 externaldef(xemdlgshellwidgetclass) WidgetClass xemDlgShellWidgetClass = (WidgetClass) &xemDlgShellClassRec;
+
+/**
+ * XemDlgShellWidget::ClassInitialize()
+ */
+static void ClassInitialize(void)
+{
+  XemDlgShellSuperClass = xemDlgShellClassRec.core_class.superclass;
+}
 
 /**
  * XemDlgShellWidget::Initialize()
@@ -182,7 +196,9 @@ static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attr
     }
     (void) XtMakeGeometryRequest(widget, &request, &request);
   }
-  (*xemDlgShellWidgetClass->core_class.superclass->core_class.realize)(widget, mask, attributes);
+  if(XemDlgShellSuperClass->core_class.realize != NULL) {
+    (*XemDlgShellSuperClass->core_class.realize)(widget, mask, attributes);
+  }
   if(self->core.window != None) {
     if(self->dlg_shell.WM_DELETE_WINDOW != None) {
       (void) XSetWMProtocols(DisplayOfScreen(self->core.screen), self->core.window, &self->dlg_shell.WM_DELETE_WINDOW, 1);

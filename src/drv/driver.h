@@ -38,11 +38,12 @@ typedef struct _GdrvDriverClass GdrvDriverClass;
 
 struct _GdrvDriver {
   GObject parent_instance;
-  Display *display;
+  XImage  *ximage;
   Screen  *screen;
   Visual  *visual;
-  XImage  *ximage;
   Window   window;
+  Colormap colmap;
+  int      depth;
 };
 
 struct _GdrvDriverClass {

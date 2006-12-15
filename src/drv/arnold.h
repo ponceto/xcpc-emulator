@@ -37,11 +37,13 @@ G_BEGIN_DECLS
 #define GDRV_IS_ARNOLD_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GDRV_TYPE_ARNOLD))
 #define GDRV_ARNOLD_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), GDRV_TYPE_ARNOLD, GdrvArnoldClass))
 
-typedef struct _GdrvArnold      GdrvArnold;
-typedef struct _GdrvArnoldClass GdrvArnoldClass;
+typedef struct _GdrvArnold        GdrvArnold;
+typedef struct _GdrvArnoldClass   GdrvArnoldClass;
+typedef struct _GdrvArnoldPrivate GdrvArnoldPrivate;
 
 struct _GdrvArnold {
   GdrvDriver driver;
+  GdrvArnoldPrivate *priv;
   GdevZ80CPU *z80cpu;
   GdevGArray *garray;
   GdevCPCKBD *cpckbd;
@@ -49,8 +51,6 @@ struct _GdrvArnold {
   GdevAY8910 *ay8910;
   GdevUPD765 *upd765;
   GdevI8255  *i8255;
-  /*< private >*/
-  gpointer priv;
 };
 
 struct _GdrvArnoldClass {

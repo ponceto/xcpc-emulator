@@ -24,11 +24,10 @@
 #include <sys/time.h>
 #include "arnold.h"
 
-typedef struct _GdrvArnoldPrivate GdrvArnoldPrivate;
-
 struct _GdrvArnoldPrivate {
   struct timeval timer1;
   struct timeval timer2;
+  GTimer *gtimer;
   int num_frames;
   int drw_frames;
 };
@@ -69,8 +68,12 @@ static void gdrv_arnold_class_init(GdrvArnoldClass *arnold_class)
  */
 static void gdrv_arnold_init(GdrvArnold *arnold)
 {
-  GdrvArnoldPrivate *priv = GDRV_ARNOLD_GET_PRIVATE(arnold);
-
+  arnold->priv = GDRV_ARNOLD_GET_PRIVATE(arnold);
+  (void) gettimeofday(&arnold->priv->timer1, NULL);
+  (void) gettimeofday(&arnold->priv->timer2, NULL);
+  arnold->priv->gtimer = g_timer_new();
+  arnold->priv->num_frames = 0;
+  arnold->priv->drw_frames = 0;
   arnold->z80cpu = gdev_z80cpu_new();
   arnold->garray = gdev_garray_new();
   arnold->cpckbd = gdev_cpckbd_new();
@@ -78,11 +81,6 @@ static void gdrv_arnold_init(GdrvArnold *arnold)
   arnold->ay8910 = gdev_ay8910_new();
   arnold->upd765 = gdev_upd765_new();
   arnold->i8255  = gdev_i8255_new();
-  (void) gettimeofday(&priv->timer1, NULL);
-  (void) gettimeofday(&priv->timer2, NULL);
-  priv->num_frames = 0;
-  priv->drw_frames = 0;
-  arnold->priv = priv;
 }
 
 /**
@@ -146,6 +144,17 @@ static void gdrv_arnold_event(GdrvDriver *driver, XEvent *xevent)
     case MotionNotify:
       break;
     case Expose:
+      if(driver->window == None) {
+        XWindowAttributes xwinattr;
+        if(XGetWindowAttributes(xevent->xexpose.display, xevent->xexpose.window, &xwinattr) != 0) {
+          driver->ximage = NULL;
+          driver->screen = xwinattr.screen;
+          driver->visual = xwinattr.visual;
+          driver->window = xevent->xexpose.window;
+          driver->colmap = xwinattr.colormap;
+          driver->depth  = xwinattr.depth;
+        }
+      }
       break;
     default:
       break;
@@ -203,6 +212,10 @@ static void gdrv_arnold_finalize(GObject *object)
 {
   GdrvArnold *arnold = GDRV_ARNOLD(object);
 
+  if(arnold->priv->gtimer != NULL) {
+    g_timer_destroy(arnold->priv->gtimer);
+    arnold->priv->gtimer = (GTimer *) NULL;
+  }
   if(G_OBJECT_CLASS(gdrv_arnold_parent_class)->finalize != NULL) {
     (*G_OBJECT_CLASS(gdrv_arnold_parent_class)->finalize)(object);
   }
