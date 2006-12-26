@@ -137,6 +137,12 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
   XemEmulatorWidget self = (XemEmulatorWidget) widget;
   Widget shell = XtParent(widget);
 
+  if(request->core.width == 0) {
+    self->core.width = 640;
+  }
+  if(request->core.height == 0) {
+    self->core.height = 480;
+  }
   while((shell != NULL) && (XtIsShell(shell) == FALSE)) {
     shell = XtParent(shell);
   }
