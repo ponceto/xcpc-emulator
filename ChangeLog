@@ -1,7 +1,8 @@
-2006-12-18	Olivier Poncet <ponceto@noos.fr>
+2007-01-08	Olivier Poncet <ponceto@noos.fr>
 
-	* Some improvements & code cleanup.
-	* Amstrad CPC driver corrections.
+	* TODO section added into the README.
+	* Copyright modification for 2007.
+	* XemEmulator widget correction (thanks to Andrea Musuruane).
 
 2006-12-11	Olivier Poncet <ponceto@noos.fr>
 
