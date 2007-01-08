@@ -29,6 +29,7 @@ See 'INSTALL'
 
 EXECUTION
 ---------
+
 Usage:
   xcpc [OPTION...]
 
@@ -58,3 +59,9 @@ Application Options:
   --rom014=filename     16Kb expansion rom #014
   --rom015=filename     16Kb expansion rom #015
 
+TODO:
+-----
+
+	* Xcpc doesn't have sound emulation yet.
+	* Gtk2 / Gnome User Interface will come soon.
+	* You can emulate the joystick by disable the 'Num Lock' key.
