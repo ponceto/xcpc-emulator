@@ -1,3 +1,7 @@
+2007-01-22	Olivier Poncet <ponceto@noos.fr>
+
+	* Just a little correction to avoid a core dump.
+
 2007-01-08	Olivier Poncet <ponceto@noos.fr>
 
 	* TODO section added into the README.
