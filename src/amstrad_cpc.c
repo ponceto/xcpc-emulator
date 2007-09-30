@@ -49,6 +49,7 @@ static gchar    *cfg_model    = NULL;
 static gchar    *cfg_monitor  = NULL;
 static gchar    *cfg_keyboard = NULL;
 static gchar    *cfg_firmname = NULL;
+static gchar    *cfg_snapshot = NULL;
 static gchar    *cfg_sys_rom  = NULL;
 static gchar    *cfg_exp_rom[256] = {
   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -78,6 +79,7 @@ static GOptionEntry options[] = {
   { "monitor" , 0, 0, G_OPTION_ARG_STRING  , &cfg_monitor     , "color|green"                                           , "value"    },
   { "keyboard", 0, 0, G_OPTION_ARG_STRING  , &cfg_keyboard    , "qwerty|azerty"                                         , "value"    },
   { "firmname", 0, 0, G_OPTION_ARG_STRING  , &cfg_firmname    , "isp|triumph|saisho|solavox|awa|schneider|orion|amstrad", "value"    },
+  { "snapshot", 0, 0, G_OPTION_ARG_FILENAME, &cfg_snapshot    , "Snapshot to load at start"                             , "filename" },
   { "sysrom"  , 0, 0, G_OPTION_ARG_FILENAME, &cfg_sys_rom     , "32Kb system rom"                                       , "filename" },
   { "rom000"  , 0, 0, G_OPTION_ARG_FILENAME, &cfg_exp_rom[0x0], "16Kb expansion rom #00"                                , "filename" },
   { "rom001"  , 0, 0, G_OPTION_ARG_FILENAME, &cfg_exp_rom[0x1], "16Kb expansion rom #01"                                , "filename" },
@@ -1851,6 +1853,10 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   self->gtimer = g_timer_new();
   self->num_frames = 0;
   self->drw_frames = 0;
+  /* Load initial snapshot */
+  if(cfg_snapshot != NULL) {
+    amstrad_cpc_load_snapshot(cfg_snapshot);
+  }
 }
 
 void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
