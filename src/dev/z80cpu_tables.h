@@ -49,7 +49,7 @@
 }
 
 #define HLT_NULL_NULL(xxxx,yyyy,mc,ts) { \
-  z80cpu->IF.W|=IFF_HALT;z80cpu->PC.W--; \
+  z80cpu->IF.W|=IFF_HLT; \
   z80cpu->t_states-=ts; \
 }
 

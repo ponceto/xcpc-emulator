@@ -32,41 +32,29 @@ G_BEGIN_DECLS
 typedef struct _GdevZ80CPU      GdevZ80CPU;
 typedef struct _GdevZ80CPUClass GdevZ80CPUClass;
 
-#define INT_RST00   0x00c7     /* RST 00h                    */
-#define INT_RST08   0x00cf     /* RST 08h                    */
-#define INT_RST10   0x00d7     /* RST 10h                    */
-#define INT_RST18   0x00df     /* RST 18h                    */
-#define INT_RST20   0x00e7     /* RST 20h                    */
-#define INT_RST28   0x00ef     /* RST 28h                    */
-#define INT_RST30   0x00f7     /* RST 30h                    */
-#define INT_RST38   0x00ff     /* RST 38h                    */
-#define INT_IRQ     0x00ff     /* Default IRQ opcode is 0xff */
-#define INT_NMI     0xfffd     /* Non-maskable interrupt     */
+#define S_FLAG  0x80 /* 1: Result negative         */
+#define Z_FLAG  0x40 /* 1: Result is zero          */
+#define H_FLAG  0x10 /* 1: Halfcarry/Halfborrow    */
+#define P_FLAG  0x04 /* 1: Result is even          */
+#define V_FLAG  0x04 /* 1: Overflow occured        */
+#define N_FLAG  0x02 /* 1: Subtraction occured     */
+#define C_FLAG  0x01 /* 1: Carry/Borrow occured    */
 
-#define S_FLAG      0x80       /* 1: Result negative         */
-#define Z_FLAG      0x40       /* 1: Result is zero          */
-#define H_FLAG      0x10       /* 1: Halfcarry/Halfborrow    */
-#define P_FLAG      0x04       /* 1: Result is even          */
-#define V_FLAG      0x04       /* 1: Overflow occured        */
-#define N_FLAG      0x02       /* 1: Subtraction occured     */
-#define C_FLAG      0x01       /* 1: Carry/Borrow occured    */
-
-#define IFF_1       0x01       /* IFF1 flip-flop             */
-#define IFF_2       0x02       /* IFF2 flip-flop             */
-#define IFF_3       0x04       /* After EI instruction       */
-#define IFF_IM1     0x08       /* IM1 mode                   */
-#define IFF_IM2     0x10       /* IM2 mode                   */
-#define IFF_IRQ     0x20       /* Pending IRQ                */
-#define IFF_NMI     0x40       /* Pending NMI                */
-#define IFF_HALT    0x80       /* CPU HALTed                 */
+#define IFF_1   0x01 /* IFF1 flip-flop             */
+#define IFF_2   0x02 /* IFF2 flip-flop             */
+#define IFF_IM1 0x08 /* IM1 mode                   */
+#define IFF_IM2 0x10 /* IM2 mode                   */
+#define IFF_INT 0x20 /* Pending INT                */
+#define IFF_NMI 0x40 /* Pending NMI                */
+#define IFF_HLT 0x80 /* CPU HALTed                 */
 
 typedef union _GdevZ80REG {
   guint16 W;
-#ifdef LSB_FIRST
-  struct { guint8 l, h; } B;
-#endif
 #ifdef MSB_FIRST
   struct { guint8 h, l; } B;
+#endif
+#ifdef LSB_FIRST
+  struct { guint8 l, h; } B;
 #endif
 } GdevZ80REG;
 
@@ -92,8 +80,7 @@ struct _GdevZ80CPUClass {
 
 extern GType       gdev_z80cpu_get_type   (void);
 extern GdevZ80CPU *gdev_z80cpu_new        (void);
-extern void        gdev_z80cpu_intr       (GdevZ80CPU *z80cpu, guint16 vector);
-extern void        gdev_z80cpu_assert_irq (GdevZ80CPU *z80cpu);
+extern void        gdev_z80cpu_assert_int (GdevZ80CPU *z80cpu);
 extern void        gdev_z80cpu_assert_nmi (GdevZ80CPU *z80cpu);
 
 G_END_DECLS

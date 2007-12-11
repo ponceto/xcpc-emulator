@@ -96,11 +96,26 @@ start:
   if(T_STATES <= 0) {
     return;
   }
-  if((IF_W & IFF_HALT) != 0) {
-    T_STATES -= 4;
-    goto start;
+  if(z80cpu->IF.W & (IFF_HLT | IFF_NMI | IFF_INT)) {
+    if(z80cpu->IF.W & IFF_NMI) {
+      z80cpu->IF.W &= ~(IFF_HLT | IFF_NMI | IFF_INT | IFF_2);
+      (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_H);
+      (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_L);
+      PC_W = 0x0066; T_STATES -= 11;
+      goto start;
+    }
+    if(z80cpu->IF.W & IFF_INT) {
+      z80cpu->IF.W &= ~(IFF_HLT | IFF_NMI | IFF_INT | IFF_2 | IFF_1);
+      (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_H);
+      (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_L);
+      PC_W = 0x0038; T_STATES -= 13;
+      goto start;
+    }
+    if(z80cpu->IF.W & IFF_HLT) {
+      T_STATES -= 4;
+      goto start;
+    }
   }
-  IF_W &= ~IFF_3;
 
 decode_op:
   IR_L = (IR_L & 0x80) | ((IR_L + 1) & 0x7f);
@@ -949,78 +964,15 @@ GdevZ80CPU *gdev_z80cpu_new(void)
 }
 
 /**
- * GdevZ80CPU::intr()
- *
- * @param z80cpu specifies the GdevZ80CPU instance
- * @param vector specifies the Interrupt Vector
- */
-void gdev_z80cpu_intr(GdevZ80CPU *z80cpu, guint16 vector)
-{
-  if((IF_W & IFF_3) != 0) {
-    return;
-  }
-  if((IF_W & IFF_1) || (vector == INT_NMI)) {
-    /* If HALTed, take CPU off HALT instruction */
-    if((IF_W & IFF_HALT) != 0) {
-      IF_W &= ~IFF_HALT;
-      PC_W++;
-    }
-    /* PUSH PC */
-    (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_H);
-    (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_L);
-    /* If it is NMI... */
-    if(vector == INT_NMI) {
-      if(IF_W & IFF_1) {
-        IF_W |=  IFF_2;
-      }
-      else {
-        IF_W &= ~IFF_2;
-      }
-      IF_W &= ~(IFF_1 | IFF_3);
-      PC_W = 0x0066;
-      return;
-    }
-    /* Further interrupts off */
-    IF_W &= ~(IFF_1 | IFF_2 | IFF_3);
-    /* If in IM2 mode ... */
-    if(IF_W & IFF_IM2) {
-      vector = (IR_W & 0xff00) | (vector & 0x00ff);
-      PC_L = (*z80cpu->mreq_rd)(z80cpu, vector++);
-      PC_H = (*z80cpu->mreq_rd)(z80cpu, vector++);
-      return;
-    }
-    /* If in IM1 mode ... */
-    if(IF_W & IFF_IM1) {
-      PC_W = 0x0038;
-      return;
-    }
-    /* If in IM0 mode ... */
-    switch(vector) {
-      case INT_RST00: PC_W = 0x0000; break;
-      case INT_RST08: PC_W = 0x0008; break;
-      case INT_RST10: PC_W = 0x0010; break;
-      case INT_RST18: PC_W = 0x0018; break;
-      case INT_RST20: PC_W = 0x0020; break;
-      case INT_RST28: PC_W = 0x0028; break;
-      case INT_RST30: PC_W = 0x0030; break;
-      case INT_RST38: PC_W = 0x0038; break;
-    }
-  }
-}
-
-/**
- * GdevZ80CPU::assert_irq()
+ * GdevZ80CPU::assert_int()
  *
  * @param z80cpu specifies the GdevZ80CPU instance
  */
-void gdev_z80cpu_assert_irq(GdevZ80CPU *z80cpu)
+void gdev_z80cpu_assert_int(GdevZ80CPU *z80cpu)
 {
-  /* if cpu is halted, wake up */
-  if((IF_W & IFF_HALT) != 0) {
-    IF_W &= ~IFF_HALT;
-    PC_W++;
+  if(IF_W & IFF_1) {
+    IF_W |= IFF_INT;
   }
-  IF_W |= IFF_IRQ;
 }
 
 /**
@@ -1030,10 +982,5 @@ void gdev_z80cpu_assert_irq(GdevZ80CPU *z80cpu)
  */
 void gdev_z80cpu_assert_nmi(GdevZ80CPU *z80cpu)
 {
-  /* if cpu is halted, wake up */
-  if((IF_W & IFF_HALT) != 0) {
-    IF_W &= ~IFF_HALT;
-    PC_W++;
-  }
   IF_W |= IFF_NMI;
 }

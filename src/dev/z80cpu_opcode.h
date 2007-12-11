@@ -136,11 +136,11 @@ case OUTA: I=RdZ80(PC_W++);OutZ80((AF_W & 0xff00) | (I & 0x00ff), AF_H);break;
 case INA:  I=RdZ80(PC_W++);AF_H=InZ80((AF_W & 0xff00) | (I & 0x00ff));break;
 
 case DI:
-  IF_W &= ~(IFF_1 | IFF_2 | IFF_3);
+  IF_W &= ~(IFF_1 | IFF_2);
   break;
 
 case EI:
-  IF_W |=  (IFF_1 | IFF_2 | IFF_3);
+  IF_W |=  (IFF_1 | IFF_2);
   break;
 
 case CCF:
