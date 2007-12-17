@@ -11,10 +11,10 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-case JR_NZ:   if(AF_L&Z_FLAG) PC_W++; else { T_STATES-=5;M_JR; } break;
-case JR_NC:   if(AF_L&C_FLAG) PC_W++; else { T_STATES-=5;M_JR; } break;
-case JR_Z:    if(AF_L&Z_FLAG) { T_STATES-=5;M_JR; } else PC_W++; break;
-case JR_C:    if(AF_L&C_FLAG) { T_STATES-=5;M_JR; } else PC_W++; break;
+case JR_NZ:   if(AF_L&Z_FLAG) PC_W++; else { CCOUNTER-=5;M_JR; } break;
+case JR_NC:   if(AF_L&C_FLAG) PC_W++; else { CCOUNTER-=5;M_JR; } break;
+case JR_Z:    if(AF_L&Z_FLAG) { CCOUNTER-=5;M_JR; } else PC_W++; break;
+case JR_C:    if(AF_L&C_FLAG) { CCOUNTER-=5;M_JR; } else PC_W++; break;
 
 case JP_NZ:   if(AF_L&Z_FLAG) PC_W+=2; else { M_JP; } break;
 case JP_NC:   if(AF_L&C_FLAG) PC_W+=2; else { M_JP; } break;
@@ -25,23 +25,23 @@ case JP_C:    if(AF_L&C_FLAG) { M_JP; } else PC_W+=2; break;
 case JP_PE:   if(AF_L&P_FLAG) { M_JP; } else PC_W+=2; break;
 case JP_M:    if(AF_L&S_FLAG) { M_JP; } else PC_W+=2; break;
 
-case RET_NZ:  if(!(AF_L&Z_FLAG)) { T_STATES-=6;M_RET; } break;
-case RET_NC:  if(!(AF_L&C_FLAG)) { T_STATES-=6;M_RET; } break;
-case RET_PO:  if(!(AF_L&P_FLAG)) { T_STATES-=6;M_RET; } break;
-case RET_P:   if(!(AF_L&S_FLAG)) { T_STATES-=6;M_RET; } break;
-case RET_Z:   if(AF_L&Z_FLAG)    { T_STATES-=6;M_RET; } break;
-case RET_C:   if(AF_L&C_FLAG)    { T_STATES-=6;M_RET; } break;
-case RET_PE:  if(AF_L&P_FLAG)    { T_STATES-=6;M_RET; } break;
-case RET_M:   if(AF_L&S_FLAG)    { T_STATES-=6;M_RET; } break;
+case RET_NZ:  if(!(AF_L&Z_FLAG)) { CCOUNTER-=6;M_RET; } break;
+case RET_NC:  if(!(AF_L&C_FLAG)) { CCOUNTER-=6;M_RET; } break;
+case RET_PO:  if(!(AF_L&P_FLAG)) { CCOUNTER-=6;M_RET; } break;
+case RET_P:   if(!(AF_L&S_FLAG)) { CCOUNTER-=6;M_RET; } break;
+case RET_Z:   if(AF_L&Z_FLAG)    { CCOUNTER-=6;M_RET; } break;
+case RET_C:   if(AF_L&C_FLAG)    { CCOUNTER-=6;M_RET; } break;
+case RET_PE:  if(AF_L&P_FLAG)    { CCOUNTER-=6;M_RET; } break;
+case RET_M:   if(AF_L&S_FLAG)    { CCOUNTER-=6;M_RET; } break;
 
-case CALL_NZ: if(AF_L&Z_FLAG) PC_W+=2; else { T_STATES-=7;M_CALL; } break;
-case CALL_NC: if(AF_L&C_FLAG) PC_W+=2; else { T_STATES-=7;M_CALL; } break;
-case CALL_PO: if(AF_L&P_FLAG) PC_W+=2; else { T_STATES-=7;M_CALL; } break;
-case CALL_P:  if(AF_L&S_FLAG) PC_W+=2; else { T_STATES-=7;M_CALL; } break;
-case CALL_Z:  if(AF_L&Z_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
-case CALL_C:  if(AF_L&C_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
-case CALL_PE: if(AF_L&P_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
-case CALL_M:  if(AF_L&S_FLAG) { T_STATES-=7;M_CALL; } else PC_W+=2; break;
+case CALL_NZ: if(AF_L&Z_FLAG) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
+case CALL_NC: if(AF_L&C_FLAG) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
+case CALL_PO: if(AF_L&P_FLAG) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
+case CALL_P:  if(AF_L&S_FLAG) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
+case CALL_Z:  if(AF_L&Z_FLAG) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
+case CALL_C:  if(AF_L&C_FLAG) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
+case CALL_PE: if(AF_L&P_FLAG) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
+case CALL_M:  if(AF_L&S_FLAG) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
 
 case ADD_BYTE: I=RdZ80(PC_W++);M_ADD(I);break;
 
@@ -136,7 +136,7 @@ case POP_DE:   M_POP(DE);break;
 case POP_HL:   M_POP(XX);break;
 case POP_AF:   M_POP(AF);break;
 
-case DJNZ: if(--BC_H) { T_STATES-=5;M_JR; } else PC_W++;break;
+case DJNZ: if(--BC_H) { CCOUNTER-=5;M_JR; } else PC_W++;break;
 case JP:   M_JP;break;
 case JR:   M_JR;break;
 case CALL: M_CALL;break;

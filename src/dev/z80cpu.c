@@ -77,8 +77,11 @@ static void gdev_z80cpu_reset(GdevZ80CPU *z80cpu)
   z80cpu->PC.W     = 0x0000;
   z80cpu->IR.W     = 0x0000;
   z80cpu->IF.W     = 0x0000;
+  /*
   z80cpu->m_cycles = 0;
   z80cpu->t_states = 0;
+  */
+  z80cpu->ccounter = 0;
 }
 
 /**
@@ -93,7 +96,7 @@ static void gdev_z80cpu_clock(GdevZ80CPU *z80cpu)
   guint8 opcode;
 
 start:
-  if(T_STATES <= 0) {
+  if(CCOUNTER <= 0) {
     return;
   }
   if(z80cpu->IF.W & (IFF_HLT | IFF_NMI | IFF_INT)) {
@@ -101,18 +104,18 @@ start:
       z80cpu->IF.W &= ~(IFF_HLT | IFF_NMI | IFF_INT | IFF_2);
       (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_H);
       (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_L);
-      PC_W = 0x0066; T_STATES -= 11;
+      PC_W = 0x0066; CCOUNTER -= 11;
       goto start;
     }
     if(z80cpu->IF.W & IFF_INT) {
       z80cpu->IF.W &= ~(IFF_HLT | IFF_NMI | IFF_INT | IFF_2 | IFF_1);
       (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_H);
       (*z80cpu->mreq_wr)(z80cpu, --SP_W, PC_L);
-      PC_W = 0x0038; T_STATES -= 13;
+      PC_W = 0x0038; CCOUNTER -= 13;
       goto start;
     }
     if(z80cpu->IF.W & IFF_HLT) {
-      T_STATES -= 4;
+      CCOUNTER -= 4;
       goto start;
     }
   }
@@ -131,13 +134,13 @@ decode_op:
     case 0x1b: /* DEC DE       */ DEC_RG16_NULL(DE_W, NULL, 1,  6); goto start;
     case 0x2b: /* DEC HL       */ DEC_RG16_NULL(HL_W, NULL, 1,  6); goto start;
     case 0x3b: /* DEC SP       */ DEC_RG16_NULL(SP_W, NULL, 1,  6); goto start;
-    case 0x06: /* LD B,n       */ MOV_RG08_IM08(BC_H, PC_W, 2,  7); goto start;
-    case 0x0e: /* LD C,n       */ MOV_RG08_IM08(BC_L, PC_W, 2,  7); goto start;
-    case 0x16: /* LD D,n       */ MOV_RG08_IM08(DE_H, PC_W, 2,  7); goto start;
-    case 0x1e: /* LD E,n       */ MOV_RG08_IM08(DE_L, PC_W, 2,  7); goto start;
-    case 0x26: /* LD H,n       */ MOV_RG08_IM08(HL_H, PC_W, 2,  7); goto start;
-    case 0x2e: /* LD L,n       */ MOV_RG08_IM08(HL_L, PC_W, 2,  7); goto start;
-    case 0x3e: /* LD A,n       */ MOV_RG08_IM08(AF_H, PC_W, 2,  7); goto start;
+    case 0x06: /* LD B,n       */ MOV_RG08_IM08(BC_H, NULL, 2,  7); goto start;
+    case 0x0e: /* LD C,n       */ MOV_RG08_IM08(BC_L, NULL, 2,  7); goto start;
+    case 0x16: /* LD D,n       */ MOV_RG08_IM08(DE_H, NULL, 2,  7); goto start;
+    case 0x1e: /* LD E,n       */ MOV_RG08_IM08(DE_L, NULL, 2,  7); goto start;
+    case 0x26: /* LD H,n       */ MOV_RG08_IM08(HL_H, NULL, 2,  7); goto start;
+    case 0x2e: /* LD L,n       */ MOV_RG08_IM08(HL_L, NULL, 2,  7); goto start;
+    case 0x3e: /* LD A,n       */ MOV_RG08_IM08(AF_H, NULL, 2,  7); goto start;
     case 0x40: /* LD B,B       */ MOV_RG08_RG08(BC_H, BC_H, 1,  4); goto start;
     case 0x41: /* LD B,C       */ MOV_RG08_RG08(BC_H, BC_L, 1,  4); goto start;
     case 0x42: /* LD B,D       */ MOV_RG08_RG08(BC_H, DE_H, 1,  4); goto start;
@@ -278,7 +281,7 @@ decode_op:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: %02X: illegal opcode", (PC_W - 1), opcode);
       goto start;
   }
-  T_STATES -= Cycles[opcode];
+  CCOUNTER -= Cycles[opcode];
   goto start;
 
 decode_cb:
@@ -559,13 +562,13 @@ decode_dd:
     case 0x1b: /* DEC DE       */ DEC_RG16_NULL(DE_W, NULL, 2, 10); goto start;
     case 0x2b: /* DEC IX       */ DEC_RG16_NULL(IX_W, NULL, 2, 10); goto start;
     case 0x3b: /* DEC SP       */ DEC_RG16_NULL(SP_W, NULL, 2, 10); goto start;
-    case 0x06: /* LD B,n       */ MOV_RG08_IM08(BC_H, PC_W, 3, 11); goto start;
-    case 0x0e: /* LD C,n       */ MOV_RG08_IM08(BC_L, PC_W, 3, 11); goto start;
-    case 0x16: /* LD D,n       */ MOV_RG08_IM08(DE_H, PC_W, 3, 11); goto start;
-    case 0x1e: /* LD E,n       */ MOV_RG08_IM08(DE_L, PC_W, 3, 11); goto start;
-    case 0x26: /* LD IXh,n     */ MOV_RG08_IM08(IX_H, PC_W, 3, 11); goto start;
-    case 0x2e: /* LD IXl,n     */ MOV_RG08_IM08(IX_L, PC_W, 3, 11); goto start;
-    case 0x3e: /* LD A,n       */ MOV_RG08_IM08(AF_H, PC_W, 3, 11); goto start;
+    case 0x06: /* LD B,n       */ MOV_RG08_IM08(BC_H, NULL, 3, 11); goto start;
+    case 0x0e: /* LD C,n       */ MOV_RG08_IM08(BC_L, NULL, 3, 11); goto start;
+    case 0x16: /* LD D,n       */ MOV_RG08_IM08(DE_H, NULL, 3, 11); goto start;
+    case 0x1e: /* LD E,n       */ MOV_RG08_IM08(DE_L, NULL, 3, 11); goto start;
+    case 0x26: /* LD IXh,n     */ MOV_RG08_IM08(IX_H, NULL, 3, 11); goto start;
+    case 0x2e: /* LD IXl,n     */ MOV_RG08_IM08(IX_L, NULL, 3, 11); goto start;
+    case 0x3e: /* LD A,n       */ MOV_RG08_IM08(AF_H, NULL, 3, 11); goto start;
     case 0x40: /* LD B,B       */ MOV_RG08_RG08(BC_H, BC_H, 2,  8); goto start;
     case 0x41: /* LD B,C       */ MOV_RG08_RG08(BC_H, BC_L, 2,  8); goto start;
     case 0x42: /* LD B,D       */ MOV_RG08_RG08(BC_H, DE_H, 2,  8); goto start;
@@ -700,7 +703,7 @@ decode_dd:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: DD %02X: illegal opcode", (PC_W - 2), opcode);
       goto start;
   }
-  T_STATES -= CyclesXX[opcode];
+  CCOUNTER -= CyclesXX[opcode];
   goto start;
 
 decode_dd_cb:
@@ -751,7 +754,7 @@ decode_ed:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: ED %02X: illegal opcode", (PC_W - 2), opcode);
       goto start;
   }
-  T_STATES -= CyclesED[opcode];
+  CCOUNTER -= CyclesED[opcode];
   goto start;
 
 decode_fd:
@@ -768,13 +771,13 @@ decode_fd:
     case 0x1b: /* DEC DE       */ DEC_RG16_NULL(DE_W, NULL, 2, 10); goto start;
     case 0x2b: /* DEC IY       */ DEC_RG16_NULL(IY_W, NULL, 2, 10); goto start;
     case 0x3b: /* DEC SP       */ DEC_RG16_NULL(SP_W, NULL, 2, 10); goto start;
-    case 0x06: /* LD B,n       */ MOV_RG08_IM08(BC_H, PC_W, 3, 11); goto start;
-    case 0x0e: /* LD C,n       */ MOV_RG08_IM08(BC_L, PC_W, 3, 11); goto start;
-    case 0x16: /* LD D,n       */ MOV_RG08_IM08(DE_H, PC_W, 3, 11); goto start;
-    case 0x1e: /* LD E,n       */ MOV_RG08_IM08(DE_L, PC_W, 3, 11); goto start;
-    case 0x26: /* LD IYh,n     */ MOV_RG08_IM08(IY_H, PC_W, 3, 11); goto start;
-    case 0x2e: /* LD IYl,n     */ MOV_RG08_IM08(IY_L, PC_W, 3, 11); goto start;
-    case 0x3e: /* LD A,n       */ MOV_RG08_IM08(AF_H, PC_W, 3, 11); goto start;
+    case 0x06: /* LD B,n       */ MOV_RG08_IM08(BC_H, NULL, 3, 11); goto start;
+    case 0x0e: /* LD C,n       */ MOV_RG08_IM08(BC_L, NULL, 3, 11); goto start;
+    case 0x16: /* LD D,n       */ MOV_RG08_IM08(DE_H, NULL, 3, 11); goto start;
+    case 0x1e: /* LD E,n       */ MOV_RG08_IM08(DE_L, NULL, 3, 11); goto start;
+    case 0x26: /* LD IYh,n     */ MOV_RG08_IM08(IY_H, NULL, 3, 11); goto start;
+    case 0x2e: /* LD IYl,n     */ MOV_RG08_IM08(IY_L, NULL, 3, 11); goto start;
+    case 0x3e: /* LD A,n       */ MOV_RG08_IM08(AF_H, NULL, 3, 11); goto start;
     case 0x40: /* LD B,B       */ MOV_RG08_RG08(BC_H, BC_H, 2,  8); goto start;
     case 0x41: /* LD B,C       */ MOV_RG08_RG08(BC_H, BC_L, 2,  8); goto start;
     case 0x42: /* LD B,D       */ MOV_RG08_RG08(BC_H, DE_H, 2,  8); goto start;
@@ -909,7 +912,7 @@ decode_fd:
       g_log(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, "%04X: FD %02X: illegal opcode", (PC_W - 2), opcode);
       goto start;
   }
-  T_STATES -= CyclesXX[opcode];
+  CCOUNTER -= CyclesXX[opcode];
   goto start;
 
 decode_fd_cb:

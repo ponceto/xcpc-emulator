@@ -32,21 +32,21 @@ G_BEGIN_DECLS
 typedef struct _GdevZ80CPU      GdevZ80CPU;
 typedef struct _GdevZ80CPUClass GdevZ80CPUClass;
 
-#define S_FLAG  0x80 /* 1: Result negative         */
-#define Z_FLAG  0x40 /* 1: Result is zero          */
-#define H_FLAG  0x10 /* 1: Halfcarry/Halfborrow    */
-#define P_FLAG  0x04 /* 1: Result is even          */
-#define V_FLAG  0x04 /* 1: Overflow occured        */
-#define N_FLAG  0x02 /* 1: Subtraction occured     */
-#define C_FLAG  0x01 /* 1: Carry/Borrow occured    */
+#define S_FLAG  0x80 /* Sign                   */
+#define Z_FLAG  0x40 /* Zero                   */
+#define H_FLAG  0x10 /* HalfCarry / HalfBorrow */
+#define P_FLAG  0x04 /* Parity                 */
+#define V_FLAG  0x04 /* Overflow               */
+#define N_FLAG  0x02 /* Add / Sub              */
+#define C_FLAG  0x01 /* Carry / Borrow         */
 
-#define IFF_1   0x01 /* IFF1 flip-flop             */
-#define IFF_2   0x02 /* IFF2 flip-flop             */
-#define IFF_IM1 0x08 /* IM1 mode                   */
-#define IFF_IM2 0x10 /* IM2 mode                   */
-#define IFF_INT 0x20 /* Pending INT                */
-#define IFF_NMI 0x40 /* Pending NMI                */
-#define IFF_HLT 0x80 /* CPU HALTed                 */
+#define IFF_1   0x01 /* Interrupt Flip-Flop #1 */
+#define IFF_2   0x02 /* Interrupt Flip-Flop #2 */
+#define IFF_IM1 0x08 /* Interrupt Mode #1      */
+#define IFF_IM2 0x10 /* Interrupt Mode #2      */
+#define IFF_INT 0x20 /* Pending INT            */
+#define IFF_NMI 0x40 /* Pending NMI            */
+#define IFF_HLT 0x80 /* CPU is HALTed          */
 
 typedef union _GdevZ80REG {
   guint16 W;
@@ -67,6 +67,7 @@ struct _GdevZ80CPU {
   GdevZ80REG IR, IF;          /* Interrupt & Refresh */
   gint32     m_cycles;        /* M-Cycles counter    */
   gint32     t_states;        /* T-States counter    */
+  gint32     ccounter;        /* Periodic counter    */
   /* User functions */
   guint8 (*mreq_rd)(GdevZ80CPU *z80cpu, guint16 addr);
   void   (*mreq_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
