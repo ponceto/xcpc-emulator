@@ -34,7 +34,7 @@ xcpc_LDADD = \
 	./dev/libdev.a \
 	$(X_LIBS) -lXm -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
-	$(X_EXTRA_LIBS) $(GLIB_LIBS) -ldsk -lm
+	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm
 endif
 
 if ATHENA
@@ -46,7 +46,7 @@ xcpc_LDADD = \
 	./dev/libdev.a \
 	$(X_LIBS) -lXaw -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
-	$(X_EXTRA_LIBS) $(GLIB_LIBS) -ldsk -lm
+	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm
 endif
 
 pixmapsdir = "$(datadir)/pixmaps"

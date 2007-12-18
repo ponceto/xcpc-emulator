@@ -19,7 +19,7 @@
 
 #include <stdarg.h>
 #include <limits.h>
-#include <libdsk.h>
+#include "libdsk.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -33,7 +33,6 @@ if test "x${enable_debug}" != "xyes"; then
   AC_DEFINE([G_DISABLE_CHECKS],      [1], [Define to 1 to disable GLib/GObject checks.])
   AC_DEFINE([G_DISABLE_CAST_CHECKS], [1], [Define to 1 to disable GObject cast checks.])
 fi
-AC_CHECK_HEADER([libdsk.h], [have_libdsk="yes"], [AC_MSG_ERROR([libdsk is required !!])])
 AC_ARG_WITH([motif1], [AC_HELP_STRING([--with-motif1], [build the Motif1 version])])
 AC_CHECK_HEADER([Xm/Xm.h],
 [have_motif1="yes"], [have_motif1="no"], [
@@ -107,7 +106,6 @@ AC_OUTPUT
 AC_MSG_NOTICE([Configured to build Xcpc:
 
   GLib20 sdk .... ${have_glib20}
-  LibDSK sdk .... ${have_libdsk}
   Motif1 sdk .... ${have_motif1}
   Athena sdk .... ${have_athena}
   gui toolkit ... ${gui_toolkit}
