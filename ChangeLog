@@ -1,3 +1,10 @@
+2008-01-11	Olivier Poncet <ponceto@noos.fr>
+
+	* Copyright modification for 2008.
+	* Initial snapshot loading (--snapshot=filename).
+	* Embedded libdsk (external dependency removed).
+	* Z80 core cleanup & reimplementation.
+
 2007-01-22	Olivier Poncet <ponceto@noos.fr>
 
 	* Just a little correction to avoid a core dump.
