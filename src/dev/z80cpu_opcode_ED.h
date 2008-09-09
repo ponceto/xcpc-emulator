@@ -72,17 +72,17 @@ case LD_SP_xWORDe:
   break;
 
 case RRD:
-  I=RdZ80(HL_W);
-  WZ_L=(I>>4)|(AF_H<<4);
+  TMP1=RdZ80(HL_W);
+  WZ_L=(TMP1>>4)|(AF_H<<4);
   WrZ80(HL_W,WZ_L);
-  AF_H=(I&0x0F)|(AF_H&0xF0);
+  AF_H=(TMP1&0x0F)|(AF_H&0xF0);
   AF_L=PZSTable[AF_H]|(AF_L&C_FLAG);
   break;
 case RLD:
-  I=RdZ80(HL_W);
-  WZ_L=(I<<4)|(AF_H&0x0F);
+  TMP1=RdZ80(HL_W);
+  WZ_L=(TMP1<<4)|(AF_H&0x0F);
   WrZ80(HL_W,WZ_L);
-  AF_H=(I>>4)|(AF_H&0xF0);
+  AF_H=(TMP1>>4)|(AF_H&0xF0);
   AF_L=PZSTable[AF_H]|(AF_L&C_FLAG);
   break;
 
@@ -107,7 +107,7 @@ case RETI:     M_RET;break;
 case RETN:     if(IF_W&IFF_2) IF_W|=IFF_1; else IF_W&=~IFF_1;
                M_RET;break;
 
-case NEG:      I=AF_H;AF_H=0;M_SUB(I);break;
+case NEG:      TMP1=AF_H;AF_H=0;M_SUB(TMP1);break;
 
 case IN_B_xC:  M_IN(BC_H);break;
 case IN_C_xC:  M_IN(BC_L);break;
@@ -161,57 +161,57 @@ case INDR:
   break;
 
 case OUTI:
-  I=RdZ80(HL_W++);
+  TMP1=RdZ80(HL_W++);
   BC_H--;
-  OutZ80(BC_W,I);
-  AF_L=N_FLAG|(BC_H? 0:Z_FLAG)|(HL_L+I>255? (C_FLAG|H_FLAG):0);
+  OutZ80(BC_W,TMP1);
+  AF_L=N_FLAG|(BC_H? 0:Z_FLAG)|(HL_L+TMP1>255? (C_FLAG|H_FLAG):0);
   break;
 
 case OTIR:
   do
   {
-    I=RdZ80(HL_W++);
+    TMP1=RdZ80(HL_W++);
     BC_H--;
-    OutZ80(BC_W,I);
+    OutZ80(BC_W,TMP1);
     CCOUNTER-=21;
   }
   while(BC_H&&(CCOUNTER>0));
   if(BC_H)
   {
-    AF_L=N_FLAG|(HL_L+I>255? (C_FLAG|H_FLAG):0);
+    AF_L=N_FLAG|(HL_L+TMP1>255? (C_FLAG|H_FLAG):0);
     PC_W-=2;
   }
   else
   {
-    AF_L=Z_FLAG|N_FLAG|(HL_L+I>255? (C_FLAG|H_FLAG):0);
+    AF_L=Z_FLAG|N_FLAG|(HL_L+TMP1>255? (C_FLAG|H_FLAG):0);
     CCOUNTER+=5;
   }
   break;
 
 case OUTD:
-  I=RdZ80(HL_W--);
+  TMP1=RdZ80(HL_W--);
   BC_H--;
-  OutZ80(BC_W,I);
-  AF_L=N_FLAG|(BC_H? 0:Z_FLAG)|(HL_L+I>255? (C_FLAG|H_FLAG):0);
+  OutZ80(BC_W,TMP1);
+  AF_L=N_FLAG|(BC_H? 0:Z_FLAG)|(HL_L+TMP1>255? (C_FLAG|H_FLAG):0);
   break;
 
 case OTDR:
   do
   {
-    I=RdZ80(HL_W--);
+    TMP1=RdZ80(HL_W--);
     BC_H--;
-    OutZ80(BC_W,I);
+    OutZ80(BC_W,TMP1);
     CCOUNTER-=21;
   }
   while(BC_H&&(CCOUNTER>0));
   if(BC_H)
   {
-    AF_L=N_FLAG|(HL_L+I>255? (C_FLAG|H_FLAG):0);
+    AF_L=N_FLAG|(HL_L+TMP1>255? (C_FLAG|H_FLAG):0);
     PC_W-=2;
   }
   else
   {
-    AF_L=Z_FLAG|N_FLAG|(HL_L+I>255? (C_FLAG|H_FLAG):0);
+    AF_L=Z_FLAG|N_FLAG|(HL_L+TMP1>255? (C_FLAG|H_FLAG):0);
     CCOUNTER+=5;
   }
   break;
@@ -253,47 +253,47 @@ case LDDR:
   break;
 
 case CPI:
-  I=RdZ80(HL_W++);
-  WZ_L=AF_H-I;
+  TMP1=RdZ80(HL_W++);
+  WZ_L=AF_H-TMP1;
   BC_W--;
   AF_L =
     N_FLAG|(AF_L&C_FLAG)|ZSTable[WZ_L]|
-    ((AF_H^I^WZ_L)&H_FLAG)|(BC_W? P_FLAG:0);
+    ((AF_H^TMP1^WZ_L)&H_FLAG)|(BC_W? P_FLAG:0);
   break;
 
 case CPIR:
   do
   {
-    I=RdZ80(HL_W++);
-    WZ_L=AF_H-I;
+    TMP1=RdZ80(HL_W++);
+    WZ_L=AF_H-TMP1;
     BC_W--;CCOUNTER-=21;
   }  
   while(BC_W&&WZ_L&&(CCOUNTER>0));
   AF_L =
     N_FLAG|(AF_L&C_FLAG)|ZSTable[WZ_L]|
-    ((AF_H^I^WZ_L)&H_FLAG)|(BC_W? P_FLAG:0);
+    ((AF_H^TMP1^WZ_L)&H_FLAG)|(BC_W? P_FLAG:0);
   if(BC_W&&WZ_L) PC_W-=2; else CCOUNTER+=5;
   break;  
 
 case CPD:
-  I=RdZ80(HL_W--);
-  WZ_L=AF_H-I;
+  TMP1=RdZ80(HL_W--);
+  WZ_L=AF_H-TMP1;
   BC_W--;
   AF_L =
     N_FLAG|(AF_L&C_FLAG)|ZSTable[WZ_L]|
-    ((AF_H^I^WZ_L)&H_FLAG)|(BC_W? P_FLAG:0);
+    ((AF_H^TMP1^WZ_L)&H_FLAG)|(BC_W? P_FLAG:0);
   break;
 
 case CPDR:
   do
   {
-    I=RdZ80(HL_W--);
-    WZ_L=AF_H-I;
+    TMP1=RdZ80(HL_W--);
+    WZ_L=AF_H-TMP1;
     BC_W--;CCOUNTER-=21;
   }
   while(BC_W&&WZ_L);
   AF_L =
     N_FLAG|(AF_L&C_FLAG)|ZSTable[WZ_L]|
-    ((AF_H^I^WZ_L)&H_FLAG)|(BC_W? P_FLAG:0);
+    ((AF_H^TMP1^WZ_L)&H_FLAG)|(BC_W? P_FLAG:0);
   if(BC_W&&WZ_L) PC_W-=2; else CCOUNTER+=5;
   break;
