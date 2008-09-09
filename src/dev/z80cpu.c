@@ -92,8 +92,8 @@ static void gdev_z80cpu_reset(GdevZ80CPU *z80cpu)
 static void gdev_z80cpu_clock(GdevZ80CPU *z80cpu)
 {
   GdevZ80REG WZ;
-  guint8 TMP1, _I;
-  guint8 TMP2, _J;
+  guint8 TMP1;
+  guint8 TMP2;
   guint8 opcode;
 
 next:
