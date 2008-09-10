@@ -1838,8 +1838,10 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   self->upd765 = gdev_upd765_new();
   self->i8255  = gdev_i8255_new();
   /* XXX */
+  self->z80cpu->mreq_m1 = z80cpu_mreq_rd;
   self->z80cpu->mreq_rd = z80cpu_mreq_rd;
   self->z80cpu->mreq_wr = z80cpu_mreq_wr;
+  self->z80cpu->iorq_m1 = z80cpu_iorq_rd;
   self->z80cpu->iorq_rd = z80cpu_iorq_rd;
   self->z80cpu->iorq_wr = z80cpu_iorq_wr;
   self->mc6845->hsync = mc6845_hsync;

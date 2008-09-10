@@ -69,8 +69,10 @@ struct _GdevZ80CPU {
   gint32     t_states;        /* T-States counter    */
   gint32     ccounter;        /* Periodic counter    */
   /* User functions */
+  guint8 (*mreq_m1)(GdevZ80CPU *z80cpu, guint16 addr);
   guint8 (*mreq_rd)(GdevZ80CPU *z80cpu, guint16 addr);
   void   (*mreq_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
+  guint8 (*iorq_m1)(GdevZ80CPU *z80cpu, guint16 addr);
   guint8 (*iorq_rd)(GdevZ80CPU *z80cpu, guint16 addr);
   void   (*iorq_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
 };
