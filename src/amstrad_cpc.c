@@ -1285,45 +1285,45 @@ void amstrad_cpc_load_snapshot(char *filename)
   } bufptr += 8;
   bufptr += 8; /* not used */
   bufptr++; /* snapshot version */
-  self->z80cpu->AF.B.l = *bufptr++;
-  self->z80cpu->AF.B.h = *bufptr++;
-  self->z80cpu->BC.B.l = *bufptr++;
-  self->z80cpu->BC.B.h = *bufptr++;
-  self->z80cpu->DE.B.l = *bufptr++;
-  self->z80cpu->DE.B.h = *bufptr++;
-  self->z80cpu->HL.B.l = *bufptr++;
-  self->z80cpu->HL.B.h = *bufptr++;
-  self->z80cpu->IR.B.l = *bufptr++;
-  self->z80cpu->IR.B.h = *bufptr++;
-  self->z80cpu->IF.W = (*bufptr++ != 0 ? self->z80cpu->IF.W | IFF_1 : self->z80cpu->IF.W & (~IFF_2));
-  self->z80cpu->IF.W = (*bufptr++ != 0 ? self->z80cpu->IF.W | IFF_1 : self->z80cpu->IF.W & (~IFF_2));
-  self->z80cpu->IX.B.l = *bufptr++;
-  self->z80cpu->IX.B.h = *bufptr++;
-  self->z80cpu->IY.B.l = *bufptr++;
-  self->z80cpu->IY.B.h = *bufptr++;
-  self->z80cpu->SP.B.l = *bufptr++;
-  self->z80cpu->SP.B.h = *bufptr++;
-  self->z80cpu->PC.B.l = *bufptr++;
-  self->z80cpu->PC.B.h = *bufptr++;
+  self->z80cpu->AF.b.l = *bufptr++;
+  self->z80cpu->AF.b.h = *bufptr++;
+  self->z80cpu->BC.b.l = *bufptr++;
+  self->z80cpu->BC.b.h = *bufptr++;
+  self->z80cpu->DE.b.l = *bufptr++;
+  self->z80cpu->DE.b.h = *bufptr++;
+  self->z80cpu->HL.b.l = *bufptr++;
+  self->z80cpu->HL.b.h = *bufptr++;
+  self->z80cpu->IR.b.l = *bufptr++;
+  self->z80cpu->IR.b.h = *bufptr++;
+  self->z80cpu->IF.w.l = (*bufptr++ != 0 ? self->z80cpu->IF.w.l | _IFF1 : self->z80cpu->IF.w.l & (~_IFF2));
+  self->z80cpu->IF.w.l = (*bufptr++ != 0 ? self->z80cpu->IF.w.l | _IFF1 : self->z80cpu->IF.w.l & (~_IFF2));
+  self->z80cpu->IX.b.l = *bufptr++;
+  self->z80cpu->IX.b.h = *bufptr++;
+  self->z80cpu->IY.b.l = *bufptr++;
+  self->z80cpu->IY.b.h = *bufptr++;
+  self->z80cpu->SP.b.l = *bufptr++;
+  self->z80cpu->SP.b.h = *bufptr++;
+  self->z80cpu->PC.b.l = *bufptr++;
+  self->z80cpu->PC.b.h = *bufptr++;
   switch(*bufptr++) {
     case 1:
-      self->z80cpu->IF.W = (self->z80cpu->IF.W | IFF_IM1) & ~(IFF_IM2);
+      self->z80cpu->IF.w.l = (self->z80cpu->IF.w.l | _IM1) & ~(_IM2);
       break;
     case 2:
-      self->z80cpu->IF.W = (self->z80cpu->IF.W | IFF_IM2) & ~(IFF_IM1);
+      self->z80cpu->IF.w.l = (self->z80cpu->IF.w.l | _IM2) & ~(_IM1);
       break;
     default:
-      self->z80cpu->IF.W = (self->z80cpu->IF.W) & ~(IFF_IM1 | IFF_IM2);
+      self->z80cpu->IF.w.l = (self->z80cpu->IF.w.l) & ~(_IM1 | _IM2);
       break;
   }
-  self->z80cpu->AF1.B.l = *bufptr++;
-  self->z80cpu->AF1.B.h = *bufptr++;
-  self->z80cpu->BC1.B.l = *bufptr++;
-  self->z80cpu->BC1.B.h = *bufptr++;
-  self->z80cpu->DE1.B.l = *bufptr++;
-  self->z80cpu->DE1.B.h = *bufptr++;
-  self->z80cpu->HL1.B.l = *bufptr++;
-  self->z80cpu->HL1.B.h = *bufptr++;
+  self->z80cpu->AF.b.y = *bufptr++;
+  self->z80cpu->AF.b.x = *bufptr++;
+  self->z80cpu->BC.b.y = *bufptr++;
+  self->z80cpu->BC.b.x = *bufptr++;
+  self->z80cpu->DE.b.y = *bufptr++;
+  self->z80cpu->DE.b.x = *bufptr++;
+  self->z80cpu->HL.b.y = *bufptr++;
+  self->z80cpu->HL.b.x = *bufptr++;
   self->garray->pen = *bufptr++;
   for(ix = 0; ix < 17; ix++) {
     self->garray->ink[ix] = *bufptr++;
@@ -1371,45 +1371,45 @@ void amstrad_cpc_save_snapshot(char *filename)
   memcpy(bufptr, "MV - SNA", 8); bufptr += 8;
   memset(bufptr, 0, 8); bufptr += 8; /* not used */
   *bufptr++ = 1; /* snapshot version */
-  *bufptr++ = self->z80cpu->AF.B.l;
-  *bufptr++ = self->z80cpu->AF.B.h;
-  *bufptr++ = self->z80cpu->BC.B.l;
-  *bufptr++ = self->z80cpu->BC.B.h;
-  *bufptr++ = self->z80cpu->DE.B.l;
-  *bufptr++ = self->z80cpu->DE.B.h;
-  *bufptr++ = self->z80cpu->HL.B.l;
-  *bufptr++ = self->z80cpu->HL.B.h;
-  *bufptr++ = self->z80cpu->IR.B.l;
-  *bufptr++ = self->z80cpu->IR.B.h;
-  *bufptr++ = (self->z80cpu->IF.W & IFF_1 ? 0x01 : 0x00);
-  *bufptr++ = (self->z80cpu->IF.W & IFF_2 ? 0x01 : 0x00);
-  *bufptr++ = self->z80cpu->IX.B.l;
-  *bufptr++ = self->z80cpu->IX.B.h;
-  *bufptr++ = self->z80cpu->IY.B.l;
-  *bufptr++ = self->z80cpu->IY.B.h;
-  *bufptr++ = self->z80cpu->SP.B.l;
-  *bufptr++ = self->z80cpu->SP.B.h;
-  *bufptr++ = self->z80cpu->PC.B.l;
-  *bufptr++ = self->z80cpu->PC.B.h;
-  switch(self->z80cpu->IF.W & (IFF_IM1 | IFF_IM2)) {
-    case IFF_IM1:
+  *bufptr++ = self->z80cpu->AF.b.l;
+  *bufptr++ = self->z80cpu->AF.b.h;
+  *bufptr++ = self->z80cpu->BC.b.l;
+  *bufptr++ = self->z80cpu->BC.b.h;
+  *bufptr++ = self->z80cpu->DE.b.l;
+  *bufptr++ = self->z80cpu->DE.b.h;
+  *bufptr++ = self->z80cpu->HL.b.l;
+  *bufptr++ = self->z80cpu->HL.b.h;
+  *bufptr++ = self->z80cpu->IR.b.l;
+  *bufptr++ = self->z80cpu->IR.b.h;
+  *bufptr++ = (self->z80cpu->IF.w.l & _IFF1 ? 0x01 : 0x00);
+  *bufptr++ = (self->z80cpu->IF.w.l & _IFF2 ? 0x01 : 0x00);
+  *bufptr++ = self->z80cpu->IX.b.l;
+  *bufptr++ = self->z80cpu->IX.b.h;
+  *bufptr++ = self->z80cpu->IY.b.l;
+  *bufptr++ = self->z80cpu->IY.b.h;
+  *bufptr++ = self->z80cpu->SP.b.l;
+  *bufptr++ = self->z80cpu->SP.b.h;
+  *bufptr++ = self->z80cpu->PC.b.l;
+  *bufptr++ = self->z80cpu->PC.b.h;
+  switch(self->z80cpu->IF.w.l & (_IM1 | _IM2)) {
+    case _IM1:
       *bufptr++ = 0x01;
       break;
-    case IFF_IM2:
+    case _IM2:
       *bufptr++ = 0x02;
       break;
     default:
       *bufptr++ = 0x00;
       break;
   }
-  *bufptr++ = self->z80cpu->AF1.B.l;
-  *bufptr++ = self->z80cpu->AF1.B.h;
-  *bufptr++ = self->z80cpu->BC1.B.l;
-  *bufptr++ = self->z80cpu->BC1.B.h;
-  *bufptr++ = self->z80cpu->DE1.B.l;
-  *bufptr++ = self->z80cpu->DE1.B.h;
-  *bufptr++ = self->z80cpu->HL1.B.l;
-  *bufptr++ = self->z80cpu->HL1.B.h;
+  *bufptr++ = self->z80cpu->AF.b.y;
+  *bufptr++ = self->z80cpu->AF.b.x;
+  *bufptr++ = self->z80cpu->BC.b.y;
+  *bufptr++ = self->z80cpu->BC.b.x;
+  *bufptr++ = self->z80cpu->DE.b.y;
+  *bufptr++ = self->z80cpu->DE.b.x;
+  *bufptr++ = self->z80cpu->HL.b.y;
+  *bufptr++ = self->z80cpu->HL.b.x;
   *bufptr++ = self->garray->pen;
   for(ix = 0; ix < 17; ix++) {
     *bufptr++ = self->garray->ink[ix];

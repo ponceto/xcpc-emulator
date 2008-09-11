@@ -11,37 +11,37 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-case JR_NZ:   if(AF_L&Z_FLAG) PC_W++; else { CCOUNTER-=5;M_JR; } break;
-case JR_NC:   if(AF_L&C_FLAG) PC_W++; else { CCOUNTER-=5;M_JR; } break;
-case JR_Z:    if(AF_L&Z_FLAG) { CCOUNTER-=5;M_JR; } else PC_W++; break;
-case JR_C:    if(AF_L&C_FLAG) { CCOUNTER-=5;M_JR; } else PC_W++; break;
+case JR_NZ:   if(AF_L&_ZF) PC_W++; else { CCOUNTER-=5;M_JR; } break;
+case JR_NC:   if(AF_L&_CF) PC_W++; else { CCOUNTER-=5;M_JR; } break;
+case JR_Z:    if(AF_L&_ZF) { CCOUNTER-=5;M_JR; } else PC_W++; break;
+case JR_C:    if(AF_L&_CF) { CCOUNTER-=5;M_JR; } else PC_W++; break;
 
-case JP_NZ:   if(AF_L&Z_FLAG) PC_W+=2; else { M_JP; } break;
-case JP_NC:   if(AF_L&C_FLAG) PC_W+=2; else { M_JP; } break;
-case JP_PO:   if(AF_L&P_FLAG) PC_W+=2; else { M_JP; } break;
-case JP_P:    if(AF_L&S_FLAG) PC_W+=2; else { M_JP; } break;
-case JP_Z:    if(AF_L&Z_FLAG) { M_JP; } else PC_W+=2; break;
-case JP_C:    if(AF_L&C_FLAG) { M_JP; } else PC_W+=2; break;
-case JP_PE:   if(AF_L&P_FLAG) { M_JP; } else PC_W+=2; break;
-case JP_M:    if(AF_L&S_FLAG) { M_JP; } else PC_W+=2; break;
+case JP_NZ:   if(AF_L&_ZF) PC_W+=2; else { M_JP; } break;
+case JP_NC:   if(AF_L&_CF) PC_W+=2; else { M_JP; } break;
+case JP_PO:   if(AF_L&_PF) PC_W+=2; else { M_JP; } break;
+case JP_P:    if(AF_L&_SF) PC_W+=2; else { M_JP; } break;
+case JP_Z:    if(AF_L&_ZF) { M_JP; } else PC_W+=2; break;
+case JP_C:    if(AF_L&_CF) { M_JP; } else PC_W+=2; break;
+case JP_PE:   if(AF_L&_PF) { M_JP; } else PC_W+=2; break;
+case JP_M:    if(AF_L&_SF) { M_JP; } else PC_W+=2; break;
 
-case RET_NZ:  if(!(AF_L&Z_FLAG)) { CCOUNTER-=6;M_RET; } break;
-case RET_NC:  if(!(AF_L&C_FLAG)) { CCOUNTER-=6;M_RET; } break;
-case RET_PO:  if(!(AF_L&P_FLAG)) { CCOUNTER-=6;M_RET; } break;
-case RET_P:   if(!(AF_L&S_FLAG)) { CCOUNTER-=6;M_RET; } break;
-case RET_Z:   if(AF_L&Z_FLAG)    { CCOUNTER-=6;M_RET; } break;
-case RET_C:   if(AF_L&C_FLAG)    { CCOUNTER-=6;M_RET; } break;
-case RET_PE:  if(AF_L&P_FLAG)    { CCOUNTER-=6;M_RET; } break;
-case RET_M:   if(AF_L&S_FLAG)    { CCOUNTER-=6;M_RET; } break;
+case RET_NZ:  if(!(AF_L&_ZF)) { CCOUNTER-=6;M_RET; } break;
+case RET_NC:  if(!(AF_L&_CF)) { CCOUNTER-=6;M_RET; } break;
+case RET_PO:  if(!(AF_L&_PF)) { CCOUNTER-=6;M_RET; } break;
+case RET_P:   if(!(AF_L&_SF)) { CCOUNTER-=6;M_RET; } break;
+case RET_Z:   if(AF_L&_ZF)    { CCOUNTER-=6;M_RET; } break;
+case RET_C:   if(AF_L&_CF)    { CCOUNTER-=6;M_RET; } break;
+case RET_PE:  if(AF_L&_PF)    { CCOUNTER-=6;M_RET; } break;
+case RET_M:   if(AF_L&_SF)    { CCOUNTER-=6;M_RET; } break;
 
-case CALL_NZ: if(AF_L&Z_FLAG) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
-case CALL_NC: if(AF_L&C_FLAG) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
-case CALL_PO: if(AF_L&P_FLAG) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
-case CALL_P:  if(AF_L&S_FLAG) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
-case CALL_Z:  if(AF_L&Z_FLAG) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
-case CALL_C:  if(AF_L&C_FLAG) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
-case CALL_PE: if(AF_L&P_FLAG) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
-case CALL_M:  if(AF_L&S_FLAG) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
+case CALL_NZ: if(AF_L&_ZF) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
+case CALL_NC: if(AF_L&_CF) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
+case CALL_PO: if(AF_L&_PF) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
+case CALL_P:  if(AF_L&_SF) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
+case CALL_Z:  if(AF_L&_ZF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
+case CALL_C:  if(AF_L&_CF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
+case CALL_PE: if(AF_L&_PF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
+case CALL_M:  if(AF_L&_SF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
 
 case ADD_BYTE: TMP1=RdZ80(PC_W++);M_ADD(TMP1);break;
 case SUB_BYTE: TMP1=RdZ80(PC_W++);M_SUB(TMP1);break;
@@ -86,24 +86,24 @@ case INC_A:    M_INC(AF_H);break;
 case INC_xHL:  TMP1=RdZ80(HL_W);M_INC(TMP1);WrZ80(HL_W,TMP1);break;
 
 case RLCA:
-  TMP1=AF_H&0x80? C_FLAG:0;
+  TMP1=AF_H&0x80? _CF:0;
   AF_H=(AF_H<<1)|TMP1;
-  AF_L=(AF_L&~(C_FLAG|N_FLAG|H_FLAG))|TMP1;
+  AF_L=(AF_L&~(_CF|_NF|_HF))|TMP1;
   break;
 case RLA:
-  TMP1=AF_H&0x80? C_FLAG:0;
-  AF_H=(AF_H<<1)|(AF_L&C_FLAG);
-  AF_L=(AF_L&~(C_FLAG|N_FLAG|H_FLAG))|TMP1;
+  TMP1=AF_H&0x80? _CF:0;
+  AF_H=(AF_H<<1)|(AF_L&_CF);
+  AF_L=(AF_L&~(_CF|_NF|_HF))|TMP1;
   break;
 case RRCA:
   TMP1=AF_H&0x01;
   AF_H=(AF_H>>1)|(TMP1? 0x80:0);
-  AF_L=(AF_L&~(C_FLAG|N_FLAG|H_FLAG))|TMP1; 
+  AF_L=(AF_L&~(_CF|_NF|_HF))|TMP1; 
   break;
 case RRA:
   TMP1=AF_H&0x01;
-  AF_H=(AF_H>>1)|(AF_L&C_FLAG? 0x80:0);
-  AF_L=(AF_L&~(C_FLAG|N_FLAG|H_FLAG))|TMP1;
+  AF_H=(AF_H>>1)|(AF_L&_CF? 0x80:0);
+  AF_L=(AF_L&~(_CF|_NF|_HF))|TMP1;
   break;
 
 case RST00:    M_RST(0x0000);break;
@@ -130,22 +130,22 @@ case JP:   M_JP;break;
 case JR:   M_JR;break;
 case CALL: M_CALL;break;
 case RET:  M_RET;break;
-case SCF:  S(C_FLAG);R(N_FLAG|H_FLAG);break;
-case CPL:  AF_H=~AF_H;S(N_FLAG|H_FLAG);break;
+case SCF:  S(_CF);R(_NF|_HF);break;
+case CPL:  AF_H=~AF_H;S(_NF|_HF);break;
 case OUTA: TMP1=RdZ80(PC_W++);OutZ80((AF_W & 0xff00) | (TMP1 & 0x00ff), AF_H);break;
 case INA:  TMP1=RdZ80(PC_W++);AF_H=InZ80((AF_W & 0xff00) | (TMP1 & 0x00ff));break;
 
 case DI:
-  IF_W &= ~(IFF_1 | IFF_2);
+  IF_W &= ~(_IFF1 | _IFF2);
   break;
 
 case EI:
-  IF_W |=  (IFF_1 | IFF_2);
+  IF_W |=  (_IFF1 | _IFF2);
   break;
 
 case CCF:
-  AF_L^=C_FLAG;R(N_FLAG|H_FLAG);
-  AF_L|=AF_L&C_FLAG? 0:H_FLAG;
+  AF_L^=_CF;R(_NF|_HF);
+  AF_L|=AF_L&_CF? 0:_HF;
   break;
 
 case EXX:

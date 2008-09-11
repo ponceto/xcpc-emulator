@@ -32,49 +32,67 @@ G_BEGIN_DECLS
 typedef struct _GdevZ80CPU      GdevZ80CPU;
 typedef struct _GdevZ80CPUClass GdevZ80CPUClass;
 
-#define S_FLAG  0x80 /* Sign                   */
-#define Z_FLAG  0x40 /* Zero                   */
-#define H_FLAG  0x10 /* HalfCarry / HalfBorrow */
-#define P_FLAG  0x04 /* Parity                 */
-#define V_FLAG  0x04 /* Overflow               */
-#define N_FLAG  0x02 /* Add / Sub              */
-#define C_FLAG  0x01 /* Carry / Borrow         */
+#define _SF   0x80 /* Sign                   */
+#define _ZF   0x40 /* Zero                   */
+#define _5F   0x20 /* Undocumented           */
+#define _HF   0x10 /* HalfCarry / HalfBorrow */
+#define _3F   0x08 /* Undocumented           */
+#define _PF   0x04 /* Parity                 */
+#define _OF   0x04 /* Overflow               */
+#define _NF   0x02 /* Add / Sub              */
+#define _CF   0x01 /* Carry / Borrow         */
 
-#define IFF_1   0x01 /* Interrupt Flip-Flop #1 */
-#define IFF_2   0x02 /* Interrupt Flip-Flop #2 */
-#define IFF_IM1 0x08 /* Interrupt Mode #1      */
-#define IFF_IM2 0x10 /* Interrupt Mode #2      */
-#define IFF_INT 0x20 /* Pending INT            */
-#define IFF_NMI 0x40 /* Pending NMI            */
-#define IFF_HLT 0x80 /* CPU is HALTed          */
+#define _HLT  0x80 /* CPU is HALTed          */
+#define _NMI  0x40 /* Pending NMI            */
+#define _INT  0x20 /* Pending INT            */
+#define _XYZ  0x10 /* Not Used               */
+#define _IM2  0x08 /* Interrupt Mode #2      */
+#define _IM1  0x04 /* Interrupt Mode #1      */
+#define _IFF2 0x02 /* Interrupt Flip-Flop #2 */
+#define _IFF1 0x01 /* Interrupt Flip-Flop #1 */
+
+typedef gint8   s_int08_t;
+typedef guint8  u_int08_t;
+typedef gint16  s_int16_t;
+typedef guint16 u_int16_t;
+typedef gint32  s_int32_t;
+typedef guint32 u_int32_t;
+typedef gint64  s_int64_t;
+typedef guint64 u_int64_t;
 
 typedef union _GdevZ80REG {
-  guint16 W;
-#ifdef MSB_FIRST
-  struct { guint8 h, l; } B;
+  u_int32_t q;
+#if defined(MSB_FIRST) && !defined(LSB_FIRST)
+  struct { u_int16_t h, l; } w;
+  struct { u_int08_t x, y, h, l; } b;
 #endif
-#ifdef LSB_FIRST
-  struct { guint8 l, h; } B;
+#if !defined(MSB_FIRST) && defined(LSB_FIRST)
+  struct { u_int16_t l, h; } w;
+  struct { u_int08_t l, h, y, x; } b;
 #endif
 } GdevZ80REG;
 
 struct _GdevZ80CPU {
   GdevDevice device;
-  GdevZ80REG AF, BC, DE, HL ; /* Main registers      */
-  GdevZ80REG AF1,BC1,DE1,HL1; /* Prime registers     */
-  GdevZ80REG IX, IY;          /* Index registers     */
-  GdevZ80REG SP, PC;          /* Control registers   */
-  GdevZ80REG IR, IF;          /* Interrupt & Refresh */
-  gint32     m_cycles;        /* M-Cycles counter    */
-  gint32     t_states;        /* T-States counter    */
-  gint32     ccounter;        /* Periodic counter    */
-  /* User functions */
-  guint8 (*mreq_m1)(GdevZ80CPU *z80cpu, guint16 addr);
-  guint8 (*mreq_rd)(GdevZ80CPU *z80cpu, guint16 addr);
-  void   (*mreq_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
-  guint8 (*iorq_m1)(GdevZ80CPU *z80cpu, guint16 addr);
-  guint8 (*iorq_rd)(GdevZ80CPU *z80cpu, guint16 addr);
-  void   (*iorq_wr)(GdevZ80CPU *z80cpu, guint16 addr, guint8 data);
+  GdevZ80REG AF; /* AF & AF'            */
+  GdevZ80REG BC; /* BC & BC'            */
+  GdevZ80REG DE; /* DE & DE'            */
+  GdevZ80REG HL; /* HL & HL'            */
+  GdevZ80REG IX; /* IX Index            */
+  GdevZ80REG IY; /* IY Index            */
+  GdevZ80REG SP; /* Stack Pointer       */
+  GdevZ80REG PC; /* Program Counter     */
+  GdevZ80REG IR; /* Interrupt & Refresh */
+  GdevZ80REG IF; /* IFF, IM & Control   */
+  u_int32_t m_cycles;
+  u_int32_t t_states;
+  s_int32_t ccounter;
+  u_int08_t (*mreq_m1)(GdevZ80CPU *z80cpu, u_int16_t addr);
+  u_int08_t (*mreq_rd)(GdevZ80CPU *z80cpu, u_int16_t addr);
+  void      (*mreq_wr)(GdevZ80CPU *z80cpu, u_int16_t addr, u_int08_t data);
+  u_int08_t (*iorq_m1)(GdevZ80CPU *z80cpu, u_int16_t addr);
+  u_int08_t (*iorq_rd)(GdevZ80CPU *z80cpu, u_int16_t addr);
+  void      (*iorq_wr)(GdevZ80CPU *z80cpu, u_int16_t addr, u_int08_t data);
 };
 
 struct _GdevZ80CPUClass {
