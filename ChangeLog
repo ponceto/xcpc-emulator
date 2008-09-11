@@ -1,26 +1,26 @@
-2008-01-11	Olivier Poncet <ponceto@noos.fr>
+2008-01-11	Olivier Poncet <ponceto@free.fr>
 
 	* Copyright modification for 2008.
 	* Initial snapshot loading (--snapshot=filename).
 	* Embedded libdsk (external dependency removed).
 	* Z80 core cleanup & reimplementation.
 
-2007-01-22	Olivier Poncet <ponceto@noos.fr>
+2007-01-22	Olivier Poncet <ponceto@free.fr>
 
 	* Just a little correction to avoid a core dump.
 
-2007-01-08	Olivier Poncet <ponceto@noos.fr>
+2007-01-08	Olivier Poncet <ponceto@free.fr>
 
 	* TODO section added into the README.
 	* Copyright modification for 2007.
 	* XemEmulator widget correction (thanks to Andrea Musuruane).
 
-2006-12-11	Olivier Poncet <ponceto@noos.fr>
+2006-12-11	Olivier Poncet <ponceto@free.fr>
 
 	* Z80 core cleanup.
 	* Z80 core reimplementation (80% done).
 
-2006-12-04	Olivier Poncet <ponceto@noos.fr>
+2006-12-04	Olivier Poncet <ponceto@free.fr>
 
 	* X11-SHM (XShm) permissions corrections (0600->0666).
 	* FPS statistics (can be disabled with the '--no-fps' option).
@@ -32,19 +32,19 @@
 	* Misc. corrections & improvements.
 	* Z80 improvements.
 
-2006-11-27	Olivier Poncet <ponceto@noos.fr>
+2006-11-27	Olivier Poncet <ponceto@free.fr>
 
 	* X11-SHM (XShm) support.
 	* CRTC-6845 improvements.
 	* Timing & interrupt generation improvements.
 	* Some minor corrections & cleanup.
 
-2006-11-20	Olivier Poncet <ponceto@noos.fr>
+2006-11-20	Olivier Poncet <ponceto@free.fr>
 
 	* Embedded lib765 cleanup.
 	* FDC/FDD improvements.
 
-2006-11-13	Olivier Poncet <ponceto@noos.fr>
+2006-11-13	Olivier Poncet <ponceto@free.fr>
 
 	* Embedded lib765 (heavyly hacked).
 	* FDC/FDD support improvements.
@@ -52,14 +52,14 @@
 	* Some minor corrections.
 	* Just require libdsk: http://www.seasip.demon.co.uk/Unix/LibDsk/
 
-2006-11-06	Olivier Poncet <ponceto@noos.fr>
+2006-11-06	Olivier Poncet <ponceto@free.fr>
 
 	* Preliminary (but working) FDC implementation by using lib765.
 	* Preliminary (but working) FDD implementation by using libDSK.
 	* lib765 & libdsk: http://www.seasip.demon.co.uk/Unix/LibDsk/
 	* Drive A/B floppy disk support.
 
-2006-10-30	Olivier Poncet <ponceto@noos.fr>
+2006-10-30	Olivier Poncet <ponceto@free.fr>
 
 	* Source code cleanup.
 	* Preliminary (but not already working) floppy disk support.
@@ -69,7 +69,7 @@
 	* Gate-Array GObjectized.
 	* Version number added in the about dialog.
 
-2006-10-23	Olivier Poncet <ponceto@noos.fr>
+2006-10-23	Olivier Poncet <ponceto@free.fr>
 
 	* Source code cleanup.
 	* Requires GLib >= 2.6.0.
@@ -83,7 +83,7 @@
 	* Internal devices rewritten as a GObject subclass.
 	* Preliminary FPS statistics (in terminal).
 
-2006-10-16	Olivier Poncet <ponceto@noos.fr>
+2006-10-16	Olivier Poncet <ponceto@free.fr>
 
 	* Port decoding rewritten.
 	* ROM selection bug corrected.
@@ -92,7 +92,7 @@
 	* Support of multimodes games (sorcery, crafton & xunk, etc).
 	* GFX code cleanup.
 
-2006-10-09	Olivier Poncet <ponceto@noos.fr>
+2006-10-09	Olivier Poncet <ponceto@free.fr>
 
 	* GLib-2.0 / GObject-2.0 support added.
 	* Autoconf / Automake enhancements (GUI autodetection).
@@ -104,7 +104,7 @@
 	* Preliminary (but working) support of X Drag & Drop protocol (Xdnd).
 	* Snapshot loading with Drag & Drop from a file manager (i.e nautilus).
 
-2006-10-02	Olivier Poncet <ponceto@noos.fr>
+2006-10-02	Olivier Poncet <ponceto@free.fr>
 
 	* Source code cleanup (continued).
 	* GUI code cleanup & improvements.
@@ -112,7 +112,7 @@
 	* Improved Z80 emulation.
 	* Improved keyboard handling (qwerty & azerty layout).
 
-2006-09-25	Olivier Poncet <ponceto@noos.fr>
+2006-09-25	Olivier Poncet <ponceto@free.fr>
 
 	* Source code cleanup.
 	* Improved Z80 emulation.
@@ -120,11 +120,11 @@
 	* XArea widget rewritten.
 	* Improved keyboard handling.
 
-2006-09-11	Olivier Poncet <ponceto@noos.fr>
+2006-09-11	Olivier Poncet <ponceto@free.fr>
 
 	* Autoconf / Automake support.
 
-2006-09-03	Olivier Poncet <ponceto@noos.fr>
+2006-09-03	Olivier Poncet <ponceto@free.fr>
 
 	* XCPC source code repository is now hosted on SourceForge.
 	* Home Page:                http://xcpc.emuunlim.com/
@@ -135,56 +135,56 @@
 	* Initial import & Release: xcpc-20010905.
 	* Initial import & Release: xcpc-20010906.
 
-2001-09-06	Olivier Poncet <ponceto@noos.fr>
+2001-09-06	Olivier Poncet <ponceto@free.fr>
 
 	* Some changes in GUIs source code and some improvements.
 
-2001-09-05	Olivier Poncet <ponceto@noos.fr>
+2001-09-05	Olivier Poncet <ponceto@free.fr>
 
 	* Some minor changes in source code.
 
-2001-09-04	Olivier Poncet <ponceto@noos.fr>
+2001-09-04	Olivier Poncet <ponceto@free.fr>
 
 	* Complete rewrite of the emulator. Needs the Athena (Xaw) widget set,
 	  and/or a Motif 1.2 (Xm) compliant distribution to compile Xcpc (like
 	  OpenMotif, Lesstif, OSF Motif, ...).
 
-2001-07-04	Olivier Poncet <ponceto@noos.fr>
+2001-07-04	Olivier Poncet <ponceto@free.fr>
 
 	* Improved CRTC 6845 and gate-array emulation; supports Sorcery like games.
 	* GFX routines rewritten.
 	* Partial support of multi-modes.
 
-2001-06-15	Olivier Poncet <ponceto@noos.fr>
+2001-06-15	Olivier Poncet <ponceto@free.fr>
 
 	* Improved CRTC 6845 emulation; supports Space Racer like modes.
 
-2001-06-14	Olivier Poncet <ponceto@noos.fr>
+2001-06-14	Olivier Poncet <ponceto@free.fr>
 
 	* Improved GUI and event manager.
 	* Improved Z80 encapsulation.
 
-2001-06-13	Olivier Poncet <ponceto@noos.fr>
+2001-06-13	Olivier Poncet <ponceto@free.fr>
 
 	* Improved gate_array and crtc support.
 	* Removed FAST_GFX conditionnal compilation; dynamic configuration.
 
-2001-06-12	Olivier Poncet <ponceto@noos.fr>
+2001-06-12	Olivier Poncet <ponceto@free.fr>
 
 	* Display bugs corrected; complete rewrite of display routines.
 	* GUI module added.
 	* Some modifications in source code.
 
-2001-06-01	Olivier Poncet <ponceto@noos.fr>
+2001-06-01	Olivier Poncet <ponceto@free.fr>
 
 	* Lots of improvements in GUI (GFX mode added).
 
-2001-05-30	Olivier Poncet <ponceto@noos.fr>
+2001-05-30	Olivier Poncet <ponceto@free.fr>
 
 	* Added terminal GUI (load & save snapshot).
 	* Added back buffer manager (when GUI takes control).
 
-2001-05-28	Olivier Poncet <ponceto@noos.fr>
+2001-05-28	Olivier Poncet <ponceto@free.fr>
 
 	* First public release.
 	* No support of DISC images.
