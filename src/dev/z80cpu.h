@@ -74,16 +74,18 @@ typedef union _GdevZ80REG {
 
 struct _GdevZ80CPU {
   GdevDevice device;
-  GdevZ80REG AF; /* AF & AF'            */
-  GdevZ80REG BC; /* BC & BC'            */
-  GdevZ80REG DE; /* DE & DE'            */
-  GdevZ80REG HL; /* HL & HL'            */
-  GdevZ80REG IX; /* IX Index            */
-  GdevZ80REG IY; /* IY Index            */
-  GdevZ80REG SP; /* Stack Pointer       */
-  GdevZ80REG PC; /* Program Counter     */
-  GdevZ80REG IR; /* Interrupt & Refresh */
-  GdevZ80REG IF; /* IFF, IM & Control   */
+  struct {
+    GdevZ80REG AF; /* AF & AF'            */
+    GdevZ80REG BC; /* BC & BC'            */
+    GdevZ80REG DE; /* DE & DE'            */
+    GdevZ80REG HL; /* HL & HL'            */
+    GdevZ80REG IX; /* IX Index            */
+    GdevZ80REG IY; /* IY Index            */
+    GdevZ80REG SP; /* Stack Pointer       */
+    GdevZ80REG PC; /* Program Counter     */
+    GdevZ80REG IR; /* Interrupt & Refresh */
+    GdevZ80REG IF; /* IFF, IM & Control   */
+  } reg;
   u_int32_t m_cycles;
   u_int32_t t_states;
   s_int32_t ccounter;
