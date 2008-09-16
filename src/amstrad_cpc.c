@@ -1439,6 +1439,19 @@ void amstrad_cpc_save_snapshot(char *filename)
 }
 
 /**
+ * amstrad_cpc::z80cpu::mreq_m1
+ *
+ * @param z80cpu
+ * @param addr
+ *
+ * @return
+ */
+static guint8 z80cpu_mreq_m1(GdevZ80CPU *z80cpu, guint16 addr)
+{
+  return(amstrad_cpc.rd_bank[addr >> 14][addr & 0x3fff]);
+}
+
+/**
  * amstrad_cpc::z80cpu::mreq_rd
  *
  * @param z80cpu
@@ -1461,6 +1474,19 @@ static guint8 z80cpu_mreq_rd(GdevZ80CPU *z80cpu, guint16 addr)
 static void z80cpu_mreq_wr(GdevZ80CPU *z80cpu, guint16 addr, guint8 data)
 {
   amstrad_cpc.wr_bank[addr >> 14][addr & 0x3fff] = data;
+}
+
+/**
+ * amstrad_cpc::z80cpu::iorq_m1
+ *
+ * @param z80cpu
+ * @param port
+ *
+ * @return
+ */
+static guint8 z80cpu_iorq_m1(GdevZ80CPU *z80cpu, guint16 port)
+{
+  return(0x00);
 }
 
 /**
@@ -1838,10 +1864,10 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   self->upd765 = gdev_upd765_new();
   self->i8255  = gdev_i8255_new();
   /* XXX */
-  self->z80cpu->mreq_m1 = z80cpu_mreq_rd;
+  self->z80cpu->mreq_m1 = z80cpu_mreq_m1;
   self->z80cpu->mreq_rd = z80cpu_mreq_rd;
   self->z80cpu->mreq_wr = z80cpu_mreq_wr;
-  self->z80cpu->iorq_m1 = z80cpu_iorq_rd;
+  self->z80cpu->iorq_m1 = z80cpu_iorq_m1;
   self->z80cpu->iorq_rd = z80cpu_iorq_rd;
   self->z80cpu->iorq_wr = z80cpu_iorq_wr;
   self->mc6845->hsync = mc6845_hsync;

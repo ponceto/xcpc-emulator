@@ -1563,14 +1563,131 @@ decode_and_execute:
       z80cpu->t_states += 4;
       z80cpu->ccounter -= 4;
       goto next;
+    case 0xc6: /* ADD A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 + TMP2;
+      WZ.b.h = _ADD | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & TMP2 & ~WZ.b.l) | (~TMP1 & ~TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 2;
+      z80cpu->t_states += 7;
+      z80cpu->ccounter -= 7;
+      goto next;
     case 0xcb:
       goto fetch_cb;
+    case 0xce: /* ADC A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 + TMP2 + (z80cpu->reg.AF.b.l & _CF);
+      WZ.b.h = _ADC | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & TMP2 & ~WZ.b.l) | (~TMP1 & ~TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 2;
+      z80cpu->t_states += 7;
+      z80cpu->ccounter -= 7;
+      goto next;
+    case 0xd6: /* SUB A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2;
+      WZ.b.h = _SUB | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 2;
+      z80cpu->t_states += 7;
+      z80cpu->ccounter -= 7;
+      goto next;
     case 0xdd:
       goto fetch_dd;
+    case 0xde: /* SBC A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2 - (z80cpu->reg.AF.b.l & _CF);
+      WZ.b.h = _SBC | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 2;
+      z80cpu->t_states += 7;
+      z80cpu->ccounter -= 7;
+      goto next;
+    case 0xe6: /* AND A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 & TMP2;
+      WZ.b.h = _AND | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 2;
+      z80cpu->t_states += 7;
+      z80cpu->ccounter -= 7;
+      goto next;
     case 0xed:
       goto fetch_ed;
+    case 0xee: /* XOR A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 ^ TMP2;
+      WZ.b.h = _XOR | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 2;
+      z80cpu->t_states += 7;
+      z80cpu->ccounter -= 7;
+      goto next;
+    case 0xf6: /* OR A,n            */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 | TMP2;
+      WZ.b.h = _IOR | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 2;
+      z80cpu->t_states += 7;
+      z80cpu->ccounter -= 7;
+      goto next;
     case 0xfd:
       goto fetch_fd;
+    case 0xfe: /* CP A,n            */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2;
+      WZ.b.h = _CMP | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 2;
+      z80cpu->t_states += 7;
+      z80cpu->ccounter -= 7;
+      goto next;
   }
   z80cpu->ccounter -= Cycles[opcode];
   goto next;
@@ -5141,8 +5258,125 @@ decode_and_execute_dd:
       z80cpu->t_states += 8;
       z80cpu->ccounter -= 8;
       goto next;
+    case 0xc6: /* ADD A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 + TMP2;
+      WZ.b.h = _ADD | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & TMP2 & ~WZ.b.l) | (~TMP1 & ~TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
     case 0xcb:
       goto fetch_dd_cb;
+    case 0xce: /* ADC A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 + TMP2 + (z80cpu->reg.AF.b.l & _CF);
+      WZ.b.h = _ADC | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & TMP2 & ~WZ.b.l) | (~TMP1 & ~TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xd6: /* SUB A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2;
+      WZ.b.h = _SUB | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xde: /* SBC A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2 - (z80cpu->reg.AF.b.l & _CF);
+      WZ.b.h = _SBC | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xe6: /* AND A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 & TMP2;
+      WZ.b.h = _AND | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xee: /* XOR A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 ^ TMP2;
+      WZ.b.h = _XOR | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xf6: /* OR A,n            */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 | TMP2;
+      WZ.b.h = _IOR | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xfe: /* CP A,n            */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2;
+      WZ.b.h = _CMP | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
   }
   z80cpu->ccounter -= CyclesXX[opcode];
   goto next;
@@ -6593,8 +6827,125 @@ decode_and_execute_fd:
       z80cpu->t_states += 8;
       z80cpu->ccounter -= 8;
       goto next;
+    case 0xc6: /* ADD A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 + TMP2;
+      WZ.b.h = _ADD | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & TMP2 & ~WZ.b.l) | (~TMP1 & ~TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
     case 0xcb:
       goto fetch_fd_cb;
+    case 0xce: /* ADC A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 + TMP2 + (z80cpu->reg.AF.b.l & _CF);
+      WZ.b.h = _ADC | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & TMP2 & ~WZ.b.l) | (~TMP1 & ~TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xd6: /* SUB A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2;
+      WZ.b.h = _SUB | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xde: /* SBC A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2 - (z80cpu->reg.AF.b.l & _CF);
+      WZ.b.h = _SBC | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xe6: /* AND A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 & TMP2;
+      WZ.b.h = _AND | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xee: /* XOR A,n           */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 ^ TMP2;
+      WZ.b.h = _XOR | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xf6: /* OR A,n            */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 | TMP2;
+      WZ.b.h = _IOR | (WZ.b.l & (_SF | _5F | _3F)) | PZSTable[WZ.b.l];
+      z80cpu->reg.AF.b.h = WZ.b.l;
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
+    case 0xfe: /* CP A,n            */
+      TMP1 = z80cpu->reg.AF.b.h;
+      TMP2 = (*z80cpu->mreq_rd)(z80cpu, z80cpu->reg.PC.w.l++);
+      WZ.w.l = TMP1 - TMP2;
+      WZ.b.h = _CMP | (WZ.b.l & (_SF | _5F | _3F)) | ((WZ.b.l ^ TMP1 ^ TMP2) & _HF) | (WZ.b.h & _CF);
+      if(WZ.b.l == 0) {
+        WZ.b.h |= _ZF;
+      }
+      if(((TMP1 & ~TMP2 & ~WZ.b.l) | (~TMP1 & TMP2 & WZ.b.l)) & _SF) {
+        WZ.b.h |= _OF;
+      }
+      z80cpu->reg.AF.b.l = WZ.b.h;
+      z80cpu->m_cycles += 3;
+      z80cpu->t_states += 11;
+      z80cpu->ccounter -= 11;
+      goto next;
   }
   z80cpu->ccounter -= CyclesED[opcode];
   goto next;

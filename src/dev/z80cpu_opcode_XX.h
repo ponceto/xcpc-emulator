@@ -43,22 +43,6 @@ case CALL_C:  if(AF_L&_CF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
 case CALL_PE: if(AF_L&_PF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
 case CALL_M:  if(AF_L&_SF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
 
-case ADD_BYTE: TMP1=RdZ80(PC_W++);M_ADD(TMP1);break;
-
-case SUB_BYTE: TMP1=RdZ80(PC_W++);M_SUB(TMP1);break;
-
-case AND_BYTE: TMP1=RdZ80(PC_W++);M_AND(TMP1);break;
-
-case OR_BYTE:  TMP1=RdZ80(PC_W++);M_IOR(TMP1);break;
-
-case ADC_BYTE: TMP1=RdZ80(PC_W++);M_ADC(TMP1);break;
-
-case SBC_BYTE: TMP1=RdZ80(PC_W++);M_SBC(TMP1);break;
-
-case XOR_BYTE: TMP1=RdZ80(PC_W++);M_XOR(TMP1);break;
-
-case CP_BYTE:  TMP1=RdZ80(PC_W++);M_CMP(TMP1);break;
-               
 case LD_BC_WORD: M_LDWORD(BC);break;
 case LD_DE_WORD: M_LDWORD(DE);break;
 case LD_HL_WORD: M_LDWORD(XX);break;

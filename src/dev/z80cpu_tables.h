@@ -451,49 +451,6 @@ static guint16 DAATable[2048] = {
 #define R(Fl)        THIS->reg.AF.b.l&=~(Fl)
 #define FLAGS(Rg,Fl) THIS->reg.AF.b.l=Fl|ZSTable[Rg]
 
-#define M_RLC(Rg)      \
-  THIS->reg.AF.b.l=Rg>>7;Rg=(Rg<<1)|THIS->reg.AF.b.l;THIS->reg.AF.b.l|=PZSTable[Rg]
-#define M_RRC(Rg)      \
-  THIS->reg.AF.b.l=Rg&0x01;Rg=(Rg>>1)|(THIS->reg.AF.b.l<<7);THIS->reg.AF.b.l|=PZSTable[Rg]
-#define M_RL(Rg)       \
-  if(Rg&0x80)          \
-  {                    \
-    Rg=(Rg<<1)|(THIS->reg.AF.b.l&_CF); \
-    THIS->reg.AF.b.l=PZSTable[Rg]|_CF; \
-  }                    \
-  else                 \
-  {                    \
-    Rg=(Rg<<1)|(THIS->reg.AF.b.l&_CF); \
-    THIS->reg.AF.b.l=PZSTable[Rg];        \
-  }
-#define M_RR(Rg)       \
-  if(Rg&0x01)          \
-  {                    \
-    Rg=(Rg>>1)|(THIS->reg.AF.b.l<<7);     \
-    THIS->reg.AF.b.l=PZSTable[Rg]|_CF; \
-  }                    \
-  else                 \
-  {                    \
-    Rg=(Rg>>1)|(THIS->reg.AF.b.l<<7);     \
-    THIS->reg.AF.b.l=PZSTable[Rg];        \
-  }
-
-#define M_SLA(Rg)      \
-  THIS->reg.AF.b.l=Rg>>7;Rg<<=1;THIS->reg.AF.b.l|=PZSTable[Rg]
-#define M_SRA(Rg)      \
-  THIS->reg.AF.b.l=Rg&_CF;Rg=(Rg>>1)|(Rg&0x80);THIS->reg.AF.b.l|=PZSTable[Rg]
-
-#define M_SLL(Rg)      \
-  THIS->reg.AF.b.l=Rg>>7;Rg=(Rg<<1)|0x01;THIS->reg.AF.b.l|=PZSTable[Rg]
-#define M_SRL(Rg)      \
-  THIS->reg.AF.b.l=Rg&0x01;Rg>>=1;THIS->reg.AF.b.l|=PZSTable[Rg]
-
-#define M_BIT(Bit,Rg)  \
-  THIS->reg.AF.b.l=(THIS->reg.AF.b.l&_CF)|_HF|PZSTable[Rg&(1<<Bit)]
-
-#define M_SET(Bit,Rg) Rg|=1<<Bit
-#define M_RES(Bit,Rg) Rg&=~(1<<Bit)
-
 #define M_POP(Rg)      \
   THIS->reg.Rg.b.l=RdZ80(THIS->reg.SP.w.l++);THIS->reg.Rg.b.h=RdZ80(THIS->reg.SP.w.l++)
 #define M_PUSH(Rg)     \
@@ -514,14 +471,6 @@ static guint16 DAATable[2048] = {
 #define M_LDWORD(Rg)   \
   THIS->reg.Rg.b.l=RdZ80(THIS->reg.PC.w.l++);THIS->reg.Rg.b.h=RdZ80(THIS->reg.PC.w.l++)
 
-#define M_ADD(Rg)      \
-  WZ.w.l=THIS->reg.AF.b.h+Rg;     \
-  THIS->reg.AF.b.l=            \
-    (~(THIS->reg.AF.b.h^Rg)&(Rg^WZ.b.l)&0x80? _OF:0)| \
-    WZ.b.h|ZSTable[WZ.b.l]|                        \
-    ((THIS->reg.AF.b.h^Rg^WZ.b.l)&_HF);               \
-  THIS->reg.AF.b.h=WZ.b.l
-
 #define M_SUB(Rg)      \
   WZ.w.l=THIS->reg.AF.b.h-Rg;    \
   THIS->reg.AF.b.l=           \
@@ -529,33 +478,6 @@ static guint16 DAATable[2048] = {
     _NF|-WZ.b.h|ZSTable[WZ.b.l]|                      \
     ((THIS->reg.AF.b.h^Rg^WZ.b.l)&_HF);                     \
   THIS->reg.AF.b.h=WZ.b.l
-
-#define M_ADC(Rg)      \
-  WZ.w.l=THIS->reg.AF.b.h+Rg+(THIS->reg.AF.b.l&_CF); \
-  THIS->reg.AF.b.l=                           \
-    (~(THIS->reg.AF.b.h^Rg)&(Rg^WZ.b.l)&0x80? _OF:0)| \
-    WZ.b.h|ZSTable[WZ.b.l]|              \
-    ((THIS->reg.AF.b.h^Rg^WZ.b.l)&_HF);     \
-  THIS->reg.AF.b.h=WZ.b.l
-
-#define M_SBC(Rg)      \
-  WZ.w.l=THIS->reg.AF.b.h-Rg-(THIS->reg.AF.b.l&_CF); \
-  THIS->reg.AF.b.l=                           \
-    ((THIS->reg.AF.b.h^Rg)&(THIS->reg.AF.b.h^WZ.b.l)&0x80? _OF:0)| \
-    _NF|-WZ.b.h|ZSTable[WZ.b.l]|      \
-    ((THIS->reg.AF.b.h^Rg^WZ.b.l)&_HF);     \
-  THIS->reg.AF.b.h=WZ.b.l
-
-#define M_CMP(Rg)       \
-  WZ.w.l=THIS->reg.AF.b.h-Rg;    \
-  THIS->reg.AF.b.l=           \
-    ((THIS->reg.AF.b.h^Rg)&(THIS->reg.AF.b.h^WZ.b.l)&0x80? _OF:0)| \
-    _NF|-WZ.b.h|ZSTable[WZ.b.l]|                      \
-    ((THIS->reg.AF.b.h^Rg^WZ.b.l)&_HF)
-
-#define M_AND(Rg) THIS->reg.AF.b.h&=Rg;THIS->reg.AF.b.l=PZSTable[THIS->reg.AF.b.h]|_HF
-#define M_IOR(Rg) THIS->reg.AF.b.h|=Rg;THIS->reg.AF.b.l=PZSTable[THIS->reg.AF.b.h]
-#define M_XOR(Rg) THIS->reg.AF.b.h^=Rg;THIS->reg.AF.b.l=PZSTable[THIS->reg.AF.b.h]
 
 #define M_IN(Rg)        \
   Rg=InZ80(THIS->reg.BC.w.l);  \
