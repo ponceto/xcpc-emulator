@@ -14,7 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-AC_INIT([xcpc], [20070122], [ponceto@free.fr])
+AC_INIT([xcpc], [0.0.0], [ponceto@free.fr])
 AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PROG_LEX
