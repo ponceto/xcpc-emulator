@@ -80,27 +80,6 @@ case INC_xHL:  TMP1=RdZ80(XX_W+(gint8)RdZ80(PC_W));M_INC(TMP1);
                WrZ80(XX_W+(gint8)RdZ80(PC_W++),TMP1);
                break;
 
-case RLCA:
-  TMP1=(AF_H&0x80? _CF:0);
-  AF_H=(AF_H<<1)|TMP1;
-  AF_L=(AF_L&~(_CF|_NF|_HF))|TMP1;
-  break;
-case RLA:
-  TMP1=(AF_H&0x80? _CF:0);
-  AF_H=(AF_H<<1)|(AF_L&_CF);
-  AF_L=(AF_L&~(_CF|_NF|_HF))|TMP1;
-  break;
-case RRCA:
-  TMP1=AF_H&0x01;
-  AF_H=(AF_H>>1)|(TMP1? 0x80:0);
-  AF_L=(AF_L&~(_CF|_NF|_HF))|TMP1;
-  break;
-case RRA:
-  TMP1=AF_H&0x01;
-  AF_H=(AF_H>>1)|(AF_L&_CF? 0x80:0);
-  AF_L=(AF_L&~(_CF|_NF|_HF))|TMP1;
-  break;
-
 case RST00:    M_RST(0x0000);break;
 case RST08:    M_RST(0x0008);break;
 case RST10:    M_RST(0x0010);break;
