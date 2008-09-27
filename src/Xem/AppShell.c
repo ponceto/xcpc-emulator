@@ -424,16 +424,16 @@ static void OnXdndDrop(Widget widget, XEvent *xevent, String *params, Cardinal *
   if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndDrop)) {
     if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
       if(self->app_shell.XdndDataT1 != None) {
-        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT1, ConvertSelection, NULL, xevent->xclient.data.l[2]);
+        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT1, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
       }
       if(self->app_shell.XdndDataT2 != None) {
-        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT2, ConvertSelection, NULL, xevent->xclient.data.l[2]);
+        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT2, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
       }
       if(self->app_shell.XdndDataT3 != None) {
-        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT3, ConvertSelection, NULL, xevent->xclient.data.l[2]);
+        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT3, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
       }
       if(self->app_shell.XdndDataT4 != None) {
-        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT4, ConvertSelection, NULL, xevent->xclient.data.l[2]);
+        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT4, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
       }
       reply.xclient.type         = ClientMessage;
       reply.xclient.serial       = 0;
