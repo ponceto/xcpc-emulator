@@ -347,7 +347,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self)
     }
     dst = nxt; sl++;
   }
-  sl = &self->scanline[5];
+  sl = &self->scanline[6];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -604,7 +604,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self)
     }
     dst = nxt; sl++;
   }
-  sl = &self->scanline[5];
+  sl = &self->scanline[6];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -861,7 +861,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self)
     }
     dst = nxt; sl++;
   }
-  sl = &self->scanline[5];
+  sl = &self->scanline[6];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -1688,6 +1688,22 @@ static void mc6845_hsync(GdevMC6845 *mc6845)
       gdev_z80cpu_assert_int(amstrad_cpc.z80cpu);
       garray->counter = 0;
     }
+    if(garray->delayed > 0) {
+      if(--garray->delayed == 0) {
+        if(garray->counter >= 32) {
+          gdev_z80cpu_assert_int(amstrad_cpc.z80cpu);
+        }
+        garray->counter = 0;
+      }
+    }
+    /* XXX */ {
+      struct _scanline *sl = &amstrad_cpc.scanline[(amstrad_cpc.cur_scanline + 1) % 312];
+      int ix = 0;
+      sl->mode = garray->rom_cfg & 0x03;
+      do {
+        sl->ink[ix] = amstrad_cpc.palette[garray->ink[ix]].pixel;
+      } while(++ix < 17);
+    }
   }
 }
 
@@ -1696,12 +1712,7 @@ static void mc6845_vsync(GdevMC6845 *mc6845)
   GdevGArray *garray = amstrad_cpc.garray;
 
   if(mc6845->v_syn != 0) { /* rising edge */
-    if(garray->counter >= 32) {
-      garray->counter = 50;
-    }
-    else {
-      garray->counter = 0;
-    }
+    garray->delayed = 2;
   }
 }
 
@@ -1890,14 +1901,9 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   GdevDeviceClass *mc6845_class = GDEV_DEVICE_GET_CLASS(mc6845);
   GdevGArray *garray = self->garray;
   long delay, ix;
-  int scanline = 0;
 
+  self->cur_scanline = 0;
   do {
-    struct _scanline *sl = &self->scanline[scanline];
-    sl->mode = garray->rom_cfg & 0x03;
-    for(ix = 0; ix < 17; ix++) {
-      sl->ink[ix] = self->palette[garray->ink[ix]].pixel;
-    }
     for(ix = 0; ix < self->cpu_period; ix += 4) {
       (*mc6845_class->clock)(GDEV_DEVICE(mc6845));
       if((z80cpu->ccounter += 4) > 0) {
@@ -1906,7 +1912,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
         z80cpu->ccounter = ccounter - ((ccounter - z80cpu->ccounter) + 3 & (~3));
       }
     }
-  } while(++scanline < 312);
+  } while(++self->cur_scanline < 312);
   (void) gettimeofday(&self->timer2, NULL);
   delay = ((long) (self->timer2.tv_sec  -  self->timer1.tv_sec) * 1000)
         + ((long) (self->timer2.tv_usec - self->timer1.tv_usec) / 1000);

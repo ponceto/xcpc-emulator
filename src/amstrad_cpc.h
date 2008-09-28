@@ -56,6 +56,7 @@ struct _AMSTRAD_CPC {
     unsigned int mode;
     unsigned long ink[17];
   } scanline[312];
+  int cur_scanline;
   XImage  *ximage;
   Screen  *screen;
   Visual  *visual;
