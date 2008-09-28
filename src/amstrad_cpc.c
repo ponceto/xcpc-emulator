@@ -1486,7 +1486,7 @@ static void z80cpu_mreq_wr(GdevZ80CPU *z80cpu, guint16 addr, guint8 data)
  */
 static guint8 z80cpu_iorq_m1(GdevZ80CPU *z80cpu, guint16 port)
 {
-  amstrad_cpc.garray->counter &= 31;
+  amstrad_cpc.garray->counter &= 0x1f;
   return(0x00);
 }
 

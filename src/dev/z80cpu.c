@@ -130,6 +130,7 @@ next:
     goto next;
   }
   else if(z80cpu->reg.IF.w.l & _HLT) {
+    z80cpu->reg.IR.b.l = (z80cpu->reg.IR.b.l & 0x80) | ((z80cpu->reg.IR.b.l + 1) & 0x7f);
     z80cpu->m_cycles += 1;
     z80cpu->t_states += 4;
     z80cpu->ccounter -= 4;
@@ -1747,6 +1748,7 @@ decode_and_execute:
       z80cpu->ccounter -= 7;
       goto next;
   }
+  z80cpu->t_states += Cycles[opcode];
   z80cpu->ccounter -= Cycles[opcode];
   goto next;
 
@@ -5490,6 +5492,7 @@ decode_and_execute_dd:
       z80cpu->ccounter -= 11;
       goto next;
   }
+  z80cpu->t_states += CyclesXX[opcode];
   z80cpu->ccounter -= CyclesXX[opcode];
   goto next;
 
@@ -5505,6 +5508,7 @@ decode_and_execute_ed:
       z80cpu->ccounter -= 8;
       goto next;
   }
+  z80cpu->t_states += CyclesED[opcode];
   z80cpu->ccounter -= CyclesED[opcode];
   goto next;
 
@@ -7113,7 +7117,8 @@ decode_and_execute_fd:
       z80cpu->ccounter -= 11;
       goto next;
   }
-  z80cpu->ccounter -= CyclesED[opcode];
+  z80cpu->t_states += CyclesXX[opcode];
+  z80cpu->ccounter -= CyclesXX[opcode];
   goto next;
 
 fetch_dd_cb:
