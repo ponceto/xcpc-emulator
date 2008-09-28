@@ -347,7 +347,7 @@ static void amstrad_cpc_render08(AMSTRAD_CPC *self)
     }
     dst = nxt; sl++;
   }
-  sl = &self->scanline[4];
+  sl = &self->scanline[5];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -604,7 +604,7 @@ static void amstrad_cpc_render16(AMSTRAD_CPC *self)
     }
     dst = nxt; sl++;
   }
-  sl = &self->scanline[4];
+  sl = &self->scanline[5];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -861,7 +861,7 @@ static void amstrad_cpc_render32(AMSTRAD_CPC *self)
     }
     dst = nxt; sl++;
   }
-  sl = &self->scanline[4];
+  sl = &self->scanline[5];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
       nxt += AMSTRAD_CPC_SCR_W;
@@ -1486,6 +1486,7 @@ static void z80cpu_mreq_wr(GdevZ80CPU *z80cpu, guint16 addr, guint8 data)
  */
 static guint8 z80cpu_iorq_m1(GdevZ80CPU *z80cpu, guint16 port)
 {
+  amstrad_cpc.garray->counter &= 31;
   return(0x00);
 }
 
@@ -1604,7 +1605,6 @@ static void z80cpu_iorq_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
       case 2: /* Interrupt control, ROM configuration and screen mode */
         if((data & 0x10) != 0) {
           amstrad_cpc.garray->counter = 0;
-          amstrad_cpc.garray->gen_irq = 0;
         }
         amstrad_cpc.garray->rom_cfg = data & 0x1f;
         amstrad_cpc_mem_select(&amstrad_cpc);
@@ -1683,21 +1683,10 @@ static void mc6845_hsync(GdevMC6845 *mc6845)
 {
   GdevGArray *garray = amstrad_cpc.garray;
 
-  if(mc6845->h_syn != 0) {
-    garray->counter++;
-    if(garray->delayed > 0) {
-      if(--garray->delayed == 0) {
-        if(garray->counter >= 32) {
-          garray->gen_irq = 1;
-        }
-        garray->counter = 0;
-      }
-    }
-    else {
-      if(garray->counter == 52) {
-        garray->counter = 0;
-        garray->gen_irq = 1;
-      }
+  if(mc6845->h_syn == 0) { /* falling edge */
+    if(++garray->counter == 52) {
+      gdev_z80cpu_assert_int(amstrad_cpc.z80cpu);
+      garray->counter = 0;
     }
   }
 }
@@ -1706,8 +1695,13 @@ static void mc6845_vsync(GdevMC6845 *mc6845)
 {
   GdevGArray *garray = amstrad_cpc.garray;
 
-  if(mc6845->v_syn != 0) {
-    garray->delayed = 2;
+  if(mc6845->v_syn != 0) { /* rising edge */
+    if(garray->counter >= 32) {
+      garray->counter = 50;
+    }
+    else {
+      garray->counter = 0;
+    }
   }
 }
 
@@ -1906,12 +1900,6 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
     }
     for(ix = 0; ix < self->cpu_period; ix += 4) {
       (*mc6845_class->clock)(GDEV_DEVICE(mc6845));
-      if(garray->gen_irq > 0) {
-        if(--garray->gen_irq == 0) {
-          gdev_z80cpu_assert_int(z80cpu);
-          garray->counter &= 31;
-        }
-      }
       if((z80cpu->ccounter += 4) > 0) {
         gint ccounter = z80cpu->ccounter;
         (*z80cpu_class->clock)(GDEV_DEVICE(z80cpu));

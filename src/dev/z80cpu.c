@@ -113,17 +113,18 @@ next:
     (*z80cpu->mreq_wr)(z80cpu, --z80cpu->reg.SP.w.l, z80cpu->reg.PC.b.h);
     (*z80cpu->mreq_wr)(z80cpu, --z80cpu->reg.SP.w.l, z80cpu->reg.PC.b.l);
     z80cpu->reg.PC.w.l = 0x0066;
-    z80cpu->m_cycles += 1;
+    z80cpu->m_cycles += 3;
     z80cpu->t_states += 11;
     z80cpu->ccounter -= 11;
     goto next;
   }
   else if(z80cpu->reg.IF.w.l & _INT) {
     z80cpu->reg.IF.w.l &= ~(_HLT | _NMI | _INT | _IFF2 | _IFF1);
+    (void) (*z80cpu->iorq_m1)(z80cpu, 0x0000);
     (*z80cpu->mreq_wr)(z80cpu, --z80cpu->reg.SP.w.l, z80cpu->reg.PC.b.h);
     (*z80cpu->mreq_wr)(z80cpu, --z80cpu->reg.SP.w.l, z80cpu->reg.PC.b.l);
     z80cpu->reg.PC.w.l = 0x0038;
-    z80cpu->m_cycles += 1;
+    z80cpu->m_cycles += 3;
     z80cpu->t_states += 13;
     z80cpu->ccounter -= 13;
     goto next;

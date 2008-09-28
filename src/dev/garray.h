@@ -42,7 +42,6 @@ struct _GdevGArray {
   guint8 rom_cfg;
   guint8 ram_cfg;
   guint8 counter;
-  guint8 gen_irq;
   guint8 delayed;
 };
 
