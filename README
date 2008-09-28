@@ -1,3 +1,8 @@
+License:
+--------
+
+Xcpc - Copyright (c) 2001, 2006, 2007, 2008 Olivier Poncet
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -12,23 +17,32 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-!! PLEASE DON'T ASK ME FOR ROM IMAGES, SNAPSHOTS OR DISC IMAGES !!
+Legal Informations:
+-------------------
 
-GENERAL
+Amstrad has kindly given it's permission for it's copyrighted
+material to be redistributed but Amstrad retains it's copyright.
+Some of the Amstrad CPC ROM code is copyright Locomotive Software.
+ROM and DISK images are protected under the copyrights of their authors,
+and cannot be distributed in this package. You can download and/or use
+ROM and DISK images at your own risk and responsibility.
+
+License notes:
+--------------
+
+This software is partly based on the Z80 emulator from Marat Fayzullin.
+You can find the original source code at: http://www.komkon.org/fms/.
+A complete rewrite of the Z80 emulator is in progress. This new core will not
+contain any source code from the original Marat's implementation and will be
+available under the GNU General Public License (GPL).
+
+Install
 -------
 
-This software is partially based on the Marat Fayzullin's Z80 emulator
-(http://www.komkon.org/fms/), but a complete rewrite of the Z80 emulator
-is in progress.
-At this time, the emulator only supports SNAPSHOTS (*.sna) for loading games.
+See the 'INSTALL' file provided with this package.
 
-COMPILATION
------------
-
-See 'INSTALL'
-
-EXECUTION
----------
+How to Run Xcpc
+---------------
 
 Usage:
   xcpc [OPTION...]
@@ -59,9 +73,8 @@ Application Options:
   --rom014=filename     16Kb expansion rom #014
   --rom015=filename     16Kb expansion rom #015
 
-TODO:
------
+Notes:
+------
 
 	* Xcpc doesn't have sound emulation yet.
-	* Gtk2 / Gnome User Interface will come soon.
 	* You can emulate the joystick by disable the 'Num Lock' key.
