@@ -542,7 +542,7 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XmAnyCallbackStruct *cbs)
   Cardinal argcount;
   XmString title = XmStringCreateLocalized(_("About Xcpc ..."));
   XmString message = XmStringCreateLocalized(_(
-    PACKAGE_STRING " - Amstrad CPC Emulator - Copyright (c) 2001, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Olivier Poncet\n\n"
+    PACKAGE_STRING " - Amstrad CPC Emulator - Copyright (c) 2001-2013 Olivier Poncet\n\n"
     "This program is free software; you can redistribute it and/or modify\n"
     "it under the terms of the GNU General Public License as published by\n"
     "the Free Software Foundation; either version 2 of the License, or\n"
