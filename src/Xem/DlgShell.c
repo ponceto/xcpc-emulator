@@ -1,5 +1,5 @@
 /*
- * DlgShell.c - Copyright (c) 2001-2013 Olivier Poncet
+ * DlgShell.c - Copyright (c) 2001-2014 Olivier Poncet
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
