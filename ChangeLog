@@ -1,3 +1,11 @@
+2020-02-19	Olivier Poncet <ponceto@free.fr>
+
+	* Copyright modification for 2020.
+	* Autotoolization updated
+	* Some warning fixes.
+	* Import of lib765 v0.4.2
+	* Import of libdsk v1.4.2
+
 2014-05-21	Olivier Poncet <ponceto@free.fr>
 
 	* Copyright modification for 2014.

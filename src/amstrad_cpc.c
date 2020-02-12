@@ -1,9 +1,9 @@
 /*
- * amstrad_cpc.c - Copyright (c) 2001-2014 Olivier Poncet
+ * amstrad_cpc.c - Copyright (c) 2001-2020 - Olivier Poncet
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -12,8 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -36,7 +35,6 @@
 #endif
 #include <Xem/Emulator.h>
 #include "amstrad_cpc.h"
-#include "xcpc.h"
 
 #define AMSTRAD_CPC_SCR_W 768
 #define AMSTRAD_CPC_SCR_H 576
@@ -1272,12 +1270,18 @@ void amstrad_cpc_load_snapshot(char *filename)
   guint8 buffer[256], *bufptr = buffer;
   int ramsize= 0;
   int ix;
+  int rc;
 
   if((file = fopen(filename, "r")) == NULL) {
     perror("amstrad_cpc");
     return;
   }
-  fread(buffer, 1, 256, file);
+  rc = fread(buffer, 1, 256, file);
+  if(rc < 0) {
+    fprintf(stderr, "not a valid snapshot file\n");
+    fclose(file);
+    return;
+  }
   if(memcmp(bufptr, "MV - SNA", 8)) {
     fprintf(stderr, "not a valid snapshot file (bad signature)\n");
     fclose(file);
@@ -1352,7 +1356,12 @@ void amstrad_cpc_load_snapshot(char *filename)
     fclose(file);
     return;
   }
-  fread(self->memory.total_ram, 1, ramsize * 1024, file);
+  rc = fread(self->memory.total_ram, 1, ramsize * 1024, file);
+  if(rc < 0) {
+    fprintf(stderr, "not a valid snapshot file\n");
+    fclose(file);
+    return;
+  }
   fclose(file);
 }
 
@@ -1361,7 +1370,6 @@ void amstrad_cpc_save_snapshot(char *filename)
   AMSTRAD_CPC *self = &amstrad_cpc;
   FILE *file;
   guint8 buffer[256], *bufptr = buffer;
-  int ramsize = 0;
   int ix;
 
   if((file = fopen(filename, "w")) == NULL) {
@@ -1720,17 +1728,14 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
 {
   AMSTRAD_CPC *self = &amstrad_cpc;
   int ix;
-  FILE *file;
-  Arg arglist[8];
-  Cardinal argcount;
 
   /* Model */
   if(cfg_model == NULL) {
     if(cfg_sys_rom == NULL) {
-      cfg_sys_rom = g_build_filename(ROMSDIR, "cpc6128.rom", NULL);
+      cfg_sys_rom = g_build_filename(XCPC_RESDIR, "roms", "cpc6128.rom", NULL);
     }
     if(cfg_exp_rom[7] == NULL) {
-      cfg_exp_rom[7] = g_build_filename(ROMSDIR, "amsdos.rom", NULL);
+      cfg_exp_rom[7] = g_build_filename(XCPC_RESDIR, "roms", "amsdos.rom", NULL);
     }
     self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 128;
@@ -1739,7 +1744,7 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   }
   else if(strcmp("cpc464", cfg_model) == 0) {
     if(cfg_sys_rom == NULL) {
-      cfg_sys_rom = g_build_filename(ROMSDIR, "cpc464.rom", NULL);
+      cfg_sys_rom = g_build_filename(XCPC_RESDIR, "roms", "cpc464.rom", NULL);
     }
     if(cfg_exp_rom[7] == NULL) {
       cfg_exp_rom[7] = NULL;
@@ -1751,10 +1756,10 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   }
   else if(strcmp("cpc664", cfg_model) == 0) {
     if(cfg_sys_rom == NULL) {
-      cfg_sys_rom = g_build_filename(ROMSDIR, "cpc664.rom", NULL);
+      cfg_sys_rom = g_build_filename(XCPC_RESDIR, "roms", "cpc664.rom", NULL);
     }
     if(cfg_exp_rom[7] == NULL) {
-      cfg_exp_rom[7] = g_build_filename(ROMSDIR, "amsdos.rom", NULL);
+      cfg_exp_rom[7] = g_build_filename(XCPC_RESDIR, "roms", "amsdos.rom", NULL);
     }
     self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 64;
@@ -1763,10 +1768,10 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   }
   else if(strcmp("cpc6128", cfg_model) == 0) {
     if(cfg_sys_rom == NULL) {
-      cfg_sys_rom = g_build_filename(ROMSDIR, "cpc6128.rom", NULL);
+      cfg_sys_rom = g_build_filename(XCPC_RESDIR, "roms", "cpc6128.rom", NULL);
     }
     if(cfg_exp_rom[7] == NULL) {
-      cfg_exp_rom[7] = g_build_filename(ROMSDIR, "amsdos.rom", NULL);
+      cfg_exp_rom[7] = g_build_filename(XCPC_RESDIR, "roms", "amsdos.rom", NULL);
     }
     self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 128;
@@ -1775,10 +1780,10 @@ void amstrad_cpc_start_handler(Widget widget, XtPointer data)
   }
   else {
     if(cfg_sys_rom == NULL) {
-      cfg_sys_rom = g_build_filename(ROMSDIR, "cpc6128.rom", NULL);
+      cfg_sys_rom = g_build_filename(XCPC_RESDIR, "roms", "cpc6128.rom", NULL);
     }
     if(cfg_exp_rom[7] == NULL) {
-      cfg_exp_rom[7] = g_build_filename(ROMSDIR, "amsdos.rom", NULL);
+      cfg_exp_rom[7] = g_build_filename(XCPC_RESDIR, "roms", "amsdos.rom", NULL);
     }
     self->keybd_hnd = gdev_cpckbd_qwerty;
     self->ramsize   = 128;
@@ -1899,7 +1904,6 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
   GdevDeviceClass *z80cpu_class = GDEV_DEVICE_GET_CLASS(z80cpu);
   GdevMC6845 *mc6845 = self->mc6845;
   GdevDeviceClass *mc6845_class = GDEV_DEVICE_GET_CLASS(mc6845);
-  GdevGArray *garray = self->garray;
   long delay, ix;
 
   self->cur_scanline = 0;
@@ -1909,7 +1913,7 @@ void amstrad_cpc_clock_handler(Widget widget, XtPointer data)
       if((z80cpu->ccounter += 4) > 0) {
         gint ccounter = z80cpu->ccounter;
         (*z80cpu_class->clock)(GDEV_DEVICE(z80cpu));
-        z80cpu->ccounter = ccounter - ((ccounter - z80cpu->ccounter) + 3 & (~3));
+        z80cpu->ccounter = ccounter - (((ccounter - z80cpu->ccounter) + 3) & (~3));
       }
     }
   } while(++self->cur_scanline < 312);

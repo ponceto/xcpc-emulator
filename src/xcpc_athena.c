@@ -1,9 +1,9 @@
 /*
- * xcpc_athena.c - Copyright (c) 2001-2014 Olivier Poncet
+ * xcpc_athena.c - Copyright (c) 2001-2020 - Olivier Poncet
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -12,8 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -27,7 +26,7 @@
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
 #include "amstrad_cpc.h"
-#include "xcpc.h"
+#include "xcpc_athena.h"
 
 static Widget CreateGUI(Widget toplevel);
 
@@ -138,9 +137,10 @@ int main(int argc, char *argv[])
   if(xcpc_resources.edres_flag != FALSE) {
     XtAddEventHandler(toplevel, NoEventMask, TRUE, (XtEventHandler) _XEditResCheckMessages, (XtPointer) NULL);
   }
-  /* XXX */ {
-    g_type_init(); apwindow = CreateGUI(toplevel);
-  }
+#if 0
+    /* g_type_init(); */
+#endif
+  apwindow = CreateGUI(toplevel);
   XtManageChild(apwindow);
   XtRealizeWidget(toplevel);
   XtAppMainLoop(appcontext);
@@ -569,18 +569,17 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
   Arg arglist[8];
   Cardinal argcount;
   String message = _(
-    PACKAGE_STRING " - Amstrad CPC Emulator - Copyright (c) 2001-2013 Olivier Poncet\n\n"
-    "This program is free software; you can redistribute it and/or modify\n"
+    PACKAGE_STRING " - Amstrad CPC Emulator - Copyright (c) 2001-2020 - Olivier Poncet\n\n"
+    "This program is free software: you can redistribute it and/or modify\n"
     "it under the terms of the GNU General Public License as published by\n"
-    "the Free Software Foundation; either version 2 of the License, or\n"
+    "the Free Software Foundation, either version 2 of the License, or\n"
     "(at your option) any later version.\n\n"
     "This program is distributed in the hope that it will be useful,\n"
     "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
     "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
     "GNU General Public License for more details.\n\n"
     "You should have received a copy of the GNU General Public License\n"
-    "along with this program; if not, write to the Free Software\n"
-    "Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA"
+    "along with this program.  If not, see <http://www.gnu.org/licenses/>"
   );
 
   XtSetSensitive(gui->emulator, FALSE);

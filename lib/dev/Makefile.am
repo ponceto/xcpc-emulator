@@ -1,0 +1,80 @@
+#
+# Makefile.am - Copyright (c) 2001-2020 - Olivier Poncet
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+#
+
+# ----------------------------------------------------------------------------
+# noinst_LTLIBRARIES
+# ----------------------------------------------------------------------------
+
+noinst_LTLIBRARIES = \
+	libdev.la \
+	$(NULL)
+
+# ----------------------------------------------------------------------------
+# libdev
+# ----------------------------------------------------------------------------
+
+libdev_la_SOURCES = \
+	device.c \
+	device.h \
+	z80cpu.c \
+	z80cpu.h \
+	z80cpu_tables.h \
+	z80cpu_opcode.h \
+	z80cpu_opcode_DD.h \
+	z80cpu_opcode_ED.h \
+	z80cpu_opcode_FD.h \
+	z80cpu_opcode_XX.h \
+	garray.c \
+	garray.h \
+	cpcmem.c \
+	cpcmem.h \
+	cpckbd.c \
+	cpckbd.h \
+	mc6845.c \
+	mc6845.h \
+	ay8910.c \
+	ay8910.h \
+	libdsk.c \
+	libdsk.h \
+	lib765.c \
+	lib765.h \
+	upd765.c \
+	upd765.h \
+	fdc765.c \
+	fdc765.h \
+	fdd765.c \
+	fdd765.h \
+	i8255.c \
+	i8255.h \
+	$(NULL)
+
+libdev_la_CPPFLAGS = \
+	-I$(top_srcdir)/lib \
+	$(GLIB_CFLAGS) \
+	$(X_CFLAGS) \
+	$(NULL)
+
+libdev_la_LDFLAGS = \
+	-L$(top_builddir)/lib \
+	$(NULL)
+
+libdev_la_LIBADD = \
+	$(NULL)
+
+# ----------------------------------------------------------------------------
+# End-Of-File
+# ----------------------------------------------------------------------------
