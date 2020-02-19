@@ -42,15 +42,18 @@ libXem_la_SOURCES = \
 
 libXem_la_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
-	$(GLIB_CFLAGS) \
 	$(X_CFLAGS) \
 	$(NULL)
 
 libXem_la_LDFLAGS = \
 	-L$(top_builddir)/lib \
+	$(X_LDFLAGS) \
 	$(NULL)
 
 libXem_la_LIBADD = \
+	$(X_LIBS) -lXmu -lXt \
+	$(X_PRE_LIBS) -lXext -lX11 \
+	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

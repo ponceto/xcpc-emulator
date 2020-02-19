@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _XemDlgShell_h
-#define _XemDlgShell_h
+#ifndef __XemDlgShell_h__
+#define __XemDlgShell_h__
 
 #include <X11/Shell.h>
 
@@ -25,8 +25,8 @@ extern "C" {
 
 externalref WidgetClass xemDlgShellWidgetClass;
 
-typedef struct _XemDlgShellClassRec *XemDlgShellWidgetClass;
-typedef struct _XemDlgShellRec *XemDlgShellWidget;
+typedef struct _XemDlgShellClassRec* XemDlgShellWidgetClass;
+typedef struct _XemDlgShellRec*      XemDlgShellWidget;
 
 #ifndef XemIsDlgShell
 #define XemIsDlgShell(w) XtIsSubclass(w, xemDlgShellWidgetClass)
@@ -38,4 +38,4 @@ extern Widget XemCreateDlgShell(Widget parent, String name, ArgList args, Cardin
 }
 #endif
 
-#endif
+#endif /* __XemDlgShell_h__ */

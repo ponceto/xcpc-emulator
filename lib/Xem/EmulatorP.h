@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _XemEmulatorP_h
-#define _XemEmulatorP_h
+#ifndef __XemEmulatorP_h__
+#define __XemEmulatorP_h__
 
 #include <X11/CoreP.h>
 #include <Xem/Emulator.h>
@@ -24,34 +24,45 @@
 extern "C" {
 #endif
 
+typedef unsigned long (*XemEmulatorCreateProc)  (Widget widget, XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorDestroyProc) (Widget widget, XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorRealizeProc) (Widget widget, XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorResizeProc)  (Widget widget, XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorRedrawProc)  (Widget widget, XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorInputProc)   (Widget widget, XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorTimerProc)   (Widget widget, XtPointer data, XEvent* event);
+
 typedef struct _XemEmulatorClassPart {
-  XtPointer extension;
+    XtPointer extension;
 } XemEmulatorClassPart;
 
 typedef struct _XemEmulatorClassRec {
-  CoreClassPart        core_class;
-  XemEmulatorClassPart emulator_class;
+    CoreClassPart        core_class;
+    XemEmulatorClassPart emulator_class;
 } XemEmulatorClassRec;
 
 externalref XemEmulatorClassRec xemEmulatorClassRec;
 
 typedef struct _XemEmulatorPart {
-  void (*start_handler)(Widget widget, XtPointer data);
-  void (*clock_handler)(Widget widget, XtPointer data);
-  void (*close_handler)(Widget widget, XtPointer data);
-  void (*input_handler)(Widget widget, XEvent *xevent);
-  void (*paint_handler)(Widget widget, XEvent *xevent);
-  XtIntervalId timer;
-  unsigned long delay;
+    XtPointer              context;
+    XemEmulatorCreateProc  create_proc;
+    XemEmulatorDestroyProc destroy_proc;
+    XemEmulatorRealizeProc realize_proc;
+    XemEmulatorResizeProc  resize_proc;
+    XemEmulatorRedrawProc  redraw_proc;
+    XemEmulatorInputProc   input_proc;
+    XemEmulatorTimerProc   timer_proc;
+    XtIntervalId           timer;
+    unsigned long          delay;
 } XemEmulatorPart;
 
 typedef struct _XemEmulatorRec {
-  CorePart        core;
-  XemEmulatorPart emulator;
+    CorePart        core;
+    XemEmulatorPart emulator;
 } XemEmulatorRec;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* __XemEmulatorP_h__ */

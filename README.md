@@ -1,53 +1,58 @@
 # README
 
-## How to install XCPC
+## How to install Xcpc
 
 ```
 See the 'INSTALL' file provided with this package.
 ```
 
-## How to run XCPC
+## How to run Xcpc
 
 ```
 Usage:
-  xcpc [OPTION...]
+  xcpc [OPTION?]
 
 Help Options:
-  -?, --help            Show help options
+  -h, --help                        Show help options
 
 Application Options:
-  --model=value         cpc464|cpc664|cpc6128
-  --monitor=value       color|green
-  --keyboard=value      qwerty|azerty
-  --firmname=value      isp|triumph|saisho|solavox|awa|schneider|orion|amstrad
-  --sysrom=filename     32Kb system rom
-  --rom000=filename     16Kb expansion rom #000
-  --rom001=filename     16Kb expansion rom #001
-  --rom002=filename     16Kb expansion rom #002
-  --rom003=filename     16Kb expansion rom #003
-  --rom004=filename     16Kb expansion rom #004
-  --rom005=filename     16Kb expansion rom #005
-  --rom006=filename     16Kb expansion rom #006
-  --rom007=filename     16Kb expansion rom #007
-  --rom008=filename     16Kb expansion rom #008
-  --rom009=filename     16Kb expansion rom #009
-  --rom010=filename     16Kb expansion rom #010
-  --rom011=filename     16Kb expansion rom #011
-  --rom012=filename     16Kb expansion rom #012
-  --rom013=filename     16Kb expansion rom #013
-  --rom014=filename     16Kb expansion rom #014
-  --rom015=filename     16Kb expansion rom #015
+  --no-fps                          Don't show fps statistics
+  --no-xshm                         Don't use the XShm extension
+  --model={computer-model}          cpc464, cpc664, cpc6128
+  --monitor={monitor-model}         color, green, monochrome, ctm640, ctm644, gt64, gt65, cm14, mm14
+  --keyboard={keyboard-layout}      qwerty, azerty
+  --refresh={refresh-rate}          50Hz, 60Hz
+  --manufacturer={manufacturer}     Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad
+  --snapshot=filename               Snapshot to load at start
+  --sysrom=filename                 32Kb system rom
+  --rom000=filename                 16Kb expansion rom #00
+  --rom001=filename                 16Kb expansion rom #01
+  --rom002=filename                 16Kb expansion rom #02
+  --rom003=filename                 16Kb expansion rom #03
+  --rom004=filename                 16Kb expansion rom #04
+  --rom005=filename                 16Kb expansion rom #05
+  --rom006=filename                 16Kb expansion rom #06
+  --rom007=filename                 16Kb expansion rom #07
+  --rom008=filename                 16Kb expansion rom #08
+  --rom009=filename                 16Kb expansion rom #09
+  --rom010=filename                 16Kb expansion rom #10
+  --rom011=filename                 16Kb expansion rom #11
+  --rom012=filename                 16Kb expansion rom #12
+  --rom013=filename                 16Kb expansion rom #13
+  --rom014=filename                 16Kb expansion rom #14
+  --rom015=filename                 16Kb expansion rom #15
+
 ```
 
 ## Release notes
 
-  * XCPC doesn't have sound emulation yet.
+  * Xcpc doesn't have sound emulation yet.
   * You can emulate the joystick by disabling the 'Num Lock' key.
 
 ## License terms
 
 ```
-XCPC - Copyright (c) 2001-2020 - Olivier Poncet
+Xcpc - Copyright (c) 2001-2020 - Olivier Poncet
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

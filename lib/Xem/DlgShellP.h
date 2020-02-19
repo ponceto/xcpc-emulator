@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _XemDlgShellP_h
-#define _XemDlgShellP_h
+#ifndef __XemDlgShellP_h__
+#define __XemDlgShellP_h__
 
 #include <X11/ShellP.h>
 #include <Xem/DlgShell.h>
@@ -25,40 +25,40 @@ extern "C" {
 #endif
 
 typedef struct _XemDlgShellClassPart {
-  XtPointer extension;
+    XtPointer extension;
 } XemDlgShellClassPart;
 
 typedef struct _XemDlgShellClassRec {
-  CoreClassPart           core_class;
-  CompositeClassPart      composite_class;
-  ShellClassPart          shell_class;
-  WMShellClassPart        wm_shell_class;
-  VendorShellClassPart    vendor_shell_class;
-  TransientShellClassPart transient_shell_class;
-  XemDlgShellClassPart    dlg_shell_class;
+    CoreClassPart           core_class;
+    CompositeClassPart      composite_class;
+    ShellClassPart          shell_class;
+    WMShellClassPart        wm_shell_class;
+    VendorShellClassPart    vendor_shell_class;
+    TransientShellClassPart transient_shell_class;
+    XemDlgShellClassPart    dlg_shell_class;
 } XemDlgShellClassRec;
 
 externalref XemDlgShellClassRec xemDlgShellClassRec;
 
 typedef struct _XemDlgShellPart {
-  Atom WM_PROTOCOLS;
-  Atom WM_DELETE_WINDOW;
-  XtCallbackList wm_close_callback;
-  XtCallbackList drop_uri_callback;
+    Atom           WM_PROTOCOLS;
+    Atom           WM_DELETE_WINDOW;
+    XtCallbackList wm_close_callback;
+    XtCallbackList drop_uri_callback;
 } XemDlgShellPart;
 
 typedef struct _XemDlgShellRec {
-  CorePart           core;
-  CompositePart      composite;
-  ShellPart          shell;
-  WMShellPart        wm_shell;
-  VendorShellPart    vendor_shell;
-  TransientShellPart transient_shell;	
-  XemDlgShellPart    dlg_shell;
+    CorePart           core;
+    CompositePart      composite;
+    ShellPart          shell;
+    WMShellPart        wm_shell;
+    VendorShellPart    vendor_shell;
+    TransientShellPart transient_shell;
+    XemDlgShellPart    dlg_shell;
 } XemDlgShellRec;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* __XemDlgShellP_h__ */

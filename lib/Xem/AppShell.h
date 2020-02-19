@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _XemAppShell_h
-#define _XemAppShell_h
+#ifndef __XemAppShell_h__
+#define __XemAppShell_h__
 
 #include <X11/Shell.h>
 
@@ -25,8 +25,8 @@ extern "C" {
 
 externalref WidgetClass xemAppShellWidgetClass;
 
-typedef struct _XemAppShellClassRec *XemAppShellWidgetClass;
-typedef struct _XemAppShellRec *XemAppShellWidget;
+typedef struct _XemAppShellClassRec* XemAppShellWidgetClass;
+typedef struct _XemAppShellRec*      XemAppShellWidget;
 
 #ifndef XemIsAppShell
 #define XemIsAppShell(w) XtIsSubclass(w, xemAppShellWidgetClass)
@@ -38,4 +38,4 @@ extern Widget XemCreateAppShell(Widget parent, String name, ArgList args, Cardin
 }
 #endif
 
-#endif
+#endif /* __XemAppShell_h__ */

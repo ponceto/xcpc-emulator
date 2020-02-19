@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _XemEmulator_h
-#define _XemEmulator_h
+#ifndef __XemEmulator_h__
+#define __XemEmulator_h__
 
 #include <X11/Core.h>
 
@@ -25,8 +25,8 @@ extern "C" {
 
 externalref WidgetClass xemEmulatorWidgetClass;
 
-typedef struct _XemEmulatorClassRec *XemEmulatorWidgetClass;
-typedef struct _XemEmulatorRec *XemEmulatorWidget;
+typedef struct _XemEmulatorClassRec* XemEmulatorWidgetClass;
+typedef struct _XemEmulatorRec*      XemEmulatorWidget;
 
 #ifndef XemIsEmulator
 #define XemIsEmulator(w) XtIsSubclass(w, xemEmulatorWidgetClass)
@@ -38,4 +38,4 @@ extern Widget XemCreateEmulator(Widget parent, String name, ArgList args, Cardin
 }
 #endif
 
-#endif
+#endif /* __XemEmulator_h__ */

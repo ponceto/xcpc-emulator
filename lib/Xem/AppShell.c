@@ -27,24 +27,24 @@
 #include <X11/Xutil.h>
 
 static void ClassInitialize(void);
-static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args);
-static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attributes);
+static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* num_args);
+static void Realize(Widget widget, XtValueMask* mask, XSetWindowAttributes* attributes);
 static void Destroy(Widget widget);
-static void OnWMProtocols(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
-static void OnXdndEnter(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
-static void OnXdndLeave(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
-static void OnXdndPosition(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
-static void OnXdndDrop(Widget widget, XEvent *xevent, String *params, Cardinal *num_params);
+static void OnWMProtocols(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
+static void OnXdndEnter(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
+static void OnXdndLeave(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
+static void OnXdndPosition(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
+static void OnXdndDrop(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
 
 /**
  * XemAppShellWidget::actions[]
  */
 static XtActionsRec actions[] = {
-  { "OnWMProtocols",  OnWMProtocols  },
-  { "OnXdndEnter",    OnXdndEnter    },
-  { "OnXdndLeave",    OnXdndLeave    },
-  { "OnXdndPosition", OnXdndPosition },
-  { "OnXdndDrop",     OnXdndDrop     }
+    { "OnWMProtocols",  OnWMProtocols  },
+    { "OnXdndEnter",    OnXdndEnter    },
+    { "OnXdndLeave",    OnXdndLeave    },
+    { "OnXdndPosition", OnXdndPosition },
+    { "OnXdndDrop",     OnXdndDrop     }
 };
 
 /**
@@ -62,16 +62,16 @@ static char translations[] = "\
  * XemAppShellWidget::resources[]
  */
 static XtResource resources[] = {
-  /* XtNwmCloseCallback */ {
-    XtNwmCloseCallback, XtCCallback, XtRCallback,
-    sizeof(XtCallbackList), XtOffsetOf(XemAppShellRec, app_shell.wm_close_callback),
-    XtRImmediate, (XtPointer) NULL
-  },
-  /* XtNdropURICallback */ {
-    XtNdropURICallback, XtCCallback, XtRCallback,
-    sizeof(XtCallbackList), XtOffsetOf(XemAppShellRec, app_shell.drop_uri_callback),
-    XtRImmediate, (XtPointer) NULL
-  }
+    /* XtNwmCloseCallback */ {
+        XtNwmCloseCallback, XtCCallback, XtRCallback,
+        sizeof(XtCallbackList), XtOffsetOf(XemAppShellRec, app_shell.wm_close_callback),
+        XtRImmediate, (XtPointer) NULL
+    },
+    /* XtNdropURICallback */ {
+        XtNdropURICallback, XtCCallback, XtRCallback,
+        sizeof(XtCallbackList), XtOffsetOf(XemAppShellRec, app_shell.drop_uri_callback),
+        XtRImmediate, (XtPointer) NULL
+    }
 };
 
 /*
@@ -83,65 +83,65 @@ static WidgetClass XemAppShellSuperClass = (WidgetClass) NULL;
  * XemAppShellWidget::Class
  */
 externaldef(xemappshellclassrec) XemAppShellClassRec xemAppShellClassRec = {
-  /* CoreClassPart */ {
-    (WidgetClass) &applicationShellClassRec, /* superclass                   */
-    "XemAppShell",                           /* class_name                   */
-    sizeof(XemAppShellRec),                  /* widget_size                  */
-    ClassInitialize,                         /* class_initialize             */
-    NULL,                                    /* class_part_initialize        */
-    FALSE,                                   /* class_inited                 */
-    Initialize,                              /* initialize                   */
-    NULL,                                    /* initialize_hook              */
-    Realize,                                 /* realize                      */
-    actions,                                 /* actions                      */
-    XtNumber(actions),                       /* num_actions                  */
-    resources,                               /* resources                    */
-    XtNumber(resources),                     /* num_resources                */
-    NULLQUARK,                               /* xrm_class                    */
-    TRUE,                                    /* compress_motion              */
-    TRUE,                                    /* compress_exposure            */
-    TRUE,                                    /* compress_enterleave          */
-    FALSE,                                   /* visible_interest             */
-    Destroy,                                 /* destroy                      */
-    XtInheritResize,                         /* resize                       */
-    XtInheritExpose,                         /* expose                       */
-    NULL,                                    /* set_values                   */
-    NULL,                                    /* set_values_hook              */
-    XtInheritSetValuesAlmost,                /* set_values_almost            */
-    NULL,                                    /* get_values_hook              */
-    XtInheritAcceptFocus,                    /* accept_focus                 */
-    XtVersion,                               /* version                      */
-    NULL,                                    /* callback_private             */
-    translations,                            /* tm_table                     */
-    XtInheritQueryGeometry,                  /* query_geometry               */
-    XtInheritDisplayAccelerator,             /* display_accelerator          */
-    NULL                                     /* extension                    */
-  },
-  /* CompositeClassPart */ {
-    XtInheritGeometryManager,                /* geometry_manager             */
-    XtInheritChangeManaged,                  /* change_managed               */
-    XtInheritInsertChild,                    /* insert_child                 */
-    XtInheritDeleteChild,                    /* delete_child                 */
-    NULL                                     /* extension                    */
-  },
-  /* ShellClassPart */ {
-    NULL                                     /* extension                    */
-  },
-  /* WMShellClassPart */ {
-    NULL                                     /* extension                    */
-  },
-  /* VendorShellClassPart */ {
-    NULL                                     /* extension                    */
-  },
-  /* TopLevelShellClassPart */ {
-    NULL                                     /* extension                    */
-  },
-  /* ApplicationShellClassPart */ {
-    NULL                                     /* extension                    */
-  },
-  /* XemAppShellClassPart */ {
-    NULL                                     /* extension                    */
-  }
+    /* CoreClassPart */ {
+        (WidgetClass) &applicationShellClassRec, /* superclass            */
+        "XemAppShell",                           /* class_name            */
+        sizeof(XemAppShellRec),                  /* widget_size           */
+        ClassInitialize,                         /* class_initialize      */
+        NULL,                                    /* class_part_initialize */
+        FALSE,                                   /* class_inited          */
+        Initialize,                              /* initialize            */
+        NULL,                                    /* initialize_hook       */
+        Realize,                                 /* realize               */
+        actions,                                 /* actions               */
+        XtNumber(actions),                       /* num_actions           */
+        resources,                               /* resources             */
+        XtNumber(resources),                     /* num_resources         */
+        NULLQUARK,                               /* xrm_class             */
+        TRUE,                                    /* compress_motion       */
+        TRUE,                                    /* compress_exposure     */
+        TRUE,                                    /* compress_enterleave   */
+        FALSE,                                   /* visible_interest      */
+        Destroy,                                 /* destroy               */
+        XtInheritResize,                         /* resize                */
+        XtInheritExpose,                         /* expose                */
+        NULL,                                    /* set_values            */
+        NULL,                                    /* set_values_hook       */
+        XtInheritSetValuesAlmost,                /* set_values_almost     */
+        NULL,                                    /* get_values_hook       */
+        XtInheritAcceptFocus,                    /* accept_focus          */
+        XtVersion,                               /* version               */
+        NULL,                                    /* callback_private      */
+        translations,                            /* tm_table              */
+        XtInheritQueryGeometry,                  /* query_geometry        */
+        XtInheritDisplayAccelerator,             /* display_accelerator   */
+        NULL                                     /* extension             */
+    },
+    /* CompositeClassPart */ {
+        XtInheritGeometryManager,                /* geometry_manager      */
+        XtInheritChangeManaged,                  /* change_managed        */
+        XtInheritInsertChild,                    /* insert_child          */
+        XtInheritDeleteChild,                    /* delete_child          */
+        NULL                                     /* extension             */
+    },
+    /* ShellClassPart */ {
+        NULL                                     /* extension             */
+    },
+    /* WMShellClassPart */ {
+        NULL                                     /* extension             */
+    },
+    /* VendorShellClassPart */ {
+        NULL                                     /* extension             */
+    },
+    /* TopLevelShellClassPart */ {
+        NULL                                     /* extension             */
+    },
+    /* ApplicationShellClassPart */ {
+        NULL                                     /* extension             */
+    },
+    /* XemAppShellClassPart */ {
+        NULL                                     /* extension             */
+    }
 };
 
 externaldef(xemappshellwidgetclass) WidgetClass xemAppShellWidgetClass = (WidgetClass) &xemAppShellClassRec;
@@ -151,7 +151,7 @@ externaldef(xemappshellwidgetclass) WidgetClass xemAppShellWidgetClass = (Widget
  */
 static void ClassInitialize(void)
 {
-  XemAppShellSuperClass = xemAppShellClassRec.core_class.superclass;
+    XemAppShellSuperClass = xemAppShellClassRec.core_class.superclass;
 }
 
 /**
@@ -162,30 +162,30 @@ static void ClassInitialize(void)
  * @param args specifies the argument list
  * @param num_args specifies the argument count
  */
-static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *num_args)
+static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* num_args)
 {
-  XemAppShellWidget self = (XemAppShellWidget) widget;
+    XemAppShellWidget self = (XemAppShellWidget) widget;
 
-  self->app_shell.WM_PROTOCOLS      = XInternAtom(DisplayOfScreen(self->core.screen), "WM_PROTOCOLS",      FALSE);
-  self->app_shell.WM_DELETE_WINDOW  = XInternAtom(DisplayOfScreen(self->core.screen), "WM_DELETE_WINDOW",  FALSE);
-  self->app_shell.XdndAware         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndAware",         FALSE);
-  self->app_shell.XdndSelection     = XInternAtom(DisplayOfScreen(self->core.screen), "XdndSelection",     FALSE);
-  self->app_shell.XdndEnter         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndEnter",         FALSE);
-  self->app_shell.XdndLeave         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndLeave",         FALSE);
-  self->app_shell.XdndPosition      = XInternAtom(DisplayOfScreen(self->core.screen), "XdndPosition",      FALSE);
-  self->app_shell.XdndDrop          = XInternAtom(DisplayOfScreen(self->core.screen), "XdndDrop",          FALSE);
-  self->app_shell.XdndStatus        = XInternAtom(DisplayOfScreen(self->core.screen), "XdndStatus",        FALSE);
-  self->app_shell.XdndFinished      = XInternAtom(DisplayOfScreen(self->core.screen), "XdndFinished",      FALSE);
-  self->app_shell.XdndActionCopy    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionCopy",    FALSE);
-  self->app_shell.XdndActionMove    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionMove",    FALSE);
-  self->app_shell.XdndActionLink    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionLink",    FALSE);
-  self->app_shell.XdndActionAsk     = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionAsk",     FALSE);
-  self->app_shell.XdndActionPrivate = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionPrivate", FALSE);
-  self->app_shell.XdndSource        = None;
-  self->app_shell.XdndDataT1        = None;
-  self->app_shell.XdndDataT2        = None;
-  self->app_shell.XdndDataT3        = None;
-  self->app_shell.XdndDataT4        = None;
+    self->app_shell.WM_PROTOCOLS      = XInternAtom(DisplayOfScreen(self->core.screen), "WM_PROTOCOLS",      FALSE);
+    self->app_shell.WM_DELETE_WINDOW  = XInternAtom(DisplayOfScreen(self->core.screen), "WM_DELETE_WINDOW",  FALSE);
+    self->app_shell.XdndAware         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndAware",         FALSE);
+    self->app_shell.XdndSelection     = XInternAtom(DisplayOfScreen(self->core.screen), "XdndSelection",     FALSE);
+    self->app_shell.XdndEnter         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndEnter",         FALSE);
+    self->app_shell.XdndLeave         = XInternAtom(DisplayOfScreen(self->core.screen), "XdndLeave",         FALSE);
+    self->app_shell.XdndPosition      = XInternAtom(DisplayOfScreen(self->core.screen), "XdndPosition",      FALSE);
+    self->app_shell.XdndDrop          = XInternAtom(DisplayOfScreen(self->core.screen), "XdndDrop",          FALSE);
+    self->app_shell.XdndStatus        = XInternAtom(DisplayOfScreen(self->core.screen), "XdndStatus",        FALSE);
+    self->app_shell.XdndFinished      = XInternAtom(DisplayOfScreen(self->core.screen), "XdndFinished",      FALSE);
+    self->app_shell.XdndActionCopy    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionCopy",    FALSE);
+    self->app_shell.XdndActionMove    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionMove",    FALSE);
+    self->app_shell.XdndActionLink    = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionLink",    FALSE);
+    self->app_shell.XdndActionAsk     = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionAsk",     FALSE);
+    self->app_shell.XdndActionPrivate = XInternAtom(DisplayOfScreen(self->core.screen), "XdndActionPrivate", FALSE);
+    self->app_shell.XdndSource        = None;
+    self->app_shell.XdndDataT1        = None;
+    self->app_shell.XdndDataT2        = None;
+    self->app_shell.XdndDataT3        = None;
+    self->app_shell.XdndDataT4        = None;
 }
 
 /**
@@ -195,51 +195,51 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *nu
  * @param mask specifies the attributes mask
  * @param attributes specifies the attributes
  */
-static void Realize(Widget widget, XtValueMask *mask, XSetWindowAttributes *attributes)
+static void Realize(Widget widget, XtValueMask* mask, XSetWindowAttributes* attributes)
 {
-  XemAppShellWidget self = (XemAppShellWidget) widget;
-  unsigned int xdnd_version = 5;
+    XemAppShellWidget self = (XemAppShellWidget) widget;
+    unsigned int xdnd_version = 5;
 
-  if(self->core.parent != NULL) {
-    XtWidgetGeometry request;
-    request.request_mode = CWX | CWY;
-    if(self->core.parent->core.width > self->core.width) {
-      request.x = self->core.parent->core.x + ((self->core.parent->core.width - self->core.width) / 2);
+    if(self->core.parent != NULL) {
+        XtWidgetGeometry request;
+        request.request_mode = CWX | CWY;
+        if(self->core.parent->core.width > self->core.width) {
+            request.x = self->core.parent->core.x + ((self->core.parent->core.width - self->core.width) / 2);
+        }
+        else {
+            request.x = self->core.parent->core.x - ((self->core.width - self->core.parent->core.width) / 2);
+        }
+        if((request.x + self->core.width) > WidthOfScreen(self->core.screen)) {
+            request.x = WidthOfScreen(self->core.screen) - self->core.width;
+        }
+        if(request.x < 0) {
+            request.x = 0;
+        }
+        if(self->core.parent->core.height > self->core.height) {
+            request.y = self->core.parent->core.y + ((self->core.parent->core.height - self->core.height) / 2);
+        }
+        else {
+            request.y = self->core.parent->core.y - ((self->core.height - self->core.parent->core.height) / 2);
+        }
+        if((request.y + self->core.height) > HeightOfScreen(self->core.screen)) {
+            request.y = HeightOfScreen(self->core.screen) - self->core.height;
+        }
+        if(request.y < 0) {
+            request.y = 0;
+        }
+        (void) XtMakeGeometryRequest(widget, &request, &request);
     }
-    else {
-      request.x = self->core.parent->core.x - ((self->core.width - self->core.parent->core.width) / 2);
+    if(XemAppShellSuperClass->core_class.realize != NULL) {
+        (*XemAppShellSuperClass->core_class.realize)(widget, mask, attributes);
     }
-    if((request.x + self->core.width) > WidthOfScreen(self->core.screen)) {
-      request.x = WidthOfScreen(self->core.screen) - self->core.width;
+    if(self->core.window != None) {
+        if(self->app_shell.WM_DELETE_WINDOW != None) {
+            (void) XSetWMProtocols(DisplayOfScreen(self->core.screen), self->core.window, &self->app_shell.WM_DELETE_WINDOW, 1);
+        }
+        if(self->app_shell.XdndAware != None) {
+            (void) XChangeProperty(XtDisplay(widget), XtWindow(widget), self->app_shell.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *) &xdnd_version, 1);
+        }
     }
-    if(request.x < 0) {
-      request.x = 0;
-    }
-    if(self->core.parent->core.height > self->core.height) {
-      request.y = self->core.parent->core.y + ((self->core.parent->core.height - self->core.height) / 2);
-    }
-    else {
-      request.y = self->core.parent->core.y - ((self->core.height - self->core.parent->core.height) / 2);
-    }
-    if((request.y + self->core.height) > HeightOfScreen(self->core.screen)) {
-      request.y = HeightOfScreen(self->core.screen) - self->core.height;
-    }
-    if(request.y < 0) {
-      request.y = 0;
-    }
-    (void) XtMakeGeometryRequest(widget, &request, &request);
-  }
-  if(XemAppShellSuperClass->core_class.realize != NULL) {
-    (*XemAppShellSuperClass->core_class.realize)(widget, mask, attributes);
-  }
-  if(self->core.window != None) {
-    if(self->app_shell.WM_DELETE_WINDOW != None) {
-      (void) XSetWMProtocols(DisplayOfScreen(self->core.screen), self->core.window, &self->app_shell.WM_DELETE_WINDOW, 1);
-    }
-    if(self->app_shell.XdndAware != None) {
-      (void) XChangeProperty(XtDisplay(widget), XtWindow(widget), self->app_shell.XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *) &xdnd_version, 1);
-    }
-  }
 }
 
 /**
@@ -259,20 +259,20 @@ static void Destroy(Widget widget)
  * @param params specifies the parameter list
  * @param num_params specifies the parameter count
  */
-static void OnWMProtocols(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+static void OnWMProtocols(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
 {
-  XemAppShellWidget self = (XemAppShellWidget) widget;
+    XemAppShellWidget self = (XemAppShellWidget) widget;
 
-  if((xevent->type                 == ClientMessage                   )
-  && (xevent->xclient.message_type == self->app_shell.WM_PROTOCOLS    )
-  && (xevent->xclient.data.l[0]    == self->app_shell.WM_DELETE_WINDOW)) {
-    if(XtHasCallbacks(widget, XtNwmCloseCallback) == XtCallbackHasSome) {
-      XtCallCallbackList(widget, self->app_shell.wm_close_callback, NULL);
+    if((xevent->type                 == ClientMessage                   )
+    && (xevent->xclient.message_type == self->app_shell.WM_PROTOCOLS    )
+    && (xevent->xclient.data.l[0]    == self->app_shell.WM_DELETE_WINDOW)) {
+        if(XtHasCallbacks(widget, XtNwmCloseCallback) == XtCallbackHasSome) {
+            XtCallCallbackList(widget, self->app_shell.wm_close_callback, NULL);
+        }
+        else {
+            XtDestroyWidget(widget);
+        }
     }
-    else {
-      XtDestroyWidget(widget);
-    }
-  }
 }
 
 /**
@@ -289,19 +289,19 @@ static void OnWMProtocols(Widget widget, XEvent *xevent, String *params, Cardina
 static void ConvertSelection(
   Widget         widget,
   XtPointer      data,
-  Atom          *selection,
-  Atom          *type,
+  Atom*          selection,
+  Atom*          type,
   XtPointer      value,
-  unsigned long *length,
-  int           *format
+  unsigned long* length,
+  int*           format
 )
 {
-  XemAppShellWidget self = (XemAppShellWidget) widget;
+    XemAppShellWidget self = (XemAppShellWidget) widget;
 
-  if(value != NULL) {
-    XtCallCallbackList(widget, self->app_shell.drop_uri_callback, value);
-    XtFree((char *) value); value = NULL;
-  }
+    if(value != NULL) {
+        XtCallCallbackList(widget, self->app_shell.drop_uri_callback, value);
+        XtFree((char *) value); value = NULL;
+    }
 }
 
 /**
@@ -312,22 +312,22 @@ static void ConvertSelection(
  * @param params specifies the parameter list
  * @param num_params specifies the parameter count
  */
-static void OnXdndEnter(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+static void OnXdndEnter(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
 {
-  XemAppShellWidget self = (XemAppShellWidget) widget;
+    XemAppShellWidget self = (XemAppShellWidget) widget;
 
-  if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndEnter)) {
-    if(self->app_shell.XdndSource != xevent->xclient.data.l[0]) {
-      self->app_shell.XdndSource = xevent->xclient.data.l[0];
-      self->app_shell.XdndDataT1 = xevent->xclient.data.l[2];
-      self->app_shell.XdndDataT2 = xevent->xclient.data.l[3];
-      self->app_shell.XdndDataT3 = xevent->xclient.data.l[4];
-      self->app_shell.XdndDataT4 = XA_STRING;
+    if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndEnter)) {
+        if(self->app_shell.XdndSource != xevent->xclient.data.l[0]) {
+            self->app_shell.XdndSource = xevent->xclient.data.l[0];
+            self->app_shell.XdndDataT1 = xevent->xclient.data.l[2];
+            self->app_shell.XdndDataT2 = xevent->xclient.data.l[3];
+            self->app_shell.XdndDataT3 = xevent->xclient.data.l[4];
+            self->app_shell.XdndDataT4 = XA_STRING;
+        }
+        else {
+            XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndEnter()");
+        }
     }
-    else {
-      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndEnter()");
-    }
-  }
 }
 
 /**
@@ -338,22 +338,22 @@ static void OnXdndEnter(Widget widget, XEvent *xevent, String *params, Cardinal 
  * @param params specifies the parameter list
  * @param num_params specifies the parameter count
  */
-static void OnXdndLeave(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+static void OnXdndLeave(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
 {
-  XemAppShellWidget self = (XemAppShellWidget) widget;
+    XemAppShellWidget self = (XemAppShellWidget) widget;
 
-  if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndLeave)) {
-    if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
-      self->app_shell.XdndSource = None;
-      self->app_shell.XdndDataT1 = None;
-      self->app_shell.XdndDataT2 = None;
-      self->app_shell.XdndDataT3 = None;
-      self->app_shell.XdndDataT4 = None;
+    if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndLeave)) {
+        if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
+            self->app_shell.XdndSource = None;
+            self->app_shell.XdndDataT1 = None;
+            self->app_shell.XdndDataT2 = None;
+            self->app_shell.XdndDataT3 = None;
+            self->app_shell.XdndDataT4 = None;
+        }
+        else {
+            XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndLeave()");
+        }
     }
-    else {
-      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndLeave()");
-    }
-  }
 }
 
 /**
@@ -364,47 +364,42 @@ static void OnXdndLeave(Widget widget, XEvent *xevent, String *params, Cardinal 
  * @param params specifies the parameter list
  * @param num_params specifies the parameter count
  */
-static void OnXdndPosition(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+static void OnXdndPosition(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
 {
-  XemAppShellWidget self = (XemAppShellWidget) widget;
-  XEvent reply;
+    XemAppShellWidget self = (XemAppShellWidget) widget;
+    XEvent reply;
 
-  if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndPosition)) {
-    if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
-      Display *dpy = XtDisplay(widget);
-      Window src = RootWindowOfScreen(XtScreen(widget));
-      Window dst = XtWindow(widget), kid = None;
-      int sx = (xevent->xclient.data.l[2] >> 16) & 0xffff, dx = 0;
-      int sy = (xevent->xclient.data.l[2] >>  0) & 0xffff, dy = 0;
-      while((src != None) && (dst != None) && (XTranslateCoordinates(dpy, src, dst, sx, sy, &dx, &dy, &kid) != False)) {
-        src = dst;
-        sx  = dx;
-        sy  = dy;
-        dst = kid;
-      }
-      /*
-      if(src != None) {
-        (void) printf("XdndPosition => %s: %4d - %4d\n\n", XtName(XtWindowToWidget(dpy, src)), sx, sy);
-      }
-      */
-      reply.xclient.type         = ClientMessage;
-      reply.xclient.serial       = 0;
-      reply.xclient.send_event   = True;
-      reply.xclient.display      = XtDisplay(widget);
-      reply.xclient.window       = xevent->xclient.data.l[0];
-      reply.xclient.message_type = self->app_shell.XdndStatus;
-      reply.xclient.format       = 32;
-      reply.xclient.data.l[0]    = XtWindow(widget);
-      reply.xclient.data.l[1]    = 0x03;
-      reply.xclient.data.l[2]    = 0;
-      reply.xclient.data.l[3]    = 0;
-      reply.xclient.data.l[4]    = self->app_shell.XdndActionCopy;
-      (void) XSendEvent(XtDisplay(widget), self->app_shell.XdndSource, False, 0, &reply);
+    if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndPosition)) {
+        if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
+            Display* dpy = XtDisplay(widget);
+            Window src = RootWindowOfScreen(XtScreen(widget));
+            Window dst = XtWindow(widget), kid = None;
+            int sx = (xevent->xclient.data.l[2] >> 16) & 0xffff, dx = 0;
+            int sy = (xevent->xclient.data.l[2] >>  0) & 0xffff, dy = 0;
+            while((src != None) && (dst != None) && (XTranslateCoordinates(dpy, src, dst, sx, sy, &dx, &dy, &kid) != False)) {
+                src = dst;
+                sx  = dx;
+                sy  = dy;
+                dst = kid;
+            }
+            reply.xclient.type         = ClientMessage;
+            reply.xclient.serial       = 0;
+            reply.xclient.send_event   = True;
+            reply.xclient.display      = XtDisplay(widget);
+            reply.xclient.window       = xevent->xclient.data.l[0];
+            reply.xclient.message_type = self->app_shell.XdndStatus;
+            reply.xclient.format       = 32;
+            reply.xclient.data.l[0]    = XtWindow(widget);
+            reply.xclient.data.l[1]    = 0x03;
+            reply.xclient.data.l[2]    = 0;
+            reply.xclient.data.l[3]    = 0;
+            reply.xclient.data.l[4]    = self->app_shell.XdndActionCopy;
+            (void) XSendEvent(XtDisplay(widget), self->app_shell.XdndSource, False, 0, &reply);
+        }
+        else {
+            XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndPosition()");
+        }
     }
-    else {
-      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndPosition()");
-    }
-  }
 }
 
 /**
@@ -415,48 +410,48 @@ static void OnXdndPosition(Widget widget, XEvent *xevent, String *params, Cardin
  * @param params specifies the parameter list
  * @param num_params specifies the parameter count
  */
-static void OnXdndDrop(Widget widget, XEvent *xevent, String *params, Cardinal *num_params)
+static void OnXdndDrop(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
 {
-  XemAppShellWidget self = (XemAppShellWidget) widget;
-  XEvent reply;
+    XemAppShellWidget self = (XemAppShellWidget) widget;
+    XEvent reply;
 
-  if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndDrop)) {
-    if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
-      if(self->app_shell.XdndDataT1 != None) {
-        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT1, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
-      }
-      if(self->app_shell.XdndDataT2 != None) {
-        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT2, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
-      }
-      if(self->app_shell.XdndDataT3 != None) {
-        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT3, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
-      }
-      if(self->app_shell.XdndDataT4 != None) {
-        XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT4, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
-      }
-      reply.xclient.type         = ClientMessage;
-      reply.xclient.serial       = 0;
-      reply.xclient.send_event   = True;
-      reply.xclient.display      = XtDisplay(widget);
-      reply.xclient.window       = xevent->xclient.data.l[0];
-      reply.xclient.message_type = self->app_shell.XdndFinished;
-      reply.xclient.format       = 32;
-      reply.xclient.data.l[0]    = XtWindow(widget);
-      reply.xclient.data.l[1]    = 0x01;
-      reply.xclient.data.l[2]    = self->app_shell.XdndActionCopy;
-      reply.xclient.data.l[3]    = 0;
-      reply.xclient.data.l[4]    = 0;
-      (void) XSendEvent(XtDisplay(widget), self->app_shell.XdndSource, False, 0, &reply);
-      self->app_shell.XdndSource = None;
-      self->app_shell.XdndDataT1 = None;
-      self->app_shell.XdndDataT2 = None;
-      self->app_shell.XdndDataT3 = None;
-      self->app_shell.XdndDataT4 = None;
+    if((xevent->type == ClientMessage) && (xevent->xclient.message_type == self->app_shell.XdndDrop)) {
+        if(self->app_shell.XdndSource == xevent->xclient.data.l[0]) {
+            if(self->app_shell.XdndDataT1 != None) {
+                XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT1, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
+            }
+            if(self->app_shell.XdndDataT2 != None) {
+                XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT2, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
+            }
+            if(self->app_shell.XdndDataT3 != None) {
+                XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT3, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
+            }
+            if(self->app_shell.XdndDataT4 != None) {
+                XtGetSelectionValue(widget, self->app_shell.XdndSelection, self->app_shell.XdndDataT4, ConvertSelection, NULL, 0 /* xevent->xclient.data.l[2] */);
+            }
+            reply.xclient.type         = ClientMessage;
+            reply.xclient.serial       = 0;
+            reply.xclient.send_event   = True;
+            reply.xclient.display      = XtDisplay(widget);
+            reply.xclient.window       = xevent->xclient.data.l[0];
+            reply.xclient.message_type = self->app_shell.XdndFinished;
+            reply.xclient.format       = 32;
+            reply.xclient.data.l[0]    = XtWindow(widget);
+            reply.xclient.data.l[1]    = 0x01;
+            reply.xclient.data.l[2]    = self->app_shell.XdndActionCopy;
+            reply.xclient.data.l[3]    = 0;
+            reply.xclient.data.l[4]    = 0;
+            (void) XSendEvent(XtDisplay(widget), self->app_shell.XdndSource, False, 0, &reply);
+            self->app_shell.XdndSource = None;
+            self->app_shell.XdndDataT1 = None;
+            self->app_shell.XdndDataT2 = None;
+            self->app_shell.XdndDataT3 = None;
+            self->app_shell.XdndDataT4 = None;
+        }
+        else {
+            XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndDrop()");
+        }
     }
-    else {
-      XtAppWarning(XtWidgetToApplicationContext(widget), "XemAppShellWidget::OnXdndDrop()");
-    }
-  }
 }
 
 /**
@@ -471,5 +466,5 @@ static void OnXdndDrop(Widget widget, XEvent *xevent, String *params, Cardinal *
  */
 Widget XemCreateAppShell(Widget parent, String name, ArgList args, Cardinal num_args)
 {
-  return(XtCreateWidget(name, xemAppShellWidgetClass, parent, args, num_args));
+    return XtCreateWidget(name, xemAppShellWidgetClass, parent, args, num_args);
 }

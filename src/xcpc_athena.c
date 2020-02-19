@@ -216,7 +216,7 @@ static void OnLoadSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
-    amstrad_cpc_load_snapshot(value);
+    amstrad_cpc_load_snapshot(&amstrad_cpc, value);
   }
   OnCloseCbk(widget, gui, cbs);
 }
@@ -276,7 +276,7 @@ static void OnSaveSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
-    amstrad_cpc_save_snapshot(value);
+    amstrad_cpc_save_snapshot(&amstrad_cpc, value);
   }
   OnCloseCbk(widget, gui, cbs);
 }
@@ -507,7 +507,7 @@ static void OnPauseCbk(Widget widget, GUI *gui, XtPointer cbs)
  */
 static void OnResetCbk(Widget widget, GUI *gui, XtPointer cbs)
 {
-  amstrad_cpc_reset();
+  amstrad_cpc_reset(&amstrad_cpc);
   XtSetSensitive(gui->emulator, TRUE);
 }
 
@@ -624,7 +624,7 @@ static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
     }
     if((length = strlen(str)) >= 4) {
       if(strcmp(&str[length - 4], ".sna") == 0) {
-        amstrad_cpc_load_snapshot(str);
+        amstrad_cpc_load_snapshot(&amstrad_cpc, str);
       }
       if(strcmp(&str[length - 4], ".dsk") == 0) {
         gdev_fdd765_insert(amstrad_cpc.upd765->fdd[0], str);
@@ -769,11 +769,14 @@ static Widget CreateGUI(Widget toplevel)
   XtManageChild(gui->about_xcpc);
   /* emulator */
   argcount = 0;
-  XtSetArg(arglist[argcount], XtNemuStartHandler, amstrad_cpc_start_handler); argcount++;
-  XtSetArg(arglist[argcount], XtNemuClockHandler, amstrad_cpc_clock_handler); argcount++;
-  XtSetArg(arglist[argcount], XtNemuCloseHandler, amstrad_cpc_close_handler); argcount++;
-  XtSetArg(arglist[argcount], XtNemuInputHandler, amstrad_cpc_input_handler); argcount++;
-  XtSetArg(arglist[argcount], XtNemuPaintHandler, amstrad_cpc_paint_handler); argcount++;
+  XtSetArg(arglist[argcount], XtNemuContext    , &amstrad_cpc             ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuCreateProc , &amstrad_cpc_create_proc ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuDestroyProc, &amstrad_cpc_destroy_proc); argcount++;
+  XtSetArg(arglist[argcount], XtNemuRealizeProc, &amstrad_cpc_realize_proc); argcount++;
+  XtSetArg(arglist[argcount], XtNemuResizeProc , &amstrad_cpc_resize_proc ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuRedrawProc , &amstrad_cpc_redraw_proc ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuTimerProc  , &amstrad_cpc_timer_proc  ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuInputProc  , &amstrad_cpc_input_proc  ); argcount++;
   gui->emulator = XemCreateEmulator(gui->main_wnd, "emulator", arglist, argcount);
   XtManageChild(gui->emulator);
   /* XXX */

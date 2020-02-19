@@ -38,8 +38,7 @@ struct _GdevGArray {
   guint8 mode2[256];
   guint8 pen;
   guint8 ink[17];
-  guint8 rom_cfg;
-  guint8 ram_cfg;
+  guint8 rmr;
   guint8 counter;
   guint8 delayed;
 };

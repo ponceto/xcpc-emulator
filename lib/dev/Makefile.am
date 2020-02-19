@@ -46,8 +46,6 @@ libdev_la_SOURCES = \
 	cpckbd.h \
 	mc6845.c \
 	mc6845.h \
-	ay8910.c \
-	ay8910.h \
 	libdsk.c \
 	libdsk.h \
 	lib765.c \
@@ -58,21 +56,20 @@ libdev_la_SOURCES = \
 	fdc765.h \
 	fdd765.c \
 	fdd765.h \
-	i8255.c \
-	i8255.h \
 	$(NULL)
 
 libdev_la_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	$(GLIB_CFLAGS) \
-	$(X_CFLAGS) \
 	$(NULL)
 
 libdev_la_LDFLAGS = \
 	-L$(top_builddir)/lib \
+	$(GLIB_LDFLAGS) \
 	$(NULL)
 
 libdev_la_LIBADD = \
+	$(GLIB_LIBS) \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

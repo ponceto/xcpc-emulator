@@ -109,10 +109,11 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
 	Makefile
 	lib/Makefile
-	lib/dev/Makefile
-	lib/Xem/Makefile
 	lib/libdsk/Makefile
 	lib/lib765/Makefile
+	lib/dev/Makefile
+	lib/Xem/Makefile
+	lib/xcpc/Makefile
 	src/Makefile
 	share/Makefile
 	share/applications/Makefile

@@ -79,8 +79,7 @@ static void gdev_garray_reset(GdevGArray *garray)
   for(ix = 0; ix < 17; ix++) {
     garray->ink[ix] = 0x00;
   }
-  garray->rom_cfg = 0x00;
-  garray->ram_cfg = 0x00;
+  garray->rmr = 0x00;
   garray->counter = 0x00;
   garray->delayed = 0x00;
 }

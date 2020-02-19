@@ -42,9 +42,12 @@ xcpc_CPPFLAGS = \
 xcpc_LDFLAGS = \
 	-L$(top_builddir)/lib \
 	-L$(top_builddir)/src \
+	$(GLIB_LDFLAGS) \
+	$(X_LDFLAGS) \
 	$(NULL)
 
 xcpc_LDADD = \
+	$(top_builddir)/lib/xcpc/libxcpc.la \
 	$(top_builddir)/lib/dev/libdev.la \
 	$(NULL)
 

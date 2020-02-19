@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _XemStringDefs_h
-#define _XemStringDefs_h
+#ifndef __XemStringDefs_h__
+#define __XemStringDefs_h__
 
 #include <X11/StringDefs.h>
 
@@ -26,27 +26,53 @@ extern "C" {
 #ifndef XtNwmCloseCallback
 #define XtNwmCloseCallback "wmCloseCallback"
 #endif
+
 #ifndef XtNdropURICallback
 #define XtNdropURICallback "dropURICallback"
 #endif
-#ifndef XtNemuStartHandler
-#define XtNemuStartHandler "emuStartHandler"
+
+#ifndef XtNemuContext
+#define XtNemuContext "emuContext"
 #endif
-#ifndef XtNemuClockHandler
-#define XtNemuClockHandler "emuClockHandler"
+
+#ifndef XtNemuCreateProc
+#define XtNemuCreateProc "emuCreateProc"
 #endif
-#ifndef XtNemuCloseHandler
-#define XtNemuCloseHandler "emuCloseHandler"
+
+#ifndef XtNemuDestroyProc
+#define XtNemuDestroyProc "emuDestroyProc"
 #endif
-#ifndef XtNemuInputHandler
-#define XtNemuInputHandler "emuInputHandler"
+
+#ifndef XtNemuRealizeProc
+#define XtNemuRealizeProc "emuRealizeProc"
 #endif
-#ifndef XtNemuPaintHandler
-#define XtNemuPaintHandler "emuPaintHandler"
+
+#ifndef XtNemuResizeProc
+#define XtNemuResizeProc "emuResizeProc"
+#endif
+
+#ifndef XtNemuRedrawProc
+#define XtNemuRedrawProc "emuRedrawProc"
+#endif
+
+#ifndef XtNemuTimerProc
+#define XtNemuTimerProc "emuTimerProc"
+#endif
+
+#ifndef XtNemuInputProc
+#define XtNemuInputProc "emuInputProc"
+#endif
+
+#ifndef XtCPointer
+#define XtCPointer "Pointer"
+#endif
+
+#ifndef XtCFunction
+#define XtCFunction "Function"
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* __XemStringDefs_h__ */
