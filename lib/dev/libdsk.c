@@ -182,6 +182,8 @@ typedef struct drv_class
 # include <limits.h>
 #endif
 
+#define DISABLE_FLOPPY
+
 #ifndef DISABLE_FLOPPY
 # ifdef HAVE_LINUX_FD_H
 #  include "linux/fd.h"
