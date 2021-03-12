@@ -1,5 +1,5 @@
 /*
- * ppi-8255.c - Copyright (c) 2001-2020 - Olivier Poncet
+ * ppi-8255.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,5 +95,10 @@ XcpcPpi8255* xcpc_ppi_8255_reset(XcpcPpi8255* self)
         self->port_b  = 0x00;
         self->port_c  = 0x00;
     }
+    return self;
+}
+
+XcpcPpi8255* xcpc_ppi_8255_clock(XcpcPpi8255* self)
+{
     return self;
 }

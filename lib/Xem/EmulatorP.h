@@ -1,5 +1,5 @@
 /*
- * EmulatorP.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * EmulatorP.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,18 +32,21 @@ typedef unsigned long (*XemEmulatorRedrawProc)  (Widget widget, XtPointer data, 
 typedef unsigned long (*XemEmulatorInputProc)   (Widget widget, XtPointer data, XEvent* event);
 typedef unsigned long (*XemEmulatorTimerProc)   (Widget widget, XtPointer data, XEvent* event);
 
-typedef struct _XemEmulatorClassPart {
+typedef struct _XemEmulatorClassPart
+{
     XtPointer extension;
 } XemEmulatorClassPart;
 
-typedef struct _XemEmulatorClassRec {
+typedef struct _XemEmulatorClassRec
+{
     CoreClassPart        core_class;
     XemEmulatorClassPart emulator_class;
 } XemEmulatorClassRec;
 
 externalref XemEmulatorClassRec xemEmulatorClassRec;
 
-typedef struct _XemEmulatorPart {
+typedef struct _XemEmulatorPart
+{
     XtPointer              context;
     XemEmulatorCreateProc  create_proc;
     XemEmulatorDestroyProc destroy_proc;
@@ -56,7 +59,8 @@ typedef struct _XemEmulatorPart {
     unsigned long          delay;
 } XemEmulatorPart;
 
-typedef struct _XemEmulatorRec {
+typedef struct _XemEmulatorRec
+{
     CorePart        core;
     XemEmulatorPart emulator;
 } XemEmulatorRec;

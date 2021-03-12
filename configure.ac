@@ -1,5 +1,5 @@
 #
-# configure.ac - Copyright (c) 2001-2020 - Olivier Poncet
+# configure.ac - Copyright (c) 2001-2021 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -120,6 +120,7 @@ AC_CONFIG_FILES([
 	share/applications/xcpc.desktop
 	share/pixmaps/Makefile
 	share/xcpc/Makefile
+	share/xcpc/bitmaps/Makefile
 	share/xcpc/roms/Makefile
 	share/xcpc/disks/Makefile
 	share/xcpc/snapshots/Makefile

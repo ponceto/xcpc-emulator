@@ -3,5 +3,10 @@
 *.o
 *.lo
 *.Plo
+*.log
+*.trs
 Makefile
 Makefile.in
+autom4te.cache/
+.deps/
+.libs/

@@ -1,5 +1,5 @@
 /*
- * DlgShellP.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * DlgShellP.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,13 @@
 extern "C" {
 #endif
 
-typedef struct _XemDlgShellClassPart {
+typedef struct _XemDlgShellClassPart
+{
     XtPointer extension;
 } XemDlgShellClassPart;
 
-typedef struct _XemDlgShellClassRec {
+typedef struct _XemDlgShellClassRec
+{
     CoreClassPart           core_class;
     CompositeClassPart      composite_class;
     ShellClassPart          shell_class;
@@ -40,14 +42,16 @@ typedef struct _XemDlgShellClassRec {
 
 externalref XemDlgShellClassRec xemDlgShellClassRec;
 
-typedef struct _XemDlgShellPart {
+typedef struct _XemDlgShellPart
+{
     Atom           WM_PROTOCOLS;
     Atom           WM_DELETE_WINDOW;
     XtCallbackList wm_close_callback;
     XtCallbackList drop_uri_callback;
 } XemDlgShellPart;
 
-typedef struct _XemDlgShellRec {
+typedef struct _XemDlgShellRec
+{
     CorePart           core;
     CompositePart      composite;
     ShellPart          shell;

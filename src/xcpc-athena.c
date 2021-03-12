@@ -1,5 +1,5 @@
 /*
- * xcpc_athena.c - Copyright (c) 2001-2020 - Olivier Poncet
+ * xcpc-athena.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,23 +20,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib/gi18n.h>
 #include <X11/Intrinsic.h>
+#include <X11/Xaw/Box.h>
+#include <X11/Xaw/MenuButton.h>
+#include <X11/Xaw/SimpleMenu.h>
+#include <X11/Xaw/SmeBSB.h>
+#include <X11/Xaw/SmeLine.h>
+#include <X11/Xaw/Dialog.h>
 #include <Xem/StringDefs.h>
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
 #include "amstrad_cpc.h"
-#include "xcpc_athena.h"
-
-static Widget CreateGUI(Widget toplevel);
+#include "xcpc-athena-priv.h"
 
 /*
  * command line options
  */
 static XrmOptionDescRec options[] = {
   { "-version", ".xcpcAboutFlag", XrmoptionNoArg, (XPointer) "true" },
-  { "-help",    ".xcpcUsageFlag", XrmoptionNoArg, (XPointer) "true" },
-  { "-editres", ".xcpcEdresFlag", XrmoptionNoArg, (XPointer) "true" }
+  { "-help"   , ".xcpcUsageFlag", XrmoptionNoArg, (XPointer) "true" },
 };
 
 /*
@@ -61,11 +65,6 @@ static XtResource application_resources[] = {
     sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, usage_flag),
     XtRImmediate, (XtPointer) FALSE
   },
-  /* xcpcEdresFlag */ {
-    "xcpcEdresFlag", "XcpcEdresFlag", XtRBoolean,
-    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, edres_flag),
-    XtRImmediate, (XtPointer) FALSE
-  }
 };
 
 /*
@@ -74,7 +73,6 @@ static XtResource application_resources[] = {
 static XcpcResourcesRec xcpc_resources = {
   FALSE, /* about_flag */
   FALSE, /* usage_flag */
-  FALSE  /* edres_flag */
 };
 
 /**
@@ -95,107 +93,13 @@ static void DestroyCbk(Widget widget, Widget *widref, XtPointer cbdata)
 }
 
 /**
- * main
- *
- * @param argc specifies the argument count
- * @param argv specifies the argument list
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-int main(int argc, char *argv[])
-{
-  XtAppContext appcontext;
-  String appname  = NULL;
-  String appclass = NULL;
-  Widget toplevel = NULL;
-  Widget apwindow = NULL;
-  Cardinal argcount = 0;
-  Arg arglist[4];
-
-  (void) XtSetLanguageProc(NULL, NULL, NULL);
-  argcount = 0;
-  XtSetArg(arglist[argcount], XtNmappedWhenManaged, TRUE); argcount++;
-  XtSetArg(arglist[argcount], XtNallowShellResize, TRUE); argcount++;
-  toplevel = XtOpenApplication(&appcontext, "Xcpc", options, XtNumber(options), &argc, argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
-  XtAddCallback(toplevel, XtNdestroyCallback, (XtCallbackProc) DestroyCbk, (XtPointer) &toplevel);
-  argcount = 0;
-  XtGetApplicationResources(toplevel, (XtPointer) &xcpc_resources, application_resources, XtNumber(application_resources), arglist, argcount);
-  XtGetApplicationNameAndClass(XtDisplay(toplevel), &appname, &appclass);
-  if(xcpc_resources.about_flag != FALSE) {
-    (void) fprintf(stdout, "%s %s\n", appname, PACKAGE_VERSION);
-    (void) fflush(stdout);
-    exit(EXIT_SUCCESS);
-  }
-  if((xcpc_resources.usage_flag != FALSE) || (amstrad_cpc_parse(&argc, &argv) == EXIT_FAILURE)) {
-    (void) fprintf(stdout, "Usage: %s [toolkit-options] [program-options]\n\n", appname);
-    (void) fprintf(stdout, "Options:\n");
-    (void) fprintf(stdout, "  -version  print version and exit.\n");
-    (void) fprintf(stdout, "  -help     display this help and exit.\n");
-    (void) fflush(stdout);
-    exit(EXIT_SUCCESS);
-  }
-  if(xcpc_resources.edres_flag != FALSE) {
-    XtAddEventHandler(toplevel, NoEventMask, TRUE, (XtEventHandler) _XEditResCheckMessages, (XtPointer) NULL);
-  }
-#if 0
-    /* g_type_init(); */
-#endif
-  apwindow = CreateGUI(toplevel);
-  XtManageChild(apwindow);
-  XtRealizeWidget(toplevel);
-  XtAppMainLoop(appcontext);
-  if(toplevel != NULL) {
-    XtDestroyWidget(toplevel);
-  }
-  XtDestroyApplicationContext(appcontext);
-  return(EXIT_SUCCESS);
-}
-
-/*
- * GUI instance structure
- */
-typedef struct _GUI {
-  Widget main_wnd;
-  Widget menu_bar;
-  Widget file_menu;
-  Widget file_pldn;
-  Widget load_snapshot;
-  Widget save_snapshot;
-  Widget separator1;
-  Widget drivea_insert;
-  Widget drivea_eject;
-  Widget separator2;
-  Widget driveb_insert;
-  Widget driveb_eject;
-  Widget separator3;
-  Widget exit_emulator;
-  Widget ctrl_menu;
-  Widget ctrl_pldn;
-  Widget pause_emu;
-  Widget reset_emu;
-  Widget help_menu;
-  Widget help_pldn;
-  Widget legal_info;
-  Widget separator4;
-  Widget about_xcpc;
-  Widget emulator;
-} GUI;
-
-#include <X11/Xaw/Box.h>
-#include <X11/Xaw/MenuButton.h>
-#include <X11/Xaw/SimpleMenu.h>
-#include <X11/Xaw/SmeBSB.h>
-#include <X11/Xaw/SmeLine.h>
-#include <X11/Xaw/Dialog.h>
-
-/**
- * GUI::OnCloseCbk()
+ * XcpcApplication::OnCloseCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnCloseCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnCloseCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   while((widget != NULL) && (XtIsShell(widget) == FALSE)) {
     widget = XtParent(widget);
@@ -206,13 +110,13 @@ static void OnCloseCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnLoadSnapshotOkCbk()
+ * XcpcApplication::OnLoadSnapshotOkCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnLoadSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnLoadSnapshotOkCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
@@ -222,13 +126,13 @@ static void OnLoadSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnLoadSnapshotCbk()
+ * XcpcApplication::OnLoadSnapshotCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnLoadSnapshotCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   Widget shell, dialog, btn_ok, cancel;
   Arg arglist[8];
@@ -266,13 +170,13 @@ static void OnLoadSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnSaveSnapshotOkCbk()
+ * XcpcApplication::OnSaveSnapshotOkCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnSaveSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnSaveSnapshotOkCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
@@ -282,13 +186,13 @@ static void OnSaveSnapshotOkCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnSaveSnapshotCbk()
+ * XcpcApplication::OnSaveSnapshotCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnSaveSnapshotCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   Widget shell, dialog, btn_ok, cancel;
   Arg arglist[8];
@@ -326,29 +230,29 @@ static void OnSaveSnapshotCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnDriveAInsertOkCbk()
+ * XcpcApplication::OnDriveAInsertOkCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnDriveAInsertOkCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnDriveAInsertOkCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
-    gdev_fdd765_insert(amstrad_cpc.upd765->fdd[0], value);
+    amstrad_cpc_insert_drive0(&amstrad_cpc, value);
   }
   OnCloseCbk(widget, gui, cbs);
 }
 
 /**
- * GUI::OnDriveAInsertCbk()
+ * XcpcApplication::OnDriveAInsertCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnDriveAInsertCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnDriveAInsertCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   Widget shell, dialog, btn_ok, cancel;
   Arg arglist[8];
@@ -386,41 +290,41 @@ static void OnDriveAInsertCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnDriveAEjectCbk()
+ * XcpcApplication::OnDriveAEjectCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnDriveAEjectCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnDriveAEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  gdev_fdd765_insert(amstrad_cpc.upd765->fdd[0], NULL);
+  amstrad_cpc_insert_drive0(&amstrad_cpc, NULL);
 }
 
 /**
- * GUI::OnDriveBInsertOkCbk()
+ * XcpcApplication::OnDriveBInsertOkCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnDriveBInsertOkCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnDriveBInsertOkCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
-    gdev_fdd765_insert(amstrad_cpc.upd765->fdd[1], value);
+    amstrad_cpc_insert_drive1(&amstrad_cpc, value);
   }
   OnCloseCbk(widget, gui, cbs);
 }
 
 /**
- * GUI::OnDriveBInsertCbk()
+ * XcpcApplication::OnDriveBInsertCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnDriveBInsertCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnDriveBInsertCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   Widget shell, dialog, btn_ok, cancel;
   Arg arglist[8];
@@ -458,37 +362,37 @@ static void OnDriveBInsertCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnDriveBEjectCbk()
+ * XcpcApplication::OnDriveBEjectCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnDriveBEjectCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnDriveBEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  gdev_fdd765_insert(amstrad_cpc.upd765->fdd[1], NULL);
+  amstrad_cpc_insert_drive1(&amstrad_cpc, NULL);
 }
 
 /**
- * GUI::OnExitEmulatorCbk()
+ * XcpcApplication::OnExitEmulatorCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnExitEmulatorCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnExitEmulatorCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   XtAppSetExitFlag(XtWidgetToApplicationContext(widget));
 }
 
 /**
- * GUI::OnPauseCbk()
+ * XcpcApplication::OnPauseCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnPauseCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnPauseCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   if(XtIsSensitive(gui->emulator) != FALSE) {
     XtSetSensitive(gui->emulator, FALSE);
@@ -499,26 +403,26 @@ static void OnPauseCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnResetCbk()
+ * XcpcApplication::OnResetCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnResetCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnResetCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   amstrad_cpc_reset(&amstrad_cpc);
   XtSetSensitive(gui->emulator, TRUE);
 }
 
 /**
- * GUI::OnLegalInfoCbk()
+ * XcpcApplication::OnLegalInfoCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnLegalInfoCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnLegalInfoCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   Widget shell, dialog, button;
   Arg arglist[8];
@@ -557,19 +461,19 @@ static void OnLegalInfoCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnAboutXcpcCbk()
+ * XcpcApplication::OnAboutXcpcCbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param cbs specifies the callback info
  */
-static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
+static void OnAboutXcpcCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   Widget shell, dialog, button;
   Arg arglist[8];
   Cardinal argcount;
   String message = _(
-    PACKAGE_STRING " - Amstrad CPC Emulator - Copyright (c) 2001-2020 - Olivier Poncet\n\n"
+    PACKAGE_STRING " - Amstrad CPC Emulator - Copyright (c) 2001-2021 - Olivier Poncet\n\n"
     "This program is free software: you can redistribute it and/or modify\n"
     "it under the terms of the GNU General Public License as published by\n"
     "the Free Software Foundation, either version 2 of the License, or\n"
@@ -607,13 +511,13 @@ static void OnAboutXcpcCbk(Widget widget, GUI *gui, XtPointer cbs)
 }
 
 /**
- * GUI::OnDropURICbk()
+ * XcpcApplication::OnDropURICbk()
  *
  * @param widget specifies the Widget
- * @param gui specifies the GUI
+ * @param gui specifies the XcpcApplication
  * @param uri specifies the callback info
  */
-static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
+static void OnDropURICbk(Widget widget, XcpcApplication gui, char *uri)
 {
   int length = 0;
 
@@ -627,8 +531,8 @@ static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
         amstrad_cpc_load_snapshot(&amstrad_cpc, str);
       }
       if(strcmp(&str[length - 4], ".dsk") == 0) {
-        gdev_fdd765_insert(amstrad_cpc.upd765->fdd[0], str);
-        gdev_fdd765_insert(amstrad_cpc.upd765->fdd[1], str);
+        amstrad_cpc_insert_drive0(&amstrad_cpc, str);
+        amstrad_cpc_insert_drive1(&amstrad_cpc, str);
       }
       XtSetSensitive(gui->emulator, TRUE);
       XtSetSensitive(gui->emulator, TRUE);
@@ -637,15 +541,15 @@ static void OnDropURICbk(Widget widget, GUI *gui, char *uri)
 }
 
 /**
- * GUI::Create()
+ * XcpcApplication::Create()
  *
  * @param toplevel specifies the TopLevel Shell
  *
  * @return the main-window instance
  */
-static Widget CreateGUI(Widget toplevel)
+Widget XcpcCreateApplication(Widget toplevel)
 {
-  GUI *gui = (GUI *) XtMalloc(sizeof(GUI));
+  XcpcApplication gui = (XcpcApplication) XtMalloc(sizeof(XcpcApplicationRec));
   Arg arglist[8];
   Cardinal argcount;
 
@@ -782,4 +686,71 @@ static Widget CreateGUI(Widget toplevel)
   /* XXX */
   XtAddCallback(toplevel, XtNdropURICallback, (XtCallbackProc) OnDropURICbk, (XtPointer) gui);
   return(gui->main_wnd);
+}
+
+/**
+ * xcpc main function
+ *
+ * @param argc specifies the argument count
+ * @param argv specifies the argument list
+ *
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int xcpc(int argc, char *argv[])
+{
+    XtAppContext appcontext  = NULL;
+    String       appname     = NULL;
+    String       appclass    = NULL;
+    Widget       toplevel    = NULL;
+    Widget       application = NULL;
+    Arg          arglist[4];
+    Cardinal     argcount;
+
+    /* set language proc */ {
+        (void) XtSetLanguageProc(NULL, NULL, NULL);
+    }
+    /* create application context and toplevel shell */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNmappedWhenManaged, TRUE); argcount++;
+        XtSetArg(arglist[argcount], XtNallowShellResize, TRUE); argcount++;
+        toplevel = XtOpenApplication(&appcontext, "Xcpc", options, XtNumber(options), &argc, argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
+        XtAddCallback(toplevel, XtNdestroyCallback, (XtCallbackProc) DestroyCbk, (XtPointer) &toplevel);
+    }
+    /* get application resources */ {
+        argcount = 0;
+        XtGetApplicationResources(toplevel, (XtPointer) &xcpc_resources, application_resources, XtNumber(application_resources), arglist, argcount);
+    }
+    /* get application name and class */ {
+        XtGetApplicationNameAndClass(XtDisplay(toplevel), &appname, &appclass);
+    }
+    /* check command-line flags */ {
+        if(xcpc_resources.about_flag != FALSE) {
+            (void) fprintf(stdout, "%s %s\n", appname, PACKAGE_VERSION);
+            (void) fflush(stdout);
+            exit(EXIT_SUCCESS);
+        }
+        if((xcpc_resources.usage_flag != FALSE) || (amstrad_cpc_parse(&argc, &argv) == EXIT_FAILURE)) {
+            (void) fprintf(stdout, "Usage: %s [toolkit-options] [program-options]\n\n", appname);
+            (void) fprintf(stdout, "Options:\n");
+            (void) fprintf(stdout, "  -version  display version and exit.\n");
+            (void) fprintf(stdout, "  -help     display this help and exit.\n");
+            (void) fflush(stdout);
+            exit(EXIT_SUCCESS);
+        }
+    }
+    /* create application and run */ {
+        application = XcpcCreateApplication(toplevel);
+        XtManageChild(application);
+        XtRealizeWidget(toplevel);
+        XtAppMainLoop(appcontext);
+    }
+    /* destroy toplevel shell */ {
+        if(toplevel != NULL) {
+            XtDestroyWidget(toplevel);
+        }
+    }
+    /* destroy application context */ {
+        XtDestroyApplicationContext(appcontext);
+    }
+    return(EXIT_SUCCESS);
 }

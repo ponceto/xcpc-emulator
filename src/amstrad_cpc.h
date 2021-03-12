@@ -1,5 +1,5 @@
 /*
- * amstrad_cpc.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * amstrad_cpc.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,19 +18,18 @@
 #define __AMSTRAD_CPC_H__
 
 #include <dev/z80cpu.h>
-#include <dev/garray.h>
-#include <dev/cpcmem.h>
-#include <dev/mc6845.h>
 #include <dev/upd765.h>
 #include <sys/time.h>
 #include <xcpc/blitter.h>
 #include <xcpc/monitor.h>
 #include <xcpc/keyboard.h>
 #include <xcpc/joystick.h>
-#include <xcpc/ram-bank.h>
-#include <xcpc/rom-bank.h>
+#include <xcpc/vga-core.h>
+#include <xcpc/vdc-6845.h>
 #include <xcpc/ppi-8255.h>
 #include <xcpc/psg-8910.h>
+#include <xcpc/ram-bank.h>
+#include <xcpc/rom-bank.h>
 #include <xcpc/snapshot.h>
 
 #ifdef __cplusplus
@@ -46,8 +45,8 @@ typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 
 struct _AMSTRAD_CPC_SETTINGS
 {
-    gboolean no_fps;
     gboolean no_xshm;
+    gboolean show_fps;
     gchar*   computer_model;
     gchar*   monitor_model;
     gchar*   keyboard_layout;
@@ -62,18 +61,18 @@ struct _AMSTRAD_CPC_EMULATOR
 {
     AMSTRAD_CPC_SETTINGS* settings;
     GdevZ80CPU*   z80cpu;
-    GdevGArray*   garray;
-    GdevMC6845*   mc6845;
     GdevUPD765*   upd765;
     XcpcBlitter*  blitter;
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;
     XcpcJoystick* joystick;
+    XcpcVgaCore*  vga_core;
+    XcpcVdc6845*  vdc_6845;
     XcpcPpi8255*  ppi_8255;
     XcpcPsg8910*  psg_8910;
     XcpcRamBank*  ram_bank[8];
     XcpcRomBank*  rom_bank[2];
-    XcpcRomBank*  expansion[256];
+    XcpcRomBank*  exp_bank[256];
     struct _memory {
         struct {
             unsigned char* bank[4];
@@ -130,6 +129,8 @@ extern void          amstrad_cpc_close         (AMSTRAD_CPC_EMULATOR* amstrad_cp
 extern void          amstrad_cpc_reset         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
 extern void          amstrad_cpc_load_snapshot (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
 extern void          amstrad_cpc_save_snapshot (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+extern void          amstrad_cpc_insert_drive0 (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+extern void          amstrad_cpc_insert_drive1 (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
 
 extern unsigned long amstrad_cpc_create_proc   (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
 extern unsigned long amstrad_cpc_destroy_proc  (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
@@ -143,4 +144,4 @@ extern unsigned long amstrad_cpc_input_proc    (Widget widget, AMSTRAD_CPC_EMULA
 }
 #endif
 
-#endif
+#endif /* __AMSTRAD_CPC_H__ */

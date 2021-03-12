@@ -1,5 +1,5 @@
 /*
- * fdd765.c - Copyright (c) 2001-2020 - Olivier Poncet
+ * fdd765.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ GdevFDD765 *gdev_fdd765_new(void)
  * @param fdd765 specifies the GdevFDD765 instance
  * @param dsk_fn specifies the disk image filename
  */
-void gdev_fdd765_insert(GdevFDD765 *fdd765, gchar *dsk_fn)
+void gdev_fdd765_insert(GdevFDD765 *fdd765, const gchar *dsk_fn)
 {
   if(fdd765->impl != NULL) {
     if((fdd765->impl->fd_vtable != NULL)

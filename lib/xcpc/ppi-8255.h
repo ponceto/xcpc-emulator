@@ -1,5 +1,5 @@
 /*
- * ppi-8255.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * ppi-8255.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ extern XcpcPpi8255* xcpc_ppi_8255_destruct  (XcpcPpi8255* ppi_8255);
 extern XcpcPpi8255* xcpc_ppi_8255_new       (void);
 extern XcpcPpi8255* xcpc_ppi_8255_delete    (XcpcPpi8255* ppi_8255);
 extern XcpcPpi8255* xcpc_ppi_8255_reset     (XcpcPpi8255* ppi_8255);
+extern XcpcPpi8255* xcpc_ppi_8255_clock     (XcpcPpi8255* ppi_8255);
 
 #ifdef __cplusplus
 }

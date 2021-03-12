@@ -1,5 +1,5 @@
 /*
- * keyboard.c - Copyright (c) 2001-2020 - Olivier Poncet
+ * keyboard.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,6 +93,7 @@ XcpcKeyboard* xcpc_keyboard_reset(XcpcKeyboard* self)
         unsigned int index = 0;
         unsigned int count = countof(self->keys);
         for(index = 0; index < count; ++index) {
+            self->mode        = 0x00;
             self->line        = 0x00;
             self->keys[index] = 0xff;
         }
@@ -105,7 +106,7 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
     KeySym keysym = NoSymbol;
     KeySym keypag = NoSymbol;
     uint8_t line  = 0xff;
-    uint8_t data  = 0x00;
+    uint8_t bits  = 0x00;
     uint8_t mods  = ~(self->keys[0x0f]);
 
     if(self != NULL) {
@@ -409,6 +410,16 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
         }
         else if(keypag == 0xff) {
             switch(keysym) {
+                case XK_End:
+                    if(event->type == KeyPress) {
+                        if(self->mode == MODE_STANDARD) {
+                            self->mode = MODE_JOYSTICK;
+                        }
+                        else {
+                            self->mode = MODE_STANDARD;
+                        }
+                    }
+                    break;
                 case XK_BackSpace:
                     SET_KEY(ROW9, BIT7);
                     break;
@@ -425,16 +436,36 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
                     SET_KEY(ROW2, BIT0);
                     break;
                 case XK_Left:
-                    SET_KEY(ROW1, BIT0);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT2);
+                    }
+                    else {
+                        SET_KEY(ROW1, BIT0);
+                    }
                     break;
                 case XK_Up:
-                    SET_KEY(ROW0, BIT0);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT0);
+                    }
+                    else {
+                        SET_KEY(ROW0, BIT0);
+                    }
                     break;
                 case XK_Right:
-                    SET_KEY(ROW0, BIT1);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT3);
+                    }
+                    else {
+                        SET_KEY(ROW0, BIT1);
+                    }
                     break;
                 case XK_Down:
-                    SET_KEY(ROW0, BIT2);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT1);
+                    }
+                    else {
+                        SET_KEY(ROW0, BIT2);
+                    }
                     break;
                 case XK_KP_Space:
                     SET_KEY(ROW5, BIT7);
@@ -500,10 +531,20 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
                     SET_KEY(ROW2, BIT5);
                     break;
                 case XK_Control_L:
-                    SET_KEY(ROW2, BIT7);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT4);
+                    }
+                    else {
+                        SET_KEY(ROW2, BIT7);
+                    }
                     break;
                 case XK_Alt_L:
-                    SET_KEY(ROW1, BIT1);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT5);
+                    }
+                    else {
+                        SET_KEY(ROW1, BIT1);
+                    }
                     break;
                 case XK_Caps_Lock:
                     SET_KEY(ROW8, BIT6);
@@ -512,25 +553,25 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
                     break;
             }
         }
-        if((line <= 0x0f) && (data != 0x00)) {
+        if((line <= 0x0f) && (bits != 0x00)) {
             if(event->type == KeyPress) {
-                if(mods & MOD_SHIFT) {
+                if(mods & BIT0) {
                     self->keys[ROW2] &= ~BIT5;
                 }
-                if(mods & MOD_CONTROL) {
+                if(mods & BIT1) {
                     self->keys[ROW2] &= ~BIT7;
                 }
-                self->keys[line] &= ~data;
+                self->keys[line] &= ~bits;
                 self->keys[0x0f]  = ~mods;
             }
             if(event->type == KeyRelease) {
-                if(mods & MOD_SHIFT) {
+                if(mods & BIT0) {
                     self->keys[ROW2] |=  BIT5;
                 }
-                if(mods & MOD_CONTROL) {
+                if(mods & BIT1) {
                     self->keys[ROW2] |=  BIT7;
                 }
-                self->keys[line] |=  data;
+                self->keys[line] |=  bits;
                 self->keys[0x0f]  = ~mods;
             }
         }
@@ -540,7 +581,7 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
                   , "%s::qwerty(), row=[0x%02x], bit=[0x%02x], mod=[0x%02x], text=[%s], length=[%ld]"
                   , "XcpcKeyboard"
                   , line
-                  , data
+                  , bits
                   , mods
                   , buffer
                   , buflen );
@@ -555,7 +596,7 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
     KeySym keysym = NoSymbol;
     KeySym keypag = NoSymbol;
     uint8_t line  = 0xff;
-    uint8_t data  = 0x00;
+    uint8_t bits  = 0x00;
     uint8_t mods  = ~(self->keys[0x0f]);
 
     if(self != NULL) {
@@ -859,6 +900,16 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
         }
         else if(keypag == 0xff) {
             switch(keysym) {
+                case XK_End:
+                    if(event->type == KeyPress) {
+                        if(self->mode == MODE_STANDARD) {
+                            self->mode = MODE_JOYSTICK;
+                        }
+                        else {
+                            self->mode = MODE_STANDARD;
+                        }
+                    }
+                    break;
                 case XK_BackSpace:
                     SET_KEY(ROW9, BIT7);
                     break;
@@ -875,16 +926,36 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
                     SET_KEY(ROW2, BIT0);
                     break;
                 case XK_Left:
-                    SET_KEY(ROW1, BIT0);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT2);
+                    }
+                    else {
+                        SET_KEY(ROW1, BIT0);
+                    }
                     break;
                 case XK_Up:
-                    SET_KEY(ROW0, BIT0);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT0);
+                    }
+                    else {
+                        SET_KEY(ROW0, BIT0);
+                    }
                     break;
                 case XK_Right:
-                    SET_KEY(ROW0, BIT1);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT3);
+                    }
+                    else {
+                        SET_KEY(ROW0, BIT1);
+                    }
                     break;
                 case XK_Down:
-                    SET_KEY(ROW0, BIT2);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT1);
+                    }
+                    else {
+                        SET_KEY(ROW0, BIT2);
+                    }
                     break;
                 case XK_KP_Space:
                     SET_KEY(ROW5, BIT7);
@@ -950,10 +1021,20 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
                     SET_KEY(ROW2, BIT5);
                     break;
                 case XK_Control_L:
-                    SET_KEY(ROW2, BIT7);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT4);
+                    }
+                    else {
+                        SET_KEY(ROW2, BIT7);
+                    }
                     break;
                 case XK_Alt_L:
-                    SET_KEY(ROW1, BIT1);
+                    if(self->mode == MODE_JOYSTICK) {
+                        SET_KEY(ROW9, BIT5);
+                    }
+                    else {
+                        SET_KEY(ROW1, BIT1);
+                    }
                     break;
                 case XK_Caps_Lock:
                     SET_KEY(ROW8, BIT6);
@@ -962,35 +1043,35 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
                     break;
             }
         }
-        if((line <= 0x0f) && (data != 0x00)) {
+        if((line <= 0x0f) && (bits != 0x00)) {
             if(event->type == KeyPress) {
-                if(mods & MOD_SHIFT) {
+                if(mods & BIT0) {
                     self->keys[ROW2] &= ~BIT5;
                 }
-                if(mods & MOD_CONTROL) {
+                if(mods & BIT1) {
                     self->keys[ROW2] &= ~BIT7;
                 }
-                self->keys[line] &= ~data;
+                self->keys[line] &= ~bits;
                 self->keys[0x0f]  = ~mods;
             }
             if(event->type == KeyRelease) {
-                if(mods & MOD_SHIFT) {
+                if(mods & BIT0) {
                     self->keys[ROW2] |=  BIT5;
                 }
-                if(mods & MOD_CONTROL) {
+                if(mods & BIT1) {
                     self->keys[ROW2] |=  BIT7;
                 }
-                self->keys[line] |=  data;
+                self->keys[line] |=  bits;
                 self->keys[0x0f]  = ~mods;
             }
         }
 #if 0
         /* debug */ {
             g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-                  , "%s::qwerty(), row=[0x%02x], bit=[0x%02x], mod=[0x%02x], text=[%s], length=[%ld]"
+                  , "%s::azerty(), row=[0x%02x], bit=[0x%02x], mod=[0x%02x], text=[%s], length=[%ld]"
                   , "XcpcKeyboard"
                   , line
-                  , data
+                  , bits
                   , mods
                   , buffer
                   , buflen );

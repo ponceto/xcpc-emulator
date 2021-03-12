@@ -1,5 +1,5 @@
 /*
- * psg-8910-impl.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * psg-8910-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,12 +27,19 @@ typedef struct _XcpcPsg8910 XcpcPsg8910;
 
 struct _XcpcPsg8910
 {
-    union {
-        struct {
+    struct
+    {
+        void* user_data;
+    } iface;
+    union
+    {
+        struct
+        {
             uint8_t addr;
             uint8_t data[16];
         } array;
-        struct {
+        struct
+        {
             uint8_t address_register;
             uint8_t channel_a_fine_tune;
             uint8_t channel_a_coarse_tune;

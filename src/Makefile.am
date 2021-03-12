@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2020 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2021 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ bin_PROGRAMS = \
 # ----------------------------------------------------------------------------
 
 xcpc_SOURCES = \
+	xcpc.c \
+	xcpc.h \
 	amstrad_cpc.c \
 	amstrad_cpc.h \
 	$(NULL)
@@ -53,8 +55,9 @@ xcpc_LDADD = \
 
 if MOTIF2
 xcpc_SOURCES += \
-	xcpc_motif2.c \
-	xcpc_motif2.h \
+	xcpc-motif2.c \
+	xcpc-motif2.h \
+	xcpc-motif2-priv.h \
 	$(NULL)
 
 xcpc_LDADD += \
@@ -67,8 +70,9 @@ endif
 
 if ATHENA
 xcpc_SOURCES += \
-	xcpc_athena.c \
-	xcpc_athena.h \
+	xcpc-athena.c \
+	xcpc-athena.h \
+	xcpc-athena-priv.h \
 	$(NULL)
 
 xcpc_LDADD += \

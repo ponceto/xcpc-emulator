@@ -1,5 +1,5 @@
 /*
- * keyboard-priv.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * keyboard-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,17 +23,13 @@
 extern "C" {
 #endif
 
-#define SET_KEY(row, bit) do { line = row; data = bit; mods = ((mods & ~0x03) | 0x00); } while(0)
-#define SFT_KEY(row, bit) do { line = row; data = bit; mods = ((mods & ~0x03) | 0x01); } while(0)
-#define CTL_KEY(row, bit) do { line = row; data = bit; mods = ((mods & ~0x03) | 0x02); } while(0)
-#define EXT_KEY(row, bit) do { line = row; data = bit; mods = ((mods & ~0x03) | 0x03); } while(0)
+#define MODE_STANDARD 0x00
+#define MODE_JOYSTICK 0x01
 
-#define MOD_SHIFT     0x01
-#define MOD_CONTROL   0x02
-#define MOD_SHIFT_L   0x04
-#define MOD_CONTROL_L 0x08
-#define MOD_SHIFT_R   0x10
-#define MOD_CONTROL_R 0x20
+#define SET_KEY(kl, kd) do { line = kl; bits = kd; mods = ((mods & ~0x03) | 0x00); } while(0)
+#define SFT_KEY(kl, kd) do { line = kl; bits = kd; mods = ((mods & ~0x03) | 0x01); } while(0)
+#define CTL_KEY(kl, kd) do { line = kl; bits = kd; mods = ((mods & ~0x03) | 0x02); } while(0)
+#define EXT_KEY(kl, kd) do { line = kl; bits = kd; mods = ((mods & ~0x03) | 0x03); } while(0)
 
 #define ROW0 0x00
 #define ROW1 0x01

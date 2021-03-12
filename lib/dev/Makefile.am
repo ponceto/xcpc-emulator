@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2020 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2021 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,14 +38,6 @@ libdev_la_SOURCES = \
 	z80cpu_opcode_ED.h \
 	z80cpu_opcode_FD.h \
 	z80cpu_opcode_XX.h \
-	garray.c \
-	garray.h \
-	cpcmem.c \
-	cpcmem.h \
-	cpckbd.c \
-	cpckbd.h \
-	mc6845.c \
-	mc6845.h \
 	libdsk.c \
 	libdsk.h \
 	lib765.c \

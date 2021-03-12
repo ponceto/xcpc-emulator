@@ -2,9 +2,78 @@
 
 ## How to install Xcpc
 
+The xcpc emulator is fully autotoolized.
+
+Under Debian or derivatives (Ubuntu, Mint, ...), please install first these dependencies
+
 ```
-See the 'INSTALL' file provided with this package.
+build-essential
+autoconf
+automake
+libtool
+git
+xorg-dev
+libmotif-dev
+libglib2.0-dev
 ```
+
+Generate the `configure` script
+
+```
+autoreconf -v -i -f
+```
+
+Run the `configure` script
+
+```
+./configure --prefix={destination-path}
+```
+
+Build the emulator
+
+```
+make -j4
+```
+
+Install the emulator
+
+```
+make install
+```
+
+Run the emulator
+
+```
+{destination-path}/bin/xcpc
+```
+
+A XDG compliant `.desktop` file is provided, so you can copy or symlink this file in a relevant directory
+
+For example, in the system directory
+
+```
+ln -sf {destination-path}/share/applications/xcpc.desktop /usr/share/applications/xcpc.desktop
+```
+
+For example, or the user directory
+
+```
+ln -sf {destination-path}/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
+```
+
+## How to install into your home directory
+
+Quick installation instructions
+
+```
+autoreconf -v -i -f
+./configure --prefix=${HOME}/Apps/xcpc
+make -j4
+make install
+ln -sf {HOME}/Apps/xcpc/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
+```
+
+You can now run the emulator from your desktop menu `Games > Xcpc`
 
 ## How to run Xcpc
 
@@ -16,43 +85,46 @@ Help Options:
   -h, --help                        Show help options
 
 Application Options:
-  --no-fps                          Don't show fps statistics
   --no-xshm                         Don't use the XShm extension
+  --show-fps                        Show fps statistics
   --model={computer-model}          cpc464, cpc664, cpc6128
   --monitor={monitor-model}         color, green, monochrome, ctm640, ctm644, gt64, gt65, cm14, mm14
   --keyboard={keyboard-layout}      qwerty, azerty
   --refresh={refresh-rate}          50Hz, 60Hz
   --manufacturer={manufacturer}     Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad
-  --snapshot=filename               Snapshot to load at start
-  --sysrom=filename                 32Kb system rom
-  --rom000=filename                 16Kb expansion rom #00
-  --rom001=filename                 16Kb expansion rom #01
-  --rom002=filename                 16Kb expansion rom #02
-  --rom003=filename                 16Kb expansion rom #03
-  --rom004=filename                 16Kb expansion rom #04
-  --rom005=filename                 16Kb expansion rom #05
-  --rom006=filename                 16Kb expansion rom #06
-  --rom007=filename                 16Kb expansion rom #07
-  --rom008=filename                 16Kb expansion rom #08
-  --rom009=filename                 16Kb expansion rom #09
-  --rom010=filename                 16Kb expansion rom #10
-  --rom011=filename                 16Kb expansion rom #11
-  --rom012=filename                 16Kb expansion rom #12
-  --rom013=filename                 16Kb expansion rom #13
-  --rom014=filename                 16Kb expansion rom #14
-  --rom015=filename                 16Kb expansion rom #15
+  --snapshot={filename}             Snapshot to load at start
+  --sysrom={filename}               32Kb system rom
+  --rom000={filename}               16Kb expansion rom #00
+  --rom001={filename}               16Kb expansion rom #01
+  --rom002={filename}               16Kb expansion rom #02
+  --rom003={filename}               16Kb expansion rom #03
+  --rom004={filename}               16Kb expansion rom #04
+  --rom005={filename}               16Kb expansion rom #05
+  --rom006={filename}               16Kb expansion rom #06
+  --rom007={filename}               16Kb expansion rom #07
+  --rom008={filename}               16Kb expansion rom #08
+  --rom009={filename}               16Kb expansion rom #09
+  --rom010={filename}               16Kb expansion rom #10
+  --rom011={filename}               16Kb expansion rom #11
+  --rom012={filename}               16Kb expansion rom #12
+  --rom013={filename}               16Kb expansion rom #13
+  --rom014={filename}               16Kb expansion rom #14
+  --rom015={filename}               16Kb expansion rom #15
 
 ```
 
 ## Release notes
 
   * Xcpc doesn't have sound emulation yet.
-  * You can emulate the joystick by disabling the 'Num Lock' key.
+  * You can emulate the joystick with the keypad by disabling the 'Num Lock' key.
+
+The joystick mode can be toggled (enabled/disabled) by pressing the `End` key.
+The Up/Down/Left/Right + CTRL-L & ALT-L keys will then emulate the joystick 0.
 
 ## License terms
 
 ```
-Xcpc - Copyright (c) 2001-2020 - Olivier Poncet
+Xcpc - Copyright (c) 2001-2021 - Olivier Poncet
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

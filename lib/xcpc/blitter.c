@@ -1,5 +1,5 @@
 /*
- * blitter.c - Copyright (c) 2001-2020 - Olivier Poncet
+ * blitter.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,8 @@ static XcpcBlitter* xcpc_blitter_init(XcpcBlitter* self, Display* display, Windo
             self->window   = window;
             self->colormap = attributes.colormap;
             self->depth    = attributes.depth;
+            self->px       = 0;
+            self->py       = 0;
             self->try_xshm = try_xshm;
             self->has_xshm = False;
             self->use_xshm = False;
@@ -71,6 +73,8 @@ static XcpcBlitter* xcpc_blitter_fini(XcpcBlitter* self)
         self->window   = None;
         self->colormap = None;
         self->depth    = 0;
+        self->px       = 0;
+        self->py       = 0;
         self->try_xshm = False;
         self->has_xshm = False;
         self->use_xshm = False;
@@ -270,6 +274,8 @@ XcpcBlitter* xcpc_blitter_construct(XcpcBlitter* self)
             self->window   = None;
             self->colormap = None;
             self->depth    = 0;
+            self->px       = 0;
+            self->py       = 0;
             self->try_xshm = False;
             self->has_xshm = False;
             self->use_xshm = False;
@@ -412,8 +418,8 @@ XcpcBlitter* xcpc_blitter_put_image(XcpcBlitter* self)
                                 , image
                                 , 0
                                 , 0
-                                , 0
-                                , 0
+                                , self->px
+                                , self->py
                                 , image->width
                                 , image->height
                                 , self->use_xshm
@@ -437,6 +443,22 @@ XcpcBlitter* xcpc_blitter_resize(XcpcBlitter* self, XEvent* event)
               , event->xconfigure.y
               , event->xconfigure.width
               , event->xconfigure.height );
+    }
+    /* compute px */ {
+        if(event->xconfigure.width > self->image->width) {
+            self->px = (event->xconfigure.width - self->image->width) / 2;
+        }
+        else {
+            self->px = 0;
+        }
+    }
+    /* compute py */ {
+        if(event->xconfigure.height > self->image->height) {
+            self->py = (event->xconfigure.height - self->image->height) / 2;
+        }
+        else {
+            self->py = 0;
+        }
     }
     return self;
 }
@@ -468,8 +490,8 @@ XcpcBlitter* xcpc_blitter_expose(XcpcBlitter* self, XEvent* event)
             }
         }
         /* init area1 */ {
-            area1.x1 = 0;
-            area1.y1 = 0;
+            area1.x1 = self->px;
+            area1.y1 = self->py;
             area1.x2 = ((area1.x1 + image->width ) - 1);
             area1.y2 = ((area1.y1 + image->height) - 1);
         }
@@ -484,6 +506,14 @@ XcpcBlitter* xcpc_blitter_expose(XcpcBlitter* self, XEvent* event)
             || (area2.x2 < area1.x1)
             || (area2.y1 > area1.y2)
             || (area2.y2 < area1.y1)) {
+                (void) XClearArea ( display
+                                  , window
+                                  , area2.x1
+                                  , area2.y1
+                                  , ((area2.x2 - area2.x1) + 1)
+                                  , ((area2.y2 - area2.y1) + 1)
+                                  , False );
+                (void) XFlush(display);
                 return self;
             }
             if(area2.x1 < area1.x1) {
@@ -505,8 +535,8 @@ XcpcBlitter* xcpc_blitter_expose(XcpcBlitter* self, XEvent* event)
                                 , window
                                 , gc
                                 , image
-                                , area2.x1
-                                , area2.y1
+                                , area2.x1 - self->px
+                                , area2.y1 - self->py
                                 , area2.x1
                                 , area2.y1
                                 , ((area2.x2 - area2.x1) + 1)

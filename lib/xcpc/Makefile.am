@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2020 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2021 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,14 +52,14 @@ libxcpc_la_SOURCES = \
 	joystick.h \
 	joystick-impl.h \
 	joystick-priv.h \
-	ram-bank.c \
-	ram-bank.h \
-	ram-bank-impl.h \
-	ram-bank-priv.h \
-	rom-bank.c \
-	rom-bank.h \
-	rom-bank-impl.h \
-	rom-bank-priv.h \
+	vga-core.c \
+	vga-core.h \
+	vga-core-impl.h \
+	vga-core-priv.h \
+	vdc-6845.c \
+	vdc-6845.h \
+	vdc-6845-impl.h \
+	vdc-6845-priv.h \
 	ppi-8255.c \
 	ppi-8255.h \
 	ppi-8255-impl.h \
@@ -68,6 +68,14 @@ libxcpc_la_SOURCES = \
 	psg-8910.h \
 	psg-8910-impl.h \
 	psg-8910-priv.h \
+	ram-bank.c \
+	ram-bank.h \
+	ram-bank-impl.h \
+	ram-bank-priv.h \
+	rom-bank.c \
+	rom-bank.h \
+	rom-bank-impl.h \
+	rom-bank-priv.h \
 	snapshot.c \
 	snapshot.h \
 	snapshot-impl.h \

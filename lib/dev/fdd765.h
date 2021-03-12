@@ -1,5 +1,5 @@
 /*
- * fdd765.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * fdd765.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ struct _GdevFDD765Class {
 
 extern GType       gdev_fdd765_get_type (void);
 extern GdevFDD765 *gdev_fdd765_new      (void);
-extern void        gdev_fdd765_insert   (GdevFDD765 *fdd765, gchar *filename);
+extern void        gdev_fdd765_insert   (GdevFDD765 *fdd765, const gchar *filename);
 
 G_END_DECLS
 

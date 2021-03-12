@@ -1,5 +1,5 @@
 /*
- * AppShellP.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * AppShellP.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,13 @@
 extern "C" {
 #endif
 
-typedef struct _XemAppShellClassPart {
+typedef struct _XemAppShellClassPart
+{
     XtPointer extension;
 } XemAppShellClassPart;
 
-typedef struct _XemAppShellClassRec {
+typedef struct _XemAppShellClassRec
+{
     CoreClassPart             core_class;
     CompositeClassPart        composite_class;
     ShellClassPart            shell_class;
@@ -41,7 +43,8 @@ typedef struct _XemAppShellClassRec {
 
 externalref XemAppShellClassRec xemAppShellClassRec;
 
-typedef struct _XemAppShellPart {
+typedef struct _XemAppShellPart
+{
     Atom           WM_PROTOCOLS;
     Atom           WM_DELETE_WINDOW;
     Atom           XdndAware;
@@ -66,7 +69,8 @@ typedef struct _XemAppShellPart {
     XtCallbackList drop_uri_callback;
 } XemAppShellPart;
 
-typedef struct _XemAppShellRec {
+typedef struct _XemAppShellRec
+{
     CorePart             core;
     CompositePart        composite;
     ShellPart            shell;

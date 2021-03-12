@@ -1,5 +1,5 @@
 /*
- * psg-8910.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * psg-8910.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,11 +30,12 @@ extern XcpcPsg8910* xcpc_psg_8910_destruct  (XcpcPsg8910* psg_8910);
 extern XcpcPsg8910* xcpc_psg_8910_new       (void);
 extern XcpcPsg8910* xcpc_psg_8910_delete    (XcpcPsg8910* psg_8910);
 extern XcpcPsg8910* xcpc_psg_8910_reset     (XcpcPsg8910* psg_8910);
+extern XcpcPsg8910* xcpc_psg_8910_clock     (XcpcPsg8910* psg_8910);
 
-extern uint8_t      xcpc_psg_8910_rg        (XcpcPsg8910* psg_8910, uint8_t address_register);
-extern uint8_t      xcpc_psg_8910_rs        (XcpcPsg8910* psg_8910, uint8_t address_register);
-extern uint8_t      xcpc_psg_8910_rd        (XcpcPsg8910* psg_8910, uint8_t register_data);
-extern uint8_t      xcpc_psg_8910_wr        (XcpcPsg8910* psg_8910, uint8_t register_data);
+extern uint8_t      xcpc_psg_8910_rg        (XcpcPsg8910* psg_8910, uint8_t data_bus);
+extern uint8_t      xcpc_psg_8910_rs        (XcpcPsg8910* psg_8910, uint8_t data_bus);
+extern uint8_t      xcpc_psg_8910_rd        (XcpcPsg8910* psg_8910, uint8_t data_bus);
+extern uint8_t      xcpc_psg_8910_wr        (XcpcPsg8910* psg_8910, uint8_t data_bus);
 
 #ifdef __cplusplus
 }

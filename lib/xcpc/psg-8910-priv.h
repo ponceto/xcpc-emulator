@@ -1,5 +1,5 @@
 /*
- * psg-8910-priv.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * psg-8910-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,24 +40,6 @@ extern "C" {
 #define INDEX_OF_ENVELOPE_SHAPE                13
 #define INDEX_OF_IO_PORT_A                     14
 #define INDEX_OF_IO_PORT_B                     15
-
-#define DEFAULT_VALUE_OF_ADDRESS_REGISTER      0x00
-#define DEFAULT_VALUE_OF_CHANNEL_A_FINE_TUNE   0x00
-#define DEFAULT_VALUE_OF_CHANNEL_A_COARSE_TUNE 0x00
-#define DEFAULT_VALUE_OF_CHANNEL_B_FINE_TUNE   0x00
-#define DEFAULT_VALUE_OF_CHANNEL_B_COARSE_TUNE 0x00
-#define DEFAULT_VALUE_OF_CHANNEL_C_FINE_TUNE   0x00
-#define DEFAULT_VALUE_OF_CHANNEL_C_COARSE_TUNE 0x00
-#define DEFAULT_VALUE_OF_NOISE_PERIOD          0x00
-#define DEFAULT_VALUE_OF_MIXER_AND_IO_CONTROL  0x00
-#define DEFAULT_VALUE_OF_CHANNEL_A_VOLUME      0x00
-#define DEFAULT_VALUE_OF_CHANNEL_B_VOLUME      0x00
-#define DEFAULT_VALUE_OF_CHANNEL_C_VOLUME      0x00
-#define DEFAULT_VALUE_OF_ENVELOPE_FINE_TUNE    0x00
-#define DEFAULT_VALUE_OF_ENVELOPE_COARSE_TUNE  0x00
-#define DEFAULT_VALUE_OF_ENVELOPE_SHAPE        0x00
-#define DEFAULT_VALUE_OF_IO_PORT_A             0x00
-#define DEFAULT_VALUE_OF_IO_PORT_B             0x00
 
 #define MASK_OF_ADDRESS_REGISTER               0xff
 #define MASK_OF_CHANNEL_A_FINE_TUNE            0xff
@@ -112,6 +94,24 @@ extern "C" {
 #define IS_WRITABLE_ENVELOPE_SHAPE             0x1
 #define IS_WRITABLE_IO_PORT_A                  0x1
 #define IS_WRITABLE_IO_PORT_B                  0x1
+
+#define DEFAULT_VALUE_OF_ADDRESS_REGISTER      0x00
+#define DEFAULT_VALUE_OF_CHANNEL_A_FINE_TUNE   0x00
+#define DEFAULT_VALUE_OF_CHANNEL_A_COARSE_TUNE 0x00
+#define DEFAULT_VALUE_OF_CHANNEL_B_FINE_TUNE   0x00
+#define DEFAULT_VALUE_OF_CHANNEL_B_COARSE_TUNE 0x00
+#define DEFAULT_VALUE_OF_CHANNEL_C_FINE_TUNE   0x00
+#define DEFAULT_VALUE_OF_CHANNEL_C_COARSE_TUNE 0x00
+#define DEFAULT_VALUE_OF_NOISE_PERIOD          0x00
+#define DEFAULT_VALUE_OF_MIXER_AND_IO_CONTROL  0x00
+#define DEFAULT_VALUE_OF_CHANNEL_A_VOLUME      0x00
+#define DEFAULT_VALUE_OF_CHANNEL_B_VOLUME      0x00
+#define DEFAULT_VALUE_OF_CHANNEL_C_VOLUME      0x00
+#define DEFAULT_VALUE_OF_ENVELOPE_FINE_TUNE    0x00
+#define DEFAULT_VALUE_OF_ENVELOPE_COARSE_TUNE  0x00
+#define DEFAULT_VALUE_OF_ENVELOPE_SHAPE        0x00
+#define DEFAULT_VALUE_OF_IO_PORT_A             0x00
+#define DEFAULT_VALUE_OF_IO_PORT_B             0x00
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*
- * blitter-impl.h - Copyright (c) 2001-2020 - Olivier Poncet
+ * blitter-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@ struct _XcpcBlitter
     Window   window;
     Colormap colormap;
     int      depth;
+    int      px;
+    int      py;
     Bool     try_xshm;
     Bool     has_xshm;
     Bool     use_xshm;
