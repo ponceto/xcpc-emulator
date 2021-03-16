@@ -21,7 +21,7 @@
 
 m4_define([pkg_name], [xcpc])
 m4_define([pkg_major_version], [0])
-m4_define([pkg_minor_version], [0])
+m4_define([pkg_minor_version], [30])
 m4_define([pkg_micro_version], [0])
 m4_define([pkg_interface_age], [0])
 m4_define([pkg_binary_age], [m4_eval(100 * pkg_minor_version + pkg_micro_version)])
