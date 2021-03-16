@@ -1,9 +1,9 @@
 /*
- * amstrad_cpc.h - Copyright (c) 2001, 2006, 2007 Olivier Poncet
+ * amstrad_cpc.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
- * This program is free software; you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -12,87 +12,136 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef __AMSTRAD_CPC_H__
 #define __AMSTRAD_CPC_H__
 
-#include <drv/driver.h>
 #include <dev/z80cpu.h>
-#include <dev/garray.h>
-#include <dev/cpcmem.h>
-#include <dev/cpckbd.h>
-#include <dev/mc6845.h>
-#include <dev/ay8910.h>
 #include <dev/upd765.h>
-#include <dev/i8255.h>
 #include <sys/time.h>
+#include <xcpc/blitter.h>
+#include <xcpc/monitor.h>
+#include <xcpc/keyboard.h>
+#include <xcpc/joystick.h>
+#include <xcpc/vga-core.h>
+#include <xcpc/vdc-6845.h>
+#include <xcpc/ppi-8255.h>
+#include <xcpc/psg-8910.h>
+#include <xcpc/ram-bank.h>
+#include <xcpc/rom-bank.h>
+#include <xcpc/snapshot.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _AMSTRAD_CPC AMSTRAD_CPC;
+typedef struct _AMSTRAD_CPC_SETTINGS AMSTRAD_CPC_SETTINGS;
+typedef struct _AMSTRAD_CPC_EMULATOR AMSTRAD_CPC_EMULATOR;
 
-struct _AMSTRAD_CPC {
-  GdevZ80CPU *z80cpu;
-  GdevGArray *garray;
-  GdevCPCKBD *cpckbd;
-  GdevMC6845 *mc6845;
-  GdevAY8910 *ay8910;
-  GdevUPD765 *upd765;
-  GdevI8255  *i8255;
-  guint8 *rd_bank[4];
-  guint8 *wr_bank[4];
-  struct {
-    guint8     *total_ram;
-    GdevCPCMEM *lower_rom;
-    GdevCPCMEM *upper_rom;
-    GdevCPCMEM *expan_rom[256];
-    guint8      expansion;
-  } memory;
-  struct _scanline {
-    unsigned int mode;
-    unsigned long ink[17];
-  } scanline[312];
-  XImage  *ximage;
-  Screen  *screen;
-  Visual  *visual;
-  Window   window;
-  Colormap colmap;
-  XColor   palette[32];
-  int      depth;
-  Bool     useshm;
-  void (*render)(AMSTRAD_CPC *self);
-  struct timeval timer1;
-  struct timeval timer2;
-  GTimer *gtimer;
-  int num_frames;
-  int drw_frames;
-  void (*keybd_hnd)(GdevCPCKBD *keybd, XEvent *xevent);
-  int ramsize;
-  int refresh;
-  int firmname;
-  int cpu_period;
-  char status[128];
+typedef void (*PaintProc)(AMSTRAD_CPC_EMULATOR* self);
+typedef void (*KeybdProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
+typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
+
+struct _AMSTRAD_CPC_SETTINGS
+{
+    gboolean no_xshm;
+    gboolean show_fps;
+    gchar*   computer_model;
+    gchar*   monitor_model;
+    gchar*   keyboard_layout;
+    gchar*   refresh_rate;
+    gchar*   manufacturer;
+    gchar*   snapshot;
+    gchar*   system_rom;
+    gchar*   expansion[256];
 };
 
-extern AMSTRAD_CPC amstrad_cpc;
+struct _AMSTRAD_CPC_EMULATOR
+{
+    AMSTRAD_CPC_SETTINGS* settings;
+    GdevZ80CPU*   z80cpu;
+    GdevUPD765*   upd765;
+    XcpcBlitter*  blitter;
+    XcpcMonitor*  monitor;
+    XcpcKeyboard* keyboard;
+    XcpcJoystick* joystick;
+    XcpcVgaCore*  vga_core;
+    XcpcVdc6845*  vdc_6845;
+    XcpcPpi8255*  ppi_8255;
+    XcpcPsg8910*  psg_8910;
+    XcpcRamBank*  ram_bank[8];
+    XcpcRomBank*  rom_bank[2];
+    XcpcRomBank*  exp_bank[256];
+    struct _memory {
+        struct {
+            unsigned char* bank[4];
+        } rd;
+        struct {
+            unsigned char* bank[4];
+        } wr;
+        struct {
+            unsigned char config;
+        } ram;
+        struct {
+            unsigned char config;
+        } rom;
+    } memory;
+    struct _scanline {
+        unsigned int  mode;
+        unsigned long ink[17];
+    } scanline[312];
+    int cur_scanline;
+    struct _paint {
+        PaintProc proc;
+    } paint;
+    struct _keybd {
+        KeybdProc proc;
+    } keybd;
+    struct _mouse {
+        MouseProc proc;
+    } mouse;
+    struct _timer {
+        struct timeval deadline;
+        struct timeval profiler;
+    } timer;
+    struct _frame {
+        unsigned int rate;
+        unsigned int time;
+        unsigned int count;
+        unsigned int drawn;
+    } frame;
+    int  ramsize;
+    int  computer_model;
+    int  monitor_model;
+    int  keyboard_layout;
+    int  refresh_rate;
+    int  manufacturer;
+    int  cpu_period;
+    char stats[256];
+};
 
-extern void amstrad_cpc_reset(void);
-extern int  amstrad_cpc_parse(int *argc, char ***argv);
-extern void amstrad_cpc_load_snapshot(char *filename);
-extern void amstrad_cpc_save_snapshot(char *filename);
+extern AMSTRAD_CPC_EMULATOR amstrad_cpc;
 
-extern void amstrad_cpc_start_handler(Widget widget, XtPointer data);
-extern void amstrad_cpc_clock_handler(Widget widget, XtPointer data);
-extern void amstrad_cpc_close_handler(Widget widget, XtPointer data);
-extern void amstrad_cpc_input_handler(Widget widget, XEvent *xevent);
-extern void amstrad_cpc_paint_handler(Widget widget, XEvent *xevent);
+extern int           amstrad_cpc_parse         (int* argc, char*** argv);
+extern void          amstrad_cpc_start         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
+extern void          amstrad_cpc_close         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
+extern void          amstrad_cpc_reset         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
+extern void          amstrad_cpc_load_snapshot (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+extern void          amstrad_cpc_save_snapshot (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+extern void          amstrad_cpc_insert_drive0 (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+extern void          amstrad_cpc_insert_drive1 (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+
+extern unsigned long amstrad_cpc_create_proc   (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_destroy_proc  (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_realize_proc  (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_resize_proc   (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_redraw_proc   (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_timer_proc    (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_input_proc    (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* __AMSTRAD_CPC_H__ */

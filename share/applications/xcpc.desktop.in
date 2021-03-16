@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Xcpc - Amstrad CPC emulator
+Comment=Amstrad CPC emulator
+Categories=Application;Game;
+Exec=@XCPC_BINDIR@/xcpc
+Icon=@XCPC_DATDIR@/pixmaps/xcpc.png
+Terminal=false
+Type=Application

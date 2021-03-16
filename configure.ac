@@ -1,8 +1,9 @@
-# configure.ac - Copyright (c) 2001, 2006, 2007 Olivier Poncet
 #
-# This program is free software; you can redistribute it and/or modify
+# configure.ac - Copyright (c) 2001-2021 - Olivier Poncet
+#
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -11,107 +12,136 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+#
 
-AC_INIT([xcpc], [20070122], [ponceto@noos.fr])
+# ----------------------------------------------------------------------------
+# Package informations
+# ----------------------------------------------------------------------------
+
+m4_define([pkg_name], [xcpc])
+m4_define([pkg_major_version], [0])
+m4_define([pkg_minor_version], [0])
+m4_define([pkg_micro_version], [0])
+m4_define([pkg_interface_age], [0])
+m4_define([pkg_binary_age], [m4_eval(100 * pkg_minor_version + pkg_micro_version)])
+m4_define([pkg_version], [pkg_major_version.pkg_minor_version.pkg_micro_version])
+m4_define([pkg_bugreport], [ponceto@free.fr])
+
+# ----------------------------------------------------------------------------
+# Libtool black magic
+# ----------------------------------------------------------------------------
+
+m4_define([pkg_lt_release], [pkg_major_version.pkg_minor_version])
+m4_define([pkg_lt_current], [m4_eval(100 * pkg_minor_version + pkg_micro_version - pkg_interface_age)])
+m4_define([pkg_lt_revision], [m4_eval(pkg_interface_age)])
+m4_define([pkg_lt_age], [m4_eval(pkg_binary_age - pkg_interface_age)])
+
+# ----------------------------------------------------------------------------
+# Autoconf/Automake
+# ----------------------------------------------------------------------------
+
+AC_INIT([pkg_name], [pkg_version], [pkg_bugreport])
 AM_INIT_AUTOMAKE
+LT_INIT
+
+# ----------------------------------------------------------------------------
+# Programs
+# ----------------------------------------------------------------------------
+
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_LEX
 AC_PROG_YACC
-AC_PROG_LIBTOOL
-AC_PROG_INSTALL
-AC_PATH_X
-AC_PATH_XTRA
-AM_PATH_GLIB_2_0([2.6.0], [have_glib20="yes"], [have_glib20="no"], [gobject])
-if test "x${have_glib20}" = "xno"; then
-  AC_MSG_ERROR([Glib - version >= 2.6.0 is required])
-fi
+
+# ----------------------------------------------------------------------------
+# Checks
+# ----------------------------------------------------------------------------
+
+AX_CHECK_ENDIANNESS
+
+# ----------------------------------------------------------------------------
+# Dependencies
+# ----------------------------------------------------------------------------
+
+AX_CHECK_X11
+AX_CHECK_XMU
+AX_CHECK_XAW
+AX_CHECK_XM2
+AX_CHECK_XSHM
+AX_CHECK_GLIB
+AX_CHECK_GUI
+AX_CHECK_HEADERS
+AX_CHECK_FUNCTIONS
+
+# ----------------------------------------------------------------------------
+# Defines
+# ----------------------------------------------------------------------------
+
 AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [turn on debugging [default=no]])], [], [enable_debug="no"])
 if test "x${enable_debug}" != "xyes"; then
   AC_DEFINE([G_DISABLE_ASSERT],      [1], [Define to 1 to disable GLib/GObject assert.])
   AC_DEFINE([G_DISABLE_CHECKS],      [1], [Define to 1 to disable GLib/GObject checks.])
   AC_DEFINE([G_DISABLE_CAST_CHECKS], [1], [Define to 1 to disable GObject cast checks.])
 fi
-AC_CHECK_HEADER([libdsk.h], [have_libdsk="yes"], [AC_MSG_ERROR([libdsk is required !!])])
-AC_ARG_WITH([motif1], [AC_HELP_STRING([--with-motif1], [build the Motif1 version])])
-AC_CHECK_HEADER([Xm/Xm.h],
-[have_motif1="yes"], [have_motif1="no"], [
-#include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-])
-AC_ARG_WITH([athena], [AC_HELP_STRING([--with-athena], [build the Athena version])])
-AC_CHECK_HEADER([X11/Xaw/XawInit.h],
-[have_athena="yes"], [have_athena="no"], [
-#include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-])
-if   test "x${with_motif1}" = "xyes"; then
-  if test "x${have_motif1}" = "xyes"; then
-    AM_CONDITIONAL([MOTIF1], true )
-    AM_CONDITIONAL([ATHENA], false)
-    gui_toolkit="Motif1"
-  else
-    AC_MSG_ERROR([Motif1 toolkit not found])
-  fi
-elif test "x${with_athena}" = "xyes"; then
-  if test "x${have_athena}" = "xyes"; then
-    AM_CONDITIONAL([MOTIF1], false)
-    AM_CONDITIONAL([ATHENA], true )
-    gui_toolkit="Athena"
-  else
-    AC_MSG_ERROR([Athena toolkit not found])
-  fi
-else
-  if   test "x${have_motif1}" = "xyes"; then
-    AM_CONDITIONAL([MOTIF1], true )
-    AM_CONDITIONAL([ATHENA], false)
-    gui_toolkit="Motif1"
-  elif test "x${have_athena}" = "xyes"; then
-    AM_CONDITIONAL([MOTIF1], false)
-    AM_CONDITIONAL([ATHENA], true )
-    gui_toolkit="Athena"
-  else
-    AC_MSG_ERROR([no gui toolkit found ...])
-  fi
-fi
-AC_ARG_ENABLE([xshm], [AC_HELP_STRING([--enable-xshm], [add the support of XShm if available [default=yes]])], [], [enable_xshm="yes"])
-AC_CHECK_HEADER([sys/ipc.h], [], [enable_xshm="no"])
-if test "x${ac_cv_header_sys_ipc_h}" = "xyes"; then
-  AC_DEFINE([HAVE_SYS_IPC_H], [1], [Define to 1 if you have the <sys/ipc.h> header file.])
-fi
-AC_CHECK_HEADER([sys/shm.h], [], [enable_xshm="no"])
-if test "x${ac_cv_header_sys_shm_h}" = "xyes"; then
-  AC_DEFINE([HAVE_SYS_SHM_H], [1], [Define to 1 if you have the <sys/shm.h> header file.])
-fi
-AC_CHECK_HEADER([X11/extensions/XShm.h], [], [enable_xshm="no"], [
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-]
-)
-if test "x${enable_xshm}" = "xyes"; then
-  AC_DEFINE([HAVE_XSHM], [1], [Define to 1 if you have the X11-SHM extension.])
-fi
 
-AC_C_BIGENDIAN([AC_DEFINE([MSB_FIRST], [1], [MSB First: 68k, sparc, ...])],
-               [AC_DEFINE([LSB_FIRST], [1], [LSB First: x86, alpha, ...])],
-               [AC_MSG_ERROR([unsupported byte-order ...])])
+AC_DEFINE(PACKAGE_MAJOR_VERSION, [pkg_major_version], [Define to the major version of this package.])
+AC_DEFINE(PACKAGE_MINOR_VERSION, [pkg_minor_version], [Define to the minor version of this package.])
+AC_DEFINE(PACKAGE_MICRO_VERSION, [pkg_micro_version], [Define to the micro version of this package.])
+AC_DEFINE(PACKAGE_INTERFACE_AGE, [pkg_interface_age], [Define to the interface age of this package.])
+AX_DEFINES
+
+# ----------------------------------------------------------------------------
+# Libtool versionning
+# ----------------------------------------------------------------------------
+
+AC_SUBST(LT_RELEASE, [pkg_lt_release])
+AC_SUBST(LT_CURRENT, [pkg_lt_current])
+AC_SUBST(LT_REVISION, [pkg_lt_revision])
+AC_SUBST(LT_AGE, [pkg_lt_age])
+AC_SUBST(LT_VERSION_INFO, [pkg_lt_current:pkg_lt_revision:pkg_lt_age])
+
+# ----------------------------------------------------------------------------
+# Output
+# ----------------------------------------------------------------------------
+
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile src/dev/Makefile src/drv/Makefile src/Xem/Makefile])
+AC_CONFIG_FILES([
+	Makefile
+	lib/Makefile
+	lib/libdsk/Makefile
+	lib/lib765/Makefile
+	lib/dev/Makefile
+	lib/Xem/Makefile
+	lib/xcpc/Makefile
+	src/Makefile
+	share/Makefile
+	share/applications/Makefile
+	share/applications/xcpc.desktop
+	share/pixmaps/Makefile
+	share/xcpc/Makefile
+	share/xcpc/bitmaps/Makefile
+	share/xcpc/roms/Makefile
+	share/xcpc/disks/Makefile
+	share/xcpc/snapshots/Makefile
+])
 AC_OUTPUT
+
+# ----------------------------------------------------------------------------
+# Notice
+# ----------------------------------------------------------------------------
+
 AC_MSG_NOTICE([Configured to build Xcpc:
 
   GLib20 sdk .... ${have_glib20}
-  LibDSK sdk .... ${have_libdsk}
-  Motif1 sdk .... ${have_motif1}
   Athena sdk .... ${have_athena}
-  gui toolkit ... ${gui_toolkit}
+  Motif2 sdk .... ${have_motif2}
+  X11 toolkit ... ${x11_toolkit}
   X11-SHM ....... ${enable_xshm}
 
 Have fun with Xcpc ;-)
 ])
+
+# ----------------------------------------------------------------------------
+# End-Of-File
+# ----------------------------------------------------------------------------
