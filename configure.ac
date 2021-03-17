@@ -108,6 +108,7 @@ AC_SUBST(LT_VERSION_INFO, [pkg_lt_current:pkg_lt_revision:pkg_lt_age])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
 	Makefile
+    doc/Makefile
 	lib/Makefile
 	lib/libdsk/Makefile
 	lib/lib765/Makefile
