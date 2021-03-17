@@ -26,7 +26,7 @@
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
-#include "amstrad_cpc.h"
+#include "amstrad-cpc.h"
 #include "xcpc-motif2-priv.h"
 
 /*

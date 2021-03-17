@@ -30,8 +30,8 @@ bin_PROGRAMS = \
 xcpc_SOURCES = \
 	xcpc.c \
 	xcpc.h \
-	amstrad_cpc.c \
-	amstrad_cpc.h \
+	amstrad-cpc.c \
+	amstrad-cpc.h \
 	$(NULL)
 
 xcpc_CPPFLAGS = \

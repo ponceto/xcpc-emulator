@@ -1,5 +1,5 @@
 /*
- * amstrad_cpc.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * amstrad-cpc.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <Xem/Emulator.h>
-#include "amstrad_cpc.h"
+#include "amstrad-cpc.h"
 
 static AMSTRAD_CPC_SETTINGS settings = {
   /* no_xshm         */ FALSE,   
