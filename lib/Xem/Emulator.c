@@ -240,12 +240,10 @@ static void Realize(Widget widget, XtValueMask* mask, XSetWindowAttributes* attr
     if(XemEmulatorSuperClass->core_class.realize != NULL) {
         (*XemEmulatorSuperClass->core_class.realize)(widget, mask, attributes);
     }
-    if(XtGetKeyboardFocusWidget(widget) != widget) {
-        XtSetKeyboardFocus(FindShell(widget), widget);
-    }
     if(self->emulator.realize_proc != NULL) {
         (void) (*self->emulator.realize_proc)(widget, self->emulator.context, NULL);
     }
+    XtSetKeyboardFocus(FindShell(widget), widget);
 }
 
 /**
@@ -378,14 +376,10 @@ static void OnButtonPress(Widget widget, XEvent* xevent, String* params, Cardina
     if(xevent->type != ButtonPress) {
         return;
     }
-    else {
-        if(XtGetKeyboardFocusWidget(widget) != widget) {
-            XtSetKeyboardFocus(FindShell(widget), widget);
-        }
-    }
     if(self->emulator.input_proc != NULL) {
         (void) (*self->emulator.input_proc)(widget, self->emulator.context, xevent);
     }
+    XtSetKeyboardFocus(FindShell(widget), widget);
 }
 
 /**
