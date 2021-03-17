@@ -20,17 +20,17 @@
 #include <dev/z80cpu.h>
 #include <dev/upd765.h>
 #include <sys/time.h>
-#include <xcpc/blitter.h>
-#include <xcpc/monitor.h>
-#include <xcpc/keyboard.h>
-#include <xcpc/joystick.h>
-#include <xcpc/vga-core.h>
-#include <xcpc/vdc-6845.h>
-#include <xcpc/ppi-8255.h>
-#include <xcpc/psg-8910.h>
-#include <xcpc/ram-bank.h>
-#include <xcpc/rom-bank.h>
-#include <xcpc/snapshot.h>
+#include <xcpc/blitter/blitter.h>
+#include <xcpc/monitor/monitor.h>
+#include <xcpc/keyboard/keyboard.h>
+#include <xcpc/joystick/joystick.h>
+#include <xcpc/vga-core/vga-core.h>
+#include <xcpc/vdc-6845/vdc-6845.h>
+#include <xcpc/ppi-8255/ppi-8255.h>
+#include <xcpc/psg-8910/psg-8910.h>
+#include <xcpc/ram-bank/ram-bank.h>
+#include <xcpc/rom-bank/rom-bank.h>
+#include <xcpc/snapshot/snapshot.h>
 
 #ifdef __cplusplus
 extern "C" {

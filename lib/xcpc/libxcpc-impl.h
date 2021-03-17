@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 #include <glib.h>
-#include <xcpc/xlib.h>
+#include <xcpc/xlib/xlib.h>
 
 #ifdef __cplusplus
 extern "C" {
