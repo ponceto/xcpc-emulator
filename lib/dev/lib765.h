@@ -18,6 +18,7 @@
 
 #include <stdarg.h>
 #include <limits.h>
+#include <glib-object.h>
 #include "libdsk.h"
 
 #ifdef __cplusplus

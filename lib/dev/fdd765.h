@@ -18,6 +18,7 @@
 #define __GDEV_FDD765_H__
 
 #include <glib-object.h>
+#include <dev/lib765.h>
 
 G_BEGIN_DECLS
 
@@ -28,24 +29,24 @@ G_BEGIN_DECLS
 #define GDEV_IS_FDD765_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), GDEV_TYPE_FDD765))
 #define GDEV_FDD765_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), GDEV_TYPE_FDD765, GdevFDD765Class))
 
-typedef struct _GdevUPD765      GdevFDDPXY;
 typedef struct _GdevFDD765      GdevFDD765;
 typedef struct _GdevFDD765Class GdevFDD765Class;
+typedef struct _GdevFDC765     *GdevFDCPTR;
 
 struct _GdevFDD765 {
   GObject parent_instance;
-  GdevFDDPXY *upd765;
-  FDD_765    *impl;
+  FDD_765 *impl;
 };
 
 struct _GdevFDD765Class {
   GObjectClass parent_class;
-  void (*reset)(GdevFDD765 *fdd765);
 };
 
 extern GType       gdev_fdd765_get_type (void);
 extern GdevFDD765 *gdev_fdd765_new      (void);
+extern void        gdev_fdd765_reset    (GdevFDD765 *fdd765);
 extern void        gdev_fdd765_insert   (GdevFDD765 *fdd765, const gchar *filename);
+
 
 G_END_DECLS
 

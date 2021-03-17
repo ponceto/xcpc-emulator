@@ -18,7 +18,8 @@
 #define __AMSTRAD_CPC_H__
 
 #include <dev/z80cpu.h>
-#include <dev/upd765.h>
+#include <dev/fdc765.h>
+#include <dev/fdd765.h>
 #include <sys/time.h>
 #include <xcpc/blitter/blitter.h>
 #include <xcpc/monitor/monitor.h>
@@ -61,7 +62,9 @@ struct _AMSTRAD_CPC_EMULATOR
 {
     AMSTRAD_CPC_SETTINGS* settings;
     GdevZ80CPU*   z80cpu;
-    GdevUPD765*   upd765;
+    GdevFDC765*   fdc765;
+    GdevFDD765*   drive0;
+    GdevFDD765*   drive1;
     XcpcBlitter*  blitter;
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;

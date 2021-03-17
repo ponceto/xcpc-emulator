@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "upd765.h"
+#include "lib765.h"
 
 /* Moved here from libdsk.h; there's no need for it to be public */
 typedef struct dsk_driver

@@ -370,10 +370,10 @@ static guint8 cpu_iorq_rd(GdevZ80CPU *z80cpu, guint16 port)
         (void) fflush(stderr);
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        GDEV_FDC765_GET_CLASS(self->upd765->fdc)->rstat(self->upd765->fdc, &data);
+        gdev_fdc765_rstat(self->fdc765, &data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        GDEV_FDC765_GET_CLASS(self->upd765->fdc)->rdata(self->upd765->fdc, &data);
+        gdev_fdc765_rdata(self->fdc765, &data);
         break;
     }
   }
@@ -455,16 +455,16 @@ static void cpu_iorq_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
   if((port & 0x0480) == 0) {
     switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
       case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-        gdev_upd765_set_motor(self->upd765, ((data & 1) << 1) | ((data & 1) << 0));
+        gdev_fdc765_motor(self->fdc765, ((data & 1) << 1) | ((data & 1) << 0));
         break;
       case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-        gdev_upd765_set_motor(self->upd765, ((data & 1) << 1) | ((data & 1) << 0));
+        gdev_fdc765_motor(self->fdc765, ((data & 1) << 1) | ((data & 1) << 0));
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        GDEV_FDC765_GET_CLASS(self->upd765->fdc)->wstat(self->upd765->fdc, &data);
+        gdev_fdc765_wstat(self->fdc765, &data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        GDEV_FDC765_GET_CLASS(self->upd765->fdc)->wdata(self->upd765->fdc, &data);
+        gdev_fdc765_wdata(self->fdc765, &data);
         break;
     }
   }
@@ -1412,7 +1412,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
   }
   /* create devices */ {
     self->z80cpu = gdev_z80cpu_new();
-    self->upd765 = gdev_upd765_new();
+    self->fdc765 = gdev_fdc765_new();
+    self->drive0 = gdev_fdd765_new();
+    self->drive1 = gdev_fdd765_new();
   }
   /* initialize devices handlers */ {
     self->z80cpu->mreq_m1 = cpu_mreq_m1;
@@ -1421,9 +1423,8 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     self->z80cpu->iorq_m1 = cpu_iorq_m1;
     self->z80cpu->iorq_rd = cpu_iorq_rd;
     self->z80cpu->iorq_wr = cpu_iorq_wr;
-    gdev_upd765_set_fdc(self->upd765, gdev_fdc765_new());
-    gdev_upd765_set_fdd(self->upd765, gdev_fdd765_new(), 0);
-    gdev_upd765_set_fdd(self->upd765, gdev_fdd765_new(), 1);
+    gdev_fdc765_attach(self->fdc765, self->drive0, 0);
+    gdev_fdc765_attach(self->fdc765, self->drive1, 1);
   }
   /* create blitter */ {
     self->blitter = xcpc_blitter_new();
@@ -1620,7 +1621,9 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR *self)
     self->blitter = xcpc_blitter_delete(self->blitter);
   }
   /* destroy devices */ {
-    self->upd765 = (g_object_unref(self->upd765), NULL);
+    self->drive1 = (g_object_unref(self->drive1), NULL);
+    self->drive0 = (g_object_unref(self->drive0), NULL);
+    self->fdc765 = (g_object_unref(self->fdc765), NULL);
     self->z80cpu = (g_object_unref(self->z80cpu), NULL);
   }
   /* finalize libxcpc */ {
@@ -1632,7 +1635,9 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR *self)
 {
   /* reset devices */ {
     gdev_device_reset(GDEV_DEVICE(self->z80cpu));
-    gdev_device_reset(GDEV_DEVICE(self->upd765));
+    gdev_fdc765_reset(GDEV_FDC765(self->fdc765));
+    gdev_fdd765_reset(GDEV_FDD765(self->drive0));
+    gdev_fdd765_reset(GDEV_FDD765(self->drive1));
   }
   /* reset blitter */ {
     (void) xcpc_blitter_reset(self->blitter);
@@ -2106,12 +2111,12 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 
 void amstrad_cpc_insert_drive0(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 {
-  gdev_fdd765_insert(self->upd765->fdd[0], filename);
+  gdev_fdd765_insert(self->drive0, filename);
 }
 
 void amstrad_cpc_insert_drive1(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 {
-  gdev_fdd765_insert(self->upd765->fdd[1], filename);
+  gdev_fdd765_insert(self->drive1, filename);
 }
 
 unsigned long amstrad_cpc_create_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
