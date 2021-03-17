@@ -25,7 +25,7 @@ extern "C" {
 
 typedef struct _XcpcApplicationRec* XcpcApplication;
 
-extern XcpcApplication XcpcApplicationInit(XcpcApplication self, int argc, char* argv[]);
+extern XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** argv);
 extern XcpcApplication XcpcApplicationMain(XcpcApplication self);
 extern XcpcApplication XcpcApplicationFini(XcpcApplication self);
 

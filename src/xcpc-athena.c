@@ -696,7 +696,7 @@ Widget XcpcCreateApplication(Widget toplevel)
  *
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int xcpc(int argc, char *argv[])
+int xcpc(int* argc, char*** argv)
 {
     XtAppContext appcontext  = NULL;
     String       appname     = NULL;
@@ -713,7 +713,7 @@ int xcpc(int argc, char *argv[])
         argcount = 0;
         XtSetArg(arglist[argcount], XtNmappedWhenManaged, TRUE); argcount++;
         XtSetArg(arglist[argcount], XtNallowShellResize, TRUE); argcount++;
-        toplevel = XtOpenApplication(&appcontext, "Xcpc", options, XtNumber(options), &argc, argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
+        toplevel = XtOpenApplication(&appcontext, "Xcpc", options, XtNumber(options), argc, *argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
         XtAddCallback(toplevel, XtNdestroyCallback, (XtCallbackProc) DestroyCbk, (XtPointer) &toplevel);
     }
     /* get application resources */ {
@@ -729,7 +729,7 @@ int xcpc(int argc, char *argv[])
             (void) fflush(stdout);
             exit(EXIT_SUCCESS);
         }
-        if((xcpc_resources.usage_flag != FALSE) || (amstrad_cpc_parse(&argc, &argv) == EXIT_FAILURE)) {
+        if((xcpc_resources.usage_flag != FALSE) || (amstrad_cpc_parse(argc, argv) == EXIT_FAILURE)) {
             (void) fprintf(stdout, "Usage: %s [toolkit-options] [program-options]\n\n", appname);
             (void) fprintf(stdout, "Options:\n");
             (void) fprintf(stdout, "  -version  display version and exit.\n");

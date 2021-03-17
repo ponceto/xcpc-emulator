@@ -1078,7 +1078,7 @@ static XcpcApplication BuildHelpMenu(XcpcApplication self)
  * ---------------------------------------------------------------------------
  */
 
-XcpcApplication XcpcApplicationInit(XcpcApplication self, int argc, char* argv[])
+XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** argv)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
@@ -1099,7 +1099,7 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int argc, char* argv[]
         XtSetArg(arglist[argcount], XmNmappedWhenManaged, TRUE        ); ++argcount;
         XtSetArg(arglist[argcount], XmNallowShellResize , TRUE        ); ++argcount;
         XtSetArg(arglist[argcount], XmNdeleteResponse   , XmDO_NOTHING); ++argcount;
-        self->layout.toplevel = XtOpenApplication(&self->appcontext, "Xcpc", options, XtNumber(options), &argc, argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
+        self->layout.toplevel = XtOpenApplication(&self->appcontext, "Xcpc", options, XtNumber(options), argc, *argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
         XtAddCallback(self->layout.toplevel, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.toplevel);
         XtAddCallback(self->layout.toplevel, XtNdropURICallback, (XtCallbackProc) &DropUriCallback, (XtPointer) self);
     }
@@ -1117,7 +1117,7 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int argc, char* argv[]
         if(self->resources.usage_flag != FALSE) {
             return PrintUsage(self);
         }
-        if(amstrad_cpc_parse(&argc, &argv) == EXIT_FAILURE) {
+        if(amstrad_cpc_parse(argc, argv) == EXIT_FAILURE) {
             return PrintUsage(self);
         }
     }
@@ -1186,7 +1186,7 @@ static void setup(void)
     }
 }
 
-int xcpc(int argc, char* argv[])
+int xcpc(int* argc, char*** argv)
 {
     XcpcApplicationRec self;
 

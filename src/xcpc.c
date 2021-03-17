@@ -30,7 +30,7 @@
  *
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    return xcpc(argc, argv);
+    return xcpc(&argc, &argv);
 }

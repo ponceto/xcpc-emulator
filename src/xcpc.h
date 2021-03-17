@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-extern int xcpc(int argc, char *argv[]);
+extern int xcpc(int* argc, char*** argv);
 
 #ifdef __cplusplus
 }
