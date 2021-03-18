@@ -22,37 +22,35 @@
 #include <string.h>
 #include "snapshot-writer-priv.h"
 
+void xcpc_snapshot_writer_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcSnapshotWriter::%s()"
+          , function );
+}
+
 XcpcSnapshotWriter* xcpc_snapshot_writer_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcSnapshotWriter" );
-    }
+    xcpc_snapshot_writer_trace("alloc");
+
     return xcpc_new(XcpcSnapshotWriter);
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_free(XcpcSnapshotWriter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcSnapshotWriter" );
-    }
+    xcpc_snapshot_writer_trace("free");
+
     return xcpc_delete(XcpcSnapshotWriter, self);
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_construct(XcpcSnapshotWriter* self, XcpcSnapshot* snapshot)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcSnapshotWriter" );
+    xcpc_snapshot_writer_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcSnapshotWriter));
     }
     if(self != NULL) {
-        /* initialize */ {
-            (void) memset(self, 0, sizeof(XcpcSnapshotWriter));
-        }
         /* initialize members */ {
             self->status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
             self->snapshot = snapshot;
@@ -64,41 +62,28 @@ XcpcSnapshotWriter* xcpc_snapshot_writer_construct(XcpcSnapshotWriter* self, Xcp
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_destruct(XcpcSnapshotWriter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcSnapshotWriter" );
-    }
+    xcpc_snapshot_writer_trace("destruct");
+
     return self;
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_new(XcpcSnapshot* snapshot)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcSnapshotWriter" );
-    }
+    xcpc_snapshot_writer_trace("new");
+
     return xcpc_snapshot_writer_construct(xcpc_snapshot_writer_alloc(), snapshot);
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_delete(XcpcSnapshotWriter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcSnapshotWriter" );
-    }
+    xcpc_snapshot_writer_trace("delete");
+
     return xcpc_snapshot_writer_free(xcpc_snapshot_writer_destruct(self));
 }
 
 static XcpcSnapshotStatus xcpc_snapshot_writer_save_header(XcpcSnapshotWriter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::save_header()"
-              , "XcpcSnapshotWriter" );
-    }
+    xcpc_snapshot_writer_trace("save_header");
     /* save header */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             void*  header_data = &self->snapshot->header;
@@ -116,11 +101,7 @@ static XcpcSnapshotStatus xcpc_snapshot_writer_save_memory(XcpcSnapshotWriter* s
 {
     size_t remaining_bytes = 0;
 
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::save_memory()"
-              , "XcpcSnapshotWriter" );
-    }
+    xcpc_snapshot_writer_trace("save_memory");
     /* compute and check remaining memory size */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             remaining_bytes |= (((size_t)(self->snapshot->header.ram_size_h)) << 18);
@@ -165,11 +146,8 @@ static XcpcSnapshotStatus xcpc_snapshot_writer_save_memory(XcpcSnapshotWriter* s
 
 XcpcSnapshotStatus xcpc_snapshot_writer_save(XcpcSnapshotWriter* self, const char* filename)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::save()"
-              , "XcpcSnapshotWriter" );
-    }
+    xcpc_snapshot_writer_trace("save");
+
     /* check instance */ {
         if(self == NULL) {
             return XCPC_SNAPSHOT_STATUS_FAILURE;

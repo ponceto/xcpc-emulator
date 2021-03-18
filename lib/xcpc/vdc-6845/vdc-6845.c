@@ -22,33 +22,31 @@
 #include <string.h>
 #include "vdc-6845-priv.h"
 
+void xcpc_vdc_6845_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcVdc6845::%s()"
+          , function );
+}
+
 XcpcVdc6845* xcpc_vdc_6845_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcVdc6845" );
-    }
+    xcpc_vdc_6845_trace("alloc");
+
     return xcpc_new(XcpcVdc6845);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_free(XcpcVdc6845* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcVdc6845" );
-    }
+    xcpc_vdc_6845_trace("free");
+
     return xcpc_delete(XcpcVdc6845, self);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcVdc6845" );
-    }
+    xcpc_vdc_6845_trace("construct");
+
     if(self != NULL) {
         (void) memset(self, 0, sizeof(XcpcVdc6845));
     }
@@ -57,41 +55,29 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
 
 XcpcVdc6845* xcpc_vdc_6845_destruct(XcpcVdc6845* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcVdc6845" );
-    }
+    xcpc_vdc_6845_trace("destruct");
+
     return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcVdc6845" );
-    }
+    xcpc_vdc_6845_trace("new");
+
     return xcpc_vdc_6845_construct(xcpc_vdc_6845_alloc());
 }
 
 XcpcVdc6845* xcpc_vdc_6845_delete(XcpcVdc6845* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcVdc6845" );
-    }
+    xcpc_vdc_6845_trace("delete");
+
     return xcpc_vdc_6845_free(xcpc_vdc_6845_destruct(self));
 }
 
 XcpcVdc6845* xcpc_vdc_6845_reset(XcpcVdc6845* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcVdc6845" );
-    }
+    xcpc_vdc_6845_trace("reset");
+
     if(self != NULL) {
         /* reset registers */ {
             self->regs.named.address_register         = DEFAULT_VALUE_OF_ADDRESS_REGISTER;

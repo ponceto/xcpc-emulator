@@ -86,73 +86,62 @@ static void xcpc_vga_core_init_ctr(XcpcVgaCore* self)
     self->delayed = 0x00;
 }
 
+void xcpc_vga_core_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcVgaCore::%s()"
+          , function );
+}
+
 XcpcVgaCore* xcpc_vga_core_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcVgaCore" );
-    }
+    xcpc_vga_core_trace("alloc");
+
     return xcpc_new(XcpcVgaCore);
 }
 
 XcpcVgaCore* xcpc_vga_core_free(XcpcVgaCore* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcVgaCore" );
-    }
+    xcpc_vga_core_trace("free");
+
     return xcpc_delete(XcpcVgaCore, self);
 }
 
 XcpcVgaCore* xcpc_vga_core_construct(XcpcVgaCore* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcVgaCore" );
+    xcpc_vga_core_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcVgaCore));
     }
     return xcpc_vga_core_reset(self);
 }
 
 XcpcVgaCore* xcpc_vga_core_destruct(XcpcVgaCore* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcVgaCore" );
-    }
+    xcpc_vga_core_trace("destruct");
+
     return self;
 }
 
 XcpcVgaCore* xcpc_vga_core_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcVgaCore" );
-    }
+    xcpc_vga_core_trace("new");
+
     return xcpc_vga_core_construct(xcpc_vga_core_alloc());
 }
 
 XcpcVgaCore* xcpc_vga_core_delete(XcpcVgaCore* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcVgaCore" );
-    }
+    xcpc_vga_core_trace("delete");
+
     return xcpc_vga_core_free(xcpc_vga_core_destruct(self));
 }
 
 XcpcVgaCore* xcpc_vga_core_reset(XcpcVgaCore* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcVgaCore" );
-    }
+    xcpc_vga_core_trace("reset");
+
     if(self != NULL) {
         xcpc_vga_core_init_mode0_lut(self);
         xcpc_vga_core_init_mode1_lut(self);

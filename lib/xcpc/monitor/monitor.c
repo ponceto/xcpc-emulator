@@ -22,75 +22,66 @@
 #include <string.h>
 #include "monitor-priv.h"
 
+void xcpc_monitor_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcMonitor::%s()"
+          , function );
+}
+
 XcpcMonitor* xcpc_monitor_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcMonitor" );
-    }
+    xcpc_monitor_trace("alloc");
+
     return xcpc_new(XcpcMonitor);
 }
 
 XcpcMonitor* xcpc_monitor_free(XcpcMonitor* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcMonitor" );
-    }
+    xcpc_monitor_trace("free");
+
     return xcpc_delete(XcpcMonitor, self);
 }
 
 XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcMonitor" );
+    xcpc_monitor_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcMonitor));
     }
     return xcpc_monitor_reset(self);
 }
 
 XcpcMonitor* xcpc_monitor_destruct(XcpcMonitor* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcMonitor" );
-    }
+    xcpc_monitor_trace("destruct");
+
     return self;
 }
 
 XcpcMonitor* xcpc_monitor_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcMonitor" );
-    }
+    xcpc_monitor_trace("new");
+
     return xcpc_monitor_construct(xcpc_monitor_alloc());
 }
 
 XcpcMonitor* xcpc_monitor_delete(XcpcMonitor* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcMonitor" );
-    }
+    xcpc_monitor_trace("delete");
+
     return xcpc_monitor_free(xcpc_monitor_destruct(self));
 }
 
 XcpcMonitor* xcpc_monitor_reset(XcpcMonitor* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcMonitor" );
-    }
-    if(self != NULL) {
-        self->reserved = NULL;
-    }
+    xcpc_monitor_trace("reset");
+
+    return self;
+}
+
+XcpcMonitor* xcpc_monitor_clock(XcpcMonitor* self)
+{
     return self;
 }

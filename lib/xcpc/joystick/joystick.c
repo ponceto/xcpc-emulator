@@ -22,75 +22,66 @@
 #include <string.h>
 #include "joystick-priv.h"
 
+void xcpc_joystick_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcJoystick::%s()"
+          , function );
+}
+
 XcpcJoystick* xcpc_joystick_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcJoystick" );
-    }
+    xcpc_joystick_trace("alloc");
+
     return xcpc_new(XcpcJoystick);
 }
 
 XcpcJoystick* xcpc_joystick_free(XcpcJoystick* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcJoystick" );
-    }
+    xcpc_joystick_trace("free");
+
     return xcpc_delete(XcpcJoystick, self);
 }
 
 XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcJoystick" );
+    xcpc_joystick_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcJoystick));
     }
     return xcpc_joystick_reset(self);
 }
 
 XcpcJoystick* xcpc_joystick_destruct(XcpcJoystick* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcJoystick" );
-    }
+    xcpc_joystick_trace("destruct");
+
     return self;
 }
 
 XcpcJoystick* xcpc_joystick_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcJoystick" );
-    }
+    xcpc_joystick_trace("new");
+
     return xcpc_joystick_construct(xcpc_joystick_alloc());
 }
 
 XcpcJoystick* xcpc_joystick_delete(XcpcJoystick* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcJoystick" );
-    }
+    xcpc_joystick_trace("delete");
+
     return xcpc_joystick_free(xcpc_joystick_destruct(self));
 }
 
 XcpcJoystick* xcpc_joystick_reset(XcpcJoystick* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcJoystick" );
-    }
-    if(self != NULL) {
-        self->reserved = NULL;
-    }
+    xcpc_joystick_trace("reset");
+
+    return self;
+}
+
+XcpcJoystick* xcpc_joystick_clock(XcpcJoystick* self)
+{
     return self;
 }

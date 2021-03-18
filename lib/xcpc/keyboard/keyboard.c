@@ -22,73 +22,62 @@
 #include <string.h>
 #include "keyboard-priv.h"
 
+void xcpc_keyboard_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcKeyboard::%s()"
+          , function );
+}
+
 XcpcKeyboard* xcpc_keyboard_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcKeyboard" );
-    }
+    xcpc_keyboard_trace("alloc");
+
     return xcpc_new(XcpcKeyboard);
 }
 
 XcpcKeyboard* xcpc_keyboard_free(XcpcKeyboard* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcKeyboard" );
-    }
+    xcpc_keyboard_trace("free");
+
     return xcpc_delete(XcpcKeyboard, self);
 }
 
 XcpcKeyboard* xcpc_keyboard_construct(XcpcKeyboard* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcKeyboard" );
+    xcpc_keyboard_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcKeyboard));
     }
     return xcpc_keyboard_reset(self);
 }
 
 XcpcKeyboard* xcpc_keyboard_destruct(XcpcKeyboard* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcKeyboard" );
-    }
+    xcpc_keyboard_trace("destruct");
+
     return self;
 }
 
 XcpcKeyboard* xcpc_keyboard_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcKeyboard" );
-    }
+    xcpc_keyboard_trace("new");
+
     return xcpc_keyboard_construct(xcpc_keyboard_alloc());
 }
 
 XcpcKeyboard* xcpc_keyboard_delete(XcpcKeyboard* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcKeyboard" );
-    }
+    xcpc_keyboard_trace("delete");
+
     return xcpc_keyboard_free(xcpc_keyboard_destruct(self));
 }
 
 XcpcKeyboard* xcpc_keyboard_reset(XcpcKeyboard* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcKeyboard" );
-    }
+    xcpc_keyboard_trace("reset");
+
     if(self != NULL) {
         unsigned int index = 0;
         unsigned int count = countof(self->keys);
@@ -98,6 +87,11 @@ XcpcKeyboard* xcpc_keyboard_reset(XcpcKeyboard* self)
             self->keys[index] = 0xff;
         }
     }
+    return self;
+}
+
+XcpcKeyboard* xcpc_keyboard_clock(XcpcKeyboard* self)
+{
     return self;
 }
 
@@ -575,18 +569,6 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
                 self->keys[0x0f]  = ~mods;
             }
         }
-#if 0
-        /* debug */ {
-            g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-                  , "%s::qwerty(), row=[0x%02x], bit=[0x%02x], mod=[0x%02x], text=[%s], length=[%ld]"
-                  , "XcpcKeyboard"
-                  , line
-                  , bits
-                  , mods
-                  , buffer
-                  , buflen );
-        }
-#endif
     }
     return self;
 }
@@ -1065,18 +1047,6 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
                 self->keys[0x0f]  = ~mods;
             }
         }
-#if 0
-        /* debug */ {
-            g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-                  , "%s::azerty(), row=[0x%02x], bit=[0x%02x], mod=[0x%02x], text=[%s], length=[%ld]"
-                  , "XcpcKeyboard"
-                  , line
-                  , bits
-                  , mods
-                  , buffer
-                  , buflen );
-        }
-#endif
     }
     return self;
 }

@@ -237,32 +237,33 @@ static XcpcBlitter* xcpc_blitter_fini_palette(XcpcBlitter* self)
     return self;
 }
 
+void xcpc_blitter_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcBlitter::%s()"
+          , function );
+}
+
 XcpcBlitter* xcpc_blitter_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcBlitter" );
-    }
+    xcpc_blitter_trace("alloc");
+
     return xcpc_new(XcpcBlitter);
 }
 
 XcpcBlitter* xcpc_blitter_free(XcpcBlitter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcBlitter" );
-    }
+    xcpc_blitter_trace("free");
+
     return xcpc_delete(XcpcBlitter, self);
 }
 
 XcpcBlitter* xcpc_blitter_construct(XcpcBlitter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcBlitter" );
+    xcpc_blitter_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcBlitter));
     }
     if(self != NULL) {
         /* init attributes */ {
@@ -301,51 +302,36 @@ XcpcBlitter* xcpc_blitter_construct(XcpcBlitter* self)
 
 XcpcBlitter* xcpc_blitter_destruct(XcpcBlitter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcBlitter" );
-    }
+    xcpc_blitter_trace("destruct");
+
     return xcpc_blitter_unrealize(self);
 }
 
 XcpcBlitter* xcpc_blitter_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcBlitter" );
-    }
+    xcpc_blitter_trace("new");
+
     return xcpc_blitter_construct(xcpc_blitter_alloc());
 }
 
 XcpcBlitter* xcpc_blitter_delete(XcpcBlitter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcBlitter" );
-    }
+    xcpc_blitter_trace("delete");
+
     return xcpc_blitter_free(xcpc_blitter_destruct(self));
 }
 
 XcpcBlitter* xcpc_blitter_reset(XcpcBlitter* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcBlitter" );
-    }
+    xcpc_blitter_trace("reset");
+
     return self;
 }
 
 XcpcBlitter* xcpc_blitter_realize(XcpcBlitter* self, XcpcMonitorModel monitor_model, Display* display, Window window, Bool try_xshm)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::realize()"
-              , "XcpcBlitter" );
-    }
+    xcpc_blitter_trace("realize");
+
     if(self != NULL) {
         /* unrealize */ {
             (void) xcpc_blitter_unrealize(self);
@@ -365,11 +351,8 @@ XcpcBlitter* xcpc_blitter_realize(XcpcBlitter* self, XcpcMonitorModel monitor_mo
 
 XcpcBlitter* xcpc_blitter_unrealize(XcpcBlitter* self)
 {
-    /* unrealize */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::unrealize()"
-              , "XcpcBlitter" );
-    }
+    xcpc_blitter_trace("unrealize");
+
     if(self != NULL) {
         /* finalize palette */ {
             (void) xcpc_blitter_fini_palette(self);
@@ -432,17 +415,10 @@ XcpcBlitter* xcpc_blitter_put_image(XcpcBlitter* self)
 
 XcpcBlitter* xcpc_blitter_resize(XcpcBlitter* self, XEvent* event)
 {
+    xcpc_blitter_trace("resize");
+
     if((self == NULL) || (event == NULL) || (event->type != ConfigureNotify)) {
         return self;
-    }
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::resize() (position = [%d, %d], dimension = [%d, %d])"
-              , "XcpcBlitter"
-              , event->xconfigure.x
-              , event->xconfigure.y
-              , event->xconfigure.width
-              , event->xconfigure.height );
     }
     /* compute px */ {
         if(event->xconfigure.width > self->image->width) {
@@ -465,17 +441,10 @@ XcpcBlitter* xcpc_blitter_resize(XcpcBlitter* self, XEvent* event)
 
 XcpcBlitter* xcpc_blitter_expose(XcpcBlitter* self, XEvent* event)
 {
+    xcpc_blitter_trace("expose");
+
     if((self == NULL) || (event == NULL) || (event->type != Expose)) {
         return self;
-    }
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::expose() (position = [%d, %d], dimension = [%d, %d])"
-              , "XcpcBlitter"
-              , event->xexpose.x
-              , event->xexpose.y
-              , event->xexpose.width
-              , event->xexpose.height );
     }
     /* expose */ {
         Display* display = self->display;

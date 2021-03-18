@@ -76,6 +76,10 @@ libxcpc_la_SOURCES = \
 	psg-8910/psg-8910.h \
 	psg-8910/psg-8910-impl.h \
 	psg-8910/psg-8910-priv.h \
+	fdc-765a/fdc-765a.c \
+	fdc-765a/fdc-765a.h \
+	fdc-765a/fdc-765a-impl.h \
+	fdc-765a/fdc-765a-priv.h \
 	ram-bank/ram-bank.c \
 	ram-bank/ram-bank.h \
 	ram-bank/ram-bank-impl.h \

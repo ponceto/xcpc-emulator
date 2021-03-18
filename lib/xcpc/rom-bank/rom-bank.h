@@ -30,7 +30,6 @@ extern XcpcRomBank*      xcpc_rom_bank_destruct  (XcpcRomBank* rom_bank);
 extern XcpcRomBank*      xcpc_rom_bank_new       (void);
 extern XcpcRomBank*      xcpc_rom_bank_delete    (XcpcRomBank* rom_bank);
 extern XcpcRomBank*      xcpc_rom_bank_reset     (XcpcRomBank* rom_bank);
-extern XcpcRomBank*      xcpc_rom_bank_clear     (XcpcRomBank* rom_bank);
 extern XcpcRomBankStatus xcpc_rom_bank_load      (XcpcRomBank* rom_bank, const char* filename, size_t offset);
 extern XcpcRomBankStatus xcpc_rom_bank_copy      (XcpcRomBank* rom_bank, const uint8_t* data, size_t size);
 

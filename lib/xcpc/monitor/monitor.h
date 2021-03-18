@@ -30,6 +30,7 @@ extern XcpcMonitor* xcpc_monitor_destruct  (XcpcMonitor* monitor);
 extern XcpcMonitor* xcpc_monitor_new       (void);
 extern XcpcMonitor* xcpc_monitor_delete    (XcpcMonitor* monitor);
 extern XcpcMonitor* xcpc_monitor_reset     (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_clock     (XcpcMonitor* monitor);
 
 #ifdef __cplusplus
 }

@@ -26,86 +26,62 @@
 #define CHECK_INSTANCE(pointer) (pointer != NULL ? XCPC_RAM_BANK_STATUS_SUCCESS : XCPC_RAM_BANK_STATUS_FAILURE)
 #endif
 
+void xcpc_ram_bank_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcRamBank::%s()"
+          , function );
+}
+
 XcpcRamBank* xcpc_ram_bank_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcRamBank" );
-    }
+    xcpc_ram_bank_trace("alloc");
+
     return xcpc_new(XcpcRamBank);
 }
 
 XcpcRamBank* xcpc_ram_bank_free(XcpcRamBank* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcRamBank" );
-    }
+    xcpc_ram_bank_trace("free");
+
     return xcpc_delete(XcpcRamBank, self);
 }
 
 XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcRamBank" );
+    xcpc_ram_bank_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcRamBank));
     }
-    return xcpc_ram_bank_clear(self);
+    return xcpc_ram_bank_reset(self);
 }
 
 XcpcRamBank* xcpc_ram_bank_destruct(XcpcRamBank* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcRamBank" );
-    }
+    xcpc_ram_bank_trace("destruct");
+
     return self;
 }
 
 XcpcRamBank* xcpc_ram_bank_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcRamBank" );
-    }
+    xcpc_ram_bank_trace("new");
+
     return xcpc_ram_bank_construct(xcpc_ram_bank_alloc());
 }
 
 XcpcRamBank* xcpc_ram_bank_delete(XcpcRamBank* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcRamBank" );
-    }
+    xcpc_ram_bank_trace("delete");
+
     return xcpc_ram_bank_free(xcpc_ram_bank_destruct(self));
 }
 
 XcpcRamBank* xcpc_ram_bank_reset(XcpcRamBank* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcRamBank" );
-    }
-    if(self != NULL) {
-        (void) memset(self->data, 0, sizeof(self->data));
-    }
-    return self;
-}
+    xcpc_ram_bank_trace("reset");
 
-XcpcRamBank* xcpc_ram_bank_clear(XcpcRamBank* self)
-{
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::clear()"
-              , "XcpcRamBank" );
-    }
     if(self != NULL) {
         (void) memset(self->data, 0, sizeof(self->data));
     }
@@ -117,11 +93,7 @@ XcpcRamBankStatus xcpc_ram_bank_load(XcpcRamBank* self, const char* filename, si
     XcpcRamBankStatus status = CHECK_INSTANCE(self);
     FILE*             file   = NULL;
 
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::load()"
-              , "XcpcRamBank" );
-    }
+    xcpc_ram_bank_trace("load");
     /* check filename */ {
         if(status == XCPC_RAM_BANK_STATUS_SUCCESS) {
             if((filename == NULL) || (*filename == '\0')) {
@@ -166,11 +138,7 @@ XcpcRamBankStatus xcpc_ram_bank_copy(XcpcRamBank* self, const uint8_t* data, siz
 {
     XcpcRamBankStatus status = CHECK_INSTANCE(self);
 
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::copy()"
-              , "XcpcRamBank" );
-    }
+    xcpc_ram_bank_trace("copy");
     /* check data and size */ {
         if(status == XCPC_RAM_BANK_STATUS_SUCCESS) {
             if((data == NULL) || (size > sizeof(self->data))) {

@@ -22,33 +22,31 @@
 #include <string.h>
 #include "psg-8910-priv.h"
 
+void xcpc_psg_8910_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcPsg8910::%s()"
+          , function );
+}
+
 XcpcPsg8910* xcpc_psg_8910_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcPsg8910" );
-    }
+    xcpc_psg_8910_trace("alloc");
+
     return xcpc_new(XcpcPsg8910);
 }
 
 XcpcPsg8910* xcpc_psg_8910_free(XcpcPsg8910* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcPsg8910" );
-    }
+    xcpc_psg_8910_trace("free");
+
     return xcpc_delete(XcpcPsg8910, self);
 }
 
 XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcPsg8910" );
-    }
+    xcpc_psg_8910_trace("construct");
+
     if(self != NULL) {
         (void) memset(self, 0, sizeof(XcpcPsg8910));
     }
@@ -57,41 +55,29 @@ XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
 
 XcpcPsg8910* xcpc_psg_8910_destruct(XcpcPsg8910* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcPsg8910" );
-    }
+    xcpc_psg_8910_trace("destruct");
+
     return self;
 }
 
 XcpcPsg8910* xcpc_psg_8910_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcPsg8910" );
-    }
+    xcpc_psg_8910_trace("new");
+
     return xcpc_psg_8910_construct(xcpc_psg_8910_alloc());
 }
 
 XcpcPsg8910* xcpc_psg_8910_delete(XcpcPsg8910* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcPsg8910" );
-    }
+    xcpc_psg_8910_trace("delete");
+
     return xcpc_psg_8910_free(xcpc_psg_8910_destruct(self));
 }
 
 XcpcPsg8910* xcpc_psg_8910_reset(XcpcPsg8910* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcPsg8910" );
-    }
+    xcpc_psg_8910_trace("reset");
+
     if(self != NULL) {
         self->regs.named.address_register      = DEFAULT_VALUE_OF_ADDRESS_REGISTER;
         self->regs.named.channel_a_fine_tune   = DEFAULT_VALUE_OF_CHANNEL_A_FINE_TUNE;

@@ -32,37 +32,35 @@ static const char snapshot_signature[8] = {
     'M', 'V', ' ', '-', ' ', 'S', 'N', 'A'
 };
 
+void xcpc_snapshot_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcSnapshot::%s()"
+          , function );
+}
+
 XcpcSnapshot* xcpc_snapshot_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcSnapshot" );
-    }
+    xcpc_snapshot_trace("alloc");
+
     return xcpc_new(XcpcSnapshot);
 }
 
 XcpcSnapshot* xcpc_snapshot_free(XcpcSnapshot* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcSnapshot" );
-    }
+    xcpc_snapshot_trace("free");
+
     return xcpc_delete(XcpcSnapshot, self);
 }
 
 XcpcSnapshot* xcpc_snapshot_construct(XcpcSnapshot* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcSnapshot" );
+    xcpc_snapshot_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcSnapshot));
     }
     if(self != NULL) {
-        /* initialize */ {
-            (void) memset(self, 0, sizeof(XcpcSnapshot));
-        }
         /* initialize signature */ {
             (void) memcpy(self->header.signature, snapshot_signature, sizeof(snapshot_signature));
         }
@@ -75,31 +73,22 @@ XcpcSnapshot* xcpc_snapshot_construct(XcpcSnapshot* self)
 
 XcpcSnapshot* xcpc_snapshot_destruct(XcpcSnapshot* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcSnapshot" );
-    }
+    xcpc_snapshot_trace("destruct");
+
     return self;
 }
 
 XcpcSnapshot* xcpc_snapshot_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcSnapshot" );
-    }
+    xcpc_snapshot_trace("new");
+
     return xcpc_snapshot_construct(xcpc_snapshot_alloc());
 }
 
 XcpcSnapshot* xcpc_snapshot_delete(XcpcSnapshot* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcSnapshot" );
-    }
+    xcpc_snapshot_trace("delete");
+
     return xcpc_snapshot_free(xcpc_snapshot_destruct(self));
 }
 
@@ -107,11 +96,7 @@ XcpcSnapshotStatus xcpc_snapshot_sanity_check(XcpcSnapshot* self)
 {
     XcpcSnapshotStatus status = CHECK_INSTANCE(self);
 
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::sanity_check()"
-              , "XcpcSnapshot" );
-    }
+    xcpc_snapshot_trace("sanity_check");
     /* check header size */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             const size_t compiled_header_size = sizeof(self->header);
@@ -159,11 +144,7 @@ XcpcSnapshotStatus xcpc_snapshot_load(XcpcSnapshot* self, const char* filename)
 {
     XcpcSnapshotStatus status = CHECK_INSTANCE(self);
 
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::load()"
-              , "XcpcSnapshot" );
-    }
+    xcpc_snapshot_trace("load");
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
         status = xcpc_snapshot_sanity_check(self);
     }
@@ -179,11 +160,7 @@ XcpcSnapshotStatus xcpc_snapshot_save(XcpcSnapshot* self, const char* filename)
 {
     XcpcSnapshotStatus status = CHECK_INSTANCE(self);
 
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::save()"
-              , "XcpcSnapshot" );
-    }
+    xcpc_snapshot_trace("save");
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
         status = xcpc_snapshot_sanity_check(self);
     }

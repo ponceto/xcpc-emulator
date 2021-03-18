@@ -22,73 +22,62 @@
 #include <string.h>
 #include "ppi-8255-priv.h"
 
+void xcpc_ppi_8255_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcPpi8255::%s()"
+          , function );
+}
+
 XcpcPpi8255* xcpc_ppi_8255_alloc(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::alloc()"
-              , "XcpcPpi8255" );
-    }
+    xcpc_ppi_8255_trace("alloc");
+
     return xcpc_new(XcpcPpi8255);
 }
 
 XcpcPpi8255* xcpc_ppi_8255_free(XcpcPpi8255* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::free()"
-              , "XcpcPpi8255" );
-    }
+    xcpc_ppi_8255_trace("free");
+
     return xcpc_delete(XcpcPpi8255, self);
 }
 
 XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::construct()"
-              , "XcpcPpi8255" );
+    xcpc_ppi_8255_trace("construct");
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcPpi8255));
     }
     return xcpc_ppi_8255_reset(self);
 }
 
 XcpcPpi8255* xcpc_ppi_8255_destruct(XcpcPpi8255* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::destruct()"
-              , "XcpcPpi8255" );
-    }
+    xcpc_ppi_8255_trace("destruct");
+
     return self;
 }
 
 XcpcPpi8255* xcpc_ppi_8255_new(void)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::new()"
-              , "XcpcPpi8255" );
-    }
+    xcpc_ppi_8255_trace("new");
+
     return xcpc_ppi_8255_construct(xcpc_ppi_8255_alloc());
 }
 
 XcpcPpi8255* xcpc_ppi_8255_delete(XcpcPpi8255* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::delete()"
-              , "XcpcPpi8255" );
-    }
+    xcpc_ppi_8255_trace("delete");
+
     return xcpc_ppi_8255_free(xcpc_ppi_8255_destruct(self));
 }
 
 XcpcPpi8255* xcpc_ppi_8255_reset(XcpcPpi8255* self)
 {
-    /* debug */ {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s::reset()"
-              , "XcpcPpi8255" );
-    }
+    xcpc_ppi_8255_trace("reset");
+
     if(self != NULL) {
         self->control = 0x00;
         self->port_a  = 0x00;

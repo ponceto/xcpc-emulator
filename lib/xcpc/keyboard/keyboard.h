@@ -30,6 +30,7 @@ extern XcpcKeyboard* xcpc_keyboard_destruct  (XcpcKeyboard* keyboard);
 extern XcpcKeyboard* xcpc_keyboard_new       (void);
 extern XcpcKeyboard* xcpc_keyboard_delete    (XcpcKeyboard* keyboard);
 extern XcpcKeyboard* xcpc_keyboard_reset     (XcpcKeyboard* keyboard);
+extern XcpcKeyboard* xcpc_keyboard_clock     (XcpcKeyboard* keyboard);
 extern XcpcKeyboard* xcpc_keyboard_qwerty    (XcpcKeyboard* keyboard, XKeyEvent* event);
 extern XcpcKeyboard* xcpc_keyboard_azerty    (XcpcKeyboard* keyboard, XKeyEvent* event);
 
