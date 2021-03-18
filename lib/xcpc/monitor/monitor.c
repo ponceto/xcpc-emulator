@@ -47,8 +47,11 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
 {
     xcpc_monitor_trace("construct");
 
-    if(self != NULL) {
-        (void) memset(self, 0, sizeof(XcpcMonitor));
+    /* clear iface */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcMonitorIface));
+    }
+    /* clear state */ {
+        (void) memset(&self->state, 0, sizeof(XcpcMonitorState));
     }
     return xcpc_monitor_reset(self);
 }

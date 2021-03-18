@@ -23,9 +23,16 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcVgaCore XcpcVgaCore;
+typedef struct _XcpcVgaCoreIface XcpcVgaCoreIface;
+typedef struct _XcpcVgaCoreState XcpcVgaCoreState;
+typedef struct _XcpcVgaCore      XcpcVgaCore;
 
-struct _XcpcVgaCore
+struct _XcpcVgaCoreIface
+{
+    void* user_data;
+};
+
+struct _XcpcVgaCoreState
 {
     uint8_t mode0[256];
     uint8_t mode1[256];
@@ -35,6 +42,12 @@ struct _XcpcVgaCore
     uint8_t rmr;
     uint8_t counter;
     uint8_t delayed;
+};
+
+struct _XcpcVgaCore
+{
+    XcpcVgaCoreIface iface;
+    XcpcVgaCoreState state;
 };
 
 #ifdef __cplusplus

@@ -51,8 +51,11 @@ XcpcRomBank* xcpc_rom_bank_construct(XcpcRomBank* self)
 {
     xcpc_rom_bank_trace("construct");
 
-    if(self != NULL) {
-        (void) memset(self, 0, sizeof(XcpcRomBank));
+    /* clear iface */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcRomBankIface));
+    }
+    /* clear state */ {
+        (void) memset(&self->state, 0, sizeof(XcpcRomBankState));
     }
     return xcpc_rom_bank_reset(self);
 }
@@ -82,8 +85,12 @@ XcpcRomBank* xcpc_rom_bank_reset(XcpcRomBank* self)
 {
     xcpc_rom_bank_trace("reset");
 
-    if(self != NULL) {
-        /* XXX */
+    /* reset state */ {
+        unsigned int index = 0;
+        unsigned int count = countof(self->state.data);
+        for(index = 0; index < count; ++index) {
+            self->state.data[index] |= 0;
+        }
     }
     return self;
 }
@@ -118,8 +125,8 @@ XcpcRomBankStatus xcpc_rom_bank_load(XcpcRomBank* self, const char* filename, si
     }
     /* load data */ {
         if(status == XCPC_ROM_BANK_STATUS_SUCCESS) {
-            void*  rom_data = &self->data;
-            size_t rom_size = sizeof(self->data);
+            void*  rom_data = &self->state.data;
+            size_t rom_size = sizeof(self->state.data);
             size_t byte_count = fread(rom_data, 1, rom_size, file);
             if(byte_count != rom_size) {
                 status = XCPC_ROM_BANK_STATUS_FAILURE;
@@ -141,14 +148,14 @@ XcpcRomBankStatus xcpc_rom_bank_copy(XcpcRomBank* self, const uint8_t* data, siz
     xcpc_rom_bank_trace("copy");
     /* check data and size */ {
         if(status == XCPC_ROM_BANK_STATUS_SUCCESS) {
-            if((data == NULL) || (size > sizeof(self->data))) {
+            if((data == NULL) || (size > sizeof(self->state.data))) {
                 status = XCPC_ROM_BANK_STATUS_FAILURE;
             }
         }
     }
     /* copy data */ {
         if(status == XCPC_ROM_BANK_STATUS_SUCCESS) {
-            (void) memcpy(self->data, data, size);
+            (void) memcpy(self->state.data, data, size);
         }
     }
     return status;

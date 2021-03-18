@@ -23,13 +23,26 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcKeyboard XcpcKeyboard;
+typedef struct _XcpcKeyboardIface XcpcKeyboardIface;
+typedef struct _XcpcKeyboardState XcpcKeyboardState;
+typedef struct _XcpcKeyboard      XcpcKeyboard;
 
-struct _XcpcKeyboard
+struct _XcpcKeyboardIface
+{
+    void* user_data;
+};
+
+struct _XcpcKeyboardState
 {
     uint8_t mode;
     uint8_t line;
     uint8_t keys[16];
+};
+
+struct _XcpcKeyboard
+{
+    XcpcKeyboardIface iface;
+    XcpcKeyboardState state;
 };
 
 #ifdef __cplusplus

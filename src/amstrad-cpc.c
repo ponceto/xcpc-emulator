@@ -190,52 +190,52 @@ static void cpc_mem_select(AMSTRAD_CPC_EMULATOR *self)
   if(self->ramsize >= 128) {
     switch(self->memory.ram.config) {
       case 0x00:
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->data;
+        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
+        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->state.data;
+        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
+        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
         break;
       case 0x01:
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->data;
+        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
+        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->state.data;
+        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
+        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->state.data;
         break;
       case 0x02:
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[4]->data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[5]->data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[6]->data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->data;
+        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[4]->state.data;
+        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[5]->state.data;
+        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[6]->state.data;
+        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->state.data;
         break;
       case 0x03:
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[3]->data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->data;
+        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
+        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[3]->state.data;
+        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
+        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->state.data;
         break;
       case 0x04:
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[4]->data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->data;
+        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
+        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[4]->state.data;
+        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
+        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
         break;
       case 0x05:
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[5]->data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->data;
+        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
+        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[5]->state.data;
+        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
+        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
         break;
       case 0x06:
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[6]->data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->data;
+        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
+        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[6]->state.data;
+        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
+        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
         break;
       case 0x07:
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[7]->data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->data;
+        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
+        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[7]->state.data;
+        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
+        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
         break;
       default:
         g_log(XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "RAM-SELECT: Bad Configuration (%02x) !!", self->memory.ram.config);
@@ -243,22 +243,22 @@ static void cpc_mem_select(AMSTRAD_CPC_EMULATOR *self)
     }
   }
   else {
-    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->data;
-    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->data;
-    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->data;
-    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->data;
+    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
+    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->state.data;
+    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
+    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
   }
-  if((self->vga_core->rmr & 0x04) == 0) {
+  if((self->vga_core->state.rmr & 0x04) == 0) {
     if(self->rom_bank[0] != NULL) {
-      self->memory.rd.bank[0] = self->rom_bank[0]->data;
+      self->memory.rd.bank[0] = self->rom_bank[0]->state.data;
     }
   }
-  if((self->vga_core->rmr & 0x08) == 0) {
+  if((self->vga_core->state.rmr & 0x08) == 0) {
     if(self->rom_bank[1] != NULL) {
-      self->memory.rd.bank[3] = self->rom_bank[1]->data;
+      self->memory.rd.bank[3] = self->rom_bank[1]->state.data;
     }
     if(self->exp_bank[self->memory.rom.config] != NULL) {
-      self->memory.rd.bank[3] = self->exp_bank[self->memory.rom.config]->data;
+      self->memory.rd.bank[3] = self->exp_bank[self->memory.rom.config]->state.data;
     }
   }
 }
@@ -288,7 +288,7 @@ static guint8 cpu_iorq_m1(GdevZ80CPU *z80cpu, guint16 port)
 {
   AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
 
-  self->vga_core->counter &= 0x1f;
+  self->vga_core->state.counter &= 0x1f;
 
   return 0x00;
 }
@@ -337,20 +337,20 @@ static guint8 cpu_iorq_rd(GdevZ80CPU *z80cpu, guint16 port)
   if((port & 0x0800) == 0) {
     switch((port >> 8) & 3) {
       case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-        self->ppi_8255->port_a = self->keyboard->keys[self->keyboard->line];
-        data = self->ppi_8255->port_a;
+        self->ppi_8255->state.port_a = self->keyboard->state.keys[self->keyboard->state.line];
+        data = self->ppi_8255->state.port_a;
         break;
       case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-        self->ppi_8255->port_b = ((0                                       & 0x01) << 7)
-                               | ((1                                       & 0x01) << 6)
-                               | ((1                                       & 0x01) << 5)
-                               | ((self->refresh_rate                      & 0x01) << 4)
-                               | ((self->manufacturer                      & 0x07) << 1)
-                               | ((self->vdc_6845->ctrs.named.vsync_signal & 0x01) << 0);
-        data = self->ppi_8255->port_b;
+        self->ppi_8255->state.port_b = ((0                                             & 0x01) << 7)
+                                     | ((1                                             & 0x01) << 6)
+                                     | ((1                                             & 0x01) << 5)
+                                     | ((self->refresh_rate                            & 0x01) << 4)
+                                     | ((self->manufacturer                            & 0x07) << 1)
+                                     | ((self->vdc_6845->state.ctrs.named.vsync_signal & 0x01) << 0);
+        data = self->ppi_8255->state.port_b;
         break;
       case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
-        data = self->ppi_8255->port_c;
+        data = self->ppi_8255->state.port_c;
         break;
       case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
         (void) fprintf(stderr, "IO_RD[0x%04x]: PPI-8255     [---- Illegal ----]\n", port);
@@ -370,10 +370,10 @@ static guint8 cpu_iorq_rd(GdevZ80CPU *z80cpu, guint16 port)
         (void) fflush(stderr);
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        gdev_fdc765_rstat(self->fdc765, &data);
+        xcpc_fdc_765a_rstat(self->fdc_765a, &data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        gdev_fdc765_rdata(self->fdc765, &data);
+        xcpc_fdc_765a_rdata(self->fdc_765a, &data);
         break;
     }
   }
@@ -388,16 +388,16 @@ static void cpu_iorq_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
   if((port & 0x8000) == 0) {
     switch((data >> 6) & 3) {
       case 0: /* Select pen */
-        self->vga_core->pen = (data & 0x10 ? 0x10 : data & 0x0f);
+        self->vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
         break;
       case 1: /* Select color */
-        self->vga_core->ink[self->vga_core->pen] = data & 0x1f;
+        self->vga_core->state.ink[self->vga_core->state.pen] = data & 0x1f;
         break;
       case 2: /* Interrupt control, ROM configuration and screen mode */
         if((data & 0x10) != 0) {
-          self->vga_core->counter = 0;
+          self->vga_core->state.counter = 0;
         }
-        self->vga_core->rmr = data & 0x1f;
+        self->vga_core->state.rmr = data & 0x1f;
         cpc_mem_select(self);
         break;
       case 3: /* RAM memory management */
@@ -437,17 +437,17 @@ static void cpu_iorq_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
   if((port & 0x0800) == 0) {
     switch((port >> 8) & 3) {
       case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-        self->ppi_8255->port_a = data;
+        self->ppi_8255->state.port_a = data;
         break;
       case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-        /*self->ppi_8255->port_b = data;*/
+        /*self->ppi_8255->state.port_b = data;*/
         break;
       case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
-        self->ppi_8255->port_c = data;
-        self->keyboard->line = data & 0x0F;
+        self->ppi_8255->state.port_c = data;
+        self->keyboard->state.line = data & 0x0F;
         break;
       case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
-        self->ppi_8255->control = data;
+        self->ppi_8255->state.ctrl_p = data;
         break;
     }
   }
@@ -455,16 +455,16 @@ static void cpu_iorq_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
   if((port & 0x0480) == 0) {
     switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
       case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-        gdev_fdc765_motor(self->fdc765, ((data & 1) << 1) | ((data & 1) << 0));
+        xcpc_fdc_765a_motor(self->fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
         break;
       case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-        gdev_fdc765_motor(self->fdc765, ((data & 1) << 1) | ((data & 1) << 0));
+        xcpc_fdc_765a_motor(self->fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        gdev_fdc765_wstat(self->fdc765, &data);
+        xcpc_fdc_765a_wstat(self->fdc_765a, &data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        gdev_fdc765_wdata(self->fdc765, &data);
+        xcpc_fdc_765a_wdata(self->fdc_765a, &data);
         break;
     }
   }
@@ -476,25 +476,25 @@ static void vdc_hsync(XcpcVdc6845 *vdc_6845, int hsync, void* user_data)
   XcpcVgaCore *vga_core = self->vga_core;
 
   if(hsync == 0) { /* falling edge */
-    if(++vga_core->counter == 52) {
+    if(++vga_core->state.counter == 52) {
       gdev_z80cpu_assert_int(self->z80cpu);
-      vga_core->counter = 0;
+      vga_core->state.counter = 0;
     }
-    if(vga_core->delayed > 0) {
-      if(--vga_core->delayed == 0) {
-        if(vga_core->counter >= 32) {
+    if(vga_core->state.delayed > 0) {
+      if(--vga_core->state.delayed == 0) {
+        if(vga_core->state.counter >= 32) {
           gdev_z80cpu_assert_int(self->z80cpu);
         }
-        vga_core->counter = 0;
+        vga_core->state.counter = 0;
       }
     }
     /* XXX */ {
       XcpcBlitter *blitter = self->blitter;
       struct _scanline *sl = &self->scanline[(self->cur_scanline + 1) % 312];
       int ix = 0;
-      sl->mode = vga_core->rmr & 0x03;
+      sl->mode = vga_core->state.rmr & 0x03;
       do {
-        sl->ink[ix] = blitter->palette[vga_core->ink[ix]].pixel;
+        sl->ink[ix] = blitter->state.palette[vga_core->state.ink[ix]].pixel;
       } while(++ix < 17);
     }
   }
@@ -506,7 +506,7 @@ static void vdc_vsync(XcpcVdc6845 *vdc_6845, int vsync, void* user_data)
   XcpcVgaCore *vga_core = self->vga_core;
 
   if(vsync != 0) { /* rising edge */
-    vga_core->delayed = 2;
+    vga_core->state.delayed = 2;
   }
 }
 
@@ -558,15 +558,15 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
   XcpcBlitter *blitter = self->blitter;
   XcpcVdc6845 *vdc_6845 = self->vdc_6845;
   XcpcVgaCore *vga_core = self->vga_core;
-  unsigned int sa = ((vdc_6845->regs.named.start_address_high << 8) | vdc_6845->regs.named.start_address_low);
-  unsigned int hd = (vdc_6845->regs.named.horizontal_displayed < 48 ? vdc_6845->regs.named.horizontal_displayed : 48);
+  unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
+  unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
   unsigned int hp = ((XCPC_BLITTER_WIDTH >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = vdc_6845->regs.named.maximum_scanline_address + 1;
-  unsigned int vt = vdc_6845->regs.named.vertical_total + 1;
-  unsigned int vd = (vdc_6845->regs.named.vertical_displayed < 39 ? vdc_6845->regs.named.vertical_displayed : 39);
+  unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
+  unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
+  unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
   unsigned int vp = ((XCPC_BLITTER_HEIGHT >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = NULL;
-  guint8 *dst = (guint8 *) blitter->image->data, *nxt = dst;
+  guint8 *dst = (guint8 *) blitter->state.image->data, *nxt = dst;
   guint8 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
@@ -598,8 +598,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode0[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode0[data];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -613,8 +613,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode0[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode0[data];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -643,8 +643,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode1[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode1[data];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -664,8 +664,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode1[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode1[data];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -700,8 +700,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode2[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode2[data];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -733,8 +733,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode2[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode2[data];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -787,9 +787,9 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
   }
   if(settings.show_fps != FALSE) {
     char *str = self->stats; int len = 0;
-    guint8 fg = blitter->palette[vga_core->ink[0x01]].pixel;
-    guint8 bg = blitter->palette[vga_core->ink[0x10]].pixel;
-    guint8 *pt0 = (guint8 *) ((guint8 *) blitter->image->data + ((blitter->image->height - 9) * blitter->image->bytes_per_line));
+    guint8 fg = blitter->state.palette[vga_core->state.ink[0x01]].pixel;
+    guint8 bg = blitter->state.palette[vga_core->state.ink[0x10]].pixel;
+    guint8 *pt0 = (guint8 *) ((guint8 *) blitter->state.image->data + ((blitter->state.image->height - 9) * blitter->state.image->bytes_per_line));
     while(*str != 0) {
       guint8 *pt1 = pt0;
       for(cy = 0; cy < 8; cy++) {
@@ -798,7 +798,7 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
         for(cx = 0; cx < 8; cx++) {
           *pt2++ = (data & 0x01 ? fg : bg); data >>= 1;
         }
-        pt1 = (guint8 *) (((guint8 *) pt1) + blitter->image->bytes_per_line);
+        pt1 = (guint8 *) (((guint8 *) pt1) + blitter->state.image->bytes_per_line);
       }
       pt0 += 8; str++; len++;
     }
@@ -811,15 +811,15 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
   XcpcBlitter *blitter = self->blitter;
   XcpcVdc6845 *vdc_6845 = self->vdc_6845;
   XcpcVgaCore *vga_core = self->vga_core;
-  unsigned int sa = ((vdc_6845->regs.named.start_address_high << 8) | vdc_6845->regs.named.start_address_low);
-  unsigned int hd = (vdc_6845->regs.named.horizontal_displayed < 48 ? vdc_6845->regs.named.horizontal_displayed : 48);
+  unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
+  unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
   unsigned int hp = ((XCPC_BLITTER_WIDTH >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = vdc_6845->regs.named.maximum_scanline_address + 1;
-  unsigned int vt = vdc_6845->regs.named.vertical_total + 1;
-  unsigned int vd = (vdc_6845->regs.named.vertical_displayed < 39 ? vdc_6845->regs.named.vertical_displayed : 39);
+  unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
+  unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
+  unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
   unsigned int vp = ((XCPC_BLITTER_HEIGHT >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = NULL;
-  guint16 *dst = (guint16 *) blitter->image->data, *nxt = dst;
+  guint16 *dst = (guint16 *) blitter->state.image->data, *nxt = dst;
   guint16 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
@@ -851,8 +851,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode0[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode0[data];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -866,8 +866,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode0[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode0[data];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -896,8 +896,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode1[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode1[data];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -917,8 +917,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode1[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode1[data];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -953,8 +953,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode2[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode2[data];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -986,8 +986,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode2[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode2[data];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -1040,9 +1040,9 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
   }
   if(settings.show_fps != FALSE) {
     char *str = self->stats; int len = 0;
-    guint16 fg = blitter->palette[vga_core->ink[0x01]].pixel;
-    guint16 bg = blitter->palette[vga_core->ink[0x10]].pixel;
-    guint16 *pt0 = (guint16 *) ((guint8 *) blitter->image->data + ((blitter->image->height - 9) * blitter->image->bytes_per_line));
+    guint16 fg = blitter->state.palette[vga_core->state.ink[0x01]].pixel;
+    guint16 bg = blitter->state.palette[vga_core->state.ink[0x10]].pixel;
+    guint16 *pt0 = (guint16 *) ((guint8 *) blitter->state.image->data + ((blitter->state.image->height - 9) * blitter->state.image->bytes_per_line));
     while(*str != 0) {
       guint16 *pt1 = pt0;
       for(cy = 0; cy < 8; cy++) {
@@ -1051,7 +1051,7 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
         for(cx = 0; cx < 8; cx++) {
           *pt2++ = (data & 0x01 ? fg : bg); data >>= 1;
         }
-        pt1 = (guint16 *) (((guint8 *) pt1) + blitter->image->bytes_per_line);
+        pt1 = (guint16 *) (((guint8 *) pt1) + blitter->state.image->bytes_per_line);
       }
       pt0 += 8; str++; len++;
     }
@@ -1064,15 +1064,15 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
   XcpcBlitter *blitter = self->blitter;
   XcpcVdc6845 *vdc_6845 = self->vdc_6845;
   XcpcVgaCore *vga_core = self->vga_core;
-  unsigned int sa = ((vdc_6845->regs.named.start_address_high << 8) | vdc_6845->regs.named.start_address_low);
-  unsigned int hd = (vdc_6845->regs.named.horizontal_displayed < 48 ? vdc_6845->regs.named.horizontal_displayed : 48);
+  unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
+  unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
   unsigned int hp = ((XCPC_BLITTER_WIDTH >> 0) - (hd << 4)) >> 1;
-  unsigned int mr = vdc_6845->regs.named.maximum_scanline_address + 1;
-  unsigned int vt = vdc_6845->regs.named.vertical_total + 1;
-  unsigned int vd = (vdc_6845->regs.named.vertical_displayed < 39 ? vdc_6845->regs.named.vertical_displayed : 39);
+  unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
+  unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
+  unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
   unsigned int vp = ((XCPC_BLITTER_HEIGHT >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = NULL;
-  guint32 *dst = (guint32 *) blitter->image->data, *nxt = dst;
+  guint32 *dst = (guint32 *) blitter->state.image->data, *nxt = dst;
   guint32 pixel;
   unsigned int cx, cy, ra;
   guint16 addr;
@@ -1104,8 +1104,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode0[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode0[data];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -1119,8 +1119,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode0[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode0[data];
             pixel = sl->ink[data & 0x0f];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -1149,8 +1149,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode1[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode1[data];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -1170,8 +1170,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode1[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode1[data];
             pixel = sl->ink[data & 0x03];
             *dst++ = *nxt++ = pixel;
             *dst++ = *nxt++ = pixel;
@@ -1206,8 +1206,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
             bank = (addr >> 14);
             disp = (addr & 0x3fff);
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 0];
-            data = vga_core->mode2[data];
+            data = self->ram_bank[bank]->state.data[disp | 0];
+            data = vga_core->state.mode2[data];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -1239,8 +1239,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 0 */
-            data = self->ram_bank[bank]->data[disp | 1];
-            data = vga_core->mode2[data];
+            data = self->ram_bank[bank]->state.data[disp | 1];
+            data = vga_core->state.mode2[data];
             pixel = sl->ink[data & 0x01];
             *dst++ = *nxt++ = pixel;
             /* pixel 1 */
@@ -1293,9 +1293,9 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
   }
   if(settings.show_fps != FALSE) {
     char *str = self->stats; int len = 0;
-    guint32 fg = blitter->palette[vga_core->ink[0x01]].pixel;
-    guint32 bg = blitter->palette[vga_core->ink[0x10]].pixel;
-    guint32 *pt0 = (guint32 *) ((guint8 *) blitter->image->data + ((blitter->image->height - 9) * blitter->image->bytes_per_line));
+    guint32 fg = blitter->state.palette[vga_core->state.ink[0x01]].pixel;
+    guint32 bg = blitter->state.palette[vga_core->state.ink[0x10]].pixel;
+    guint32 *pt0 = (guint32 *) ((guint8 *) blitter->state.image->data + ((blitter->state.image->height - 9) * blitter->state.image->bytes_per_line));
     while(*str != 0) {
       guint32 *pt1 = pt0;
       for(cy = 0; cy < 8; cy++) {
@@ -1304,7 +1304,7 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
         for(cx = 0; cx < 8; cx++) {
           *pt2++ = (data & 0x01 ? fg : bg); data >>= 1;
         }
-        pt1 = (guint32 *) (((guint8 *) pt1) + blitter->image->bytes_per_line);
+        pt1 = (guint32 *) (((guint8 *) pt1) + blitter->state.image->bytes_per_line);
       }
       pt0 += 8; str++; len++;
     }
@@ -1412,9 +1412,6 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
   }
   /* create devices */ {
     self->z80cpu = gdev_z80cpu_new();
-    self->fdc765 = gdev_fdc765_new();
-    self->drive0 = gdev_fdd765_new();
-    self->drive1 = gdev_fdd765_new();
   }
   /* initialize devices handlers */ {
     self->z80cpu->mreq_m1 = cpu_mreq_m1;
@@ -1423,8 +1420,6 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     self->z80cpu->iorq_m1 = cpu_iorq_m1;
     self->z80cpu->iorq_rd = cpu_iorq_rd;
     self->z80cpu->iorq_wr = cpu_iorq_wr;
-    gdev_fdc765_attach(self->fdc765, self->drive0, 0);
-    gdev_fdc765_attach(self->fdc765, self->drive1, 1);
   }
   /* create blitter */ {
     self->blitter = xcpc_blitter_new();
@@ -1444,14 +1439,19 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
   /* create vdc_6845 */ {
     self->vdc_6845 = xcpc_vdc_6845_new();
     self->vdc_6845->iface.user_data = self;
-    self->vdc_6845->iface.hsync_cbk = &vdc_hsync;
-    self->vdc_6845->iface.vsync_cbk = &vdc_vsync;
+    self->vdc_6845->iface.hsync_callback = &vdc_hsync;
+    self->vdc_6845->iface.vsync_callback = &vdc_vsync;
   }
   /* create ppi_8255 */ {
     self->ppi_8255 = xcpc_ppi_8255_new();
   }
   /* create psg_8910 */ {
     self->psg_8910 = xcpc_psg_8910_new();
+  }
+  /* create fdc_765a */ {
+    self->fdc_765a = xcpc_fdc_765a_new();
+    (void) xcpc_fdc_765a_attach(self->fdc_765a, 0);
+    (void) xcpc_fdc_765a_attach(self->fdc_765a, 1);
   }
   /* create ram banks */ {
     size_t requested = self->ramsize * 1024UL;
@@ -1461,7 +1461,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
       if(allocated < requested) {
         self->ram_bank[bank_index] = xcpc_ram_bank_new();
-        allocated += sizeof(self->ram_bank[bank_index]->data);
+        allocated += sizeof(self->ram_bank[bank_index]->state.data);
       }
       else {
         self->ram_bank[bank_index] = NULL;
@@ -1596,6 +1596,9 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR *self)
       }
     }
   }
+  /* destroy fdc_765a */ {
+    self->fdc_765a = xcpc_fdc_765a_delete(self->fdc_765a);
+  }
   /* destroy psg_8910 */ {
     self->psg_8910 = xcpc_psg_8910_delete(self->psg_8910);
   }
@@ -1621,9 +1624,6 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR *self)
     self->blitter = xcpc_blitter_delete(self->blitter);
   }
   /* destroy devices */ {
-    self->drive1 = (g_object_unref(self->drive1), NULL);
-    self->drive0 = (g_object_unref(self->drive0), NULL);
-    self->fdc765 = (g_object_unref(self->fdc765), NULL);
     self->z80cpu = (g_object_unref(self->z80cpu), NULL);
   }
   /* finalize libxcpc */ {
@@ -1635,9 +1635,6 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR *self)
 {
   /* reset devices */ {
     gdev_device_reset(GDEV_DEVICE(self->z80cpu));
-    gdev_fdc765_reset(GDEV_FDC765(self->fdc765));
-    gdev_fdd765_reset(GDEV_FDD765(self->drive0));
-    gdev_fdd765_reset(GDEV_FDD765(self->drive1));
   }
   /* reset blitter */ {
     (void) xcpc_blitter_reset(self->blitter);
@@ -1662,6 +1659,9 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR *self)
   }
   /* reset psg_8910 */ {
     (void) xcpc_psg_8910_reset(self->psg_8910);
+  }
+  /* reset fdc_765a */ {
+    (void) xcpc_fdc_765a_reset(self->fdc_765a);
   }
   /* reset ram banks */ {
     unsigned int bank_index = 0;
@@ -1786,25 +1786,25 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* vga */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->vga_core->pen       = snapshot->header.vga_ink_ix;
-      self->vga_core->ink[0x00] = snapshot->header.vga_ink_00;
-      self->vga_core->ink[0x01] = snapshot->header.vga_ink_01;
-      self->vga_core->ink[0x02] = snapshot->header.vga_ink_02;
-      self->vga_core->ink[0x03] = snapshot->header.vga_ink_03;
-      self->vga_core->ink[0x04] = snapshot->header.vga_ink_04;
-      self->vga_core->ink[0x05] = snapshot->header.vga_ink_05;
-      self->vga_core->ink[0x06] = snapshot->header.vga_ink_06;
-      self->vga_core->ink[0x07] = snapshot->header.vga_ink_07;
-      self->vga_core->ink[0x08] = snapshot->header.vga_ink_08;
-      self->vga_core->ink[0x09] = snapshot->header.vga_ink_09;
-      self->vga_core->ink[0x0a] = snapshot->header.vga_ink_10;
-      self->vga_core->ink[0x0b] = snapshot->header.vga_ink_11;
-      self->vga_core->ink[0x0c] = snapshot->header.vga_ink_12;
-      self->vga_core->ink[0x0d] = snapshot->header.vga_ink_13;
-      self->vga_core->ink[0x0e] = snapshot->header.vga_ink_14;
-      self->vga_core->ink[0x0f] = snapshot->header.vga_ink_15;
-      self->vga_core->ink[0x10] = snapshot->header.vga_ink_16;
-      self->vga_core->rmr       = snapshot->header.vga_config;
+      self->vga_core->state.pen       = snapshot->header.vga_ink_ix;
+      self->vga_core->state.ink[0x00] = snapshot->header.vga_ink_00;
+      self->vga_core->state.ink[0x01] = snapshot->header.vga_ink_01;
+      self->vga_core->state.ink[0x02] = snapshot->header.vga_ink_02;
+      self->vga_core->state.ink[0x03] = snapshot->header.vga_ink_03;
+      self->vga_core->state.ink[0x04] = snapshot->header.vga_ink_04;
+      self->vga_core->state.ink[0x05] = snapshot->header.vga_ink_05;
+      self->vga_core->state.ink[0x06] = snapshot->header.vga_ink_06;
+      self->vga_core->state.ink[0x07] = snapshot->header.vga_ink_07;
+      self->vga_core->state.ink[0x08] = snapshot->header.vga_ink_08;
+      self->vga_core->state.ink[0x09] = snapshot->header.vga_ink_09;
+      self->vga_core->state.ink[0x0a] = snapshot->header.vga_ink_10;
+      self->vga_core->state.ink[0x0b] = snapshot->header.vga_ink_11;
+      self->vga_core->state.ink[0x0c] = snapshot->header.vga_ink_12;
+      self->vga_core->state.ink[0x0d] = snapshot->header.vga_ink_13;
+      self->vga_core->state.ink[0x0e] = snapshot->header.vga_ink_14;
+      self->vga_core->state.ink[0x0f] = snapshot->header.vga_ink_15;
+      self->vga_core->state.ink[0x10] = snapshot->header.vga_ink_16;
+      self->vga_core->state.rmr       = snapshot->header.vga_config;
     }
   }
   /* ram select */ {
@@ -1814,25 +1814,25 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* vdc */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->vdc_6845->regs.array.addr       = snapshot->header.vdc_reg_ix;
-      self->vdc_6845->regs.array.data[0x00] = snapshot->header.vdc_reg_00;
-      self->vdc_6845->regs.array.data[0x01] = snapshot->header.vdc_reg_01;
-      self->vdc_6845->regs.array.data[0x02] = snapshot->header.vdc_reg_02;
-      self->vdc_6845->regs.array.data[0x03] = snapshot->header.vdc_reg_03;
-      self->vdc_6845->regs.array.data[0x04] = snapshot->header.vdc_reg_04;
-      self->vdc_6845->regs.array.data[0x05] = snapshot->header.vdc_reg_05;
-      self->vdc_6845->regs.array.data[0x06] = snapshot->header.vdc_reg_06;
-      self->vdc_6845->regs.array.data[0x07] = snapshot->header.vdc_reg_07;
-      self->vdc_6845->regs.array.data[0x08] = snapshot->header.vdc_reg_08;
-      self->vdc_6845->regs.array.data[0x09] = snapshot->header.vdc_reg_09;
-      self->vdc_6845->regs.array.data[0x0a] = snapshot->header.vdc_reg_10;
-      self->vdc_6845->regs.array.data[0x0b] = snapshot->header.vdc_reg_11;
-      self->vdc_6845->regs.array.data[0x0c] = snapshot->header.vdc_reg_12;
-      self->vdc_6845->regs.array.data[0x0d] = snapshot->header.vdc_reg_13;
-      self->vdc_6845->regs.array.data[0x0e] = snapshot->header.vdc_reg_14;
-      self->vdc_6845->regs.array.data[0x0f] = snapshot->header.vdc_reg_15;
-      self->vdc_6845->regs.array.data[0x10] = snapshot->header.vdc_reg_16;
-      self->vdc_6845->regs.array.data[0x11] = snapshot->header.vdc_reg_17;
+      self->vdc_6845->state.regs.array.addr       = snapshot->header.vdc_reg_ix;
+      self->vdc_6845->state.regs.array.data[0x00] = snapshot->header.vdc_reg_00;
+      self->vdc_6845->state.regs.array.data[0x01] = snapshot->header.vdc_reg_01;
+      self->vdc_6845->state.regs.array.data[0x02] = snapshot->header.vdc_reg_02;
+      self->vdc_6845->state.regs.array.data[0x03] = snapshot->header.vdc_reg_03;
+      self->vdc_6845->state.regs.array.data[0x04] = snapshot->header.vdc_reg_04;
+      self->vdc_6845->state.regs.array.data[0x05] = snapshot->header.vdc_reg_05;
+      self->vdc_6845->state.regs.array.data[0x06] = snapshot->header.vdc_reg_06;
+      self->vdc_6845->state.regs.array.data[0x07] = snapshot->header.vdc_reg_07;
+      self->vdc_6845->state.regs.array.data[0x08] = snapshot->header.vdc_reg_08;
+      self->vdc_6845->state.regs.array.data[0x09] = snapshot->header.vdc_reg_09;
+      self->vdc_6845->state.regs.array.data[0x0a] = snapshot->header.vdc_reg_10;
+      self->vdc_6845->state.regs.array.data[0x0b] = snapshot->header.vdc_reg_11;
+      self->vdc_6845->state.regs.array.data[0x0c] = snapshot->header.vdc_reg_12;
+      self->vdc_6845->state.regs.array.data[0x0d] = snapshot->header.vdc_reg_13;
+      self->vdc_6845->state.regs.array.data[0x0e] = snapshot->header.vdc_reg_14;
+      self->vdc_6845->state.regs.array.data[0x0f] = snapshot->header.vdc_reg_15;
+      self->vdc_6845->state.regs.array.data[0x10] = snapshot->header.vdc_reg_16;
+      self->vdc_6845->state.regs.array.data[0x11] = snapshot->header.vdc_reg_17;
     }
   }
   /* rom select */ {
@@ -1842,31 +1842,31 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* ppi */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->ppi_8255->port_a  = snapshot->header.ppi_port_a;
-      self->ppi_8255->port_b  = snapshot->header.ppi_port_b;
-      self->ppi_8255->port_c  = snapshot->header.ppi_port_c;
-      self->ppi_8255->control = snapshot->header.ppi_ctrl_p;
+      self->ppi_8255->state.port_a = snapshot->header.ppi_port_a;
+      self->ppi_8255->state.port_b = snapshot->header.ppi_port_b;
+      self->ppi_8255->state.port_c = snapshot->header.ppi_port_c;
+      self->ppi_8255->state.ctrl_p = snapshot->header.ppi_ctrl_p;
     }
   }
   /* psg */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->psg_8910->regs.array.addr       = snapshot->header.psg_reg_ix;
-      self->psg_8910->regs.array.data[0x00] = snapshot->header.psg_reg_00;
-      self->psg_8910->regs.array.data[0x01] = snapshot->header.psg_reg_01;
-      self->psg_8910->regs.array.data[0x02] = snapshot->header.psg_reg_02;
-      self->psg_8910->regs.array.data[0x03] = snapshot->header.psg_reg_03;
-      self->psg_8910->regs.array.data[0x04] = snapshot->header.psg_reg_04;
-      self->psg_8910->regs.array.data[0x05] = snapshot->header.psg_reg_05;
-      self->psg_8910->regs.array.data[0x06] = snapshot->header.psg_reg_06;
-      self->psg_8910->regs.array.data[0x07] = snapshot->header.psg_reg_07;
-      self->psg_8910->regs.array.data[0x08] = snapshot->header.psg_reg_08;
-      self->psg_8910->regs.array.data[0x09] = snapshot->header.psg_reg_09;
-      self->psg_8910->regs.array.data[0x0a] = snapshot->header.psg_reg_10;
-      self->psg_8910->regs.array.data[0x0b] = snapshot->header.psg_reg_11;
-      self->psg_8910->regs.array.data[0x0c] = snapshot->header.psg_reg_12;
-      self->psg_8910->regs.array.data[0x0d] = snapshot->header.psg_reg_13;
-      self->psg_8910->regs.array.data[0x0e] = snapshot->header.psg_reg_14;
-      self->psg_8910->regs.array.data[0x0f] = snapshot->header.psg_reg_15;
+      self->psg_8910->state.regs.array.addr       = snapshot->header.psg_reg_ix;
+      self->psg_8910->state.regs.array.data[0x00] = snapshot->header.psg_reg_00;
+      self->psg_8910->state.regs.array.data[0x01] = snapshot->header.psg_reg_01;
+      self->psg_8910->state.regs.array.data[0x02] = snapshot->header.psg_reg_02;
+      self->psg_8910->state.regs.array.data[0x03] = snapshot->header.psg_reg_03;
+      self->psg_8910->state.regs.array.data[0x04] = snapshot->header.psg_reg_04;
+      self->psg_8910->state.regs.array.data[0x05] = snapshot->header.psg_reg_05;
+      self->psg_8910->state.regs.array.data[0x06] = snapshot->header.psg_reg_06;
+      self->psg_8910->state.regs.array.data[0x07] = snapshot->header.psg_reg_07;
+      self->psg_8910->state.regs.array.data[0x08] = snapshot->header.psg_reg_08;
+      self->psg_8910->state.regs.array.data[0x09] = snapshot->header.psg_reg_09;
+      self->psg_8910->state.regs.array.data[0x0a] = snapshot->header.psg_reg_10;
+      self->psg_8910->state.regs.array.data[0x0b] = snapshot->header.psg_reg_11;
+      self->psg_8910->state.regs.array.data[0x0c] = snapshot->header.psg_reg_12;
+      self->psg_8910->state.regs.array.data[0x0d] = snapshot->header.psg_reg_13;
+      self->psg_8910->state.regs.array.data[0x0e] = snapshot->header.psg_reg_14;
+      self->psg_8910->state.regs.array.data[0x0f] = snapshot->header.psg_reg_15;
     }
   }
   /* ram */ {
@@ -1885,7 +1885,7 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
       unsigned int   bank_index = 0;
       unsigned int   bank_count = countof(snapshot->memory);
       for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        unsigned char* snap_data = self->ram_bank[bank_index]->data;
+        unsigned char* snap_data = self->ram_bank[bank_index]->state.data;
         unsigned char* bank_data = snapshot->memory[bank_index].data;
         size_t         bank_size = sizeof(snapshot->memory[bank_index].data);
         if(snap_size >= bank_size) {
@@ -1979,25 +1979,25 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* vga */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.vga_ink_ix = self->vga_core->pen;
-      snapshot->header.vga_ink_00 = self->vga_core->ink[0x00];
-      snapshot->header.vga_ink_01 = self->vga_core->ink[0x01];
-      snapshot->header.vga_ink_02 = self->vga_core->ink[0x02];
-      snapshot->header.vga_ink_03 = self->vga_core->ink[0x03];
-      snapshot->header.vga_ink_04 = self->vga_core->ink[0x04];
-      snapshot->header.vga_ink_05 = self->vga_core->ink[0x05];
-      snapshot->header.vga_ink_06 = self->vga_core->ink[0x06];
-      snapshot->header.vga_ink_07 = self->vga_core->ink[0x07];
-      snapshot->header.vga_ink_08 = self->vga_core->ink[0x08];
-      snapshot->header.vga_ink_09 = self->vga_core->ink[0x09];
-      snapshot->header.vga_ink_10 = self->vga_core->ink[0x0a];
-      snapshot->header.vga_ink_11 = self->vga_core->ink[0x0b];
-      snapshot->header.vga_ink_12 = self->vga_core->ink[0x0c];
-      snapshot->header.vga_ink_13 = self->vga_core->ink[0x0d];
-      snapshot->header.vga_ink_14 = self->vga_core->ink[0x0e];
-      snapshot->header.vga_ink_15 = self->vga_core->ink[0x0f];
-      snapshot->header.vga_ink_16 = self->vga_core->ink[0x10];
-      snapshot->header.vga_config = self->vga_core->rmr;
+      snapshot->header.vga_ink_ix = self->vga_core->state.pen;
+      snapshot->header.vga_ink_00 = self->vga_core->state.ink[0x00];
+      snapshot->header.vga_ink_01 = self->vga_core->state.ink[0x01];
+      snapshot->header.vga_ink_02 = self->vga_core->state.ink[0x02];
+      snapshot->header.vga_ink_03 = self->vga_core->state.ink[0x03];
+      snapshot->header.vga_ink_04 = self->vga_core->state.ink[0x04];
+      snapshot->header.vga_ink_05 = self->vga_core->state.ink[0x05];
+      snapshot->header.vga_ink_06 = self->vga_core->state.ink[0x06];
+      snapshot->header.vga_ink_07 = self->vga_core->state.ink[0x07];
+      snapshot->header.vga_ink_08 = self->vga_core->state.ink[0x08];
+      snapshot->header.vga_ink_09 = self->vga_core->state.ink[0x09];
+      snapshot->header.vga_ink_10 = self->vga_core->state.ink[0x0a];
+      snapshot->header.vga_ink_11 = self->vga_core->state.ink[0x0b];
+      snapshot->header.vga_ink_12 = self->vga_core->state.ink[0x0c];
+      snapshot->header.vga_ink_13 = self->vga_core->state.ink[0x0d];
+      snapshot->header.vga_ink_14 = self->vga_core->state.ink[0x0e];
+      snapshot->header.vga_ink_15 = self->vga_core->state.ink[0x0f];
+      snapshot->header.vga_ink_16 = self->vga_core->state.ink[0x10];
+      snapshot->header.vga_config = self->vga_core->state.rmr;
     }
   }
   /* ram select */ {
@@ -2007,25 +2007,25 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* vdc */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.vdc_reg_ix = self->vdc_6845->regs.array.addr;
-      snapshot->header.vdc_reg_00 = self->vdc_6845->regs.array.data[0x00];
-      snapshot->header.vdc_reg_01 = self->vdc_6845->regs.array.data[0x01];
-      snapshot->header.vdc_reg_02 = self->vdc_6845->regs.array.data[0x02];
-      snapshot->header.vdc_reg_03 = self->vdc_6845->regs.array.data[0x03];
-      snapshot->header.vdc_reg_04 = self->vdc_6845->regs.array.data[0x04];
-      snapshot->header.vdc_reg_05 = self->vdc_6845->regs.array.data[0x05];
-      snapshot->header.vdc_reg_06 = self->vdc_6845->regs.array.data[0x06];
-      snapshot->header.vdc_reg_07 = self->vdc_6845->regs.array.data[0x07];
-      snapshot->header.vdc_reg_08 = self->vdc_6845->regs.array.data[0x08];
-      snapshot->header.vdc_reg_09 = self->vdc_6845->regs.array.data[0x09];
-      snapshot->header.vdc_reg_10 = self->vdc_6845->regs.array.data[0x0a];
-      snapshot->header.vdc_reg_11 = self->vdc_6845->regs.array.data[0x0b];
-      snapshot->header.vdc_reg_12 = self->vdc_6845->regs.array.data[0x0c];
-      snapshot->header.vdc_reg_13 = self->vdc_6845->regs.array.data[0x0d];
-      snapshot->header.vdc_reg_14 = self->vdc_6845->regs.array.data[0x0e];
-      snapshot->header.vdc_reg_15 = self->vdc_6845->regs.array.data[0x0f];
-      snapshot->header.vdc_reg_16 = self->vdc_6845->regs.array.data[0x10];
-      snapshot->header.vdc_reg_17 = self->vdc_6845->regs.array.data[0x11];
+      snapshot->header.vdc_reg_ix = self->vdc_6845->state.regs.array.addr;
+      snapshot->header.vdc_reg_00 = self->vdc_6845->state.regs.array.data[0x00];
+      snapshot->header.vdc_reg_01 = self->vdc_6845->state.regs.array.data[0x01];
+      snapshot->header.vdc_reg_02 = self->vdc_6845->state.regs.array.data[0x02];
+      snapshot->header.vdc_reg_03 = self->vdc_6845->state.regs.array.data[0x03];
+      snapshot->header.vdc_reg_04 = self->vdc_6845->state.regs.array.data[0x04];
+      snapshot->header.vdc_reg_05 = self->vdc_6845->state.regs.array.data[0x05];
+      snapshot->header.vdc_reg_06 = self->vdc_6845->state.regs.array.data[0x06];
+      snapshot->header.vdc_reg_07 = self->vdc_6845->state.regs.array.data[0x07];
+      snapshot->header.vdc_reg_08 = self->vdc_6845->state.regs.array.data[0x08];
+      snapshot->header.vdc_reg_09 = self->vdc_6845->state.regs.array.data[0x09];
+      snapshot->header.vdc_reg_10 = self->vdc_6845->state.regs.array.data[0x0a];
+      snapshot->header.vdc_reg_11 = self->vdc_6845->state.regs.array.data[0x0b];
+      snapshot->header.vdc_reg_12 = self->vdc_6845->state.regs.array.data[0x0c];
+      snapshot->header.vdc_reg_13 = self->vdc_6845->state.regs.array.data[0x0d];
+      snapshot->header.vdc_reg_14 = self->vdc_6845->state.regs.array.data[0x0e];
+      snapshot->header.vdc_reg_15 = self->vdc_6845->state.regs.array.data[0x0f];
+      snapshot->header.vdc_reg_16 = self->vdc_6845->state.regs.array.data[0x10];
+      snapshot->header.vdc_reg_17 = self->vdc_6845->state.regs.array.data[0x11];
     }
   }
   /* rom select */ {
@@ -2035,31 +2035,31 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* ppi */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.ppi_port_a = self->ppi_8255->port_a;
-      snapshot->header.ppi_port_b = self->ppi_8255->port_b;
-      snapshot->header.ppi_port_c = self->ppi_8255->port_c;
-      snapshot->header.ppi_ctrl_p = self->ppi_8255->control;
+      snapshot->header.ppi_port_a = self->ppi_8255->state.port_a;
+      snapshot->header.ppi_port_b = self->ppi_8255->state.port_b;
+      snapshot->header.ppi_port_c = self->ppi_8255->state.port_c;
+      snapshot->header.ppi_ctrl_p = self->ppi_8255->state.ctrl_p;
     }
   }
   /* psg */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.psg_reg_ix = self->psg_8910->regs.array.addr;
-      snapshot->header.psg_reg_00 = self->psg_8910->regs.array.data[0x00];
-      snapshot->header.psg_reg_01 = self->psg_8910->regs.array.data[0x01];
-      snapshot->header.psg_reg_02 = self->psg_8910->regs.array.data[0x02];
-      snapshot->header.psg_reg_03 = self->psg_8910->regs.array.data[0x03];
-      snapshot->header.psg_reg_04 = self->psg_8910->regs.array.data[0x04];
-      snapshot->header.psg_reg_05 = self->psg_8910->regs.array.data[0x05];
-      snapshot->header.psg_reg_06 = self->psg_8910->regs.array.data[0x06];
-      snapshot->header.psg_reg_07 = self->psg_8910->regs.array.data[0x07];
-      snapshot->header.psg_reg_08 = self->psg_8910->regs.array.data[0x08];
-      snapshot->header.psg_reg_09 = self->psg_8910->regs.array.data[0x09];
-      snapshot->header.psg_reg_10 = self->psg_8910->regs.array.data[0x0a];
-      snapshot->header.psg_reg_11 = self->psg_8910->regs.array.data[0x0b];
-      snapshot->header.psg_reg_12 = self->psg_8910->regs.array.data[0x0c];
-      snapshot->header.psg_reg_13 = self->psg_8910->regs.array.data[0x0d];
-      snapshot->header.psg_reg_14 = self->psg_8910->regs.array.data[0x0e];
-      snapshot->header.psg_reg_15 = self->psg_8910->regs.array.data[0x0f];
+      snapshot->header.psg_reg_ix = self->psg_8910->state.regs.array.addr;
+      snapshot->header.psg_reg_00 = self->psg_8910->state.regs.array.data[0x00];
+      snapshot->header.psg_reg_01 = self->psg_8910->state.regs.array.data[0x01];
+      snapshot->header.psg_reg_02 = self->psg_8910->state.regs.array.data[0x02];
+      snapshot->header.psg_reg_03 = self->psg_8910->state.regs.array.data[0x03];
+      snapshot->header.psg_reg_04 = self->psg_8910->state.regs.array.data[0x04];
+      snapshot->header.psg_reg_05 = self->psg_8910->state.regs.array.data[0x05];
+      snapshot->header.psg_reg_06 = self->psg_8910->state.regs.array.data[0x06];
+      snapshot->header.psg_reg_07 = self->psg_8910->state.regs.array.data[0x07];
+      snapshot->header.psg_reg_08 = self->psg_8910->state.regs.array.data[0x08];
+      snapshot->header.psg_reg_09 = self->psg_8910->state.regs.array.data[0x09];
+      snapshot->header.psg_reg_10 = self->psg_8910->state.regs.array.data[0x0a];
+      snapshot->header.psg_reg_11 = self->psg_8910->state.regs.array.data[0x0b];
+      snapshot->header.psg_reg_12 = self->psg_8910->state.regs.array.data[0x0c];
+      snapshot->header.psg_reg_13 = self->psg_8910->state.regs.array.data[0x0d];
+      snapshot->header.psg_reg_14 = self->psg_8910->state.regs.array.data[0x0e];
+      snapshot->header.psg_reg_15 = self->psg_8910->state.regs.array.data[0x0f];
     }
   }
   /* ram */ {
@@ -2078,7 +2078,7 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
       unsigned int   bank_index = 0;
       unsigned int   bank_count = countof(snapshot->memory);
       for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        unsigned char* snap_data = self->ram_bank[bank_index]->data;
+        unsigned char* snap_data = self->ram_bank[bank_index]->state.data;
         unsigned char* bank_data = snapshot->memory[bank_index].data;
         size_t         bank_size = sizeof(snapshot->memory[bank_index].data);
         if(snap_size >= bank_size) {
@@ -2111,12 +2111,12 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 
 void amstrad_cpc_insert_drive0(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 {
-  gdev_fdd765_insert(self->drive0, filename);
+  xcpc_fdc_765a_insert(self->fdc_765a, filename, 0);
 }
 
 void amstrad_cpc_insert_drive1(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 {
-  gdev_fdd765_insert(self->drive1, filename);
+  xcpc_fdc_765a_insert(self->fdc_765a, filename, 1);
 }
 
 unsigned long amstrad_cpc_create_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
@@ -2146,7 +2146,7 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
                                     , (self->settings->no_xshm == FALSE ? True : False) );
     }
     /* init paint handler */ {
-      switch(self->blitter->image->bits_per_pixel) {
+      switch(self->blitter->state.image->bits_per_pixel) {
         case 8:
           self->paint.proc = &amstrad_cpc_paint_08bpp;
           break;

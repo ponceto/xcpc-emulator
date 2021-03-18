@@ -23,11 +23,24 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcMonitor XcpcMonitor;
+typedef struct _XcpcMonitorIface XcpcMonitorIface;
+typedef struct _XcpcMonitorState XcpcMonitorState;
+typedef struct _XcpcMonitor      XcpcMonitor;
+
+struct _XcpcMonitorIface
+{
+    void* user_data;
+};
+
+struct _XcpcMonitorState
+{
+    void* reserved;
+};
 
 struct _XcpcMonitor
 {
-    void* reserved;
+    XcpcMonitorIface iface;
+    XcpcMonitorState state;
 };
 
 #ifdef __cplusplus

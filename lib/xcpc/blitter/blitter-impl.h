@@ -26,9 +26,16 @@ extern "C" {
 #define XCPC_BLITTER_WIDTH  768
 #define XCPC_BLITTER_HEIGHT 576
 
-typedef struct _XcpcBlitter XcpcBlitter;
+typedef struct _XcpcBlitterIface XcpcBlitterIface;
+typedef struct _XcpcBlitterState XcpcBlitterState;
+typedef struct _XcpcBlitter      XcpcBlitter;
 
-struct _XcpcBlitter
+struct _XcpcBlitterIface
+{
+    void* user_data;
+};
+
+struct _XcpcBlitterState
 {
     Display* display;
     Screen*  screen;
@@ -44,6 +51,12 @@ struct _XcpcBlitter
     Bool     has_xshm;
     Bool     use_xshm;
     XColor   palette[32];
+};
+
+struct _XcpcBlitter
+{
+    XcpcBlitterIface iface;
+    XcpcBlitterState state;
 };
 
 #ifdef __cplusplus

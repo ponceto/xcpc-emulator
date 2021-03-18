@@ -47,8 +47,11 @@ XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self)
 {
     xcpc_joystick_trace("construct");
 
-    if(self != NULL) {
-        (void) memset(self, 0, sizeof(XcpcJoystick));
+    /* clear iface */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcJoystickIface));
+    }
+    /* clear state */ {
+        (void) memset(&self->state, 0, sizeof(XcpcJoystickState));
     }
     return xcpc_joystick_reset(self);
 }

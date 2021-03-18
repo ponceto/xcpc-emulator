@@ -24,10 +24,6 @@
 #include "snapshot-reader-priv.h"
 #include "snapshot-writer-priv.h"
 
-#ifndef CHECK_INSTANCE
-#define CHECK_INSTANCE(pointer) (pointer != NULL ? XCPC_SNAPSHOT_STATUS_SUCCESS : XCPC_SNAPSHOT_STATUS_FAILURE)
-#endif
-
 static const char snapshot_signature[8] = {
     'M', 'V', ' ', '-', ' ', 'S', 'N', 'A'
 };
@@ -57,16 +53,14 @@ XcpcSnapshot* xcpc_snapshot_construct(XcpcSnapshot* self)
 {
     xcpc_snapshot_trace("construct");
 
-    if(self != NULL) {
+    /* clear instance */ {
         (void) memset(self, 0, sizeof(XcpcSnapshot));
     }
-    if(self != NULL) {
-        /* initialize signature */ {
-            (void) memcpy(self->header.signature, snapshot_signature, sizeof(snapshot_signature));
-        }
-        /* initialize version */ {
-            self->header.version = XCPC_SNAPSHOT_VERSION_1;
-        }
+    /* initialize signature */ {
+        (void) memcpy(self->header.signature, snapshot_signature, sizeof(snapshot_signature));
+    }
+    /* initialize version */ {
+        self->header.version = XCPC_SNAPSHOT_VERSION_1;
     }
     return self;
 }
@@ -94,7 +88,7 @@ XcpcSnapshot* xcpc_snapshot_delete(XcpcSnapshot* self)
 
 XcpcSnapshotStatus xcpc_snapshot_sanity_check(XcpcSnapshot* self)
 {
-    XcpcSnapshotStatus status = CHECK_INSTANCE(self);
+    XcpcSnapshotStatus status = XCPC_SNAPSHOT_STATUS_SUCCESS;
 
     xcpc_snapshot_trace("sanity_check");
     /* check header size */ {
@@ -142,7 +136,7 @@ XcpcSnapshotStatus xcpc_snapshot_sanity_check(XcpcSnapshot* self)
 
 XcpcSnapshotStatus xcpc_snapshot_load(XcpcSnapshot* self, const char* filename)
 {
-    XcpcSnapshotStatus status = CHECK_INSTANCE(self);
+    XcpcSnapshotStatus status = XCPC_SNAPSHOT_STATUS_SUCCESS;
 
     xcpc_snapshot_trace("load");
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
@@ -158,7 +152,7 @@ XcpcSnapshotStatus xcpc_snapshot_load(XcpcSnapshot* self, const char* filename)
 
 XcpcSnapshotStatus xcpc_snapshot_save(XcpcSnapshot* self, const char* filename)
 {
-    XcpcSnapshotStatus status = CHECK_INSTANCE(self);
+    XcpcSnapshotStatus status = XCPC_SNAPSHOT_STATUS_SUCCESS;
 
     xcpc_snapshot_trace("save");
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {

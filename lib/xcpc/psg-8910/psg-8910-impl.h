@@ -23,14 +23,17 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcPsg8910 XcpcPsg8910;
+typedef struct _XcpcPsg8910Iface XcpcPsg8910Iface;
+typedef struct _XcpcPsg8910State XcpcPsg8910State;
+typedef struct _XcpcPsg8910      XcpcPsg8910;
 
-struct _XcpcPsg8910
+struct _XcpcPsg8910Iface
 {
-    struct
-    {
-        void* user_data;
-    } iface;
+    void* user_data;
+};
+
+struct _XcpcPsg8910State
+{
     union
     {
         struct
@@ -59,6 +62,12 @@ struct _XcpcPsg8910
             uint8_t io_port_b;
         } named;
     } regs;
+};
+
+struct _XcpcPsg8910
+{
+    XcpcPsg8910Iface iface;
+    XcpcPsg8910State state;
 };
 
 #ifdef __cplusplus

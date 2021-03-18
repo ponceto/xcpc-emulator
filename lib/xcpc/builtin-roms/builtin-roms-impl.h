@@ -23,7 +23,19 @@
 extern "C" {
 #endif
 
-#define XCPC_BUILTIN_ROM_SIZE 16384
+typedef struct _XcpcSystemRom XcpcSystemRom;
+typedef struct _XcpcAmsdosRom XcpcAmsdosRom;
+
+struct _XcpcSystemRom
+{
+    uint8_t lower_rom[16384];
+    uint8_t upper_rom[16384];
+};
+
+struct _XcpcAmsdosRom
+{
+    uint8_t rom[16384];
+};
 
 #ifdef __cplusplus
 }

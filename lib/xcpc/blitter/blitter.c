@@ -39,23 +39,23 @@ static XcpcBlitter* xcpc_blitter_init(XcpcBlitter* self, Display* display, Windo
         XWindowAttributes attributes;
         Status status = XGetWindowAttributes(display, window, &attributes);
         if(status != 0) {
-            self->display  = display;
-            self->screen   = attributes.screen;
-            self->visual   = attributes.visual;
-            self->image    = NULL;
-            self->gc       = DefaultGCOfScreen(attributes.screen);
-            self->window   = window;
-            self->colormap = attributes.colormap;
-            self->depth    = attributes.depth;
-            self->px       = 0;
-            self->py       = 0;
-            self->try_xshm = try_xshm;
-            self->has_xshm = False;
-            self->use_xshm = False;
+            self->state.display  = display;
+            self->state.screen   = attributes.screen;
+            self->state.visual   = attributes.visual;
+            self->state.image    = NULL;
+            self->state.gc       = DefaultGCOfScreen(attributes.screen);
+            self->state.window   = window;
+            self->state.colormap = attributes.colormap;
+            self->state.depth    = attributes.depth;
+            self->state.px       = 0;
+            self->state.py       = 0;
+            self->state.try_xshm = try_xshm;
+            self->state.has_xshm = False;
+            self->state.use_xshm = False;
         }
         if(status != 0) {
-            if(self->try_xshm != False) {
-                self->has_xshm = XcpcQueryShmExtension(self->display);
+            if(self->state.try_xshm != False) {
+                self->state.has_xshm = XcpcQueryShmExtension(self->state.display);
             }
         }
     }
@@ -65,62 +65,62 @@ static XcpcBlitter* xcpc_blitter_init(XcpcBlitter* self, Display* display, Windo
 static XcpcBlitter* xcpc_blitter_fini(XcpcBlitter* self)
 {
     /* clear attributes */ {
-        self->display  = NULL;
-        self->screen   = NULL;
-        self->visual   = NULL;
-        self->image    = NULL;
-        self->gc       = NULL;
-        self->window   = None;
-        self->colormap = None;
-        self->depth    = 0;
-        self->px       = 0;
-        self->py       = 0;
-        self->try_xshm = False;
-        self->has_xshm = False;
-        self->use_xshm = False;
+        self->state.display  = NULL;
+        self->state.screen   = NULL;
+        self->state.visual   = NULL;
+        self->state.image    = NULL;
+        self->state.gc       = NULL;
+        self->state.window   = None;
+        self->state.colormap = None;
+        self->state.depth    = 0;
+        self->state.px       = 0;
+        self->state.py       = 0;
+        self->state.try_xshm = False;
+        self->state.has_xshm = False;
+        self->state.use_xshm = False;
     }
     return self;
 }
 
 static XcpcBlitter* xcpc_blitter_init_image(XcpcBlitter* self)
 {
-    if((self->display == NULL) || (self->visual  == NULL)) {
+    if((self->state.display == NULL) || (self->state.visual == NULL)) {
         return self;
     }
     /* create xshm image */ {
-        if(self->image == NULL) {
-            if(self->has_xshm != False) {
-                self->image = XcpcCreateShmImage ( self->display
-                                                 , self->visual
-                                                 , self->depth
-                                                 , ZPixmap
-                                                 , XCPC_BLITTER_WIDTH
-                                                 , XCPC_BLITTER_HEIGHT );
-                if(self->image != NULL) {
-                    self->use_xshm = XcpcAttachShmImage(self->display, self->image);
-                    if(self->use_xshm == False) {
-                        self->image = (((void) XDestroyImage(self->image)), NULL);
+        if(self->state.image == NULL) {
+            if(self->state.has_xshm != False) {
+                self->state.image = XcpcCreateShmImage ( self->state.display
+                                                       , self->state.visual
+                                                       , self->state.depth
+                                                       , ZPixmap
+                                                       , XCPC_BLITTER_WIDTH
+                                                       , XCPC_BLITTER_HEIGHT );
+                if(self->state.image != NULL) {
+                    self->state.use_xshm = XcpcAttachShmImage(self->state.display, self->state.image);
+                    if(self->state.use_xshm == False) {
+                        self->state.image = (((void) XDestroyImage(self->state.image)), NULL);
                     }
                 }
             }
         }
     }
     /* create image */ {
-        if(self->image == NULL) {
-            self->image = XcpcCreateImage ( self->display
-                                          , self->visual
-                                          , self->depth
-                                          , ZPixmap
-                                          , XCPC_BLITTER_WIDTH
-                                          , XCPC_BLITTER_HEIGHT );
+        if(self->state.image == NULL) {
+            self->state.image = XcpcCreateImage ( self->state.display
+                                                , self->state.visual
+                                                , self->state.depth
+                                                , ZPixmap
+                                                , XCPC_BLITTER_WIDTH
+                                                , XCPC_BLITTER_HEIGHT );
         }
     }
     /* resize window */ {
-        if(self->image != NULL) {
-            (void) XResizeWindow ( self->display
-                                 , self->window
-                                 , self->image->width
-                                 , self->image->height );
+        if(self->state.image != NULL) {
+            (void) XResizeWindow ( self->state.display
+                                 , self->state.window
+                                 , self->state.image->width
+                                 , self->state.image->height );
         }
     }
     return self;
@@ -128,30 +128,30 @@ static XcpcBlitter* xcpc_blitter_init_image(XcpcBlitter* self)
 
 static XcpcBlitter* xcpc_blitter_fini_image(XcpcBlitter* self)
 {
-    if((self->display == NULL) || (self->image == NULL)) {
+    if((self->state.display == NULL) || (self->state.image == NULL)) {
         return self;
     }
     /* detach xshm */ {
-        if(self->use_xshm != False) {
-            self->use_xshm = (((void) XcpcDetachShmImage(self->display, self->image)), False);
+        if(self->state.use_xshm != False) {
+            self->state.use_xshm = (((void) XcpcDetachShmImage(self->state.display, self->state.image)), False);
         }
     }
     /* destroy image */ {
-        self->image = (((void) XDestroyImage(self->image)), NULL);
+        self->state.image = (((void) XDestroyImage(self->state.image)), NULL);
     }
     return self;
 }
 
 static XcpcBlitter* xcpc_blitter_init_palette(XcpcBlitter* self, XcpcMonitorModel monitor_model)
 {
-    if((self->display == NULL) || (self->colormap == None)) {
+    if((self->state.display == NULL) || (self->state.colormap == None)) {
         return self;
     }
     /* init palette */ {
         unsigned short color_index = 0;
-        unsigned short color_count = countof(self->palette);
+        unsigned short color_count = countof(self->state.palette);
         for(color_index = 0; color_index < color_count; ++color_index) {
-            XColor *color = &self->palette[color_index];
+            XColor *color = &self->state.palette[color_index];
             /* clear color */ {
                 color->pixel = BadPixel;
                 color->red   = 0U;
@@ -168,7 +168,7 @@ static XcpcBlitter* xcpc_blitter_init_palette(XcpcBlitter* self, XcpcMonitorMode
                                              , &color->blue );
             }
             /* alloc color */ {
-                Status allocated = XAllocColor(self->display, self->colormap, color);
+                Status allocated = XAllocColor(self->state.display, self->state.colormap, color);
                 if(allocated != 0) {
                     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
                           , "%s::init_palette(), color allocated (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
@@ -195,16 +195,16 @@ static XcpcBlitter* xcpc_blitter_init_palette(XcpcBlitter* self, XcpcMonitorMode
 
 static XcpcBlitter* xcpc_blitter_fini_palette(XcpcBlitter* self)
 {
-    if((self->display == NULL) || (self->colormap == None)) {
+    if((self->state.display == NULL) || (self->state.colormap == None)) {
         return self;
     }
     /* free palette */ {
         unsigned short color_index = 0;
-        unsigned short color_count = countof(self->palette);
+        unsigned short color_count = countof(self->state.palette);
         for(color_index = 0; color_index < color_count; ++color_index) {
-            XColor* color = &self->palette[color_index];
+            XColor* color = &self->state.palette[color_index];
             /* free color */ {
-                Status freed = XFreeColors(self->display, self->colormap, &color->pixel, 1, 0);
+                Status freed = XFreeColors(self->state.display, self->state.colormap, &color->pixel, 1, 0);
                 if(freed != 0) {
                     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
                           , "%s::fini_palette(), color freed (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
@@ -262,38 +262,39 @@ XcpcBlitter* xcpc_blitter_construct(XcpcBlitter* self)
 {
     xcpc_blitter_trace("construct");
 
-    if(self != NULL) {
-        (void) memset(self, 0, sizeof(XcpcBlitter));
+    /* clear iface */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcBlitterIface));
     }
-    if(self != NULL) {
-        /* init attributes */ {
-            self->display  = NULL;
-            self->screen   = NULL;
-            self->visual   = NULL;
-            self->image    = NULL;
-            self->gc       = NULL;
-            self->window   = None;
-            self->colormap = None;
-            self->depth    = 0;
-            self->px       = 0;
-            self->py       = 0;
-            self->try_xshm = False;
-            self->has_xshm = False;
-            self->use_xshm = False;
-        }
-        /* init palette */ {
-            unsigned short color_index = 0;
-            unsigned short color_count = countof(self->palette);
-            for(color_index = 0; color_index < color_count; ++color_index) {
-                XColor* color = &self->palette[color_index];
-                /* init color */ {
-                    color->pixel = BadPixel;
-                    color->red   = 0U;
-                    color->green = 0U;
-                    color->blue  = 0U;
-                    color->flags = DoRed | DoGreen | DoBlue;
-                    color->pad   = 0;
-                }
+    /* clear state */ {
+        (void) memset(&self->state, 0, sizeof(XcpcBlitterState));
+    }
+    /* init attributes */ {
+        self->state.display  = NULL;
+        self->state.screen   = NULL;
+        self->state.visual   = NULL;
+        self->state.image    = NULL;
+        self->state.gc       = NULL;
+        self->state.window   = None;
+        self->state.colormap = None;
+        self->state.depth    = 0;
+        self->state.px       = 0;
+        self->state.py       = 0;
+        self->state.try_xshm = False;
+        self->state.has_xshm = False;
+        self->state.use_xshm = False;
+    }
+    /* init palette */ {
+        unsigned short color_index = 0;
+        unsigned short color_count = countof(self->state.palette);
+        for(color_index = 0; color_index < color_count; ++color_index) {
+            XColor* color = &self->state.palette[color_index];
+            /* init color */ {
+                color->pixel = BadPixel;
+                color->red   = 0U;
+                color->green = 0U;
+                color->blue  = 0U;
+                color->flags = DoRed | DoGreen | DoBlue;
+                color->pad   = 0;
             }
         }
     }
@@ -332,19 +333,17 @@ XcpcBlitter* xcpc_blitter_realize(XcpcBlitter* self, XcpcMonitorModel monitor_mo
 {
     xcpc_blitter_trace("realize");
 
-    if(self != NULL) {
-        /* unrealize */ {
-            (void) xcpc_blitter_unrealize(self);
-        }
-        /* initialize attributes */ {
-            (void) xcpc_blitter_init(self, display, window, try_xshm);
-        }
-        /* initialize image */ {
-            (void) xcpc_blitter_init_image(self);
-        }
-        /* initialize palette */ {
-            (void) xcpc_blitter_init_palette(self, monitor_model);
-        }
+    /* unrealize */ {
+        (void) xcpc_blitter_unrealize(self);
+    }
+    /* initialize attributes */ {
+        (void) xcpc_blitter_init(self, display, window, try_xshm);
+    }
+    /* initialize image */ {
+        (void) xcpc_blitter_init_image(self);
+    }
+    /* initialize palette */ {
+        (void) xcpc_blitter_init_palette(self, monitor_model);
     }
     return self;
 }
@@ -353,29 +352,24 @@ XcpcBlitter* xcpc_blitter_unrealize(XcpcBlitter* self)
 {
     xcpc_blitter_trace("unrealize");
 
-    if(self != NULL) {
-        /* finalize palette */ {
-            (void) xcpc_blitter_fini_palette(self);
-        }
-        /* finalize image */ {
-            (void) xcpc_blitter_fini_image(self);
-        }
-        /* finalize attributes */ {
-            (void) xcpc_blitter_fini(self);
-        }
+    /* finalize palette */ {
+        (void) xcpc_blitter_fini_palette(self);
+    }
+    /* finalize image */ {
+        (void) xcpc_blitter_fini_image(self);
+    }
+    /* finalize attributes */ {
+        (void) xcpc_blitter_fini(self);
     }
     return self;
 }
 
 XcpcBlitter* xcpc_blitter_is_realized(XcpcBlitter* self)
 {
-    if(self == NULL) {
-        return NULL;
-    }
-    if((self->display == NULL)
-    || (self->screen  == NULL)
-    || (self->visual  == NULL)
-    || (self->image   == NULL)) {
+    if((self->state.display == NULL)
+    || (self->state.screen  == NULL)
+    || (self->state.visual  == NULL)
+    || (self->state.image   == NULL)) {
         return NULL;
     }
     return self;
@@ -383,14 +377,11 @@ XcpcBlitter* xcpc_blitter_is_realized(XcpcBlitter* self)
 
 XcpcBlitter* xcpc_blitter_put_image(XcpcBlitter* self)
 {
-    if(self == NULL) {
-        return NULL;
-    }
     /* blit the image */ {
-        Display* display = self->display;
-        Window   window  = self->window;
-        XImage*  image   = self->image;
-        GC       gc      = self->gc;
+        Display* display = self->state.display;
+        Window   window  = self->state.window;
+        XImage*  image   = self->state.image;
+        GC       gc      = self->state.gc;
         if((display != NULL)
         && (window  != None)
         && (image   != NULL)) {
@@ -401,11 +392,11 @@ XcpcBlitter* xcpc_blitter_put_image(XcpcBlitter* self)
                                 , image
                                 , 0
                                 , 0
-                                , self->px
-                                , self->py
+                                , self->state.px
+                                , self->state.py
                                 , image->width
                                 , image->height
-                                , self->use_xshm
+                                , self->state.use_xshm
                                 , False );
             (void) XFlush(display);
         }
@@ -417,23 +408,23 @@ XcpcBlitter* xcpc_blitter_resize(XcpcBlitter* self, XEvent* event)
 {
     xcpc_blitter_trace("resize");
 
-    if((self == NULL) || (event == NULL) || (event->type != ConfigureNotify)) {
+    if((event == NULL) || (event->type != ConfigureNotify)) {
         return self;
     }
     /* compute px */ {
-        if(event->xconfigure.width > self->image->width) {
-            self->px = (event->xconfigure.width - self->image->width) / 2;
+        if(event->xconfigure.width > self->state.image->width) {
+            self->state.px = (event->xconfigure.width - self->state.image->width) / 2;
         }
         else {
-            self->px = 0;
+            self->state.px = 0;
         }
     }
     /* compute py */ {
-        if(event->xconfigure.height > self->image->height) {
-            self->py = (event->xconfigure.height - self->image->height) / 2;
+        if(event->xconfigure.height > self->state.image->height) {
+            self->state.py = (event->xconfigure.height - self->state.image->height) / 2;
         }
         else {
-            self->py = 0;
+            self->state.py = 0;
         }
     }
     return self;
@@ -443,14 +434,14 @@ XcpcBlitter* xcpc_blitter_expose(XcpcBlitter* self, XEvent* event)
 {
     xcpc_blitter_trace("expose");
 
-    if((self == NULL) || (event == NULL) || (event->type != Expose)) {
+    if((event == NULL) || (event->type != Expose)) {
         return self;
     }
     /* expose */ {
-        Display* display = self->display;
-        Window   window  = self->window;
-        XImage*  image   = self->image;
-        GC       gc      = self->gc;
+        Display* display = self->state.display;
+        Window   window  = self->state.window;
+        XImage*  image   = self->state.image;
+        GC       gc      = self->state.gc;
         XcpcBlitterArea area1;
         XcpcBlitterArea area2;
         /* is realized ? */ {
@@ -459,8 +450,8 @@ XcpcBlitter* xcpc_blitter_expose(XcpcBlitter* self, XEvent* event)
             }
         }
         /* init area1 */ {
-            area1.x1 = self->px;
-            area1.y1 = self->py;
+            area1.x1 = self->state.px;
+            area1.y1 = self->state.py;
             area1.x2 = ((area1.x1 + image->width ) - 1);
             area1.y2 = ((area1.y1 + image->height) - 1);
         }
@@ -504,13 +495,13 @@ XcpcBlitter* xcpc_blitter_expose(XcpcBlitter* self, XEvent* event)
                                 , window
                                 , gc
                                 , image
-                                , area2.x1 - self->px
-                                , area2.y1 - self->py
+                                , area2.x1 - self->state.px
+                                , area2.y1 - self->state.py
                                 , area2.x1
                                 , area2.y1
                                 , ((area2.x2 - area2.x1) + 1)
                                 , ((area2.y2 - area2.y1) + 1)
-                                , self->use_xshm
+                                , self->state.use_xshm
                                 , False );
             (void) XFlush(display);
         }

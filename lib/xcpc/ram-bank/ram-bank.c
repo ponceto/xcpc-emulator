@@ -51,8 +51,11 @@ XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self)
 {
     xcpc_ram_bank_trace("construct");
 
-    if(self != NULL) {
-        (void) memset(self, 0, sizeof(XcpcRamBank));
+    /* clear iface */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcRamBankIface));
+    }
+    /* clear state */ {
+        (void) memset(&self->state, 0, sizeof(XcpcRamBankState));
     }
     return xcpc_ram_bank_reset(self);
 }
@@ -82,8 +85,12 @@ XcpcRamBank* xcpc_ram_bank_reset(XcpcRamBank* self)
 {
     xcpc_ram_bank_trace("reset");
 
-    if(self != NULL) {
-        (void) memset(self->data, 0, sizeof(self->data));
+    /* reset state */ {
+        unsigned int index = 0;
+        unsigned int count = countof(self->state.data);
+        for(index = 0; index < count; ++index) {
+            self->state.data[index] &= 0;
+        }
     }
     return self;
 }
@@ -118,8 +125,8 @@ XcpcRamBankStatus xcpc_ram_bank_load(XcpcRamBank* self, const char* filename, si
     }
     /* load data */ {
         if(status == XCPC_RAM_BANK_STATUS_SUCCESS) {
-            void*  ram_data = &self->data;
-            size_t ram_size = sizeof(self->data);
+            void*  ram_data = &self->state.data;
+            size_t ram_size = sizeof(self->state.data);
             size_t byte_count = fread(ram_data, 1, ram_size, file);
             if(byte_count != ram_size) {
                 status = XCPC_RAM_BANK_STATUS_FAILURE;
@@ -141,14 +148,14 @@ XcpcRamBankStatus xcpc_ram_bank_copy(XcpcRamBank* self, const uint8_t* data, siz
     xcpc_ram_bank_trace("copy");
     /* check data and size */ {
         if(status == XCPC_RAM_BANK_STATUS_SUCCESS) {
-            if((data == NULL) || (size > sizeof(self->data))) {
+            if((data == NULL) || (size > sizeof(self->state.data))) {
                 status = XCPC_RAM_BANK_STATUS_FAILURE;
             }
         }
     }
     /* copy data */ {
         if(status == XCPC_RAM_BANK_STATUS_SUCCESS) {
-            (void) memcpy(self->data, data, size);
+            (void) memcpy(self->state.data, data, size);
         }
     }
     return status;

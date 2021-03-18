@@ -23,14 +23,27 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcPpi8255 XcpcPpi8255;
+typedef struct _XcpcPpi8255Iface XcpcPpi8255Iface;
+typedef struct _XcpcPpi8255State XcpcPpi8255State;
+typedef struct _XcpcPpi8255      XcpcPpi8255;
 
-struct _XcpcPpi8255
+struct _XcpcPpi8255Iface
 {
-    uint8_t control;
+    void* user_data;
+};
+
+struct _XcpcPpi8255State
+{
     uint8_t port_a;
     uint8_t port_b;
     uint8_t port_c;
+    uint8_t ctrl_p;
+};
+
+struct _XcpcPpi8255
+{
+    XcpcPpi8255Iface iface;
+    XcpcPpi8255State state;
 };
 
 #ifdef __cplusplus

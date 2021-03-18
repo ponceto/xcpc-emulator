@@ -47,8 +47,11 @@ XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
 {
     xcpc_ppi_8255_trace("construct");
 
-    if(self != NULL) {
-        (void) memset(self, 0, sizeof(XcpcPpi8255));
+    /* clear iface */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcPpi8255Iface));
+    }
+    /* clear state */ {
+        (void) memset(&self->state, 0, sizeof(XcpcPpi8255State));
     }
     return xcpc_ppi_8255_reset(self);
 }
@@ -78,11 +81,11 @@ XcpcPpi8255* xcpc_ppi_8255_reset(XcpcPpi8255* self)
 {
     xcpc_ppi_8255_trace("reset");
 
-    if(self != NULL) {
-        self->control = 0x00;
-        self->port_a  = 0x00;
-        self->port_b  = 0x00;
-        self->port_c  = 0x00;
+    /* reset state */ {
+        self->state.port_a = DEFAULT_VALUE_OF_PORT_A;
+        self->state.port_b = DEFAULT_VALUE_OF_PORT_B;
+        self->state.port_c = DEFAULT_VALUE_OF_PORT_C;
+        self->state.ctrl_p = DEFAULT_VALUE_OF_CTRL_P;
     }
     return self;
 }

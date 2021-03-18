@@ -23,17 +23,19 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcVdc6845 XcpcVdc6845;
+typedef struct _XcpcVdc6845Iface XcpcVdc6845Iface;
+typedef struct _XcpcVdc6845State XcpcVdc6845State;
+typedef struct _XcpcVdc6845      XcpcVdc6845;
 
-struct _XcpcVdc6845
+struct _XcpcVdc6845Iface
 {
-    struct
-    {
-        void* user_data;
-        void (*hsync_cbk)(XcpcVdc6845*, int hsync, void* user_data);
-        void (*vsync_cbk)(XcpcVdc6845*, int vsync, void* user_data);
-    } iface;
+    void* user_data;
+    void (*hsync_callback)(XcpcVdc6845*, int hsync, void* user_data);
+    void (*vsync_callback)(XcpcVdc6845*, int vsync, void* user_data);
+};
 
+struct _XcpcVdc6845State
+{
     union
     {
         struct
@@ -64,7 +66,6 @@ struct _XcpcVdc6845
             uint8_t light_pen_low;
         } named;
     } regs;
-
     union
     {
         struct
@@ -78,6 +79,12 @@ struct _XcpcVdc6845
             uint8_t vsync_signal;
         } named;
     } ctrs;
+};
+
+struct _XcpcVdc6845
+{
+    XcpcVdc6845Iface iface;
+    XcpcVdc6845State state;
 };
 
 #ifdef __cplusplus

@@ -18,8 +18,6 @@
 #define __AMSTRAD_CPC_H__
 
 #include <dev/z80cpu.h>
-#include <dev/fdc765.h>
-#include <dev/fdd765.h>
 #include <sys/time.h>
 #include <xcpc/blitter/blitter.h>
 #include <xcpc/monitor/monitor.h>
@@ -29,6 +27,7 @@
 #include <xcpc/vdc-6845/vdc-6845.h>
 #include <xcpc/ppi-8255/ppi-8255.h>
 #include <xcpc/psg-8910/psg-8910.h>
+#include <xcpc/fdc-765a/fdc-765a.h>
 #include <xcpc/ram-bank/ram-bank.h>
 #include <xcpc/rom-bank/rom-bank.h>
 #include <xcpc/snapshot/snapshot.h>
@@ -62,9 +61,6 @@ struct _AMSTRAD_CPC_EMULATOR
 {
     AMSTRAD_CPC_SETTINGS* settings;
     GdevZ80CPU*   z80cpu;
-    GdevFDC765*   fdc765;
-    GdevFDD765*   drive0;
-    GdevFDD765*   drive1;
     XcpcBlitter*  blitter;
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;
@@ -73,6 +69,7 @@ struct _AMSTRAD_CPC_EMULATOR
     XcpcVdc6845*  vdc_6845;
     XcpcPpi8255*  ppi_8255;
     XcpcPsg8910*  psg_8910;
+    XcpcFdc765a*  fdc_765a;
     XcpcRamBank*  ram_bank[8];
     XcpcRomBank*  rom_bank[2];
     XcpcRomBank*  exp_bank[256];

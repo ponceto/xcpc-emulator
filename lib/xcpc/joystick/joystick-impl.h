@@ -23,11 +23,24 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcJoystick XcpcJoystick;
+typedef struct _XcpcJoystickIface XcpcJoystickIface;
+typedef struct _XcpcJoystickState XcpcJoystickState;
+typedef struct _XcpcJoystick      XcpcJoystick;
+
+struct _XcpcJoystickIface
+{
+    void* user_data;
+};
+
+struct _XcpcJoystickState
+{
+    void* reserved;
+};
 
 struct _XcpcJoystick
 {
-    void* reserved;
+    XcpcJoystickIface iface;
+    XcpcJoystickState state;
 };
 
 #ifdef __cplusplus

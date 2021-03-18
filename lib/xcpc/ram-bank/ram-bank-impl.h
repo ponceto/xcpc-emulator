@@ -23,9 +23,9 @@
 extern "C" {
 #endif
 
-#define XCPC_RAM_BANK_SIZE 16384
-
 typedef enum   _XcpcRamBankStatus XcpcRamBankStatus;
+typedef struct _XcpcRamBankIface  XcpcRamBankIface;
+typedef struct _XcpcRamBankState  XcpcRamBankState;
 typedef struct _XcpcRamBank       XcpcRamBank;
 
 enum _XcpcRamBankStatus
@@ -34,9 +34,20 @@ enum _XcpcRamBankStatus
     XCPC_RAM_BANK_STATUS_SUCCESS =  0,
 };
 
+struct _XcpcRamBankIface
+{
+    void* user_data;
+};
+
+struct _XcpcRamBankState
+{
+    uint8_t data[16384];
+};
+
 struct _XcpcRamBank
 {
-    uint8_t data[XCPC_RAM_BANK_SIZE];
+    XcpcRamBankIface iface;
+    XcpcRamBankState state;
 };
 
 #ifdef __cplusplus

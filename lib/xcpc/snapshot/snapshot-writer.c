@@ -47,15 +47,13 @@ XcpcSnapshotWriter* xcpc_snapshot_writer_construct(XcpcSnapshotWriter* self, Xcp
 {
     xcpc_snapshot_writer_trace("construct");
 
-    if(self != NULL) {
+    /* clear instance */ {
         (void) memset(self, 0, sizeof(XcpcSnapshotWriter));
     }
-    if(self != NULL) {
-        /* initialize members */ {
-            self->status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
-            self->snapshot = snapshot;
-            self->file     = NULL;
-        }
+    /* initialize members */ {
+        self->status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
+        self->snapshot = snapshot;
+        self->file     = NULL;
     }
     return self;
 }
@@ -148,11 +146,6 @@ XcpcSnapshotStatus xcpc_snapshot_writer_save(XcpcSnapshotWriter* self, const cha
 {
     xcpc_snapshot_writer_trace("save");
 
-    /* check instance */ {
-        if(self == NULL) {
-            return XCPC_SNAPSHOT_STATUS_FAILURE;
-        }
-    }
     /* sanity check */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             self->status = xcpc_snapshot_sanity_check(self->snapshot);

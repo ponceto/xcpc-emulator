@@ -23,14 +23,10 @@
 extern "C" {
 #endif
 
-extern const uint8_t xcpc_cpc464_lower_rom[XCPC_BUILTIN_ROM_SIZE];
-extern const uint8_t xcpc_cpc464_upper_rom[XCPC_BUILTIN_ROM_SIZE];
-
-extern const uint8_t xcpc_cpc664_lower_rom[XCPC_BUILTIN_ROM_SIZE];
-extern const uint8_t xcpc_cpc664_upper_rom[XCPC_BUILTIN_ROM_SIZE];
-
-extern const uint8_t xcpc_cpc6128_lower_rom[XCPC_BUILTIN_ROM_SIZE];
-extern const uint8_t xcpc_cpc6128_upper_rom[XCPC_BUILTIN_ROM_SIZE];
+extern const XcpcSystemRom xcpc_cpc464_rom;
+extern const XcpcSystemRom xcpc_cpc664_rom;
+extern const XcpcSystemRom xcpc_cpc6128_rom;
+extern const XcpcAmsdosRom xcpc_amsdos_rom;
 
 #ifdef __cplusplus
 }

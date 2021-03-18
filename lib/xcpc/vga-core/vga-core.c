@@ -25,65 +25,69 @@
 static void xcpc_vga_core_init_mode0_lut(XcpcVgaCore* self)
 {
     unsigned int index = 0;
-    unsigned int count = countof(self->mode0);
+    unsigned int count = countof(self->state.mode0);
+
     for(index = 0; index < count; ++index) {
-        self->mode0[index] = ((index & 0x80) >> 7) | ((index & 0x08) >> 2)
-                           | ((index & 0x20) >> 3) | ((index & 0x02) << 2)
-                           | ((index & 0x40) >> 2) | ((index & 0x04) << 3)
-                           | ((index & 0x10) << 2) | ((index & 0x01) << 7)
-                           ;
+        self->state.mode0[index] = ((index & 0x80) >> 7) | ((index & 0x08) >> 2)
+                                 | ((index & 0x20) >> 3) | ((index & 0x02) << 2)
+                                 | ((index & 0x40) >> 2) | ((index & 0x04) << 3)
+                                 | ((index & 0x10) << 2) | ((index & 0x01) << 7)
+                                 ;
     }
 }
 
 static void xcpc_vga_core_init_mode1_lut(XcpcVgaCore* self)
 {
     unsigned int index = 0;
-    unsigned int count = countof(self->mode1);
+    unsigned int count = countof(self->state.mode1);
+
     for(index = 0; index < count; ++index) {
-        self->mode1[index] = ((index & 0x80) >> 7) | ((index & 0x08) >> 2)
-                           | ((index & 0x40) >> 4) | ((index & 0x04) << 1)
-                           | ((index & 0x20) >> 1) | ((index & 0x02) << 4)
-                           | ((index & 0x10) << 2) | ((index & 0x01) << 7)
-                           ;
+        self->state.mode1[index] = ((index & 0x80) >> 7) | ((index & 0x08) >> 2)
+                                 | ((index & 0x40) >> 4) | ((index & 0x04) << 1)
+                                 | ((index & 0x20) >> 1) | ((index & 0x02) << 4)
+                                 | ((index & 0x10) << 2) | ((index & 0x01) << 7)
+                                 ;
     }
 }
 
 static void xcpc_vga_core_init_mode2_lut(XcpcVgaCore* self)
 {
     unsigned int index = 0;
-    unsigned int count = countof(self->mode2);
+    unsigned int count = countof(self->state.mode2);
+
     for(index = 0; index < count; ++index) {
-        self->mode2[index] = ((index & 0x80) >> 7) | ((index & 0x40) >> 5)
-                           | ((index & 0x20) >> 3) | ((index & 0x10) >> 1)
-                           | ((index & 0x08) << 1) | ((index & 0x04) << 3)
-                           | ((index & 0x02) << 5) | ((index & 0x01) << 7)
-                           ;
+        self->state.mode2[index] = ((index & 0x80) >> 7) | ((index & 0x40) >> 5)
+                                 | ((index & 0x20) >> 3) | ((index & 0x10) >> 1)
+                                 | ((index & 0x08) << 1) | ((index & 0x04) << 3)
+                                 | ((index & 0x02) << 5) | ((index & 0x01) << 7)
+                                 ;
     }
 }
 
 static void xcpc_vga_core_init_pen(XcpcVgaCore* self)
 {
-    self->pen = 0x00;
+    self->state.pen = 0x00;
 }
 
 static void xcpc_vga_core_init_ink(XcpcVgaCore* self)
 {
     unsigned int index = 0;
-    unsigned int count = countof(self->ink);
+    unsigned int count = countof(self->state.ink);
+
     for(index = 0; index < count; index++) {
-        self->ink[index] = 0x00;
+        self->state.ink[index] = 0x00;
     }
 }
 
 static void xcpc_vga_core_init_rmr(XcpcVgaCore* self)
 {
-    self->rmr = 0x00;
+    self->state.rmr = 0x00;
 }
 
 static void xcpc_vga_core_init_ctr(XcpcVgaCore* self)
 {
-    self->counter = 0x00;
-    self->delayed = 0x00;
+    self->state.counter = 0x00;
+    self->state.delayed = 0x00;
 }
 
 void xcpc_vga_core_trace(const char* function)
@@ -111,8 +115,11 @@ XcpcVgaCore* xcpc_vga_core_construct(XcpcVgaCore* self)
 {
     xcpc_vga_core_trace("construct");
 
-    if(self != NULL) {
-        (void) memset(self, 0, sizeof(XcpcVgaCore));
+    /* clear iface */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcVgaCoreIface));
+    }
+    /* clear state */ {
+        (void) memset(&self->state, 0, sizeof(XcpcVgaCoreState));
     }
     return xcpc_vga_core_reset(self);
 }
@@ -142,7 +149,7 @@ XcpcVgaCore* xcpc_vga_core_reset(XcpcVgaCore* self)
 {
     xcpc_vga_core_trace("reset");
 
-    if(self != NULL) {
+    /* reset state */ {
         xcpc_vga_core_init_mode0_lut(self);
         xcpc_vga_core_init_mode1_lut(self);
         xcpc_vga_core_init_mode2_lut(self);

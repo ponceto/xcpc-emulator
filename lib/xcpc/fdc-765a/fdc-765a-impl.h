@@ -23,11 +23,31 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcFdc765a XcpcFdc765a;
+typedef struct fdc_765 XcpcFdcImpl;
+typedef struct fdd_765 XcpcFddImpl;
+
+typedef struct _XcpcFdc765aIface XcpcFdc765aIface;
+typedef struct _XcpcFdc765aState XcpcFdc765aState;
+typedef struct _XcpcFdc765a      XcpcFdc765a;
+
+struct _XcpcFdc765aIface
+{
+    void* user_data;
+};
+
+struct _XcpcFdc765aState
+{
+    XcpcFdcImpl* fdc_impl;
+    XcpcFddImpl* fd0_impl;
+    XcpcFddImpl* fd1_impl;
+    XcpcFddImpl* fd2_impl;
+    XcpcFddImpl* fd3_impl;
+};
 
 struct _XcpcFdc765a
 {
-    void* reserved;
+    XcpcFdc765aIface iface;
+    XcpcFdc765aState state;
 };
 
 #ifdef __cplusplus
