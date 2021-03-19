@@ -73,6 +73,8 @@ AX_CHECK_GLIB
 AX_CHECK_GUI
 AX_CHECK_HEADERS
 AX_CHECK_FUNCTIONS
+AX_CHECK_ZLIB
+AX_CHECK_BZLIB
 
 # ----------------------------------------------------------------------------
 # Defines
@@ -89,6 +91,7 @@ AC_DEFINE(PACKAGE_MAJOR_VERSION, [pkg_major_version], [Define to the major versi
 AC_DEFINE(PACKAGE_MINOR_VERSION, [pkg_minor_version], [Define to the minor version of this package.])
 AC_DEFINE(PACKAGE_MICRO_VERSION, [pkg_micro_version], [Define to the micro version of this package.])
 AC_DEFINE(PACKAGE_INTERFACE_AGE, [pkg_interface_age], [Define to the interface age of this package.])
+
 AX_DEFINES
 
 # ----------------------------------------------------------------------------

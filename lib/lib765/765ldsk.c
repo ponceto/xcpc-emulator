@@ -21,9 +21,9 @@
 
 */
 #include "config.h"
-#ifdef HAVE_LIBDSK_H
+#ifndef NO_LIBDSK_H
 #include <stdio.h>
-#include "libdsk.h"
+#include <libdsk/libdsk.h>
 #include "765i.h"
 
 #define SHORT_TIMEOUT	1000
@@ -471,4 +471,4 @@ void     fdl_setcomp(FDRV_PTR fd, const char *s)
 	}
 }
 
-#endif	// def HAVE_LIBDSK_H
+#endif	// def NO_LIBDSK_H
