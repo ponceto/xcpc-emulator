@@ -33,15 +33,6 @@ extern "C" {
 #define _NF   0x02 /* Add / Sub              */
 #define _CF   0x01 /* Carry / Borrow         */
 
-#define _HLT  0x80 /* CPU is HALTed          */
-#define _NMI  0x40 /* Pending NMI            */
-#define _INT  0x20 /* Pending INT            */
-#define _XYZ  0x10 /* Not Used               */
-#define _IM2  0x08 /* Interrupt Mode #2      */
-#define _IM1  0x04 /* Interrupt Mode #1      */
-#define _IFF2 0x02 /* Interrupt Flip-Flop #2 */
-#define _IFF1 0x01 /* Interrupt Flip-Flop #1 */
-
 #define THIS self
 #define AF_Q self->state.regs.AF.q
 #define AF_W self->state.regs.AF.w.l
@@ -200,7 +191,7 @@ enum CodesED
   THIS->state.regs.PC.w.l=WZ.w.l
 
 #define M_JP  WZ.b.l=RdZ80(THIS->state.regs.PC.w.l++);WZ.b.h=RdZ80(THIS->state.regs.PC.w.l);THIS->state.regs.PC.w.l=WZ.w.l
-#define M_JR  THIS->state.regs.PC.w.l+=(gint8)RdZ80(THIS->state.regs.PC.w.l)+1
+#define M_JR  THIS->state.regs.PC.w.l+=(int8_t)RdZ80(THIS->state.regs.PC.w.l)+1
 #define M_RET THIS->state.regs.PC.b.l=RdZ80(THIS->state.regs.SP.w.l++);THIS->state.regs.PC.b.h=RdZ80(THIS->state.regs.SP.w.l++)
 
 #define M_RST(Ad)      \

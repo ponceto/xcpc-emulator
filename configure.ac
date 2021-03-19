@@ -115,9 +115,8 @@ AC_CONFIG_FILES([
 	lib/Makefile
 	lib/libdsk/Makefile
 	lib/lib765/Makefile
-	lib/dev/Makefile
-	lib/Xem/Makefile
 	lib/xcpc/Makefile
+	lib/Xem/Makefile
 	src/Makefile
 	share/Makefile
 	share/applications/Makefile

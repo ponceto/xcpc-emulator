@@ -24,9 +24,7 @@
 
 static void xcpc_rom_bank_trace(const char* function)
 {
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "XcpcRomBank::%s()"
-          , function );
+    xcpc_trace("XcpcRomBank::%s()", function);
 }
 
 XcpcRomBank* xcpc_rom_bank_alloc(void)

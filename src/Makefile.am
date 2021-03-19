@@ -50,7 +50,6 @@ xcpc_LDFLAGS = \
 
 xcpc_LDADD = \
 	$(top_builddir)/lib/xcpc/libxcpc.la \
-	$(top_builddir)/lib/dev/libdev.la \
 	$(NULL)
 
 if MOTIF2

@@ -24,9 +24,7 @@
 
 static void xcpc_snapshot_writer_trace(const char* function)
 {
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "XcpcSnapshotWriter::%s()"
-          , function );
+    xcpc_trace("XcpcSnapshotWriter::%s()", function);
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_alloc(void)

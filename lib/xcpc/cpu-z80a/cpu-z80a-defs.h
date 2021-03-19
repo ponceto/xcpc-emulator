@@ -23,6 +23,15 @@
 extern "C" {
 #endif
 
+#define _HLT  0x80 /* CPU is HALTed          */
+#define _NMI  0x40 /* Pending NMI            */
+#define _INT  0x20 /* Pending INT            */
+#define _XYZ  0x10 /* Not Used               */
+#define _IM2  0x08 /* Interrupt Mode #2      */
+#define _IM1  0x04 /* Interrupt Mode #1      */
+#define _IFF2 0x02 /* Interrupt Flip-Flop #2 */
+#define _IFF1 0x01 /* Interrupt Flip-Flop #1 */
+
 union XcpcCpuZ80aRegister
 {
     u_int32_t q;

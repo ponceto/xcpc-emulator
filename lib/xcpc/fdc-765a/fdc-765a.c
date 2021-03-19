@@ -24,9 +24,7 @@
 
 static void xcpc_fdc_765a_trace(const char* function)
 {
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "XcpcFdc765a::%s()"
-          , function );
+    xcpc_trace("XcpcFdc765a::%s()", function);
 }
 
 XcpcFdc765a* xcpc_fdc_765a_alloc(void)

@@ -24,9 +24,7 @@
 
 static void xcpc_vdc_6845_trace(const char* function)
 {
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "XcpcVdc6845::%s()"
-          , function );
+    xcpc_trace("XcpcVdc6845::%s()", function);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_alloc(void)

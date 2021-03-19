@@ -411,9 +411,7 @@ static uint8_t PZSTable[256] = {
 
 static void xcpc_cpu_z80a_trace(const char* function)
 {
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "XcpcCpuZ80a::%s()"
-          , function );
+    xcpc_trace("XcpcCpuZ80a::%s()", function);
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_alloc(void)

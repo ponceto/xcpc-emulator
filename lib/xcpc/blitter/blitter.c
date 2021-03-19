@@ -32,9 +32,7 @@
 
 static void xcpc_blitter_trace(const char* function)
 {
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "XcpcBlitter::%s()"
-          , function );
+    xcpc_trace("XcpcBlitter::%s()", function);
 }
 
 static XcpcBlitter* xcpc_blitter_init(XcpcBlitter* self, Display* display, Window window, Bool try_xshm)
@@ -177,22 +175,20 @@ static XcpcBlitter* xcpc_blitter_init_palette(XcpcBlitter* self, XcpcMonitorMode
             /* alloc color */ {
                 Status allocated = XAllocColor(self->state.display, self->state.colormap, color);
                 if(allocated != 0) {
-                    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-                          , "%s::init_palette(), color allocated (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
-                          , "XcpcBlitter"
-                          , color->pixel
-                          , color->red
-                          , color->green
-                          , color->blue );
+                    xcpc_debug ( "%s::init_palette(), color allocated (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
+                               , "XcpcBlitter"
+                               , color->pixel
+                               , color->red
+                               , color->green
+                               , color->blue );
                 }
                 else {
-                    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_WARNING
-                          , "%s::init_palette(), unable to allocate color (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
-                          , "XcpcBlitter"
-                          , color->pixel
-                          , color->red
-                          , color->green
-                          , color->blue );
+                    xcpc_debug ( "%s::init_palette(), unable to allocate color (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
+                               , "XcpcBlitter"
+                               , color->pixel
+                               , color->red
+                               , color->green
+                               , color->blue );
                 }
             }
         }
@@ -213,22 +209,20 @@ static XcpcBlitter* xcpc_blitter_fini_palette(XcpcBlitter* self)
             /* free color */ {
                 Status freed = XFreeColors(self->state.display, self->state.colormap, &color->pixel, 1, 0);
                 if(freed != 0) {
-                    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-                          , "%s::fini_palette(), color freed (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
-                          , "XcpcBlitter"
-                          , color->pixel
-                          , color->red
-                          , color->green
-                          , color->blue );
+                    xcpc_debug ( "%s::fini_palette(), color freed (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
+                               , "XcpcBlitter"
+                               , color->pixel
+                               , color->red
+                               , color->green
+                               , color->blue );
                 }
                 else {
-                    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_WARNING
-                          , "%s::fini_palette(), unable to free color (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
-                          , "XcpcBlitter"
-                          , color->pixel
-                          , color->red
-                          , color->green
-                          , color->blue );
+                    xcpc_debug ( "%s::fini_palette(), unable to free color (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
+                               , "XcpcBlitter"
+                               , color->pixel
+                               , color->red
+                               , color->green
+                               , color->blue );
                 }
             }
             /* clear color */ {

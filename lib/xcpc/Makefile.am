@@ -118,18 +118,15 @@ libxcpc_la_SOURCES = \
 
 libxcpc_la_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
-	$(GLIB_CFLAGS) \
 	$(NULL)
 
 libxcpc_la_LDFLAGS = \
 	-L$(top_builddir)/lib \
-	$(GLIB_LDFLAGS) \
 	$(NULL)
 
 libxcpc_la_LIBADD = \
 	$(top_builddir)/lib/lib765/lib765.la \
 	$(top_builddir)/lib/libdsk/libdsk.la \
-	$(GLIB_LIBS) \
 	$(X_LIBS) \
 	$(X_PRE_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \

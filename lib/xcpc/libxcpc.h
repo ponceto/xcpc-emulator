@@ -23,6 +23,11 @@
 extern "C" {
 #endif
 
+extern void  xcpc_print     (const char* format, ...);
+extern void  xcpc_error     (const char* format, ...);
+extern void  xcpc_trace     (const char* format, ...);
+extern void  xcpc_debug     (const char* format, ...);
+
 extern void  xcpc_log_begin (void);
 extern void  xcpc_log_end   (void);
 extern void* xcpc_malloc    (const char* type, size_t size);

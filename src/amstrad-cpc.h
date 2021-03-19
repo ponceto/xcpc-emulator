@@ -17,7 +17,7 @@
 #ifndef __AMSTRAD_CPC_H__
 #define __AMSTRAD_CPC_H__
 
-#include <dev/z80cpu.h>
+#include <glib.h>
 #include <sys/time.h>
 #include <xcpc/blitter/blitter.h>
 #include <xcpc/monitor/monitor.h>
@@ -61,7 +61,6 @@ struct _AMSTRAD_CPC_SETTINGS
 struct _AMSTRAD_CPC_EMULATOR
 {
     AMSTRAD_CPC_SETTINGS* settings;
-    GdevZ80CPU*   z80cpu;
     XcpcBlitter*  blitter;
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;

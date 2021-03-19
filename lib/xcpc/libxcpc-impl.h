@@ -18,7 +18,6 @@
 #define __XCPC_LIBXCPC_IMPL_H__
 
 #include <stdint.h>
-#include <glib.h>
 #include <xcpc/xlib/xlib.h>
 
 #ifdef __cplusplus
@@ -137,8 +136,6 @@ enum _XcpcColor
     XCPC_COLOR_YELLOW                     = 30,
     XCPC_COLOR_PASTEL_BLUE                = 31,
 };
-
-extern const char* XCPC_LOG_DOMAIN;
 
 #ifdef __cplusplus
 }
