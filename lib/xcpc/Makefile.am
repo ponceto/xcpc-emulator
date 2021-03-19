@@ -117,6 +117,8 @@ libxcpc_la_LDFLAGS = \
 	$(NULL)
 
 libxcpc_la_LIBADD = \
+	$(top_builddir)/lib/lib765/lib765.la \
+	$(top_builddir)/lib/libdsk/libdsk.la \
 	$(GLIB_LIBS) \
 	$(X_LIBS) \
 	$(X_PRE_LIBS) -lXext -lX11 \

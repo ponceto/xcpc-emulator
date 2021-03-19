@@ -17,7 +17,8 @@
 #ifndef __XCPC_FDC_765A_PRIV_H__
 #define __XCPC_FDC_765A_PRIV_H__
 
-#include <dev/lib765.h>
+#include <libdsk/libdsk.h>
+#include <lib765/765.h>
 #include <xcpc/fdc-765a/fdc-765a.h>
 
 #ifdef __cplusplus

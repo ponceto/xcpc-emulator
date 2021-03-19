@@ -34,11 +34,11 @@ extern XcpcFdc765a* xcpc_fdc_765a_clock     (XcpcFdc765a* fdc_765a);
 extern XcpcFdc765a* xcpc_fdc_765a_attach    (XcpcFdc765a* fdc_765a, int drive);
 extern XcpcFdc765a* xcpc_fdc_765a_detach    (XcpcFdc765a* fdc_765a, int drive);
 extern XcpcFdc765a* xcpc_fdc_765a_insert    (XcpcFdc765a* fdc_765a, const char* filename, int drive);
-extern XcpcFdc765a* xcpc_fdc_765a_rstat     (XcpcFdc765a* fdc_765a, uint8_t* data);
-extern XcpcFdc765a* xcpc_fdc_765a_wstat     (XcpcFdc765a* fdc_765a, uint8_t* data);
-extern XcpcFdc765a* xcpc_fdc_765a_rdata     (XcpcFdc765a* fdc_765a, uint8_t* data);
-extern XcpcFdc765a* xcpc_fdc_765a_wdata     (XcpcFdc765a* fdc_765a, uint8_t* data);
-extern XcpcFdc765a* xcpc_fdc_765a_motor     (XcpcFdc765a* fdc_765a, uint8_t motor);
+extern XcpcFdc765a* xcpc_fdc_765a_set_motor (XcpcFdc765a* fdc_765a, uint8_t motor);
+extern XcpcFdc765a* xcpc_fdc_765a_rd_stat   (XcpcFdc765a* fdc_765a, uint8_t* data);
+extern XcpcFdc765a* xcpc_fdc_765a_wr_stat   (XcpcFdc765a* fdc_765a, uint8_t* data);
+extern XcpcFdc765a* xcpc_fdc_765a_rd_data   (XcpcFdc765a* fdc_765a, uint8_t* data);
+extern XcpcFdc765a* xcpc_fdc_765a_wr_data   (XcpcFdc765a* fdc_765a, uint8_t* data);
 
 #ifdef __cplusplus
 }

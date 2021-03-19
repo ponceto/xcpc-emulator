@@ -23,8 +23,8 @@
 extern "C" {
 #endif
 
-typedef struct fdc_765 XcpcFdcImpl;
-typedef struct fdd_765 XcpcFddImpl;
+typedef struct fdc_765      XcpcFdcImpl;
+typedef struct floppy_drive XcpcFddImpl;
 
 typedef struct _XcpcFdc765aIface XcpcFdc765aIface;
 typedef struct _XcpcFdc765aState XcpcFdc765aState;

@@ -370,10 +370,10 @@ static guint8 cpu_iorq_rd(GdevZ80CPU *z80cpu, guint16 port)
         (void) fflush(stderr);
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        xcpc_fdc_765a_rstat(self->fdc_765a, &data);
+        xcpc_fdc_765a_rd_stat(self->fdc_765a, &data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        xcpc_fdc_765a_rdata(self->fdc_765a, &data);
+        xcpc_fdc_765a_rd_data(self->fdc_765a, &data);
         break;
     }
   }
@@ -455,16 +455,16 @@ static void cpu_iorq_wr(GdevZ80CPU *z80cpu, guint16 port, guint8 data)
   if((port & 0x0480) == 0) {
     switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
       case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-        xcpc_fdc_765a_motor(self->fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+        xcpc_fdc_765a_set_motor(self->fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
         break;
       case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-        xcpc_fdc_765a_motor(self->fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+        xcpc_fdc_765a_set_motor(self->fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-        xcpc_fdc_765a_wstat(self->fdc_765a, &data);
+        xcpc_fdc_765a_wr_stat(self->fdc_765a, &data);
         break;
       case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-        xcpc_fdc_765a_wdata(self->fdc_765a, &data);
+        xcpc_fdc_765a_wr_data(self->fdc_765a, &data);
         break;
     }
   }
@@ -2214,6 +2214,9 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
         }
       }
     } while(++self->cur_scanline < 312);
+  }
+  /* clock the fdc */ {
+    xcpc_fdc_765a_clock(self->fdc_765a);
   }
   /* compute the elapsed time in us */ {
     struct timeval prev_time = self->timer.deadline;

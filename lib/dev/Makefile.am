@@ -38,10 +38,6 @@ libdev_la_SOURCES = \
 	z80cpu_opcode_ED.h \
 	z80cpu_opcode_FD.h \
 	z80cpu_opcode_XX.h \
-	libdsk.c \
-	libdsk.h \
-	lib765.c \
-	lib765.h \
 	$(NULL)
 
 libdev_la_CPPFLAGS = \

@@ -24,48 +24,114 @@
 
 static XcpcFdcImpl* fdc_impl_new(void)
 {
-    XcpcFdcImpl* fdc_impl = xcpc_new(XcpcFdcImpl);
-
-    /* clear */ {
-        (void) memset(fdc_impl, 0, sizeof(XcpcFdcImpl));
-    }
-    /* initialize */ {
-        fdc_init_impl(fdc_impl);
-    }
-    return fdc_impl;
+    return fdc_new();
 }
 
 static XcpcFdcImpl* fdc_impl_delete(XcpcFdcImpl* fdc_impl)
 {
-    return xcpc_delete(XcpcFdcImpl, fdc_impl);
+    if(fdc_impl != NULL) {
+        fdc_destroy(&fdc_impl);
+    }
+    return fdc_impl;
+}
+
+static XcpcFdcImpl* fdc_impl_reset(XcpcFdcImpl* fdc_impl)
+{
+    if(fdc_impl != NULL) {
+        XcpcFddImpl* fd0 = fdc_getdrive(fdc_impl, 0);
+        XcpcFddImpl* fd1 = fdc_getdrive(fdc_impl, 1);
+        XcpcFddImpl* fd2 = fdc_getdrive(fdc_impl, 2);
+        XcpcFddImpl* fd3 = fdc_getdrive(fdc_impl, 3);
+        fdc_reset(fdc_impl);
+        fdc_setdrive(fdc_impl, 0, fd0);
+        fdc_setdrive(fdc_impl, 1, fd1);
+        fdc_setdrive(fdc_impl, 2, fd2);
+        fdc_setdrive(fdc_impl, 3, fd3);
+    }
+    return fdc_impl;
+}
+
+static XcpcFdcImpl* fdc_impl_clock(XcpcFdcImpl* fdc_impl)
+{
+    if(fdc_impl != NULL) {
+        fdc_tick(fdc_impl);
+    }
+    return fdc_impl;
+}
+
+static XcpcFdcImpl* fdc_impl_set_drive(XcpcFdcImpl* fdc_impl, XcpcFddImpl* fdd_impl, int drive)
+{
+    if(fdc_impl != NULL) {
+        fdc_setdrive(fdc_impl, drive, fdd_impl);
+    }
+    return fdc_impl;
+}
+
+XcpcFdcImpl* fdc_impl_set_motor(XcpcFdcImpl* fdc_impl, uint8_t motor)
+{
+    if(fdc_impl != NULL) {
+        fdc_set_motor(fdc_impl, motor);
+    }
+    return fdc_impl;
+}
+
+XcpcFdcImpl* fdc_impl_rd_stat(XcpcFdcImpl* fdc_impl, uint8_t* data)
+{
+    if(fdc_impl != NULL) {
+        *data = fdc_read_ctrl(fdc_impl);
+    }
+    return fdc_impl;
+}
+
+XcpcFdcImpl* fdc_impl_wr_stat(XcpcFdcImpl* fdc_impl, uint8_t* data)
+{
+    if(fdc_impl != NULL) {
+        /* TODO */
+    }
+    return fdc_impl;
+}
+
+XcpcFdcImpl* fdc_impl_rd_data(XcpcFdcImpl* fdc_impl, uint8_t* data)
+{
+    if(fdc_impl != NULL) {
+        *data = fdc_read_data(fdc_impl);
+    }
+    return fdc_impl;
+}
+
+XcpcFdcImpl* fdc_impl_wr_data(XcpcFdcImpl* fdc_impl, uint8_t* data)
+{
+    if(fdc_impl != NULL) {
+        fdc_write_data(fdc_impl, *data);
+    }
+    return fdc_impl;
 }
 
 static XcpcFddImpl* fdd_impl_new(void)
 {
-    XcpcFddImpl* fdd_impl = xcpc_new(XcpcFddImpl);
-
-    /* clear */ {
-        (void) memset(fdd_impl, 0, sizeof(XcpcFddImpl));
-    }
-    /* initialize */ {
-        fdd_init_impl(fdd_impl);
-    }
-    return fdd_impl;
+    return fd_newldsk();
 }
 
 static XcpcFddImpl* fdd_impl_delete(XcpcFddImpl* fdd_impl)
 {
-    return xcpc_delete(XcpcFddImpl, fdd_impl);
+    if(fdd_impl != NULL) {
+        fd_destroy(&fdd_impl);
+    }
+    return fdd_impl;
+}
+
+static XcpcFddImpl* fdd_impl_reset(XcpcFddImpl* fdd_impl)
+{
+    if(fdd_impl != NULL) {
+        fd_reset(fdd_impl);
+    }
+    return fdd_impl;
 }
 
 static XcpcFddImpl* fdd_impl_insert(XcpcFddImpl* fdd_impl, const char* filename)
 {
-    if((fdd_impl->fd_vtable != NULL)
-    && (fdd_impl->fd_vtable->fdv_eject != NULL)) {
-        (*fdd_impl->fd_vtable->fdv_eject)(fdd_impl);
-    }
-    if((filename != NULL) && (*filename != '\0')) {
-        (void) snprintf(fdd_impl->fdl_filename, sizeof(fdd_impl->fdl_filename), "%s", filename);
+    if(fdd_impl != NULL) {
+        fdl_setfilename(fdd_impl, (filename != NULL ? filename : ""));
     }
     return fdd_impl;
 }
@@ -115,6 +181,12 @@ XcpcFdc765a* xcpc_fdc_765a_destruct(XcpcFdc765a* self)
 {
     xcpc_fdc_765a_trace("destruct");
 
+    /* detach drives */ {
+        (void) xcpc_fdc_765a_detach(self, 3);
+        (void) xcpc_fdc_765a_detach(self, 2);
+        (void) xcpc_fdc_765a_detach(self, 1);
+        (void) xcpc_fdc_765a_detach(self, 0);
+    }
     /* finalize state */ {
         self->state.fd3_impl = fdd_impl_delete(self->state.fd3_impl);
         self->state.fd2_impl = fdd_impl_delete(self->state.fd2_impl);
@@ -145,19 +217,19 @@ XcpcFdc765a* xcpc_fdc_765a_reset(XcpcFdc765a* self)
 
     /* reset state */ {
         if(self->state.fdc_impl != NULL) {
-            fdc_reset_impl(self->state.fdc_impl);
+            (void) fdc_impl_reset(self->state.fdc_impl);
         }
         if(self->state.fd0_impl != NULL) {
-            fdd_reset_impl(self->state.fd0_impl);
+            (void) fdd_impl_reset(self->state.fd0_impl);
         }
         if(self->state.fd1_impl != NULL) {
-            fdd_reset_impl(self->state.fd1_impl);
+            (void) fdd_impl_reset(self->state.fd1_impl);
         }
         if(self->state.fd2_impl != NULL) {
-            fdd_reset_impl(self->state.fd2_impl);
+            (void) fdd_impl_reset(self->state.fd2_impl);
         }
         if(self->state.fd3_impl != NULL) {
-            fdd_reset_impl(self->state.fd3_impl);
+            (void) fdd_impl_reset(self->state.fd3_impl);
         }
     }
     return self;
@@ -165,6 +237,9 @@ XcpcFdc765a* xcpc_fdc_765a_reset(XcpcFdc765a* self)
 
 XcpcFdc765a* xcpc_fdc_765a_clock(XcpcFdc765a* self)
 {
+    /* clock state */ {
+        (void) fdc_impl_clock(self->state.fdc_impl);
+    }
     return self;
 }
 
@@ -173,16 +248,16 @@ XcpcFdc765a* xcpc_fdc_765a_attach(XcpcFdc765a* self, int drive)
     if(self->state.fdc_impl != NULL) {
         switch(drive) {
             case 0:
-                self->state.fdc_impl->fdc_drive[0] = self->state.fd0_impl;
+                (void) fdc_impl_set_drive(self->state.fdc_impl, self->state.fd0_impl, 0);
                 break;
             case 1:
-                self->state.fdc_impl->fdc_drive[1] = self->state.fd1_impl;
+                (void) fdc_impl_set_drive(self->state.fdc_impl, self->state.fd1_impl, 1);
                 break;
             case 2:
-                self->state.fdc_impl->fdc_drive[2] = self->state.fd2_impl;
+                (void) fdc_impl_set_drive(self->state.fdc_impl, self->state.fd2_impl, 2);
                 break;
             case 3:
-                self->state.fdc_impl->fdc_drive[3] = self->state.fd3_impl;
+                (void) fdc_impl_set_drive(self->state.fdc_impl, self->state.fd3_impl, 3);
                 break;
             default:
                 break;
@@ -196,16 +271,16 @@ XcpcFdc765a* xcpc_fdc_765a_detach(XcpcFdc765a* self, int drive)
     if(self->state.fdc_impl != NULL) {
         switch(drive) {
             case 0:
-                self->state.fdc_impl->fdc_drive[0] = NULL;
+                (void) fdc_impl_set_drive(self->state.fdc_impl, NULL, 0);
                 break;
             case 1:
-                self->state.fdc_impl->fdc_drive[1] = NULL;
+                (void) fdc_impl_set_drive(self->state.fdc_impl, NULL, 1);
                 break;
             case 2:
-                self->state.fdc_impl->fdc_drive[2] = NULL;
+                (void) fdc_impl_set_drive(self->state.fdc_impl, NULL, 2);
                 break;
             case 3:
-                self->state.fdc_impl->fdc_drive[3] = NULL;
+                (void) fdc_impl_set_drive(self->state.fdc_impl, NULL, 3);
                 break;
             default:
                 break;
@@ -218,24 +293,16 @@ XcpcFdc765a* xcpc_fdc_765a_insert(XcpcFdc765a* self, const char* filename, int d
 {
     switch(drive) {
         case 0:
-            if(self->state.fd0_impl != NULL) {
-                fdd_impl_insert(self->state.fd0_impl, filename);
-            }
+            (void) fdd_impl_insert(self->state.fd0_impl, filename);
             break;
         case 1:
-            if(self->state.fd1_impl != NULL) {
-                fdd_impl_insert(self->state.fd1_impl, filename);
-            }
+            (void) fdd_impl_insert(self->state.fd1_impl, filename);
             break;
         case 2:
-            if(self->state.fd2_impl != NULL) {
-                fdd_impl_insert(self->state.fd2_impl, filename);
-            }
+            (void) fdd_impl_insert(self->state.fd2_impl, filename);
             break;
         case 3:
-            if(self->state.fd3_impl != NULL) {
-                fdd_impl_insert(self->state.fd3_impl, filename);
-            }
+            (void) fdd_impl_insert(self->state.fd3_impl, filename);
             break;
         default:
             break;
@@ -243,52 +310,42 @@ XcpcFdc765a* xcpc_fdc_765a_insert(XcpcFdc765a* self, const char* filename, int d
     return self;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_rstat(XcpcFdc765a* self, uint8_t* data)
+XcpcFdc765a* xcpc_fdc_765a_set_motor(XcpcFdc765a* self, uint8_t motor)
 {
-#if 1
-    if(self->state.fdc_impl != NULL) {
-        *data = fdc_rd_stat(self->state.fdc_impl);
+    /* call fdc impl */ {
+        (void) fdc_impl_set_motor(self->state.fdc_impl, motor);
     }
-#endif
     return self;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_wstat(XcpcFdc765a* self, uint8_t* data)
+XcpcFdc765a* xcpc_fdc_765a_rd_stat(XcpcFdc765a* self, uint8_t* data)
 {
-#if 0
-    if(self->state.fdc_impl != NULL) {
-        fdc_wr_stat(self->state.fdc_impl, *data);
+    /* call fdc impl */ {
+        (void) fdc_impl_rd_stat(self->state.fdc_impl, data);
     }
-#endif
     return self;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_rdata(XcpcFdc765a* self, uint8_t* data)
+XcpcFdc765a* xcpc_fdc_765a_wr_stat(XcpcFdc765a* self, uint8_t* data)
 {
-#if 1
-    if(self->state.fdc_impl != NULL) {
-        *data = fdc_rd_data(self->state.fdc_impl);
+    /* call fdc impl */ {
+        (void) fdc_impl_wr_stat(self->state.fdc_impl, data);
     }
-#endif
     return self;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_wdata(XcpcFdc765a* self, uint8_t* data)
+XcpcFdc765a* xcpc_fdc_765a_rd_data(XcpcFdc765a* self, uint8_t* data)
 {
-#if 1
-    if(self->state.fdc_impl != NULL) {
-        fdc_wr_data(self->state.fdc_impl, *data);
+    /* call fdc impl */ {
+        (void) fdc_impl_rd_data(self->state.fdc_impl, data);
     }
-#endif
     return self;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_motor(XcpcFdc765a* self, uint8_t motor)
+XcpcFdc765a* xcpc_fdc_765a_wr_data(XcpcFdc765a* self, uint8_t* data)
 {
-#if 1
-    if(self->state.fdc_impl != NULL) {
-        fdc_set_motor(self->state.fdc_impl, motor);
+    /* call fdc impl */ {
+        (void) fdc_impl_wr_data(self->state.fdc_impl, data);
     }
-#endif
     return self;
 }
