@@ -25,6 +25,23 @@
 extern "C" {
 #endif
 
+extern XcpcFdcImpl* xcpc_fdc_impl_new       (void);
+extern XcpcFdcImpl* xcpc_fdc_impl_delete    (XcpcFdcImpl* fdc_impl);
+extern XcpcFdcImpl* xcpc_fdc_impl_reset     (XcpcFdcImpl* fdc_impl);
+extern XcpcFdcImpl* xcpc_fdc_impl_clock     (XcpcFdcImpl* fdc_impl);
+extern XcpcFdcImpl* xcpc_fdc_impl_set_drive (XcpcFdcImpl* fdc_impl, XcpcFddImpl* fdd_impl, int drive);
+extern XcpcFdcImpl* xcpc_fdc_impl_set_motor (XcpcFdcImpl* fdc_impl, uint8_t motor);
+extern XcpcFdcImpl* xcpc_fdc_impl_rd_stat   (XcpcFdcImpl* fdc_impl, uint8_t* data);
+extern XcpcFdcImpl* xcpc_fdc_impl_wr_stat   (XcpcFdcImpl* fdc_impl, uint8_t* data);
+extern XcpcFdcImpl* xcpc_fdc_impl_rd_data   (XcpcFdcImpl* fdc_impl, uint8_t* data);
+extern XcpcFdcImpl* xcpc_fdc_impl_wr_data   (XcpcFdcImpl* fdc_impl, uint8_t* data);
+
+extern XcpcFddImpl* xcpc_fdd_impl_new       (void);
+extern XcpcFddImpl* xcpc_fdd_impl_delete    (XcpcFddImpl* fdd_impl);
+extern XcpcFddImpl* xcpc_fdd_impl_reset     (XcpcFddImpl* fdd_impl);
+extern XcpcFddImpl* xcpc_fdd_impl_insert    (XcpcFddImpl* fdd_impl, const char* filename);
+extern XcpcFddImpl* xcpc_fdd_impl_remove    (XcpcFddImpl* fdd_impl);
+
 #ifdef __cplusplus
 }
 #endif

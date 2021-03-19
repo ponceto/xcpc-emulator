@@ -22,7 +22,7 @@
 #include <string.h>
 #include "snapshot-reader-priv.h"
 
-void xcpc_snapshot_reader_trace(const char* function)
+static void xcpc_snapshot_reader_trace(const char* function)
 {
     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
           , "XcpcSnapshotReader::%s()"

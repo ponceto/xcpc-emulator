@@ -28,7 +28,7 @@ static const char snapshot_signature[8] = {
     'M', 'V', ' ', '-', ' ', 'S', 'N', 'A'
 };
 
-void xcpc_snapshot_trace(const char* function)
+static void xcpc_snapshot_trace(const char* function)
 {
     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
           , "XcpcSnapshot::%s()"

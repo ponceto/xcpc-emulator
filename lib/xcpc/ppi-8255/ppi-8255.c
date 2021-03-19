@@ -22,7 +22,7 @@
 #include <string.h>
 #include "ppi-8255-priv.h"
 
-void xcpc_ppi_8255_trace(const char* function)
+static void xcpc_ppi_8255_trace(const char* function)
 {
     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
           , "XcpcPpi8255::%s()"

@@ -239,7 +239,7 @@ static void OnSaveSnapshotCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 static void OnDriveAInsertOkCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
-  if(value != NULL) {
+  if((value != NULL) && (*value != '\0')) {
     amstrad_cpc_insert_drive0(&amstrad_cpc, value);
   }
   OnCloseCbk(widget, gui, cbs);
@@ -298,7 +298,7 @@ static void OnDriveAInsertCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
  */
 static void OnDriveAEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  amstrad_cpc_insert_drive0(&amstrad_cpc, NULL);
+  amstrad_cpc_remove_drive0(&amstrad_cpc);
 }
 
 /**
@@ -311,7 +311,7 @@ static void OnDriveAEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 static void OnDriveBInsertOkCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
-  if(value != NULL) {
+  if((value != NULL) && (*value != '\0')) {
     amstrad_cpc_insert_drive1(&amstrad_cpc, value);
   }
   OnCloseCbk(widget, gui, cbs);
@@ -370,7 +370,7 @@ static void OnDriveBInsertCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
  */
 static void OnDriveBEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  amstrad_cpc_insert_drive1(&amstrad_cpc, NULL);
+  amstrad_cpc_remove_drive1(&amstrad_cpc);
 }
 
 /**

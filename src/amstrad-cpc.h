@@ -23,6 +23,7 @@
 #include <xcpc/monitor/monitor.h>
 #include <xcpc/keyboard/keyboard.h>
 #include <xcpc/joystick/joystick.h>
+#include <xcpc/cpu-z80a/cpu-z80a.h>
 #include <xcpc/vga-core/vga-core.h>
 #include <xcpc/vdc-6845/vdc-6845.h>
 #include <xcpc/ppi-8255/ppi-8255.h>
@@ -65,6 +66,7 @@ struct _AMSTRAD_CPC_EMULATOR
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;
     XcpcJoystick* joystick;
+    XcpcCpuZ80a*  cpu_z80a;
     XcpcVgaCore*  vga_core;
     XcpcVdc6845*  vdc_6845;
     XcpcPpi8255*  ppi_8255;
@@ -127,10 +129,14 @@ extern int           amstrad_cpc_parse         (int* argc, char*** argv);
 extern void          amstrad_cpc_start         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
 extern void          amstrad_cpc_close         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
 extern void          amstrad_cpc_reset         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
+
 extern void          amstrad_cpc_load_snapshot (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
 extern void          amstrad_cpc_save_snapshot (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+
 extern void          amstrad_cpc_insert_drive0 (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+extern void          amstrad_cpc_remove_drive0 (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
 extern void          amstrad_cpc_insert_drive1 (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
+extern void          amstrad_cpc_remove_drive1 (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
 
 extern unsigned long amstrad_cpc_create_proc   (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
 extern unsigned long amstrad_cpc_destroy_proc  (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);

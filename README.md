@@ -4,7 +4,11 @@
 
 The xcpc emulator is fully autotoolized.
 
+### Dependencies
+
 Under Debian or derivatives (Ubuntu, Mint, ...), please install first these dependencies
+
+Mandatory dependencies :
 
 ```
 build-essential
@@ -17,11 +21,22 @@ libmotif-dev
 libglib2.0-dev
 ```
 
-Generate the `configure` script
+Optionnal dependencies :
+
+```
+zlib1g-dev
+libbz2-dev
+```
+
+### Generate configure
+
+Generate the `configure` script if it does not exists
 
 ```
 autoreconf -v -i -f
 ```
+
+### Configure the sources
 
 Run the `configure` script
 
@@ -29,11 +44,15 @@ Run the `configure` script
 ./configure --prefix={destination-path}
 ```
 
+### Build the emulator
+
 Build the emulator
 
 ```
 make -j4
 ```
+
+### Install the emulator
 
 Install the emulator
 
@@ -41,11 +60,15 @@ Install the emulator
 make install
 ```
 
+### Run the emulator
+
 Run the emulator
 
 ```
 {destination-path}/bin/xcpc
 ```
+
+### Desktop integration
 
 A XDG compliant `.desktop` file is provided, so you can copy or symlink this file in a relevant directory
 

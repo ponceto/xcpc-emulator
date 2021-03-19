@@ -22,7 +22,7 @@
 #include <string.h>
 #include "keyboard-priv.h"
 
-void xcpc_keyboard_trace(const char* function)
+static void xcpc_keyboard_trace(const char* function)
 {
     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
           , "XcpcKeyboard::%s()"

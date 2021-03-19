@@ -22,7 +22,7 @@
 #include <string.h>
 #include "vdc-6845-priv.h"
 
-void xcpc_vdc_6845_trace(const char* function)
+static void xcpc_vdc_6845_trace(const char* function)
 {
     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
           , "XcpcVdc6845::%s()"

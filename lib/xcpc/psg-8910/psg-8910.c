@@ -22,7 +22,7 @@
 #include <string.h>
 #include "psg-8910-priv.h"
 
-void xcpc_psg_8910_trace(const char* function)
+static void xcpc_psg_8910_trace(const char* function)
 {
     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
           , "XcpcPsg8910::%s()"

@@ -22,11 +22,7 @@
 #include <string.h>
 #include "ram-bank-priv.h"
 
-#ifndef CHECK_INSTANCE
-#define CHECK_INSTANCE(pointer) (pointer != NULL ? XCPC_RAM_BANK_STATUS_SUCCESS : XCPC_RAM_BANK_STATUS_FAILURE)
-#endif
-
-void xcpc_ram_bank_trace(const char* function)
+static void xcpc_ram_bank_trace(const char* function)
 {
     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
           , "XcpcRamBank::%s()"
@@ -97,7 +93,7 @@ XcpcRamBank* xcpc_ram_bank_reset(XcpcRamBank* self)
 
 XcpcRamBankStatus xcpc_ram_bank_load(XcpcRamBank* self, const char* filename, size_t offset)
 {
-    XcpcRamBankStatus status = CHECK_INSTANCE(self);
+    XcpcRamBankStatus status = XCPC_RAM_BANK_STATUS_SUCCESS;
     FILE*             file   = NULL;
 
     xcpc_ram_bank_trace("load");
@@ -143,7 +139,7 @@ XcpcRamBankStatus xcpc_ram_bank_load(XcpcRamBank* self, const char* filename, si
 
 XcpcRamBankStatus xcpc_ram_bank_copy(XcpcRamBank* self, const uint8_t* data, size_t size)
 {
-    XcpcRamBankStatus status = CHECK_INSTANCE(self);
+    XcpcRamBankStatus status = XCPC_RAM_BANK_STATUS_SUCCESS;
 
     xcpc_ram_bank_trace("copy");
     /* check data and size */ {

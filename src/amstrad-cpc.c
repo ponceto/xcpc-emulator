@@ -1433,6 +1433,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
   /* create joystick */ {
     self->joystick = xcpc_joystick_new();
   }
+  /* create cpu_z80a */ {
+    self->cpu_z80a = xcpc_cpu_z80a_new();
+  }
   /* create vga_core */ {
     self->vga_core = xcpc_vga_core_new();
   }
@@ -1611,6 +1614,9 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR *self)
   /* destroy vga_core */ {
     self->vga_core = xcpc_vga_core_delete(self->vga_core);
   }
+  /* destroy cpu_z80a */ {
+    self->cpu_z80a = xcpc_cpu_z80a_delete(self->cpu_z80a);
+  }
   /* destroy joystick */ {
     self->joystick = xcpc_joystick_delete(self->joystick);
   }
@@ -1647,6 +1653,9 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR *self)
   }
   /* reset joystick */ {
     (void) xcpc_joystick_reset(self->joystick);
+  }
+  /* reset cpu_z80a */ {
+    (void) xcpc_cpu_z80a_reset(self->cpu_z80a);
   }
   /* reset vga_core */ {
     (void) xcpc_vga_core_reset(self->vga_core);
@@ -2111,12 +2120,22 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 
 void amstrad_cpc_insert_drive0(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 {
-  xcpc_fdc_765a_insert(self->fdc_765a, filename, 0);
+  xcpc_fdc_765a_insert(self->fdc_765a, 0, filename);
+}
+
+void amstrad_cpc_remove_drive0(AMSTRAD_CPC_EMULATOR* self)
+{
+  xcpc_fdc_765a_remove(self->fdc_765a, 0);
 }
 
 void amstrad_cpc_insert_drive1(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 {
-  xcpc_fdc_765a_insert(self->fdc_765a, filename, 1);
+  xcpc_fdc_765a_insert(self->fdc_765a, 1, filename);
+}
+
+void amstrad_cpc_remove_drive1(AMSTRAD_CPC_EMULATOR* self)
+{
+  xcpc_fdc_765a_remove(self->fdc_765a, 1);
 }
 
 unsigned long amstrad_cpc_create_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)

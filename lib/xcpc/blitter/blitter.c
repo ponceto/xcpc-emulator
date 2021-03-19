@@ -30,6 +30,13 @@
 
 #define BadPixel ((unsigned long)(~0L))
 
+static void xcpc_blitter_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcBlitter::%s()"
+          , function );
+}
+
 static XcpcBlitter* xcpc_blitter_init(XcpcBlitter* self, Display* display, Window window, Bool try_xshm)
 {
     if((display == NULL) || (window  == None)) {
@@ -235,13 +242,6 @@ static XcpcBlitter* xcpc_blitter_fini_palette(XcpcBlitter* self)
         }
     }
     return self;
-}
-
-void xcpc_blitter_trace(const char* function)
-{
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "XcpcBlitter::%s()"
-          , function );
 }
 
 XcpcBlitter* xcpc_blitter_alloc(void)

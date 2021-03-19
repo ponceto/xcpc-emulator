@@ -22,11 +22,7 @@
 #include <string.h>
 #include "rom-bank-priv.h"
 
-#ifndef CHECK_INSTANCE
-#define CHECK_INSTANCE(pointer) (pointer != NULL ? XCPC_ROM_BANK_STATUS_SUCCESS : XCPC_ROM_BANK_STATUS_FAILURE)
-#endif
-
-void xcpc_rom_bank_trace(const char* function)
+static void xcpc_rom_bank_trace(const char* function)
 {
     g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
           , "XcpcRomBank::%s()"
@@ -97,7 +93,7 @@ XcpcRomBank* xcpc_rom_bank_reset(XcpcRomBank* self)
 
 XcpcRomBankStatus xcpc_rom_bank_load(XcpcRomBank* self, const char* filename, size_t offset)
 {
-    XcpcRomBankStatus status = CHECK_INSTANCE(self);
+    XcpcRomBankStatus status = XCPC_ROM_BANK_STATUS_SUCCESS;
     FILE*             file   = NULL;
 
     xcpc_rom_bank_trace("load");
@@ -143,7 +139,7 @@ XcpcRomBankStatus xcpc_rom_bank_load(XcpcRomBank* self, const char* filename, si
 
 XcpcRomBankStatus xcpc_rom_bank_copy(XcpcRomBank* self, const uint8_t* data, size_t size)
 {
-    XcpcRomBankStatus status = CHECK_INSTANCE(self);
+    XcpcRomBankStatus status = XCPC_ROM_BANK_STATUS_SUCCESS;
 
     xcpc_rom_bank_trace("copy");
     /* check data and size */ {

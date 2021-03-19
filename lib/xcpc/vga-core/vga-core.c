@@ -22,6 +22,13 @@
 #include <string.h>
 #include "vga-core-priv.h"
 
+static void xcpc_vga_core_trace(const char* function)
+{
+    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
+          , "XcpcVgaCore::%s()"
+          , function );
+}
+
 static void xcpc_vga_core_init_mode0_lut(XcpcVgaCore* self)
 {
     unsigned int index = 0;
@@ -88,13 +95,6 @@ static void xcpc_vga_core_init_ctr(XcpcVgaCore* self)
 {
     self->state.counter = 0x00;
     self->state.delayed = 0x00;
-}
-
-void xcpc_vga_core_trace(const char* function)
-{
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "XcpcVgaCore::%s()"
-          , function );
 }
 
 XcpcVgaCore* xcpc_vga_core_alloc(void)

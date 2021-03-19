@@ -60,6 +60,10 @@ libxcpc_la_SOURCES = \
 	joystick/joystick.h \
 	joystick/joystick-impl.h \
 	joystick/joystick-priv.h \
+	cpu-z80a/cpu-z80a.c \
+	cpu-z80a/cpu-z80a.h \
+	cpu-z80a/cpu-z80a-impl.h \
+	cpu-z80a/cpu-z80a-priv.h \
 	vga-core/vga-core.c \
 	vga-core/vga-core.h \
 	vga-core/vga-core-impl.h \

@@ -252,15 +252,14 @@ static XcpcApplication InsertDiskIntoDrive0(XcpcApplication self, const char* fi
     if((filename != NULL) && (*filename != '\0')) {
         amstrad_cpc_insert_drive0(&amstrad_cpc, filename);
     }
-    else {
-        amstrad_cpc_insert_drive0(&amstrad_cpc, NULL);
-    }
     return self;
 }
 
 static XcpcApplication RemoveDiskFromDrive0(XcpcApplication self)
 {
-    return InsertDiskIntoDrive0(self, NULL);
+    amstrad_cpc_remove_drive0(&amstrad_cpc);
+
+    return self;
 }
 
 /*
@@ -274,15 +273,14 @@ static XcpcApplication InsertDiskIntoDrive1(XcpcApplication self, const char* fi
     if((filename != NULL) && (*filename != '\0')) {
         amstrad_cpc_insert_drive1(&amstrad_cpc, filename);
     }
-    else {
-        amstrad_cpc_insert_drive1(&amstrad_cpc, NULL);
-    }
     return self;
 }
 
 static XcpcApplication RemoveDiskFromDrive1(XcpcApplication self)
 {
-    return InsertDiskIntoDrive1(self, NULL);
+    amstrad_cpc_remove_drive1(&amstrad_cpc);
+
+    return self;
 }
 
 /*
