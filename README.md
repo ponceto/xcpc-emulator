@@ -28,9 +28,9 @@ zlib1g-dev
 libbz2-dev
 ```
 
-### Generate configure
+### Generate the configure script
 
-Generate the `configure` script if it does not exists
+Generate the `configure` script if it does not exists (i.e in case you just have cloned the repository)
 
 ```
 autoreconf -v -i -f
