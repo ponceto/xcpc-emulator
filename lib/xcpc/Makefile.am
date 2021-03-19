@@ -65,6 +65,11 @@ libxcpc_la_SOURCES = \
 	cpu-z80a/cpu-z80a-defs.h \
 	cpu-z80a/cpu-z80a-impl.h \
 	cpu-z80a/cpu-z80a-priv.h \
+	cpu-z80a/cpu-z80a-opcodes.inc \
+	cpu-z80a/cpu-z80a-opcodes-dd.inc \
+	cpu-z80a/cpu-z80a-opcodes-ed.inc \
+	cpu-z80a/cpu-z80a-opcodes-fd.inc \
+	cpu-z80a/cpu-z80a-opcodes-xx.inc \
 	vga-core/vga-core.c \
 	vga-core/vga-core.h \
 	vga-core/vga-core-impl.h \

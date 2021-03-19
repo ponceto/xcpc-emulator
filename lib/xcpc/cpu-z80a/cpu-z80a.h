@@ -32,6 +32,8 @@ extern XcpcCpuZ80a* xcpc_cpu_z80a_new       (void);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_delete    (XcpcCpuZ80a* cpu_z80a);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_reset     (XcpcCpuZ80a* cpu_z80a);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_clock     (XcpcCpuZ80a* cpu_z80a);
+extern XcpcCpuZ80a* xcpc_cpu_z80a_pulse_int (XcpcCpuZ80a* cpu_z80a);
+extern XcpcCpuZ80a* xcpc_cpu_z80a_pulse_nmi (XcpcCpuZ80a* cpu_z80a);
 
 #ifdef __cplusplus
 }

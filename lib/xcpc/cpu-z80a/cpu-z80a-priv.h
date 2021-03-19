@@ -23,7 +23,96 @@
 extern "C" {
 #endif
 
-#if 0
+#define _SF   0x80 /* Sign                   */
+#define _ZF   0x40 /* Zero                   */
+#define _5F   0x20 /* Undocumented           */
+#define _HF   0x10 /* HalfCarry / HalfBorrow */
+#define _3F   0x08 /* Undocumented           */
+#define _PF   0x04 /* Parity                 */
+#define _OF   0x04 /* Overflow               */
+#define _NF   0x02 /* Add / Sub              */
+#define _CF   0x01 /* Carry / Borrow         */
+
+#define _HLT  0x80 /* CPU is HALTed          */
+#define _NMI  0x40 /* Pending NMI            */
+#define _INT  0x20 /* Pending INT            */
+#define _XYZ  0x10 /* Not Used               */
+#define _IM2  0x08 /* Interrupt Mode #2      */
+#define _IM1  0x04 /* Interrupt Mode #1      */
+#define _IFF2 0x02 /* Interrupt Flip-Flop #2 */
+#define _IFF1 0x01 /* Interrupt Flip-Flop #1 */
+
+#define THIS self
+#define AF_Q self->state.regs.AF.q
+#define AF_W self->state.regs.AF.w.l
+#define AF_H self->state.regs.AF.b.h
+#define AF_L self->state.regs.AF.b.l
+#define AF_P self->state.regs.AF.w.h
+#define BC_Q self->state.regs.BC.q
+#define BC_W self->state.regs.BC.w.l
+#define BC_H self->state.regs.BC.b.h
+#define BC_L self->state.regs.BC.b.l
+#define BC_P self->state.regs.BC.w.h
+#define DE_Q self->state.regs.DE.q
+#define DE_W self->state.regs.DE.w.l
+#define DE_H self->state.regs.DE.b.h
+#define DE_L self->state.regs.DE.b.l
+#define DE_P self->state.regs.DE.w.h
+#define HL_Q self->state.regs.HL.q
+#define HL_W self->state.regs.HL.w.l
+#define HL_H self->state.regs.HL.b.h
+#define HL_L self->state.regs.HL.b.l
+#define HL_P self->state.regs.HL.w.h
+#define IX_Q self->state.regs.IX.q
+#define IX_W self->state.regs.IX.w.l
+#define IX_H self->state.regs.IX.b.h
+#define IX_L self->state.regs.IX.b.l
+#define IY_Q self->state.regs.IY.q
+#define IY_W self->state.regs.IY.w.l
+#define IY_H self->state.regs.IY.b.h
+#define IY_L self->state.regs.IY.b.l
+#define SP_Q self->state.regs.SP.q
+#define SP_W self->state.regs.SP.w.l
+#define SP_H self->state.regs.SP.b.h
+#define SP_L self->state.regs.SP.b.l
+#define PC_Q self->state.regs.PC.q
+#define PC_W self->state.regs.PC.w.l
+#define PC_H self->state.regs.PC.b.h
+#define PC_L self->state.regs.PC.b.l
+#define IR_Q self->state.regs.IR.q
+#define IR_W self->state.regs.IR.w.l
+#define IR_H self->state.regs.IR.b.h
+#define IR_L self->state.regs.IR.b.l
+#define IF_Q self->state.regs.IF.q
+#define IF_W self->state.regs.IF.w.l
+#define IF_H self->state.regs.IF.b.h
+#define IF_L self->state.regs.IF.b.l
+#define WZ_Q WZ.q
+#define WZ_W WZ.w.l
+#define WZ_H WZ.b.h
+#define WZ_L WZ.b.l
+#define M_CYCLES self->state.ctrs.m_cycles
+#define T_STATES self->state.ctrs.t_states
+#define CCOUNTER self->state.ctrs.ccounter
+#define MREQ_RD(addr,data) data=(*self->iface.mreq_rd)(self,addr)
+#define MREQ_WR(addr,data) (*self->iface.mreq_wr)(self,addr,data)
+#define IORQ_RD(port,data) data=(*iface.self->iorq_rd)(self,port)
+#define IORQ_WR(port,data) (*self->iface.iorq_wr)(self,port,data)
+
+#define WrZ80(addr,value)  ((*THIS->iface.mreq_wr)((THIS),(addr),(value)))
+#define RdZ80(addr)        ((*THIS->iface.mreq_rd)((THIS),(addr)))
+#define OutZ80(addr,value) ((*THIS->iface.iorq_wr)((THIS),(addr),(value)))
+#define InZ80(addr)        ((*THIS->iface.iorq_rd)((THIS),(addr)))
+
+#define _ADD 0x00 /* ADD operation */
+#define _ADC 0x00 /* ADC operation */
+#define _SUB 0x02 /* SUB operation */
+#define _SBC 0x02 /* SBC operation */
+#define _AND 0x10 /* AND operation */
+#define _XOR 0x00 /* XOR operation */
+#define _IOR 0x00 /* IOR operation */
+#define _CMP 0x02 /* CMP operation */
+
 enum Codes
 {
     NOP,LD_BC_WORD,LD_xBC_A,INC_BC,INC_B,DEC_B,LD_B_BYTE,RLCA,
@@ -96,143 +185,80 @@ enum CodesED
     DB_F8,DB_F9,DB_FA,DB_FB,DB_FC,DB_FD,DB_FE,DB_FF
 };
 
-#define THIS z80cpu
-#define AF_Q THIS->reg.AF.q
-#define AF_W THIS->reg.AF.w.l
-#define AF_H THIS->reg.AF.b.h
-#define AF_L THIS->reg.AF.b.l
-#define AF_P THIS->reg.AF.w.h
-#define BC_Q THIS->reg.BC.q
-#define BC_W THIS->reg.BC.w.l
-#define BC_H THIS->reg.BC.b.h
-#define BC_L THIS->reg.BC.b.l
-#define BC_P THIS->reg.BC.w.h
-#define DE_Q THIS->reg.DE.q
-#define DE_W THIS->reg.DE.w.l
-#define DE_H THIS->reg.DE.b.h
-#define DE_L THIS->reg.DE.b.l
-#define DE_P THIS->reg.DE.w.h
-#define HL_Q THIS->reg.HL.q
-#define HL_W THIS->reg.HL.w.l
-#define HL_H THIS->reg.HL.b.h
-#define HL_L THIS->reg.HL.b.l
-#define HL_P THIS->reg.HL.w.h
-#define IX_Q THIS->reg.IX.q
-#define IX_W THIS->reg.IX.w.l
-#define IX_H THIS->reg.IX.b.h
-#define IX_L THIS->reg.IX.b.l
-#define IY_Q THIS->reg.IY.q
-#define IY_W THIS->reg.IY.w.l
-#define IY_H THIS->reg.IY.b.h
-#define IY_L THIS->reg.IY.b.l
-#define SP_Q THIS->reg.SP.q
-#define SP_W THIS->reg.SP.w.l
-#define SP_H THIS->reg.SP.b.h
-#define SP_L THIS->reg.SP.b.l
-#define PC_Q THIS->reg.PC.q
-#define PC_W THIS->reg.PC.w.l
-#define PC_H THIS->reg.PC.b.h
-#define PC_L THIS->reg.PC.b.l
-#define IR_Q THIS->reg.IR.q
-#define IR_W THIS->reg.IR.w.l
-#define IR_H THIS->reg.IR.b.h
-#define IR_L THIS->reg.IR.b.l
-#define IF_Q THIS->reg.IF.q
-#define IF_W THIS->reg.IF.w.l
-#define IF_H THIS->reg.IF.b.h
-#define IF_L THIS->reg.IF.b.l
-#define M_CYCLES THIS->m_cycles
-#define T_STATES THIS->t_states
-#define CCOUNTER THIS->ccounter
-#define MREQ_RD(addr,data) data=(*THIS->mreq_rd)(THIS,addr)
-#define MREQ_WR(addr,data) (*THIS->mreq_wr)(THIS,addr,data)
-#define IORQ_RD(port,data) data=(*THIS->iorq_rd)(THIS,port)
-#define IORQ_WR(port,data) (*THIS->iorq_wr)(THIS,port,data)
-#define WZ_Q WZ.q
-#define WZ_W WZ.w.l
-#define WZ_H WZ.b.h
-#define WZ_L WZ.b.l
-
-#define WrZ80(addr,value)  ((*THIS->mreq_wr)((THIS),(addr),(value)))
-#define RdZ80(addr)        ((*THIS->mreq_rd)((THIS),(addr)))
-#define OutZ80(addr,value) ((*THIS->iorq_wr)((THIS),(addr),(value)))
-#define InZ80(addr)        ((*THIS->iorq_rd)((THIS),(addr)))
-
-#define S(Fl)        THIS->reg.AF.b.l|=Fl
-#define R(Fl)        THIS->reg.AF.b.l&=~(Fl)
-#define FLAGS(Rg,Fl) THIS->reg.AF.b.l=Fl|ZSTable[Rg]
+#define S(Fl)        THIS->state.regs.AF.b.l|=Fl
+#define R(Fl)        THIS->state.regs.AF.b.l&=~(Fl)
+#define FLAGS(Rg,Fl) THIS->state.regs.AF.b.l=Fl|ZSTable[Rg]
 
 #define M_POP(Rg)      \
-  THIS->reg.Rg.b.l=RdZ80(THIS->reg.SP.w.l++);THIS->reg.Rg.b.h=RdZ80(THIS->reg.SP.w.l++)
+  THIS->state.regs.Rg.b.l=RdZ80(THIS->state.regs.SP.w.l++);THIS->state.regs.Rg.b.h=RdZ80(THIS->state.regs.SP.w.l++)
 #define M_PUSH(Rg)     \
-  WrZ80(--THIS->reg.SP.w.l,THIS->reg.Rg.b.h);WrZ80(--THIS->reg.SP.w.l,THIS->reg.Rg.b.l)
+  WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.Rg.b.h);WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.Rg.b.l)
 
 #define M_CALL         \
-  WZ.b.l=RdZ80(THIS->reg.PC.w.l++);WZ.b.h=RdZ80(THIS->reg.PC.w.l++);         \
-  WrZ80(--THIS->reg.SP.w.l,THIS->reg.PC.b.h);WrZ80(--THIS->reg.SP.w.l,THIS->reg.PC.b.l); \
-  THIS->reg.PC.w.l=WZ.w.l
+  WZ.b.l=RdZ80(THIS->state.regs.PC.w.l++);WZ.b.h=RdZ80(THIS->state.regs.PC.w.l++);         \
+  WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.PC.b.h);WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.PC.b.l); \
+  THIS->state.regs.PC.w.l=WZ.w.l
 
-#define M_JP  WZ.b.l=RdZ80(THIS->reg.PC.w.l++);WZ.b.h=RdZ80(THIS->reg.PC.w.l);THIS->reg.PC.w.l=WZ.w.l
-#define M_JR  THIS->reg.PC.w.l+=(gint8)RdZ80(THIS->reg.PC.w.l)+1
-#define M_RET THIS->reg.PC.b.l=RdZ80(THIS->reg.SP.w.l++);THIS->reg.PC.b.h=RdZ80(THIS->reg.SP.w.l++)
+#define M_JP  WZ.b.l=RdZ80(THIS->state.regs.PC.w.l++);WZ.b.h=RdZ80(THIS->state.regs.PC.w.l);THIS->state.regs.PC.w.l=WZ.w.l
+#define M_JR  THIS->state.regs.PC.w.l+=(gint8)RdZ80(THIS->state.regs.PC.w.l)+1
+#define M_RET THIS->state.regs.PC.b.l=RdZ80(THIS->state.regs.SP.w.l++);THIS->state.regs.PC.b.h=RdZ80(THIS->state.regs.SP.w.l++)
 
 #define M_RST(Ad)      \
-  WrZ80(--THIS->reg.SP.w.l,THIS->reg.PC.b.h);WrZ80(--THIS->reg.SP.w.l,THIS->reg.PC.b.l);THIS->reg.PC.w.l=Ad
+  WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.PC.b.h);WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.PC.b.l);THIS->state.regs.PC.w.l=Ad
 
 #define M_LDWORD(Rg)   \
-  THIS->reg.Rg.b.l=RdZ80(THIS->reg.PC.w.l++);THIS->reg.Rg.b.h=RdZ80(THIS->reg.PC.w.l++)
+  THIS->state.regs.Rg.b.l=RdZ80(THIS->state.regs.PC.w.l++);THIS->state.regs.Rg.b.h=RdZ80(THIS->state.regs.PC.w.l++)
 
 #define M_SUB(Rg)      \
-  WZ.w.l=THIS->reg.AF.b.h-Rg;    \
-  THIS->reg.AF.b.l=           \
-    ((THIS->reg.AF.b.h^Rg)&(THIS->reg.AF.b.h^WZ.b.l)&0x80? _OF:0)| \
+  WZ.w.l=THIS->state.regs.AF.b.h-Rg;    \
+  THIS->state.regs.AF.b.l=           \
+    ((THIS->state.regs.AF.b.h^Rg)&(THIS->state.regs.AF.b.h^WZ.b.l)&0x80? _OF:0)| \
     _NF|-WZ.b.h|ZSTable[WZ.b.l]|                      \
-    ((THIS->reg.AF.b.h^Rg^WZ.b.l)&_HF);                     \
-  THIS->reg.AF.b.h=WZ.b.l
+    ((THIS->state.regs.AF.b.h^Rg^WZ.b.l)&_HF);                     \
+  THIS->state.regs.AF.b.h=WZ.b.l
 
 #define M_IN(Rg)        \
-  Rg=InZ80(THIS->reg.BC.w.l);  \
-  THIS->reg.AF.b.l=PZSTable[Rg]|(THIS->reg.AF.b.l&_CF)
+  Rg=InZ80(THIS->state.regs.BC.w.l);  \
+  THIS->state.regs.AF.b.l=PZSTable[Rg]|(THIS->state.regs.AF.b.l&_CF)
 
 #define M_INC(Rg)       \
   Rg++;                 \
-  THIS->reg.AF.b.l=            \
-    (THIS->reg.AF.b.l&_CF)|ZSTable[Rg]|           \
+  THIS->state.regs.AF.b.l=            \
+    (THIS->state.regs.AF.b.l&_CF)|ZSTable[Rg]|           \
     (Rg==0x80? _OF:0)|(Rg&0x0F? 0:_HF)
 
 #define M_DEC(Rg)       \
   Rg--;                 \
-  THIS->reg.AF.b.l=            \
-    _NF|(THIS->reg.AF.b.l&_CF)|ZSTable[Rg]| \
+  THIS->state.regs.AF.b.l=            \
+    _NF|(THIS->state.regs.AF.b.l&_CF)|ZSTable[Rg]| \
     (Rg==0x7F? _OF:0)|((Rg&0x0F)==0x0F? _HF:0)
 
 #define M_ADDW(Rg1,Rg2) \
-  WZ.w.l=(THIS->reg.Rg1.w.l+THIS->reg.Rg2.w.l)&0xFFFF;                        \
-  THIS->reg.AF.b.l=                                             \
-    (THIS->reg.AF.b.l&~(_HF|_NF|_CF))|                 \
-    ((THIS->reg.Rg1.w.l^THIS->reg.Rg2.w.l^WZ.w.l)&0x1000? _HF:0)|          \
-    (((long)THIS->reg.Rg1.w.l+(long)THIS->reg.Rg2.w.l)&0x10000? _CF:0); \
-  THIS->reg.Rg1.w.l=WZ.w.l
+  WZ.w.l=(THIS->state.regs.Rg1.w.l+THIS->state.regs.Rg2.w.l)&0xFFFF;                        \
+  THIS->state.regs.AF.b.l=                                             \
+    (THIS->state.regs.AF.b.l&~(_HF|_NF|_CF))|                 \
+    ((THIS->state.regs.Rg1.w.l^THIS->state.regs.Rg2.w.l^WZ.w.l)&0x1000? _HF:0)|          \
+    (((long)THIS->state.regs.Rg1.w.l+(long)THIS->state.regs.Rg2.w.l)&0x10000? _CF:0); \
+  THIS->state.regs.Rg1.w.l=WZ.w.l
 
 #define M_ADCW(Rg)      \
-  TMP1=THIS->reg.AF.b.l&_CF;WZ.w.l=(THIS->reg.HL.w.l+THIS->reg.Rg.w.l+TMP1)&0xFFFF;           \
-  THIS->reg.AF.b.l=                                                   \
-    (((long)THIS->reg.HL.w.l+(long)THIS->reg.Rg.w.l+(long)TMP1)&0x10000? _CF:0)| \
-    (~(THIS->reg.HL.w.l^THIS->reg.Rg.w.l)&(THIS->reg.Rg.w.l^WZ.w.l)&0x8000? _OF:0)|       \
-    ((THIS->reg.HL.w.l^THIS->reg.Rg.w.l^WZ.w.l)&0x1000? _HF:0)|                  \
+  TMP1=THIS->state.regs.AF.b.l&_CF;WZ.w.l=(THIS->state.regs.HL.w.l+THIS->state.regs.Rg.w.l+TMP1)&0xFFFF;           \
+  THIS->state.regs.AF.b.l=                                                   \
+    (((long)THIS->state.regs.HL.w.l+(long)THIS->state.regs.Rg.w.l+(long)TMP1)&0x10000? _CF:0)| \
+    (~(THIS->state.regs.HL.w.l^THIS->state.regs.Rg.w.l)&(THIS->state.regs.Rg.w.l^WZ.w.l)&0x8000? _OF:0)|       \
+    ((THIS->state.regs.HL.w.l^THIS->state.regs.Rg.w.l^WZ.w.l)&0x1000? _HF:0)|                  \
     (WZ.w.l? 0:_ZF)|(WZ.b.h&_SF);                            \
-  THIS->reg.HL.w.l=WZ.w.l
+  THIS->state.regs.HL.w.l=WZ.w.l
 
 #define M_SBCW(Rg)      \
-  TMP1=THIS->reg.AF.b.l&_CF;WZ.w.l=(THIS->reg.HL.w.l-THIS->reg.Rg.w.l-TMP1)&0xFFFF;           \
-  THIS->reg.AF.b.l=                                                   \
+  TMP1=THIS->state.regs.AF.b.l&_CF;WZ.w.l=(THIS->state.regs.HL.w.l-THIS->state.regs.Rg.w.l-TMP1)&0xFFFF;           \
+  THIS->state.regs.AF.b.l=                                                   \
     _NF|                                                    \
-    (((long)THIS->reg.HL.w.l-(long)THIS->reg.Rg.w.l-(long)TMP1)&0x10000? _CF:0)| \
-    ((THIS->reg.HL.w.l^THIS->reg.Rg.w.l)&(THIS->reg.HL.w.l^WZ.w.l)&0x8000? _OF:0)|        \
-    ((THIS->reg.HL.w.l^THIS->reg.Rg.w.l^WZ.w.l)&0x1000? _HF:0)|                  \
+    (((long)THIS->state.regs.HL.w.l-(long)THIS->state.regs.Rg.w.l-(long)TMP1)&0x10000? _CF:0)| \
+    ((THIS->state.regs.HL.w.l^THIS->state.regs.Rg.w.l)&(THIS->state.regs.HL.w.l^WZ.w.l)&0x8000? _OF:0)|        \
+    ((THIS->state.regs.HL.w.l^THIS->state.regs.Rg.w.l^WZ.w.l)&0x1000? _HF:0)|                  \
     (WZ.w.l? 0:_ZF)|(WZ.b.h&_SF);                            \
-  THIS->reg.HL.w.l=WZ.w.l
-#endif
+  THIS->state.regs.HL.w.l=WZ.w.l
 
 #ifdef __cplusplus
 }
