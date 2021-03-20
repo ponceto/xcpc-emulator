@@ -34,43 +34,32 @@ extern "C" {
 
 union XcpcCpuZ80aRegister
 {
-    u_int32_t q;
+    uint32_t q;
 #if defined(MSB_FIRST) && !defined(LSB_FIRST)
     struct {
-        u_int16_t h;
-        u_int16_t l;
+        uint16_t h;
+        uint16_t l;
     } w;
     struct {
-        u_int8_t  x;
-        u_int8_t  y;
-        u_int8_t  h;
-        u_int8_t  l;
+        uint8_t  x;
+        uint8_t  y;
+        uint8_t  h;
+        uint8_t  l;
     } b;
 #endif
 #if !defined(MSB_FIRST) && defined(LSB_FIRST)
     struct {
-        u_int16_t l;
-        u_int16_t h;
+        uint16_t l;
+        uint16_t h;
     } w;
     struct {
-        u_int8_t  l;
-        u_int8_t  h;
-        u_int8_t  y;
-        u_int8_t  x;
+        uint8_t  l;
+        uint8_t  h;
+        uint8_t  y;
+        uint8_t  x;
     } b;
 #endif
 };
-
-#if 0
-typedef int8_t   s_int08_t;
-typedef uint8_t  u_int08_t;
-typedef int16_t  s_int16_t;
-typedef uint16_t u_int16_t;
-typedef int32_t  s_int32_t;
-typedef uint32_t u_int32_t;
-typedef int64_t  s_int64_t;
-typedef uint64_t u_int64_t;
-#endif
 
 #ifdef __cplusplus
 }

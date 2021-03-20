@@ -57,7 +57,7 @@ struct _XcpcCpuZ80aState
     {
         int32_t m_cycles;
         int32_t t_states;
-        int32_t ccounter;
+        int32_t t_period;
     } ctrs;
 };
 

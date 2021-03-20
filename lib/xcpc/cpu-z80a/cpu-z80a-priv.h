@@ -23,6 +23,10 @@
 extern "C" {
 #endif
 
+#ifndef AVOID_UNUSED_WARNING
+#define AVOID_UNUSED_WARNING(symbol) (void)(symbol)
+#endif
+
 #define _SF   0x80 /* Sign                   */
 #define _ZF   0x40 /* Zero                   */
 #define _5F   0x20 /* Undocumented           */
@@ -32,6 +36,18 @@ extern "C" {
 #define _OF   0x04 /* Overflow               */
 #define _NF   0x02 /* Add / Sub              */
 #define _CF   0x01 /* Carry / Borrow         */
+
+#define SIGNED_BYTE(value) ((int8_t)(value))
+
+#define vector_00h 0x0000
+#define vector_08h 0x0008
+#define vector_10h 0x0010
+#define vector_18h 0x0018
+#define vector_20h 0x0020
+#define vector_28h 0x0028
+#define vector_30h 0x0030
+#define vector_38h 0x0038
+#define vector_66h 0x0066
 
 #define THIS self
 #define AF_Q self->state.regs.AF.q
@@ -82,9 +98,11 @@ extern "C" {
 #define WZ_W WZ.w.l
 #define WZ_H WZ.b.h
 #define WZ_L WZ.b.l
+#define TMP1 T1.b.l
+#define TMP2 T2.b.l
 #define M_CYCLES self->state.ctrs.m_cycles
 #define T_STATES self->state.ctrs.t_states
-#define CCOUNTER self->state.ctrs.ccounter
+#define T_PERIOD self->state.ctrs.t_period
 #define MREQ_RD(addr,data) data=(*self->iface.mreq_rd)(self,addr)
 #define MREQ_WR(addr,data) (*self->iface.mreq_wr)(self,addr,data)
 #define IORQ_RD(port,data) data=(*iface.self->iorq_rd)(self,port)
@@ -103,6 +121,125 @@ extern "C" {
 #define _XOR 0x00 /* XOR operation */
 #define _IOR 0x00 /* IOR operation */
 #define _CMP 0x02 /* CMP operation */
+
+#define m_fetch_opcode() \
+    do { \
+        last_op = (*self->iface.mreq_m1)(self, self->state.regs.PC.w.l++); \
+    } while(0)
+
+#define m_fetch_cb_opcode() \
+    do { \
+        last_op = (*self->iface.mreq_m1)(self, self->state.regs.PC.w.l++); \
+    } while(0)
+
+#define m_fetch_dd_opcode() \
+    do { \
+        last_op = (*self->iface.mreq_m1)(self, self->state.regs.PC.w.l++); \
+    } while(0)
+
+#define m_fetch_ed_opcode() \
+    do { \
+        last_op = (*self->iface.mreq_m1)(self, self->state.regs.PC.w.l++); \
+    } while(0)
+
+#define m_fetch_fd_opcode() \
+    do { \
+        last_op = (*self->iface.mreq_m1)(self, self->state.regs.PC.w.l++); \
+    } while(0)
+
+#define m_fetch_ddcb_opcode() \
+    do { \
+        last_op = (*self->iface.mreq_m1)(self, self->state.regs.PC.w.l++); \
+    } while(0)
+
+#define m_fetch_fdcb_opcode() \
+    do { \
+        last_op = (*self->iface.mreq_m1)(self, self->state.regs.PC.w.l++); \
+    } while(0)
+
+#define m_fetch_ddcb_offset() \
+    do { \
+        WZ_W = self->state.regs.IX.w.l + SIGNED_BYTE((*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)); \
+    } while(0)
+
+#define m_fetch_fdcb_offset() \
+    do { \
+        WZ_W = self->state.regs.IY.w.l + SIGNED_BYTE((*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)); \
+    } while(0)
+
+#define m_illegal() \
+    do { \
+    } while(0)
+
+#define m_illegal_cb() \
+    do { \
+    } while(0)
+
+#define m_illegal_dd() \
+    do { \
+    } while(0)
+
+#define m_illegal_ed() \
+    do { \
+    } while(0)
+
+#define m_illegal_fd() \
+    do { \
+    } while(0)
+
+#define m_illegal_ddcb() \
+    do { \
+    } while(0)
+
+#define m_illegal_fdcb() \
+    do { \
+    } while(0)
+
+#define m_refresh_dram() \
+    do { \
+        self->state.regs.IR.b.l = ((self->state.regs.IR.b.l + 0) & 0x80) \
+                                | ((self->state.regs.IR.b.l + 1) & 0x7f) \
+                                ; \
+    } while(0)
+
+#define m_consume(cycles, states) \
+    do { \
+        self->state.ctrs.m_cycles += cycles; \
+        self->state.ctrs.t_states += states; \
+        self->state.ctrs.t_period -= states; \
+    } while(0)
+
+#define m_pending_nmi() \
+    ((self->state.regs.IF.w.l & _NMI) != 0)
+
+#define m_pending_int() \
+    ((self->state.regs.IF.w.l & _INT) != 0)
+
+#define m_halted() \
+    ((self->state.regs.IF.w.l & _HLT) != 0)
+
+#define m_acknowledge_nmi() \
+    do { \
+        self->state.regs.IF.w.l &= ~(_HLT | _NMI | _INT | _IFF2); \
+    } while(0)
+
+#define m_acknowledge_int() \
+    do { \
+        self->state.regs.IF.w.l &= ~(_HLT | _NMI | _INT | _IFF2 | _IFF1); \
+        (void) (*self->iface.iorq_m1)(self, 0x0000); \
+    } while(0)
+
+#define m_push_r16(r16) \
+    do { \
+        WZ_W = r16; \
+        (*self->iface.mreq_wr)(self, --SP_W, WZ_H); \
+        (*self->iface.mreq_wr)(self, --SP_W, WZ_L); \
+    } while(0)
+
+#define m_rst_vec16(vector) \
+    do { \
+        self->state.regs.PC.w.l = vector; \
+    } while(0)
 
 enum Codes
 {

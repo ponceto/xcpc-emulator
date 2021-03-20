@@ -11,10 +11,10 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-case JR_NZ:   if(AF_L&_ZF) PC_W++; else { CCOUNTER-=5;M_JR; } break;
-case JR_NC:   if(AF_L&_CF) PC_W++; else { CCOUNTER-=5;M_JR; } break;
-case JR_Z:    if(AF_L&_ZF) { CCOUNTER-=5;M_JR; } else PC_W++; break;
-case JR_C:    if(AF_L&_CF) { CCOUNTER-=5;M_JR; } else PC_W++; break;
+case JR_NZ:   if(AF_L&_ZF) PC_W++; else { T_PERIOD-=5;M_JR; } break;
+case JR_NC:   if(AF_L&_CF) PC_W++; else { T_PERIOD-=5;M_JR; } break;
+case JR_Z:    if(AF_L&_ZF) { T_PERIOD-=5;M_JR; } else PC_W++; break;
+case JR_C:    if(AF_L&_CF) { T_PERIOD-=5;M_JR; } else PC_W++; break;
 
 case JP_NZ:   if(AF_L&_ZF) PC_W+=2; else { M_JP; } break;
 case JP_NC:   if(AF_L&_CF) PC_W+=2; else { M_JP; } break;
@@ -25,23 +25,23 @@ case JP_C:    if(AF_L&_CF) { M_JP; } else PC_W+=2; break;
 case JP_PE:   if(AF_L&_PF) { M_JP; } else PC_W+=2; break;
 case JP_M:    if(AF_L&_SF) { M_JP; } else PC_W+=2; break;
 
-case RET_NZ:  if(!(AF_L&_ZF)) { CCOUNTER-=6;M_RET; } break;
-case RET_NC:  if(!(AF_L&_CF)) { CCOUNTER-=6;M_RET; } break;
-case RET_PO:  if(!(AF_L&_PF)) { CCOUNTER-=6;M_RET; } break;
-case RET_P:   if(!(AF_L&_SF)) { CCOUNTER-=6;M_RET; } break;
-case RET_Z:   if(AF_L&_ZF)    { CCOUNTER-=6;M_RET; } break;
-case RET_C:   if(AF_L&_CF)    { CCOUNTER-=6;M_RET; } break;
-case RET_PE:  if(AF_L&_PF)    { CCOUNTER-=6;M_RET; } break;
-case RET_M:   if(AF_L&_SF)    { CCOUNTER-=6;M_RET; } break;
+case RET_NZ:  if(!(AF_L&_ZF)) { T_PERIOD-=6;M_RET; } break;
+case RET_NC:  if(!(AF_L&_CF)) { T_PERIOD-=6;M_RET; } break;
+case RET_PO:  if(!(AF_L&_PF)) { T_PERIOD-=6;M_RET; } break;
+case RET_P:   if(!(AF_L&_SF)) { T_PERIOD-=6;M_RET; } break;
+case RET_Z:   if(AF_L&_ZF)    { T_PERIOD-=6;M_RET; } break;
+case RET_C:   if(AF_L&_CF)    { T_PERIOD-=6;M_RET; } break;
+case RET_PE:  if(AF_L&_PF)    { T_PERIOD-=6;M_RET; } break;
+case RET_M:   if(AF_L&_SF)    { T_PERIOD-=6;M_RET; } break;
 
-case CALL_NZ: if(AF_L&_ZF) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
-case CALL_NC: if(AF_L&_CF) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
-case CALL_PO: if(AF_L&_PF) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
-case CALL_P:  if(AF_L&_SF) PC_W+=2; else { CCOUNTER-=7;M_CALL; } break;
-case CALL_Z:  if(AF_L&_ZF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
-case CALL_C:  if(AF_L&_CF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
-case CALL_PE: if(AF_L&_PF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
-case CALL_M:  if(AF_L&_SF) { CCOUNTER-=7;M_CALL; } else PC_W+=2; break;
+case CALL_NZ: if(AF_L&_ZF) PC_W+=2; else { T_PERIOD-=7;M_CALL; } break;
+case CALL_NC: if(AF_L&_CF) PC_W+=2; else { T_PERIOD-=7;M_CALL; } break;
+case CALL_PO: if(AF_L&_PF) PC_W+=2; else { T_PERIOD-=7;M_CALL; } break;
+case CALL_P:  if(AF_L&_SF) PC_W+=2; else { T_PERIOD-=7;M_CALL; } break;
+case CALL_Z:  if(AF_L&_ZF) { T_PERIOD-=7;M_CALL; } else PC_W+=2; break;
+case CALL_C:  if(AF_L&_CF) { T_PERIOD-=7;M_CALL; } else PC_W+=2; break;
+case CALL_PE: if(AF_L&_PF) { T_PERIOD-=7;M_CALL; } else PC_W+=2; break;
+case CALL_M:  if(AF_L&_SF) { T_PERIOD-=7;M_CALL; } else PC_W+=2; break;
 
 case LD_BC_WORD: M_LDWORD(BC);break;
 case LD_DE_WORD: M_LDWORD(DE);break;
@@ -95,7 +95,7 @@ case POP_DE:   M_POP(DE);break;
 case POP_HL:   M_POP(HL);break;
 case POP_AF:   M_POP(AF);break;
 
-case DJNZ: if(--BC_H) { CCOUNTER-=5;M_JR; } else PC_W++;break;
+case DJNZ: if(--BC_H) { T_PERIOD-=5;M_JR; } else PC_W++;break;
 case JP:   M_JP;break;
 case JR:   M_JR;break;
 case CALL: M_CALL;break;

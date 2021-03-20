@@ -2217,10 +2217,10 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
       int cpu_tick;
       for(cpu_tick = 0; cpu_tick < self->cpu_period; cpu_tick += 4) {
         xcpc_vdc_6845_clock(self->vdc_6845);
-        if((cpu_z80a->state.ctrs.ccounter += 4) > 0) {
-          gint ccounter = cpu_z80a->state.ctrs.ccounter;
+        if((cpu_z80a->state.ctrs.t_period += 4) > 0) {
+          gint t_period = cpu_z80a->state.ctrs.t_period;
           xcpc_cpu_z80a_clock(self->cpu_z80a);
-          cpu_z80a->state.ctrs.ccounter = ccounter - (((ccounter - cpu_z80a->state.ctrs.ccounter) + 3) & (~3));
+          cpu_z80a->state.ctrs.t_period = t_period - (((t_period - cpu_z80a->state.ctrs.t_period) + 3) & (~3));
         }
       }
     } while(++self->cur_scanline < 312);
