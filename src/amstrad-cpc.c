@@ -1543,6 +1543,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
         xcpc_error("unsupported refresh rate %d", self->refresh_rate);
         break;
     }
+#if 0
+    self->frame.time = 1000;
+#endif
   }
   /* reset instance */ {
     amstrad_cpc_reset(self);

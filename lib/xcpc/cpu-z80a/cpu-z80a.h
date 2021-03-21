@@ -17,7 +17,6 @@
 #ifndef __XCPC_CPU_Z80A_H__
 #define __XCPC_CPU_Z80A_H__
 
-#include <xcpc/cpu-z80a/cpu-z80a-defs.h>
 #include <xcpc/cpu-z80a/cpu-z80a-impl.h>
 
 #ifdef __cplusplus

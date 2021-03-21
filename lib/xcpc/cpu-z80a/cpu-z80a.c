@@ -532,6 +532,8 @@ XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
 {
     uint16_t last_pc = 0;
     uint8_t  last_op = 0;
+    uint32_t o_cycles = 0;
+    uint32_t o_states = 0;
     union XcpcCpuZ80aRegister T1;
     union XcpcCpuZ80aRegister T2;
     union XcpcCpuZ80aRegister WZ;
@@ -547,6 +549,8 @@ XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
 
 prolog:
     last_pc = PC_W;
+    o_cycles = M_CYCLES;
+    o_states = T_STATES;
     if(m_pending_nmi()) {
         m_acknowledge_nmi();
         m_push_r16(PC_W);
@@ -2139,6 +2143,9 @@ execute_opcode:
       self->state.ctrs.t_period -= 7;
       goto epilog;
     case 0xed:
+      self->state.ctrs.m_cycles += 1;
+      self->state.ctrs.t_states += 4;
+      self->state.ctrs.t_period -= 4;
       goto fetch_ed_opcode;
     case 0xee: /* XOR A,n           */
       T1.b.l = self->state.regs.AF.b.h;
@@ -5436,17 +5443,12 @@ execute_ed_opcode:
 #include "cpu-z80a-opcodes-ed.inc"
         default:
             {
-                const uint32_t m_cycles = 2;
-                const uint32_t t_states = 8;
+                const uint32_t m_cycles = 2 - 1;
+                const uint32_t t_states = 8 - 4;
                 m_illegal_ed();
                 m_consume(m_cycles, t_states);
             }
-            goto epilog;
-    }
-    /* adjust timing */ {
-        const uint32_t m_cycles = CyclesED[last_op] / 4;
-        const uint32_t t_states = CyclesED[last_op];
-        m_consume(m_cycles, t_states);
+            break;
     }
     goto epilog;
 

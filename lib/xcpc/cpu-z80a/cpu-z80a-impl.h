@@ -18,6 +18,7 @@
 #define __XCPC_CPU_Z80A_IMPL_H__
 
 #include <xcpc/libxcpc.h>
+#include <xcpc/cpu-z80a/cpu-z80a-defs.h>
 
 #ifdef __cplusplus
 extern "C" {
