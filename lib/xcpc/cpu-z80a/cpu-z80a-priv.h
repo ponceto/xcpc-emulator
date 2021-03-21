@@ -37,6 +37,15 @@ extern "C" {
 #define _NF   0x02 /* Add / Sub              */
 #define _CF   0x01 /* Carry / Borrow         */
 
+#define _ADD  0x00 /* ADD operation          */
+#define _ADC  0x00 /* ADC operation          */
+#define _SUB  0x02 /* SUB operation          */
+#define _SBC  0x02 /* SBC operation          */
+#define _AND  0x10 /* AND operation          */
+#define _XOR  0x00 /* XOR operation          */
+#define _IOR  0x00 /* IOR operation          */
+#define _CMP  0x02 /* CMP operation          */
+
 #define SIGNED_BYTE(value) ((int8_t)(value))
 
 #define vector_00h 0x0000
@@ -49,126 +58,122 @@ extern "C" {
 #define vector_38h 0x0038
 #define vector_66h 0x0066
 
-#define THIS self
-#define AF_Q self->state.regs.AF.q
-#define AF_W self->state.regs.AF.w.l
-#define AF_H self->state.regs.AF.b.h
-#define AF_L self->state.regs.AF.b.l
-#define AF_P self->state.regs.AF.w.h
-#define BC_Q self->state.regs.BC.q
-#define BC_W self->state.regs.BC.w.l
-#define BC_H self->state.regs.BC.b.h
-#define BC_L self->state.regs.BC.b.l
-#define BC_P self->state.regs.BC.w.h
-#define DE_Q self->state.regs.DE.q
-#define DE_W self->state.regs.DE.w.l
-#define DE_H self->state.regs.DE.b.h
-#define DE_L self->state.regs.DE.b.l
-#define DE_P self->state.regs.DE.w.h
-#define HL_Q self->state.regs.HL.q
-#define HL_W self->state.regs.HL.w.l
-#define HL_H self->state.regs.HL.b.h
-#define HL_L self->state.regs.HL.b.l
-#define HL_P self->state.regs.HL.w.h
-#define IX_Q self->state.regs.IX.q
-#define IX_W self->state.regs.IX.w.l
-#define IX_H self->state.regs.IX.b.h
-#define IX_L self->state.regs.IX.b.l
-#define IY_Q self->state.regs.IY.q
-#define IY_W self->state.regs.IY.w.l
-#define IY_H self->state.regs.IY.b.h
-#define IY_L self->state.regs.IY.b.l
-#define SP_Q self->state.regs.SP.q
-#define SP_W self->state.regs.SP.w.l
-#define SP_H self->state.regs.SP.b.h
-#define SP_L self->state.regs.SP.b.l
-#define PC_Q self->state.regs.PC.q
-#define PC_W self->state.regs.PC.w.l
-#define PC_H self->state.regs.PC.b.h
-#define PC_L self->state.regs.PC.b.l
-#define IR_Q self->state.regs.IR.q
-#define IR_W self->state.regs.IR.w.l
-#define IR_H self->state.regs.IR.b.h
-#define IR_L self->state.regs.IR.b.l
-#define IF_Q self->state.regs.IF.q
-#define IF_W self->state.regs.IF.w.l
-#define IF_H self->state.regs.IF.b.h
-#define IF_L self->state.regs.IF.b.l
+#define SELF self
+#define IFACE SELF->iface
+#define STATE SELF->state
+#define CPU_REGS STATE.regs
+#define CPU_CTRS STATE.ctrs
+#define AF_Q CPU_REGS.AF.q
+#define AF_W CPU_REGS.AF.w.l
+#define AF_H CPU_REGS.AF.b.h
+#define AF_L CPU_REGS.AF.b.l
+#define AF_P CPU_REGS.AF.w.h
+#define BC_Q CPU_REGS.BC.q
+#define BC_W CPU_REGS.BC.w.l
+#define BC_H CPU_REGS.BC.b.h
+#define BC_L CPU_REGS.BC.b.l
+#define BC_P CPU_REGS.BC.w.h
+#define DE_Q CPU_REGS.DE.q
+#define DE_W CPU_REGS.DE.w.l
+#define DE_H CPU_REGS.DE.b.h
+#define DE_L CPU_REGS.DE.b.l
+#define DE_P CPU_REGS.DE.w.h
+#define HL_Q CPU_REGS.HL.q
+#define HL_W CPU_REGS.HL.w.l
+#define HL_H CPU_REGS.HL.b.h
+#define HL_L CPU_REGS.HL.b.l
+#define HL_P CPU_REGS.HL.w.h
+#define IX_Q CPU_REGS.IX.q
+#define IX_W CPU_REGS.IX.w.l
+#define IX_H CPU_REGS.IX.b.h
+#define IX_L CPU_REGS.IX.b.l
+#define IY_Q CPU_REGS.IY.q
+#define IY_W CPU_REGS.IY.w.l
+#define IY_H CPU_REGS.IY.b.h
+#define IY_L CPU_REGS.IY.b.l
+#define SP_Q CPU_REGS.SP.q
+#define SP_W CPU_REGS.SP.w.l
+#define SP_H CPU_REGS.SP.b.h
+#define SP_L CPU_REGS.SP.b.l
+#define PC_Q CPU_REGS.PC.q
+#define PC_W CPU_REGS.PC.w.l
+#define PC_H CPU_REGS.PC.b.h
+#define PC_L CPU_REGS.PC.b.l
+#define IR_Q CPU_REGS.IR.q
+#define IR_W CPU_REGS.IR.w.l
+#define IR_H CPU_REGS.IR.b.h
+#define IR_L CPU_REGS.IR.b.l
+#define IF_Q CPU_REGS.IF.q
+#define IF_W CPU_REGS.IF.w.l
+#define IF_H CPU_REGS.IF.b.h
+#define IF_L CPU_REGS.IF.b.l
 #define WZ_Q WZ.q
 #define WZ_W WZ.w.l
 #define WZ_H WZ.b.h
 #define WZ_L WZ.b.l
-#define TMP1 T1.b.l
-#define TMP2 T2.b.l
-#define M_CYCLES self->state.ctrs.m_cycles
-#define T_STATES self->state.ctrs.t_states
-#define T_PERIOD self->state.ctrs.t_period
+#define T1_Q T1.q
+#define T1_W T1.w.l
+#define T1_H T1.b.h
+#define T1_L T1.b.l
+#define T2_Q T2.q
+#define T2_W T2.w.l
+#define T2_H T2.b.h
+#define T2_L T2.b.l
+#define M_CYCLES CPU_CTRS.m_cycles
+#define T_STATES CPU_CTRS.t_states
+#define T_PERIOD CPU_CTRS.t_period
 
-#define MREQ_M1(addr,data) data=(*self->iface.mreq_m1)(self,addr)
-#define MREQ_RD(addr,data) data=(*self->iface.mreq_rd)(self,addr)
-#define MREQ_WR(addr,data) (*self->iface.mreq_wr)(self,addr,data)
+#define MREQ_M1(addr,data) data=(*IFACE.mreq_m1)(self,addr)
+#define MREQ_RD(addr,data) data=(*IFACE.mreq_rd)(self,addr)
+#define MREQ_WR(addr,data) (*IFACE.mreq_wr)(self,addr,data)
 
-#define IORQ_M1(port,data) data=(*self->iface.iorq_m1)(self,port)
-#define IORQ_RD(port,data) data=(*self->iface.iorq_rd)(self,port)
-#define IORQ_WR(port,data) (*self->iface.iorq_wr)(self,port,data)
-
-#define WrZ80(addr,value)  ((*THIS->iface.mreq_wr)((THIS),(addr),(value)))
-#define RdZ80(addr)        ((*THIS->iface.mreq_rd)((THIS),(addr)))
-#define OutZ80(addr,value) ((*THIS->iface.iorq_wr)((THIS),(addr),(value)))
-#define InZ80(addr)        ((*THIS->iface.iorq_rd)((THIS),(addr)))
-
-#define _ADD 0x00 /* ADD operation */
-#define _ADC 0x00 /* ADC operation */
-#define _SUB 0x02 /* SUB operation */
-#define _SBC 0x02 /* SBC operation */
-#define _AND 0x10 /* AND operation */
-#define _XOR 0x00 /* XOR operation */
-#define _IOR 0x00 /* IOR operation */
-#define _CMP 0x02 /* CMP operation */
+#define IORQ_M1(port,data) data=(*IFACE.iorq_m1)(self,port)
+#define IORQ_RD(port,data) data=(*IFACE.iorq_rd)(self,port)
+#define IORQ_WR(port,data) (*IFACE.iorq_wr)(self,port,data)
 
 #define m_fetch_opcode() \
     do { \
-        last_op = (*self->iface.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
 #define m_fetch_cb_opcode() \
     do { \
-        last_op = (*self->iface.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
 #define m_fetch_dd_opcode() \
     do { \
-        last_op = (*self->iface.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
 #define m_fetch_ed_opcode() \
     do { \
-        last_op = (*self->iface.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
 #define m_fetch_fd_opcode() \
     do { \
-        last_op = (*self->iface.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
 #define m_fetch_ddcb_opcode() \
     do { \
-        last_op = (*self->iface.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
 #define m_fetch_fdcb_opcode() \
     do { \
-        last_op = (*self->iface.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
 #define m_fetch_ddcb_offset() \
     do { \
-        WZ_W = IX_W + SIGNED_BYTE((*self->iface.mreq_rd)(self, PC_W++)); \
+        WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(self, PC_W++)); \
     } while(0)
 
 #define m_fetch_fdcb_offset() \
     do { \
-        WZ_W = IY_W + SIGNED_BYTE((*self->iface.mreq_rd)(self, PC_W++)); \
+        WZ_W = IY_W + SIGNED_BYTE((*IFACE.mreq_rd)(self, PC_W++)); \
     } while(0)
 
 #define m_illegal() \
@@ -230,14 +235,14 @@ extern "C" {
 #define m_acknowledge_int() \
     do { \
         IF_W &= ~(_HLT | _NMI | _INT | _IFF2 | _IFF1); \
-        IORQ_M1(0x0000, WZ_L); \
+        IORQ_M1(0x0000, T1_L); \
     } while(0)
 
 #define m_push_r16(r16) \
     do { \
-        WZ_W = r16; \
-        MREQ_WR(--SP_W, WZ_H); \
-        MREQ_WR(--SP_W, WZ_L); \
+        T1_W = r16; \
+        MREQ_WR(--SP_W, T1_H); \
+        MREQ_WR(--SP_W, T1_L); \
     } while(0)
 
 #define m_rst_vec16(vector) \
@@ -249,11 +254,16 @@ extern "C" {
     do { \
     } while(0)
 
+#define m_ld_r08_r08(reg1, reg2) \
+    do { \
+        reg1 = reg2; \
+    } while(0)
+
 #define m_neg() \
     do { \
-        TMP1 = AF_H; \
+        T1_L = AF_H; \
         AF_H = 0; \
-        M_SUB(TMP1); \
+        M_SUB(T1_L); \
     } while(0)
 
 #define m_reti() \
@@ -294,10 +304,28 @@ extern "C" {
         IF_W = (IF_W | (_IM1 | _IM2)); \
     } while(0)
 
+#define m_rrd() \
+    do { \
+        MREQ_RD(HL_W, T1_L); \
+        T2_L = (T1_L >> 4) | (AF_H << 4); \
+        MREQ_WR(HL_W, T2_L); \
+        AF_H = (T1_L & 0x0f) | (AF_H & 0xf0); \
+        AF_L = PZSTable[AF_H] | (AF_L & _CF); \
+    } while(0)
+
+#define m_rld() \
+    do { \
+        MREQ_RD(HL_W, T1_L); \
+        T2_L = (T1_L << 4) | (AF_H & 0x0f); \
+        MREQ_WR(HL_W, T2_L); \
+        AF_H = (T1_L >> 4) | (AF_H & 0xf0); \
+        AF_L = PZSTable[AF_H] | (AF_L & _CF); \
+    } while(0)
+
 #define m_ldir() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
-        MREQ_WR(DE_W, TMP1); \
+        MREQ_RD(HL_W, T1_L); \
+        MREQ_WR(DE_W, T1_L); \
         ++HL_W; \
         ++DE_W; \
         --BC_W; \
@@ -313,8 +341,8 @@ extern "C" {
 
 #define m_lddr() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
-        MREQ_WR(DE_W, TMP1); \
+        MREQ_RD(HL_W, T1_L); \
+        MREQ_WR(DE_W, T1_L); \
         --HL_W; \
         --DE_W; \
         --BC_W; \
@@ -330,12 +358,12 @@ extern "C" {
 
 #define m_cpir() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
-        TMP2 = AF_H - TMP1; \
+        MREQ_RD(HL_W, T1_L); \
+        T2_L = AF_H - T1_L; \
         ++HL_W; \
         --BC_W; \
-        AF_L = _NF | (AF_L & _CF) | ZSTable[TMP2] | ((AF_H ^ TMP1 ^ TMP2) &_HF) | (BC_W ? _PF : 0); \
-        if((BC_W != 0) && (TMP2 != 0)) { \
+        AF_L = _NF | (AF_L & _CF) | ZSTable[T2_L] | ((AF_H ^ T1_L ^ T2_L) &_HF) | (BC_W ? _PF : 0); \
+        if((BC_W != 0) && (T2_L != 0)) { \
             PC_W -= 2; \
             M_CYCLES += 1; \
             T_STATES += 5; \
@@ -345,12 +373,12 @@ extern "C" {
 
 #define m_cpdr() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
-        TMP2 = AF_H - TMP1; \
+        MREQ_RD(HL_W, T1_L); \
+        T2_L = AF_H - T1_L; \
         --HL_W; \
         --BC_W; \
-        AF_L = _NF | (AF_L & _CF) | ZSTable[TMP2] | ((AF_H ^ TMP1 ^ TMP2) &_HF) | (BC_W ? _PF : 0); \
-        if((BC_W != 0) && (TMP2 != 0)) { \
+        AF_L = _NF | (AF_L & _CF) | ZSTable[T2_L] | ((AF_H ^ T1_L ^ T2_L) &_HF) | (BC_W ? _PF : 0); \
+        if((BC_W != 0) && (T2_L != 0)) { \
             PC_W -= 2; \
             M_CYCLES += 1; \
             T_STATES += 5; \
@@ -360,8 +388,8 @@ extern "C" {
 
 #define m_inir() \
     do { \
-        IORQ_RD(BC_W, TMP1); \
-        MREQ_WR(HL_W, TMP1); \
+        IORQ_RD(BC_W, T1_L); \
+        MREQ_WR(HL_W, T1_L); \
         ++HL_W; \
         --BC_H; \
         if(BC_H != 0) { \
@@ -378,8 +406,8 @@ extern "C" {
 
 #define m_indr() \
     do { \
-        IORQ_RD(BC_W, TMP1); \
-        MREQ_WR(HL_W, TMP1); \
+        IORQ_RD(BC_W, T1_L); \
+        MREQ_WR(HL_W, T1_L); \
         --HL_W; \
         --BC_H; \
         if(BC_H != 0) { \
@@ -396,44 +424,44 @@ extern "C" {
 
 #define m_otir() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
+        MREQ_RD(HL_W, T1_L); \
         ++HL_W; \
         --BC_H; \
-        IORQ_WR(BC_W, TMP1); \
+        IORQ_WR(BC_W, T1_L); \
         if(BC_H != 0) { \
-            AF_L = _NF | (HL_L + TMP1 > 255 ? (_CF | _HF) : 0); \
+            AF_L = _NF | (HL_L + T1_L > 255 ? (_CF | _HF) : 0); \
             PC_W -= 2; \
             M_CYCLES += 1; \
             T_STATES += 5; \
             T_PERIOD -= 5; \
         } \
         else { \
-            AF_L = _ZF | _NF | (HL_L + TMP1 > 255 ? (_CF | _HF) : 0); \
+            AF_L = _ZF | _NF | (HL_L + T1_L > 255 ? (_CF | _HF) : 0); \
         } \
     } while(0)
 
 #define m_otdr() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
+        MREQ_RD(HL_W, T1_L); \
         --HL_W; \
         --BC_H; \
-        IORQ_WR(BC_W, TMP1); \
+        IORQ_WR(BC_W, T1_L); \
         if(BC_H != 0) { \
-            AF_L = _NF | (HL_L + TMP1 > 255 ? (_CF | _HF) : 0); \
+            AF_L = _NF | (HL_L + T1_L > 255 ? (_CF | _HF) : 0); \
             PC_W -= 2; \
             M_CYCLES += 1; \
             T_STATES += 5; \
             T_PERIOD -= 5; \
         } \
         else { \
-            AF_L = _ZF | _NF | (HL_L + TMP1 > 255 ? (_CF | _HF) : 0); \
+            AF_L = _ZF | _NF | (HL_L + T1_L > 255 ? (_CF | _HF) : 0); \
         } \
     } while(0)
 
 #define m_ldi() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
-        MREQ_WR(DE_W, TMP1); \
+        MREQ_RD(HL_W, T1_L); \
+        MREQ_WR(DE_W, T1_L); \
         ++HL_W; \
         ++DE_W; \
         --BC_W; \
@@ -442,8 +470,8 @@ extern "C" {
 
 #define m_ldd() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
-        MREQ_WR(DE_W, TMP1); \
+        MREQ_RD(HL_W, T1_L); \
+        MREQ_WR(DE_W, T1_L); \
         --HL_W; \
         --DE_W; \
         --BC_W; \
@@ -452,26 +480,26 @@ extern "C" {
 
 #define m_cpi() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
-        TMP2 = AF_H - TMP1; \
+        MREQ_RD(HL_W, T1_L); \
+        T2_L = AF_H - T1_L; \
         ++HL_W; \
         --BC_W; \
-        AF_L = _NF | (AF_L & _CF) | ZSTable[TMP2] | ((AF_H ^ TMP1 ^ TMP2) &_HF) | (BC_W ? _PF : 0); \
+        AF_L = _NF | (AF_L & _CF) | ZSTable[T2_L] | ((AF_H ^ T1_L ^ T2_L) &_HF) | (BC_W ? _PF : 0); \
     } while(0)
 
 #define m_cpd() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
-        TMP2 = AF_H - TMP1; \
+        MREQ_RD(HL_W, T1_L); \
+        T2_L = AF_H - T1_L; \
         --HL_W; \
         --BC_W; \
-        AF_L = _NF | (AF_L & _CF) | ZSTable[TMP2] | ((AF_H ^ TMP1 ^ TMP2) &_HF) | (BC_W ? _PF : 0); \
+        AF_L = _NF | (AF_L & _CF) | ZSTable[T2_L] | ((AF_H ^ T1_L ^ T2_L) &_HF) | (BC_W ? _PF : 0); \
     } while(0)
 
 #define m_ini() \
     do { \
-        IORQ_RD(BC_W, TMP1); \
-        MREQ_WR(HL_W, TMP1); \
+        IORQ_RD(BC_W, T1_L); \
+        MREQ_WR(HL_W, T1_L); \
         ++HL_W; \
         --BC_H; \
         AF_L = _NF | (BC_H ? 0 : _ZF); \
@@ -479,8 +507,8 @@ extern "C" {
 
 #define m_ind() \
     do { \
-        IORQ_RD(BC_W, TMP1); \
-        MREQ_WR(HL_W, TMP1); \
+        IORQ_RD(BC_W, T1_L); \
+        MREQ_WR(HL_W, T1_L); \
         --HL_W; \
         --BC_H; \
         AF_L = _NF | (BC_H ? 0 : _ZF); \
@@ -488,56 +516,85 @@ extern "C" {
 
 #define m_outi() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
+        MREQ_RD(HL_W, T1_L); \
         ++HL_W; \
         --BC_H; \
-        IORQ_WR(BC_W, TMP1); \
-        AF_L = _NF | (BC_H ? 0 : _ZF) | (HL_L + TMP1 > 255 ? (_CF | _HF) : 0); \
+        IORQ_WR(BC_W, T1_L); \
+        AF_L = _NF | (BC_H ? 0 : _ZF) | (HL_L + T1_L > 255 ? (_CF | _HF) : 0); \
     } while(0)
 
 #define m_outd() \
     do { \
-        MREQ_RD(HL_W, TMP1); \
+        MREQ_RD(HL_W, T1_L); \
         --HL_W; \
         --BC_H; \
-        IORQ_WR(BC_W, TMP1); \
-        AF_L = _NF | (BC_H ? 0 : _ZF) | (HL_L + TMP1 > 255 ? (_CF | _HF) : 0); \
+        IORQ_WR(BC_W, T1_L); \
+        AF_L = _NF | (BC_H ? 0 : _ZF) | (HL_L + T1_L > 255 ? (_CF | _HF) : 0); \
     } while(0)
 
-#define m_ld_r16_ind_i16(reg1) \
+#define m_ld_a_i() \
     do { \
+        AF_H = IR_H; \
+        AF_L = (AF_L & _CF) | (IF_W &_IFF2 ? _PF : 0) | ZSTable[AF_H]; \
+    } while(0)
+
+#define m_ld_a_r() \
+    do { \
+        AF_H = IR_L; \
+        AF_L = (AF_L & _CF) | (IF_W &_IFF2 ? _PF : 0) | ZSTable[AF_H]; \
+    } while(0)
+
+#define m_ld_i_a() \
+    do { \
+        IR_H = AF_H; \
+    } while(0)
+
+#define m_ld_r_a() \
+    do { \
+        IR_L = AF_H; \
+    } while(0)
+
+#define m_in_r08_ind_r08(data, port) \
+    do { \
+        T1_H = BC_H; \
+        T1_L = port; \
+        IORQ_RD(T1_W, data); \
+        AF_L = PZSTable[data] | (AF_L & _CF); \
+    } while(0)
+
+#define m_out_ind_r08_r08(port, data) \
+    do { \
+        T1_H = BC_H; \
+        T1_L = port; \
+        IORQ_WR(T1_W, data); \
+    } while(0)
+
+#define m_ld_r16_ind_i16(data) \
+    do { \
+        MREQ_RD(PC_W++, T1_L); \
+        MREQ_RD(PC_W++, T1_H); \
+        MREQ_RD(T1_W++, T2_L); \
+        MREQ_RD(T1_W++, T2_H); \
+        data = T2_W; \
+    } while(0)
+
+#define m_ld_ind_i16_r16(data) \
+    do { \
+        T2_W = data; \
+        MREQ_RD(PC_W++, T1_L); \
+        MREQ_RD(PC_W++, T1_H); \
+        MREQ_WR(T1_W++, T2_L); \
+        MREQ_WR(T1_W++, T2_H); \
     } while(0)
 
 #define m_adc_r16_r16(reg1, reg2) \
     do { \
-    } while(0)
-
-#define m_out_ind_r08_r08(reg1, reg2) \
-    do { \
-    } while(0)
-
-#define m_in_r08_ind_r08(reg1, reg2) \
-    do { \
-    } while(0)
-
-#define m_ld_ind_i16_r16(reg1) \
-    do { \
+        M_ADCW(reg1, reg2); \
     } while(0)
 
 #define m_sbc_r16_r16(reg1, reg2) \
     do { \
-    } while(0)
-
-#define m_rld() \
-    do { \
-    } while(0)
-
-#define m_rrd() \
-    do { \
-    } while(0)
-
-#define m_ld_r08_r08(reg1, reg2) \
-    do { \
+        M_SBCW(reg1, reg2); \
     } while(0)
 
 enum Codes
@@ -576,128 +633,87 @@ enum Codes
     RET_M,LD_SP_HL,JP_M,EI,CALL_M,PFX_FD,CP_BYTE,RST38
 };
 
-enum CodesED
-{
-    DB_00,DB_01,DB_02,DB_03,DB_04,DB_05,DB_06,DB_07,
-    DB_08,DB_09,DB_0A,DB_0B,DB_0C,DB_0D,DB_0E,DB_0F,
-    DB_10,DB_11,DB_12,DB_13,DB_14,DB_15,DB_16,DB_17,
-    DB_18,DB_19,DB_1A,DB_1B,DB_1C,DB_1D,DB_1E,DB_1F,
-    DB_20,DB_21,DB_22,DB_23,DB_24,DB_25,DB_26,DB_27,
-    DB_28,DB_29,DB_2A,DB_2B,DB_2C,DB_2D,DB_2E,DB_2F,
-    DB_30,DB_31,DB_32,DB_33,DB_34,DB_35,DB_36,DB_37,
-    DB_38,DB_39,DB_3A,DB_3B,DB_3C,DB_3D,DB_3E,DB_3F,
-    IN_B_xC,OUT_xC_B,SBC_HL_BC,LD_xWORDe_BC,NEG,RETN,IM_0,LD_I_A,
-    IN_C_xC,OUT_xC_C,ADC_HL_BC,LD_BC_xWORDe,DB_4C,RETI,DB_,LD_R_A,
-    IN_D_xC,OUT_xC_D,SBC_HL_DE,LD_xWORDe_DE,DB_54,DB_55,IM_1,LD_A_I,
-    IN_E_xC,OUT_xC_E,ADC_HL_DE,LD_DE_xWORDe,DB_5C,DB_5D,IM_2,LD_A_R,
-    IN_H_xC,OUT_xC_H,SBC_HL_HL,LD_xWORDe_HL,DB_64,DB_65,DB_66,RRD,
-    IN_L_xC,OUT_xC_L,ADC_HL_HL,LD_HL_xWORDe,DB_6C,DB_6D,DB_6E,RLD,
-    IN_F_xC,DB_71,SBC_HL_SP,LD_xWORDe_SP,DB_74,DB_75,DB_76,DB_77,
-    IN_A_xC,OUT_xC_A,ADC_HL_SP,LD_SP_xWORDe,DB_7C,DB_7D,DB_7E,DB_7F,
-    DB_80,DB_81,DB_82,DB_83,DB_84,DB_85,DB_86,DB_87,
-    DB_88,DB_89,DB_8A,DB_8B,DB_8C,DB_8D,DB_8E,DB_8F,
-    DB_90,DB_91,DB_92,DB_93,DB_94,DB_95,DB_96,DB_97,
-    DB_98,DB_99,DB_9A,DB_9B,DB_9C,DB_9D,DB_9E,DB_9F,
-    LDI,CPI,INI,OUTI,DB_A4,DB_A5,DB_A6,DB_A7,
-    LDD,CPD,IND,OUTD,DB_AC,DB_AD,DB_AE,DB_AF,
-    LDIR,CPIR,INIR,OTIR,DB_B4,DB_B5,DB_B6,DB_B7,
-    LDDR,CPDR,INDR,OTDR,DB_BC,DB_BD,DB_BE,DB_BF,
-    DB_C0,DB_C1,DB_C2,DB_C3,DB_C4,DB_C5,DB_C6,DB_C7,
-    DB_C8,DB_C9,DB_CA,DB_CB,DB_CC,DB_CD,DB_CE,DB_CF,
-    DB_D0,DB_D1,DB_D2,DB_D3,DB_D4,DB_D5,DB_D6,DB_D7,
-    DB_D8,DB_D9,DB_DA,DB_DB,DB_DC,DB_DD,DB_DE,DB_DF,
-    DB_E0,DB_E1,DB_E2,DB_E3,DB_E4,DB_E5,DB_E6,DB_E7,
-    DB_E8,DB_E9,DB_EA,DB_EB,DB_EC,DB_ED,DB_EE,DB_EF,
-    DB_F0,DB_F1,DB_F2,DB_F3,DB_F4,DB_F5,DB_F6,DB_F7,
-    DB_F8,DB_F9,DB_FA,DB_FB,DB_FC,DB_FD,DB_FE,DB_FF
-};
+#define WrZ80(addr,value)  ((*IFACE.mreq_wr)((SELF),(addr),(value)))
+#define RdZ80(addr)        ((*IFACE.mreq_rd)((SELF),(addr)))
+#define OutZ80(addr,value) ((*IFACE.iorq_wr)((SELF),(addr),(value)))
+#define InZ80(addr)        ((*IFACE.iorq_rd)((SELF),(addr)))
 
-#define S(Fl)        THIS->state.regs.AF.b.l|=Fl
-#define R(Fl)        THIS->state.regs.AF.b.l&=~(Fl)
-#define FLAGS(Rg,Fl) THIS->state.regs.AF.b.l=Fl|ZSTable[Rg]
+#define S(Fl)        CPU_REGS.AF.b.l|=Fl
+#define R(Fl)        CPU_REGS.AF.b.l&=~(Fl)
+#define FLAGS(Rg,Fl) CPU_REGS.AF.b.l=Fl|ZSTable[Rg]
 
 #define M_POP(Rg)      \
-  THIS->state.regs.Rg.b.l=RdZ80(THIS->state.regs.SP.w.l++);THIS->state.regs.Rg.b.h=RdZ80(THIS->state.regs.SP.w.l++)
+  CPU_REGS.Rg.b.l=RdZ80(CPU_REGS.SP.w.l++);CPU_REGS.Rg.b.h=RdZ80(CPU_REGS.SP.w.l++)
 #define M_PUSH(Rg)     \
-  WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.Rg.b.h);WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.Rg.b.l)
+  WrZ80(--CPU_REGS.SP.w.l,CPU_REGS.Rg.b.h);WrZ80(--CPU_REGS.SP.w.l,CPU_REGS.Rg.b.l)
 
 #define M_CALL         \
-  WZ.b.l=RdZ80(THIS->state.regs.PC.w.l++);WZ.b.h=RdZ80(THIS->state.regs.PC.w.l++);         \
-  WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.PC.b.h);WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.PC.b.l); \
-  THIS->state.regs.PC.w.l=WZ.w.l
+  WZ.b.l=RdZ80(CPU_REGS.PC.w.l++);WZ.b.h=RdZ80(CPU_REGS.PC.w.l++);         \
+  WrZ80(--CPU_REGS.SP.w.l,CPU_REGS.PC.b.h);WrZ80(--CPU_REGS.SP.w.l,CPU_REGS.PC.b.l); \
+  CPU_REGS.PC.w.l=WZ.w.l
 
-#define M_JP  WZ.b.l=RdZ80(THIS->state.regs.PC.w.l++);WZ.b.h=RdZ80(THIS->state.regs.PC.w.l);THIS->state.regs.PC.w.l=WZ.w.l
-#define M_JR  THIS->state.regs.PC.w.l+=(int8_t)RdZ80(THIS->state.regs.PC.w.l)+1
-#define M_RET THIS->state.regs.PC.b.l=RdZ80(THIS->state.regs.SP.w.l++);THIS->state.regs.PC.b.h=RdZ80(THIS->state.regs.SP.w.l++)
+#define M_JP  WZ.b.l=RdZ80(CPU_REGS.PC.w.l++);WZ.b.h=RdZ80(CPU_REGS.PC.w.l);CPU_REGS.PC.w.l=WZ.w.l
+#define M_JR  CPU_REGS.PC.w.l+=(int8_t)RdZ80(CPU_REGS.PC.w.l)+1
+#define M_RET CPU_REGS.PC.b.l=RdZ80(CPU_REGS.SP.w.l++);CPU_REGS.PC.b.h=RdZ80(CPU_REGS.SP.w.l++)
 
 #define M_RST(Ad)      \
-  WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.PC.b.h);WrZ80(--THIS->state.regs.SP.w.l,THIS->state.regs.PC.b.l);THIS->state.regs.PC.w.l=Ad
+  WrZ80(--CPU_REGS.SP.w.l,CPU_REGS.PC.b.h);WrZ80(--CPU_REGS.SP.w.l,CPU_REGS.PC.b.l);CPU_REGS.PC.w.l=Ad
 
 #define M_LDWORD(Rg)   \
-  THIS->state.regs.Rg.b.l=RdZ80(THIS->state.regs.PC.w.l++);THIS->state.regs.Rg.b.h=RdZ80(THIS->state.regs.PC.w.l++)
+  CPU_REGS.Rg.b.l=RdZ80(CPU_REGS.PC.w.l++);CPU_REGS.Rg.b.h=RdZ80(CPU_REGS.PC.w.l++)
 
 #define M_SUB(Rg)      \
-  WZ.w.l=THIS->state.regs.AF.b.h-Rg;    \
-  THIS->state.regs.AF.b.l=           \
-    ((THIS->state.regs.AF.b.h^Rg)&(THIS->state.regs.AF.b.h^WZ.b.l)&0x80? _OF:0)| \
+  WZ.w.l=CPU_REGS.AF.b.h-Rg;    \
+  CPU_REGS.AF.b.l=           \
+    ((CPU_REGS.AF.b.h^Rg)&(CPU_REGS.AF.b.h^WZ.b.l)&0x80? _OF:0)| \
     _NF|-WZ.b.h|ZSTable[WZ.b.l]|                      \
-    ((THIS->state.regs.AF.b.h^Rg^WZ.b.l)&_HF);                     \
-  THIS->state.regs.AF.b.h=WZ.b.l
+    ((CPU_REGS.AF.b.h^Rg^WZ.b.l)&_HF);                     \
+  CPU_REGS.AF.b.h=WZ.b.l
 
 #define M_IN(Rg)        \
-  Rg=InZ80(THIS->state.regs.BC.w.l);  \
-  THIS->state.regs.AF.b.l=PZSTable[Rg]|(THIS->state.regs.AF.b.l&_CF)
+  Rg=InZ80(CPU_REGS.BC.w.l);  \
+  CPU_REGS.AF.b.l=PZSTable[Rg]|(CPU_REGS.AF.b.l&_CF)
 
 #define M_INC(Rg)       \
   Rg++;                 \
-  THIS->state.regs.AF.b.l=            \
-    (THIS->state.regs.AF.b.l&_CF)|ZSTable[Rg]|           \
+  CPU_REGS.AF.b.l=            \
+    (CPU_REGS.AF.b.l&_CF)|ZSTable[Rg]|           \
     (Rg==0x80? _OF:0)|(Rg&0x0F? 0:_HF)
 
 #define M_DEC(Rg)       \
   Rg--;                 \
-  THIS->state.regs.AF.b.l=            \
-    _NF|(THIS->state.regs.AF.b.l&_CF)|ZSTable[Rg]| \
+  CPU_REGS.AF.b.l=            \
+    _NF|(CPU_REGS.AF.b.l&_CF)|ZSTable[Rg]| \
     (Rg==0x7F? _OF:0)|((Rg&0x0F)==0x0F? _HF:0)
 
 #define M_ADDW(Rg1,Rg2) \
-  WZ.w.l=(THIS->state.regs.Rg1.w.l+THIS->state.regs.Rg2.w.l)&0xFFFF;                        \
-  THIS->state.regs.AF.b.l=                                             \
-    (THIS->state.regs.AF.b.l&~(_HF|_NF|_CF))|                 \
-    ((THIS->state.regs.Rg1.w.l^THIS->state.regs.Rg2.w.l^WZ.w.l)&0x1000? _HF:0)|          \
-    (((long)THIS->state.regs.Rg1.w.l+(long)THIS->state.regs.Rg2.w.l)&0x10000? _CF:0); \
-  THIS->state.regs.Rg1.w.l=WZ.w.l
+  WZ.w.l=(CPU_REGS.Rg1.w.l+CPU_REGS.Rg2.w.l)&0xFFFF;                        \
+  CPU_REGS.AF.b.l=                                             \
+    (CPU_REGS.AF.b.l&~(_HF|_NF|_CF))|                 \
+    ((CPU_REGS.Rg1.w.l^CPU_REGS.Rg2.w.l^WZ.w.l)&0x1000? _HF:0)|          \
+    (((long)CPU_REGS.Rg1.w.l+(long)CPU_REGS.Rg2.w.l)&0x10000? _CF:0); \
+  CPU_REGS.Rg1.w.l=WZ.w.l
 
-#define M_ADCW(Rg)      \
-  TMP1=THIS->state.regs.AF.b.l&_CF;WZ.w.l=(THIS->state.regs.HL.w.l+THIS->state.regs.Rg.w.l+TMP1)&0xFFFF;           \
-  THIS->state.regs.AF.b.l=                                                   \
-    (((long)THIS->state.regs.HL.w.l+(long)THIS->state.regs.Rg.w.l+(long)TMP1)&0x10000? _CF:0)| \
-    (~(THIS->state.regs.HL.w.l^THIS->state.regs.Rg.w.l)&(THIS->state.regs.Rg.w.l^WZ.w.l)&0x8000? _OF:0)|       \
-    ((THIS->state.regs.HL.w.l^THIS->state.regs.Rg.w.l^WZ.w.l)&0x1000? _HF:0)|                  \
-    (WZ.w.l? 0:_ZF)|(WZ.b.h&_SF);                            \
-  THIS->state.regs.HL.w.l=WZ.w.l
+#define M_ADCW(reg1, reg2) \
+  T2_W = reg2; \
+  T1_L=AF_L&_CF;WZ_W=(reg1+T2_W+T1_L)&0xFFFF; \
+  AF_L= \
+    (((long)reg1+(long)T2_W+(long)T1_L)&0x10000? _CF:0)| \
+    (~(reg1^T2_W)&(T2_W^WZ_W)&0x8000? _OF:0)| \
+    ((reg1^T2_W^WZ_W)&0x1000? _HF:0)| \
+    (WZ_W? 0:_ZF)|(WZ.b.h&_SF); \
+  reg1=WZ_W
 
-#define M_SBCW(Rg)      \
-  TMP1=THIS->state.regs.AF.b.l&_CF;WZ.w.l=(THIS->state.regs.HL.w.l-THIS->state.regs.Rg.w.l-TMP1)&0xFFFF;           \
-  THIS->state.regs.AF.b.l=                                                   \
-    _NF|                                                    \
-    (((long)THIS->state.regs.HL.w.l-(long)THIS->state.regs.Rg.w.l-(long)TMP1)&0x10000? _CF:0)| \
-    ((THIS->state.regs.HL.w.l^THIS->state.regs.Rg.w.l)&(THIS->state.regs.HL.w.l^WZ.w.l)&0x8000? _OF:0)|        \
-    ((THIS->state.regs.HL.w.l^THIS->state.regs.Rg.w.l^WZ.w.l)&0x1000? _HF:0)|                  \
-    (WZ.w.l? 0:_ZF)|(WZ.b.h&_SF);                            \
-  THIS->state.regs.HL.w.l=WZ.w.l
-
-#define M_TIMING_ED() \
-    do { \
-        const uint32_t timing = CyclesED[last_op]; \
-        if(timing >= 4) { \
-            const uint32_t m_cycles = (timing / 4) - 1; \
-            const uint32_t t_states = (timing / 1) - 4; \
-            self->state.ctrs.m_cycles += m_cycles; \
-            self->state.ctrs.t_states += t_states; \
-            self->state.ctrs.t_period -= t_states; \
-        } \
-    } while(0)
+#define M_SBCW(reg1, reg2) \
+  T2_W = reg2; \
+  T1_L=AF_L&_CF;WZ_W=(reg1-T2_W-T1_L)&0xFFFF; \
+  AF_L= \
+    _NF| \
+    (((long)reg1-(long)T2_W-(long)T1_L)&0x10000? _CF:0)| \
+    ((reg1^T2_W)&(reg1^WZ_W)&0x8000? _OF:0)| \
+    ((reg1^T2_W^WZ_W)&0x1000? _HF:0)| \
+    (WZ_W? 0:_ZF)|(WZ.b.h&_SF); \
+  reg1=WZ_W
 
 #ifdef __cplusplus
 }

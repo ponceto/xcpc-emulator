@@ -46,6 +46,7 @@ typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 
 struct _AMSTRAD_CPC_SETTINGS
 {
+    gboolean turbo;
     gboolean no_xshm;
     gboolean show_fps;
     gchar*   computer_model;

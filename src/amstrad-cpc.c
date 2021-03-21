@@ -28,6 +28,7 @@
 #include "amstrad-cpc.h"
 
 static AMSTRAD_CPC_SETTINGS settings = {
+  /* turbo           */ FALSE,   
   /* no_xshm         */ FALSE,   
   /* show_fps        */ FALSE,   
   /* computer_model  */ NULL,    
@@ -64,6 +65,7 @@ static const gchar refresh_description[]      = "50Hz, 60Hz";
 static const gchar manufacturer_description[] = "Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad";
 
 static GOptionEntry options[] = {
+  { "turbo"       , 0, 0, G_OPTION_ARG_NONE    , &settings.turbo          , "Turbo mode"                  , NULL                },
   { "no-xshm"     , 0, 0, G_OPTION_ARG_NONE    , &settings.no_xshm        , "Don't use the XShm extension", NULL                },
   { "show-fps"    , 0, 0, G_OPTION_ARG_NONE    , &settings.show_fps       , "Show fps statistics"         , NULL                },
   { "model"       , 0, 0, G_OPTION_ARG_STRING  , &settings.computer_model , model_description             , "{computer-model}"  },
@@ -1543,9 +1545,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
         xcpc_error("unsupported refresh rate %d", self->refresh_rate);
         break;
     }
-#if 0
-    self->frame.time = 1000;
-#endif
+    if(self->settings->turbo != FALSE) {
+        self->frame.time = 1000;
+    }
   }
   /* reset instance */ {
     amstrad_cpc_reset(self);
@@ -2250,7 +2252,7 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
     }
   }
   /* draw the frame and compute stats if needed */ {
-    if(elapsed <= self->frame.time) {
+    if((self->frame.count == 0) || (elapsed <= self->frame.time)) {
       (*self->paint.proc)(self);
       ++self->frame.drawn;
     }

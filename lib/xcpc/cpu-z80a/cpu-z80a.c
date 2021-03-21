@@ -302,27 +302,6 @@ static const uint8_t Cycles[256] = {
 };
 #endif
 
-#if 0
-static const uint8_t CyclesED[256] = {
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-    12, 12, 15, 20,  8, 14,  8,  9, 12, 12, 15, 20,  8, 14,  8,  9,
-    12, 12, 15, 20,  8, 14,  8,  9, 12, 12, 15, 20,  8, 14,  8,  9,
-    12, 12, 15, 20,  8, 14,  8, 18, 12, 12, 15, 20,  8, 14,  8, 18,
-    12, 12, 15, 20,  8, 14,  8,  8, 12, 12, 15, 20,  8, 14,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-    16, 16, 16, 16,  8,  8,  8,  8, 16, 16, 16, 16,  8,  8,  8,  8,
-    16, 16, 16, 16,  8,  8,  8,  8, 16, 16, 16, 16,  8,  8,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-     8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
-};
-#endif
-
 static const uint8_t Cycles[256] = {
     4,10, 7, 6, 4, 4, 7, 4, 4,11, 7, 6, 4, 4, 7, 4,
     8,10, 7, 6, 4, 4, 7, 4,12,11, 7, 6, 4, 4, 7, 4,
@@ -340,25 +319,6 @@ static const uint8_t Cycles[256] = {
     5,10,10,11,10,11, 7,11, 5, 4,10,11,10, 0, 7,11,
     5,10,10,19,10,11, 7,11, 5, 4,10, 4,10, 0, 7,11,
     5,10,10, 4,10,11, 7,11, 5, 6,10, 4,10, 0, 7,11
-};
-
-static const uint8_t CyclesED[256] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-   12,12,15,20, 8,14, 8, 9,12,12,15,20, 0,14, 0, 9,
-   12,12,15,20, 0, 0, 8, 9,12,12,15,20, 0, 0, 8, 9,
-   12,12,15,20, 0, 0, 0,18,12,12,15,20, 0, 0, 0,18,
-   12, 0,15,20, 0, 0, 0, 0,12,12,15,20, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-   16,16,16,16, 0, 0, 0, 0,16,16,16,16, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 static const uint8_t CyclesXX[256] = {
@@ -534,9 +494,9 @@ XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
     uint8_t  last_op = 0;
     uint32_t o_cycles = 0;
     uint32_t o_states = 0;
+    union XcpcCpuZ80aRegister WZ;
     union XcpcCpuZ80aRegister T1;
     union XcpcCpuZ80aRegister T2;
-    union XcpcCpuZ80aRegister WZ;
 
     if(T_PERIOD <= 0) {
         return self;
@@ -545,6 +505,8 @@ XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
     /* ignore unused warning */ {
         AVOID_UNUSED_WARNING(last_pc);
         AVOID_UNUSED_WARNING(last_op);
+        AVOID_UNUSED_WARNING(o_cycles);
+        AVOID_UNUSED_WARNING(o_states);
     }
 
 prolog:
@@ -5431,6 +5393,9 @@ execute_cb_opcode:
             }
             break;
     }
+#ifdef DEBUG_Z80A
+    xcpc_debug("%04X CB %02X    | %2d | %2d |", last_pc, last_op, (M_CYCLES - o_cycles), (T_STATES - o_states));
+#endif
     goto epilog;
 
 fetch_ed_opcode:
@@ -5450,6 +5415,9 @@ execute_ed_opcode:
             }
             break;
     }
+#ifdef DEBUG_Z80A
+    xcpc_debug("%04X ED %02X    | %2d | %2d |", last_pc, last_op, (M_CYCLES - o_cycles), (T_STATES - o_states));
+#endif
     goto epilog;
 
 fetch_ddcb_opcode:
@@ -5469,6 +5437,9 @@ execute_ddcb_opcode:
             }
             break;
     }
+#ifdef DEBUG_Z80A
+    xcpc_debug("%04X DD CB %02X | %2d | %2d |", last_pc, last_op, (M_CYCLES - o_cycles), (T_STATES - o_states));
+#endif
     goto epilog;
 
 fetch_fdcb_opcode:
@@ -5488,6 +5459,9 @@ execute_fdcb_opcode:
             }
             break;
     }
+#ifdef DEBUG_Z80A
+    xcpc_debug("%04X FD CB %02X | %2d | %2d |", last_pc, last_op, (M_CYCLES - o_cycles), (T_STATES - o_states));
+#endif
     goto epilog;
 
 epilog:

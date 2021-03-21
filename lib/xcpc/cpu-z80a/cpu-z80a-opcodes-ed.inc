@@ -510,7 +510,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#if 0
         case 0x40: /* in b,(c) */
             {
                 const uint32_t m_cycles = 3 - 1;
@@ -543,7 +542,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#endif
         case 0x44: /* neg */
             {
                 const uint32_t m_cycles = 2 - 1;
@@ -568,12 +566,11 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#if 0
         case 0x47: /* ld i,a */
             {
                 const uint32_t m_cycles = 2 - 1;
                 const uint32_t t_states = 9 - 4;
-                m_ld_r08_r08(IR_H, AF_H);
+                m_ld_i_a();
                 m_consume(m_cycles, t_states);
             }
             break;
@@ -609,7 +606,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#endif
         case 0x4c: /* neg */
             {
                 const uint32_t m_cycles = 2 - 1;
@@ -634,12 +630,11 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#if 0
         case 0x4f: /* ld r,a */
             {
                 const uint32_t m_cycles = 2 - 1;
                 const uint32_t t_states = 9 - 4;
-                m_ld_r08_r08(IR_L, AF_H);
+                m_ld_r_a();
                 m_consume(m_cycles, t_states);
             }
             break;
@@ -675,7 +670,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#endif
         case 0x54: /* neg */
             {
                 const uint32_t m_cycles = 2 - 1;
@@ -700,12 +694,11 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#if 0
         case 0x57: /* ld a,i */
             {
                 const uint32_t m_cycles = 2 - 1;
                 const uint32_t t_states = 9 - 4;
-                m_ld_r08_r08(AF_H, IR_H);
+                m_ld_a_i();
                 m_consume(m_cycles, t_states);
             }
             break;
@@ -741,7 +734,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#endif
         case 0x5c: /* neg */
             {
                 const uint32_t m_cycles = 2 - 1;
@@ -766,12 +758,11 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#if 0
         case 0x5f: /* ld a,r */
             {
                 const uint32_t m_cycles = 2 - 1;
                 const uint32_t t_states = 9 - 4;
-                m_ld_r08_r08(AF_H, IR_L);
+                m_ld_a_r();
                 m_consume(m_cycles, t_states);
             }
             break;
@@ -807,7 +798,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#endif
         case 0x64: /* neg */
             {
                 const uint32_t m_cycles = 2 - 1;
@@ -832,7 +822,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#if 0
         case 0x67: /* rrd */
             {
                 const uint32_t m_cycles = 5 - 1;
@@ -873,7 +862,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#endif
         case 0x6c: /* neg */
             {
                 const uint32_t m_cycles = 2 - 1;
@@ -898,7 +886,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#if 0
         case 0x6f: /* rld */
             {
                 const uint32_t m_cycles = 5 - 1;
@@ -939,7 +926,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#endif
         case 0x74: /* neg */
             {
                 const uint32_t m_cycles = 2 - 1;
@@ -972,7 +958,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#if 0
         case 0x78: /* in a,(c) */
             {
                 const uint32_t m_cycles = 3 - 1;
@@ -1005,7 +990,6 @@
                 m_consume(m_cycles, t_states);
             }
             break;
-#endif
         case 0x7c: /* neg */
             {
                 const uint32_t m_cycles = 2 - 1;
@@ -1444,7 +1428,6 @@
                 const uint32_t t_states = 16 - 4;
                 m_inir();
                 m_consume(m_cycles, t_states);
-                xcpc_print("%04x INIR %02x | %2d | %2d |", last_pc, last_op, (M_CYCLES - o_cycles), (T_STATES - o_states)); \
             }
             break;
         case 0xb3: /* otir */
@@ -1453,7 +1436,6 @@
                 const uint32_t t_states = 16 - 4;
                 m_otir();
                 m_consume(m_cycles, t_states);
-                xcpc_print("%04x OTIR %02x | %2d | %2d |", last_pc, last_op, (M_CYCLES - o_cycles), (T_STATES - o_states)); \
             }
             break;
         case 0xb4: /* illegal */
@@ -1510,7 +1492,6 @@
                 const uint32_t t_states = 16 - 4;
                 m_indr();
                 m_consume(m_cycles, t_states);
-                xcpc_print("%04x INDR %02x | %2d | %2d |", last_pc, last_op, (M_CYCLES - o_cycles), (T_STATES - o_states)); \
             }
             break;
         case 0xbb: /* otdr */
@@ -1519,7 +1500,6 @@
                 const uint32_t t_states = 16 - 4;
                 m_otdr();
                 m_consume(m_cycles, t_states);
-                xcpc_print("%04x OTDR %02x | %2d | %2d |", last_pc, last_op, (M_CYCLES - o_cycles), (T_STATES - o_states)); \
             }
             break;
         case 0xbc: /* illegal */
@@ -2065,199 +2045,4 @@
                 m_illegal_ed();
                 m_consume(m_cycles, t_states);
             }
-            break;
-
-/** Z80: portable Z80 emulator *******************************/
-/**                                                         **/
-/**                         CodesED.h                       **/
-/**                                                         **/
-/** This file contains implementation for the ED table of   **/
-/** Z80 commands. It is included from Z80.c.                **/
-/**                                                         **/
-/** Copyright (C) Marat Fayzullin 1994-2002                 **/
-/**     You are not allowed to distribute this software     **/
-/**     commercially. Please, notify me, if you make any    **/
-/**     changes to this file.                               **/
-/*************************************************************/
-
-        case ADC_HL_BC:
-            M_ADCW(BC);
-            M_TIMING_ED();
-            break;
-        case ADC_HL_DE:
-            M_ADCW(DE);
-            M_TIMING_ED();
-            break;
-        case ADC_HL_HL:
-            M_ADCW(HL);
-            M_TIMING_ED();
-            break;
-        case ADC_HL_SP:
-            M_ADCW(SP);
-            M_TIMING_ED();
-            break;
-        case SBC_HL_BC:
-            M_SBCW(BC);
-            M_TIMING_ED();
-            break;
-        case SBC_HL_DE:
-            M_SBCW(DE);
-            M_TIMING_ED();
-            break;
-        case SBC_HL_HL:
-            M_SBCW(HL);
-            M_TIMING_ED();
-            break;
-        case SBC_HL_SP:
-            M_SBCW(SP);
-            M_TIMING_ED();
-            break;
-        case LD_xWORDe_HL:
-            WZ_L = RdZ80(PC_W++);
-            WZ_H = RdZ80(PC_W++);
-            WrZ80(WZ_W++, HL_L);
-            WrZ80(WZ_W, HL_H);
-            M_TIMING_ED();
-            break;
-        case LD_xWORDe_DE:
-            WZ_L = RdZ80(PC_W++);
-            WZ_H = RdZ80(PC_W++);
-            WrZ80(WZ_W++, DE_L);
-            WrZ80(WZ_W, DE_H);
-            M_TIMING_ED();
-            break;
-        case LD_xWORDe_BC:
-            WZ_L = RdZ80(PC_W++);
-            WZ_H = RdZ80(PC_W++);
-            WrZ80(WZ_W++, BC_L);
-            WrZ80(WZ_W, BC_H);
-            M_TIMING_ED();
-            break;
-        case LD_xWORDe_SP:
-            WZ_L = RdZ80(PC_W++);
-            WZ_H = RdZ80(PC_W++);
-            WrZ80(WZ_W++, SP_L);
-            WrZ80(WZ_W, SP_H);
-            M_TIMING_ED();
-            break;
-        case LD_HL_xWORDe:
-            WZ_L = RdZ80(PC_W++);
-            WZ_H = RdZ80(PC_W++);
-            HL_L = RdZ80(WZ_W++);
-            HL_H = RdZ80(WZ_W);
-            M_TIMING_ED();
-            break;
-        case LD_DE_xWORDe:
-            WZ_L = RdZ80(PC_W++);
-            WZ_H = RdZ80(PC_W++);
-            DE_L = RdZ80(WZ_W++);
-            DE_H = RdZ80(WZ_W);
-            M_TIMING_ED();
-            break;
-        case LD_BC_xWORDe:
-            WZ_L = RdZ80(PC_W++);
-            WZ_H = RdZ80(PC_W++);
-            BC_L = RdZ80(WZ_W++);
-            BC_H = RdZ80(WZ_W);
-            M_TIMING_ED();
-            break;
-        case LD_SP_xWORDe:
-            WZ_L = RdZ80(PC_W++);
-            WZ_H = RdZ80(PC_W++);
-            SP_L = RdZ80(WZ_W++);
-            SP_H = RdZ80(WZ_W);
-            M_TIMING_ED();
-            break;
-        case RRD:
-            TMP1 = RdZ80(HL_W);
-            WZ_L = (TMP1 >> 4) | (AF_H << 4);
-            WrZ80(HL_W, WZ_L);
-            AF_H = (TMP1 & 0x0F) | (AF_H & 0xF0);
-            AF_L = PZSTable[AF_H] | (AF_L & _CF);
-            M_TIMING_ED();
-            break;
-        case RLD:
-            TMP1 = RdZ80(HL_W);
-            WZ_L = (TMP1 << 4) | (AF_H & 0x0F);
-            WrZ80(HL_W, WZ_L);
-            AF_H = (TMP1 >> 4) | (AF_H & 0xF0);
-            AF_L = PZSTable[AF_H] | (AF_L & _CF);
-            M_TIMING_ED();
-            break;
-        case LD_A_I:
-            AF_H = IR_H;
-            AF_L = (AF_L & _CF) | (IF_W &_IFF2 ? _PF : 0) | ZSTable[AF_H];
-            M_TIMING_ED();
-            break;
-        case LD_A_R:
-            AF_H = IR_L;
-            AF_L = (AF_L & _CF) | (IF_W &_IFF2 ? _PF : 0) | ZSTable[AF_H];
-            M_TIMING_ED();
-            break;
-        case LD_I_A:
-            IR_H = AF_H;
-            M_TIMING_ED();
-            break;
-        case LD_R_A:
-            M_TIMING_ED();
-            break;
-        case IN_B_xC:
-            M_IN(BC_H);
-            M_TIMING_ED();
-            break;
-        case IN_C_xC:
-            M_IN(BC_L);
-            M_TIMING_ED();
-            break;
-        case IN_D_xC:
-            M_IN(DE_H);
-            M_TIMING_ED();
-            break;
-        case IN_E_xC:
-            M_IN(DE_L);
-            M_TIMING_ED();
-            break;
-        case IN_H_xC:
-            M_IN(HL_H);
-            M_TIMING_ED();
-            break;
-        case IN_L_xC:
-            M_IN(HL_L);
-            M_TIMING_ED();
-            break;
-        case IN_A_xC:
-            M_IN(AF_H);
-            M_TIMING_ED();
-            break;
-        case IN_F_xC:
-            M_IN(WZ_L);
-            M_TIMING_ED();
-            break;
-        case OUT_xC_B:
-            OutZ80(BC_W, BC_H);
-            M_TIMING_ED();
-            break;
-        case OUT_xC_C:
-            OutZ80(BC_W, BC_L);
-            M_TIMING_ED();
-            break;
-        case OUT_xC_D:
-            OutZ80(BC_W, DE_H);
-            M_TIMING_ED();
-            break;
-        case OUT_xC_E:
-            OutZ80(BC_W, DE_L);
-            M_TIMING_ED();
-            break;
-        case OUT_xC_H:
-            OutZ80(BC_W, HL_H);
-            M_TIMING_ED();
-            break;
-        case OUT_xC_L:
-            OutZ80(BC_W, HL_L);
-            M_TIMING_ED();
-            break;
-        case OUT_xC_A:
-            OutZ80(BC_W, AF_H);
-            M_TIMING_ED();
             break;
