@@ -27,24 +27,24 @@ extern "C" {
 #define AVOID_UNUSED_WARNING(symbol) (void)(symbol)
 #endif
 
-#define _SF   0x80 /* Sign                   */
-#define _ZF   0x40 /* Zero                   */
-#define _5F   0x20 /* Undocumented           */
-#define _HF   0x10 /* HalfCarry / HalfBorrow */
-#define _3F   0x08 /* Undocumented           */
-#define _PF   0x04 /* Parity                 */
-#define _OF   0x04 /* Overflow               */
-#define _NF   0x02 /* Add / Sub              */
-#define _CF   0x01 /* Carry / Borrow         */
+#define _SF  0x80 /* Sign                   */
+#define _ZF  0x40 /* Zero                   */
+#define _5F  0x20 /* Undocumented           */
+#define _HF  0x10 /* HalfCarry / HalfBorrow */
+#define _3F  0x08 /* Undocumented           */
+#define _PF  0x04 /* Parity                 */
+#define _OF  0x04 /* Overflow               */
+#define _NF  0x02 /* Add / Sub              */
+#define _CF  0x01 /* Carry / Borrow         */
 
-#define _ADD  0x00 /* ADD operation          */
-#define _ADC  0x00 /* ADC operation          */
-#define _SUB  0x02 /* SUB operation          */
-#define _SBC  0x02 /* SBC operation          */
-#define _AND  0x10 /* AND operation          */
-#define _XOR  0x00 /* XOR operation          */
-#define _IOR  0x00 /* IOR operation          */
-#define _CMP  0x02 /* CMP operation          */
+#define _ADD 0x00 /* ADD operation          */
+#define _ADC 0x00 /* ADC operation          */
+#define _SUB 0x02 /* SUB operation          */
+#define _SBC 0x02 /* SBC operation          */
+#define _AND 0x10 /* AND operation          */
+#define _XOR 0x00 /* XOR operation          */
+#define _IOR 0x00 /* IOR operation          */
+#define _CMP 0x02 /* CMP operation          */
 
 #define SIGNED_BYTE(value) ((int8_t)(value))
 

@@ -5430,8 +5430,8 @@ execute_ddcb_opcode:
 #include "cpu-z80a-opcodes-ddcb.inc"
         default:
             {
-                const uint32_t m_cycles = 3;
-                const uint32_t t_states = 12;
+                const uint32_t m_cycles = 4;
+                const uint32_t t_states = 16;
                 m_illegal_ddcb();
                 m_consume(m_cycles, t_states);
             }
@@ -5452,8 +5452,8 @@ execute_fdcb_opcode:
 #include "cpu-z80a-opcodes-fdcb.inc"
         default:
             {
-                const uint32_t m_cycles = 3;
-                const uint32_t t_states = 12;
+                const uint32_t m_cycles = 4;
+                const uint32_t t_states = 16;
                 m_illegal_fdcb();
                 m_consume(m_cycles, t_states);
             }
