@@ -46,6 +46,15 @@ extern "C" {
 #define _IOR 0x00 /* IOR operation          */
 #define _CMP 0x02 /* CMP operation          */
 
+#define BIT0 0x01
+#define BIT1 0x02
+#define BIT2 0x04
+#define BIT3 0x08
+#define BIT4 0x10
+#define BIT5 0x20
+#define BIT6 0x40
+#define BIT7 0x80
+
 #define SIGNED_BYTE(value) ((int8_t)(value))
 
 #define vector_00h 0x0000
@@ -595,6 +604,232 @@ extern "C" {
 #define m_sbc_r16_r16(reg1, reg2) \
     do { \
         M_SBCW(reg1, reg2); \
+    } while(0)
+
+#define m_rlc_r08(reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = (T1_L << 1) | (T1_L >> 7); \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x80) { \
+            AF_L |= _CF; \
+        } \
+        reg = T2_L; \
+    } while(0)
+
+#define m_rlc_ind_r16(reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = (T1_L << 1) | (T1_L >> 7); \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x80) { \
+            AF_L |= _CF; \
+        } \
+        (*IFACE.mreq_wr)(self, reg, T2_L); \
+    } while(0)
+
+#define m_rrc_r08(reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = (T1_L >> 1) | (T1_L << 7); \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x01) { \
+            AF_L |= _CF; \
+        } \
+        reg = T2_L; \
+    } while(0)
+
+#define m_rrc_ind_r16(reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = (T1_L >> 1) | (T1_L << 7); \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x01) { \
+            AF_L |= _CF; \
+        } \
+        (*IFACE.mreq_wr)(self, reg, T2_L); \
+    } while(0)
+
+#define m_rl_r08(reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = T1_L << 1; \
+        if(AF_L & _CF) { \
+            T2_L |= 0x01; \
+        } \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x80) { \
+            AF_L |= _CF; \
+        } \
+        reg = T2_L; \
+    } while(0)
+
+#define m_rl_ind_r16(reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = T1_L << 1; \
+        if(AF_L & _CF) { \
+            T2_L |= 0x01; \
+        } \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x80) { \
+            AF_L |= _CF; \
+        } \
+        (*IFACE.mreq_wr)(self, reg, T2_L); \
+    } while(0)
+
+#define m_rr_r08(reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = T1_L >> 1; \
+        if(AF_L & _CF) { \
+            T2_L |= 0x80; \
+        } \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x01) { \
+            AF_L |= _CF; \
+        } \
+        reg = T2_L; \
+    } while(0)
+
+#define m_rr_ind_r16(reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = T1_L >> 1; \
+        if(AF_L & _CF) { \
+            T2_L |= 0x80; \
+        } \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x01) { \
+            AF_L |= _CF; \
+        } \
+        (*IFACE.mreq_wr)(self, reg, T2_L); \
+    } while(0)
+
+#define m_sla_r08(reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = ((int8_t) T1_L) << 1; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x80) { \
+            AF_L |= _CF; \
+        } \
+        reg = T2_L; \
+    } while(0)
+
+#define m_sla_ind_r16(reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = ((int8_t) T1_L) << 1; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x80) { \
+            AF_L |= _CF; \
+        } \
+        (*IFACE.mreq_wr)(self, reg, T2_L); \
+    } while(0)
+
+#define m_sra_r08(reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = ((int8_t) T1_L) >> 1; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x01) { \
+            AF_L |= _CF; \
+        } \
+        reg = T2_L; \
+    } while(0)
+
+#define m_sra_ind_r16(reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = ((int8_t) T1_L) >> 1; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x01) { \
+            AF_L |= _CF; \
+        } \
+        (*IFACE.mreq_wr)(self, reg, T2_L); \
+    } while(0)
+
+#define m_sll_r08(reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = (T1_L << 1) | 0x01; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x80) { \
+            AF_L |= _CF; \
+        } \
+        reg = T2_L; \
+    } while(0)
+
+#define m_sll_ind_r16(reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = (T1_L << 1) | 0x01; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x80) { \
+            AF_L |= _CF; \
+        } \
+        (*IFACE.mreq_wr)(self, reg, T2_L); \
+    } while(0)
+
+#define m_srl_r08(reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = (T1_L >> 1) & 0x7f; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x01) { \
+            AF_L |= _CF; \
+        } \
+        reg = T2_L; \
+    } while(0)
+
+#define m_srl_ind_r16(reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = (T1_L >> 1) & 0x7f; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
+        if(T1_L & 0x01) { \
+            AF_L |= _CF; \
+        } \
+        (*IFACE.mreq_wr)(self, reg, T2_L); \
+    } while(0)
+
+#define m_bit_b_r08(bit, reg) \
+    do { \
+        T1_L = reg; \
+        T2_L = T1_L & bit; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L] | (AF_L & _CF) | _HF; \
+    } while(0)
+
+#define m_bit_b_ind_r16(bit, reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, reg); \
+        T2_L = T1_L & bit; \
+        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L] | (AF_L & _CF) | _HF; \
+    } while(0)
+
+#define m_res_b_r08(bit, reg) \
+    do { \
+        reg &= ~bit; \
+    } while(0)
+
+#define m_res_b_ind_r16(bit, reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, HL_W); \
+        T2_L = T1_L & ~bit; \
+        (*IFACE.mreq_wr)(self, HL_W, T2_L); \
+    } while(0)
+
+#define m_set_b_r08(bit, reg) \
+    do { \
+        reg |= bit; \
+    } while(0)
+
+#define m_set_b_ind_r16(bit, reg) \
+    do { \
+        T1_L = (*IFACE.mreq_rd)(self, HL_W); \
+        T2_L = T1_L | bit; \
+        (*IFACE.mreq_wr)(self, HL_W, T2_L); \
     } while(0)
 
 enum Codes

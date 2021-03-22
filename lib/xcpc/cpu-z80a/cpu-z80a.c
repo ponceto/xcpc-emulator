@@ -2039,6 +2039,9 @@ execute_opcode:
       self->state.ctrs.t_period -= 7;
       goto epilog;
     case 0xcb:
+      self->state.ctrs.m_cycles += 1;
+      self->state.ctrs.t_states += 4;
+      self->state.ctrs.t_period -= 4;
       goto fetch_cb_opcode;
     case 0xce: /* ADC A,n           */
       T1.b.l = self->state.regs.AF.b.h;
@@ -5386,8 +5389,8 @@ execute_cb_opcode:
 #include "cpu-z80a-opcodes-cb.inc"
         default:
             {
-                const uint32_t m_cycles = 2;
-                const uint32_t t_states = 8;
+                const uint32_t m_cycles = (2 - 1);
+                const uint32_t t_states = (8 - 4);
                 m_illegal_cb();
                 m_consume(m_cycles, t_states);
             }
@@ -5408,8 +5411,8 @@ execute_ed_opcode:
 #include "cpu-z80a-opcodes-ed.inc"
         default:
             {
-                const uint32_t m_cycles = 2 - 1;
-                const uint32_t t_states = 8 - 4;
+                const uint32_t m_cycles = (2 - 1);
+                const uint32_t t_states = (8 - 4);
                 m_illegal_ed();
                 m_consume(m_cycles, t_states);
             }
