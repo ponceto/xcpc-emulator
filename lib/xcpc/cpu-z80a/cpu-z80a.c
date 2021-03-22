@@ -495,8 +495,10 @@ XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
     uint32_t o_cycles = 0;
     uint32_t o_states = 0;
     union XcpcCpuZ80aRegister WZ;
+    union XcpcCpuZ80aRegister T0;
     union XcpcCpuZ80aRegister T1;
     union XcpcCpuZ80aRegister T2;
+    union XcpcCpuZ80aRegister T3;
 
     if(T_PERIOD <= 0) {
         return self;

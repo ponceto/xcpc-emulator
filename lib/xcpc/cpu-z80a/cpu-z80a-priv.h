@@ -27,6 +27,16 @@ extern "C" {
 #define AVOID_UNUSED_WARNING(symbol) (void)(symbol)
 #endif
 
+#define SF  0x80 /* Sign                   */
+#define ZF  0x40 /* Zero                   */
+#define YF  0x20 /* Undocumented           */
+#define HF  0x10 /* HalfCarry / HalfBorrow */
+#define XF  0x08 /* Undocumented           */
+#define PF  0x04 /* Parity                 */
+#define OF  0x04 /* Overflow               */
+#define NF  0x02 /* Add / Sub              */
+#define CF  0x01 /* Carry / Borrow         */
+
 #define _SF  0x80 /* Sign                   */
 #define _ZF  0x40 /* Zero                   */
 #define _5F  0x20 /* Undocumented           */
@@ -56,6 +66,7 @@ extern "C" {
 #define BIT7 0x80
 
 #define SIGNED_BYTE(value) ((int8_t)(value))
+#define UNSIGNED_BYTE(value) ((uint8_t)(value))
 
 #define vector_00h 0x0000
 #define vector_08h 0x0008
@@ -116,18 +127,37 @@ extern "C" {
 #define IF_W CPU_REGS.IF.w.l
 #define IF_H CPU_REGS.IF.b.h
 #define IF_L CPU_REGS.IF.b.l
+
 #define WZ_Q WZ.q
+#define WZ_P WZ.w.h
 #define WZ_W WZ.w.l
 #define WZ_H WZ.b.h
 #define WZ_L WZ.b.l
+
+#define T0_Q T0.q
+#define T0_P T0.w.h
+#define T0_W T0.w.l
+#define T0_H T0.b.h
+#define T0_L T0.b.l
+
 #define T1_Q T1.q
+#define T1_P T1.w.h
 #define T1_W T1.w.l
 #define T1_H T1.b.h
 #define T1_L T1.b.l
+
 #define T2_Q T2.q
+#define T2_P T2.w.h
 #define T2_W T2.w.l
 #define T2_H T2.b.h
 #define T2_L T2.b.l
+
+#define T3_Q T3.q
+#define T3_P T3.w.h
+#define T3_W T3.w.l
+#define T3_H T3.b.h
+#define T3_L T3.b.l
+
 #define M_CYCLES CPU_CTRS.m_cycles
 #define T_STATES CPU_CTRS.t_states
 #define T_PERIOD CPU_CTRS.t_period
@@ -140,78 +170,146 @@ extern "C" {
 #define IORQ_RD(port,data) data=(*IFACE.iorq_rd)(self,port)
 #define IORQ_WR(port,data) (*IFACE.iorq_wr)(self,port,data)
 
+/*
+ * fetch opcode
+ */
+
 #define m_fetch_opcode() \
     do { \
         last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
+
+/*
+ * fetch CB opcode
+ */
 
 #define m_fetch_cb_opcode() \
     do { \
         last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
+/*
+ * fetch DD opcode
+ */
+
 #define m_fetch_dd_opcode() \
     do { \
         last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
+
+/*
+ * fetch ED opcode
+ */
 
 #define m_fetch_ed_opcode() \
     do { \
         last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
+/*
+ * fetch FD opcode
+ */
+
 #define m_fetch_fd_opcode() \
     do { \
         last_op = (*IFACE.mreq_m1)(self, PC_W++); \
     } while(0)
 
+/*
+ * fetch DDCB opcode
+ */
+
 #define m_fetch_ddcb_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_rd)(self, PC_W++); \
     } while(0)
+
+/*
+ * fetch FDCB opcode
+ */
 
 #define m_fetch_fdcb_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_rd)(self, PC_W++); \
     } while(0)
+
+/*
+ * fetch DDCB offset
+ */
 
 #define m_fetch_ddcb_offset() \
     do { \
         WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(self, PC_W++)); \
     } while(0)
 
+/*
+ * fetch FDCB offset
+ */
+
 #define m_fetch_fdcb_offset() \
     do { \
         WZ_W = IY_W + SIGNED_BYTE((*IFACE.mreq_rd)(self, PC_W++)); \
     } while(0)
 
+/*
+ * illegal opcode
+ */
+
 #define m_illegal() \
     do { \
     } while(0)
+
+/*
+ * illegal CB opcode
+ */
 
 #define m_illegal_cb() \
     do { \
     } while(0)
 
+/*
+ * illegal DD opcode
+ */
+
 #define m_illegal_dd() \
     do { \
     } while(0)
+
+/*
+ * illegal ED opcode
+ */
 
 #define m_illegal_ed() \
     do { \
     } while(0)
 
+/*
+ * illegal FD opcode
+ */
+
 #define m_illegal_fd() \
     do { \
     } while(0)
+
+/*
+ * illegal DDCB opcode
+ */
 
 #define m_illegal_ddcb() \
     do { \
     } while(0)
 
+/*
+ * illegal FDCB opcode
+ */
+
 #define m_illegal_fdcb() \
     do { \
     } while(0)
+
+/*
+ * refresh dram
+ */
 
 #define m_refresh_dram() \
     do { \
@@ -220,6 +318,10 @@ extern "C" {
              ; \
     } while(0)
 
+/*
+ * consume m-cycles / t-states
+ */
+
 #define m_consume(cycles, states) \
     do { \
         M_CYCLES += cycles; \
@@ -227,25 +329,93 @@ extern "C" {
         T_PERIOD -= states; \
     } while(0)
 
+/*
+ * pending NMI
+ */
+
 #define m_pending_nmi() \
     ((IF_W & _NMI) != 0)
+
+/*
+ * pending INT
+ */
 
 #define m_pending_int() \
     ((IF_W & _INT) != 0)
 
+/*
+ * halted CPU
+ */
+
 #define m_halted() \
     ((IF_W & _HLT) != 0)
+
+/*
+ * aknowledge NMI
+ */
 
 #define m_acknowledge_nmi() \
     do { \
         IF_W &= ~(_HLT | _NMI | _INT | _IFF2); \
     } while(0)
 
+/*
+ * aknowledge INT
+ */
+
 #define m_acknowledge_int() \
     do { \
         IF_W &= ~(_HLT | _NMI | _INT | _IFF2 | _IFF1); \
         IORQ_M1(0x0000, T1_L); \
     } while(0)
+
+/*
+ * nop
+ */
+
+#define m_nop() \
+    do { \
+    } while(0)
+
+/*
+ * im 0
+ */
+
+#define m_im_0() \
+    do { \
+        IF_W = (IF_W & ~(_IM1 | _IM2)); \
+    } while(0)
+
+/*
+ * im 1
+ */
+
+#define m_im_1() \
+    do { \
+        IF_W = (IF_W & ~(_IM1 | _IM2)) | (_IM1); \
+    } while(0)
+
+/*
+ * im 2
+ */
+
+#define m_im_2() \
+    do { \
+        IF_W = (IF_W & ~(_IM1 | _IM2)) | (_IM2); \
+    } while(0)
+
+/*
+ * im 3
+ */
+
+#define m_im_3() \
+    do { \
+        IF_W = (IF_W | (_IM1 | _IM2)); \
+    } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_push_r16(r16) \
     do { \
@@ -254,19 +424,27 @@ extern "C" {
         MREQ_WR(--SP_W, T1_L); \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_rst_vec16(vector) \
     do { \
         PC_W = vector; \
     } while(0)
 
-#define m_nop() \
-    do { \
-    } while(0)
+/*
+ * xxx
+ */
 
 #define m_ld_r08_r08(reg1, reg2) \
     do { \
         reg1 = reg2; \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_neg() \
     do { \
@@ -275,11 +453,19 @@ extern "C" {
         M_SUB(T1_L); \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_reti() \
     do { \
         MREQ_RD(SP_W++, PC_L); \
         MREQ_RD(SP_W++, PC_H); \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_retn() \
     do { \
@@ -293,43 +479,53 @@ extern "C" {
         MREQ_RD(SP_W++, PC_H); \
     } while(0)
 
-#define m_im_0() \
-    do { \
-        IF_W = (IF_W & ~(_IM1 | _IM2)); \
-    } while(0)
-
-#define m_im_1() \
-    do { \
-        IF_W = (IF_W & ~(_IM1 | _IM2)) | (_IM1); \
-    } while(0)
-
-#define m_im_2() \
-    do { \
-        IF_W = (IF_W & ~(_IM1 | _IM2)) | (_IM2); \
-    } while(0)
-
-#define m_im_3() \
-    do { \
-        IF_W = (IF_W | (_IM1 | _IM2)); \
-    } while(0)
-
-#define m_rrd() \
-    do { \
-        MREQ_RD(HL_W, T1_L); \
-        T2_L = (T1_L >> 4) | (AF_H << 4); \
-        MREQ_WR(HL_W, T2_L); \
-        AF_H = (T1_L & 0x0f) | (AF_H & 0xf0); \
-        AF_L = PZSTable[AF_H] | (AF_L & _CF); \
-    } while(0)
+/*
+ * rld
+ */
 
 #define m_rld() \
     do { \
         MREQ_RD(HL_W, T1_L); \
-        T2_L = (T1_L << 4) | (AF_H & 0x0f); \
-        MREQ_WR(HL_W, T2_L); \
-        AF_H = (T1_L >> 4) | (AF_H & 0xf0); \
-        AF_L = PZSTable[AF_H] | (AF_L & _CF); \
+        T0_L = (((T1_L & 0x0f) << 4) | ((AF_H & 0x0f) >> 0)); \
+        AF_H = (((AF_H & 0xf0) >> 0) | ((T1_L & 0xf0) >> 4)); \
+        T3_L = PZSTable[AF_H]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        MREQ_WR(HL_W, T0_L); \
     } while(0)
+
+/*
+ * rrd
+ */
+
+#define m_rrd() \
+    do { \
+        MREQ_RD(HL_W, T1_L); \
+        T0_L = (((AF_H & 0x0f) << 4) | ((T1_L & 0xf0) >> 4)); \
+        AF_H = (((AF_H & 0xf0) >> 0) | ((T1_L & 0x0f) >> 0)); \
+        T3_L = PZSTable[AF_H]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        MREQ_WR(HL_W, T0_L); \
+    } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_ldir() \
     do { \
@@ -348,6 +544,10 @@ extern "C" {
         } \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_lddr() \
     do { \
         MREQ_RD(HL_W, T1_L); \
@@ -365,6 +565,10 @@ extern "C" {
         } \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_cpir() \
     do { \
         MREQ_RD(HL_W, T1_L); \
@@ -380,6 +584,10 @@ extern "C" {
         } \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_cpdr() \
     do { \
         MREQ_RD(HL_W, T1_L); \
@@ -394,6 +602,10 @@ extern "C" {
             T_PERIOD -= 5; \
         } \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_inir() \
     do { \
@@ -413,6 +625,10 @@ extern "C" {
         } \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_indr() \
     do { \
         IORQ_RD(BC_W, T1_L); \
@@ -430,6 +646,10 @@ extern "C" {
             AF_L = _ZF | _NF; \
         } \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_otir() \
     do { \
@@ -449,6 +669,10 @@ extern "C" {
         } \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_otdr() \
     do { \
         MREQ_RD(HL_W, T1_L); \
@@ -467,6 +691,10 @@ extern "C" {
         } \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_ldi() \
     do { \
         MREQ_RD(HL_W, T1_L); \
@@ -476,6 +704,10 @@ extern "C" {
         --BC_W; \
         AF_L = (AF_L &~(_NF | _HF | _PF)) | (BC_W ? _PF : 0); \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_ldd() \
     do { \
@@ -487,6 +719,10 @@ extern "C" {
         AF_L = (AF_L &~(_NF | _HF | _PF)) | (BC_W ? _PF : 0); \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_cpi() \
     do { \
         MREQ_RD(HL_W, T1_L); \
@@ -495,6 +731,10 @@ extern "C" {
         --BC_W; \
         AF_L = _NF | (AF_L & _CF) | ZSTable[T2_L] | ((AF_H ^ T1_L ^ T2_L) &_HF) | (BC_W ? _PF : 0); \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_cpd() \
     do { \
@@ -505,6 +745,10 @@ extern "C" {
         AF_L = _NF | (AF_L & _CF) | ZSTable[T2_L] | ((AF_H ^ T1_L ^ T2_L) &_HF) | (BC_W ? _PF : 0); \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_ini() \
     do { \
         IORQ_RD(BC_W, T1_L); \
@@ -513,6 +757,10 @@ extern "C" {
         --BC_H; \
         AF_L = _NF | (BC_H ? 0 : _ZF); \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_ind() \
     do { \
@@ -523,6 +771,10 @@ extern "C" {
         AF_L = _NF | (BC_H ? 0 : _ZF); \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_outi() \
     do { \
         MREQ_RD(HL_W, T1_L); \
@@ -531,6 +783,10 @@ extern "C" {
         IORQ_WR(BC_W, T1_L); \
         AF_L = _NF | (BC_H ? 0 : _ZF) | (HL_L + T1_L > 255 ? (_CF | _HF) : 0); \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_outd() \
     do { \
@@ -541,11 +797,19 @@ extern "C" {
         AF_L = _NF | (BC_H ? 0 : _ZF) | (HL_L + T1_L > 255 ? (_CF | _HF) : 0); \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_ld_a_i() \
     do { \
         AF_H = IR_H; \
         AF_L = (AF_L & _CF) | (IF_W &_IFF2 ? _PF : 0) | ZSTable[AF_H]; \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_ld_a_r() \
     do { \
@@ -553,15 +817,27 @@ extern "C" {
         AF_L = (AF_L & _CF) | (IF_W &_IFF2 ? _PF : 0) | ZSTable[AF_H]; \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_ld_i_a() \
     do { \
         IR_H = AF_H; \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_ld_r_a() \
     do { \
         IR_L = AF_H; \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_in_r08_ind_r08(data, port) \
     do { \
@@ -571,12 +847,20 @@ extern "C" {
         AF_L = PZSTable[data] | (AF_L & _CF); \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_out_ind_r08_r08(port, data) \
     do { \
         T1_H = BC_H; \
         T1_L = port; \
         IORQ_WR(T1_W, data); \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_ld_r16_ind_i16(data) \
     do { \
@@ -587,6 +871,10 @@ extern "C" {
         data = T2_W; \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_ld_ind_i16_r16(data) \
     do { \
         T2_W = data; \
@@ -596,241 +884,445 @@ extern "C" {
         MREQ_WR(T1_W++, T2_H); \
     } while(0)
 
+/*
+ * xxx
+ */
+
 #define m_adc_r16_r16(reg1, reg2) \
     do { \
         M_ADCW(reg1, reg2); \
     } while(0)
+
+/*
+ * xxx
+ */
 
 #define m_sbc_r16_r16(reg1, reg2) \
     do { \
         M_SBCW(reg1, reg2); \
     } while(0)
 
-#define m_rlc_r08(reg) \
+/*
+ * rlc r08
+ */
+
+#define m_rlc_r08(data) \
     do { \
-        T1_L = reg; \
-        T2_L = (T1_L << 1) | (T1_L >> 7); \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x80) { \
-            AF_L |= _CF; \
-        } \
-        reg = T2_L; \
+        T1_L = data; \
+        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (UNSIGNED_BYTE(T1_L) >> 7); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+        data = T0_L; \
     } while(0)
 
-#define m_rlc_ind_r16(reg) \
+/*
+ * rlc (r16)
+ */
+
+#define m_rlc_ind_r16(addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = (T1_L << 1) | (T1_L >> 7); \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x80) { \
-            AF_L |= _CF; \
-        } \
-        (*IFACE.mreq_wr)(self, reg, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (UNSIGNED_BYTE(T1_L) >> 7); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_rrc_r08(reg) \
+/*
+ * rrc r08
+ */
+
+#define m_rrc_r08(data) \
     do { \
-        T1_L = reg; \
-        T2_L = (T1_L >> 1) | (T1_L << 7); \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x01) { \
-            AF_L |= _CF; \
-        } \
-        reg = T2_L; \
+        T1_L = data; \
+        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) | (UNSIGNED_BYTE(T1_L) << 7); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+        data = T0_L; \
     } while(0)
 
-#define m_rrc_ind_r16(reg) \
+/*
+ * rrc (r16)
+ */
+
+#define m_rrc_ind_r16(addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = (T1_L >> 1) | (T1_L << 7); \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x01) { \
-            AF_L |= _CF; \
-        } \
-        (*IFACE.mreq_wr)(self, reg, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) | (UNSIGNED_BYTE(T1_L) << 7); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_rl_r08(reg) \
+/*
+ * rl r08
+ */
+
+#define m_rl_r08(data) \
     do { \
-        T1_L = reg; \
-        T2_L = T1_L << 1; \
-        if(AF_L & _CF) { \
-            T2_L |= 0x01; \
-        } \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x80) { \
-            AF_L |= _CF; \
-        } \
-        reg = T2_L; \
+        T1_L = data; \
+        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (AF_L & CF ? BIT0 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+        data = T0_L; \
     } while(0)
 
-#define m_rl_ind_r16(reg) \
+/*
+ * rl (r16)
+ */
+
+#define m_rl_ind_r16(addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = T1_L << 1; \
-        if(AF_L & _CF) { \
-            T2_L |= 0x01; \
-        } \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x80) { \
-            AF_L |= _CF; \
-        } \
-        (*IFACE.mreq_wr)(self, reg, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (AF_L & CF ? BIT0 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_rr_r08(reg) \
+/*
+ * rr r08
+ */
+
+#define m_rr_r08(data) \
     do { \
-        T1_L = reg; \
-        T2_L = T1_L >> 1; \
-        if(AF_L & _CF) { \
-            T2_L |= 0x80; \
-        } \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x01) { \
-            AF_L |= _CF; \
-        } \
-        reg = T2_L; \
+        T1_L = data; \
+        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) | (AF_L & CF ? BIT7 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+        data = T0_L; \
     } while(0)
 
-#define m_rr_ind_r16(reg) \
+/*
+ * rr (r16)
+ */
+
+#define m_rr_ind_r16(addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = T1_L >> 1; \
-        if(AF_L & _CF) { \
-            T2_L |= 0x80; \
-        } \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x01) { \
-            AF_L |= _CF; \
-        } \
-        (*IFACE.mreq_wr)(self, reg, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) | (AF_L & CF ? BIT7 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_sla_r08(reg) \
+/*
+ * sla r08
+ */
+
+#define m_sla_r08(data) \
     do { \
-        T1_L = reg; \
-        T2_L = ((int8_t) T1_L) << 1; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x80) { \
-            AF_L |= _CF; \
-        } \
-        reg = T2_L; \
+        T1_L = data; \
+        T0_L = (SIGNED_BYTE(T1_L) << 1); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+        data = T0_L; \
     } while(0)
 
-#define m_sla_ind_r16(reg) \
+/*
+ * sla (r16)
+ */
+
+#define m_sla_ind_r16(addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = ((int8_t) T1_L) << 1; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x80) { \
-            AF_L |= _CF; \
-        } \
-        (*IFACE.mreq_wr)(self, reg, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (SIGNED_BYTE(T1_L) << 1); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_sra_r08(reg) \
+/*
+ * sra r08
+ */
+
+#define m_sra_r08(data) \
     do { \
-        T1_L = reg; \
-        T2_L = ((int8_t) T1_L) >> 1; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x01) { \
-            AF_L |= _CF; \
-        } \
-        reg = T2_L; \
+        T1_L = data; \
+        T0_L = (SIGNED_BYTE(T1_L) >> 1); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+        data = T0_L; \
     } while(0)
 
-#define m_sra_ind_r16(reg) \
+/*
+ * sra r16
+ */
+
+#define m_sra_ind_r16(addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = ((int8_t) T1_L) >> 1; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x01) { \
-            AF_L |= _CF; \
-        } \
-        (*IFACE.mreq_wr)(self, reg, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (SIGNED_BYTE(T1_L) >> 1); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_sll_r08(reg) \
+/*
+ * sll r08
+ */
+
+#define m_sll_r08(data) \
     do { \
-        T1_L = reg; \
-        T2_L = (T1_L << 1) | 0x01; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x80) { \
-            AF_L |= _CF; \
-        } \
-        reg = T2_L; \
+        T1_L = data; \
+        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (BIT0); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+        data = T0_L; \
     } while(0)
 
-#define m_sll_ind_r16(reg) \
+/*
+ * sll (r16)
+ */
+
+#define m_sll_ind_r16(addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = (T1_L << 1) | 0x01; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x80) { \
-            AF_L |= _CF; \
-        } \
-        (*IFACE.mreq_wr)(self, reg, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (BIT0); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_srl_r08(reg) \
+/*
+ * srl r08
+ */
+
+#define m_srl_r08(data) \
     do { \
-        T1_L = reg; \
-        T2_L = (T1_L >> 1) & 0x7f; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x01) { \
-            AF_L |= _CF; \
-        } \
-        reg = T2_L; \
+        T1_L = data; \
+        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) & (~BIT7); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+        data = T0_L; \
     } while(0)
 
-#define m_srl_ind_r16(reg) \
+/*
+ * srl (r16)
+ */
+
+#define m_srl_ind_r16(addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = (T1_L >> 1) & 0x7f; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L]; \
-        if(T1_L & 0x01) { \
-            AF_L |= _CF; \
-        } \
-        (*IFACE.mreq_wr)(self, reg, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) & (~BIT7); \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is set/reset    */ (SF & (T3_L)) \
+             | /* ZF is set/reset    */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is set/reset    */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_bit_b_r08(bit, reg) \
+/*
+ * bit r08
+ */
+
+#define m_bit_b_r08(mask, data) \
     do { \
-        T1_L = reg; \
-        T2_L = T1_L & bit; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L] | (AF_L & _CF) | _HF; \
+        T1_L = data; \
+        T0_L = (T1_L & mask); \
+        AF_L = /* SF is undocumented */ (SF & (T0_L & mask)) \
+             | /* ZF is set/reset    */ (ZF & (T0_L == 0x00 ? 0xff : 0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L & mask)) \
+             | /* HF is set          */ (HF & (0xff)) \
+             | /* XF is undocumented */ (XF & (T0_L & mask)) \
+             | /* PF is undocumented */ (PF & (0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
     } while(0)
 
-#define m_bit_b_ind_r16(bit, reg) \
+/*
+ * bit (r16)
+ */
+
+#define m_bit_b_ind_r16(mask, addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, reg); \
-        T2_L = T1_L & bit; \
-        AF_L = (T2_L & (_SF | _5F | _3F)) | PZSTable[T2_L] | (AF_L & _CF) | _HF; \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (T1_L & mask); \
+        AF_L = /* SF is undocumented */ (SF & (T0_L & mask)) \
+             | /* ZF is set/reset    */ (ZF & (T0_L == 0x00 ? 0xff : 0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L & mask)) \
+             | /* HF is set          */ (HF & (0xff)) \
+             | /* XF is undocumented */ (XF & (T0_L & mask)) \
+             | /* PF is undocumented */ (PF & (0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
     } while(0)
 
-#define m_res_b_r08(bit, reg) \
+/*
+ * res r08
+ */
+
+#define m_res_b_r08(mask, data) \
     do { \
-        reg &= ~bit; \
+        T1_L = data; \
+        T0_L = (T1_L & ~mask); \
+        data = T0_L; \
     } while(0)
 
-#define m_res_b_ind_r16(bit, reg) \
+/*
+ * res (r16)
+ */
+
+#define m_res_b_ind_r16(mask, addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, HL_W); \
-        T2_L = T1_L & ~bit; \
-        (*IFACE.mreq_wr)(self, HL_W, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (T1_L & ~mask); \
+        MREQ_WR(addr, T0_L); \
     } while(0)
 
-#define m_set_b_r08(bit, reg) \
+/*
+ * set r08
+ */
+
+#define m_set_b_r08(mask, data) \
     do { \
-        reg |= bit; \
+        T1_L = data; \
+        T0_L = (T1_L | mask); \
+        data = T0_L; \
     } while(0)
 
-#define m_set_b_ind_r16(bit, reg) \
+/*
+ * set (r16)
+ */
+
+#define m_set_b_ind_r16(mask, addr) \
     do { \
-        T1_L = (*IFACE.mreq_rd)(self, HL_W); \
-        T2_L = T1_L | bit; \
-        (*IFACE.mreq_wr)(self, HL_W, T2_L); \
+        MREQ_RD(addr, T1_L); \
+        T0_L = (T1_L | mask); \
+        MREQ_WR(addr, T0_L); \
     } while(0)
+
+/*
+ * xxx
+ */
 
 enum Codes
 {
