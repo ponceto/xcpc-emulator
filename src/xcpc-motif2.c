@@ -185,8 +185,15 @@ static XcpcApplication Play(XcpcApplication self)
         XtSetValues(self->ctrl.pause_emulator, arglist, argcount);
         string = (XmStringFree(string), NULL);
     }
+    if(self->tool.pause_emulator != NULL) {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.pause); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP           ); ++argcount;
+        XtSetValues(self->tool.pause_emulator, arglist, argcount);
+    }
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, TRUE);
+        XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
     }
     return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Playing"));
 }
@@ -205,8 +212,15 @@ static XcpcApplication Pause(XcpcApplication self)
         XtSetValues(self->ctrl.pause_emulator, arglist, argcount);
         string = (XmStringFree(string), NULL);
     }
+    if(self->tool.pause_emulator != NULL) {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.play ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP           ); ++argcount;
+        XtSetValues(self->tool.pause_emulator, arglist, argcount);
+    }
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, FALSE);
+        XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
     }
     return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Paused"));
 }
@@ -685,7 +699,7 @@ static XcpcApplication DebugInstance(XcpcApplication self, const char* method_na
         /* layout */ {
             (void) fprintf(stream, "    layout:\n"                                                );
             (void) fprintf(stream, "        toplevel            : %p\n", self->layout.toplevel    );
-            (void) fprintf(stream, "        main_window         : %p\n", self->layout.main_window );
+            (void) fprintf(stream, "        main_wnd            : %p\n", self->layout.main_wnd    );
             (void) fprintf(stream, "        menu_bar            : %p\n", self->layout.menu_bar    );
             (void) fprintf(stream, "        frame               : %p\n", self->layout.frame       );
             (void) fprintf(stream, "        emulator            : %p\n", self->layout.emulator    );
@@ -728,6 +742,14 @@ static XcpcApplication DebugInstance(XcpcApplication self, const char* method_na
             (void) fprintf(stream, "        help.separator1     : %p\n", self->help.separator1    );
             (void) fprintf(stream, "        help.about_xcpc     : %p\n", self->help.about_xcpc    );
         }
+        /* tool */ {
+            (void) fprintf(stream, "    tool:\n"                                                  );
+            (void) fprintf(stream, "        tool.container      : %p\n", self->tool.container     );
+            (void) fprintf(stream, "        tool.snapshot_load  : %p\n", self->tool.snapshot_load );
+            (void) fprintf(stream, "        tool.snapshot_save  : %p\n", self->tool.snapshot_save );
+            (void) fprintf(stream, "        tool.pause_emulator : %p\n", self->tool.pause_emulator);
+            (void) fprintf(stream, "        tool.reset_emulator : %p\n", self->tool.reset_emulator);
+        }
         (void) fputc('\n', stream);
         (void) fflush(stream);
     }
@@ -765,24 +787,31 @@ static XcpcApplication BuildLayout(XcpcApplication self)
     Arg      arglist[16];
     Cardinal argcount = 0;
 
-    /* main-window */ {
+    /* main-wnd */ {
         argcount = 0;
-        self->layout.main_window = XmCreateMainWindow(self->layout.toplevel, "main-window", arglist, argcount);
-        XtAddCallback(self->layout.main_window, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.main_window);
-        XtManageChild(self->layout.main_window);
+        self->layout.main_wnd = XmCreateMainWindow(self->layout.toplevel, "main-wnd", arglist, argcount);
+        XtAddCallback(self->layout.main_wnd, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.main_wnd);
+        XtManageChild(self->layout.main_wnd);
     }
     /* menu-bar */ {
         argcount = 0;
-        self->layout.menu_bar = XmCreateMenuBar(self->layout.main_window, "menu-bar", arglist, argcount);
+        self->layout.menu_bar = XmCreateMenuBar(self->layout.main_wnd, "menu-bar", arglist, argcount);
         XtAddCallback(self->layout.menu_bar, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.menu_bar);
         XtManageChild(self->layout.menu_bar);
+    }
+    /* tool-bar */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNshadowType  , XmSHADOW_OUT); ++argcount;
+        self->layout.tool_bar = XmCreateFrame(self->layout.main_wnd, "tool-bar", arglist, argcount);
+        XtAddCallback(self->layout.tool_bar, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.tool_bar);
+        XtManageChild(self->layout.tool_bar);
     }
     /* frame */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XmNshadowType  , XmSHADOW_OUT); ++argcount;
         XtSetArg(arglist[argcount], XmNmarginWidth , 4           ); ++argcount;
         XtSetArg(arglist[argcount], XmNmarginHeight, 4           ); ++argcount;
-        self->layout.frame = XmCreateFrame(self->layout.main_window, "frame", arglist, argcount);
+        self->layout.frame = XmCreateFrame(self->layout.main_wnd, "frame", arglist, argcount);
         XtAddCallback(self->layout.frame, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.frame);
         XtManageChild(self->layout.frame);
     }
@@ -799,6 +828,14 @@ static XcpcApplication BuildLayout(XcpcApplication self)
         self->layout.emulator = XemCreateEmulator(self->layout.frame, "emulator", arglist, argcount);
         XtAddCallback(self->layout.emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.emulator);
         XtManageChild(self->layout.emulator);
+    }
+    /* set main-window areas */ {
+        XmMainWindowSetAreas ( self->layout.main_wnd
+                             , self->layout.menu_bar
+                             , self->layout.tool_bar
+                             , NULL
+                             , NULL
+                             , self->layout.frame );
     }
     /* get pixmaps */ {
         GetPixmaps(self->layout.menu_bar, &self->pixmaps);
@@ -1070,6 +1107,82 @@ static XcpcApplication BuildHelpMenu(XcpcApplication self)
     return self;
 }
 
+static XcpcApplication BuildMenuBar(XcpcApplication self)
+{
+    /* build all menus */ {
+        (void) BuildFileMenu(self);
+        (void) BuildCtrlMenu(self);
+        (void) BuildDrv0Menu(self);
+        (void) BuildDrv1Menu(self);
+        (void) BuildHelpMenu(self);
+    }
+    return self;
+}
+
+static XcpcApplication BuildToolBar(XcpcApplication self)
+{
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+
+    /* tool-bar */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNorientation, XmHORIZONTAL); ++argcount;
+        XtSetArg(arglist[argcount], XmNtraversalOn, FALSE       ); ++argcount;
+        self->tool.container = XmCreateRowColumn(self->layout.tool_bar, "tool-row", arglist, argcount);
+        XtAddCallback(self->tool.container, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.container);
+        XtManageChild(self->tool.container);
+    }
+    /* tool-snapshot-load */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelPixmap    , self->pixmaps.folder_open); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType      , XmPIXMAP                 ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmarginWidth    , 4                        ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmarginHeight   , 4                        ); ++argcount;
+        XtSetArg(arglist[argcount], XmNshadowThickness, 0                        ); ++argcount;
+        self->tool.snapshot_load = XmCreatePushButtonGadget(self->tool.container, "tool-snapshot-load", arglist, argcount);
+        XtAddCallback(self->tool.snapshot_load, XmNactivateCallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
+        XtAddCallback(self->tool.snapshot_load, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.snapshot_load);
+        XtManageChild(self->tool.snapshot_load);
+    }
+    /* tool-snapshot-save */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelPixmap    , self->pixmaps.save); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType      , XmPIXMAP          ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmarginWidth    , 4                 ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmarginHeight   , 4                 ); ++argcount;
+        XtSetArg(arglist[argcount], XmNshadowThickness, 0                 ); ++argcount;
+        self->tool.snapshot_save = XmCreatePushButtonGadget(self->tool.container, "tool-snapshot-save", arglist, argcount);
+        XtAddCallback(self->tool.snapshot_save, XmNactivateCallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
+        XtAddCallback(self->tool.snapshot_save, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.snapshot_save);
+        XtManageChild(self->tool.snapshot_save);
+    }
+    /* tool-pause-emu */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelPixmap    , self->pixmaps.empty); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType      , XmPIXMAP           ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmarginWidth    , 4                  ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmarginHeight   , 4                  ); ++argcount;
+        XtSetArg(arglist[argcount], XmNshadowThickness, 0                  ); ++argcount;
+        self->tool.pause_emulator = XmCreatePushButtonGadget(self->tool.container, "tool-pause-emu", arglist, argcount);
+        XtAddCallback(self->tool.pause_emulator, XmNactivateCallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
+        XtAddCallback(self->tool.pause_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.pause_emulator);
+        XtManageChild(self->tool.pause_emulator);
+    }
+    /* tool-reset-emu */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelPixmap    , self->pixmaps.sync); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType      , XmPIXMAP          ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmarginWidth    , 4                 ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmarginHeight   , 4                 ); ++argcount;
+        XtSetArg(arglist[argcount], XmNshadowThickness, 0                 ); ++argcount;
+        self->tool.reset_emulator = XmCreatePushButtonGadget(self->tool.container, "tool-reset-emu", arglist, argcount);
+        XtAddCallback(self->tool.reset_emulator, XmNactivateCallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
+        XtAddCallback(self->tool.reset_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.reset_emulator);
+        XtManageChild(self->tool.reset_emulator);
+    }
+    return self;
+}
+
 /*
  * ---------------------------------------------------------------------------
  * XcpcApplication public methods
@@ -1121,11 +1234,8 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
     }
     /* build user interface */ {
         (void) BuildLayout(self);
-        (void) BuildFileMenu(self);
-        (void) BuildCtrlMenu(self);
-        (void) BuildDrv0Menu(self);
-        (void) BuildDrv1Menu(self);
-        (void) BuildHelpMenu(self);
+        (void) BuildMenuBar(self);
+        (void) BuildToolBar(self);
         (void) Play(self);
     }
     return DebugInstance(self, "XcpcApplicationInit()");

@@ -53,8 +53,9 @@ typedef struct _XcpcPixmapsRec
 typedef struct _XcpcLayoutRec
 {
     Widget toplevel;
-    Widget main_window;
+    Widget main_wnd;
     Widget menu_bar;
+    Widget tool_bar;
     Widget frame;
     Widget emulator;
 } XcpcLayoutRec;
@@ -102,6 +103,15 @@ typedef struct _XcpcHelpMenuRec
     Widget about_xcpc;
 } XcpcHelpMenuRec;
 
+typedef struct _XcpcToolBarRec
+{
+    Widget container;
+    Widget snapshot_load;
+    Widget snapshot_save;
+    Widget pause_emulator;
+    Widget reset_emulator;
+} XcpcToolBarRec;
+
 typedef struct _XcpcApplicationRec
 {
     FILE*            input_stream;
@@ -116,6 +126,7 @@ typedef struct _XcpcApplicationRec
     XcpcDrv0MenuRec  drv0;
     XcpcDrv1MenuRec  drv1;
     XcpcHelpMenuRec  help;
+    XcpcToolBarRec   tool;
 } XcpcApplicationRec;
 
 #ifdef __cplusplus
