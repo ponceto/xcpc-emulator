@@ -18,7 +18,6 @@
 #define __XCPC_CPU_Z80A_IMPL_H__
 
 #include <xcpc/libxcpc.h>
-#include <xcpc/cpu-z80a/cpu-z80a-defs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,24 +40,24 @@ struct _XcpcCpuZ80aIface
 
 struct _XcpcCpuZ80aState
 {
-    struct
+    struct /* registers */
     {
-        union XcpcCpuZ80aRegister AF; /* AF & AF'            */
-        union XcpcCpuZ80aRegister BC; /* BC & BC'            */
-        union XcpcCpuZ80aRegister DE; /* DE & DE'            */
-        union XcpcCpuZ80aRegister HL; /* HL & HL'            */
-        union XcpcCpuZ80aRegister IX; /* IX Index            */
-        union XcpcCpuZ80aRegister IY; /* IY Index            */
-        union XcpcCpuZ80aRegister SP; /* Stack Pointer       */
-        union XcpcCpuZ80aRegister PC; /* Program Counter     */
-        union XcpcCpuZ80aRegister IR; /* Interrupt & Refresh */
-        union XcpcCpuZ80aRegister IF; /* IFF, IM & Control   */
+        XcpcRegister AF; /* AF & AF'            */
+        XcpcRegister BC; /* BC & BC'            */
+        XcpcRegister DE; /* DE & DE'            */
+        XcpcRegister HL; /* HL & HL'            */
+        XcpcRegister IX; /* IX Index            */
+        XcpcRegister IY; /* IY Index            */
+        XcpcRegister SP; /* Stack Pointer       */
+        XcpcRegister PC; /* Program Counter     */
+        XcpcRegister IR; /* Interrupt & Refresh */
+        XcpcRegister ST; /* IFF, IM & Control   */
     } regs;
-    struct
+    struct /* counters */
     {
         int32_t m_cycles;
         int32_t t_states;
-        int32_t t_period;
+        int32_t i_period;
     } ctrs;
 };
 

@@ -62,7 +62,6 @@ libxcpc_la_SOURCES = \
 	joystick/joystick-priv.h \
 	cpu-z80a/cpu-z80a.c \
 	cpu-z80a/cpu-z80a.h \
-	cpu-z80a/cpu-z80a-defs.h \
 	cpu-z80a/cpu-z80a-impl.h \
 	cpu-z80a/cpu-z80a-priv.h \
 	cpu-z80a/cpu-z80a-opcodes.inc \

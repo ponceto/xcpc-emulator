@@ -44,12 +44,13 @@ extern "C" {
 #define xcpc_delete(type, pointer) ((type*)(xcpc_free(nameof(type), (pointer))))
 #endif
 
-typedef enum _XcpcComputerModel  XcpcComputerModel;
-typedef enum _XcpcMonitorModel   XcpcMonitorModel;
-typedef enum _XcpcRefreshRate    XcpcRefreshRate;
-typedef enum _XcpcKeyboardLayout XcpcKeyboardLayout;
-typedef enum _XcpcManufacturer   XcpcManufacturer;
-typedef enum _XcpcColor          XcpcColor;
+typedef union _XcpcRegister       XcpcRegister;
+typedef enum  _XcpcComputerModel  XcpcComputerModel;
+typedef enum  _XcpcMonitorModel   XcpcMonitorModel;
+typedef enum  _XcpcRefreshRate    XcpcRefreshRate;
+typedef enum  _XcpcKeyboardLayout XcpcKeyboardLayout;
+typedef enum  _XcpcManufacturer   XcpcManufacturer;
+typedef enum  _XcpcColor          XcpcColor;
 
 enum _XcpcComputerModel
 {
@@ -135,6 +136,42 @@ enum _XcpcColor
     XCPC_COLOR_MAUVE                      = 29,
     XCPC_COLOR_YELLOW                     = 30,
     XCPC_COLOR_PASTEL_BLUE                = 31,
+};
+
+union _XcpcRegister
+{
+    struct /* long */
+    {
+        uint32_t r;
+    } l;
+#if defined(MSB_FIRST) && !defined(LSB_FIRST)
+    struct /* word */
+    {
+        uint16_t h;
+        uint16_t l;
+    } w;
+    struct /* byte */
+    {
+        uint8_t  x;
+        uint8_t  y;
+        uint8_t  h;
+        uint8_t  l;
+    } b;
+#endif
+#if !defined(MSB_FIRST) && defined(LSB_FIRST)
+    struct /* word */
+    {
+        uint16_t l;
+        uint16_t h;
+    } w;
+    struct /* byte */
+    {
+        uint8_t  l;
+        uint8_t  h;
+        uint8_t  y;
+        uint8_t  x;
+    } b;
+#endif
 };
 
 #ifdef __cplusplus

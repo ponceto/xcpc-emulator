@@ -1736,58 +1736,35 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* cpu */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->cpu_z80a->state.regs.AF.b.l = snapshot->header.cpu_p_af_l;
-      self->cpu_z80a->state.regs.AF.b.h = snapshot->header.cpu_p_af_h;
-      self->cpu_z80a->state.regs.BC.b.l = snapshot->header.cpu_p_bc_l;
-      self->cpu_z80a->state.regs.BC.b.h = snapshot->header.cpu_p_bc_h;
-      self->cpu_z80a->state.regs.DE.b.l = snapshot->header.cpu_p_de_l;
-      self->cpu_z80a->state.regs.DE.b.h = snapshot->header.cpu_p_de_h;
-      self->cpu_z80a->state.regs.HL.b.l = snapshot->header.cpu_p_hl_l;
-      self->cpu_z80a->state.regs.HL.b.h = snapshot->header.cpu_p_hl_h;
-      self->cpu_z80a->state.regs.IR.b.l = snapshot->header.cpu_p_ir_l;
-      self->cpu_z80a->state.regs.IR.b.h = snapshot->header.cpu_p_ir_h;
-      if(snapshot->header.cpu_p_iff1 != 0) {
-        self->cpu_z80a->state.regs.IF.w.l |= _IFF1;
-      }
-      else {
-        self->cpu_z80a->state.regs.IF.w.l &= ~_IFF1;
-      }
-      if(snapshot->header.cpu_p_iff2 != 0) {
-        self->cpu_z80a->state.regs.IF.w.l |= _IFF2;
-      }
-      else {
-        self->cpu_z80a->state.regs.IF.w.l &= ~_IFF2;
-      }
-      self->cpu_z80a->state.regs.IX.b.l = snapshot->header.cpu_p_ix_l;
-      self->cpu_z80a->state.regs.IX.b.h = snapshot->header.cpu_p_ix_h;
-      self->cpu_z80a->state.regs.IY.b.l = snapshot->header.cpu_p_iy_l;
-      self->cpu_z80a->state.regs.IY.b.h = snapshot->header.cpu_p_iy_h;
-      self->cpu_z80a->state.regs.SP.b.l = snapshot->header.cpu_p_sp_l;
-      self->cpu_z80a->state.regs.SP.b.h = snapshot->header.cpu_p_sp_h;
-      self->cpu_z80a->state.regs.PC.b.l = snapshot->header.cpu_p_pc_l;
-      self->cpu_z80a->state.regs.PC.b.h = snapshot->header.cpu_p_pc_h;
-      switch(snapshot->header.cpu_p_im_l) {
-        case 1:
-          self->cpu_z80a->state.regs.IF.w.l |=  _IM1;
-          self->cpu_z80a->state.regs.IF.w.l &= ~_IM2;
-          break;
-        case 2:
-          self->cpu_z80a->state.regs.IF.w.l &= ~_IM1;
-          self->cpu_z80a->state.regs.IF.w.l |=  _IM2;
-          break;
-        default:
-          self->cpu_z80a->state.regs.IF.w.l &= ~_IM1;
-          self->cpu_z80a->state.regs.IF.w.l &= ~_IM2;
-          break;
-      }
-      self->cpu_z80a->state.regs.AF.b.y = snapshot->header.cpu_a_af_l;
-      self->cpu_z80a->state.regs.AF.b.x = snapshot->header.cpu_a_af_h;
-      self->cpu_z80a->state.regs.BC.b.y = snapshot->header.cpu_a_bc_l;
-      self->cpu_z80a->state.regs.BC.b.x = snapshot->header.cpu_a_bc_h;
-      self->cpu_z80a->state.regs.DE.b.y = snapshot->header.cpu_a_de_l;
-      self->cpu_z80a->state.regs.DE.b.x = snapshot->header.cpu_a_de_h;
-      self->cpu_z80a->state.regs.HL.b.y = snapshot->header.cpu_a_hl_l;
-      self->cpu_z80a->state.regs.HL.b.x = snapshot->header.cpu_a_hl_h;
+      (void) xcpc_cpu_z80a_set_af_l(self->cpu_z80a, snapshot->header.cpu_p_af_l);
+      (void) xcpc_cpu_z80a_set_af_h(self->cpu_z80a, snapshot->header.cpu_p_af_h);
+      (void) xcpc_cpu_z80a_set_bc_l(self->cpu_z80a, snapshot->header.cpu_p_bc_l);
+      (void) xcpc_cpu_z80a_set_bc_h(self->cpu_z80a, snapshot->header.cpu_p_bc_h);
+      (void) xcpc_cpu_z80a_set_de_l(self->cpu_z80a, snapshot->header.cpu_p_de_l);
+      (void) xcpc_cpu_z80a_set_de_h(self->cpu_z80a, snapshot->header.cpu_p_de_h);
+      (void) xcpc_cpu_z80a_set_hl_l(self->cpu_z80a, snapshot->header.cpu_p_hl_l);
+      (void) xcpc_cpu_z80a_set_hl_h(self->cpu_z80a, snapshot->header.cpu_p_hl_h);
+      (void) xcpc_cpu_z80a_set_ir_l(self->cpu_z80a, snapshot->header.cpu_p_ir_l);
+      (void) xcpc_cpu_z80a_set_ir_h(self->cpu_z80a, snapshot->header.cpu_p_ir_h);
+      (void) xcpc_cpu_z80a_set_iff1(self->cpu_z80a, snapshot->header.cpu_p_iff1);
+      (void) xcpc_cpu_z80a_set_iff2(self->cpu_z80a, snapshot->header.cpu_p_iff2);
+      (void) xcpc_cpu_z80a_set_ix_l(self->cpu_z80a, snapshot->header.cpu_p_ix_l);
+      (void) xcpc_cpu_z80a_set_ix_h(self->cpu_z80a, snapshot->header.cpu_p_ix_h);
+      (void) xcpc_cpu_z80a_set_iy_l(self->cpu_z80a, snapshot->header.cpu_p_iy_l);
+      (void) xcpc_cpu_z80a_set_iy_h(self->cpu_z80a, snapshot->header.cpu_p_iy_h);
+      (void) xcpc_cpu_z80a_set_sp_l(self->cpu_z80a, snapshot->header.cpu_p_sp_l);
+      (void) xcpc_cpu_z80a_set_sp_h(self->cpu_z80a, snapshot->header.cpu_p_sp_h);
+      (void) xcpc_cpu_z80a_set_pc_l(self->cpu_z80a, snapshot->header.cpu_p_pc_l);
+      (void) xcpc_cpu_z80a_set_pc_h(self->cpu_z80a, snapshot->header.cpu_p_pc_h);
+      (void) xcpc_cpu_z80a_set_im  (self->cpu_z80a, snapshot->header.cpu_p_im_l);
+      (void) xcpc_cpu_z80a_set_af_y(self->cpu_z80a, snapshot->header.cpu_a_af_l);
+      (void) xcpc_cpu_z80a_set_af_x(self->cpu_z80a, snapshot->header.cpu_a_af_h);
+      (void) xcpc_cpu_z80a_set_bc_y(self->cpu_z80a, snapshot->header.cpu_a_bc_l);
+      (void) xcpc_cpu_z80a_set_bc_x(self->cpu_z80a, snapshot->header.cpu_a_bc_h);
+      (void) xcpc_cpu_z80a_set_de_y(self->cpu_z80a, snapshot->header.cpu_a_de_l);
+      (void) xcpc_cpu_z80a_set_de_x(self->cpu_z80a, snapshot->header.cpu_a_de_h);
+      (void) xcpc_cpu_z80a_set_hl_y(self->cpu_z80a, snapshot->header.cpu_a_hl_l);
+      (void) xcpc_cpu_z80a_set_hl_x(self->cpu_z80a, snapshot->header.cpu_a_hl_h);
     }
   }
   /* vga */ {
@@ -1932,55 +1909,35 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 
   /* cpu */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.cpu_p_af_l = self->cpu_z80a->state.regs.AF.b.l;
-      snapshot->header.cpu_p_af_h = self->cpu_z80a->state.regs.AF.b.h;
-      snapshot->header.cpu_p_bc_l = self->cpu_z80a->state.regs.BC.b.l;
-      snapshot->header.cpu_p_bc_h = self->cpu_z80a->state.regs.BC.b.h;
-      snapshot->header.cpu_p_de_l = self->cpu_z80a->state.regs.DE.b.l;
-      snapshot->header.cpu_p_de_h = self->cpu_z80a->state.regs.DE.b.h;
-      snapshot->header.cpu_p_hl_l = self->cpu_z80a->state.regs.HL.b.l;
-      snapshot->header.cpu_p_hl_h = self->cpu_z80a->state.regs.HL.b.h;
-      snapshot->header.cpu_p_ir_l = self->cpu_z80a->state.regs.IR.b.l;
-      snapshot->header.cpu_p_ir_h = self->cpu_z80a->state.regs.IR.b.h;
-      if(self->cpu_z80a->state.regs.IF.w.l & _IFF1) {
-        snapshot->header.cpu_p_iff1 = 1;
-      }
-      else {
-        snapshot->header.cpu_p_iff1 = 0;
-      }
-      if(self->cpu_z80a->state.regs.IF.w.l & _IFF2) {
-        snapshot->header.cpu_p_iff2 = 1;
-      }
-      else {
-        snapshot->header.cpu_p_iff2 = 0;
-      }
-      snapshot->header.cpu_p_ix_l = self->cpu_z80a->state.regs.IX.b.l;
-      snapshot->header.cpu_p_ix_h = self->cpu_z80a->state.regs.IX.b.h;
-      snapshot->header.cpu_p_iy_l = self->cpu_z80a->state.regs.IY.b.l;
-      snapshot->header.cpu_p_iy_h = self->cpu_z80a->state.regs.IY.b.h;
-      snapshot->header.cpu_p_sp_l = self->cpu_z80a->state.regs.SP.b.l;
-      snapshot->header.cpu_p_sp_h = self->cpu_z80a->state.regs.SP.b.h;
-      snapshot->header.cpu_p_pc_l = self->cpu_z80a->state.regs.PC.b.l;
-      snapshot->header.cpu_p_pc_h = self->cpu_z80a->state.regs.PC.b.h;
-      switch(self->cpu_z80a->state.regs.IF.w.l & (_IM1 | _IM2)) {
-        case _IM1:
-          snapshot->header.cpu_p_im_l = 1;
-          break;
-        case _IM2:
-          snapshot->header.cpu_p_im_l = 2;
-          break;
-        default:
-          snapshot->header.cpu_p_im_l = 0;
-          break;
-      }
-      snapshot->header.cpu_a_af_l = self->cpu_z80a->state.regs.AF.b.y;
-      snapshot->header.cpu_a_af_h = self->cpu_z80a->state.regs.AF.b.x;
-      snapshot->header.cpu_a_bc_l = self->cpu_z80a->state.regs.BC.b.y;
-      snapshot->header.cpu_a_bc_h = self->cpu_z80a->state.regs.BC.b.x;
-      snapshot->header.cpu_a_de_l = self->cpu_z80a->state.regs.DE.b.y;
-      snapshot->header.cpu_a_de_h = self->cpu_z80a->state.regs.DE.b.x;
-      snapshot->header.cpu_a_hl_l = self->cpu_z80a->state.regs.HL.b.y;
-      snapshot->header.cpu_a_hl_h = self->cpu_z80a->state.regs.HL.b.x;
+      snapshot->header.cpu_p_af_l = xcpc_cpu_z80a_get_af_l(self->cpu_z80a);
+      snapshot->header.cpu_p_af_h = xcpc_cpu_z80a_get_af_h(self->cpu_z80a);
+      snapshot->header.cpu_p_bc_l = xcpc_cpu_z80a_get_bc_l(self->cpu_z80a);
+      snapshot->header.cpu_p_bc_h = xcpc_cpu_z80a_get_bc_h(self->cpu_z80a);
+      snapshot->header.cpu_p_de_l = xcpc_cpu_z80a_get_de_l(self->cpu_z80a);
+      snapshot->header.cpu_p_de_h = xcpc_cpu_z80a_get_de_h(self->cpu_z80a);
+      snapshot->header.cpu_p_hl_l = xcpc_cpu_z80a_get_hl_l(self->cpu_z80a);
+      snapshot->header.cpu_p_hl_h = xcpc_cpu_z80a_get_hl_h(self->cpu_z80a);
+      snapshot->header.cpu_p_ir_l = xcpc_cpu_z80a_get_ir_l(self->cpu_z80a);
+      snapshot->header.cpu_p_ir_h = xcpc_cpu_z80a_get_ir_h(self->cpu_z80a);
+      snapshot->header.cpu_p_iff1 = xcpc_cpu_z80a_get_iff1(self->cpu_z80a);
+      snapshot->header.cpu_p_iff2 = xcpc_cpu_z80a_get_iff2(self->cpu_z80a);
+      snapshot->header.cpu_p_ix_l = xcpc_cpu_z80a_get_ix_l(self->cpu_z80a);
+      snapshot->header.cpu_p_ix_h = xcpc_cpu_z80a_get_ix_h(self->cpu_z80a);
+      snapshot->header.cpu_p_iy_l = xcpc_cpu_z80a_get_iy_l(self->cpu_z80a);
+      snapshot->header.cpu_p_iy_h = xcpc_cpu_z80a_get_iy_h(self->cpu_z80a);
+      snapshot->header.cpu_p_sp_l = xcpc_cpu_z80a_get_sp_l(self->cpu_z80a);
+      snapshot->header.cpu_p_sp_h = xcpc_cpu_z80a_get_sp_h(self->cpu_z80a);
+      snapshot->header.cpu_p_pc_l = xcpc_cpu_z80a_get_pc_l(self->cpu_z80a);
+      snapshot->header.cpu_p_pc_h = xcpc_cpu_z80a_get_pc_h(self->cpu_z80a);
+      snapshot->header.cpu_p_im_l = xcpc_cpu_z80a_get_im  (self->cpu_z80a);
+      snapshot->header.cpu_a_af_l = xcpc_cpu_z80a_get_af_y(self->cpu_z80a);
+      snapshot->header.cpu_a_af_h = xcpc_cpu_z80a_get_af_x(self->cpu_z80a);
+      snapshot->header.cpu_a_bc_l = xcpc_cpu_z80a_get_bc_y(self->cpu_z80a);
+      snapshot->header.cpu_a_bc_h = xcpc_cpu_z80a_get_bc_x(self->cpu_z80a);
+      snapshot->header.cpu_a_de_l = xcpc_cpu_z80a_get_de_y(self->cpu_z80a);
+      snapshot->header.cpu_a_de_h = xcpc_cpu_z80a_get_de_x(self->cpu_z80a);
+      snapshot->header.cpu_a_hl_l = xcpc_cpu_z80a_get_hl_y(self->cpu_z80a);
+      snapshot->header.cpu_a_hl_h = xcpc_cpu_z80a_get_hl_x(self->cpu_z80a);
     }
   }
   /* vga */ {
@@ -2222,10 +2179,10 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
       int cpu_tick;
       for(cpu_tick = 0; cpu_tick < self->cpu_period; cpu_tick += 4) {
         xcpc_vdc_6845_clock(self->vdc_6845);
-        if((cpu_z80a->state.ctrs.t_period += 4) > 0) {
-          gint t_period = cpu_z80a->state.ctrs.t_period;
+        if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
+          gint i_period = cpu_z80a->state.ctrs.i_period;
           xcpc_cpu_z80a_clock(self->cpu_z80a);
-          cpu_z80a->state.ctrs.t_period = t_period - (((t_period - cpu_z80a->state.ctrs.t_period) + 3) & (~3));
+          cpu_z80a->state.ctrs.i_period = i_period - (((i_period - cpu_z80a->state.ctrs.i_period) + 3) & (~3));
         }
       }
     } while(++self->cur_scanline < 312);
