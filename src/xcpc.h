@@ -23,9 +23,9 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcSettings XcpcSettings;
+typedef struct _XcpcOptions XcpcOptions;
 
-struct _XcpcSettings
+struct _XcpcOptions
 {
     gboolean turbo;
     gboolean no_xshm;
@@ -40,7 +40,7 @@ struct _XcpcSettings
     gchar*   expansion[256];
 };
 
-extern XcpcSettings xcpc_settings;
+extern XcpcOptions xcpc_options;
 
 extern int xcpc_parse(int* argc, char*** argv);
 
