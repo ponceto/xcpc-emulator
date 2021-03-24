@@ -39,6 +39,9 @@
  * command line options
  */
 static XrmOptionDescRec options[] = {
+  { "-quiet"  , ".xcpcQuietFlag", XrmoptionNoArg, (XPointer) "true" },
+  { "-trace"  , ".xcpcTraceFlag", XrmoptionNoArg, (XPointer) "true" },
+  { "-debug"  , ".xcpcDebugFlag", XrmoptionNoArg, (XPointer) "true" },
   { "-version", ".xcpcAboutFlag", XrmoptionNoArg, (XPointer) "true" },
   { "-help"   , ".xcpcUsageFlag", XrmoptionNoArg, (XPointer) "true" },
 };
@@ -55,6 +58,21 @@ static String fallback_resources[] = {
  * application resources
  */
 static XtResource application_resources[] = {
+  /* xcpcQuietFlag */ {
+    "xcpcQuietFlag", "XcpcQuietFlag", XtRBoolean,
+    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, quiet_flag),
+    XtRImmediate, (XtPointer) FALSE
+  },
+  /* xcpcTraceFlag */ {
+    "xcpcTraceFlag", "XcpcTraceFlag", XtRBoolean,
+    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, trace_flag),
+    XtRImmediate, (XtPointer) FALSE
+  },
+  /* xcpcDebugFlag */ {
+    "xcpcDebugFlag", "XcpcDebugFlag", XtRBoolean,
+    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, debug_flag),
+    XtRImmediate, (XtPointer) FALSE
+  },
   /* xcpcAboutFlag */ {
     "xcpcAboutFlag", "XcpcAboutFlag", XtRBoolean,
     sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, about_flag),
@@ -71,6 +89,9 @@ static XtResource application_resources[] = {
  * Xcpc resources
  */
 static XcpcResourcesRec xcpc_resources = {
+  FALSE, /* quiet_flag */
+  FALSE, /* trace_flag */
+  FALSE, /* debug_flag */
   FALSE, /* about_flag */
   FALSE, /* usage_flag */
 };
@@ -724,6 +745,20 @@ int xcpc(int* argc, char*** argv)
         XtGetApplicationNameAndClass(XtDisplay(toplevel), &appname, &appclass);
     }
     /* check command-line flags */ {
+        if(xcpc_resources.quiet_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_QUIET);
+        }
+        if(xcpc_resources.trace_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_TRACE);
+        }
+        if(xcpc_resources.debug_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_DEBUG);
+        }
+    }
+    /* initialize libxcpc */ {
+        xcpc_begin();
+    }
+    /* check command-line flags */ {
         if(xcpc_resources.about_flag != FALSE) {
             (void) fprintf(stdout, "%s %s\n", appname, PACKAGE_VERSION);
             (void) fflush(stdout);
@@ -734,6 +769,10 @@ int xcpc(int* argc, char*** argv)
             (void) fprintf(stdout, "Options:\n");
             (void) fprintf(stdout, "  -version  display version and exit.\n");
             (void) fprintf(stdout, "  -help     display this help and exit.\n");
+            (void) fprintf(stdout, "\n");
+            (void) fprintf(stdout, "  -quiet    set loglevel to quiet mode.\n");
+            (void) fprintf(stdout, "  -trace    set loglevel to trace mode.\n");
+            (void) fprintf(stdout, "  -error    set loglevel to error mode.\n");
             (void) fflush(stdout);
             exit(EXIT_SUCCESS);
         }
@@ -751,6 +790,9 @@ int xcpc(int* argc, char*** argv)
     }
     /* destroy application context */ {
         XtDestroyApplicationContext(appcontext);
+    }
+    /* finalize libxcpc */ {
+        xcpc_end();
     }
     return(EXIT_SUCCESS);
 }

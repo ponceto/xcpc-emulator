@@ -36,9 +36,11 @@
  */
 
 static XrmOptionDescRec options[] = {
+    { "-quiet"  , ".xcpcQuietFlag", XrmoptionNoArg, (XPointer) "true" },
+    { "-trace"  , ".xcpcTraceFlag", XrmoptionNoArg, (XPointer) "true" },
+    { "-debug"  , ".xcpcDebugFlag", XrmoptionNoArg, (XPointer) "true" },
     { "-version", ".xcpcAboutFlag", XrmoptionNoArg, (XPointer) "true" },
     { "-help"   , ".xcpcUsageFlag", XrmoptionNoArg, (XPointer) "true" },
-    { "-debug"  , ".xcpcDebugFlag", XrmoptionNoArg, (XPointer) "true" },
 };
 
 /*
@@ -61,6 +63,21 @@ static String fallback_resources[] = {
  */
 
 static XtResource application_resources[] = {
+    /* xcpcQuietFlag */ {
+        "xcpcQuietFlag", "XcpcQuietFlag", XmRBoolean,
+        sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, quiet_flag),
+        XmRImmediate, (XtPointer) FALSE
+    },
+    /* xcpcTraceFlag */ {
+        "xcpcTraceFlag", "XcpcTraceFlag", XmRBoolean,
+        sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, trace_flag),
+        XmRImmediate, (XtPointer) FALSE
+    },
+    /* xcpcDebugFlag */ {
+        "xcpcDebugFlag", "XcpcDebugFlag", XmRBoolean,
+        sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, debug_flag),
+        XmRImmediate, (XtPointer) FALSE
+    },
     /* xcpcAboutFlag */ {
         "xcpcAboutFlag", "XcpcAboutFlag", XmRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, about_flag),
@@ -69,11 +86,6 @@ static XtResource application_resources[] = {
     /* xcpcUsageFlag */ {
         "xcpcUsageFlag", "XcpcUsageFlag", XmRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, usage_flag),
-        XmRImmediate, (XtPointer) FALSE
-    },
-    /* xcpcDebugFlag */ {
-        "xcpcDebugFlag", "XcpcDebugFlag", XmRBoolean,
-        sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, debug_flag),
         XmRImmediate, (XtPointer) FALSE
     },
 };
@@ -685,73 +697,68 @@ static void AboutCallback(Widget widget, XcpcApplication self, XmAnyCallbackStru
 
 static XcpcApplication DebugInstance(XcpcApplication self, const char* method_name)
 {
-    FILE* stream = self->error_stream;
-
-    if(self->resources.debug_flag == FALSE) {
-        return self;
-    }
-    if(stream != NULL) {
-        (void) fprintf(stream, "XcpcApplication:\n");
+    if(self->resources.debug_flag != FALSE) {
+        xcpc_debug("-------- 8< --------");
+        xcpc_debug("XcpcApplication:");
         /* root */ {
-            (void) fprintf(stream, "    method_name             : %s\n", method_name              );
-            (void) fprintf(stream, "    appcontext              : %p\n", self->appcontext         );
+            xcpc_debug("    method_name             : %s", method_name              );
+            xcpc_debug("    appcontext              : %p", self->appcontext         );
         }
         /* layout */ {
-            (void) fprintf(stream, "    layout:\n"                                                );
-            (void) fprintf(stream, "        toplevel            : %p\n", self->layout.toplevel    );
-            (void) fprintf(stream, "        main_wnd            : %p\n", self->layout.main_wnd    );
-            (void) fprintf(stream, "        menu_bar            : %p\n", self->layout.menu_bar    );
-            (void) fprintf(stream, "        frame               : %p\n", self->layout.frame       );
-            (void) fprintf(stream, "        emulator            : %p\n", self->layout.emulator    );
+            xcpc_debug("    layout:"                                                );
+            xcpc_debug("        toplevel            : %p", self->layout.toplevel    );
+            xcpc_debug("        main_wnd            : %p", self->layout.main_wnd    );
+            xcpc_debug("        menu_bar            : %p", self->layout.menu_bar    );
+            xcpc_debug("        frame               : %p", self->layout.frame       );
+            xcpc_debug("        emulator            : %p", self->layout.emulator    );
         }
         /* file */ {
-            (void) fprintf(stream, "    layout:\n"                                                );
-            (void) fprintf(stream, "        file.menu           : %p\n", self->file.menu          );
-            (void) fprintf(stream, "        file.pulldown       : %p\n", self->file.pulldown      );
-            (void) fprintf(stream, "        file.snapshot_load  : %p\n", self->file.snapshot_load );
-            (void) fprintf(stream, "        file.snapshot_save  : %p\n", self->file.snapshot_save );
-            (void) fprintf(stream, "        file.separator1     : %p\n", self->file.separator1    );
-            (void) fprintf(stream, "        file.exit           : %p\n", self->file.exit          );
+            xcpc_debug("    layout:"                                                );
+            xcpc_debug("        file.menu           : %p", self->file.menu          );
+            xcpc_debug("        file.pulldown       : %p", self->file.pulldown      );
+            xcpc_debug("        file.snapshot_load  : %p", self->file.snapshot_load );
+            xcpc_debug("        file.snapshot_save  : %p", self->file.snapshot_save );
+            xcpc_debug("        file.separator1     : %p", self->file.separator1    );
+            xcpc_debug("        file.exit           : %p", self->file.exit          );
         }
         /* drv0 */ {
-            (void) fprintf(stream, "    drv0:\n"                                                  );
-            (void) fprintf(stream, "        drv0.menu           : %p\n", self->drv0.menu          );
-            (void) fprintf(stream, "        drv0.pulldown       : %p\n", self->drv0.pulldown      );
-            (void) fprintf(stream, "        drv0.drive0_insert  : %p\n", self->drv0.drive0_insert );
-            (void) fprintf(stream, "        drv0.drive0_remove  : %p\n", self->drv0.drive0_remove );
+            xcpc_debug("    drv0:"                                                  );
+            xcpc_debug("        drv0.menu           : %p", self->drv0.menu          );
+            xcpc_debug("        drv0.pulldown       : %p", self->drv0.pulldown      );
+            xcpc_debug("        drv0.drive0_insert  : %p", self->drv0.drive0_insert );
+            xcpc_debug("        drv0.drive0_remove  : %p", self->drv0.drive0_remove );
         }
         /* drv1 */ {
-            (void) fprintf(stream, "    drv1:\n"                                                  );
-            (void) fprintf(stream, "        drv1.menu           : %p\n", self->drv1.menu          );
-            (void) fprintf(stream, "        drv1.pulldown       : %p\n", self->drv1.pulldown      );
-            (void) fprintf(stream, "        drv1.drive1_insert  : %p\n", self->drv1.drive1_insert );
-            (void) fprintf(stream, "        drv1.drive1_remove  : %p\n", self->drv1.drive1_remove );
+            xcpc_debug("    drv1:"                                                  );
+            xcpc_debug("        drv1.menu           : %p", self->drv1.menu          );
+            xcpc_debug("        drv1.pulldown       : %p", self->drv1.pulldown      );
+            xcpc_debug("        drv1.drive1_insert  : %p", self->drv1.drive1_insert );
+            xcpc_debug("        drv1.drive1_remove  : %p", self->drv1.drive1_remove );
         }
         /* ctrl */ {
-            (void) fprintf(stream, "    ctrl:\n"                                                  );
-            (void) fprintf(stream, "        ctrl.menu           : %p\n", self->ctrl.menu          );
-            (void) fprintf(stream, "        ctrl.pulldown       : %p\n", self->ctrl.pulldown      );
-            (void) fprintf(stream, "        ctrl.pause_emulator : %p\n", self->ctrl.pause_emulator);
-            (void) fprintf(stream, "        ctrl.reset_emulator : %p\n", self->ctrl.reset_emulator);
+            xcpc_debug("    ctrl:"                                                  );
+            xcpc_debug("        ctrl.menu           : %p", self->ctrl.menu          );
+            xcpc_debug("        ctrl.pulldown       : %p", self->ctrl.pulldown      );
+            xcpc_debug("        ctrl.pause_emulator : %p", self->ctrl.pause_emulator);
+            xcpc_debug("        ctrl.reset_emulator : %p", self->ctrl.reset_emulator);
         }
         /* help */ {
-            (void) fprintf(stream, "    help:\n"                                                  );
-            (void) fprintf(stream, "        help.menu           : %p\n", self->help.menu          );
-            (void) fprintf(stream, "        help.pulldown       : %p\n", self->help.pulldown      );
-            (void) fprintf(stream, "        help.legal_info     : %p\n", self->help.legal_info    );
-            (void) fprintf(stream, "        help.separator1     : %p\n", self->help.separator1    );
-            (void) fprintf(stream, "        help.about_xcpc     : %p\n", self->help.about_xcpc    );
+            xcpc_debug("    help:"                                                  );
+            xcpc_debug("        help.menu           : %p", self->help.menu          );
+            xcpc_debug("        help.pulldown       : %p", self->help.pulldown      );
+            xcpc_debug("        help.legal_info     : %p", self->help.legal_info    );
+            xcpc_debug("        help.separator1     : %p", self->help.separator1    );
+            xcpc_debug("        help.about_xcpc     : %p", self->help.about_xcpc    );
         }
         /* tool */ {
-            (void) fprintf(stream, "    tool:\n"                                                  );
-            (void) fprintf(stream, "        tool.container      : %p\n", self->tool.container     );
-            (void) fprintf(stream, "        tool.snapshot_load  : %p\n", self->tool.snapshot_load );
-            (void) fprintf(stream, "        tool.snapshot_save  : %p\n", self->tool.snapshot_save );
-            (void) fprintf(stream, "        tool.pause_emulator : %p\n", self->tool.pause_emulator);
-            (void) fprintf(stream, "        tool.reset_emulator : %p\n", self->tool.reset_emulator);
+            xcpc_debug("    tool:"                                                  );
+            xcpc_debug("        tool.container      : %p", self->tool.container     );
+            xcpc_debug("        tool.snapshot_load  : %p", self->tool.snapshot_load );
+            xcpc_debug("        tool.snapshot_save  : %p", self->tool.snapshot_save );
+            xcpc_debug("        tool.pause_emulator : %p", self->tool.pause_emulator);
+            xcpc_debug("        tool.reset_emulator : %p", self->tool.reset_emulator);
         }
-        (void) fputc('\n', stream);
-        (void) fflush(stream);
+        xcpc_debug("-------- 8< --------");
     }
     return self;
 }
@@ -777,6 +784,10 @@ static XcpcApplication PrintUsage(XcpcApplication self)
         (void) fprintf(stream, "Options:\n");
         (void) fprintf(stream, "  -version  display version and exit.\n");
         (void) fprintf(stream, "  -help     display this help and exit.\n");
+        (void) fprintf(stream, "\n");
+        (void) fprintf(stream, "  -quiet    set loglevel to quiet mode.\n");
+        (void) fprintf(stream, "  -trace    set loglevel to trace mode.\n");
+        (void) fprintf(stream, "  -error    set loglevel to error mode.\n");
         (void) fflush(stream);
     }
     return Exit(self);
@@ -1222,6 +1233,20 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
         XtGetApplicationNameAndClass(XtDisplay(self->layout.toplevel), &self->resources.appname, &self->resources.appclass);
     }
     /* check command-line flags */ {
+        if(self->resources.quiet_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_QUIET);
+        }
+        if(self->resources.trace_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_TRACE);
+        }
+        if(self->resources.debug_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_DEBUG);
+        }
+    }
+    /* initialize libxcpc */ {
+        xcpc_begin();
+    }
+    /* check command-line flags */ {
         if(self->resources.about_flag != FALSE) {
             return PrintAbout(self);
         }
@@ -1269,6 +1294,9 @@ XcpcApplication XcpcApplicationFini(XcpcApplication self)
         if(self->appcontext != NULL) {
             self->appcontext = (XtDestroyApplicationContext(self->appcontext), NULL);
         }
+    }
+    /* finalize libxcpc */ {
+        xcpc_end();
     }
     return DebugInstance(self, "XcpcApplicationFini()");
 }

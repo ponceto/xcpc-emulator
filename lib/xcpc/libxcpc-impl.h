@@ -45,12 +45,23 @@ extern "C" {
 #endif
 
 typedef union _XcpcRegister       XcpcRegister;
+typedef enum  _XcpcLogLevel       XcpcLogLevel;
 typedef enum  _XcpcComputerModel  XcpcComputerModel;
 typedef enum  _XcpcMonitorModel   XcpcMonitorModel;
 typedef enum  _XcpcRefreshRate    XcpcRefreshRate;
 typedef enum  _XcpcKeyboardLayout XcpcKeyboardLayout;
 typedef enum  _XcpcManufacturer   XcpcManufacturer;
 typedef enum  _XcpcColor          XcpcColor;
+
+enum _XcpcLogLevel
+{
+    XCPC_LOGLEVEL_UNKNOWN   = -1,
+    XCPC_LOGLEVEL_QUIET     =  0,
+    XCPC_LOGLEVEL_ERROR     =  1,
+    XCPC_LOGLEVEL_PRINT     =  2,
+    XCPC_LOGLEVEL_TRACE     =  3,
+    XCPC_LOGLEVEL_DEBUG     =  4,
+};
 
 enum _XcpcComputerModel
 {

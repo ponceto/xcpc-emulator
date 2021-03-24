@@ -1350,9 +1350,6 @@ int amstrad_cpc_parse(int *argc, char ***argv)
 
 void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
 {
-  /* initialize libxcpc */ {
-      xcpc_log_begin();
-  }
   /* init machine */ {
     self->computer_model = xcpc_computer_model(self->settings->computer_model, XCPC_COMPUTER_MODEL_6128);
     switch(self->computer_model) {
@@ -1631,9 +1628,6 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR *self)
   }
   /* destroy blitter */ {
     self->blitter = xcpc_blitter_delete(self->blitter);
-  }
-  /* finalize libxcpc */ {
-      xcpc_log_end();
   }
 }
 

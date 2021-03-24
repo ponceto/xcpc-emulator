@@ -23,70 +23,181 @@
 #include <stdarg.h>
 #include "libxcpc-priv.h"
 
-static int xcpc_log_level = 0;
+static struct {
+    int   initialized;
+    int   loglevel;
+    FILE* print_stream;
+    FILE* error_stream;
+} libxcpc = {
+    0,                     /* initialized  */
+    XCPC_LOGLEVEL_UNKNOWN, /* loglevel     */
+    NULL,                  /* print_stream */
+    NULL,                  /* error_stream */
+};
 
-void xcpc_print(const char* format, ...)
+static void init_loglevel(void)
 {
-    FILE* stream = stdout;
-    va_list arguments;
+    const char* XCPC_LOGLEVEL = getenv("XCPC_LOGLEVEL");
 
-    va_start(arguments, format);
-    if((stream != NULL) && (xcpc_log_level >= 0)) {
-        (void) fputc('I', stream);
-        (void) fputc('\t', stream);
-        (void) vfprintf(stream, format, arguments);
-        (void) fputc('\n', stream);
-        (void) fflush(stream);
+    if(libxcpc.loglevel <= XCPC_LOGLEVEL_UNKNOWN) {
+        if((XCPC_LOGLEVEL != NULL) && (*XCPC_LOGLEVEL != '\0')) {
+            (void) xcpc_set_loglevel(atoi(XCPC_LOGLEVEL));
+        }
+        else {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_PRINT);
+        }
     }
-    va_end(arguments);
+}
+
+static void fini_loglevel(void)
+{
+    if(libxcpc.loglevel != XCPC_LOGLEVEL_UNKNOWN) {
+        libxcpc.loglevel = XCPC_LOGLEVEL_UNKNOWN;
+    }
+}
+
+static void init_print_stream(void)
+{
+    if(libxcpc.print_stream == NULL) {
+        libxcpc.print_stream = stdout;
+    }
+}
+
+static void fini_print_stream(void)
+{
+    if(libxcpc.print_stream != NULL) {
+        libxcpc.print_stream = NULL;
+    }
+}
+
+static void init_error_stream(void)
+{
+    if(libxcpc.error_stream == NULL) {
+        libxcpc.error_stream = stderr;
+    }
+}
+
+static void fini_error_stream(void)
+{
+    if(libxcpc.error_stream != NULL) {
+        libxcpc.error_stream = NULL;
+    }
+}
+
+void xcpc_begin(void)
+{
+    if(libxcpc.initialized++ == 0) {
+        /* init */ {
+            init_loglevel();
+            init_print_stream();
+            init_error_stream();
+        }
+        /* log */ {
+            xcpc_trace ( "xcpc v%d.%d.%d : %s"
+                       , PACKAGE_MAJOR_VERSION
+                       , PACKAGE_MINOR_VERSION
+                       , PACKAGE_MICRO_VERSION 
+                       , "begin" );
+        }
+    }
+}
+
+void xcpc_end(void)
+{
+    if(--libxcpc.initialized == 0) {
+        /* log */ {
+            xcpc_trace ( "xcpc v%d.%d.%d : %s"
+                       , PACKAGE_MAJOR_VERSION
+                       , PACKAGE_MINOR_VERSION
+                       , PACKAGE_MICRO_VERSION
+                       , "end" );
+        }
+        /* fini */ {
+            fini_error_stream();
+            fini_print_stream();
+            fini_loglevel();
+        }
+    }
+}
+
+int xcpc_get_loglevel(void)
+{
+    return libxcpc.loglevel;
+}
+
+int xcpc_set_loglevel(const int loglevel)
+{
+    if(loglevel > XCPC_LOGLEVEL_UNKNOWN) {
+        libxcpc.loglevel = loglevel;
+    }
+    if(libxcpc.loglevel <= XCPC_LOGLEVEL_UNKNOWN) {
+        libxcpc.loglevel = XCPC_LOGLEVEL_PRINT;
+    }
+    return libxcpc.loglevel;
 }
 
 void xcpc_error(const char* format, ...)
 {
-    FILE* stream = stderr;
-    va_list arguments;
+    FILE* stream = libxcpc.error_stream;
 
-    va_start(arguments, format);
-    if((stream != NULL) && (xcpc_log_level >= 0)) {
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_ERROR)) {
+        va_list arguments;
+        va_start(arguments, format);
         (void) fputc('E', stream);
         (void) fputc('\t', stream);
         (void) vfprintf(stream, format, arguments);
         (void) fputc('\n', stream);
         (void) fflush(stream);
+        va_end(arguments);
     }
-    va_end(arguments);
+}
+
+void xcpc_print(const char* format, ...)
+{
+    FILE* stream = libxcpc.print_stream;
+
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_PRINT)) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) fputc('I', stream);
+        (void) fputc('\t', stream);
+        (void) vfprintf(stream, format, arguments);
+        (void) fputc('\n', stream);
+        (void) fflush(stream);
+        va_end(arguments);
+    }
 }
 
 void xcpc_trace(const char* format, ...)
 {
-    FILE* stream = stderr;
-    va_list arguments;
+    FILE* stream = libxcpc.error_stream;
 
-    va_start(arguments, format);
-    if((stream != NULL) && (xcpc_log_level >= 1)) {
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_TRACE)) {
+        va_list arguments;
+        va_start(arguments, format);
         (void) fputc('T', stream);
         (void) fputc('\t', stream);
         (void) vfprintf(stream, format, arguments);
         (void) fputc('\n', stream);
         (void) fflush(stream);
+        va_end(arguments);
     }
-    va_end(arguments);
 }
 
 void xcpc_debug(const char* format, ...)
 {
-    FILE* stream = stderr;
-    va_list arguments;
+    FILE* stream = libxcpc.error_stream;
 
-    va_start(arguments, format);
-    if((stream != NULL) && (xcpc_log_level >= 2)) {
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_DEBUG)) {
+        va_list arguments;
+        va_start(arguments, format);
         (void) fputc('D', stream);
         (void) fputc('\t', stream);
         (void) vfprintf(stream, format, arguments);
         (void) fputc('\n', stream);
         (void) fflush(stream);
+        va_end(arguments);
     }
-    va_end(arguments);
 }
 
 extern void* xcpc_malloc(const char* type, size_t size)
@@ -175,32 +286,6 @@ extern void* xcpc_free(const char* type, void* pointer)
                    , old_pointer );
     }
     return new_pointer;
-}
-
-void xcpc_log_begin(void)
-{
-    /* XCPC_LOG_LEVEL */ {
-        const char* XCPC_LOG_LEVEL = getenv("XCPC_LOG_LEVEL");
-        if((XCPC_LOG_LEVEL != NULL) && (*XCPC_LOG_LEVEL != '\0')) {
-            if((xcpc_log_level = atoi(XCPC_LOG_LEVEL)) < 0) {
-                xcpc_log_level = 0;
-            }
-        }
-    }
-    xcpc_debug ( "xcpc v%d.%d.%d : %s"
-               , PACKAGE_MAJOR_VERSION
-               , PACKAGE_MINOR_VERSION
-               , PACKAGE_MICRO_VERSION 
-               , "begin" );
-}
-
-void xcpc_log_end(void)
-{
-    xcpc_debug ( "xcpc v%d.%d.%d : %s"
-               , PACKAGE_MAJOR_VERSION
-               , PACKAGE_MINOR_VERSION
-               , PACKAGE_MICRO_VERSION
-               , "end" );
 }
 
 XcpcComputerModel xcpc_computer_model(const char* label, XcpcComputerModel value)

@@ -27,9 +27,11 @@ typedef struct _XcpcResourcesRec
 {
     String  appname;
     String  appclass;
+    Boolean quiet_flag;
+    Boolean trace_flag;
+    Boolean debug_flag;
     Boolean about_flag;
     Boolean usage_flag;
-    Boolean debug_flag;
 } XcpcResourcesRec;
 
 typedef struct _XcpcPixmapsRec
