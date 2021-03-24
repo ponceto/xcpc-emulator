@@ -17,7 +17,7 @@
 #ifndef __AMSTRAD_CPC_H__
 #define __AMSTRAD_CPC_H__
 
-#include <glib.h>
+#include <xcpc.h>
 #include <sys/time.h>
 #include <xcpc/blitter/blitter.h>
 #include <xcpc/monitor/monitor.h>
@@ -37,31 +37,15 @@
 extern "C" {
 #endif
 
-typedef struct _AMSTRAD_CPC_SETTINGS AMSTRAD_CPC_SETTINGS;
 typedef struct _AMSTRAD_CPC_EMULATOR AMSTRAD_CPC_EMULATOR;
 
 typedef void (*PaintProc)(AMSTRAD_CPC_EMULATOR* self);
 typedef void (*KeybdProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 
-struct _AMSTRAD_CPC_SETTINGS
-{
-    gboolean turbo;
-    gboolean no_xshm;
-    gboolean show_fps;
-    gchar*   computer_model;
-    gchar*   monitor_model;
-    gchar*   keyboard_layout;
-    gchar*   refresh_rate;
-    gchar*   manufacturer;
-    gchar*   snapshot;
-    gchar*   system_rom;
-    gchar*   expansion[256];
-};
-
 struct _AMSTRAD_CPC_EMULATOR
 {
-    AMSTRAD_CPC_SETTINGS* settings;
+    XcpcSettings* settings;
     XcpcBlitter*  blitter;
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;

@@ -764,7 +764,7 @@ int xcpc(int* argc, char*** argv)
             (void) fflush(stdout);
             exit(EXIT_SUCCESS);
         }
-        if((xcpc_resources.usage_flag != FALSE) || (amstrad_cpc_parse(argc, argv) == EXIT_FAILURE)) {
+        if((xcpc_resources.usage_flag != FALSE) || (xcpc_parse(argc, argv) == EXIT_FAILURE)) {
             (void) fprintf(stream, "Usage: %s [toolkit-options] [program-options]\n", self->resources.appname);
             (void) fprintf(stream, "\n");
             (void) fprintf(stream, "Options:\n");

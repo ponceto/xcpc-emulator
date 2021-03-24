@@ -1245,14 +1245,16 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
     /* initialize libxcpc */ {
         xcpc_begin();
     }
+    /* parse the command-line */ {
+        if(xcpc_parse(argc, argv) == EXIT_FAILURE) {
+            return PrintUsage(self);
+        }
+    }
     /* check command-line flags */ {
         if(self->resources.about_flag != FALSE) {
             return PrintAbout(self);
         }
         if(self->resources.usage_flag != FALSE) {
-            return PrintUsage(self);
-        }
-        if(amstrad_cpc_parse(argc, argv) == EXIT_FAILURE) {
             return PrintUsage(self);
         }
     }

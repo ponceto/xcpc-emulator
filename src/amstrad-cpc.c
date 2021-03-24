@@ -27,75 +27,8 @@
 #include <Xem/Emulator.h>
 #include "amstrad-cpc.h"
 
-static AMSTRAD_CPC_SETTINGS settings = {
-  /* turbo           */ FALSE,   
-  /* no_xshm         */ FALSE,   
-  /* show_fps        */ FALSE,   
-  /* computer_model  */ NULL,    
-  /* monitor_model   */ NULL,    
-  /* keyboard_layout */ NULL,    
-  /* refresh_rate    */ NULL,    
-  /* manufacturer    */ NULL,    
-  /* snapshot        */ NULL,    
-  /* system_rom      */ NULL,    
-  /* expansion       */ {
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-  } 
-};
-
-static const char model_description[]        = "cpc464, cpc664, cpc6128";
-static const char monitor_description[]      = "color, green, monochrome, ctm640, ctm644, gt64, gt65, cm14, mm14";
-static const char keyboard_description[]     = "qwerty, azerty";
-static const char refresh_description[]      = "50Hz, 60Hz";
-static const char manufacturer_description[] = "Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad";
-
-static GOptionEntry options[] = {
-  { "turbo"       , 0, 0, G_OPTION_ARG_NONE    , &settings.turbo          , "Turbo mode"                  , NULL                },
-  { "no-xshm"     , 0, 0, G_OPTION_ARG_NONE    , &settings.no_xshm        , "Don't use the XShm extension", NULL                },
-  { "show-fps"    , 0, 0, G_OPTION_ARG_NONE    , &settings.show_fps       , "Show fps statistics"         , NULL                },
-  { "model"       , 0, 0, G_OPTION_ARG_STRING  , &settings.computer_model , model_description             , "{computer-model}"  },
-  { "monitor"     , 0, 0, G_OPTION_ARG_STRING  , &settings.monitor_model  , monitor_description           , "{monitor-model}"   },
-  { "keyboard"    , 0, 0, G_OPTION_ARG_STRING  , &settings.keyboard_layout, keyboard_description          , "{keyboard-layout}" },
-  { "refresh"     , 0, 0, G_OPTION_ARG_STRING  , &settings.refresh_rate   , refresh_description           , "{refresh-rate}"    },
-  { "manufacturer", 0, 0, G_OPTION_ARG_STRING  , &settings.manufacturer   , manufacturer_description      , "{manufacturer}"    },
-  { "snapshot"    , 0, 0, G_OPTION_ARG_FILENAME, &settings.snapshot       , "Snapshot to load at start"   , "{filename}"        },
-  { "sysrom"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.system_rom     , "32Kb system rom"             , "{filename}"        },
-  { "rom000"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x0] , "16Kb expansion rom #00"      , "{filename}"        },
-  { "rom001"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x1] , "16Kb expansion rom #01"      , "{filename}"        },
-  { "rom002"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x2] , "16Kb expansion rom #02"      , "{filename}"        },
-  { "rom003"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x3] , "16Kb expansion rom #03"      , "{filename}"        },
-  { "rom004"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x4] , "16Kb expansion rom #04"      , "{filename}"        },
-  { "rom005"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x5] , "16Kb expansion rom #05"      , "{filename}"        },
-  { "rom006"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x6] , "16Kb expansion rom #06"      , "{filename}"        },
-  { "rom007"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x7] , "16Kb expansion rom #07"      , "{filename}"        },
-  { "rom008"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x8] , "16Kb expansion rom #08"      , "{filename}"        },
-  { "rom009"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0x9] , "16Kb expansion rom #09"      , "{filename}"        },
-  { "rom010"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0xa] , "16Kb expansion rom #10"      , "{filename}"        },
-  { "rom011"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0xb] , "16Kb expansion rom #11"      , "{filename}"        },
-  { "rom012"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0xc] , "16Kb expansion rom #12"      , "{filename}"        },
-  { "rom013"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0xd] , "16Kb expansion rom #13"      , "{filename}"        },
-  { "rom014"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0xe] , "16Kb expansion rom #14"      , "{filename}"        },
-  { "rom015"      , 0, 0, G_OPTION_ARG_FILENAME, &settings.expansion[0xf] , "16Kb expansion rom #15"      , "{filename}"        },
-  { NULL } /* end-of-options */
-};
-
 AMSTRAD_CPC_EMULATOR amstrad_cpc = {
-  &settings,
+    &xcpc_settings,
 };
 
 static char* build_filename(const char* directory, const char* filename)
@@ -187,28 +120,28 @@ static void cpc_mem_select(AMSTRAD_CPC_EMULATOR *self)
 
 static uint8_t cpu_mreq_m1(XcpcCpuZ80a *cpu_z80a, uint16_t addr)
 {
-  AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+  AMSTRAD_CPC_EMULATOR *self = ((AMSTRAD_CPC_EMULATOR*)(cpu_z80a->iface.user_data));
 
   return self->memory.rd.bank[addr >> 14][addr & 0x3fff];
 }
 
 static uint8_t cpu_mreq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t addr)
 {
-  AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+  AMSTRAD_CPC_EMULATOR *self = ((AMSTRAD_CPC_EMULATOR*)(cpu_z80a->iface.user_data));
 
   return self->memory.rd.bank[addr >> 14][addr & 0x3fff];
 }
 
 static void cpu_mreq_wr(XcpcCpuZ80a *cpu_z80a, uint16_t addr, uint8_t data)
 {
-  AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+  AMSTRAD_CPC_EMULATOR *self = ((AMSTRAD_CPC_EMULATOR*)(cpu_z80a->iface.user_data));
 
   self->memory.wr.bank[addr >> 14][addr & 0x3fff] = data;
 }
 
 static uint8_t cpu_iorq_m1(XcpcCpuZ80a *cpu_z80a, uint16_t port)
 {
-  AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+  AMSTRAD_CPC_EMULATOR *self = ((AMSTRAD_CPC_EMULATOR*)(cpu_z80a->iface.user_data));
 
   self->vga_core->state.counter &= 0x1f;
 
@@ -217,7 +150,7 @@ static uint8_t cpu_iorq_m1(XcpcCpuZ80a *cpu_z80a, uint16_t port)
 
 static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
 {
-  AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+  AMSTRAD_CPC_EMULATOR *self = ((AMSTRAD_CPC_EMULATOR*)(cpu_z80a->iface.user_data));
   uint8_t data = 0x00;
 
   /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
@@ -295,7 +228,7 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
 
 static void cpu_iorq_wr(XcpcCpuZ80a *cpu_z80a, uint16_t port, uint8_t data)
 {
-  AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+  AMSTRAD_CPC_EMULATOR *self = ((AMSTRAD_CPC_EMULATOR*)(cpu_z80a->iface.user_data));
 
   /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
   if((port & 0x8000) == 0) {
@@ -1190,22 +1123,6 @@ static void amstrad_cpc_keybd_azerty(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
 
 static void amstrad_cpc_mouse_default(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
 {
-}
-
-int amstrad_cpc_parse(int *argc, char ***argv)
-{
-  GOptionContext *context = g_option_context_new(NULL);
-
-  g_option_context_add_main_entries(context, options, NULL);
-  if(g_option_context_parse(context, argc, argv, NULL) != FALSE) {
-    /* TODO */
-  }
-  else {
-    /* TODO */
-  }
-  g_option_context_free(context);
-  context = (GOptionContext *) NULL;
-  return EXIT_SUCCESS;
 }
 
 void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
