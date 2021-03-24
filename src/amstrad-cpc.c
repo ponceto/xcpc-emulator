@@ -222,23 +222,19 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
 
   /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
   if((port & 0x8000) == 0) {
-    (void) fprintf(stderr, "IO_RD[0x%04x]: Gate-Array   [---- Illegal ----]\n", port);
-    (void) fflush(stderr);
+    xcpc_error("IO_RD[0x%04x]: Gate-Array   [---- Illegal ----]\n", port);
   }
   /* CRTC-6845    [-0------xxxxxxxx] [0xbfxx] */
   if((port & 0x4000) == 0) {
     switch((port >> 8) & 3) {
       case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
-        (void) fprintf(stderr, "IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
-        (void) fflush(stderr);
+        xcpc_error("IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
         break;
       case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
-        (void) fprintf(stderr, "IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
-        (void) fflush(stderr);
+        xcpc_error("IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
         break;
       case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
-        (void) fprintf(stderr, "IO_RD[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
-        (void) fflush(stderr);
+        xcpc_error("IO_RD[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
         break;
       case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
         data = xcpc_vdc_6845_rd(self->vdc_6845, 0xff);
@@ -247,13 +243,11 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
   }
   /* ROM Select   [--0-----xxxxxxxx] [0xdfxx] */
   if((port & 0x2000) == 0) {
-    (void) fprintf(stderr, "IO_RD[0x%04x]: ROM Select   [---- Illegal ----]\n", port);
-    (void) fflush(stderr);
+    xcpc_error("IO_RD[0x%04x]: ROM Select   [---- Illegal ----]\n", port);
   }
   /* Printer Port [---0----xxxxxxxx] [0xefxx] */
   if((port & 0x1000) == 0) {
-    (void) fprintf(stderr, "IO_RD[0x%04x]: Printer Port [---- Illegal ----]\n", port);
-    (void) fflush(stderr);
+    xcpc_error("IO_RD[0x%04x]: Printer Port [---- Illegal ----]\n", port);
   }
   /* PPI-8255     [----0---xxxxxxxx] [0xf7xx] */
   if((port & 0x0800) == 0) {
@@ -275,8 +269,7 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
         data = self->ppi_8255->state.port_c;
         break;
       case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
-        (void) fprintf(stderr, "IO_RD[0x%04x]: PPI-8255     [---- Illegal ----]\n", port);
-        (void) fflush(stderr);
+        xcpc_error("IO_RD[0x%04x]: PPI-8255     [---- Illegal ----]\n", port);
         break;
     }
   }
@@ -284,12 +277,10 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
   if((port & 0x0480) == 0) {
     switch(((port >> 7) & 2) | (port & 1)) {
       case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
-        (void) fflush(stderr);
+        xcpc_error("IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
         break;
       case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-        (void) fprintf(stderr, "IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
-        (void) fflush(stderr);
+        xcpc_error("IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
         xcpc_fdc_765a_rd_stat(self->fdc_765a, &data);
@@ -338,12 +329,10 @@ static void cpu_iorq_wr(XcpcCpuZ80a *cpu_z80a, uint16_t port, uint8_t data)
         xcpc_vdc_6845_wr(self->vdc_6845, data);
         break;
       case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
-        (void) fprintf(stderr, "IO_WR[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
-        (void) fflush(stderr);
+        xcpc_error("IO_WR[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
         break;
       case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
-        (void) fprintf(stderr, "IO_WR[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
-        (void) fflush(stderr);
+        xcpc_error("IO_WR[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
         break;
     }
   }
