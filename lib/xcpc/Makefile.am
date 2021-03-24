@@ -100,6 +100,10 @@ libxcpc_la_SOURCES = \
 	rom-bank/rom-bank.h \
 	rom-bank/rom-bank-impl.h \
 	rom-bank/rom-bank-priv.h \
+	settings/settings.c \
+	settings/settings.h \
+	settings/settings-impl.h \
+	settings/settings-priv.h \
 	snapshot/snapshot.c \
 	snapshot/snapshot.h \
 	snapshot/snapshot-impl.h \
