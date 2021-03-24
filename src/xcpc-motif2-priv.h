@@ -38,36 +38,27 @@ typedef struct _XcpcPixmapsRec
 {
     Pixel  foreground;
     Pixel  background;
+    Pixmap null_icon;
     Pixmap xcpc_icon;
     Pixmap xcpc_mask;
-    Pixmap eject;
-    Pixmap empty;
-    Pixmap folder_open;
-    Pixmap info_circle;
-    Pixmap pause;
-    Pixmap play;
-    Pixmap power_off;
-    Pixmap question_circle;
-    Pixmap save;
-    Pixmap sync;
+    Pixmap file_load;
+    Pixmap file_save;
+    Pixmap file_exit;
+    Pixmap ctrl_play;
+    Pixmap ctrl_pause;
+    Pixmap ctrl_reset;
+    Pixmap disk_insert;
+    Pixmap disk_remove;
+    Pixmap help_legal;
+    Pixmap help_about;
 } XcpcPixmapsRec;
-
-typedef struct _XcpcLayoutRec
-{
-    Widget toplevel;
-    Widget main_wnd;
-    Widget menu_bar;
-    Widget tool_bar;
-    Widget frame;
-    Widget emulator;
-} XcpcLayoutRec;
 
 typedef struct _XcpcFileMenuRec
 {
     Widget menu;
     Widget pulldown;
-    Widget snapshot_load;
-    Widget snapshot_save;
+    Widget load_snapshot;
+    Widget save_snapshot;
     Widget separator1;
     Widget exit;
 } XcpcFileMenuRec;
@@ -100,16 +91,33 @@ typedef struct _XcpcHelpMenuRec
 {
     Widget menu;
     Widget pulldown;
-    Widget legal_info;
+    Widget legal;
     Widget separator1;
-    Widget about_xcpc;
+    Widget about;
 } XcpcHelpMenuRec;
+
+typedef struct _XcpcLayoutRec
+{
+    Widget toplevel;
+    Widget window;
+    Widget emulator;
+} XcpcLayoutRec;
+
+typedef struct _XcpcMenuBarRec
+{
+    Widget widget;
+    XcpcFileMenuRec file;
+    XcpcCtrlMenuRec ctrl;
+    XcpcDrv0MenuRec drv0;
+    XcpcDrv1MenuRec drv1;
+    XcpcHelpMenuRec help;
+} XcpcMenuBarRec;
 
 typedef struct _XcpcToolBarRec
 {
-    Widget container;
-    Widget snapshot_load;
-    Widget snapshot_save;
+    Widget widget;
+    Widget load_snapshot;
+    Widget save_snapshot;
     Widget pause_emulator;
     Widget reset_emulator;
 } XcpcToolBarRec;
@@ -123,12 +131,8 @@ typedef struct _XcpcApplicationRec
     XcpcResourcesRec resources;
     XcpcPixmapsRec   pixmaps;
     XcpcLayoutRec    layout;
-    XcpcFileMenuRec  file;
-    XcpcCtrlMenuRec  ctrl;
-    XcpcDrv0MenuRec  drv0;
-    XcpcDrv1MenuRec  drv1;
-    XcpcHelpMenuRec  help;
-    XcpcToolBarRec   tool;
+    XcpcMenuBarRec   menubar;
+    XcpcToolBarRec   toolbar;
 } XcpcApplicationRec;
 
 #ifdef __cplusplus

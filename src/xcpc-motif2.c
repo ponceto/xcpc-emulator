@@ -50,9 +50,14 @@ static XrmOptionDescRec options[] = {
  */
 
 static String fallback_resources[] = {
-    "*title: Xcpc - Amstrad CPC emulator",
-    "*menu-bar*pixmapTextPadding: 8",
-    "*shadowThickness: 1",
+    "Xcpc*title: Xcpc - Amstrad CPC emulator",
+    "Xcpc*main-window.shadowThickness: 0",
+    "Xcpc*main-window.menubar.shadowThickness: 0",
+    "Xcpc*main-window.menubar*pixmapTextPadding: 8",
+    "Xcpc*main-window.toolbar.shadowThickness: 0",
+    "Xcpc*main-window.toolbar.marginWidth: 4",
+    "Xcpc*main-window.toolbar.marginHeight: 4",
+    "Xcpc*shadowThickness: 1",
     NULL
 };
 
@@ -115,21 +120,22 @@ static Widget FindTopLevelShell(Widget widget)
 static void GetPixmaps(Widget widget, XcpcPixmapsRec* pixmaps)
 {
     struct {
-        char*   name;
         Pixmap* pixmap;
+        char*   filename;
     } list[] = {
-        { "xcpc-icon.png"      , &pixmaps->xcpc_icon       },
-        { "xcpc-mask.png"      , &pixmaps->xcpc_mask       },
-        { "eject.png"          , &pixmaps->eject           },
-        { "empty.png"          , &pixmaps->empty           },
-        { "folder-open.png"    , &pixmaps->folder_open     },
-        { "info-circle.png"    , &pixmaps->info_circle     },
-        { "pause.png"          , &pixmaps->pause           },
-        { "play.png"           , &pixmaps->play            },
-        { "power-off.png"      , &pixmaps->power_off       },
-        { "question-circle.png", &pixmaps->question_circle },
-        { "save.png"           , &pixmaps->save            },
-        { "sync.png"           , &pixmaps->sync            },
+        { &pixmaps->null_icon  , "empty.png"           },
+        { &pixmaps->xcpc_icon  , "xcpc-icon.png"       },
+        { &pixmaps->xcpc_mask  , "xcpc-mask.png"       },
+        { &pixmaps->file_load  , "folder-open.png"     },
+        { &pixmaps->file_save  , "save.png"            },
+        { &pixmaps->file_exit  , "power-off.png"       },
+        { &pixmaps->ctrl_play  , "play.png"            },
+        { &pixmaps->ctrl_pause , "pause.png"           },
+        { &pixmaps->ctrl_reset , "sync.png"            },
+        { &pixmaps->disk_insert, "folder-open.png"     },
+        { &pixmaps->disk_remove, "eject.png"           },
+        { &pixmaps->help_legal , "info-circle.png"     },
+        { &pixmaps->help_about , "question-circle.png" },
     };
 
     /* clear */ {
@@ -149,7 +155,7 @@ static void GetPixmaps(Widget widget, XcpcPixmapsRec* pixmaps)
         Pixel    foreground = pixmaps->foreground;
         Pixel    background = pixmaps->background;
         for(index = 0; index < count; ++index) {
-            *list[index].pixmap = XmGetPixmap(screen, list[index].name, foreground, background);
+            *list[index].pixmap = XmGetPixmap(screen, list[index].filename, foreground, background);
         }
     }
 }
@@ -188,20 +194,20 @@ static XcpcApplication Play(XcpcApplication self)
     Arg      arglist[4];
     Cardinal argcount = 0;
 
-    if(self->ctrl.pause_emulator != NULL) {
+    if(self->menubar.ctrl.pause_emulator != NULL) {
         XmString string = XmStringCreateLocalized(_("Pause"));
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelString, string             ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.pause); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP_AND_STRING); ++argcount;
-        XtSetValues(self->ctrl.pause_emulator, arglist, argcount);
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP_AND_STRING     ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_pause); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelString, string                  ); ++argcount;
+        XtSetValues(self->menubar.ctrl.pause_emulator, arglist, argcount);
         string = (XmStringFree(string), NULL);
     }
-    if(self->tool.pause_emulator != NULL) {
+    if(self->toolbar.pause_emulator != NULL) {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.pause); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP           ); ++argcount;
-        XtSetValues(self->tool.pause_emulator, arglist, argcount);
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP                ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_pause); ++argcount;
+        XtSetValues(self->toolbar.pause_emulator, arglist, argcount);
     }
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, TRUE);
@@ -215,20 +221,20 @@ static XcpcApplication Pause(XcpcApplication self)
     Arg      arglist[4];
     Cardinal argcount = 0;
 
-    if(self->ctrl.pause_emulator != NULL) {
+    if(self->menubar.ctrl.pause_emulator != NULL) {
         XmString string = XmStringCreateLocalized(_("Play"));
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelString, string             ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.play ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP_AND_STRING); ++argcount;
-        XtSetValues(self->ctrl.pause_emulator, arglist, argcount);
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP_AND_STRING    ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_play); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelString, string                 ); ++argcount;
+        XtSetValues(self->menubar.ctrl.pause_emulator, arglist, argcount);
         string = (XmStringFree(string), NULL);
     }
-    if(self->tool.pause_emulator != NULL) {
+    if(self->toolbar.pause_emulator != NULL) {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.play ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP           ); ++argcount;
-        XtSetValues(self->tool.pause_emulator, arglist, argcount);
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP               ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_play); ++argcount;
+        XtSetValues(self->toolbar.pause_emulator, arglist, argcount);
     }
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, FALSE);
@@ -413,7 +419,7 @@ static void LoadSnapshotCallback(Widget widget, XcpcApplication self, XmAnyCallb
         XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY                      ); ++argcount;
         XtSetArg(arglist[argcount], XmNdialogStyle   , XmDIALOG_FULL_APPLICATION_MODAL); ++argcount;
         XtSetArg(arglist[argcount], XmNdialogTitle   , title                          ); ++argcount;
-        dialog = XmCreateFileSelectionDialog(FindTopLevelShell(widget), "xcpc-snapshot-load-dialog", arglist, argcount);
+        dialog = XmCreateFileSelectionDialog(FindTopLevelShell(widget), "xcpc-load-snapshot-dialog", arglist, argcount);
         XtAddCallback(dialog, XmNokCallback     , (XtCallbackProc) &LoadSnapshotOkCallback, (XtPointer) self);
         XtAddCallback(dialog, XmNcancelCallback , (XtCallbackProc) &DismissCallback       , (XtPointer) self);
         XtAddCallback(dialog, XmNunmapCallback  , (XtCallbackProc) &DismissCallback       , (XtPointer) self);
@@ -456,7 +462,7 @@ static void SaveSnapshotCallback(Widget widget, XcpcApplication self, XmAnyCallb
         XtSetArg(arglist[argcount], XmNdeleteResponse, XmDESTROY                      ); ++argcount;
         XtSetArg(arglist[argcount], XmNdialogStyle   , XmDIALOG_FULL_APPLICATION_MODAL); ++argcount;
         XtSetArg(arglist[argcount], XmNdialogTitle   , title                          ); ++argcount;
-        dialog = XmCreateFileSelectionDialog(FindTopLevelShell(widget), "xcpc-snapshot-save-dialog", arglist, argcount);
+        dialog = XmCreateFileSelectionDialog(FindTopLevelShell(widget), "xcpc-save-snapshot-dialog", arglist, argcount);
         XtAddCallback(dialog, XmNokCallback     , (XtCallbackProc) &SaveSnapshotOkCallback, (XtPointer) self);
         XtAddCallback(dialog, XmNcancelCallback , (XtCallbackProc) &DismissCallback       , (XtPointer) self);
         XtAddCallback(dialog, XmNunmapCallback  , (XtCallbackProc) &DismissCallback       , (XtPointer) self);
@@ -701,62 +707,65 @@ static XcpcApplication DebugInstance(XcpcApplication self, const char* method_na
         xcpc_debug("-------- 8< --------");
         xcpc_debug("XcpcApplication:");
         /* root */ {
-            xcpc_debug("    method_name             : %s", method_name              );
-            xcpc_debug("    appcontext              : %p", self->appcontext         );
+            xcpc_debug("    method_name             : %s", method_name                      );
+            xcpc_debug("    appcontext              : %p", self->appcontext                 );
         }
         /* layout */ {
-            xcpc_debug("    layout:"                                                );
-            xcpc_debug("        toplevel            : %p", self->layout.toplevel    );
-            xcpc_debug("        main_wnd            : %p", self->layout.main_wnd    );
-            xcpc_debug("        menu_bar            : %p", self->layout.menu_bar    );
-            xcpc_debug("        frame               : %p", self->layout.frame       );
-            xcpc_debug("        emulator            : %p", self->layout.emulator    );
+            xcpc_debug("    layout:"                                                        );
+            xcpc_debug("        toplevel            : %p", self->layout.toplevel            );
+            xcpc_debug("        window              : %p", self->layout.window              );
+            xcpc_debug("        emulator            : %p", self->layout.emulator            );
         }
         /* file */ {
-            xcpc_debug("    layout:"                                                );
-            xcpc_debug("        file.menu           : %p", self->file.menu          );
-            xcpc_debug("        file.pulldown       : %p", self->file.pulldown      );
-            xcpc_debug("        file.snapshot_load  : %p", self->file.snapshot_load );
-            xcpc_debug("        file.snapshot_save  : %p", self->file.snapshot_save );
-            xcpc_debug("        file.separator1     : %p", self->file.separator1    );
-            xcpc_debug("        file.exit           : %p", self->file.exit          );
-        }
-        /* drv0 */ {
-            xcpc_debug("    drv0:"                                                  );
-            xcpc_debug("        drv0.menu           : %p", self->drv0.menu          );
-            xcpc_debug("        drv0.pulldown       : %p", self->drv0.pulldown      );
-            xcpc_debug("        drv0.drive0_insert  : %p", self->drv0.drive0_insert );
-            xcpc_debug("        drv0.drive0_remove  : %p", self->drv0.drive0_remove );
-        }
-        /* drv1 */ {
-            xcpc_debug("    drv1:"                                                  );
-            xcpc_debug("        drv1.menu           : %p", self->drv1.menu          );
-            xcpc_debug("        drv1.pulldown       : %p", self->drv1.pulldown      );
-            xcpc_debug("        drv1.drive1_insert  : %p", self->drv1.drive1_insert );
-            xcpc_debug("        drv1.drive1_remove  : %p", self->drv1.drive1_remove );
+            xcpc_debug("    menubar:"                                                       );
+            xcpc_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_debug("        file.menu           : %p", self->menubar.file.menu          );
+            xcpc_debug("        file.pulldown       : %p", self->menubar.file.pulldown      );
+            xcpc_debug("        file.load_snapshot  : %p", self->menubar.file.load_snapshot );
+            xcpc_debug("        file.save_snapshot  : %p", self->menubar.file.save_snapshot );
+            xcpc_debug("        file.separator1     : %p", self->menubar.file.separator1    );
+            xcpc_debug("        file.exit           : %p", self->menubar.file.exit          );
         }
         /* ctrl */ {
-            xcpc_debug("    ctrl:"                                                  );
-            xcpc_debug("        ctrl.menu           : %p", self->ctrl.menu          );
-            xcpc_debug("        ctrl.pulldown       : %p", self->ctrl.pulldown      );
-            xcpc_debug("        ctrl.pause_emulator : %p", self->ctrl.pause_emulator);
-            xcpc_debug("        ctrl.reset_emulator : %p", self->ctrl.reset_emulator);
+            xcpc_debug("    menubar:"                                                       );
+            xcpc_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_debug("        ctrl.menu           : %p", self->menubar.ctrl.menu          );
+            xcpc_debug("        ctrl.pulldown       : %p", self->menubar.ctrl.pulldown      );
+            xcpc_debug("        ctrl.pause_emulator : %p", self->menubar.ctrl.pause_emulator);
+            xcpc_debug("        ctrl.reset_emulator : %p", self->menubar.ctrl.reset_emulator);
+        }
+        /* drv0 */ {
+            xcpc_debug("    menubar:"                                                       );
+            xcpc_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_debug("        drv0.menu           : %p", self->menubar.drv0.menu          );
+            xcpc_debug("        drv0.pulldown       : %p", self->menubar.drv0.pulldown      );
+            xcpc_debug("        drv0.drive0_insert  : %p", self->menubar.drv0.drive0_insert );
+            xcpc_debug("        drv0.drive0_remove  : %p", self->menubar.drv0.drive0_remove );
+        }
+        /* drv1 */ {
+            xcpc_debug("    menubar:"                                                       );
+            xcpc_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_debug("        drv1.menu           : %p", self->menubar.drv1.menu          );
+            xcpc_debug("        drv1.pulldown       : %p", self->menubar.drv1.pulldown      );
+            xcpc_debug("        drv1.drive1_insert  : %p", self->menubar.drv1.drive1_insert );
+            xcpc_debug("        drv1.drive1_remove  : %p", self->menubar.drv1.drive1_remove );
         }
         /* help */ {
-            xcpc_debug("    help:"                                                  );
-            xcpc_debug("        help.menu           : %p", self->help.menu          );
-            xcpc_debug("        help.pulldown       : %p", self->help.pulldown      );
-            xcpc_debug("        help.legal_info     : %p", self->help.legal_info    );
-            xcpc_debug("        help.separator1     : %p", self->help.separator1    );
-            xcpc_debug("        help.about_xcpc     : %p", self->help.about_xcpc    );
+            xcpc_debug("    menubar:"                                                       );
+            xcpc_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_debug("        help.menu           : %p", self->menubar.help.menu          );
+            xcpc_debug("        help.pulldown       : %p", self->menubar.help.pulldown      );
+            xcpc_debug("        help.legal          : %p", self->menubar.help.legal         );
+            xcpc_debug("        help.separator1     : %p", self->menubar.help.separator1    );
+            xcpc_debug("        help.about          : %p", self->menubar.help.about         );
         }
         /* tool */ {
-            xcpc_debug("    tool:"                                                  );
-            xcpc_debug("        tool.container      : %p", self->tool.container     );
-            xcpc_debug("        tool.snapshot_load  : %p", self->tool.snapshot_load );
-            xcpc_debug("        tool.snapshot_save  : %p", self->tool.snapshot_save );
-            xcpc_debug("        tool.pause_emulator : %p", self->tool.pause_emulator);
-            xcpc_debug("        tool.reset_emulator : %p", self->tool.reset_emulator);
+            xcpc_debug("    toolbar:"                                                       );
+            xcpc_debug("        widget              : %p", self->toolbar.widget             );
+            xcpc_debug("        tool.load_snapshot  : %p", self->toolbar.load_snapshot      );
+            xcpc_debug("        tool.save_snapshot  : %p", self->toolbar.save_snapshot      );
+            xcpc_debug("        tool.pause_emulator : %p", self->toolbar.pause_emulator     );
+            xcpc_debug("        tool.reset_emulator : %p", self->toolbar.reset_emulator     );
         }
         xcpc_debug("-------- 8< --------");
     }
@@ -793,127 +802,67 @@ static XcpcApplication PrintUsage(XcpcApplication self)
     return Exit(self);
 }
 
-static XcpcApplication BuildLayout(XcpcApplication self)
-{
-    Arg      arglist[16];
-    Cardinal argcount = 0;
-
-    /* main-wnd */ {
-        argcount = 0;
-        self->layout.main_wnd = XmCreateMainWindow(self->layout.toplevel, "main-wnd", arglist, argcount);
-        XtAddCallback(self->layout.main_wnd, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.main_wnd);
-        XtManageChild(self->layout.main_wnd);
-    }
-    /* menu-bar */ {
-        argcount = 0;
-        self->layout.menu_bar = XmCreateMenuBar(self->layout.main_wnd, "menu-bar", arglist, argcount);
-        XtAddCallback(self->layout.menu_bar, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.menu_bar);
-        XtManageChild(self->layout.menu_bar);
-    }
-    /* tool-bar */ {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNshadowType  , XmSHADOW_OUT); ++argcount;
-        self->layout.tool_bar = XmCreateFrame(self->layout.main_wnd, "tool-bar", arglist, argcount);
-        XtAddCallback(self->layout.tool_bar, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.tool_bar);
-        XtManageChild(self->layout.tool_bar);
-    }
-    /* frame */ {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNshadowType  , XmSHADOW_OUT); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginWidth , 4           ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginHeight, 4           ); ++argcount;
-        self->layout.frame = XmCreateFrame(self->layout.main_wnd, "frame", arglist, argcount);
-        XtAddCallback(self->layout.frame, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.frame);
-        XtManageChild(self->layout.frame);
-    }
-    /* emulator */ {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XtNemuContext    , &amstrad_cpc             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuCreateProc , &amstrad_cpc_create_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuDestroyProc, &amstrad_cpc_destroy_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuRealizeProc, &amstrad_cpc_realize_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuResizeProc , &amstrad_cpc_resize_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuRedrawProc , &amstrad_cpc_redraw_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuTimerProc  , &amstrad_cpc_timer_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuInputProc  , &amstrad_cpc_input_proc  ); ++argcount;
-        self->layout.emulator = XemCreateEmulator(self->layout.frame, "emulator", arglist, argcount);
-        XtAddCallback(self->layout.emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.emulator);
-        XtManageChild(self->layout.emulator);
-    }
-    /* set main-window areas */ {
-        XmMainWindowSetAreas ( self->layout.main_wnd
-                             , self->layout.menu_bar
-                             , self->layout.tool_bar
-                             , NULL
-                             , NULL
-                             , self->layout.frame );
-    }
-    /* get pixmaps */ {
-        GetPixmaps(self->layout.menu_bar, &self->pixmaps);
-    }
-    return self;
-}
-
 static XcpcApplication BuildFileMenu(XcpcApplication self)
 {
+    XcpcFileMenuRec* menu = &self->menubar.file;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* file-pulldown */ {
         argcount = 0;
-        self->file.pulldown = XmCreatePulldownMenu(self->layout.menu_bar, "file-pulldown", arglist, argcount);
-        XtAddCallback(self->file.pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->file.pulldown);
+        menu->pulldown = XmCreatePulldownMenu(self->menubar.widget, "file-pulldown", arglist, argcount);
+        XtAddCallback(menu->pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
-    /* file-snapshot-load */ {
+    /* file-load-snapshot */ {
         XmString string = XmStringCreateLocalized(_("Load snapshot..."));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.folder_open); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.file_load); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->file.snapshot_load = XmCreatePushButtonGadget(self->file.pulldown, "file-snapshot-load", arglist, argcount);
-        XtAddCallback(self->file.snapshot_load, XmNactivateCallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
-        XtAddCallback(self->file.snapshot_load, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->file.snapshot_load);
-        XtManageChild(self->file.snapshot_load);
+        menu->load_snapshot = XmCreatePushButtonGadget(menu->pulldown, "file-load-snapshot", arglist, argcount);
+        XtAddCallback(menu->load_snapshot, XmNactivateCallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
+        XtAddCallback(menu->load_snapshot, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->load_snapshot);
+        XtManageChild(menu->load_snapshot);
         string = (XmStringFree(string), NULL);
     }
-    /* file-snapshot-save */ {
+    /* file-save-snapshot */ {
         XmString string = XmStringCreateLocalized(_("Save snapshot as..."));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.save); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.file_save); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->file.snapshot_save = XmCreatePushButtonGadget(self->file.pulldown, "file-snapshot-save", arglist, argcount);
-        XtAddCallback(self->file.snapshot_save, XmNactivateCallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
-        XtAddCallback(self->file.snapshot_save, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->file.snapshot_save);
-        XtManageChild(self->file.snapshot_save);
+        menu->save_snapshot = XmCreatePushButtonGadget(menu->pulldown, "file-save-snapshot", arglist, argcount);
+        XtAddCallback(menu->save_snapshot, XmNactivateCallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
+        XtAddCallback(menu->save_snapshot, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->save_snapshot);
+        XtManageChild(menu->save_snapshot);
         string = (XmStringFree(string), NULL);
     }
     /* file-separator1 */ {
         argcount = 0;
-        self->file.separator1 = XmCreateSeparatorGadget(self->file.pulldown, "file-separator1", arglist, argcount);
-        XtAddCallback(self->file.separator1, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->file.separator1);
-        XtManageChild(self->file.separator1);
+        menu->separator1 = XmCreateSeparatorGadget(menu->pulldown, "file-separator1", arglist, argcount);
+        XtAddCallback(menu->separator1, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
+        XtManageChild(menu->separator1);
     }
     /* file-exit */ {
         XmString string = XmStringCreateLocalized(_("Exit"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.power_off); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.file_exit); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->file.exit = XmCreatePushButtonGadget(self->file.pulldown, "file-exit", arglist, argcount);
-        XtAddCallback(self->file.exit, XmNactivateCallback, (XtCallbackProc) &ExitCallback, (XtPointer) self);
-        XtAddCallback(self->file.exit, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->file.exit);
-        XtManageChild(self->file.exit);
+        menu->exit = XmCreatePushButtonGadget(menu->pulldown, "file-exit", arglist, argcount);
+        XtAddCallback(menu->exit, XmNactivateCallback, (XtCallbackProc) &ExitCallback, (XtPointer) self);
+        XtAddCallback(menu->exit, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->exit);
+        XtManageChild(menu->exit);
         string = (XmStringFree(string), NULL);
     }
     /* file-menu */ {
         XmString string = XmStringCreateLocalized(_("File"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNsubMenuId, self->file.pulldown); ++argcount;
-        self->file.menu = XmCreateCascadeButtonGadget(self->layout.menu_bar, "file-menu", arglist, argcount);
-        XtAddCallback(self->file.menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->file.menu);
-        XtManageChild(self->file.menu);
+        XtSetArg(arglist[argcount], XmNsubMenuId, menu->pulldown); ++argcount;
+        menu->menu = XmCreateCascadeButtonGadget(self->menubar.widget, "file-menu", arglist, argcount);
+        XtAddCallback(menu->menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
         string = (XmStringFree(string), NULL);
     }
     return self;
@@ -921,46 +870,47 @@ static XcpcApplication BuildFileMenu(XcpcApplication self)
 
 static XcpcApplication BuildCtrlMenu(XcpcApplication self)
 {
+    XcpcCtrlMenuRec* menu = &self->menubar.ctrl;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* ctrl-pulldown */ {
         argcount = 0;
-        self->ctrl.pulldown = XmCreatePulldownMenu(self->layout.menu_bar, "ctrl-pulldown", arglist, argcount);
-        XtAddCallback(self->ctrl.pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->ctrl.pulldown);
+        menu->pulldown = XmCreatePulldownMenu(self->menubar.widget, "ctrl-pulldown", arglist, argcount);
+        XtAddCallback(menu->pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* ctrl-pause-emu */ {
         XmString string = XmStringCreateLocalized(_("Play / Pause"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.empty); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.null_icon); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->ctrl.pause_emulator = XmCreatePushButtonGadget(self->ctrl.pulldown, "ctrl-pause-emu", arglist, argcount);
-        XtAddCallback(self->ctrl.pause_emulator, XmNactivateCallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
-        XtAddCallback(self->ctrl.pause_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->ctrl.pause_emulator);
-        XtManageChild(self->ctrl.pause_emulator);
+        menu->pause_emulator = XmCreatePushButtonGadget(menu->pulldown, "ctrl-pause-emu", arglist, argcount);
+        XtAddCallback(menu->pause_emulator, XmNactivateCallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
+        XtAddCallback(menu->pause_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pause_emulator);
+        XtManageChild(menu->pause_emulator);
         string = (XmStringFree(string), NULL);
     }
     /* ctrl-reset-emu */ {
         XmString string = XmStringCreateLocalized(_("Reset"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.sync); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_reset); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->ctrl.reset_emulator = XmCreatePushButtonGadget(self->ctrl.pulldown, "ctrl-reset-emu", arglist, argcount);
-        XtAddCallback(self->ctrl.reset_emulator, XmNactivateCallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
-        XtAddCallback(self->ctrl.reset_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->ctrl.reset_emulator);
-        XtManageChild(self->ctrl.reset_emulator);
+        menu->reset_emulator = XmCreatePushButtonGadget(menu->pulldown, "ctrl-reset-emu", arglist, argcount);
+        XtAddCallback(menu->reset_emulator, XmNactivateCallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
+        XtAddCallback(menu->reset_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->reset_emulator);
+        XtManageChild(menu->reset_emulator);
         string = (XmStringFree(string), NULL);
     }
     /* ctrl-menu */ {
         XmString string = XmStringCreateLocalized(_("Controls"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNsubMenuId, self->ctrl.pulldown); ++argcount;
-        self->ctrl.menu = XmCreateCascadeButtonGadget(self->layout.menu_bar, "ctrl-menu", arglist, argcount);
-        XtAddCallback(self->ctrl.menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->ctrl.menu);
-        XtManageChild(self->ctrl.menu);
+        XtSetArg(arglist[argcount], XmNsubMenuId, menu->pulldown); ++argcount;
+        menu->menu = XmCreateCascadeButtonGadget(self->menubar.widget, "ctrl-menu", arglist, argcount);
+        XtAddCallback(menu->menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
         string = (XmStringFree(string), NULL);
     }
     return self;
@@ -968,46 +918,47 @@ static XcpcApplication BuildCtrlMenu(XcpcApplication self)
 
 static XcpcApplication BuildDrv0Menu(XcpcApplication self)
 {
+    XcpcDrv0MenuRec* menu = &self->menubar.drv0;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* drv0-pulldown */ {
         argcount = 0;
-        self->drv0.pulldown = XmCreatePulldownMenu(self->layout.menu_bar, "drv0-pulldown", arglist, argcount);
-        XtAddCallback(self->drv0.pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->drv0.pulldown);
+        menu->pulldown = XmCreatePulldownMenu(self->menubar.widget, "drv0-pulldown", arglist, argcount);
+        XtAddCallback(menu->pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* drv0-drive0-insert */ {
         XmString string = XmStringCreateLocalized(_("Insert disk..."));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.save); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_insert); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->drv0.drive0_insert = XmCreatePushButtonGadget(self->drv0.pulldown, "drv0-drive0-insert", arglist, argcount);
-        XtAddCallback(self->drv0.drive0_insert, XmNactivateCallback, (XtCallbackProc) &InsertDrive0Callback, (XtPointer) self);
-        XtAddCallback(self->drv0.drive0_insert, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->drv0.drive0_insert);
-        XtManageChild(self->drv0.drive0_insert);
+        menu->drive0_insert = XmCreatePushButtonGadget(menu->pulldown, "drv0-drive0-insert", arglist, argcount);
+        XtAddCallback(menu->drive0_insert, XmNactivateCallback, (XtCallbackProc) &InsertDrive0Callback, (XtPointer) self);
+        XtAddCallback(menu->drive0_insert, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive0_insert);
+        XtManageChild(menu->drive0_insert);
         string = (XmStringFree(string), NULL);
     }
     /* drv0-drive0-remove */ {
         XmString string = XmStringCreateLocalized(_("Remove disk"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.eject); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_remove); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->drv0.drive0_remove = XmCreatePushButtonGadget(self->drv0.pulldown, "drv0-drive0-remove", arglist, argcount);
-        XtAddCallback(self->drv0.drive0_remove, XmNactivateCallback, (XtCallbackProc) &RemoveDrive0Callback, (XtPointer) self);
-        XtAddCallback(self->drv0.drive0_remove, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->drv0.drive0_remove);
-        XtManageChild(self->drv0.drive0_remove);
+        menu->drive0_remove = XmCreatePushButtonGadget(menu->pulldown, "drv0-drive0-remove", arglist, argcount);
+        XtAddCallback(menu->drive0_remove, XmNactivateCallback, (XtCallbackProc) &RemoveDrive0Callback, (XtPointer) self);
+        XtAddCallback(menu->drive0_remove, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive0_remove);
+        XtManageChild(menu->drive0_remove);
         string = (XmStringFree(string), NULL);
     }
     /* drv0-menu */ {
         XmString string = XmStringCreateLocalized(_("Drive A"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNsubMenuId, self->drv0.pulldown); ++argcount;
-        self->drv0.menu = XmCreateCascadeButtonGadget(self->layout.menu_bar, "drv0-menu", arglist, argcount);
-        XtAddCallback(self->drv0.menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->drv0.menu);
-        XtManageChild(self->drv0.menu);
+        XtSetArg(arglist[argcount], XmNsubMenuId, menu->pulldown); ++argcount;
+        menu->menu = XmCreateCascadeButtonGadget(self->menubar.widget, "drv0-menu", arglist, argcount);
+        XtAddCallback(menu->menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
         string = (XmStringFree(string), NULL);
     }
     return self;
@@ -1015,46 +966,47 @@ static XcpcApplication BuildDrv0Menu(XcpcApplication self)
 
 static XcpcApplication BuildDrv1Menu(XcpcApplication self)
 {
+    XcpcDrv1MenuRec* menu = &self->menubar.drv1;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* drv1-pulldown */ {
         argcount = 0;
-        self->drv1.pulldown = XmCreatePulldownMenu(self->layout.menu_bar, "drv1-pulldown", arglist, argcount);
-        XtAddCallback(self->drv1.pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->drv1.pulldown);
+        menu->pulldown = XmCreatePulldownMenu(self->menubar.widget, "drv1-pulldown", arglist, argcount);
+        XtAddCallback(menu->pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* drv1-drive1-insert */ {
         XmString string = XmStringCreateLocalized(_("Insert disk..."));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.save); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_insert); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->drv1.drive1_insert = XmCreatePushButtonGadget(self->drv1.pulldown, "drv1-drive1-insert", arglist, argcount);
-        XtAddCallback(self->drv1.drive1_insert, XmNactivateCallback, (XtCallbackProc) &InsertDrive1Callback, (XtPointer) self);
-        XtAddCallback(self->drv1.drive1_insert, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->drv1.drive1_insert);
-        XtManageChild(self->drv1.drive1_insert);
+        menu->drive1_insert = XmCreatePushButtonGadget(menu->pulldown, "drv1-drive1-insert", arglist, argcount);
+        XtAddCallback(menu->drive1_insert, XmNactivateCallback, (XtCallbackProc) &InsertDrive1Callback, (XtPointer) self);
+        XtAddCallback(menu->drive1_insert, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive1_insert);
+        XtManageChild(menu->drive1_insert);
         string = (XmStringFree(string), NULL);
     }
     /* drv1-drive1-remove */ {
         XmString string = XmStringCreateLocalized(_("Remove disk"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.eject); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_remove); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->drv1.drive1_remove = XmCreatePushButtonGadget(self->drv1.pulldown, "drv1-drive1-remove", arglist, argcount);
-        XtAddCallback(self->drv1.drive1_remove, XmNactivateCallback, (XtCallbackProc) &RemoveDrive1Callback, (XtPointer) self);
-        XtAddCallback(self->drv1.drive1_remove, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->drv1.drive1_remove);
-        XtManageChild(self->drv1.drive1_remove);
+        menu->drive1_remove = XmCreatePushButtonGadget(menu->pulldown, "drv1-drive1-remove", arglist, argcount);
+        XtAddCallback(menu->drive1_remove, XmNactivateCallback, (XtCallbackProc) &RemoveDrive1Callback, (XtPointer) self);
+        XtAddCallback(menu->drive1_remove, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive1_remove);
+        XtManageChild(menu->drive1_remove);
         string = (XmStringFree(string), NULL);
     }
     /* drv1-menu */ {
         XmString string = XmStringCreateLocalized(_("Drive B"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNsubMenuId, self->drv1.pulldown); ++argcount;
-        self->drv1.menu = XmCreateCascadeButtonGadget(self->layout.menu_bar, "drv1-menu", arglist, argcount);
-        XtAddCallback(self->drv1.menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->drv1.menu);
-        XtManageChild(self->drv1.menu);
+        XtSetArg(arglist[argcount], XmNsubMenuId, menu->pulldown); ++argcount;
+        menu->menu = XmCreateCascadeButtonGadget(self->menubar.widget, "drv1-menu", arglist, argcount);
+        XtAddCallback(menu->menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
         string = (XmStringFree(string), NULL);
     }
     return self;
@@ -1062,64 +1014,74 @@ static XcpcApplication BuildDrv1Menu(XcpcApplication self)
 
 static XcpcApplication BuildHelpMenu(XcpcApplication self)
 {
+    XcpcHelpMenuRec* menu = &self->menubar.help;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* help-pulldown */ {
         argcount = 0;
-        self->help.pulldown = XmCreatePulldownMenu(self->layout.menu_bar, "help-pulldown", arglist, argcount);
-        XtAddCallback(self->help.pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->help.pulldown);
+        menu->pulldown = XmCreatePulldownMenu(self->menubar.widget, "help-pulldown", arglist, argcount);
+        XtAddCallback(menu->pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
-    /* help-legal-info */ {
+    /* help-legal */ {
         XmString string = XmStringCreateLocalized(_("Legal Info"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.info_circle); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_legal); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->help.legal_info = XmCreatePushButtonGadget(self->help.pulldown, "help-legal-info", arglist, argcount);
-        XtAddCallback(self->help.legal_info, XmNactivateCallback, (XtCallbackProc) &LegalCallback, (XtPointer) self);
-        XtAddCallback(self->help.legal_info, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->help.legal_info);
-        XtManageChild(self->help.legal_info);
+        menu->legal = XmCreatePushButtonGadget(menu->pulldown, "help-legal", arglist, argcount);
+        XtAddCallback(menu->legal, XmNactivateCallback, (XtCallbackProc) &LegalCallback, (XtPointer) self);
+        XtAddCallback(menu->legal, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->legal);
+        XtManageChild(menu->legal);
         string = (XmStringFree(string), NULL);
     }
     /* help-separator1 */ {
         argcount = 0;
-        self->help.separator1 = XmCreateSeparatorGadget(self->help.pulldown, "help-separator1", arglist, argcount);
-        XtAddCallback(self->help.separator1, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->help.separator1);
-        XtManageChild(self->help.separator1);
+        menu->separator1 = XmCreateSeparatorGadget(menu->pulldown, "help-separator1", arglist, argcount);
+        XtAddCallback(menu->separator1, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
+        XtManageChild(menu->separator1);
     }
-    /* help-about-xcpc */ {
+    /* help-about */ {
         XmString string = XmStringCreateLocalized(_("About Xcpc"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.question_circle); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_about); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        self->help.about_xcpc = XmCreatePushButtonGadget(self->help.pulldown, "help-about-xcpc", arglist, argcount);
-        XtAddCallback(self->help.about_xcpc, XmNactivateCallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
-        XtAddCallback(self->help.about_xcpc, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->help.about_xcpc);
-        XtManageChild(self->help.about_xcpc);
+        menu->about = XmCreatePushButtonGadget(menu->pulldown, "help-about", arglist, argcount);
+        XtAddCallback(menu->about, XmNactivateCallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
+        XtAddCallback(menu->about, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->about);
+        XtManageChild(menu->about);
         string = (XmStringFree(string), NULL);
     }
     /* help-menu */ {
         XmString string = XmStringCreateLocalized(_("Help"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNsubMenuId, self->help.pulldown); ++argcount;
-        self->help.menu = XmCreateCascadeButtonGadget(self->layout.menu_bar, "help-menu", arglist, argcount);
-        XtAddCallback(self->help.menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->help.menu);
-        XtManageChild(self->help.menu);
+        XtSetArg(arglist[argcount], XmNsubMenuId, menu->pulldown); ++argcount;
+        menu->menu = XmCreateCascadeButtonGadget(self->menubar.widget, "help-menu", arglist, argcount);
+        XtAddCallback(menu->menu, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
         string = (XmStringFree(string), NULL);
     }
-    /* set the menu-bar help-widget */ {
+    /* set the menubar help-widget */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNmenuHelpWidget, self->help.menu); ++argcount;
-        XtSetValues(self->layout.menu_bar, arglist, argcount);
+        XtSetArg(arglist[argcount], XmNmenuHelpWidget, menu->menu); ++argcount;
+        XtSetValues(self->menubar.widget, arglist, argcount);
     }
     return self;
 }
 
 static XcpcApplication BuildMenuBar(XcpcApplication self)
 {
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+
+    /* menubar */ {
+        argcount = 0;
+        self->menubar.widget = XmCreateMenuBar(self->layout.window, "menubar", arglist, argcount);
+        XtAddCallback(self->menubar.widget, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.widget);
+        XtManageChild(self->menubar.widget);
+    }
     /* build all menus */ {
         (void) BuildFileMenu(self);
         (void) BuildCtrlMenu(self);
@@ -1132,64 +1094,100 @@ static XcpcApplication BuildMenuBar(XcpcApplication self)
 
 static XcpcApplication BuildToolBar(XcpcApplication self)
 {
+    XcpcToolBarRec* toolbar = &self->toolbar;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
-    /* tool-bar */ {
+    /* toolbar */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNorientation, XmHORIZONTAL); ++argcount;
-        XtSetArg(arglist[argcount], XmNtraversalOn, FALSE       ); ++argcount;
-        self->tool.container = XmCreateRowColumn(self->layout.tool_bar, "tool-row", arglist, argcount);
-        XtAddCallback(self->tool.container, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.container);
-        XtManageChild(self->tool.container);
+        toolbar->widget = XmCreateMenuBar(self->layout.window, "toolbar", arglist, argcount);
+        XtAddCallback(toolbar->widget, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->widget);
+        XtManageChild(toolbar->widget);
     }
-    /* tool-snapshot-load */ {
+    /* tool-load-snapshot */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelPixmap    , self->pixmaps.folder_open); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType      , XmPIXMAP                 ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginWidth    , 4                        ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginHeight   , 4                        ); ++argcount;
-        XtSetArg(arglist[argcount], XmNshadowThickness, 0                        ); ++argcount;
-        self->tool.snapshot_load = XmCreatePushButtonGadget(self->tool.container, "tool-snapshot-load", arglist, argcount);
-        XtAddCallback(self->tool.snapshot_load, XmNactivateCallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
-        XtAddCallback(self->tool.snapshot_load, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.snapshot_load);
-        XtManageChild(self->tool.snapshot_load);
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP               ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.file_load); ++argcount;
+        toolbar->load_snapshot = XmCreateCascadeButtonGadget(toolbar->widget, "tool-load-snapshot", arglist, argcount);
+        XtAddCallback(toolbar->load_snapshot, XmNactivateCallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
+        XtAddCallback(toolbar->load_snapshot, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->load_snapshot);
+        XtManageChild(toolbar->load_snapshot);
     }
-    /* tool-snapshot-save */ {
+    /* tool-save-snapshot */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelPixmap    , self->pixmaps.save); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType      , XmPIXMAP          ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginWidth    , 4                 ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginHeight   , 4                 ); ++argcount;
-        XtSetArg(arglist[argcount], XmNshadowThickness, 0                 ); ++argcount;
-        self->tool.snapshot_save = XmCreatePushButtonGadget(self->tool.container, "tool-snapshot-save", arglist, argcount);
-        XtAddCallback(self->tool.snapshot_save, XmNactivateCallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
-        XtAddCallback(self->tool.snapshot_save, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.snapshot_save);
-        XtManageChild(self->tool.snapshot_save);
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP               ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.file_save); ++argcount;
+        toolbar->save_snapshot = XmCreateCascadeButtonGadget(toolbar->widget, "tool-save-snapshot", arglist, argcount);
+        XtAddCallback(toolbar->save_snapshot, XmNactivateCallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
+        XtAddCallback(toolbar->save_snapshot, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->save_snapshot);
+        XtManageChild(toolbar->save_snapshot);
     }
     /* tool-pause-emu */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelPixmap    , self->pixmaps.empty); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType      , XmPIXMAP           ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginWidth    , 4                  ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginHeight   , 4                  ); ++argcount;
-        XtSetArg(arglist[argcount], XmNshadowThickness, 0                  ); ++argcount;
-        self->tool.pause_emulator = XmCreatePushButtonGadget(self->tool.container, "tool-pause-emu", arglist, argcount);
-        XtAddCallback(self->tool.pause_emulator, XmNactivateCallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
-        XtAddCallback(self->tool.pause_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.pause_emulator);
-        XtManageChild(self->tool.pause_emulator);
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP               ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.null_icon); ++argcount;
+        toolbar->pause_emulator = XmCreateCascadeButtonGadget(toolbar->widget, "tool-pause-emu", arglist, argcount);
+        XtAddCallback(toolbar->pause_emulator, XmNactivateCallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
+        XtAddCallback(toolbar->pause_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->pause_emulator);
+        XtManageChild(toolbar->pause_emulator);
     }
     /* tool-reset-emu */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelPixmap    , self->pixmaps.sync); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType      , XmPIXMAP          ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginWidth    , 4                 ); ++argcount;
-        XtSetArg(arglist[argcount], XmNmarginHeight   , 4                 ); ++argcount;
-        XtSetArg(arglist[argcount], XmNshadowThickness, 0                 ); ++argcount;
-        self->tool.reset_emulator = XmCreatePushButtonGadget(self->tool.container, "tool-reset-emu", arglist, argcount);
-        XtAddCallback(self->tool.reset_emulator, XmNactivateCallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
-        XtAddCallback(self->tool.reset_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->tool.reset_emulator);
-        XtManageChild(self->tool.reset_emulator);
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP                ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_reset); ++argcount;
+        toolbar->reset_emulator = XmCreateCascadeButtonGadget(toolbar->widget, "tool-reset-emu", arglist, argcount);
+        XtAddCallback(toolbar->reset_emulator, XmNactivateCallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
+        XtAddCallback(toolbar->reset_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->reset_emulator);
+        XtManageChild(toolbar->reset_emulator);
+    }
+    return self;
+}
+
+static XcpcApplication BuildLayout(XcpcApplication self)
+{
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+
+    /* main-window */ {
+        argcount = 0;
+        self->layout.window = XmCreateMainWindow(self->layout.toplevel, "main-window", arglist, argcount);
+        XtAddCallback(self->layout.window, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.window);
+        XtManageChild(self->layout.window);
+    }
+    /* get pixmaps */ {
+        GetPixmaps(self->layout.window, &self->pixmaps);
+    }
+    /* menubar */ {
+        (void) BuildMenuBar(self);
+    }
+    /* toolbar */ {
+        (void) BuildToolBar(self);
+    }
+    /* emulator */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNborderWidth   , 0                        ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuContext    , &amstrad_cpc             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuCreateProc , &amstrad_cpc_create_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuDestroyProc, &amstrad_cpc_destroy_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuRealizeProc, &amstrad_cpc_realize_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuResizeProc , &amstrad_cpc_resize_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuRedrawProc , &amstrad_cpc_redraw_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuTimerProc  , &amstrad_cpc_timer_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuInputProc  , &amstrad_cpc_input_proc  ); ++argcount;
+        self->layout.emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
+        XtAddCallback(self->layout.emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.emulator);
+        XtManageChild(self->layout.emulator);
+    }
+    /* set main-window areas */ {
+        XmMainWindowSetAreas ( self->layout.window
+                             , self->menubar.widget
+                             , self->toolbar.widget
+                             , NULL
+                             , NULL
+                             , self->layout.emulator );
+    }
+    /* get pixmaps */ {
+        GetPixmaps(self->menubar.widget, &self->pixmaps);
     }
     return self;
 }
@@ -1259,8 +1257,6 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
     }
     /* build user interface */ {
         (void) BuildLayout(self);
-        (void) BuildMenuBar(self);
-        (void) BuildToolBar(self);
         (void) Play(self);
     }
     return DebugInstance(self, "XcpcApplicationInit()");
