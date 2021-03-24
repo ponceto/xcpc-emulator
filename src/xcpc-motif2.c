@@ -1246,6 +1246,11 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
         xcpc_begin();
     }
     /* parse the command-line */ {
+        XcpcSettings* settings = xcpc_settings_new();
+        (void) xcpc_settings_parse(settings, argc, argv);
+        settings = xcpc_settings_delete(settings);
+    }
+    /* parse the command-line */ {
         if(xcpc_parse(argc, argv) == EXIT_FAILURE) {
             return PrintUsage(self);
         }

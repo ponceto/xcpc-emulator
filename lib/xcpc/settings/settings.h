@@ -29,6 +29,7 @@ extern XcpcSettings* xcpc_settings_construct (XcpcSettings* settings);
 extern XcpcSettings* xcpc_settings_destruct  (XcpcSettings* settings);
 extern XcpcSettings* xcpc_settings_new       (void);
 extern XcpcSettings* xcpc_settings_delete    (XcpcSettings* settings);
+extern XcpcSettings* xcpc_settings_parse     (XcpcSettings* settings, int* argc, char*** argv);
 
 #ifdef __cplusplus
 }

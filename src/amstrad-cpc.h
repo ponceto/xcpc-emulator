@@ -32,6 +32,7 @@
 #include <xcpc/ram-bank/ram-bank.h>
 #include <xcpc/rom-bank/rom-bank.h>
 #include <xcpc/snapshot/snapshot.h>
+#include <xcpc/settings/settings.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -22,6 +22,33 @@
 #include <string.h>
 #include "settings-priv.h"
 
+static const char arg_drive0[]   = "--drive0=";
+static const char arg_drive1[]   = "--drive1=";
+static const char arg_snapshot[] = "--snapshot=";
+
+static int check_arg(const char* expected, const char* argument)
+{
+    int result = strncmp(expected, argument, strlen(expected));
+
+    return result == 0;
+}
+
+static char* replace_setting(char* actual, const char* string, int flag)
+{
+    if(actual != NULL) {
+        actual = xcpc_free("string", actual);
+    }
+    if(string != NULL) {
+        const char* equals = strchr(string, '=');
+        if(equals != NULL) {
+            string = equals + 1;
+        }
+        actual = xcpc_malloc("string", (strlen(string) + 1));
+        actual = strcpy(actual, string);
+    }
+    return actual;
+}
+
 static void xcpc_settings_trace(const char* function)
 {
     xcpc_trace("XcpcSettings::%s()", function);
@@ -58,6 +85,12 @@ XcpcSettings* xcpc_settings_destruct(XcpcSettings* self)
 {
     xcpc_settings_trace("destruct");
 
+    /* destruct */ {
+        self->state.program  = replace_setting(self->state.program , NULL, 0);
+        self->state.drive0   = replace_setting(self->state.drive0  , NULL, 0);
+        self->state.drive1   = replace_setting(self->state.drive1  , NULL, 0);
+        self->state.snapshot = replace_setting(self->state.snapshot, NULL, 0);
+    }
     return self;
 }
 
@@ -73,4 +106,38 @@ XcpcSettings* xcpc_settings_delete(XcpcSettings* self)
     xcpc_settings_trace("delete");
 
     return xcpc_settings_free(xcpc_settings_destruct(self));
+}
+
+XcpcSettings* xcpc_settings_parse(XcpcSettings* self, int* argcp, char*** argvp)
+{
+    xcpc_settings_trace("parse");
+
+    if((argvp == NULL) || (argvp == NULL) || (*argvp == NULL)) {
+        int    argi = 0;
+        int    argc = *argcp;
+        char** argv = *argvp;
+        while(argi < argc) {
+            const char* argument = argv[argi];
+            if(argi == 0) {
+                self->state.program = replace_setting(self->state.program, argument, 0);
+            }
+            else if(check_arg(arg_drive0, argument) != 0) {
+                self->state.drive0 = replace_setting(self->state.drive0, argument, 1);
+            }
+            else if(check_arg(arg_drive1, argument) != 0) {
+                self->state.drive1 = replace_setting(self->state.drive1, argument, 1);
+            }
+            else if(check_arg(arg_snapshot, argument) != 0) {
+                self->state.snapshot = replace_setting(self->state.snapshot, argument, 1);
+            }
+            ++argi;
+        }
+    }
+    /* debug */ {
+        xcpc_debug("%s", self->state.program );
+        xcpc_debug("%s", self->state.drive0  );
+        xcpc_debug("%s", self->state.drive1  );
+        xcpc_debug("%s", self->state.snapshot);
+    }
+    return self;
 }

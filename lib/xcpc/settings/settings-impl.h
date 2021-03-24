@@ -34,7 +34,10 @@ struct _XcpcSettingsIface
 
 struct _XcpcSettingsState
 {
-    void* reserved;
+    char* program;
+    char* drive0;
+    char* drive1;
+    char* snapshot;
 };
 
 struct _XcpcSettings
