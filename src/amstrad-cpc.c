@@ -28,7 +28,7 @@
 #include "amstrad-cpc.h"
 
 AMSTRAD_CPC_EMULATOR amstrad_cpc = {
-    &xcpc_settings,
+    &xcpc_options,
 };
 
 static char* build_filename(const char* directory, const char* filename)
@@ -387,7 +387,7 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR *self)
     }
   }
   /* print statistics */ {
-    if(self->settings->show_fps != FALSE) {
+    if(self->options->show_fps != FALSE) {
       xcpc_print(self->stats);
     }
   }
@@ -1128,57 +1128,57 @@ static void amstrad_cpc_mouse_default(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
 void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
 {
   /* init machine */ {
-    self->computer_model = xcpc_computer_model(self->settings->computer_model, XCPC_COMPUTER_MODEL_6128);
+    self->computer_model = xcpc_computer_model(self->options->computer_model, XCPC_COMPUTER_MODEL_6128);
     switch(self->computer_model) {
       case XCPC_COMPUTER_MODEL_464: {
-          if(self->settings->system_rom == NULL) {
-            self->settings->system_rom = build_filename("roms", "cpc464.rom");
+          if(self->options->system_rom == NULL) {
+            self->options->system_rom = build_filename("roms", "cpc464.rom");
           }
-          if(self->settings->expansion[7] == NULL) {
-            self->settings->expansion[7] = NULL;
+          if(self->options->expansion[7] == NULL) {
+            self->options->expansion[7] = NULL;
           }
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
           self->ramsize         = 64;
-          self->monitor_model   = xcpc_monitor_model(self->settings->monitor_model, XCPC_MONITOR_MODEL_CTM644);
-          self->keyboard_layout = xcpc_keyboard_layout(self->settings->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
-          self->refresh_rate    = xcpc_refresh_rate(self->settings->refresh_rate, XCPC_REFRESH_RATE_50HZ);
-          self->manufacturer    = xcpc_manufacturer(self->settings->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
+          self->monitor_model   = xcpc_monitor_model(self->options->monitor_model, XCPC_MONITOR_MODEL_CTM644);
+          self->keyboard_layout = xcpc_keyboard_layout(self->options->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
+          self->refresh_rate    = xcpc_refresh_rate(self->options->refresh_rate, XCPC_REFRESH_RATE_50HZ);
+          self->manufacturer    = xcpc_manufacturer(self->options->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
         }
         break;
       case XCPC_COMPUTER_MODEL_664: {
-          if(self->settings->system_rom == NULL) {
-            self->settings->system_rom = build_filename("roms", "cpc664.rom");
+          if(self->options->system_rom == NULL) {
+            self->options->system_rom = build_filename("roms", "cpc664.rom");
           }
-          if(self->settings->expansion[7] == NULL) {
-            self->settings->expansion[7] = build_filename("roms", "amsdos.rom");
+          if(self->options->expansion[7] == NULL) {
+            self->options->expansion[7] = build_filename("roms", "amsdos.rom");
           }
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
           self->ramsize         = 64;
-          self->monitor_model   = xcpc_monitor_model(self->settings->monitor_model, XCPC_MONITOR_MODEL_CTM644);
-          self->keyboard_layout = xcpc_keyboard_layout(self->settings->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
-          self->refresh_rate    = xcpc_refresh_rate(self->settings->refresh_rate, XCPC_REFRESH_RATE_50HZ);
-          self->manufacturer    = xcpc_manufacturer(self->settings->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
+          self->monitor_model   = xcpc_monitor_model(self->options->monitor_model, XCPC_MONITOR_MODEL_CTM644);
+          self->keyboard_layout = xcpc_keyboard_layout(self->options->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
+          self->refresh_rate    = xcpc_refresh_rate(self->options->refresh_rate, XCPC_REFRESH_RATE_50HZ);
+          self->manufacturer    = xcpc_manufacturer(self->options->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
         }
         break;
       case XCPC_COMPUTER_MODEL_6128: {
-          if(self->settings->system_rom == NULL) {
-            self->settings->system_rom = build_filename("roms", "cpc6128.rom");
+          if(self->options->system_rom == NULL) {
+            self->options->system_rom = build_filename("roms", "cpc6128.rom");
           }
-          if(self->settings->expansion[7] == NULL) {
-            self->settings->expansion[7] = build_filename("roms", "amsdos.rom");
+          if(self->options->expansion[7] == NULL) {
+            self->options->expansion[7] = build_filename("roms", "amsdos.rom");
           }
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
           self->ramsize         = 128;
-          self->monitor_model   = xcpc_monitor_model(self->settings->monitor_model, XCPC_MONITOR_MODEL_CTM640);
-          self->keyboard_layout = xcpc_keyboard_layout(self->settings->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
-          self->refresh_rate    = xcpc_refresh_rate(self->settings->refresh_rate, XCPC_REFRESH_RATE_50HZ);
-          self->manufacturer    = xcpc_manufacturer(self->settings->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
+          self->monitor_model   = xcpc_monitor_model(self->options->monitor_model, XCPC_MONITOR_MODEL_CTM640);
+          self->keyboard_layout = xcpc_keyboard_layout(self->options->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
+          self->refresh_rate    = xcpc_refresh_rate(self->options->refresh_rate, XCPC_REFRESH_RATE_50HZ);
+          self->manufacturer    = xcpc_manufacturer(self->options->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
         }
         break;
       default:
@@ -1248,17 +1248,17 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
   }
   /* create lower rom bank */ {
     XcpcRomBank*      rom_bank   = xcpc_rom_bank_new();
-    XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->settings->system_rom, 0x0000);
+    XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->options->system_rom, 0x0000);
     if((rom_bank == NULL) || (rom_status != XCPC_ROM_BANK_STATUS_SUCCESS)) {
-      xcpc_error("lower-rom: loading error (%s)", self->settings->system_rom);
+      xcpc_error("lower-rom: loading error (%s)", self->options->system_rom);
     }
     self->rom_bank[0] = rom_bank;
   }
   /* create upper rom bank */ {
     XcpcRomBank*      rom_bank   = xcpc_rom_bank_new();
-    XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->settings->system_rom, 0x4000);
+    XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->options->system_rom, 0x4000);
     if((rom_bank == NULL) || (rom_status != XCPC_ROM_BANK_STATUS_SUCCESS)) {
-      xcpc_error("upper-rom: loading error (%s)", self->settings->system_rom);
+      xcpc_error("upper-rom: loading error (%s)", self->options->system_rom);
     }
     self->rom_bank[1] = rom_bank;
   }
@@ -1266,11 +1266,11 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     unsigned int bank_index = 0;
     unsigned int bank_count = countof(self->exp_bank);
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-      if(self->settings->expansion[bank_index] != NULL) {
+      if(self->options->expansion[bank_index] != NULL) {
         XcpcRomBank*      rom_bank   = xcpc_rom_bank_new();
-        XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->settings->expansion[bank_index], 0x0000);
+        XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->options->expansion[bank_index], 0x0000);
         if((rom_bank == NULL) || (rom_status != XCPC_ROM_BANK_STATUS_SUCCESS)) {
-          xcpc_error("expansion-rom: loading error (%s)", self->settings->expansion[bank_index]);
+          xcpc_error("expansion-rom: loading error (%s)", self->options->expansion[bank_index]);
         }
         self->exp_bank[bank_index] = rom_bank;
       }
@@ -1319,7 +1319,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
         xcpc_error("unsupported refresh rate %d", self->refresh_rate);
         break;
     }
-    if(self->settings->turbo != FALSE) {
+    if(self->options->turbo != FALSE) {
         self->frame.time = 1000;
     }
   }
@@ -1327,8 +1327,8 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     amstrad_cpc_reset(self);
   }
   /* Load initial snapshot */
-  if(self->settings->snapshot != NULL) {
-    amstrad_cpc_load_snapshot(self, self->settings->snapshot);
+  if(self->options->snapshot != NULL) {
+    amstrad_cpc_load_snapshot(self, self->options->snapshot);
   }
 }
 
@@ -1887,7 +1887,7 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
                                     , self->monitor_model
                                     , XtDisplay(widget)
                                     , XtWindow(widget)
-                                    , (self->settings->no_xshm == FALSE ? True : False) );
+                                    , (self->options->no_xshm == FALSE ? True : False) );
     }
     /* init paint handler */ {
       switch(self->blitter->state.image->bits_per_pixel) {
