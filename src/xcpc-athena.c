@@ -765,17 +765,17 @@ int xcpc(int* argc, char*** argv)
             exit(EXIT_SUCCESS);
         }
         if((xcpc_resources.usage_flag != FALSE) || (xcpc_parse(argc, argv) == EXIT_FAILURE)) {
-            (void) fprintf(stream, "Usage: %s [toolkit-options] [program-options]\n", self->resources.appname);
-            (void) fprintf(stream, "\n");
-            (void) fprintf(stream, "Options:\n");
-            (void) fprintf(stream, "  -version  display version and exit.\n");
-            (void) fprintf(stream, "  -help     display this help and exit.\n");
-            (void) fprintf(stream, "\n");
-            (void) fprintf(stream, "  -quiet    set loglevel to quiet mode.\n");
-            (void) fprintf(stream, "  -trace    set loglevel to trace mode.\n");
-            (void) fprintf(stream, "  -debug    set loglevel to debug mode.\n");
-            (void) fprintf(stream, "\n");
-            (void) fflush(stream);
+            (void) fprintf(stdout, "Usage: %s [toolkit-options] [program-options]\n", appname);
+            (void) fprintf(stdout, "\n");
+            (void) fprintf(stdout, "Options:\n");
+            (void) fprintf(stdout, "  -version  display version and exit.\n");
+            (void) fprintf(stdout, "  -help     display this help and exit.\n");
+            (void) fprintf(stdout, "\n");
+            (void) fprintf(stdout, "  -quiet    set loglevel to quiet mode.\n");
+            (void) fprintf(stdout, "  -trace    set loglevel to trace mode.\n");
+            (void) fprintf(stdout, "  -debug    set loglevel to debug mode.\n");
+            (void) fprintf(stdout, "\n");
+            (void) fflush(stdout);
             (void) fflush(stdout);
             exit(EXIT_SUCCESS);
         }
