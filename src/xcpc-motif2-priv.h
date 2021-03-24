@@ -32,6 +32,7 @@ typedef struct _XcpcResourcesRec
     Boolean debug_flag;
     Boolean about_flag;
     Boolean usage_flag;
+
 } XcpcResourcesRec;
 
 typedef struct _XcpcPixmapsRec

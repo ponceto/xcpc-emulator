@@ -788,15 +788,16 @@ static XcpcApplication PrintUsage(XcpcApplication self)
     FILE* stream = self->print_stream;
 
     if(stream != NULL) {
-        (void) fprintf(stream, "%s %s\n", self->resources.appname, PACKAGE_VERSION);
-        (void) fprintf(stream, "Usage: %s [toolkit-options] [program-options]\n\n", self->resources.appname);
+        (void) fprintf(stream, "Usage: %s [toolkit-options] [program-options]\n", self->resources.appname);
+        (void) fprintf(stream, "\n");
         (void) fprintf(stream, "Options:\n");
         (void) fprintf(stream, "  -version  display version and exit.\n");
         (void) fprintf(stream, "  -help     display this help and exit.\n");
         (void) fprintf(stream, "\n");
         (void) fprintf(stream, "  -quiet    set loglevel to quiet mode.\n");
         (void) fprintf(stream, "  -trace    set loglevel to trace mode.\n");
-        (void) fprintf(stream, "  -error    set loglevel to error mode.\n");
+        (void) fprintf(stream, "  -debug    set loglevel to debug mode.\n");
+        (void) fprintf(stream, "\n");
         (void) fflush(stream);
     }
     return Exit(self);
