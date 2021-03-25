@@ -316,6 +316,7 @@ static fdc_byte fdl_drive_status(FLOPPY_DRIVE *fd)
         if (fdl->fdl_diskp)
 	{
 		err = dsk_drive_status(fdl->fdl_diskp, &fdl->fdl_diskg, 0, &st);
+		(void)(err); /* avoid warning */
 	}
 	else 
 	{
