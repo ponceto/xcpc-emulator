@@ -62,16 +62,16 @@ struct _AMSTRAD_CPC_EMULATOR
     XcpcRomBank*  exp_bank[256];
     struct _memory {
         struct {
-            unsigned char* bank[4];
+            uint8_t* bank[4];
         } rd;
         struct {
-            unsigned char* bank[4];
+            uint8_t* bank[4];
         } wr;
         struct {
-            unsigned char config;
+            uint8_t config;
         } ram;
         struct {
-            unsigned char config;
+            uint8_t config;
         } rom;
     } memory;
     struct _scanline {

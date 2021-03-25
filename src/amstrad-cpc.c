@@ -28,6 +28,9 @@
 #include <Xem/Emulator.h>
 #include "amstrad-cpc.h"
 
+#define RAM_64K  (64 * 1024)
+#define RAM_128K (128 * 1024)
+
 AMSTRAD_CPC_EMULATOR amstrad_cpc = {
     NULL,     /* settings */
     NULL,     /* blitter  */
@@ -56,7 +59,7 @@ static char* build_filename(const char* directory, const char* filename)
 
 static void cpc_mem_select(AMSTRAD_CPC_EMULATOR *self)
 {
-  if(self->ramsize >= 128) {
+  if(self->ramsize >= RAM_128K) {
     switch(self->memory.ram.config) {
       case 0x00:
         self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
@@ -1207,7 +1210,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
-          self->ramsize         = 64;
+          self->ramsize         = RAM_64K;
           self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
           self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
           self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
@@ -1220,7 +1223,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
-          self->ramsize         = 64;
+          self->ramsize         = RAM_64K;
           self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
           self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
           self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
@@ -1233,7 +1236,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
-          self->ramsize         = 128;
+          self->ramsize         = RAM_128K;
           self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
           self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
           self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
@@ -1290,7 +1293,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     (void) xcpc_fdc_765a_attach(self->fdc_765a, 1);
   }
   /* create ram banks */ {
-    size_t requested = self->ramsize * 1024UL;
+    size_t requested = self->ramsize;
     size_t allocated = 0UL;
     unsigned int bank_index = 0;
     unsigned int bank_count = countof(self->ram_bank);
@@ -1587,156 +1590,38 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 {
   XcpcSnapshot*      snapshot = xcpc_snapshot_new();
   XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
+  uint32_t           ram_size = self->ramsize;
 
   /* load snapshot */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
       status = xcpc_snapshot_load(snapshot, filename);
     }
   }
-  /* cpu */ {
+  /* get devices */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      (void) xcpc_cpu_z80a_set_af_l(self->cpu_z80a, snapshot->header.cpu_p_af_l);
-      (void) xcpc_cpu_z80a_set_af_h(self->cpu_z80a, snapshot->header.cpu_p_af_h);
-      (void) xcpc_cpu_z80a_set_bc_l(self->cpu_z80a, snapshot->header.cpu_p_bc_l);
-      (void) xcpc_cpu_z80a_set_bc_h(self->cpu_z80a, snapshot->header.cpu_p_bc_h);
-      (void) xcpc_cpu_z80a_set_de_l(self->cpu_z80a, snapshot->header.cpu_p_de_l);
-      (void) xcpc_cpu_z80a_set_de_h(self->cpu_z80a, snapshot->header.cpu_p_de_h);
-      (void) xcpc_cpu_z80a_set_hl_l(self->cpu_z80a, snapshot->header.cpu_p_hl_l);
-      (void) xcpc_cpu_z80a_set_hl_h(self->cpu_z80a, snapshot->header.cpu_p_hl_h);
-      (void) xcpc_cpu_z80a_set_ir_l(self->cpu_z80a, snapshot->header.cpu_p_ir_l);
-      (void) xcpc_cpu_z80a_set_ir_h(self->cpu_z80a, snapshot->header.cpu_p_ir_h);
-      (void) xcpc_cpu_z80a_set_iff1(self->cpu_z80a, snapshot->header.cpu_p_iff1);
-      (void) xcpc_cpu_z80a_set_iff2(self->cpu_z80a, snapshot->header.cpu_p_iff2);
-      (void) xcpc_cpu_z80a_set_ix_l(self->cpu_z80a, snapshot->header.cpu_p_ix_l);
-      (void) xcpc_cpu_z80a_set_ix_h(self->cpu_z80a, snapshot->header.cpu_p_ix_h);
-      (void) xcpc_cpu_z80a_set_iy_l(self->cpu_z80a, snapshot->header.cpu_p_iy_l);
-      (void) xcpc_cpu_z80a_set_iy_h(self->cpu_z80a, snapshot->header.cpu_p_iy_h);
-      (void) xcpc_cpu_z80a_set_sp_l(self->cpu_z80a, snapshot->header.cpu_p_sp_l);
-      (void) xcpc_cpu_z80a_set_sp_h(self->cpu_z80a, snapshot->header.cpu_p_sp_h);
-      (void) xcpc_cpu_z80a_set_pc_l(self->cpu_z80a, snapshot->header.cpu_p_pc_l);
-      (void) xcpc_cpu_z80a_set_pc_h(self->cpu_z80a, snapshot->header.cpu_p_pc_h);
-      (void) xcpc_cpu_z80a_set_im  (self->cpu_z80a, snapshot->header.cpu_p_im_l);
-      (void) xcpc_cpu_z80a_set_af_y(self->cpu_z80a, snapshot->header.cpu_a_af_l);
-      (void) xcpc_cpu_z80a_set_af_x(self->cpu_z80a, snapshot->header.cpu_a_af_h);
-      (void) xcpc_cpu_z80a_set_bc_y(self->cpu_z80a, snapshot->header.cpu_a_bc_l);
-      (void) xcpc_cpu_z80a_set_bc_x(self->cpu_z80a, snapshot->header.cpu_a_bc_h);
-      (void) xcpc_cpu_z80a_set_de_y(self->cpu_z80a, snapshot->header.cpu_a_de_l);
-      (void) xcpc_cpu_z80a_set_de_x(self->cpu_z80a, snapshot->header.cpu_a_de_h);
-      (void) xcpc_cpu_z80a_set_hl_y(self->cpu_z80a, snapshot->header.cpu_a_hl_l);
-      (void) xcpc_cpu_z80a_set_hl_x(self->cpu_z80a, snapshot->header.cpu_a_hl_h);
+      (void) xcpc_snapshot_get_cpu_z80a(snapshot, self->cpu_z80a);
+      (void) xcpc_snapshot_get_vga_core(snapshot, self->vga_core);
+      (void) xcpc_snapshot_get_vdc_6845(snapshot, self->vdc_6845);
+      (void) xcpc_snapshot_get_ppi_8255(snapshot, self->ppi_8255);
+      (void) xcpc_snapshot_get_psg_8910(snapshot, self->psg_8910);
+      (void) xcpc_snapshot_get_fdc_765a(snapshot, self->fdc_765a);
     }
   }
-  /* vga */ {
+  /* get ram/rom */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->vga_core->state.pen       = snapshot->header.vga_ink_ix;
-      self->vga_core->state.ink[0x00] = snapshot->header.vga_ink_00;
-      self->vga_core->state.ink[0x01] = snapshot->header.vga_ink_01;
-      self->vga_core->state.ink[0x02] = snapshot->header.vga_ink_02;
-      self->vga_core->state.ink[0x03] = snapshot->header.vga_ink_03;
-      self->vga_core->state.ink[0x04] = snapshot->header.vga_ink_04;
-      self->vga_core->state.ink[0x05] = snapshot->header.vga_ink_05;
-      self->vga_core->state.ink[0x06] = snapshot->header.vga_ink_06;
-      self->vga_core->state.ink[0x07] = snapshot->header.vga_ink_07;
-      self->vga_core->state.ink[0x08] = snapshot->header.vga_ink_08;
-      self->vga_core->state.ink[0x09] = snapshot->header.vga_ink_09;
-      self->vga_core->state.ink[0x0a] = snapshot->header.vga_ink_10;
-      self->vga_core->state.ink[0x0b] = snapshot->header.vga_ink_11;
-      self->vga_core->state.ink[0x0c] = snapshot->header.vga_ink_12;
-      self->vga_core->state.ink[0x0d] = snapshot->header.vga_ink_13;
-      self->vga_core->state.ink[0x0e] = snapshot->header.vga_ink_14;
-      self->vga_core->state.ink[0x0f] = snapshot->header.vga_ink_15;
-      self->vga_core->state.ink[0x10] = snapshot->header.vga_ink_16;
-      self->vga_core->state.rmr       = snapshot->header.vga_config;
+      (void) xcpc_snapshot_get_ram_conf(snapshot, &self->memory.ram.config);
+      (void) xcpc_snapshot_get_rom_conf(snapshot, &self->memory.rom.config);
+      (void) xcpc_snapshot_get_ram_size(snapshot, &ram_size);
     }
   }
-  /* ram select */ {
+  /* get ram */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->memory.ram.config = snapshot->header.ram_select;
-    }
-  }
-  /* vdc */ {
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->vdc_6845->state.regs.array.addr       = snapshot->header.vdc_reg_ix;
-      self->vdc_6845->state.regs.array.data[0x00] = snapshot->header.vdc_reg_00;
-      self->vdc_6845->state.regs.array.data[0x01] = snapshot->header.vdc_reg_01;
-      self->vdc_6845->state.regs.array.data[0x02] = snapshot->header.vdc_reg_02;
-      self->vdc_6845->state.regs.array.data[0x03] = snapshot->header.vdc_reg_03;
-      self->vdc_6845->state.regs.array.data[0x04] = snapshot->header.vdc_reg_04;
-      self->vdc_6845->state.regs.array.data[0x05] = snapshot->header.vdc_reg_05;
-      self->vdc_6845->state.regs.array.data[0x06] = snapshot->header.vdc_reg_06;
-      self->vdc_6845->state.regs.array.data[0x07] = snapshot->header.vdc_reg_07;
-      self->vdc_6845->state.regs.array.data[0x08] = snapshot->header.vdc_reg_08;
-      self->vdc_6845->state.regs.array.data[0x09] = snapshot->header.vdc_reg_09;
-      self->vdc_6845->state.regs.array.data[0x0a] = snapshot->header.vdc_reg_10;
-      self->vdc_6845->state.regs.array.data[0x0b] = snapshot->header.vdc_reg_11;
-      self->vdc_6845->state.regs.array.data[0x0c] = snapshot->header.vdc_reg_12;
-      self->vdc_6845->state.regs.array.data[0x0d] = snapshot->header.vdc_reg_13;
-      self->vdc_6845->state.regs.array.data[0x0e] = snapshot->header.vdc_reg_14;
-      self->vdc_6845->state.regs.array.data[0x0f] = snapshot->header.vdc_reg_15;
-      self->vdc_6845->state.regs.array.data[0x10] = snapshot->header.vdc_reg_16;
-      self->vdc_6845->state.regs.array.data[0x11] = snapshot->header.vdc_reg_17;
-    }
-  }
-  /* rom select */ {
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->memory.rom.config = snapshot->header.rom_select;
-    }
-  }
-  /* ppi */ {
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->ppi_8255->state.port_a = snapshot->header.ppi_port_a;
-      self->ppi_8255->state.port_b = snapshot->header.ppi_port_b;
-      self->ppi_8255->state.port_c = snapshot->header.ppi_port_c;
-      self->ppi_8255->state.ctrl_p = snapshot->header.ppi_ctrl_p;
-    }
-  }
-  /* psg */ {
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      self->psg_8910->state.regs.array.addr       = snapshot->header.psg_reg_ix;
-      self->psg_8910->state.regs.array.data[0x00] = snapshot->header.psg_reg_00;
-      self->psg_8910->state.regs.array.data[0x01] = snapshot->header.psg_reg_01;
-      self->psg_8910->state.regs.array.data[0x02] = snapshot->header.psg_reg_02;
-      self->psg_8910->state.regs.array.data[0x03] = snapshot->header.psg_reg_03;
-      self->psg_8910->state.regs.array.data[0x04] = snapshot->header.psg_reg_04;
-      self->psg_8910->state.regs.array.data[0x05] = snapshot->header.psg_reg_05;
-      self->psg_8910->state.regs.array.data[0x06] = snapshot->header.psg_reg_06;
-      self->psg_8910->state.regs.array.data[0x07] = snapshot->header.psg_reg_07;
-      self->psg_8910->state.regs.array.data[0x08] = snapshot->header.psg_reg_08;
-      self->psg_8910->state.regs.array.data[0x09] = snapshot->header.psg_reg_09;
-      self->psg_8910->state.regs.array.data[0x0a] = snapshot->header.psg_reg_10;
-      self->psg_8910->state.regs.array.data[0x0b] = snapshot->header.psg_reg_11;
-      self->psg_8910->state.regs.array.data[0x0c] = snapshot->header.psg_reg_12;
-      self->psg_8910->state.regs.array.data[0x0d] = snapshot->header.psg_reg_13;
-      self->psg_8910->state.regs.array.data[0x0e] = snapshot->header.psg_reg_14;
-      self->psg_8910->state.regs.array.data[0x0f] = snapshot->header.psg_reg_15;
-    }
-  }
-  /* ram */ {
-    size_t ram_size = 0UL;
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      ram_size |= (((size_t)(snapshot->header.ram_size_h)) << 18);
-      ram_size |= (((size_t)(snapshot->header.ram_size_l)) << 10);
-    }
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      if(ram_size == 0UL) {
-        status = XCPC_SNAPSHOT_STATUS_MEMORY_ERROR;
-      }
-    }
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      size_t         snap_size  = self->ramsize * 1024UL;
-      unsigned int   bank_index = 0;
-      unsigned int   bank_count = countof(snapshot->memory);
-      for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        unsigned char* snap_data = self->ram_bank[bank_index]->state.data;
-        unsigned char* bank_data = snapshot->memory[bank_index].data;
-        size_t         bank_size = sizeof(snapshot->memory[bank_index].data);
-        if(snap_size >= bank_size) {
-          (void) memcpy(snap_data, bank_data, bank_size);
-          snap_size -= bank_size;
-        }
-        else {
-          break;
-        }
+      uint32_t     snap_size  = self->ramsize;
+      uint32_t     bank_size  = 16384;
+      unsigned int bank_index = 0;
+      while(snap_size >= bank_size) {
+        (void) xcpc_snapshot_get_ram_bank(snapshot, self->ram_bank[bank_index++]);
+        snap_size -= bank_size;
       }
       if(snap_size != 0) {
         status = XCPC_SNAPSHOT_STATUS_MEMORY_ERROR;
@@ -1765,151 +1650,33 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
 {
   XcpcSnapshot*      snapshot = xcpc_snapshot_new();
   XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
+  uint32_t           ram_size = self->ramsize;
 
-  /* cpu */ {
+  /* set devices */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.cpu_p_af_l = xcpc_cpu_z80a_get_af_l(self->cpu_z80a);
-      snapshot->header.cpu_p_af_h = xcpc_cpu_z80a_get_af_h(self->cpu_z80a);
-      snapshot->header.cpu_p_bc_l = xcpc_cpu_z80a_get_bc_l(self->cpu_z80a);
-      snapshot->header.cpu_p_bc_h = xcpc_cpu_z80a_get_bc_h(self->cpu_z80a);
-      snapshot->header.cpu_p_de_l = xcpc_cpu_z80a_get_de_l(self->cpu_z80a);
-      snapshot->header.cpu_p_de_h = xcpc_cpu_z80a_get_de_h(self->cpu_z80a);
-      snapshot->header.cpu_p_hl_l = xcpc_cpu_z80a_get_hl_l(self->cpu_z80a);
-      snapshot->header.cpu_p_hl_h = xcpc_cpu_z80a_get_hl_h(self->cpu_z80a);
-      snapshot->header.cpu_p_ir_l = xcpc_cpu_z80a_get_ir_l(self->cpu_z80a);
-      snapshot->header.cpu_p_ir_h = xcpc_cpu_z80a_get_ir_h(self->cpu_z80a);
-      snapshot->header.cpu_p_iff1 = xcpc_cpu_z80a_get_iff1(self->cpu_z80a);
-      snapshot->header.cpu_p_iff2 = xcpc_cpu_z80a_get_iff2(self->cpu_z80a);
-      snapshot->header.cpu_p_ix_l = xcpc_cpu_z80a_get_ix_l(self->cpu_z80a);
-      snapshot->header.cpu_p_ix_h = xcpc_cpu_z80a_get_ix_h(self->cpu_z80a);
-      snapshot->header.cpu_p_iy_l = xcpc_cpu_z80a_get_iy_l(self->cpu_z80a);
-      snapshot->header.cpu_p_iy_h = xcpc_cpu_z80a_get_iy_h(self->cpu_z80a);
-      snapshot->header.cpu_p_sp_l = xcpc_cpu_z80a_get_sp_l(self->cpu_z80a);
-      snapshot->header.cpu_p_sp_h = xcpc_cpu_z80a_get_sp_h(self->cpu_z80a);
-      snapshot->header.cpu_p_pc_l = xcpc_cpu_z80a_get_pc_l(self->cpu_z80a);
-      snapshot->header.cpu_p_pc_h = xcpc_cpu_z80a_get_pc_h(self->cpu_z80a);
-      snapshot->header.cpu_p_im_l = xcpc_cpu_z80a_get_im  (self->cpu_z80a);
-      snapshot->header.cpu_a_af_l = xcpc_cpu_z80a_get_af_y(self->cpu_z80a);
-      snapshot->header.cpu_a_af_h = xcpc_cpu_z80a_get_af_x(self->cpu_z80a);
-      snapshot->header.cpu_a_bc_l = xcpc_cpu_z80a_get_bc_y(self->cpu_z80a);
-      snapshot->header.cpu_a_bc_h = xcpc_cpu_z80a_get_bc_x(self->cpu_z80a);
-      snapshot->header.cpu_a_de_l = xcpc_cpu_z80a_get_de_y(self->cpu_z80a);
-      snapshot->header.cpu_a_de_h = xcpc_cpu_z80a_get_de_x(self->cpu_z80a);
-      snapshot->header.cpu_a_hl_l = xcpc_cpu_z80a_get_hl_y(self->cpu_z80a);
-      snapshot->header.cpu_a_hl_h = xcpc_cpu_z80a_get_hl_x(self->cpu_z80a);
+      (void) xcpc_snapshot_set_cpu_z80a(snapshot, self->cpu_z80a);
+      (void) xcpc_snapshot_set_vga_core(snapshot, self->vga_core);
+      (void) xcpc_snapshot_set_vdc_6845(snapshot, self->vdc_6845);
+      (void) xcpc_snapshot_set_ppi_8255(snapshot, self->ppi_8255);
+      (void) xcpc_snapshot_set_psg_8910(snapshot, self->psg_8910);
+      (void) xcpc_snapshot_set_fdc_765a(snapshot, self->fdc_765a);
     }
   }
-  /* vga */ {
+  /* set ram/rom */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.vga_ink_ix = self->vga_core->state.pen;
-      snapshot->header.vga_ink_00 = self->vga_core->state.ink[0x00];
-      snapshot->header.vga_ink_01 = self->vga_core->state.ink[0x01];
-      snapshot->header.vga_ink_02 = self->vga_core->state.ink[0x02];
-      snapshot->header.vga_ink_03 = self->vga_core->state.ink[0x03];
-      snapshot->header.vga_ink_04 = self->vga_core->state.ink[0x04];
-      snapshot->header.vga_ink_05 = self->vga_core->state.ink[0x05];
-      snapshot->header.vga_ink_06 = self->vga_core->state.ink[0x06];
-      snapshot->header.vga_ink_07 = self->vga_core->state.ink[0x07];
-      snapshot->header.vga_ink_08 = self->vga_core->state.ink[0x08];
-      snapshot->header.vga_ink_09 = self->vga_core->state.ink[0x09];
-      snapshot->header.vga_ink_10 = self->vga_core->state.ink[0x0a];
-      snapshot->header.vga_ink_11 = self->vga_core->state.ink[0x0b];
-      snapshot->header.vga_ink_12 = self->vga_core->state.ink[0x0c];
-      snapshot->header.vga_ink_13 = self->vga_core->state.ink[0x0d];
-      snapshot->header.vga_ink_14 = self->vga_core->state.ink[0x0e];
-      snapshot->header.vga_ink_15 = self->vga_core->state.ink[0x0f];
-      snapshot->header.vga_ink_16 = self->vga_core->state.ink[0x10];
-      snapshot->header.vga_config = self->vga_core->state.rmr;
+      (void) xcpc_snapshot_set_ram_conf(snapshot, &self->memory.ram.config);
+      (void) xcpc_snapshot_set_rom_conf(snapshot, &self->memory.rom.config);
+      (void) xcpc_snapshot_set_ram_size(snapshot, &ram_size);
     }
   }
-  /* ram select */ {
+  /* set ram */ {
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.ram_select = self->memory.ram.config;
-    }
-  }
-  /* vdc */ {
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.vdc_reg_ix = self->vdc_6845->state.regs.array.addr;
-      snapshot->header.vdc_reg_00 = self->vdc_6845->state.regs.array.data[0x00];
-      snapshot->header.vdc_reg_01 = self->vdc_6845->state.regs.array.data[0x01];
-      snapshot->header.vdc_reg_02 = self->vdc_6845->state.regs.array.data[0x02];
-      snapshot->header.vdc_reg_03 = self->vdc_6845->state.regs.array.data[0x03];
-      snapshot->header.vdc_reg_04 = self->vdc_6845->state.regs.array.data[0x04];
-      snapshot->header.vdc_reg_05 = self->vdc_6845->state.regs.array.data[0x05];
-      snapshot->header.vdc_reg_06 = self->vdc_6845->state.regs.array.data[0x06];
-      snapshot->header.vdc_reg_07 = self->vdc_6845->state.regs.array.data[0x07];
-      snapshot->header.vdc_reg_08 = self->vdc_6845->state.regs.array.data[0x08];
-      snapshot->header.vdc_reg_09 = self->vdc_6845->state.regs.array.data[0x09];
-      snapshot->header.vdc_reg_10 = self->vdc_6845->state.regs.array.data[0x0a];
-      snapshot->header.vdc_reg_11 = self->vdc_6845->state.regs.array.data[0x0b];
-      snapshot->header.vdc_reg_12 = self->vdc_6845->state.regs.array.data[0x0c];
-      snapshot->header.vdc_reg_13 = self->vdc_6845->state.regs.array.data[0x0d];
-      snapshot->header.vdc_reg_14 = self->vdc_6845->state.regs.array.data[0x0e];
-      snapshot->header.vdc_reg_15 = self->vdc_6845->state.regs.array.data[0x0f];
-      snapshot->header.vdc_reg_16 = self->vdc_6845->state.regs.array.data[0x10];
-      snapshot->header.vdc_reg_17 = self->vdc_6845->state.regs.array.data[0x11];
-    }
-  }
-  /* rom select */ {
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.rom_select = self->memory.rom.config;
-    }
-  }
-  /* ppi */ {
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.ppi_port_a = self->ppi_8255->state.port_a;
-      snapshot->header.ppi_port_b = self->ppi_8255->state.port_b;
-      snapshot->header.ppi_port_c = self->ppi_8255->state.port_c;
-      snapshot->header.ppi_ctrl_p = self->ppi_8255->state.ctrl_p;
-    }
-  }
-  /* psg */ {
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.psg_reg_ix = self->psg_8910->state.regs.array.addr;
-      snapshot->header.psg_reg_00 = self->psg_8910->state.regs.array.data[0x00];
-      snapshot->header.psg_reg_01 = self->psg_8910->state.regs.array.data[0x01];
-      snapshot->header.psg_reg_02 = self->psg_8910->state.regs.array.data[0x02];
-      snapshot->header.psg_reg_03 = self->psg_8910->state.regs.array.data[0x03];
-      snapshot->header.psg_reg_04 = self->psg_8910->state.regs.array.data[0x04];
-      snapshot->header.psg_reg_05 = self->psg_8910->state.regs.array.data[0x05];
-      snapshot->header.psg_reg_06 = self->psg_8910->state.regs.array.data[0x06];
-      snapshot->header.psg_reg_07 = self->psg_8910->state.regs.array.data[0x07];
-      snapshot->header.psg_reg_08 = self->psg_8910->state.regs.array.data[0x08];
-      snapshot->header.psg_reg_09 = self->psg_8910->state.regs.array.data[0x09];
-      snapshot->header.psg_reg_10 = self->psg_8910->state.regs.array.data[0x0a];
-      snapshot->header.psg_reg_11 = self->psg_8910->state.regs.array.data[0x0b];
-      snapshot->header.psg_reg_12 = self->psg_8910->state.regs.array.data[0x0c];
-      snapshot->header.psg_reg_13 = self->psg_8910->state.regs.array.data[0x0d];
-      snapshot->header.psg_reg_14 = self->psg_8910->state.regs.array.data[0x0e];
-      snapshot->header.psg_reg_15 = self->psg_8910->state.regs.array.data[0x0f];
-    }
-  }
-  /* ram */ {
-    size_t ram_size = self->ramsize * 1024UL;
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      snapshot->header.ram_size_l = ((unsigned char)((ram_size >> 10) & 0xff));
-      snapshot->header.ram_size_h = ((unsigned char)((ram_size >> 18) & 0xff));
-    }
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      if(ram_size == 0UL) {
-        status = XCPC_SNAPSHOT_STATUS_MEMORY_ERROR;
-      }
-    }
-    if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      size_t         snap_size  = self->ramsize * 1024UL;
-      unsigned int   bank_index = 0;
-      unsigned int   bank_count = countof(snapshot->memory);
-      for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        unsigned char* snap_data = self->ram_bank[bank_index]->state.data;
-        unsigned char* bank_data = snapshot->memory[bank_index].data;
-        size_t         bank_size = sizeof(snapshot->memory[bank_index].data);
-        if(snap_size >= bank_size) {
-          (void) memcpy(bank_data, snap_data, bank_size);
-          snap_size -= bank_size;
-        }
-        else {
-          break;
-        }
+      uint32_t     snap_size  = self->ramsize;
+      uint32_t     bank_size  = 16384;
+      unsigned int bank_index = 0;
+      while(snap_size >= bank_size) {
+        (void) xcpc_snapshot_set_ram_bank(snapshot, self->ram_bank[bank_index++]);
+        snap_size -= bank_size;
       }
       if(snap_size != 0) {
         status = XCPC_SNAPSHOT_STATUS_MEMORY_ERROR;

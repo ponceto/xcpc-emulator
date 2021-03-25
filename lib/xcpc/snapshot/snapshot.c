@@ -60,6 +60,9 @@ XcpcSnapshot* xcpc_snapshot_construct(XcpcSnapshot* self)
     /* initialize version */ {
         self->header.version = XCPC_SNAPSHOT_VERSION_1;
     }
+    /* initialize banknum */ {
+        self->banknum = 0;
+    }
     return self;
 }
 
@@ -189,4 +192,385 @@ const char* xcpc_snapshot_strerror(XcpcSnapshotStatus status)
             break;
     }
     return "XCPC_SNAPSHOT_UNKNOWN_ERROR";
+}
+
+XcpcSnapshot* xcpc_snapshot_get_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
+{
+    xcpc_snapshot_trace("get_cpu_z80a");
+
+    if(cpu_z80a != NULL) {
+        (void) xcpc_cpu_z80a_set_af_l(cpu_z80a, self->header.cpu_p_af_l);
+        (void) xcpc_cpu_z80a_set_af_h(cpu_z80a, self->header.cpu_p_af_h);
+        (void) xcpc_cpu_z80a_set_bc_l(cpu_z80a, self->header.cpu_p_bc_l);
+        (void) xcpc_cpu_z80a_set_bc_h(cpu_z80a, self->header.cpu_p_bc_h);
+        (void) xcpc_cpu_z80a_set_de_l(cpu_z80a, self->header.cpu_p_de_l);
+        (void) xcpc_cpu_z80a_set_de_h(cpu_z80a, self->header.cpu_p_de_h);
+        (void) xcpc_cpu_z80a_set_hl_l(cpu_z80a, self->header.cpu_p_hl_l);
+        (void) xcpc_cpu_z80a_set_hl_h(cpu_z80a, self->header.cpu_p_hl_h);
+        (void) xcpc_cpu_z80a_set_ir_l(cpu_z80a, self->header.cpu_p_ir_l);
+        (void) xcpc_cpu_z80a_set_ir_h(cpu_z80a, self->header.cpu_p_ir_h);
+        (void) xcpc_cpu_z80a_set_iff1(cpu_z80a, self->header.cpu_p_iff1);
+        (void) xcpc_cpu_z80a_set_iff2(cpu_z80a, self->header.cpu_p_iff2);
+        (void) xcpc_cpu_z80a_set_ix_l(cpu_z80a, self->header.cpu_p_ix_l);
+        (void) xcpc_cpu_z80a_set_ix_h(cpu_z80a, self->header.cpu_p_ix_h);
+        (void) xcpc_cpu_z80a_set_iy_l(cpu_z80a, self->header.cpu_p_iy_l);
+        (void) xcpc_cpu_z80a_set_iy_h(cpu_z80a, self->header.cpu_p_iy_h);
+        (void) xcpc_cpu_z80a_set_sp_l(cpu_z80a, self->header.cpu_p_sp_l);
+        (void) xcpc_cpu_z80a_set_sp_h(cpu_z80a, self->header.cpu_p_sp_h);
+        (void) xcpc_cpu_z80a_set_pc_l(cpu_z80a, self->header.cpu_p_pc_l);
+        (void) xcpc_cpu_z80a_set_pc_h(cpu_z80a, self->header.cpu_p_pc_h);
+        (void) xcpc_cpu_z80a_set_im  (cpu_z80a, self->header.cpu_p_im_l);
+        (void) xcpc_cpu_z80a_set_af_y(cpu_z80a, self->header.cpu_a_af_l);
+        (void) xcpc_cpu_z80a_set_af_x(cpu_z80a, self->header.cpu_a_af_h);
+        (void) xcpc_cpu_z80a_set_bc_y(cpu_z80a, self->header.cpu_a_bc_l);
+        (void) xcpc_cpu_z80a_set_bc_x(cpu_z80a, self->header.cpu_a_bc_h);
+        (void) xcpc_cpu_z80a_set_de_y(cpu_z80a, self->header.cpu_a_de_l);
+        (void) xcpc_cpu_z80a_set_de_x(cpu_z80a, self->header.cpu_a_de_h);
+        (void) xcpc_cpu_z80a_set_hl_y(cpu_z80a, self->header.cpu_a_hl_l);
+        (void) xcpc_cpu_z80a_set_hl_x(cpu_z80a, self->header.cpu_a_hl_h);
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
+{
+    xcpc_snapshot_trace("get_vga_core");
+
+    if(vga_core != NULL) {
+        vga_core->state.pen       = self->header.vga_ink_ix;
+        vga_core->state.ink[0x00] = self->header.vga_ink_00;
+        vga_core->state.ink[0x01] = self->header.vga_ink_01;
+        vga_core->state.ink[0x02] = self->header.vga_ink_02;
+        vga_core->state.ink[0x03] = self->header.vga_ink_03;
+        vga_core->state.ink[0x04] = self->header.vga_ink_04;
+        vga_core->state.ink[0x05] = self->header.vga_ink_05;
+        vga_core->state.ink[0x06] = self->header.vga_ink_06;
+        vga_core->state.ink[0x07] = self->header.vga_ink_07;
+        vga_core->state.ink[0x08] = self->header.vga_ink_08;
+        vga_core->state.ink[0x09] = self->header.vga_ink_09;
+        vga_core->state.ink[0x0a] = self->header.vga_ink_10;
+        vga_core->state.ink[0x0b] = self->header.vga_ink_11;
+        vga_core->state.ink[0x0c] = self->header.vga_ink_12;
+        vga_core->state.ink[0x0d] = self->header.vga_ink_13;
+        vga_core->state.ink[0x0e] = self->header.vga_ink_14;
+        vga_core->state.ink[0x0f] = self->header.vga_ink_15;
+        vga_core->state.ink[0x10] = self->header.vga_ink_16;
+        vga_core->state.rmr       = self->header.vga_config;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
+{
+    xcpc_snapshot_trace("get_vdc_6845");
+
+    if(vdc_6845 != NULL) {
+        vdc_6845->state.regs.array.addr       = self->header.vdc_reg_ix;
+        vdc_6845->state.regs.array.data[0x00] = self->header.vdc_reg_00;
+        vdc_6845->state.regs.array.data[0x01] = self->header.vdc_reg_01;
+        vdc_6845->state.regs.array.data[0x02] = self->header.vdc_reg_02;
+        vdc_6845->state.regs.array.data[0x03] = self->header.vdc_reg_03;
+        vdc_6845->state.regs.array.data[0x04] = self->header.vdc_reg_04;
+        vdc_6845->state.regs.array.data[0x05] = self->header.vdc_reg_05;
+        vdc_6845->state.regs.array.data[0x06] = self->header.vdc_reg_06;
+        vdc_6845->state.regs.array.data[0x07] = self->header.vdc_reg_07;
+        vdc_6845->state.regs.array.data[0x08] = self->header.vdc_reg_08;
+        vdc_6845->state.regs.array.data[0x09] = self->header.vdc_reg_09;
+        vdc_6845->state.regs.array.data[0x0a] = self->header.vdc_reg_10;
+        vdc_6845->state.regs.array.data[0x0b] = self->header.vdc_reg_11;
+        vdc_6845->state.regs.array.data[0x0c] = self->header.vdc_reg_12;
+        vdc_6845->state.regs.array.data[0x0d] = self->header.vdc_reg_13;
+        vdc_6845->state.regs.array.data[0x0e] = self->header.vdc_reg_14;
+        vdc_6845->state.regs.array.data[0x0f] = self->header.vdc_reg_15;
+        vdc_6845->state.regs.array.data[0x10] = self->header.vdc_reg_16;
+        vdc_6845->state.regs.array.data[0x11] = self->header.vdc_reg_17;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
+{
+    xcpc_snapshot_trace("get_ppi_8255");
+
+    if(ppi_8255 != NULL) {
+        ppi_8255->state.port_a = self->header.ppi_port_a;
+        ppi_8255->state.port_b = self->header.ppi_port_b;
+        ppi_8255->state.port_c = self->header.ppi_port_c;
+        ppi_8255->state.ctrl_p = self->header.ppi_ctrl_p;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
+{
+    xcpc_snapshot_trace("get_psg_8910");
+
+    if(psg_8910 != NULL) {
+        psg_8910->state.regs.array.addr       = self->header.psg_reg_ix;
+        psg_8910->state.regs.array.data[0x00] = self->header.psg_reg_00;
+        psg_8910->state.regs.array.data[0x01] = self->header.psg_reg_01;
+        psg_8910->state.regs.array.data[0x02] = self->header.psg_reg_02;
+        psg_8910->state.regs.array.data[0x03] = self->header.psg_reg_03;
+        psg_8910->state.regs.array.data[0x04] = self->header.psg_reg_04;
+        psg_8910->state.regs.array.data[0x05] = self->header.psg_reg_05;
+        psg_8910->state.regs.array.data[0x06] = self->header.psg_reg_06;
+        psg_8910->state.regs.array.data[0x07] = self->header.psg_reg_07;
+        psg_8910->state.regs.array.data[0x08] = self->header.psg_reg_08;
+        psg_8910->state.regs.array.data[0x09] = self->header.psg_reg_09;
+        psg_8910->state.regs.array.data[0x0a] = self->header.psg_reg_10;
+        psg_8910->state.regs.array.data[0x0b] = self->header.psg_reg_11;
+        psg_8910->state.regs.array.data[0x0c] = self->header.psg_reg_12;
+        psg_8910->state.regs.array.data[0x0d] = self->header.psg_reg_13;
+        psg_8910->state.regs.array.data[0x0e] = self->header.psg_reg_14;
+        psg_8910->state.regs.array.data[0x0f] = self->header.psg_reg_15;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
+{
+    xcpc_snapshot_trace("get_fdc_765a");
+
+    if(fdc_765a != NULL) {
+        /* do nothing */
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
+{
+    xcpc_snapshot_trace("get_ram_bank");
+
+    if(ram_bank != NULL) {
+        if(self->banknum < countof(self->memory)) {
+            uint8_t* dst = ram_bank->state.data;
+            uint8_t* src = self->memory[self->banknum].data;
+            size_t   len = sizeof(self->memory[self->banknum].data);
+            (void) memcpy(dst, src, len);
+            ++self->banknum;
+        }
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
+{
+    xcpc_snapshot_trace("get_ram_conf");
+
+    if(ram_conf != NULL) {
+        *ram_conf = self->header.ram_select;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
+{
+    xcpc_snapshot_trace("get_rom_conf");
+
+    if(rom_conf != NULL) {
+        *rom_conf = self->header.rom_select;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_get_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
+{
+    xcpc_snapshot_trace("get_ram_size");
+
+    if(ram_size != NULL) {
+        *ram_size = 0UL;
+        *ram_size |= (((uint32_t)(self->header.ram_size_h)) << 18);
+        *ram_size |= (((uint32_t)(self->header.ram_size_l)) << 10);
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
+{
+    xcpc_snapshot_trace("set_cpu_z80a");
+
+    if(cpu_z80a != NULL) {
+        self->header.cpu_p_af_l = xcpc_cpu_z80a_get_af_l(cpu_z80a);
+        self->header.cpu_p_af_h = xcpc_cpu_z80a_get_af_h(cpu_z80a);
+        self->header.cpu_p_bc_l = xcpc_cpu_z80a_get_bc_l(cpu_z80a);
+        self->header.cpu_p_bc_h = xcpc_cpu_z80a_get_bc_h(cpu_z80a);
+        self->header.cpu_p_de_l = xcpc_cpu_z80a_get_de_l(cpu_z80a);
+        self->header.cpu_p_de_h = xcpc_cpu_z80a_get_de_h(cpu_z80a);
+        self->header.cpu_p_hl_l = xcpc_cpu_z80a_get_hl_l(cpu_z80a);
+        self->header.cpu_p_hl_h = xcpc_cpu_z80a_get_hl_h(cpu_z80a);
+        self->header.cpu_p_ir_l = xcpc_cpu_z80a_get_ir_l(cpu_z80a);
+        self->header.cpu_p_ir_h = xcpc_cpu_z80a_get_ir_h(cpu_z80a);
+        self->header.cpu_p_iff1 = xcpc_cpu_z80a_get_iff1(cpu_z80a);
+        self->header.cpu_p_iff2 = xcpc_cpu_z80a_get_iff2(cpu_z80a);
+        self->header.cpu_p_ix_l = xcpc_cpu_z80a_get_ix_l(cpu_z80a);
+        self->header.cpu_p_ix_h = xcpc_cpu_z80a_get_ix_h(cpu_z80a);
+        self->header.cpu_p_iy_l = xcpc_cpu_z80a_get_iy_l(cpu_z80a);
+        self->header.cpu_p_iy_h = xcpc_cpu_z80a_get_iy_h(cpu_z80a);
+        self->header.cpu_p_sp_l = xcpc_cpu_z80a_get_sp_l(cpu_z80a);
+        self->header.cpu_p_sp_h = xcpc_cpu_z80a_get_sp_h(cpu_z80a);
+        self->header.cpu_p_pc_l = xcpc_cpu_z80a_get_pc_l(cpu_z80a);
+        self->header.cpu_p_pc_h = xcpc_cpu_z80a_get_pc_h(cpu_z80a);
+        self->header.cpu_p_im_l = xcpc_cpu_z80a_get_im  (cpu_z80a);
+        self->header.cpu_a_af_l = xcpc_cpu_z80a_get_af_y(cpu_z80a);
+        self->header.cpu_a_af_h = xcpc_cpu_z80a_get_af_x(cpu_z80a);
+        self->header.cpu_a_bc_l = xcpc_cpu_z80a_get_bc_y(cpu_z80a);
+        self->header.cpu_a_bc_h = xcpc_cpu_z80a_get_bc_x(cpu_z80a);
+        self->header.cpu_a_de_l = xcpc_cpu_z80a_get_de_y(cpu_z80a);
+        self->header.cpu_a_de_h = xcpc_cpu_z80a_get_de_x(cpu_z80a);
+        self->header.cpu_a_hl_l = xcpc_cpu_z80a_get_hl_y(cpu_z80a);
+        self->header.cpu_a_hl_h = xcpc_cpu_z80a_get_hl_x(cpu_z80a);
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
+{
+    xcpc_snapshot_trace("set_vga_core");
+
+    if(vga_core != NULL) {
+        self->header.vga_ink_ix = vga_core->state.pen;
+        self->header.vga_ink_00 = vga_core->state.ink[0x00];
+        self->header.vga_ink_01 = vga_core->state.ink[0x01];
+        self->header.vga_ink_02 = vga_core->state.ink[0x02];
+        self->header.vga_ink_03 = vga_core->state.ink[0x03];
+        self->header.vga_ink_04 = vga_core->state.ink[0x04];
+        self->header.vga_ink_05 = vga_core->state.ink[0x05];
+        self->header.vga_ink_06 = vga_core->state.ink[0x06];
+        self->header.vga_ink_07 = vga_core->state.ink[0x07];
+        self->header.vga_ink_08 = vga_core->state.ink[0x08];
+        self->header.vga_ink_09 = vga_core->state.ink[0x09];
+        self->header.vga_ink_10 = vga_core->state.ink[0x0a];
+        self->header.vga_ink_11 = vga_core->state.ink[0x0b];
+        self->header.vga_ink_12 = vga_core->state.ink[0x0c];
+        self->header.vga_ink_13 = vga_core->state.ink[0x0d];
+        self->header.vga_ink_14 = vga_core->state.ink[0x0e];
+        self->header.vga_ink_15 = vga_core->state.ink[0x0f];
+        self->header.vga_ink_16 = vga_core->state.ink[0x10];
+        self->header.vga_config = vga_core->state.rmr;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
+{
+    xcpc_snapshot_trace("set_vdc_6845");
+
+    if(vdc_6845 != NULL) {
+        self->header.vdc_reg_ix = vdc_6845->state.regs.array.addr;
+        self->header.vdc_reg_00 = vdc_6845->state.regs.array.data[0x00];
+        self->header.vdc_reg_01 = vdc_6845->state.regs.array.data[0x01];
+        self->header.vdc_reg_02 = vdc_6845->state.regs.array.data[0x02];
+        self->header.vdc_reg_03 = vdc_6845->state.regs.array.data[0x03];
+        self->header.vdc_reg_04 = vdc_6845->state.regs.array.data[0x04];
+        self->header.vdc_reg_05 = vdc_6845->state.regs.array.data[0x05];
+        self->header.vdc_reg_06 = vdc_6845->state.regs.array.data[0x06];
+        self->header.vdc_reg_07 = vdc_6845->state.regs.array.data[0x07];
+        self->header.vdc_reg_08 = vdc_6845->state.regs.array.data[0x08];
+        self->header.vdc_reg_09 = vdc_6845->state.regs.array.data[0x09];
+        self->header.vdc_reg_10 = vdc_6845->state.regs.array.data[0x0a];
+        self->header.vdc_reg_11 = vdc_6845->state.regs.array.data[0x0b];
+        self->header.vdc_reg_12 = vdc_6845->state.regs.array.data[0x0c];
+        self->header.vdc_reg_13 = vdc_6845->state.regs.array.data[0x0d];
+        self->header.vdc_reg_14 = vdc_6845->state.regs.array.data[0x0e];
+        self->header.vdc_reg_15 = vdc_6845->state.regs.array.data[0x0f];
+        self->header.vdc_reg_16 = vdc_6845->state.regs.array.data[0x10];
+        self->header.vdc_reg_17 = vdc_6845->state.regs.array.data[0x11];
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
+{
+    xcpc_snapshot_trace("set_ppi_8255");
+
+    if(ppi_8255 != NULL) {
+        self->header.ppi_port_a = ppi_8255->state.port_a;
+        self->header.ppi_port_b = ppi_8255->state.port_b;
+        self->header.ppi_port_c = ppi_8255->state.port_c;
+        self->header.ppi_ctrl_p = ppi_8255->state.ctrl_p;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
+{
+    xcpc_snapshot_trace("set_psg_8910");
+
+    if(psg_8910 != NULL) {
+        self->header.psg_reg_ix = psg_8910->state.regs.array.addr;
+        self->header.psg_reg_00 = psg_8910->state.regs.array.data[0x00];
+        self->header.psg_reg_01 = psg_8910->state.regs.array.data[0x01];
+        self->header.psg_reg_02 = psg_8910->state.regs.array.data[0x02];
+        self->header.psg_reg_03 = psg_8910->state.regs.array.data[0x03];
+        self->header.psg_reg_04 = psg_8910->state.regs.array.data[0x04];
+        self->header.psg_reg_05 = psg_8910->state.regs.array.data[0x05];
+        self->header.psg_reg_06 = psg_8910->state.regs.array.data[0x06];
+        self->header.psg_reg_07 = psg_8910->state.regs.array.data[0x07];
+        self->header.psg_reg_08 = psg_8910->state.regs.array.data[0x08];
+        self->header.psg_reg_09 = psg_8910->state.regs.array.data[0x09];
+        self->header.psg_reg_10 = psg_8910->state.regs.array.data[0x0a];
+        self->header.psg_reg_11 = psg_8910->state.regs.array.data[0x0b];
+        self->header.psg_reg_12 = psg_8910->state.regs.array.data[0x0c];
+        self->header.psg_reg_13 = psg_8910->state.regs.array.data[0x0d];
+        self->header.psg_reg_14 = psg_8910->state.regs.array.data[0x0e];
+        self->header.psg_reg_15 = psg_8910->state.regs.array.data[0x0f];
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
+{
+    xcpc_snapshot_trace("set_fdc_765a");
+
+    if(fdc_765a != NULL) {
+        /* do nothing */
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
+{
+    xcpc_snapshot_trace("set_ram_bank");
+
+    if(ram_bank != NULL) {
+        if(self->banknum < countof(self->memory)) {
+            uint8_t* src = ram_bank->state.data;
+            uint8_t* dst = self->memory[self->banknum].data;
+            size_t   len = sizeof(self->memory[self->banknum].data);
+            (void) memcpy(dst, src, len);
+            ++self->banknum;
+        }
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
+{
+    xcpc_snapshot_trace("set_ram_conf");
+
+    if(ram_conf != NULL) {
+        self->header.ram_select = *ram_conf;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
+{
+    xcpc_snapshot_trace("set_rom_conf");
+
+    if(rom_conf != NULL) {
+        self->header.rom_select = *rom_conf;
+    }
+    return self;
+}
+
+XcpcSnapshot* xcpc_snapshot_set_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
+{
+    xcpc_snapshot_trace("set_ram_size");
+
+    if(ram_size != NULL) {
+        self->header.ram_size_l = ((uint8_t)(((*ram_size) >> 10) & 0xff));
+        self->header.ram_size_h = ((uint8_t)(((*ram_size) >> 18) & 0xff));
+    }
+    return self;
 }

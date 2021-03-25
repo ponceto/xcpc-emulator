@@ -18,6 +18,14 @@
 #define __XCPC_SNAPSHOT_IMPL_H__
 
 #include <xcpc/libxcpc.h>
+#include <xcpc/cpu-z80a/cpu-z80a.h>
+#include <xcpc/vga-core/vga-core.h>
+#include <xcpc/vdc-6845/vdc-6845.h>
+#include <xcpc/ppi-8255/ppi-8255.h>
+#include <xcpc/psg-8910/psg-8910.h>
+#include <xcpc/fdc-765a/fdc-765a.h>
+#include <xcpc/ram-bank/ram-bank.h>
+#include <xcpc/rom-bank/rom-bank.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,14 +36,6 @@ typedef enum   _XcpcSnapshotVersion XcpcSnapshotVersion;
 typedef struct _XcpcSnapshotHeader  XcpcSnapshotHeader;
 typedef struct _XcpcSnapshotMemory  XcpcSnapshotMemory;
 typedef struct _XcpcSnapshot        XcpcSnapshot;
-
-#ifndef XCPC_SNAPSHOT_IFACE
-#define XCPC_SNAPSHOT_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_SNAPSHOT_STATE
-#define XCPC_SNAPSHOT_STATE(instance, field) instance->state.field
-#endif
 
 enum _XcpcSnapshotStatus
 {
@@ -166,6 +166,7 @@ struct _XcpcSnapshot
 {
     XcpcSnapshotHeader header;
     XcpcSnapshotMemory memory[32];
+    unsigned int       banknum;
 };
 
 #ifdef __cplusplus
