@@ -313,7 +313,7 @@ extern "C" {
 
 #define m_illegal() \
     do { \
-        xcpc_debug("illegal %02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal %02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
 
 /*
@@ -322,7 +322,7 @@ extern "C" {
 
 #define m_illegal_cb() \
     do { \
-        xcpc_debug("illegal CB%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal CB%02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
 
 /*
@@ -331,7 +331,7 @@ extern "C" {
 
 #define m_illegal_dd() \
     do { \
-        xcpc_debug("illegal DD%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal DD%02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
 
 /*
@@ -340,7 +340,7 @@ extern "C" {
 
 #define m_illegal_ed() \
     do { \
-        xcpc_debug("illegal ED%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal ED%02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
 
 /*
@@ -349,7 +349,7 @@ extern "C" {
 
 #define m_illegal_fd() \
     do { \
-        xcpc_debug("illegal FD%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal FD%02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
 
 /*
@@ -358,7 +358,7 @@ extern "C" {
 
 #define m_illegal_ddcb() \
     do { \
-        xcpc_debug("illegal DDCBxx%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal DDCBxx%02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
 
 /*
@@ -367,7 +367,7 @@ extern "C" {
 
 #define m_illegal_fdcb() \
     do { \
-        xcpc_debug("illegal FDCBxx%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal FDCBxx%02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
 
 /*

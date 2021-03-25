@@ -27,6 +27,10 @@ typedef struct _XcpcSettingsIface XcpcSettingsIface;
 typedef struct _XcpcSettingsState XcpcSettingsState;
 typedef struct _XcpcSettings      XcpcSettings;
 
+#ifndef XCPC_SETTINGS_GET
+#define XCPC_SETTINGS_GET(self, what) self->state.what
+#endif
+
 struct _XcpcSettingsIface
 {
     void* user_data;
@@ -38,6 +42,34 @@ struct _XcpcSettingsState
     char* drive0;
     char* drive1;
     char* snapshot;
+    char* model;
+    char* monitor;
+    char* keyboard;
+    char* refresh;
+    char* manufacturer;
+    char* sysrom;
+    char* rom000;
+    char* rom001;
+    char* rom002;
+    char* rom003;
+    char* rom004;
+    char* rom005;
+    char* rom006;
+    char* rom007;
+    char* rom008;
+    char* rom009;
+    char* rom010;
+    char* rom011;
+    char* rom012;
+    char* rom013;
+    char* rom014;
+    char* rom015;
+    int   help;
+    int   version;
+    int   loglevel;
+    int   turbo;
+    int   xshm;
+    int   fps;
 };
 
 struct _XcpcSettings

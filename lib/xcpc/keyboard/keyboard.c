@@ -24,7 +24,7 @@
 
 static void xcpc_keyboard_trace(const char* function)
 {
-    xcpc_trace("XcpcKeyboard::%s()", function);
+    xcpc_log_trace("XcpcKeyboard::%s()", function);
 }
 
 XcpcKeyboard* xcpc_keyboard_alloc(void)

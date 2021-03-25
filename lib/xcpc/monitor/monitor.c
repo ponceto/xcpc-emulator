@@ -24,7 +24,7 @@
 
 static void xcpc_monitor_trace(const char* function)
 {
-    xcpc_trace("XcpcMonitor::%s()", function);
+    xcpc_log_trace("XcpcMonitor::%s()", function);
 }
 
 XcpcMonitor* xcpc_monitor_alloc(void)

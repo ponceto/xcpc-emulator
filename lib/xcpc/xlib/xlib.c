@@ -43,15 +43,13 @@ static int XShmErrorHandler(Display* display, XErrorEvent* event)
 
 static int _XcpcDestroyImage(XImage *image)
 {
-#ifndef NDEBUG
     if(image != NULL) {
-        xcpc_debug ( "destroying XImage (shm = %s, depth = %d, width = %d, height = %d)"
-                   , "no"
-                   , image->depth
-                   , image->width
-                   , image->height );
+        xcpc_log_debug ( "destroying XImage (shm = %s, depth = %d, width = %d, height = %d)"
+                       , "no"
+                       , image->depth
+                       , image->width
+                       , image->height );
     }
-#endif
     if(image != NULL) {
         if(image->obdata != NULL) {
             image->obdata = Xdelete(char, image->obdata);
@@ -90,36 +88,32 @@ XImage* XcpcCreateImage ( Display*     display
             image = ((void) XDestroyImage(image), NULL);
         }
     }
-#ifndef NDEBUG
     if(image != NULL) {
-        xcpc_debug ( "XImage created (shm = %s, depth = %d, width = %d, height = %d)"
-                   , "no"
-                   , depth
-                   , width
-                   , height );
+        xcpc_log_debug ( "XImage created (shm = %s, depth = %d, width = %d, height = %d)"
+                       , "no"
+                       , depth
+                       , width
+                       , height );
     }
     else {
-        xcpc_debug ( "unable to create XImage (shm = %s, depth = %d, width = %d, height = %d)"
-                   , "no"
-                   , depth
-                   , width
-                   , height );
+        xcpc_log_error ( "unable to create XImage (shm = %s, depth = %d, width = %d, height = %d)"
+                       , "no"
+                       , depth
+                       , width
+                       , height );
     }
-#endif
     return image;
 }
 
 static int _XcpcDestroyShmImage(XImage *image)
 {
-#ifndef NDEBUG
     if(image != NULL) {
-        xcpc_debug ( "destroying XImage (shm = %s, depth = %d, width = %d, height = %d)"
-                   , "yes"
-                   , image->depth
-                   , image->width
-                   , image->height );
+        xcpc_log_debug ( "destroying XImage (shm = %s, depth = %d, width = %d, height = %d)"
+                       , "yes"
+                       , image->depth
+                       , image->width
+                       , image->height );
     }
-#endif
     if(image != NULL) {
 #ifdef HAVE_XSHM
         if(image->obdata != NULL) {
@@ -182,22 +176,20 @@ XImage* XcpcCreateShmImage ( Display*     display
         }
     }
 #endif
-#ifndef NDEBUG
     if(image != NULL) {
-        xcpc_debug ( "XImage created (shm = %s, depth = %d, width = %d, height = %d)"
-                   , "yes"
-                   , depth
-                   , width
-                   , height );
+        xcpc_log_debug ( "XImage created (shm = %s, depth = %d, width = %d, height = %d)"
+                       , "yes"
+                       , depth
+                       , width
+                       , height );
     }
     else {
-        xcpc_debug ( "unable to create XImage (shm = %s, depth = %d, width = %d, height = %d)"
-                   , "yes"
-                   , depth
-                   , width
-                   , height );
+        xcpc_log_error ( "unable to create XImage (shm = %s, depth = %d, width = %d, height = %d)"
+                       , "yes"
+                       , depth
+                       , width
+                       , height );
     }
-#endif
     return image;
 }
 
@@ -233,22 +225,20 @@ Bool XcpcAttachShmImage(Display* display, XImage* image)
         }
     }
 #endif
-#ifndef NDEBUG
     if(xshm_attached != False) {
-        xcpc_debug ( "XShm segment attached (shmseg = %lu, shmid = %d, shmaddr = %p, readOnly = %d)"
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmseg
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmid
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmaddr
-                   , XSHM_SEGMENT_INFO(image->obdata)->readOnly );
+        xcpc_log_debug ( "XShm segment attached (shmseg = %lu, shmid = %d, shmaddr = %p, readOnly = %d)"
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmseg
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmid
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmaddr
+                       , XSHM_SEGMENT_INFO(image->obdata)->readOnly );
     }
     else {
-        xcpc_debug ( "unable to attach XShm segment (shmseg = %lu, shmid = %d, shmaddr = %p, readOnly = %d)"
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmseg
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmid
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmaddr
-                   , XSHM_SEGMENT_INFO(image->obdata)->readOnly );
+        xcpc_log_error ( "unable to attach XShm segment (shmseg = %lu, shmid = %d, shmaddr = %p, readOnly = %d)"
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmseg
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmid
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmaddr
+                       , XSHM_SEGMENT_INFO(image->obdata)->readOnly );
     }
-#endif
     return xshm_attached;
 }
 
@@ -284,22 +274,20 @@ Bool XcpcDetachShmImage(Display* display, XImage* image)
         }
     }
 #endif
-#ifndef NDEBUG
     if(xshm_detached != False) {
-        xcpc_debug ( "XShm segment detached (shmseg = %lu, shmid = %d, shmaddr = %p, readOnly = %d)"
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmseg
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmid
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmaddr
-                   , XSHM_SEGMENT_INFO(image->obdata)->readOnly );
+        xcpc_log_debug ( "XShm segment detached (shmseg = %lu, shmid = %d, shmaddr = %p, readOnly = %d)"
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmseg
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmid
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmaddr
+                       , XSHM_SEGMENT_INFO(image->obdata)->readOnly );
     }
     else {
-        xcpc_debug ( "unable to detach XShm segment (shmseg = %lu, shmid = %d, shmaddr = %p, readOnly = %d)"
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmseg
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmid
-                   , XSHM_SEGMENT_INFO(image->obdata)->shmaddr
-                   , XSHM_SEGMENT_INFO(image->obdata)->readOnly );
+        xcpc_log_error ( "unable to detach XShm segment (shmseg = %lu, shmid = %d, shmaddr = %p, readOnly = %d)"
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmseg
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmid
+                       , XSHM_SEGMENT_INFO(image->obdata)->shmaddr
+                       , XSHM_SEGMENT_INFO(image->obdata)->readOnly );
     }
-#endif
     return xshm_detached;
 }
 
@@ -316,14 +304,12 @@ Bool XcpcQueryShmExtension(Display* display)
         int  minor_version  = 0;
         Bool shared_pixmaps = False;
         has_xshm = XShmQueryVersion(display, &major_version, &minor_version, &shared_pixmaps);
-#ifndef NDEBUG
         if(has_xshm != False) {
-            xcpc_debug ( "the XShm extension is available (version %d.%d, shared pixmaps = %s)"
-                       , major_version
-                       , minor_version
-                       , (shared_pixmaps != False ? "yes" : "no") );
+            xcpc_log_debug ( "the XShm extension is available (version %d.%d, shared pixmaps = %s)"
+                           , major_version
+                           , minor_version
+                           , (shared_pixmaps != False ? "yes" : "no") );
         }
-#endif
     }
 #endif
     return has_xshm;

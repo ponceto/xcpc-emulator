@@ -24,7 +24,7 @@
 
 static void xcpc_vga_core_trace(const char* function)
 {
-    xcpc_trace("XcpcVgaCore::%s()", function);
+    xcpc_log_trace("XcpcVgaCore::%s()", function);
 }
 
 static void xcpc_vga_core_init_mode0_lut(XcpcVgaCore* self)

@@ -24,7 +24,7 @@
 
 static void xcpc_psg_8910_trace(const char* function)
 {
-    xcpc_trace("XcpcPsg8910::%s()", function);
+    xcpc_log_trace("XcpcPsg8910::%s()", function);
 }
 
 XcpcPsg8910* xcpc_psg_8910_alloc(void)

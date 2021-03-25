@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib/gi18n.h>
+#include <limits.h>
 #include <Xm/XmAll.h>
 #include <Xem/StringDefs.h>
 #include <Xem/AppShell.h>
@@ -36,11 +36,9 @@
  */
 
 static XrmOptionDescRec options[] = {
-    { "-quiet"  , ".xcpcQuietFlag", XrmoptionNoArg, (XPointer) "true" },
-    { "-trace"  , ".xcpcTraceFlag", XrmoptionNoArg, (XPointer) "true" },
-    { "-debug"  , ".xcpcDebugFlag", XrmoptionNoArg, (XPointer) "true" },
-    { "-version", ".xcpcAboutFlag", XrmoptionNoArg, (XPointer) "true" },
-    { "-help"   , ".xcpcUsageFlag", XrmoptionNoArg, (XPointer) "true" },
+    { "-quiet", ".xcpcQuietFlag", XrmoptionNoArg, (XPointer) "true" },
+    { "-trace", ".xcpcTraceFlag", XrmoptionNoArg, (XPointer) "true" },
+    { "-debug", ".xcpcDebugFlag", XrmoptionNoArg, (XPointer) "true" },
 };
 
 /*
@@ -81,16 +79,6 @@ static XtResource application_resources[] = {
     /* xcpcDebugFlag */ {
         "xcpcDebugFlag", "XcpcDebugFlag", XmRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, debug_flag),
-        XmRImmediate, (XtPointer) FALSE
-    },
-    /* xcpcAboutFlag */ {
-        "xcpcAboutFlag", "XcpcAboutFlag", XmRBoolean,
-        sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, about_flag),
-        XmRImmediate, (XtPointer) FALSE
-    },
-    /* xcpcUsageFlag */ {
-        "xcpcUsageFlag", "XcpcUsageFlag", XmRBoolean,
-        sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, usage_flag),
         XmRImmediate, (XtPointer) FALSE
     },
 };
@@ -704,103 +692,72 @@ static void AboutCallback(Widget widget, XcpcApplication self, XmAnyCallbackStru
 static XcpcApplication DebugInstance(XcpcApplication self, const char* method_name)
 {
     if(self->resources.debug_flag != FALSE) {
-        xcpc_debug("-------- 8< --------");
-        xcpc_debug("XcpcApplication:");
+        xcpc_log_debug("-------- 8< --------");
+        xcpc_log_debug("XcpcApplication:");
         /* root */ {
-            xcpc_debug("    method_name             : %s", method_name                      );
-            xcpc_debug("    appcontext              : %p", self->appcontext                 );
+            xcpc_log_debug("    method_name             : %s", method_name                      );
+            xcpc_log_debug("    appcontext              : %p", self->appcontext                 );
         }
         /* layout */ {
-            xcpc_debug("    layout:"                                                        );
-            xcpc_debug("        toplevel            : %p", self->layout.toplevel            );
-            xcpc_debug("        window              : %p", self->layout.window              );
-            xcpc_debug("        emulator            : %p", self->layout.emulator            );
+            xcpc_log_debug("    layout:"                                                        );
+            xcpc_log_debug("        toplevel            : %p", self->layout.toplevel            );
+            xcpc_log_debug("        window              : %p", self->layout.window              );
+            xcpc_log_debug("        emulator            : %p", self->layout.emulator            );
         }
         /* file */ {
-            xcpc_debug("    menubar:"                                                       );
-            xcpc_debug("        widget              : %p", self->menubar.widget             );
-            xcpc_debug("        file.menu           : %p", self->menubar.file.menu          );
-            xcpc_debug("        file.pulldown       : %p", self->menubar.file.pulldown      );
-            xcpc_debug("        file.load_snapshot  : %p", self->menubar.file.load_snapshot );
-            xcpc_debug("        file.save_snapshot  : %p", self->menubar.file.save_snapshot );
-            xcpc_debug("        file.separator1     : %p", self->menubar.file.separator1    );
-            xcpc_debug("        file.exit           : %p", self->menubar.file.exit          );
+            xcpc_log_debug("    menubar:"                                                       );
+            xcpc_log_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_log_debug("        file.menu           : %p", self->menubar.file.menu          );
+            xcpc_log_debug("        file.pulldown       : %p", self->menubar.file.pulldown      );
+            xcpc_log_debug("        file.load_snapshot  : %p", self->menubar.file.load_snapshot );
+            xcpc_log_debug("        file.save_snapshot  : %p", self->menubar.file.save_snapshot );
+            xcpc_log_debug("        file.separator1     : %p", self->menubar.file.separator1    );
+            xcpc_log_debug("        file.exit           : %p", self->menubar.file.exit          );
         }
         /* ctrl */ {
-            xcpc_debug("    menubar:"                                                       );
-            xcpc_debug("        widget              : %p", self->menubar.widget             );
-            xcpc_debug("        ctrl.menu           : %p", self->menubar.ctrl.menu          );
-            xcpc_debug("        ctrl.pulldown       : %p", self->menubar.ctrl.pulldown      );
-            xcpc_debug("        ctrl.pause_emulator : %p", self->menubar.ctrl.pause_emulator);
-            xcpc_debug("        ctrl.reset_emulator : %p", self->menubar.ctrl.reset_emulator);
+            xcpc_log_debug("    menubar:"                                                       );
+            xcpc_log_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_log_debug("        ctrl.menu           : %p", self->menubar.ctrl.menu          );
+            xcpc_log_debug("        ctrl.pulldown       : %p", self->menubar.ctrl.pulldown      );
+            xcpc_log_debug("        ctrl.pause_emulator : %p", self->menubar.ctrl.pause_emulator);
+            xcpc_log_debug("        ctrl.reset_emulator : %p", self->menubar.ctrl.reset_emulator);
         }
         /* drv0 */ {
-            xcpc_debug("    menubar:"                                                       );
-            xcpc_debug("        widget              : %p", self->menubar.widget             );
-            xcpc_debug("        drv0.menu           : %p", self->menubar.drv0.menu          );
-            xcpc_debug("        drv0.pulldown       : %p", self->menubar.drv0.pulldown      );
-            xcpc_debug("        drv0.drive0_insert  : %p", self->menubar.drv0.drive0_insert );
-            xcpc_debug("        drv0.drive0_remove  : %p", self->menubar.drv0.drive0_remove );
+            xcpc_log_debug("    menubar:"                                                       );
+            xcpc_log_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_log_debug("        drv0.menu           : %p", self->menubar.drv0.menu          );
+            xcpc_log_debug("        drv0.pulldown       : %p", self->menubar.drv0.pulldown      );
+            xcpc_log_debug("        drv0.drive0_insert  : %p", self->menubar.drv0.drive0_insert );
+            xcpc_log_debug("        drv0.drive0_remove  : %p", self->menubar.drv0.drive0_remove );
         }
         /* drv1 */ {
-            xcpc_debug("    menubar:"                                                       );
-            xcpc_debug("        widget              : %p", self->menubar.widget             );
-            xcpc_debug("        drv1.menu           : %p", self->menubar.drv1.menu          );
-            xcpc_debug("        drv1.pulldown       : %p", self->menubar.drv1.pulldown      );
-            xcpc_debug("        drv1.drive1_insert  : %p", self->menubar.drv1.drive1_insert );
-            xcpc_debug("        drv1.drive1_remove  : %p", self->menubar.drv1.drive1_remove );
+            xcpc_log_debug("    menubar:"                                                       );
+            xcpc_log_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_log_debug("        drv1.menu           : %p", self->menubar.drv1.menu          );
+            xcpc_log_debug("        drv1.pulldown       : %p", self->menubar.drv1.pulldown      );
+            xcpc_log_debug("        drv1.drive1_insert  : %p", self->menubar.drv1.drive1_insert );
+            xcpc_log_debug("        drv1.drive1_remove  : %p", self->menubar.drv1.drive1_remove );
         }
         /* help */ {
-            xcpc_debug("    menubar:"                                                       );
-            xcpc_debug("        widget              : %p", self->menubar.widget             );
-            xcpc_debug("        help.menu           : %p", self->menubar.help.menu          );
-            xcpc_debug("        help.pulldown       : %p", self->menubar.help.pulldown      );
-            xcpc_debug("        help.legal          : %p", self->menubar.help.legal         );
-            xcpc_debug("        help.separator1     : %p", self->menubar.help.separator1    );
-            xcpc_debug("        help.about          : %p", self->menubar.help.about         );
+            xcpc_log_debug("    menubar:"                                                       );
+            xcpc_log_debug("        widget              : %p", self->menubar.widget             );
+            xcpc_log_debug("        help.menu           : %p", self->menubar.help.menu          );
+            xcpc_log_debug("        help.pulldown       : %p", self->menubar.help.pulldown      );
+            xcpc_log_debug("        help.legal          : %p", self->menubar.help.legal         );
+            xcpc_log_debug("        help.separator1     : %p", self->menubar.help.separator1    );
+            xcpc_log_debug("        help.about          : %p", self->menubar.help.about         );
         }
         /* tool */ {
-            xcpc_debug("    toolbar:"                                                       );
-            xcpc_debug("        widget              : %p", self->toolbar.widget             );
-            xcpc_debug("        tool.load_snapshot  : %p", self->toolbar.load_snapshot      );
-            xcpc_debug("        tool.save_snapshot  : %p", self->toolbar.save_snapshot      );
-            xcpc_debug("        tool.pause_emulator : %p", self->toolbar.pause_emulator     );
-            xcpc_debug("        tool.reset_emulator : %p", self->toolbar.reset_emulator     );
+            xcpc_log_debug("    toolbar:"                                                       );
+            xcpc_log_debug("        widget              : %p", self->toolbar.widget             );
+            xcpc_log_debug("        tool.load_snapshot  : %p", self->toolbar.load_snapshot      );
+            xcpc_log_debug("        tool.save_snapshot  : %p", self->toolbar.save_snapshot      );
+            xcpc_log_debug("        tool.pause_emulator : %p", self->toolbar.pause_emulator     );
+            xcpc_log_debug("        tool.reset_emulator : %p", self->toolbar.reset_emulator     );
         }
-        xcpc_debug("-------- 8< --------");
+        xcpc_log_debug("-------- 8< --------");
     }
     return self;
-}
-
-static XcpcApplication PrintAbout(XcpcApplication self)
-{
-    FILE* stream = self->print_stream;
-
-    if(stream != NULL) {
-        (void) fprintf(stream, "%s %s\n", self->resources.appname, PACKAGE_VERSION);
-        (void) fflush(stream);
-    }
-    return Exit(self);
-}
-
-static XcpcApplication PrintUsage(XcpcApplication self)
-{
-    FILE* stream = self->print_stream;
-
-    if(stream != NULL) {
-        (void) fprintf(stream, "Usage: %s [toolkit-options] [program-options]\n", self->resources.appname);
-        (void) fprintf(stream, "\n");
-        (void) fprintf(stream, "Options:\n");
-        (void) fprintf(stream, "  -version  display version and exit.\n");
-        (void) fprintf(stream, "  -help     display this help and exit.\n");
-        (void) fprintf(stream, "\n");
-        (void) fprintf(stream, "  -quiet    set loglevel to quiet mode.\n");
-        (void) fprintf(stream, "  -trace    set loglevel to trace mode.\n");
-        (void) fprintf(stream, "  -debug    set loglevel to debug mode.\n");
-        (void) fprintf(stream, "\n");
-        (void) fflush(stream);
-    }
-    return Exit(self);
 }
 
 static XcpcApplication BuildFileMenu(XcpcApplication self)
@@ -1245,23 +1202,8 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
     /* initialize libxcpc */ {
         xcpc_begin();
     }
-    /* parse the command-line */ {
-        XcpcSettings* settings = xcpc_settings_new();
-        (void) xcpc_settings_parse(settings, argc, argv);
-        settings = xcpc_settings_delete(settings);
-    }
-    /* parse the command-line */ {
-        if(xcpc_parse(argc, argv) == EXIT_FAILURE) {
-            return PrintUsage(self);
-        }
-    }
-    /* check command-line flags */ {
-        if(self->resources.about_flag != FALSE) {
-            return PrintAbout(self);
-        }
-        if(self->resources.usage_flag != FALSE) {
-            return PrintUsage(self);
-        }
+    /* intialize the emulator */ {
+        amstrad_cpc_new(argc, argv);
     }
     /* build user interface */ {
         (void) BuildLayout(self);
@@ -1298,6 +1240,9 @@ XcpcApplication XcpcApplicationFini(XcpcApplication self)
         if(self->appcontext != NULL) {
             self->appcontext = (XtDestroyApplicationContext(self->appcontext), NULL);
         }
+    }
+    /* finalize the emulator */ {
+        amstrad_cpc_delete();
     }
     /* finalize libxcpc */ {
         xcpc_end();

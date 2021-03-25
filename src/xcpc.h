@@ -17,32 +17,9 @@
 #ifndef __XCPC_H__
 #define __XCPC_H__
 
-#include <glib.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef struct _XcpcOptions XcpcOptions;
-
-struct _XcpcOptions
-{
-    gboolean turbo;
-    gboolean no_xshm;
-    gboolean show_fps;
-    gchar*   computer_model;
-    gchar*   monitor_model;
-    gchar*   keyboard_layout;
-    gchar*   refresh_rate;
-    gchar*   manufacturer;
-    gchar*   snapshot;
-    gchar*   system_rom;
-    gchar*   expansion[256];
-};
-
-extern XcpcOptions xcpc_options;
-
-extern int xcpc_parse(int* argc, char*** argv);
 
 extern int xcpc(int* argc, char*** argv);
 

@@ -30,7 +30,7 @@ static const char snapshot_signature[8] = {
 
 static void xcpc_snapshot_trace(const char* function)
 {
-    xcpc_trace("XcpcSnapshot::%s()", function);
+    xcpc_log_trace("XcpcSnapshot::%s()", function);
 }
 
 XcpcSnapshot* xcpc_snapshot_alloc(void)

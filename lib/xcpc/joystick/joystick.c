@@ -24,7 +24,7 @@
 
 static void xcpc_joystick_trace(const char* function)
 {
-    xcpc_trace("XcpcJoystick::%s()", function);
+    xcpc_log_trace("XcpcJoystick::%s()", function);
 }
 
 XcpcJoystick* xcpc_joystick_alloc(void)

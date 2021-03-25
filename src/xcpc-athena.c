@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib/gi18n.h>
+#include <limits.h>
 #include <X11/Intrinsic.h>
 #include <X11/Xaw/Box.h>
 #include <X11/Xaw/MenuButton.h>
@@ -39,11 +39,9 @@
  * command line options
  */
 static XrmOptionDescRec options[] = {
-  { "-quiet"  , ".xcpcQuietFlag", XrmoptionNoArg, (XPointer) "true" },
-  { "-trace"  , ".xcpcTraceFlag", XrmoptionNoArg, (XPointer) "true" },
-  { "-debug"  , ".xcpcDebugFlag", XrmoptionNoArg, (XPointer) "true" },
-  { "-version", ".xcpcAboutFlag", XrmoptionNoArg, (XPointer) "true" },
-  { "-help"   , ".xcpcUsageFlag", XrmoptionNoArg, (XPointer) "true" },
+  { "-quiet", ".xcpcQuietFlag", XrmoptionNoArg, (XPointer) "true" },
+  { "-trace", ".xcpcTraceFlag", XrmoptionNoArg, (XPointer) "true" },
+  { "-debug", ".xcpcDebugFlag", XrmoptionNoArg, (XPointer) "true" },
 };
 
 /*
@@ -73,16 +71,6 @@ static XtResource application_resources[] = {
     sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, debug_flag),
     XtRImmediate, (XtPointer) FALSE
   },
-  /* xcpcAboutFlag */ {
-    "xcpcAboutFlag", "XcpcAboutFlag", XtRBoolean,
-    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, about_flag),
-    XtRImmediate, (XtPointer) FALSE
-  },
-  /* xcpcUsageFlag */ {
-    "xcpcUsageFlag", "XcpcUsageFlag", XtRBoolean,
-    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, usage_flag),
-    XtRImmediate, (XtPointer) FALSE
-  },
 };
 
 /*
@@ -92,8 +80,6 @@ static XcpcResourcesRec xcpc_resources = {
   FALSE, /* quiet_flag */
   FALSE, /* trace_flag */
   FALSE, /* debug_flag */
-  FALSE, /* about_flag */
-  FALSE, /* usage_flag */
 };
 
 /**
@@ -758,27 +744,8 @@ int xcpc(int* argc, char*** argv)
     /* initialize libxcpc */ {
         xcpc_begin();
     }
-    /* check command-line flags */ {
-        if(xcpc_resources.about_flag != FALSE) {
-            (void) fprintf(stdout, "%s %s\n", appname, PACKAGE_VERSION);
-            (void) fflush(stdout);
-            exit(EXIT_SUCCESS);
-        }
-        if((xcpc_resources.usage_flag != FALSE) || (xcpc_parse(argc, argv) == EXIT_FAILURE)) {
-            (void) fprintf(stdout, "Usage: %s [toolkit-options] [program-options]\n", appname);
-            (void) fprintf(stdout, "\n");
-            (void) fprintf(stdout, "Options:\n");
-            (void) fprintf(stdout, "  -version  display version and exit.\n");
-            (void) fprintf(stdout, "  -help     display this help and exit.\n");
-            (void) fprintf(stdout, "\n");
-            (void) fprintf(stdout, "  -quiet    set loglevel to quiet mode.\n");
-            (void) fprintf(stdout, "  -trace    set loglevel to trace mode.\n");
-            (void) fprintf(stdout, "  -debug    set loglevel to debug mode.\n");
-            (void) fprintf(stdout, "\n");
-            (void) fflush(stdout);
-            (void) fflush(stdout);
-            exit(EXIT_SUCCESS);
-        }
+    /* intialize the emulator */ {
+        amstrad_cpc_new(argc, argv);
     }
     /* create application and run */ {
         application = XcpcCreateApplication(toplevel);
@@ -793,6 +760,9 @@ int xcpc(int* argc, char*** argv)
     }
     /* destroy application context */ {
         XtDestroyApplicationContext(appcontext);
+    }
+    /* finalize the emulator */ {
+        amstrad_cpc_delete();
     }
     /* finalize libxcpc */ {
         xcpc_end();

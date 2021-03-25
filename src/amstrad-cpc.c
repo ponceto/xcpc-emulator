@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 #include <errno.h>
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
@@ -28,7 +29,20 @@
 #include "amstrad-cpc.h"
 
 AMSTRAD_CPC_EMULATOR amstrad_cpc = {
-    &xcpc_options,
+    NULL,     /* settings */
+    NULL,     /* blitter  */
+    NULL,     /* monitor  */
+    NULL,     /* keyboard */
+    NULL,     /* joystick */
+    NULL,     /* cpu_z80a */
+    NULL,     /* vga_core */
+    NULL,     /* vdc_6845 */
+    NULL,     /* ppi_8255 */
+    NULL,     /* psg_8910 */
+    NULL,     /* fdc_765a */
+    { NULL }, /* ram_bank */
+    { NULL }, /* rom_bank */
+    { NULL }, /* exp_bank */
 };
 
 static char* build_filename(const char* directory, const char* filename)
@@ -93,7 +107,7 @@ static void cpc_mem_select(AMSTRAD_CPC_EMULATOR *self)
         self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
         break;
       default:
-        xcpc_error("RAM-SELECT: Bad Configuration (%02x) !!", self->memory.ram.config);
+        xcpc_log_error("RAM-SELECT: Bad Configuration (%02x) !!", self->memory.ram.config);
         break;
     }
   }
@@ -155,19 +169,19 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
 
   /* Gate-Array   [0-------xxxxxxxx] [0x7fxx] */
   if((port & 0x8000) == 0) {
-    xcpc_error("IO_RD[0x%04x]: Gate-Array   [---- Illegal ----]\n", port);
+    xcpc_log_error("IO_RD[0x%04x]: Gate-Array   [---- Illegal ----]\n", port);
   }
   /* CRTC-6845    [-0------xxxxxxxx] [0xbfxx] */
   if((port & 0x4000) == 0) {
     switch((port >> 8) & 3) {
       case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
-        xcpc_error("IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
+        xcpc_log_error("IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
         break;
       case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
-        xcpc_error("IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
+        xcpc_log_error("IO_RD[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
         break;
       case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
-        xcpc_error("IO_RD[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
+        xcpc_log_error("IO_RD[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
         break;
       case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
         data = xcpc_vdc_6845_rd(self->vdc_6845, 0xff);
@@ -176,11 +190,11 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
   }
   /* ROM Select   [--0-----xxxxxxxx] [0xdfxx] */
   if((port & 0x2000) == 0) {
-    xcpc_error("IO_RD[0x%04x]: ROM Select   [---- Illegal ----]\n", port);
+    xcpc_log_error("IO_RD[0x%04x]: ROM Select   [---- Illegal ----]\n", port);
   }
   /* Printer Port [---0----xxxxxxxx] [0xefxx] */
   if((port & 0x1000) == 0) {
-    xcpc_error("IO_RD[0x%04x]: Printer Port [---- Illegal ----]\n", port);
+    xcpc_log_error("IO_RD[0x%04x]: Printer Port [---- Illegal ----]\n", port);
   }
   /* PPI-8255     [----0---xxxxxxxx] [0xf7xx] */
   if((port & 0x0800) == 0) {
@@ -202,7 +216,7 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
         data = self->ppi_8255->state.port_c;
         break;
       case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
-        xcpc_error("IO_RD[0x%04x]: PPI-8255     [---- Illegal ----]\n", port);
+        xcpc_log_error("IO_RD[0x%04x]: PPI-8255     [---- Illegal ----]\n", port);
         break;
     }
   }
@@ -210,10 +224,10 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
   if((port & 0x0480) == 0) {
     switch(((port >> 7) & 2) | (port & 1)) {
       case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-        xcpc_error("IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
+        xcpc_log_error("IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
         break;
       case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-        xcpc_error("IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
+        xcpc_log_error("IO_RD[0x%04x]: FDC-765      [---- Illegal ----]\n", port);
         break;
       case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
         xcpc_fdc_765a_rd_stat(self->fdc_765a, &data);
@@ -262,10 +276,10 @@ static void cpu_iorq_wr(XcpcCpuZ80a *cpu_z80a, uint16_t port, uint8_t data)
         xcpc_vdc_6845_wr(self->vdc_6845, data);
         break;
       case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
-        xcpc_error("IO_WR[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
+        xcpc_log_error("IO_WR[0x%04x]: CRTC-6845    [- Not Supported -]\n", port);
         break;
       case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
-        xcpc_error("IO_WR[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
+        xcpc_log_error("IO_WR[0x%04x]: CRTC-6845    [---- Illegal ----]\n", port);
         break;
     }
   }
@@ -362,7 +376,7 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR *self)
 
   /* get the current time */ {
     if(gettimeofday(&curr_time, NULL) != 0) {
-      xcpc_error("gettimeofday() has failed");
+      xcpc_log_error("gettimeofday() has failed");
     }
   }
   /* compute the elapsed time in us */ {
@@ -387,8 +401,8 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR *self)
     }
   }
   /* print statistics */ {
-    if(self->options->show_fps != FALSE) {
-      xcpc_print(self->stats);
+    if(XCPC_SETTINGS_GET(self->settings, fps) != 0) {
+      xcpc_log_print(self->stats);
     }
   }
   /* set the new reference */ {
@@ -1125,68 +1139,113 @@ static void amstrad_cpc_mouse_default(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
 {
 }
 
+extern void amstrad_cpc_new(int* argc, char*** argv)
+{
+    AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+
+    /* memset */ {
+        (void) memset(self, 0, sizeof(AMSTRAD_CPC_EMULATOR()));
+    }
+    /* create settings */ {
+        self->settings = xcpc_settings_new();
+    }
+    /* parse settings */ {
+        (void) xcpc_settings_parse(self->settings, argc, argv);
+    }
+}
+
+extern void amstrad_cpc_delete(void)
+{
+    AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+
+    /* delete settings */ {
+        self->settings = xcpc_settings_delete(self->settings);
+    }
+    /* memset */ {
+        (void) memset(self, 0, sizeof(AMSTRAD_CPC_EMULATOR()));
+    }
+}
+
 void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
 {
+  char* system_rom = NULL;
+  char* amsdos_rom = NULL;
+  const char* not_set          = "{not-set}";
+  const char* cpc_model        = XCPC_SETTINGS_GET(self->settings, model       );
+  const char* cpc_monitor      = XCPC_SETTINGS_GET(self->settings, monitor     );
+  const char* cpc_keyboard     = XCPC_SETTINGS_GET(self->settings, keyboard    );
+  const char* cpc_refresh      = XCPC_SETTINGS_GET(self->settings, refresh     );
+  const char* cpc_manufacturer = XCPC_SETTINGS_GET(self->settings, manufacturer);
+  const char* cpc_sysrom       = XCPC_SETTINGS_GET(self->settings, sysrom      );
+  const char* cpc_rom000       = XCPC_SETTINGS_GET(self->settings, rom000      );
+  const char* cpc_rom001       = XCPC_SETTINGS_GET(self->settings, rom001      );
+  const char* cpc_rom002       = XCPC_SETTINGS_GET(self->settings, rom002      );
+  const char* cpc_rom003       = XCPC_SETTINGS_GET(self->settings, rom003      );
+  const char* cpc_rom004       = XCPC_SETTINGS_GET(self->settings, rom004      );
+  const char* cpc_rom005       = XCPC_SETTINGS_GET(self->settings, rom005      );
+  const char* cpc_rom006       = XCPC_SETTINGS_GET(self->settings, rom006      );
+  const char* cpc_rom007       = XCPC_SETTINGS_GET(self->settings, rom007      );
+  const char* cpc_rom008       = XCPC_SETTINGS_GET(self->settings, rom008      );
+  const char* cpc_rom009       = XCPC_SETTINGS_GET(self->settings, rom009      );
+  const char* cpc_rom010       = XCPC_SETTINGS_GET(self->settings, rom010      );
+  const char* cpc_rom011       = XCPC_SETTINGS_GET(self->settings, rom011      );
+  const char* cpc_rom012       = XCPC_SETTINGS_GET(self->settings, rom012      );
+  const char* cpc_rom013       = XCPC_SETTINGS_GET(self->settings, rom013      );
+  const char* cpc_rom014       = XCPC_SETTINGS_GET(self->settings, rom014      );
+  const char* cpc_rom015       = XCPC_SETTINGS_GET(self->settings, rom015      );
+  const char* cpc_expansions[16] = {
+    cpc_rom000, cpc_rom001, cpc_rom002, cpc_rom003,
+    cpc_rom004, cpc_rom005, cpc_rom006, cpc_rom007,
+    cpc_rom008, cpc_rom009, cpc_rom010, cpc_rom011,
+    cpc_rom012, cpc_rom013, cpc_rom014, cpc_rom015,
+  };
+
   /* init machine */ {
-    self->computer_model = xcpc_computer_model(self->options->computer_model, XCPC_COMPUTER_MODEL_6128);
+    self->computer_model = xcpc_computer_model(cpc_model, XCPC_COMPUTER_MODEL_6128);
     switch(self->computer_model) {
       case XCPC_COMPUTER_MODEL_464: {
-          if(self->options->system_rom == NULL) {
-            self->options->system_rom = build_filename("roms", "cpc464.rom");
-          }
-          if(self->options->expansion[7] == NULL) {
-            self->options->expansion[7] = NULL;
-          }
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
           self->ramsize         = 64;
-          self->monitor_model   = xcpc_monitor_model(self->options->monitor_model, XCPC_MONITOR_MODEL_CTM644);
-          self->keyboard_layout = xcpc_keyboard_layout(self->options->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
-          self->refresh_rate    = xcpc_refresh_rate(self->options->refresh_rate, XCPC_REFRESH_RATE_50HZ);
-          self->manufacturer    = xcpc_manufacturer(self->options->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
+          self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
+          self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
+          self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
+          self->manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
+          system_rom            = ((cpc_sysrom != NULL) && (strcmp(cpc_sysrom, not_set) != 0) ? strdup(cpc_sysrom) : build_filename("roms", "cpc464.rom"));
+          amsdos_rom            = ((cpc_rom007 != NULL) && (strcmp(cpc_sysrom, not_set) != 0) ? strdup(cpc_rom007) : NULL                                );
         }
         break;
       case XCPC_COMPUTER_MODEL_664: {
-          if(self->options->system_rom == NULL) {
-            self->options->system_rom = build_filename("roms", "cpc664.rom");
-          }
-          if(self->options->expansion[7] == NULL) {
-            self->options->expansion[7] = build_filename("roms", "amsdos.rom");
-          }
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
           self->ramsize         = 64;
-          self->monitor_model   = xcpc_monitor_model(self->options->monitor_model, XCPC_MONITOR_MODEL_CTM644);
-          self->keyboard_layout = xcpc_keyboard_layout(self->options->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
-          self->refresh_rate    = xcpc_refresh_rate(self->options->refresh_rate, XCPC_REFRESH_RATE_50HZ);
-          self->manufacturer    = xcpc_manufacturer(self->options->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
+          self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
+          self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
+          self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
+          self->manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
+          system_rom            = ((cpc_sysrom != NULL) && (strcmp(cpc_sysrom, not_set) != 0) ? strdup(cpc_sysrom) : build_filename("roms", "cpc664.rom"));
+          amsdos_rom            = ((cpc_rom007 != NULL) && (strcmp(cpc_sysrom, not_set) != 0) ? strdup(cpc_rom007) : build_filename("roms", "amsdos.rom"));
         }
         break;
       case XCPC_COMPUTER_MODEL_6128: {
-          if(self->options->system_rom == NULL) {
-            self->options->system_rom = build_filename("roms", "cpc6128.rom");
-          }
-          if(self->options->expansion[7] == NULL) {
-            self->options->expansion[7] = build_filename("roms", "amsdos.rom");
-          }
           self->paint.proc      = &amstrad_cpc_paint_default;
           self->keybd.proc      = &amstrad_cpc_keybd_default;
           self->mouse.proc      = &amstrad_cpc_mouse_default;
           self->ramsize         = 128;
-          self->monitor_model   = xcpc_monitor_model(self->options->monitor_model, XCPC_MONITOR_MODEL_CTM640);
-          self->keyboard_layout = xcpc_keyboard_layout(self->options->keyboard_layout, XCPC_KEYBOARD_LAYOUT_QWERTY);
-          self->refresh_rate    = xcpc_refresh_rate(self->options->refresh_rate, XCPC_REFRESH_RATE_50HZ);
-          self->manufacturer    = xcpc_manufacturer(self->options->manufacturer, XCPC_MANUFACTURER_AMSTRAD);
+          self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
+          self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
+          self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
+          self->manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
+          system_rom            = ((cpc_sysrom != NULL) && (strcmp(cpc_sysrom, not_set) != 0) ? strdup(cpc_sysrom) : build_filename("roms", "cpc6128.rom"));
+          amsdos_rom            = ((cpc_rom007 != NULL) && (strcmp(cpc_sysrom, not_set) != 0) ? strdup(cpc_rom007) : build_filename("roms", "amsdos.rom" ));
         }
         break;
       default:
-        xcpc_error("unknown computer model");
+        xcpc_log_error("unknown computer model");
         break;
     }
-  }
-  /* initialize devices handlers */ {
   }
   /* create blitter */ {
     self->blitter = xcpc_blitter_new();
@@ -1248,17 +1307,17 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
   }
   /* create lower rom bank */ {
     XcpcRomBank*      rom_bank   = xcpc_rom_bank_new();
-    XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->options->system_rom, 0x0000);
+    XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, system_rom, 0x0000);
     if((rom_bank == NULL) || (rom_status != XCPC_ROM_BANK_STATUS_SUCCESS)) {
-      xcpc_error("lower-rom: loading error (%s)", self->options->system_rom);
+      xcpc_log_error("lower-rom: loading error (%s)", system_rom);
     }
     self->rom_bank[0] = rom_bank;
   }
   /* create upper rom bank */ {
     XcpcRomBank*      rom_bank   = xcpc_rom_bank_new();
-    XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->options->system_rom, 0x4000);
+    XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, system_rom, 0x4000);
     if((rom_bank == NULL) || (rom_status != XCPC_ROM_BANK_STATUS_SUCCESS)) {
-      xcpc_error("upper-rom: loading error (%s)", self->options->system_rom);
+      xcpc_log_error("upper-rom: loading error (%s)", system_rom);
     }
     self->rom_bank[1] = rom_bank;
   }
@@ -1266,11 +1325,18 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     unsigned int bank_index = 0;
     unsigned int bank_count = countof(self->exp_bank);
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-      if(self->options->expansion[bank_index] != NULL) {
+      const char* filename = NULL;
+      if(bank_index < countof(cpc_expansions)) {
+          filename = cpc_expansions[bank_index];
+          if((bank_index == 7) && (amsdos_rom != NULL) && (strcmp(amsdos_rom, not_set) != 0)) {
+              filename = amsdos_rom;
+          }
+      }
+      if((filename != NULL) && (strcmp(filename, not_set) != 0)) {
         XcpcRomBank*      rom_bank   = xcpc_rom_bank_new();
-        XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, self->options->expansion[bank_index], 0x0000);
+        XcpcRomBankStatus rom_status = xcpc_rom_bank_load(rom_bank, filename, 0x0000);
         if((rom_bank == NULL) || (rom_status != XCPC_ROM_BANK_STATUS_SUCCESS)) {
-          xcpc_error("expansion-rom: loading error (%s)", self->options->expansion[bank_index]);
+          xcpc_log_error("expansion-rom: loading error (%s)", filename);
         }
         self->exp_bank[bank_index] = rom_bank;
       }
@@ -1291,10 +1357,10 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
   }
   /* initialize timers */ {
     if(gettimeofday(&self->timer.deadline, NULL) != 0) {
-      xcpc_error("gettimeofday() has failed");
+      xcpc_log_error("gettimeofday() has failed");
     }
     if(gettimeofday(&self->timer.profiler, NULL) != 0) {
-      xcpc_error("gettimeofday() has failed");
+      xcpc_log_error("gettimeofday() has failed");
     }
   }
   /* initialize frame */ {
@@ -1316,19 +1382,41 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
         self->cpu_period = (int) (4000000.0 / (60.0 * 262.5));
         break;
       default:
-        xcpc_error("unsupported refresh rate %d", self->refresh_rate);
+        xcpc_log_error("unsupported refresh rate %d", self->refresh_rate);
         break;
     }
-    if(self->options->turbo != FALSE) {
+    if(XCPC_SETTINGS_GET(self->settings, turbo) != 0) {
         self->frame.time = 1000;
     }
   }
   /* reset instance */ {
     amstrad_cpc_reset(self);
   }
-  /* Load initial snapshot */
-  if(self->options->snapshot != NULL) {
-    amstrad_cpc_load_snapshot(self, self->options->snapshot);
+  /* Load initial drive0 */ {
+    const char* drive0 = XCPC_SETTINGS_GET(self->settings, drive0);
+    if((drive0 != NULL) && (strcmp(drive0, not_set) != 0)) {
+      amstrad_cpc_insert_drive0(self, drive0);
+    }
+  }
+  /* Load initial drive1 */ {
+    const char* drive1 = XCPC_SETTINGS_GET(self->settings, drive1);
+    if((drive1 != NULL) && (strcmp(drive1, not_set) != 0)) {
+      amstrad_cpc_insert_drive1(self, drive1);
+    }
+  }
+  /* Load initial snapshot */ {
+    const char* snapshot = XCPC_SETTINGS_GET(self->settings, snapshot);
+    if((snapshot != NULL) && (strcmp(snapshot, not_set) != 0)) {
+      amstrad_cpc_load_snapshot(self, snapshot);
+    }
+  }
+  /* cleanup */ {
+    if(system_rom != NULL) {
+      system_rom = (free(system_rom), NULL);
+    }
+    if(amsdos_rom != NULL) {
+      amsdos_rom = (free(amsdos_rom), NULL);
+    }
   }
 }
 
@@ -1480,10 +1568,10 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR *self)
   }
   /* timer */ {
     if(gettimeofday(&self->timer.deadline, NULL) != 0) {
-      xcpc_error("gettimeofday() has failed");
+      xcpc_log_error("gettimeofday() has failed");
     }
     if(gettimeofday(&self->timer.profiler, NULL) != 0) {
-      xcpc_error("gettimeofday() has failed");
+      xcpc_log_error("gettimeofday() has failed");
     }
   }
   /* frame */ {
@@ -1660,7 +1748,7 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* check for error */ {
     if(status != XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      xcpc_error("load snapshot : %s", xcpc_snapshot_strerror(status));
+      xcpc_log_error("load snapshot : %s", xcpc_snapshot_strerror(status));
     }
   }
   /* perform memory mapping or reset */ {
@@ -1838,7 +1926,7 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
   }
   /* check for error */ {
     if(status != XCPC_SNAPSHOT_STATUS_SUCCESS) {
-      xcpc_error("save snapshot : %s", xcpc_snapshot_strerror(status));
+      xcpc_log_error("save snapshot : %s", xcpc_snapshot_strerror(status));
     }
   }
 }
@@ -1881,13 +1969,15 @@ unsigned long amstrad_cpc_destroy_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
 
 unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
+  int use_xshm = XCPC_SETTINGS_GET(self->settings, xshm);
+
   if(self != NULL) {
     /* realize */ {
         (void) xcpc_blitter_realize ( self->blitter
                                     , self->monitor_model
                                     , XtDisplay(widget)
                                     , XtWindow(widget)
-                                    , (self->options->no_xshm == FALSE ? True : False) );
+                                    , (use_xshm != 0 ? True : False) );
     }
     /* init paint handler */ {
       switch(self->blitter->state.image->bits_per_pixel) {

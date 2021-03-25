@@ -1,3 +1,10 @@
+2021-03-25	Olivier Poncet <ponceto@free.fr>
+
+	* Huge refactoring
+	* Codebase cleaned
+	* GLib-2.0 / GObject-2.0 support removed.
+	* GUI improved
+
 2021-03-16	Olivier Poncet <ponceto@free.fr>
 
 	* Copyright modification for 2021.

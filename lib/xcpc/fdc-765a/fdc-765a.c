@@ -24,7 +24,7 @@
 
 static void xcpc_fdc_765a_trace(const char* function)
 {
-    xcpc_trace("XcpcFdc765a::%s()", function);
+    xcpc_log_trace("XcpcFdc765a::%s()", function);
 }
 
 XcpcFdc765a* xcpc_fdc_765a_alloc(void)

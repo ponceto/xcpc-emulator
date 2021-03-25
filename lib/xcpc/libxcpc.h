@@ -26,12 +26,15 @@ extern "C" {
 extern void  xcpc_begin        (void);
 extern void  xcpc_end          (void);
 
+extern void  xcpc_println      (const char* format, ...);
+extern void  xcpc_errorln      (const char* format, ...);
+
 extern int   xcpc_get_loglevel (void);
 extern int   xcpc_set_loglevel (const int loglevel);
-extern void  xcpc_error        (const char* format, ...);
-extern void  xcpc_print        (const char* format, ...);
-extern void  xcpc_trace        (const char* format, ...);
-extern void  xcpc_debug        (const char* format, ...);
+extern void  xcpc_log_error    (const char* format, ...);
+extern void  xcpc_log_print    (const char* format, ...);
+extern void  xcpc_log_trace    (const char* format, ...);
+extern void  xcpc_log_debug    (const char* format, ...);
 
 extern void* xcpc_malloc       (const char* type, size_t size);
 extern void* xcpc_calloc       (const char* type, size_t count, size_t size);

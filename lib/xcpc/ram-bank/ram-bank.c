@@ -24,7 +24,7 @@
 
 static void xcpc_ram_bank_trace(const char* function)
 {
-    xcpc_trace("XcpcRamBank::%s()", function);
+    xcpc_log_trace("XcpcRamBank::%s()", function);
 }
 
 XcpcRamBank* xcpc_ram_bank_alloc(void)

@@ -46,7 +46,7 @@ typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 
 struct _AMSTRAD_CPC_EMULATOR
 {
-    XcpcOptions*  options;
+    XcpcSettings* settings;
     XcpcBlitter*  blitter;
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;
@@ -110,7 +110,8 @@ struct _AMSTRAD_CPC_EMULATOR
 
 extern AMSTRAD_CPC_EMULATOR amstrad_cpc;
 
-extern int           amstrad_cpc_parse         (int* argc, char*** argv);
+extern void          amstrad_cpc_new           (int* argc, char*** argv);
+extern void          amstrad_cpc_delete        (void);
 extern void          amstrad_cpc_start         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
 extern void          amstrad_cpc_close         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
 extern void          amstrad_cpc_reset         (AMSTRAD_CPC_EMULATOR* amstrad_cpc);

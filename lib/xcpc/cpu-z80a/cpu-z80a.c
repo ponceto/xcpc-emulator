@@ -380,7 +380,7 @@ static const uint8_t CyclesXX[256] = {
 
 static void xcpc_cpu_z80a_trace(const char* function)
 {
-    xcpc_trace("XcpcCpuZ80a::%s()", function);
+    xcpc_log_trace("XcpcCpuZ80a::%s()", function);
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_alloc(void)

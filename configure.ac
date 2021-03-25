@@ -69,7 +69,6 @@ AX_CHECK_XMU
 AX_CHECK_XAW
 AX_CHECK_XM2
 AX_CHECK_XSHM
-AX_CHECK_GLIB
 AX_CHECK_GUI
 AX_CHECK_HEADERS
 AX_CHECK_FUNCTIONS
@@ -79,13 +78,6 @@ AX_CHECK_BZLIB
 # ----------------------------------------------------------------------------
 # Defines
 # ----------------------------------------------------------------------------
-
-AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug], [turn on debugging [default=no]])], [], [enable_debug="no"])
-if test "x${enable_debug}" != "xyes"; then
-  AC_DEFINE([G_DISABLE_ASSERT],      [1], [Define to 1 to disable GLib/GObject assert.])
-  AC_DEFINE([G_DISABLE_CHECKS],      [1], [Define to 1 to disable GLib/GObject checks.])
-  AC_DEFINE([G_DISABLE_CAST_CHECKS], [1], [Define to 1 to disable GObject cast checks.])
-fi
 
 AC_DEFINE(PACKAGE_MAJOR_VERSION, [pkg_major_version], [Define to the major version of this package.])
 AC_DEFINE(PACKAGE_MINOR_VERSION, [pkg_minor_version], [Define to the minor version of this package.])
@@ -136,7 +128,6 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([Configured to build Xcpc:
 
-  GLib20 sdk .... ${have_glib20}
   Athena sdk .... ${have_athena}
   Motif2 sdk .... ${have_motif2}
   X11 toolkit ... ${x11_toolkit}

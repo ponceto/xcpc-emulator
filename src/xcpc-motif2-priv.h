@@ -23,6 +23,10 @@
 extern "C" {
 #endif
 
+#ifndef _
+#define _(string) (string)
+#endif
+
 typedef struct _XcpcResourcesRec
 {
     String  appname;
@@ -30,8 +34,6 @@ typedef struct _XcpcResourcesRec
     Boolean quiet_flag;
     Boolean trace_flag;
     Boolean debug_flag;
-    Boolean about_flag;
-    Boolean usage_flag;
 
 } XcpcResourcesRec;
 

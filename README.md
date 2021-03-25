@@ -18,7 +18,6 @@ libtool
 git
 xorg-dev
 libmotif-dev
-libglib2.0-dev
 ```
 
 Optionnal dependencies :
@@ -101,38 +100,51 @@ You can now run the emulator from your desktop menu `Games > Xcpc`
 ## How to run Xcpc
 
 ```
-Usage:
-  xcpc [OPTION?]
+Usage: xcpc [toolkit-options] [program-options]
 
-Help Options:
-  -h, --help                        Show help options
+Help options:
+    --help                      display this help and exit
+    --version                   display the version and exit
 
-Application Options:
-  --no-xshm                         Don't use the XShm extension
-  --show-fps                        Show fps statistics
-  --model={computer-model}          cpc464, cpc664, cpc6128
-  --monitor={monitor-model}         color, green, monochrome, ctm640, ctm644, gt64, gt65, cm14, mm14
-  --keyboard={keyboard-layout}      qwerty, azerty
-  --refresh={refresh-rate}          50Hz, 60Hz
-  --manufacturer={manufacturer}     Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad
-  --snapshot={filename}             Snapshot to load at start
-  --sysrom={filename}               32Kb system rom
-  --rom000={filename}               16Kb expansion rom #00
-  --rom001={filename}               16Kb expansion rom #01
-  --rom002={filename}               16Kb expansion rom #02
-  --rom003={filename}               16Kb expansion rom #03
-  --rom004={filename}               16Kb expansion rom #04
-  --rom005={filename}               16Kb expansion rom #05
-  --rom006={filename}               16Kb expansion rom #06
-  --rom007={filename}               16Kb expansion rom #07
-  --rom008={filename}               16Kb expansion rom #08
-  --rom009={filename}               16Kb expansion rom #09
-  --rom010={filename}               16Kb expansion rom #10
-  --rom011={filename}               16Kb expansion rom #11
-  --rom012={filename}               16Kb expansion rom #12
-  --rom013={filename}               16Kb expansion rom #13
-  --rom014={filename}               16Kb expansion rom #14
-  --rom015={filename}               16Kb expansion rom #15
+Emulation options:
+    --model={value}             cpc464, cpc664, cpc6128
+    --monitor={value}           color, green, monochrome, ctm640, ctm644, gt64, gt65, cm14, mm12
+    --keyboard={value}          qwerty, azerty
+    --refresh={value}           50Hz, 60Hz
+    --manufacturer={value}      Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad
+    --sysrom={filename}         32Kb system rom
+    --rom000={filename}         16Kb expansion rom #00
+    --rom001={filename}         16Kb expansion rom #01
+    --rom002={filename}         16Kb expansion rom #02
+    --rom003={filename}         16Kb expansion rom #03
+    --rom004={filename}         16Kb expansion rom #04
+    --rom005={filename}         16Kb expansion rom #05
+    --rom006={filename}         16Kb expansion rom #07
+    --rom007={filename}         16Kb expansion rom #08
+    --rom008={filename}         16Kb expansion rom #09
+    --rom009={filename}         16Kb expansion rom #10
+    --rom010={filename}         16Kb expansion rom #11
+    --rom011={filename}         16Kb expansion rom #12
+    --rom012={filename}         16Kb expansion rom #13
+    --rom013={filename}         16Kb expansion rom #14
+    --rom014={filename}         16Kb expansion rom #15
+    --rom015={filename}         16Kb expansion rom #16
+    --drive0={filename}         drive0 disk image
+    --drive1={filename}         drive1 disk image
+    --snapshot={filename}       initial snapshot
+
+Misc. options:
+    --turbo                     enable the turbo mode
+    --no-turbo                  disable the turbo mode
+    --xshm                      use the XShm extension
+    --no-xshm                   don't use the XShm extension
+    --fps                       print framerate
+    --no-fps                    don'tprint framerate
+
+Debug options:
+    --quiet                     set the loglevel to quiet mode
+    --trace                     set the loglevel to trace mode
+    --debug                     set the loglevel to debug mode
 
 ```
 

@@ -24,7 +24,7 @@
 
 static void xcpc_ppi_8255_trace(const char* function)
 {
-    xcpc_trace("XcpcPpi8255::%s()", function);
+    xcpc_log_trace("XcpcPpi8255::%s()", function);
 }
 
 XcpcPpi8255* xcpc_ppi_8255_alloc(void)
