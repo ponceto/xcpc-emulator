@@ -1,9 +1,12 @@
 2021-03-25	Olivier Poncet <ponceto@free.fr>
 
-	* Huge refactoring
+	* Motif2 GUI improved
+	* Very huge refactoring
 	* Codebase cleaned
-	* GLib-2.0 / GObject-2.0 support removed.
-	* GUI improved
+	* Some bugs fixed
+	* Compilation warnings fixed
+	* Lot's of improvements
+	* GLib-2.0 / GObject-2.0 dependency removed.
 
 2021-03-16	Olivier Poncet <ponceto@free.fr>
 
