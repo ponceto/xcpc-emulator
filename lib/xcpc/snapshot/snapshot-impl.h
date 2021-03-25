@@ -29,6 +29,14 @@ typedef struct _XcpcSnapshotHeader  XcpcSnapshotHeader;
 typedef struct _XcpcSnapshotMemory  XcpcSnapshotMemory;
 typedef struct _XcpcSnapshot        XcpcSnapshot;
 
+#ifndef XCPC_SNAPSHOT_IFACE
+#define XCPC_SNAPSHOT_IFACE(instance, field) instance->iface.field
+#endif
+
+#ifndef XCPC_SNAPSHOT_STATE
+#define XCPC_SNAPSHOT_STATE(instance, field) instance->state.field
+#endif
+
 enum _XcpcSnapshotStatus
 {
     XCPC_SNAPSHOT_STATUS_FAILURE            = -1,

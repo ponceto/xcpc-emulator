@@ -401,7 +401,7 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR *self)
     }
   }
   /* print statistics */ {
-    if(XCPC_SETTINGS_GET(self->settings, fps) != 0) {
+    if(XCPC_SETTINGS_STATE(self->settings, fps) != 0) {
       xcpc_log_print(self->stats);
     }
   }
@@ -1171,28 +1171,28 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
   char* system_rom = NULL;
   char* amsdos_rom = NULL;
   const char* not_set          = "{not-set}";
-  const char* cpc_model        = XCPC_SETTINGS_GET(self->settings, model       );
-  const char* cpc_monitor      = XCPC_SETTINGS_GET(self->settings, monitor     );
-  const char* cpc_keyboard     = XCPC_SETTINGS_GET(self->settings, keyboard    );
-  const char* cpc_refresh      = XCPC_SETTINGS_GET(self->settings, refresh     );
-  const char* cpc_manufacturer = XCPC_SETTINGS_GET(self->settings, manufacturer);
-  const char* cpc_sysrom       = XCPC_SETTINGS_GET(self->settings, sysrom      );
-  const char* cpc_rom000       = XCPC_SETTINGS_GET(self->settings, rom000      );
-  const char* cpc_rom001       = XCPC_SETTINGS_GET(self->settings, rom001      );
-  const char* cpc_rom002       = XCPC_SETTINGS_GET(self->settings, rom002      );
-  const char* cpc_rom003       = XCPC_SETTINGS_GET(self->settings, rom003      );
-  const char* cpc_rom004       = XCPC_SETTINGS_GET(self->settings, rom004      );
-  const char* cpc_rom005       = XCPC_SETTINGS_GET(self->settings, rom005      );
-  const char* cpc_rom006       = XCPC_SETTINGS_GET(self->settings, rom006      );
-  const char* cpc_rom007       = XCPC_SETTINGS_GET(self->settings, rom007      );
-  const char* cpc_rom008       = XCPC_SETTINGS_GET(self->settings, rom008      );
-  const char* cpc_rom009       = XCPC_SETTINGS_GET(self->settings, rom009      );
-  const char* cpc_rom010       = XCPC_SETTINGS_GET(self->settings, rom010      );
-  const char* cpc_rom011       = XCPC_SETTINGS_GET(self->settings, rom011      );
-  const char* cpc_rom012       = XCPC_SETTINGS_GET(self->settings, rom012      );
-  const char* cpc_rom013       = XCPC_SETTINGS_GET(self->settings, rom013      );
-  const char* cpc_rom014       = XCPC_SETTINGS_GET(self->settings, rom014      );
-  const char* cpc_rom015       = XCPC_SETTINGS_GET(self->settings, rom015      );
+  const char* cpc_model        = XCPC_SETTINGS_STATE(self->settings, model       );
+  const char* cpc_monitor      = XCPC_SETTINGS_STATE(self->settings, monitor     );
+  const char* cpc_keyboard     = XCPC_SETTINGS_STATE(self->settings, keyboard    );
+  const char* cpc_refresh      = XCPC_SETTINGS_STATE(self->settings, refresh     );
+  const char* cpc_manufacturer = XCPC_SETTINGS_STATE(self->settings, manufacturer);
+  const char* cpc_sysrom       = XCPC_SETTINGS_STATE(self->settings, sysrom      );
+  const char* cpc_rom000       = XCPC_SETTINGS_STATE(self->settings, rom000      );
+  const char* cpc_rom001       = XCPC_SETTINGS_STATE(self->settings, rom001      );
+  const char* cpc_rom002       = XCPC_SETTINGS_STATE(self->settings, rom002      );
+  const char* cpc_rom003       = XCPC_SETTINGS_STATE(self->settings, rom003      );
+  const char* cpc_rom004       = XCPC_SETTINGS_STATE(self->settings, rom004      );
+  const char* cpc_rom005       = XCPC_SETTINGS_STATE(self->settings, rom005      );
+  const char* cpc_rom006       = XCPC_SETTINGS_STATE(self->settings, rom006      );
+  const char* cpc_rom007       = XCPC_SETTINGS_STATE(self->settings, rom007      );
+  const char* cpc_rom008       = XCPC_SETTINGS_STATE(self->settings, rom008      );
+  const char* cpc_rom009       = XCPC_SETTINGS_STATE(self->settings, rom009      );
+  const char* cpc_rom010       = XCPC_SETTINGS_STATE(self->settings, rom010      );
+  const char* cpc_rom011       = XCPC_SETTINGS_STATE(self->settings, rom011      );
+  const char* cpc_rom012       = XCPC_SETTINGS_STATE(self->settings, rom012      );
+  const char* cpc_rom013       = XCPC_SETTINGS_STATE(self->settings, rom013      );
+  const char* cpc_rom014       = XCPC_SETTINGS_STATE(self->settings, rom014      );
+  const char* cpc_rom015       = XCPC_SETTINGS_STATE(self->settings, rom015      );
   const char* cpc_expansions[16] = {
     cpc_rom000, cpc_rom001, cpc_rom002, cpc_rom003,
     cpc_rom004, cpc_rom005, cpc_rom006, cpc_rom007,
@@ -1385,7 +1385,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
         xcpc_log_error("unsupported refresh rate %d", self->refresh_rate);
         break;
     }
-    if(XCPC_SETTINGS_GET(self->settings, turbo) != 0) {
+    if(XCPC_SETTINGS_STATE(self->settings, turbo) != 0) {
         self->frame.time = 1000;
     }
   }
@@ -1393,19 +1393,19 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     amstrad_cpc_reset(self);
   }
   /* Load initial drive0 */ {
-    const char* drive0 = XCPC_SETTINGS_GET(self->settings, drive0);
+    const char* drive0 = XCPC_SETTINGS_STATE(self->settings, drive0);
     if((drive0 != NULL) && (strcmp(drive0, not_set) != 0)) {
       amstrad_cpc_insert_drive0(self, drive0);
     }
   }
   /* Load initial drive1 */ {
-    const char* drive1 = XCPC_SETTINGS_GET(self->settings, drive1);
+    const char* drive1 = XCPC_SETTINGS_STATE(self->settings, drive1);
     if((drive1 != NULL) && (strcmp(drive1, not_set) != 0)) {
       amstrad_cpc_insert_drive1(self, drive1);
     }
   }
   /* Load initial snapshot */ {
-    const char* snapshot = XCPC_SETTINGS_GET(self->settings, snapshot);
+    const char* snapshot = XCPC_SETTINGS_STATE(self->settings, snapshot);
     if((snapshot != NULL) && (strcmp(snapshot, not_set) != 0)) {
       amstrad_cpc_load_snapshot(self, snapshot);
     }
@@ -1969,7 +1969,7 @@ unsigned long amstrad_cpc_destroy_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
 
 unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
-  int use_xshm = XCPC_SETTINGS_GET(self->settings, xshm);
+  int use_xshm = XCPC_SETTINGS_STATE(self->settings, xshm);
 
   if(self != NULL) {
     /* realize */ {

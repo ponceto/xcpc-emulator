@@ -27,6 +27,14 @@ typedef struct _XcpcPpi8255Iface XcpcPpi8255Iface;
 typedef struct _XcpcPpi8255State XcpcPpi8255State;
 typedef struct _XcpcPpi8255      XcpcPpi8255;
 
+#ifndef XCPC_PPI_8255_IFACE
+#define XCPC_PPI_8255_IFACE(instance, field) instance->iface.field
+#endif
+
+#ifndef XCPC_PPI_8255_STATE
+#define XCPC_PPI_8255_STATE(instance, field) instance->state.field
+#endif
+
 struct _XcpcPpi8255Iface
 {
     void* user_data;

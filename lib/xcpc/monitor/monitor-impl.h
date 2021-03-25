@@ -27,6 +27,14 @@ typedef struct _XcpcMonitorIface XcpcMonitorIface;
 typedef struct _XcpcMonitorState XcpcMonitorState;
 typedef struct _XcpcMonitor      XcpcMonitor;
 
+#ifndef XCPC_MONITOR_IFACE
+#define XCPC_MONITOR_IFACE(instance, field) instance->iface.field
+#endif
+
+#ifndef XCPC_MONITOR_STATE
+#define XCPC_MONITOR_STATE(instance, field) instance->state.field
+#endif
+
 struct _XcpcMonitorIface
 {
     void* user_data;

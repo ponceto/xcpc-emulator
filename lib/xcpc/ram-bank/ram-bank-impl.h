@@ -28,6 +28,14 @@ typedef struct _XcpcRamBankIface  XcpcRamBankIface;
 typedef struct _XcpcRamBankState  XcpcRamBankState;
 typedef struct _XcpcRamBank       XcpcRamBank;
 
+#ifndef XCPC_RAM_BANK_IFACE
+#define XCPC_RAM_BANK_IFACE(instance, field) instance->iface.field
+#endif
+
+#ifndef XCPC_RAM_BANK_STATE
+#define XCPC_RAM_BANK_STATE(instance, field) instance->state.field
+#endif
+
 enum _XcpcRamBankStatus
 {
     XCPC_RAM_BANK_STATUS_FAILURE = -1,

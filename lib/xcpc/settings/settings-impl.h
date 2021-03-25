@@ -27,8 +27,12 @@ typedef struct _XcpcSettingsIface XcpcSettingsIface;
 typedef struct _XcpcSettingsState XcpcSettingsState;
 typedef struct _XcpcSettings      XcpcSettings;
 
-#ifndef XCPC_SETTINGS_GET
-#define XCPC_SETTINGS_GET(self, what) self->state.what
+#ifndef XCPC_SETTINGS_IFACE
+#define XCPC_SETTINGS_IFACE(instance, field) instance->iface.field
+#endif
+
+#ifndef XCPC_SETTINGS_STATE
+#define XCPC_SETTINGS_STATE(instance, field) instance->state.field
 #endif
 
 struct _XcpcSettingsIface

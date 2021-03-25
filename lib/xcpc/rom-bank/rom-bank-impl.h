@@ -28,6 +28,14 @@ typedef struct _XcpcRomBankIface  XcpcRomBankIface;
 typedef struct _XcpcRomBankState  XcpcRomBankState;
 typedef struct _XcpcRomBank       XcpcRomBank;
 
+#ifndef XCPC_ROM_BANK_IFACE
+#define XCPC_ROM_BANK_IFACE(instance, field) instance->iface.field
+#endif
+
+#ifndef XCPC_ROM_BANK_STATE
+#define XCPC_ROM_BANK_STATE(instance, field) instance->state.field
+#endif
+
 enum _XcpcRomBankStatus
 {
     XCPC_ROM_BANK_STATUS_FAILURE = -1,

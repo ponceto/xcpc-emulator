@@ -30,6 +30,14 @@ typedef struct _XcpcBlitterIface XcpcBlitterIface;
 typedef struct _XcpcBlitterState XcpcBlitterState;
 typedef struct _XcpcBlitter      XcpcBlitter;
 
+#ifndef XCPC_BLITTER_IFACE
+#define XCPC_BLITTER_IFACE(instance, field) instance->iface.field
+#endif
+
+#ifndef XCPC_BLITTER_STATE
+#define XCPC_BLITTER_STATE(instance, field) instance->state.field
+#endif
+
 struct _XcpcBlitterIface
 {
     void* user_data;

@@ -27,6 +27,14 @@ typedef struct _XcpcCpuZ80aIface XcpcCpuZ80aIface;
 typedef struct _XcpcCpuZ80aState XcpcCpuZ80aState;
 typedef struct _XcpcCpuZ80a      XcpcCpuZ80a;
 
+#ifndef XCPC_CPU_Z80A_IFACE
+#define XCPC_CPU_Z80A_IFACE(instance, field) instance->iface.field
+#endif
+
+#ifndef XCPC_CPU_Z80A_STATE
+#define XCPC_CPU_Z80A_STATE(instance, field) instance->state.field
+#endif
+
 struct _XcpcCpuZ80aIface
 {
     void* user_data;
