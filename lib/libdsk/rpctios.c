@@ -330,6 +330,8 @@ static dsk_err_t read_bytes(TERMIOS_REMOTE_DATA *self, int count,
 
 	c0 = c;
 	count0 = count;
+	(void)(c0); /* avoid warning */
+	(void)(count0); /* avoid warning */
 /*	printf("Reading %d bytes\n", count); fflush(stdout); */
 	for (tries = 0; tries < 30;)
 	{

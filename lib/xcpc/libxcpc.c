@@ -20,29 +20,213 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "libxcpc-priv.h"
 
-const char* XCPC_LOG_DOMAIN = "XCPC";
+static struct {
+    int   initialized;
+    int   loglevel;
+    FILE* print_stream;
+    FILE* error_stream;
+} libxcpc = {
+    0,                     /* initialized  */
+    XCPC_LOGLEVEL_UNKNOWN, /* loglevel     */
+    NULL,                  /* print_stream */
+    NULL,                  /* error_stream */
+};
+
+static void init_loglevel(void)
+{
+    const char* XCPC_LOGLEVEL = getenv("XCPC_LOGLEVEL");
+
+    if(libxcpc.loglevel <= XCPC_LOGLEVEL_UNKNOWN) {
+        if((XCPC_LOGLEVEL != NULL) && (*XCPC_LOGLEVEL != '\0')) {
+            (void) xcpc_set_loglevel(atoi(XCPC_LOGLEVEL));
+        }
+        else {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_PRINT);
+        }
+    }
+}
+
+static void fini_loglevel(void)
+{
+    if(libxcpc.loglevel != XCPC_LOGLEVEL_UNKNOWN) {
+        libxcpc.loglevel = XCPC_LOGLEVEL_UNKNOWN;
+    }
+}
+
+static void init_print_stream(void)
+{
+    if(libxcpc.print_stream == NULL) {
+        libxcpc.print_stream = stdout;
+    }
+}
+
+static void fini_print_stream(void)
+{
+    if(libxcpc.print_stream != NULL) {
+        libxcpc.print_stream = NULL;
+    }
+}
+
+static void init_error_stream(void)
+{
+    if(libxcpc.error_stream == NULL) {
+        libxcpc.error_stream = stderr;
+    }
+}
+
+static void fini_error_stream(void)
+{
+    if(libxcpc.error_stream != NULL) {
+        libxcpc.error_stream = NULL;
+    }
+}
+
+void xcpc_begin(void)
+{
+    if(libxcpc.initialized++ == 0) {
+        init_loglevel();
+        init_print_stream();
+        init_error_stream();
+    }
+}
+
+void xcpc_end(void)
+{
+    if(--libxcpc.initialized == 0) {
+        fini_error_stream();
+        fini_print_stream();
+        fini_loglevel();
+    }
+}
+
+void xcpc_println(const char* format, ...)
+{
+    FILE* stream = stdout;
+
+    if(stream != NULL) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) vfprintf(stream, format, arguments);
+        (void) fputc('\n', stream);
+        (void) fflush(stream);
+        va_end(arguments);
+    }
+}
+
+void xcpc_errorln(const char* format, ...)
+{
+    FILE* stream = stderr;
+
+    if(stream != NULL) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) vfprintf(stream, format, arguments);
+        (void) fputc('\n', stream);
+        (void) fflush(stream);
+        va_end(arguments);
+    }
+}
+
+int xcpc_get_loglevel(void)
+{
+    return libxcpc.loglevel;
+}
+
+int xcpc_set_loglevel(const int loglevel)
+{
+    if(loglevel > XCPC_LOGLEVEL_UNKNOWN) {
+        libxcpc.loglevel = loglevel;
+    }
+    if(libxcpc.loglevel <= XCPC_LOGLEVEL_UNKNOWN) {
+        libxcpc.loglevel = XCPC_LOGLEVEL_PRINT;
+    }
+    return libxcpc.loglevel;
+}
+
+void xcpc_log_error(const char* format, ...)
+{
+    FILE* stream = libxcpc.error_stream;
+
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_ERROR)) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) fputc('E', stream);
+        (void) fputc('\t', stream);
+        (void) vfprintf(stream, format, arguments);
+        (void) fputc('\n', stream);
+        (void) fflush(stream);
+        va_end(arguments);
+    }
+}
+
+void xcpc_log_print(const char* format, ...)
+{
+    FILE* stream = libxcpc.print_stream;
+
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_PRINT)) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) fputc('I', stream);
+        (void) fputc('\t', stream);
+        (void) vfprintf(stream, format, arguments);
+        (void) fputc('\n', stream);
+        (void) fflush(stream);
+        va_end(arguments);
+    }
+}
+
+void xcpc_log_trace(const char* format, ...)
+{
+    FILE* stream = libxcpc.error_stream;
+
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_TRACE)) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) fputc('T', stream);
+        (void) fputc('\t', stream);
+        (void) vfprintf(stream, format, arguments);
+        (void) fputc('\n', stream);
+        (void) fflush(stream);
+        va_end(arguments);
+    }
+}
+
+void xcpc_log_debug(const char* format, ...)
+{
+    FILE* stream = libxcpc.error_stream;
+
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_DEBUG)) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) fputc('D', stream);
+        (void) fputc('\t', stream);
+        (void) vfprintf(stream, format, arguments);
+        (void) fputc('\n', stream);
+        (void) fflush(stream);
+        va_end(arguments);
+    }
+}
 
 extern void* xcpc_malloc(const char* type, size_t size)
 {
     void* pointer = malloc(size);
 
     if(pointer != NULL) {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s has succeeded (type = %s, pointer = %p, size = %lu)"
-              , "malloc()"
-              , type
-              , pointer
-              , size );
+        xcpc_log_debug ( "%s has succeeded (type = %s, pointer = %p, size = %lu)"
+                       , "malloc()"
+                       , type
+                       , pointer
+                       , size );
     }
     else {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_ERROR
-              , "%s has failed (type = %s, pointer = %p, size = %lu)"
-              , "malloc()"
-              , type
-              , pointer
-              , size );
+        xcpc_log_error ( "%s has failed (type = %s, pointer = %p, size = %lu)"
+                       , "malloc()"
+                       , type
+                       , pointer
+                       , size );
     }
     return pointer;
 }
@@ -52,22 +236,20 @@ extern void* xcpc_calloc(const char* type, size_t count, size_t size)
     void* pointer = calloc(count, size);
 
     if(pointer != NULL) {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s has succeeded (type = %s, pointer = %p, count = %lu, size = %lu)"
-              , "calloc()"
-              , type
-              , pointer
-              , count
-              , size );
+        xcpc_log_debug ( "%s has succeeded (type = %s, pointer = %p, count = %lu, size = %lu)"
+                       , "calloc()"
+                       , type
+                       , pointer
+                       , count
+                   , size );
     }
     else {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_ERROR
-              , "%s has failed (type = %s, pointer = %p, count = %lu, size = %lu)"
-              , "calloc()"
-              , type
-              , pointer
-              , count
-              , size );
+        xcpc_log_error ( "%s has failed (type = %s, pointer = %p, count = %lu, size = %lu)"
+                       , "calloc()"
+                       , type
+                       , pointer
+                       , count
+                   , size );
     }
     return pointer;
 }
@@ -78,22 +260,20 @@ extern void* xcpc_realloc(const char* type, void* pointer, size_t size)
     void* new_pointer = realloc(pointer, size);
 
     if(new_pointer != NULL) {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s has succeeded (type = %s, old-pointer = %p, new-pointer = %p, size = %lu)"
-              , "realloc()"
-              , type
-              , old_pointer
-              , new_pointer
-              , size );
+        xcpc_log_debug ( "%s has succeeded (type = %s, old-pointer = %p, new-pointer = %p, size = %lu)"
+                       , "realloc()"
+                       , type
+                       , old_pointer
+                       , new_pointer
+                       , size );
     }
     else {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_ERROR
-              , "%s has failed (type = %s, old-pointer = %p, new-pointer = %p, size = %lu)"
-              , "realloc()"
-              , type
-              , old_pointer
-              , new_pointer
-              , size );
+        xcpc_log_error ( "%s has failed (type = %s, old-pointer = %p, new-pointer = %p, size = %lu)"
+                       , "realloc()"
+                       , type
+                       , old_pointer
+                       , new_pointer
+                       , size );
     }
     return new_pointer;
 }
@@ -104,40 +284,18 @@ extern void* xcpc_free(const char* type, void* pointer)
     void* new_pointer = (free(pointer), NULL);
 
     if(old_pointer != NULL) {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-              , "%s has succeeded (type = %s, pointer = %p)"
-              , "free()"
-              , type
-              , old_pointer );
+        xcpc_log_debug ( "%s has succeeded (type = %s, pointer = %p)"
+                       , "free()"
+                       , type
+                       , old_pointer );
     }
     else {
-        g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_ERROR
-              , "%s has failed (type = %s, pointer = %p)"
-              , "free()"
-              , type
-              , old_pointer );
+        xcpc_log_error ( "%s has failed (type = %s, pointer = %p)"
+                       , "free()"
+                       , type
+                       , old_pointer );
     }
     return new_pointer;
-}
-
-void xcpc_log_begin(void)
-{
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "xcpc v%d.%d.%d : %s"
-          , PACKAGE_MAJOR_VERSION
-          , PACKAGE_MINOR_VERSION
-          , PACKAGE_MICRO_VERSION 
-          , "begin" );
-}
-
-void xcpc_log_end(void)
-{
-    g_log ( XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG
-          , "xcpc v%d.%d.%d : %s"
-          , PACKAGE_MAJOR_VERSION
-          , PACKAGE_MINOR_VERSION
-          , PACKAGE_MICRO_VERSION
-          , "end" );
 }
 
 XcpcComputerModel xcpc_computer_model(const char* label, XcpcComputerModel value)
@@ -162,7 +320,7 @@ XcpcComputerModel xcpc_computer_model(const char* label, XcpcComputerModel value
         }
     }
     /* log */ {
-        g_log(XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "xcpc_computer_model() : %d", value);
+        xcpc_log_debug("xcpc_computer_model() : %d", value);
     }
     return value;
 }
@@ -195,7 +353,7 @@ XcpcMonitorModel xcpc_monitor_model(const char* label, XcpcMonitorModel value)
         }
     }
     /* log */ {
-        g_log(XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "xcpc_monitor_model() : %d", value);
+        xcpc_log_debug("xcpc_monitor_model() : %d", value);
     }
     return value;
 }
@@ -221,7 +379,7 @@ XcpcRefreshRate xcpc_refresh_rate(const char* label, XcpcRefreshRate value)
         }
     }
     /* log */ {
-        g_log(XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "xcpc_refresh_rate() : %d", value);
+        xcpc_log_debug("xcpc_refresh_rate() : %d", value);
     }
     return value;
 }
@@ -247,7 +405,7 @@ XcpcKeyboardLayout xcpc_keyboard_layout(const char* label, XcpcKeyboardLayout va
         }
     }
     /* log */ {
-        g_log(XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "xcpc_keyboard_layout() : %d", value);
+        xcpc_log_debug("xcpc_keyboard_layout() : %d", value);
     }
     return value;
 }
@@ -279,7 +437,7 @@ XcpcManufacturer xcpc_manufacturer(const char* label, XcpcManufacturer value)
         }
     }
     /* log */ {
-        g_log(XCPC_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, "xcpc_manufacturer() : %d", value);
+        xcpc_log_debug("xcpc_manufacturer() : %d", value);
     }
     return value;
 }
@@ -326,7 +484,7 @@ XcpcColor xcpc_monitor_color_get(const char* label)
         unsigned int monitor_count = countof(monitor_color_array);
         for(monitor_index = 0; monitor_index < monitor_count; ++monitor_index) {
             const XcpcColorEntry* monitor_entry = &monitor_color_array[monitor_index];
-            if(g_ascii_strcasecmp(monitor_entry->label, label) == 0) {
+            if(strcasecmp(monitor_entry->label, label) == 0) {
                 return monitor_entry->color;
             }
         }

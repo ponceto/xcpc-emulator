@@ -23,10 +23,15 @@
 extern "C" {
 #endif
 
+#ifndef _
+#define _(string) (string)
+#endif
+
 typedef struct _XcpcResourcesRec
 {
-    Boolean about_flag;
-    Boolean usage_flag;
+    Boolean quiet_flag;
+    Boolean trace_flag;
+    Boolean debug_flag;
 } XcpcResourcesRec, *XcpcResources;
 
 typedef struct _XcpcApplicationRec

@@ -22,15 +22,7 @@
 #include <string.h>
 #include "xcpc.h"
 
-/**
- * main
- *
- * @param argc specifies the argument count
- * @param argv specifies the argument list
- *
- * @return EXIT_SUCCESS or EXIT_FAILURE
- */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    return xcpc(argc, argv);
+    return xcpc(&argc, &argv);
 }

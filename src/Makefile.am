@@ -30,27 +30,24 @@ bin_PROGRAMS = \
 xcpc_SOURCES = \
 	xcpc.c \
 	xcpc.h \
-	amstrad_cpc.c \
-	amstrad_cpc.h \
+	amstrad-cpc.c \
+	amstrad-cpc.h \
 	$(NULL)
 
 xcpc_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src \
-	$(GLIB_CFLAGS) \
 	$(X_CFLAGS) \
 	$(NULL)
 
 xcpc_LDFLAGS = \
 	-L$(top_builddir)/lib \
 	-L$(top_builddir)/src \
-	$(GLIB_LDFLAGS) \
 	$(X_LDFLAGS) \
 	$(NULL)
 
 xcpc_LDADD = \
 	$(top_builddir)/lib/xcpc/libxcpc.la \
-	$(top_builddir)/lib/dev/libdev.la \
 	$(NULL)
 
 if MOTIF2
@@ -64,7 +61,7 @@ xcpc_LDADD += \
 	$(top_builddir)/lib/Xem/libXem.la \
 	$(X_LIBS) -lXm -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
-	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm \
+	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 endif
 
@@ -79,7 +76,7 @@ xcpc_LDADD += \
 	$(top_builddir)/lib/Xem/libXem.la \
 	$(X_LIBS) -lXaw -lXmu -lXt \
 	$(X_PRE_LIBS) -lXext -lX11 \
-	$(X_EXTRA_LIBS) $(GLIB_LIBS) -lm \
+	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 endif
 

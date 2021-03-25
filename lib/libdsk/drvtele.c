@@ -337,6 +337,7 @@ dsk_err_t tele_seeksec(TELE_DSK_DRIVER *self, const DSK_GEOMETRY *geom,
 	for (s = 0; s < self->tele_trackhead.sectors; s++)
 	{
 		pos = ftell(self->tele_fp);
+		(void)(pos); /* avoid warning */
 		err = tele_readsechead(self);	
 		if (err) return err;
 		MONITOR(("tele_seeksec: c%d h%d s%d at 0x%08lx (%d/%d)\n",

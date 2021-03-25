@@ -18,8 +18,7 @@
 #define __XCPC_LIBXCPC_IMPL_H__
 
 #include <stdint.h>
-#include <glib.h>
-#include <xcpc/xlib.h>
+#include <xcpc/xlib/xlib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,12 +44,24 @@ extern "C" {
 #define xcpc_delete(type, pointer) ((type*)(xcpc_free(nameof(type), (pointer))))
 #endif
 
-typedef enum _XcpcComputerModel  XcpcComputerModel;
-typedef enum _XcpcMonitorModel   XcpcMonitorModel;
-typedef enum _XcpcRefreshRate    XcpcRefreshRate;
-typedef enum _XcpcKeyboardLayout XcpcKeyboardLayout;
-typedef enum _XcpcManufacturer   XcpcManufacturer;
-typedef enum _XcpcColor          XcpcColor;
+typedef union _XcpcRegister       XcpcRegister;
+typedef enum  _XcpcLogLevel       XcpcLogLevel;
+typedef enum  _XcpcComputerModel  XcpcComputerModel;
+typedef enum  _XcpcMonitorModel   XcpcMonitorModel;
+typedef enum  _XcpcRefreshRate    XcpcRefreshRate;
+typedef enum  _XcpcKeyboardLayout XcpcKeyboardLayout;
+typedef enum  _XcpcManufacturer   XcpcManufacturer;
+typedef enum  _XcpcColor          XcpcColor;
+
+enum _XcpcLogLevel
+{
+    XCPC_LOGLEVEL_UNKNOWN   = -1,
+    XCPC_LOGLEVEL_QUIET     =  0,
+    XCPC_LOGLEVEL_ERROR     =  1,
+    XCPC_LOGLEVEL_PRINT     =  2,
+    XCPC_LOGLEVEL_TRACE     =  3,
+    XCPC_LOGLEVEL_DEBUG     =  4,
+};
 
 enum _XcpcComputerModel
 {
@@ -138,7 +149,41 @@ enum _XcpcColor
     XCPC_COLOR_PASTEL_BLUE                = 31,
 };
 
-extern const char* XCPC_LOG_DOMAIN;
+union _XcpcRegister
+{
+    struct /* long */
+    {
+        uint32_t r;
+    } l;
+#if defined(MSB_FIRST) && !defined(LSB_FIRST)
+    struct /* word */
+    {
+        uint16_t h;
+        uint16_t l;
+    } w;
+    struct /* byte */
+    {
+        uint8_t  x;
+        uint8_t  y;
+        uint8_t  h;
+        uint8_t  l;
+    } b;
+#endif
+#if !defined(MSB_FIRST) && defined(LSB_FIRST)
+    struct /* word */
+    {
+        uint16_t l;
+        uint16_t h;
+    } w;
+    struct /* byte */
+    {
+        uint8_t  l;
+        uint8_t  h;
+        uint8_t  y;
+        uint8_t  x;
+    } b;
+#endif
+};
 
 #ifdef __cplusplus
 }

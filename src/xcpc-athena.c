@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib/gi18n.h>
+#include <limits.h>
 #include <X11/Intrinsic.h>
 #include <X11/Xaw/Box.h>
 #include <X11/Xaw/MenuButton.h>
@@ -32,15 +32,16 @@
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
-#include "amstrad_cpc.h"
+#include "amstrad-cpc.h"
 #include "xcpc-athena-priv.h"
 
 /*
  * command line options
  */
 static XrmOptionDescRec options[] = {
-  { "-version", ".xcpcAboutFlag", XrmoptionNoArg, (XPointer) "true" },
-  { "-help"   , ".xcpcUsageFlag", XrmoptionNoArg, (XPointer) "true" },
+  { "-quiet", ".xcpcQuietFlag", XrmoptionNoArg, (XPointer) "true" },
+  { "-trace", ".xcpcTraceFlag", XrmoptionNoArg, (XPointer) "true" },
+  { "-debug", ".xcpcDebugFlag", XrmoptionNoArg, (XPointer) "true" },
 };
 
 /*
@@ -55,14 +56,19 @@ static String fallback_resources[] = {
  * application resources
  */
 static XtResource application_resources[] = {
-  /* xcpcAboutFlag */ {
-    "xcpcAboutFlag", "XcpcAboutFlag", XtRBoolean,
-    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, about_flag),
+  /* xcpcQuietFlag */ {
+    "xcpcQuietFlag", "XcpcQuietFlag", XtRBoolean,
+    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, quiet_flag),
     XtRImmediate, (XtPointer) FALSE
   },
-  /* xcpcUsageFlag */ {
-    "xcpcUsageFlag", "XcpcUsageFlag", XtRBoolean,
-    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, usage_flag),
+  /* xcpcTraceFlag */ {
+    "xcpcTraceFlag", "XcpcTraceFlag", XtRBoolean,
+    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, trace_flag),
+    XtRImmediate, (XtPointer) FALSE
+  },
+  /* xcpcDebugFlag */ {
+    "xcpcDebugFlag", "XcpcDebugFlag", XtRBoolean,
+    sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, debug_flag),
     XtRImmediate, (XtPointer) FALSE
   },
 };
@@ -71,8 +77,9 @@ static XtResource application_resources[] = {
  * Xcpc resources
  */
 static XcpcResourcesRec xcpc_resources = {
-  FALSE, /* about_flag */
-  FALSE, /* usage_flag */
+  FALSE, /* quiet_flag */
+  FALSE, /* trace_flag */
+  FALSE, /* debug_flag */
 };
 
 /**
@@ -239,7 +246,7 @@ static void OnSaveSnapshotCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 static void OnDriveAInsertOkCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
-  if(value != NULL) {
+  if((value != NULL) && (*value != '\0')) {
     amstrad_cpc_insert_drive0(&amstrad_cpc, value);
   }
   OnCloseCbk(widget, gui, cbs);
@@ -298,7 +305,7 @@ static void OnDriveAInsertCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
  */
 static void OnDriveAEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  amstrad_cpc_insert_drive0(&amstrad_cpc, NULL);
+  amstrad_cpc_remove_drive0(&amstrad_cpc);
 }
 
 /**
@@ -311,7 +318,7 @@ static void OnDriveAEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 static void OnDriveBInsertOkCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
   char *value = XawDialogGetValueString(XtParent(widget));
-  if(value != NULL) {
+  if((value != NULL) && (*value != '\0')) {
     amstrad_cpc_insert_drive1(&amstrad_cpc, value);
   }
   OnCloseCbk(widget, gui, cbs);
@@ -370,7 +377,7 @@ static void OnDriveBInsertCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
  */
 static void OnDriveBEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  amstrad_cpc_insert_drive1(&amstrad_cpc, NULL);
+  amstrad_cpc_remove_drive1(&amstrad_cpc);
 }
 
 /**
@@ -696,7 +703,7 @@ Widget XcpcCreateApplication(Widget toplevel)
  *
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int xcpc(int argc, char *argv[])
+int xcpc(int* argc, char*** argv)
 {
     XtAppContext appcontext  = NULL;
     String       appname     = NULL;
@@ -713,7 +720,7 @@ int xcpc(int argc, char *argv[])
         argcount = 0;
         XtSetArg(arglist[argcount], XtNmappedWhenManaged, TRUE); argcount++;
         XtSetArg(arglist[argcount], XtNallowShellResize, TRUE); argcount++;
-        toplevel = XtOpenApplication(&appcontext, "Xcpc", options, XtNumber(options), &argc, argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
+        toplevel = XtOpenApplication(&appcontext, "Xcpc", options, XtNumber(options), argc, *argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
         XtAddCallback(toplevel, XtNdestroyCallback, (XtCallbackProc) DestroyCbk, (XtPointer) &toplevel);
     }
     /* get application resources */ {
@@ -724,19 +731,21 @@ int xcpc(int argc, char *argv[])
         XtGetApplicationNameAndClass(XtDisplay(toplevel), &appname, &appclass);
     }
     /* check command-line flags */ {
-        if(xcpc_resources.about_flag != FALSE) {
-            (void) fprintf(stdout, "%s %s\n", appname, PACKAGE_VERSION);
-            (void) fflush(stdout);
-            exit(EXIT_SUCCESS);
+        if(xcpc_resources.quiet_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_QUIET);
         }
-        if((xcpc_resources.usage_flag != FALSE) || (amstrad_cpc_parse(&argc, &argv) == EXIT_FAILURE)) {
-            (void) fprintf(stdout, "Usage: %s [toolkit-options] [program-options]\n\n", appname);
-            (void) fprintf(stdout, "Options:\n");
-            (void) fprintf(stdout, "  -version  display version and exit.\n");
-            (void) fprintf(stdout, "  -help     display this help and exit.\n");
-            (void) fflush(stdout);
-            exit(EXIT_SUCCESS);
+        if(xcpc_resources.trace_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_TRACE);
         }
+        if(xcpc_resources.debug_flag != FALSE) {
+            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_DEBUG);
+        }
+    }
+    /* initialize libxcpc */ {
+        xcpc_begin();
+    }
+    /* intialize the emulator */ {
+        amstrad_cpc_new(argc, argv);
     }
     /* create application and run */ {
         application = XcpcCreateApplication(toplevel);
@@ -751,6 +760,12 @@ int xcpc(int argc, char *argv[])
     }
     /* destroy application context */ {
         XtDestroyApplicationContext(appcontext);
+    }
+    /* finalize the emulator */ {
+        amstrad_cpc_delete();
+    }
+    /* finalize libxcpc */ {
+        xcpc_end();
     }
     return(EXIT_SUCCESS);
 }

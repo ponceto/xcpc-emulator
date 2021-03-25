@@ -363,7 +363,7 @@ static dsk_err_t rcpmfs_option(RCPMFS_DSK_DRIVER *self, char *variable,
 {
 	char *s;
 	dsk_err_t err;
-	char tempbuf[160];
+	char tempbuf[160 + 1];
 
 	/* Trim spaces from the end of variable & start of value */
 	s = strchr(variable, ' ');
@@ -410,7 +410,7 @@ static dsk_err_t rcpmfs_option(RCPMFS_DSK_DRIVER *self, char *variable,
 		return err;
 	}
 /* If line not recognised, see if the disk geometry parser recognises it */
-	sprintf(tempbuf, "%s=%s", variable, value);
+	snprintf(tempbuf, sizeof(tempbuf), "%s=%s", variable, value);
 	return dg_parseline(tempbuf, &self->rc_geom, NULL);
 }
 
@@ -743,6 +743,7 @@ static dsk_err_t rcpmfs_read_dirent(RCPMFS_DSK_DRIVER *self, unsigned entryno,
 		return DSK_ERR_OVERRUN;
 	}
 	dirsecs	   = rcpmfs_secperblock(self) * self->rc_dirblocks;
+	(void)(dirsecs); /* avoid warning */
 	entriespersec = (self->rc_geom.dg_secsize) / 32;
 	
 	lsect = entryno / entriespersec;
@@ -806,6 +807,7 @@ static dsk_err_t rcpmfs_write_dirent(RCPMFS_DSK_DRIVER *self, unsigned entryno,
 	}
 
 	dirsecs	   = rcpmfs_secperblock(self) * self->rc_dirblocks;
+	(void)(dirsecs); /* avoid warning */
 	entriespersec = (self->rc_geom.dg_secsize) / 32;
 	
 	lsect = entryno / entriespersec;
@@ -898,8 +900,10 @@ unsigned char *rcpmfs_lookup(RCPMFS_DSK_DRIVER *self, unsigned blockno,
 
 	blocks_per_extent = rcpmfs_blocks_per_extent(self);
 	extsize		   = rcpmfs_extent_size(self);
+	(void)(extsize); /* avoid warning */
 	RTR_CHAIN("rcpmfs_lookup", self->rc_bufhead);	
 	rcb = self->rc_bufhead;
+	(void)(rcb); /* avoid warning */
 	entrymax = rcpmfs_max_dirent(self);
 	for (entryno = 0; entryno < entrymax; entryno++)
 	{
@@ -2095,6 +2099,7 @@ dsk_err_t rcpmfs_status(DSK_DRIVER *self, const DSK_GEOMETRY *geom,
 	if (!self || !geom || self->dr_class != &dc_rcpmfs) 
 		return DSK_ERR_BADPTR;
 	rcself = (RCPMFS_DSK_DRIVER *)self;
+	(void)(rcself); /* avoid warning */
 
 /*  if (!rcself->px_fp) *result &= ~DSK_ST3_READY;
 	if (rcself->px_readonly) *result |= DSK_ST3_RO; */

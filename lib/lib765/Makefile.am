@@ -46,6 +46,7 @@ lib765_la_LDFLAGS = \
 	$(NULL)
 
 lib765_la_LIBADD = \
+	$(top_builddir)/lib/libdsk/libdsk.la \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

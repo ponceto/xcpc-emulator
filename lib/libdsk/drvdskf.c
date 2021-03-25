@@ -132,6 +132,7 @@ dsk_err_t dskf_open(DSK_DRIVER *self, const char *filename)
 			len = fread(comment, 1, clen - 1, dskfself->dskf_fp);
 			dsk_set_comment(self, comment);
 			dsk_free(comment);
+			(void)(len); /* avoid warning */
 		}
 	}	
 
@@ -146,6 +147,7 @@ dsk_err_t dskf_creat(DSK_DRIVER *self, const char *filename)
 	/* Sanity check: Is this meant for our driver? */
 	if (self->dr_class != &dc_dskf) return DSK_ERR_BADPTR;
 	dskfself = (DSKF_DSK_DRIVER *)self;
+	(void)(dskfself); /* avoid warning */
 /*
 
 	dskfself->dskf_fp = fopen(filename, "w+b");

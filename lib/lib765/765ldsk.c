@@ -21,9 +21,9 @@
 
 */
 #include "config.h"
-#ifdef HAVE_LIBDSK_H
+#ifndef NO_LIBDSK_H
 #include <stdio.h>
-#include "libdsk.h"
+#include <libdsk/libdsk.h>
 #include "765i.h"
 
 #define SHORT_TIMEOUT	1000
@@ -316,6 +316,7 @@ static fdc_byte fdl_drive_status(FLOPPY_DRIVE *fd)
         if (fdl->fdl_diskp)
 	{
 		err = dsk_drive_status(fdl->fdl_diskp, &fdl->fdl_diskg, 0, &st);
+		(void)(err); /* avoid warning */
 	}
 	else 
 	{
@@ -471,4 +472,4 @@ void     fdl_setcomp(FDRV_PTR fd, const char *s)
 	}
 }
 
-#endif	// def HAVE_LIBDSK_H
+#endif	// def NO_LIBDSK_H

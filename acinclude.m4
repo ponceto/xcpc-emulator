@@ -227,17 +227,6 @@ fi
 ])dnl AX_CHECK_GUI
 
 # ----------------------------------------------------------------------------
-# AX_CHECK_GLIB
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_CHECK_GLIB], [
-AM_PATH_GLIB_2_0([2.6.0], [have_glib20="yes"], [have_glib20="no"], [gobject])
-if test "x${have_glib20}" = "xno"; then
-    AC_MSG_ERROR([Glib - version >= 2.6.0 is required])
-fi
-])dnl AX_CHECK_GLIB
-
-# ----------------------------------------------------------------------------
 # AX_CHECK_HEADERS
 # ----------------------------------------------------------------------------
 
@@ -248,6 +237,7 @@ AC_HEADER_DIRENT
 AC_HEADER_MAJOR
 AC_HEADER_SYS_WAIT
 AC_HEADER_TIME
+AC_CHECK_HEADERS([assert.h])
 AC_CHECK_HEADERS([direct.h])
 AC_CHECK_HEADERS([dir.h])
 AC_CHECK_HEADERS([dos.h])

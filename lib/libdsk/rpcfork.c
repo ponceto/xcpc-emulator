@@ -95,14 +95,18 @@ dsk_err_t fork_open(DSK_PDRIVER pDriver, const char *name, char *nameout)
  * error to the parent and then terminate. */
 		fork_err[0] = (DSK_ERR_NOTME >> 8) & 0xFF;
 		fork_err[1] = (DSK_ERR_NOTME     ) & 0xFF;
-		write(pipes[3], fork_err, 2);
+		if(write(pipes[3], fork_err, 2) < 0) {
+			/* avoid warning */
+		}
 		exit(1);
 	}
 /* We're the parent process. Read error number from 
  * initial startup (or lack of startup) of child. */
 	self->infd  = pipes[2];
 	self->outfd = pipes[1];
-	read(pipes[2], fork_err, 2);
+	if(read(pipes[2], fork_err, 2) < 0) {
+		/* avoid warning */
+	}
 	err = fork_err[0];
 	err = (signed short)((err << 8) | fork_err[1]);
 	return err;	/* DSK_ERR_OK; */
