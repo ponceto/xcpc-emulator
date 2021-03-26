@@ -158,6 +158,10 @@ The Up/Down/Left/Right + CTRL-L & ALT-L keys will then emulate the joystick 0.
 
 ## License and legal informations
 
+Xcpc is a free software, so it's source code is free (free as freedom, not as free beer).
+
+Xcpc is an emulator, so it has been designed to deal with old copyrighted softwares, so you should take your own responsibility about these softwares.
+
 ### License terms
 
 Xcpc is released under the terms of the General Public License version 2.
