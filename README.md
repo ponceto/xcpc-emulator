@@ -156,7 +156,7 @@ Debug options:
 The joystick mode can be toggled (enabled/disabled) by pressing the `End` key.
 The Up/Down/Left/Right + CTRL-L & ALT-L keys will then emulate the joystick 0.
 
-## License
+## License and legal informations
 
 ### License terms
 
