@@ -1,6 +1,6 @@
 2021-03-25	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
-	* Motif2 GUI improved.
+	* Motif2 user interface improved.
 	* Very huge refactoring.
 	* Codebase cleaned.
 	* Some bugs fixed.
@@ -11,18 +11,19 @@
 2021-03-16	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Copyright modification for 2021.
-	* A very big refactoring has been done.
+	* A new version numbering scheme.
+	* Refactoring of the Motif2 user interface.
+	* Very big refactoring of the emulation core.
 	* The libdsk has been upgraded to the 1.4.2 version.
 	* The lib765 has been upgraded to the 0.4.2 version.
-	* A new version numbering scheme.
 
 2020-02-19	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Copyright modification for 2020.
 	* Autotoolization updated.
 	* Some warning fixes.
-	* Import of lib765 v0.4.2.
-	* Import of libdsk v1.4.2.
+	* Pre-import of libdsk v1.4.2.
+	* Pre-import of lib765 v0.4.2.
 
 2014-05-21	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
