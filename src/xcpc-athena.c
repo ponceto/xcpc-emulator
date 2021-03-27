@@ -703,7 +703,7 @@ Widget XcpcCreateApplication(Widget toplevel)
  *
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int xcpc(int* argc, char*** argv)
+int xcpc_main(int* argc, char*** argv)
 {
     XtAppContext appcontext  = NULL;
     String       appname     = NULL;
@@ -741,9 +741,6 @@ int xcpc(int* argc, char*** argv)
             (void) xcpc_set_loglevel(XCPC_LOGLEVEL_DEBUG);
         }
     }
-    /* initialize libxcpc */ {
-        xcpc_begin();
-    }
     /* intialize the emulator */ {
         amstrad_cpc_new(argc, argv);
     }
@@ -763,9 +760,6 @@ int xcpc(int* argc, char*** argv)
     }
     /* finalize the emulator */ {
         amstrad_cpc_delete();
-    }
-    /* finalize libxcpc */ {
-        xcpc_end();
     }
     return(EXIT_SUCCESS);
 }

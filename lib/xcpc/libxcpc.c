@@ -25,21 +25,26 @@
 
 static struct {
     int   initialized;
+    int   major_version;
+    int   minor_version;
+    int   micro_version;
     int   loglevel;
     FILE* print_stream;
     FILE* error_stream;
 } libxcpc = {
-    0,                     /* initialized  */
-    XCPC_LOGLEVEL_UNKNOWN, /* loglevel     */
-    NULL,                  /* print_stream */
-    NULL,                  /* error_stream */
+    0,                     /* initialized   */
+    PACKAGE_MAJOR_VERSION, /* major version */
+    PACKAGE_MINOR_VERSION, /* minor version */
+    PACKAGE_MICRO_VERSION, /* micro version */
+    XCPC_LOGLEVEL_UNKNOWN, /* loglevel      */
+    NULL,                  /* print_stream  */
+    NULL,                  /* error_stream  */
 };
 
 static void init_loglevel(void)
 {
-    const char* XCPC_LOGLEVEL = getenv("XCPC_LOGLEVEL");
-
     if(libxcpc.loglevel <= XCPC_LOGLEVEL_UNKNOWN) {
+        const char* XCPC_LOGLEVEL = getenv("XCPC_LOGLEVEL");
         if((XCPC_LOGLEVEL != NULL) && (*XCPC_LOGLEVEL != '\0')) {
             (void) xcpc_set_loglevel(atoi(XCPC_LOGLEVEL));
         }
@@ -91,15 +96,44 @@ void xcpc_begin(void)
         init_print_stream();
         init_error_stream();
     }
+    /* log */ {
+        xcpc_log_trace ( "xcpc %d.%d.%d - begin"
+                       , xcpc_major_version()
+                       , xcpc_minor_version()
+                       , xcpc_micro_version()
+                       , "begin" );
+    }
 }
 
 void xcpc_end(void)
 {
+    /* log */ {
+        xcpc_log_trace ( "xcpc %d.%d.%d - end"
+                       , xcpc_major_version()
+                       , xcpc_minor_version()
+                       , xcpc_micro_version()
+                       , "end" );
+    }
     if(--libxcpc.initialized == 0) {
         fini_error_stream();
         fini_print_stream();
         fini_loglevel();
     }
+}
+
+int xcpc_major_version(void)
+{
+    return libxcpc.major_version;
+}
+
+int xcpc_minor_version(void)
+{
+    return libxcpc.minor_version;
+}
+
+int xcpc_micro_version(void)
+{
+    return libxcpc.micro_version;
 }
 
 void xcpc_println(const char* format, ...)
@@ -154,6 +188,22 @@ void xcpc_log_error(const char* format, ...)
         va_list arguments;
         va_start(arguments, format);
         (void) fputc('E', stream);
+        (void) fputc('\t', stream);
+        (void) vfprintf(stream, format, arguments);
+        (void) fputc('\n', stream);
+        (void) fflush(stream);
+        va_end(arguments);
+    }
+}
+
+void xcpc_log_alert(const char* format, ...)
+{
+    FILE* stream = libxcpc.error_stream;
+
+    if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_ALERT)) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) fputc('W', stream);
         (void) fputc('\t', stream);
         (void) vfprintf(stream, format, arguments);
         (void) fputc('\n', stream);

@@ -1199,9 +1199,6 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
             (void) xcpc_set_loglevel(XCPC_LOGLEVEL_DEBUG);
         }
     }
-    /* initialize libxcpc */ {
-        xcpc_begin();
-    }
     /* intialize the emulator */ {
         amstrad_cpc_new(argc, argv);
     }
@@ -1244,9 +1241,6 @@ XcpcApplication XcpcApplicationFini(XcpcApplication self)
     /* finalize the emulator */ {
         amstrad_cpc_delete();
     }
-    /* finalize libxcpc */ {
-        xcpc_end();
-    }
     return DebugInstance(self, "XcpcApplicationFini()");
 }
 
@@ -1271,7 +1265,7 @@ static void setup(void)
     }
 }
 
-int xcpc(int* argc, char*** argv)
+int xcpc_main(int* argc, char*** argv)
 {
     XcpcApplicationRec self;
 

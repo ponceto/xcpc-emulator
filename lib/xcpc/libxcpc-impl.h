@@ -58,9 +58,10 @@ enum _XcpcLogLevel
     XCPC_LOGLEVEL_UNKNOWN   = -1,
     XCPC_LOGLEVEL_QUIET     =  0,
     XCPC_LOGLEVEL_ERROR     =  1,
-    XCPC_LOGLEVEL_PRINT     =  2,
-    XCPC_LOGLEVEL_TRACE     =  3,
-    XCPC_LOGLEVEL_DEBUG     =  4,
+    XCPC_LOGLEVEL_ALERT     =  2,
+    XCPC_LOGLEVEL_PRINT     =  3,
+    XCPC_LOGLEVEL_TRACE     =  4,
+    XCPC_LOGLEVEL_DEBUG     =  5,
 };
 
 enum _XcpcComputerModel

@@ -246,7 +246,7 @@ XcpcSettings* xcpc_settings_construct(XcpcSettings* self)
         self->state.fps          = 0;
         self->state.help         = 0;
         self->state.version      = 0;
-        self->state.loglevel     = XCPC_LOGLEVEL_ERROR;
+        self->state.loglevel     = xcpc_get_loglevel();
     }
     return self;
 }

@@ -23,23 +23,29 @@
 extern "C" {
 #endif
 
-extern void  xcpc_begin        (void);
-extern void  xcpc_end          (void);
+extern void  xcpc_begin         (void);
+extern int   xcpc_main          (int* argc, char*** argv);
+extern void  xcpc_end           (void);
 
-extern void  xcpc_println      (const char* format, ...);
-extern void  xcpc_errorln      (const char* format, ...);
+extern int   xcpc_major_version (void);
+extern int   xcpc_minor_version (void);
+extern int   xcpc_micro_version (void);
 
-extern int   xcpc_get_loglevel (void);
-extern int   xcpc_set_loglevel (const int loglevel);
-extern void  xcpc_log_error    (const char* format, ...);
-extern void  xcpc_log_print    (const char* format, ...);
-extern void  xcpc_log_trace    (const char* format, ...);
-extern void  xcpc_log_debug    (const char* format, ...);
+extern void  xcpc_println       (const char* format, ...);
+extern void  xcpc_errorln       (const char* format, ...);
 
-extern void* xcpc_malloc       (const char* type, size_t size);
-extern void* xcpc_calloc       (const char* type, size_t count, size_t size);
-extern void* xcpc_realloc      (const char* type, void* pointer, size_t size);
-extern void* xcpc_free         (const char* type, void* pointer);
+extern int   xcpc_get_loglevel  (void);
+extern int   xcpc_set_loglevel  (const int loglevel);
+extern void  xcpc_log_error     (const char* format, ...);
+extern void  xcpc_log_alert     (const char* format, ...);
+extern void  xcpc_log_print     (const char* format, ...);
+extern void  xcpc_log_trace     (const char* format, ...);
+extern void  xcpc_log_debug     (const char* format, ...);
+
+extern void* xcpc_malloc        (const char* type, size_t size);
+extern void* xcpc_calloc        (const char* type, size_t count, size_t size);
+extern void* xcpc_realloc       (const char* type, void* pointer, size_t size);
+extern void* xcpc_free          (const char* type, void* pointer);
 
 extern XcpcComputerModel  xcpc_computer_model   (const char* label, XcpcComputerModel  value);
 extern XcpcMonitorModel   xcpc_monitor_model    (const char* label, XcpcMonitorModel   value);

@@ -24,5 +24,12 @@
 
 int main(int argc, char* argv[])
 {
-    return xcpc(&argc, &argv);
+    int status = EXIT_SUCCESS;
+
+    /* run xcpc */ {
+        xcpc_begin();
+        status = xcpc_main(&argc, &argv);
+        xcpc_end();
+    }
+    return status;
 }

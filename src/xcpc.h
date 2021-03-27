@@ -17,11 +17,13 @@
 #ifndef __XCPC_H__
 #define __XCPC_H__
 
+#include <xcpc/libxcpc.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int xcpc(int* argc, char*** argv);
+extern int main(int argc, char** argv);
 
 #ifdef __cplusplus
 }
