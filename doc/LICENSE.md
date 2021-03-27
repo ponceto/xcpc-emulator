@@ -1,5 +1,3 @@
-# LICENSE
-
 ## License and legal informations
 
 Xcpc is a free software, so it's source code is free (free as freedom, not as free beer).

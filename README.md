@@ -1,10 +1,22 @@
-# README
+## README
 
-## How to install Xcpc
+Xcpc is a portable Amstrad CPC 464/664/6128 emulator written in C. It is designed to run on any POSIX compliant system having an X11 server, including Linux, BSD and Unix.
+
+Note there is absolutely no support for Microsoft Windows operating systems and there never will be. Please do not ask me to add such functionality.
+
+Xcpc is designed to emulate classic range of the Amstrad CPC systems :
+
+  - Amstrad CPC 464 (v1).
+  - Amstrad CPC 664 (v2).
+  - Amstrad CPC 6128 (v3).
+
+The Amstrad CPC+ range and the GX4000 console are not currently emulated and likely will not be.
+
+### How to install Xcpc
 
 Please read the file [doc/INSTALL.md](doc/INSTALL.md).
 
-## How to run Xcpc
+### How to run Xcpc
 
 ```
 Usage: xcpc [toolkit-options] [program-options]
@@ -55,14 +67,36 @@ Debug options:
 
 ```
 
-## Release notes
+### Release notes
 
-  * Xcpc doesn't have sound emulation yet.
-  * You can emulate the joystick with the keypad by disabling the 'Num Lock' key.
+Here is a non-exhaustive list of supported features :
 
-The joystick mode can be toggled (enabled/disabled) by pressing the `End` key.
-The Up/Down/Left/Right + CTRL-L & ALT-L keys will then emulate the joystick 0.
+  - A simple Athena user interface.
+  - A complete Motif2 user interface.
+  - Full X11 with XShm extension.
+  - Adaptative frame-rate.
+  - Full Floppy disk images support (.dsk).
+  - Full snapshot support (.sna).
+  - Drag and Drop support (.dsk, .sna).
+  - Keyboard emulation (qwerty, azerty).
+  - Joystick emulation with the numeric keypad when numlock is disabled.
+  - Joystick emulation by pressing the « End » key (the use arrows + ctrl + alt).
+  - CPU: Z80 with full documented instructions and most undocumented instructions.
+  - VGA: Video Gate Array 40007/40008/40010, complete support.
+  - VDC: CRTC 6845, almost complete full support.
+  - PPI: PPI 8255, almost complete full support.
+  - PSG: AY-3-8912, partial support (actually no sound is produced).
+  - FDC: FDC 765A, complete support.
 
-## License and legal informations
+The emulator lacks some features. Here is a list of the most wanted features :
+
+  - Sound support.
+  - A Gtk+ user interface.
+  - A Qt user interface.
+  - Host Joystick support.
+  - A built-in assembler.
+  - A built-in debugger.
+
+### License and legal informations
 
 Please read the file [doc/LICENSE.md](doc/LICENSE.md).

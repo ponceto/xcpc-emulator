@@ -1,5 +1,3 @@
-# INSTALL
-
 ## How to install Xcpc
 
 The xcpc emulator is fully autotoolized.
