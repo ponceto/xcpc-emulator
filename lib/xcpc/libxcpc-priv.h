@@ -23,7 +23,19 @@
 extern "C" {
 #endif
 
+typedef struct _XcpcLibrary    XcpcLibrary;
 typedef struct _XcpcColorEntry XcpcColorEntry;
+
+struct _XcpcLibrary
+{
+    int   initialized;
+    int   major_version;
+    int   minor_version;
+    int   micro_version;
+    int   loglevel;
+    FILE* print_stream;
+    FILE* error_stream;
+};
 
 struct _XcpcColorEntry
 {

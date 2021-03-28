@@ -23,15 +23,7 @@
 #include <stdarg.h>
 #include "libxcpc-priv.h"
 
-static struct {
-    int   initialized;
-    int   major_version;
-    int   minor_version;
-    int   micro_version;
-    int   loglevel;
-    FILE* print_stream;
-    FILE* error_stream;
-} libxcpc = {
+static XcpcLibrary libxcpc = {
     0,                     /* initialized   */
     PACKAGE_MAJOR_VERSION, /* major version */
     PACKAGE_MINOR_VERSION, /* minor version */
