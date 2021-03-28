@@ -30,8 +30,8 @@ typedef struct _XcpcVdc6845      XcpcVdc6845;
 struct _XcpcVdc6845Iface
 {
     void* user_data;
-    void (*hsync_callback)(XcpcVdc6845*, int hsync, void* user_data);
-    void (*vsync_callback)(XcpcVdc6845*, int vsync, void* user_data);
+    void (*hsync_callback)(XcpcVdc6845*, int hsync);
+    void (*vsync_callback)(XcpcVdc6845*, int vsync);
 };
 
 struct _XcpcVdc6845State

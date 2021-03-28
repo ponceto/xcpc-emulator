@@ -149,10 +149,10 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
         }
     }
     if((self->state.ctrs.named.vsync_signal != old_vsync_signal) && (self->iface.vsync_callback != NULL)) {
-        (*self->iface.vsync_callback)(self, self->state.ctrs.named.vsync_signal, self->iface.user_data);
+        (*self->iface.vsync_callback)(self, self->state.ctrs.named.vsync_signal);
     }
     if((self->state.ctrs.named.hsync_signal != old_hsync_signal) && (self->iface.hsync_callback != NULL)) {
-        (*self->iface.hsync_callback)(self, self->state.ctrs.named.hsync_signal, self->iface.user_data);
+        (*self->iface.hsync_callback)(self, self->state.ctrs.named.hsync_signal);
     }
     return self;
 }

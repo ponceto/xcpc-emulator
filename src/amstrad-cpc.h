@@ -77,15 +77,11 @@ struct _AMSTRAD_CPC_EMULATOR
         unsigned long ink[17];
     } scanline[312];
     int cur_scanline;
-    struct _paint {
-        PaintProc proc;
-    } paint;
-    struct _keybd {
-        KeybdProc proc;
-    } keybd;
-    struct _mouse {
-        MouseProc proc;
-    } mouse;
+    struct _handlers {
+        PaintProc paint;
+        KeybdProc keybd;
+        MouseProc mouse;
+    } handlers;
     struct _timer {
         struct timeval deadline;
         struct timeval profiler;
