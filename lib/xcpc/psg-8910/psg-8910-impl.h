@@ -27,14 +27,6 @@ typedef struct _XcpcPsg8910Iface XcpcPsg8910Iface;
 typedef struct _XcpcPsg8910State XcpcPsg8910State;
 typedef struct _XcpcPsg8910      XcpcPsg8910;
 
-#ifndef XCPC_PSG_8910_IFACE
-#define XCPC_PSG_8910_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_PSG_8910_STATE
-#define XCPC_PSG_8910_STATE(instance, field) instance->state.field
-#endif
-
 struct _XcpcPsg8910Iface
 {
     void* user_data;

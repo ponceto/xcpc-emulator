@@ -23,6 +23,10 @@
 extern "C" {
 #endif
 
+#define XCPC_DEFAULT_INPUT_STREAM stdin
+#define XCPC_DEFAULT_PRINT_STREAM stdout
+#define XCPC_DEFAULT_ERROR_STREAM stderr
+
 typedef struct _XcpcLibrary    XcpcLibrary;
 typedef struct _XcpcColorEntry XcpcColorEntry;
 
@@ -33,6 +37,7 @@ struct _XcpcLibrary
     int   minor_version;
     int   micro_version;
     int   loglevel;
+    FILE* input_stream;
     FILE* print_stream;
     FILE* error_stream;
 };

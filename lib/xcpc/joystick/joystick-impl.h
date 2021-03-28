@@ -27,14 +27,6 @@ typedef struct _XcpcJoystickIface XcpcJoystickIface;
 typedef struct _XcpcJoystickState XcpcJoystickState;
 typedef struct _XcpcJoystick      XcpcJoystick;
 
-#ifndef XCPC_JOYSTICK_IFACE
-#define XCPC_JOYSTICK_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_JOYSTICK_STATE
-#define XCPC_JOYSTICK_STATE(instance, field) instance->state.field
-#endif
-
 struct _XcpcJoystickIface
 {
     void* user_data;

@@ -27,14 +27,6 @@ typedef struct _XcpcKeyboardIface XcpcKeyboardIface;
 typedef struct _XcpcKeyboardState XcpcKeyboardState;
 typedef struct _XcpcKeyboard      XcpcKeyboard;
 
-#ifndef XCPC_KEYBOARD_IFACE
-#define XCPC_KEYBOARD_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_KEYBOARD_STATE
-#define XCPC_KEYBOARD_STATE(instance, field) instance->state.field
-#endif
-
 struct _XcpcKeyboardIface
 {
     void* user_data;

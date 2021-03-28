@@ -27,14 +27,6 @@ typedef struct _XcpcVgaCoreIface XcpcVgaCoreIface;
 typedef struct _XcpcVgaCoreState XcpcVgaCoreState;
 typedef struct _XcpcVgaCore      XcpcVgaCore;
 
-#ifndef XCPC_VGA_CORE_IFACE
-#define XCPC_VGA_CORE_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_VGA_CORE_STATE
-#define XCPC_VGA_CORE_STATE(instance, field) instance->state.field
-#endif
-
 struct _XcpcVgaCoreIface
 {
     void* user_data;

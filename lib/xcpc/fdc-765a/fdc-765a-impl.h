@@ -30,14 +30,6 @@ typedef struct _XcpcFdc765aIface XcpcFdc765aIface;
 typedef struct _XcpcFdc765aState XcpcFdc765aState;
 typedef struct _XcpcFdc765a      XcpcFdc765a;
 
-#ifndef XCPC_FDC_765A_IFACE
-#define XCPC_FDC_765A_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_FDC_765A_STATE
-#define XCPC_FDC_765A_STATE(instance, field) instance->state.field
-#endif
-
 struct _XcpcFdc765aIface
 {
     void* user_data;

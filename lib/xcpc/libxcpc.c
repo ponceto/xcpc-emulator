@@ -29,6 +29,7 @@ static XcpcLibrary libxcpc = {
     PACKAGE_MINOR_VERSION, /* minor version */
     PACKAGE_MICRO_VERSION, /* micro version */
     XCPC_LOGLEVEL_UNKNOWN, /* loglevel      */
+    NULL,                  /* input_stream  */
     NULL,                  /* print_stream  */
     NULL,                  /* error_stream  */
 };
@@ -53,10 +54,24 @@ static void fini_loglevel(void)
     }
 }
 
+static void init_input_stream(void)
+{
+    if(libxcpc.input_stream == NULL) {
+        libxcpc.input_stream = XCPC_DEFAULT_INPUT_STREAM;
+    }
+}
+
+static void fini_input_stream(void)
+{
+    if(libxcpc.input_stream != NULL) {
+        libxcpc.input_stream = NULL;
+    }
+}
+
 static void init_print_stream(void)
 {
     if(libxcpc.print_stream == NULL) {
-        libxcpc.print_stream = stdout;
+        libxcpc.print_stream = XCPC_DEFAULT_PRINT_STREAM;
     }
 }
 
@@ -70,7 +85,7 @@ static void fini_print_stream(void)
 static void init_error_stream(void)
 {
     if(libxcpc.error_stream == NULL) {
-        libxcpc.error_stream = stderr;
+        libxcpc.error_stream = XCPC_DEFAULT_ERROR_STREAM;
     }
 }
 
@@ -85,6 +100,7 @@ void xcpc_begin(void)
 {
     if(libxcpc.initialized++ == 0) {
         init_loglevel();
+        init_input_stream();
         init_print_stream();
         init_error_stream();
     }
@@ -109,6 +125,7 @@ void xcpc_end(void)
     if(--libxcpc.initialized == 0) {
         fini_error_stream();
         fini_print_stream();
+        fini_input_stream();
         fini_loglevel();
     }
 }
@@ -206,7 +223,7 @@ void xcpc_log_alert(const char* format, ...)
 
 void xcpc_log_print(const char* format, ...)
 {
-    FILE* stream = libxcpc.print_stream;
+    FILE* stream = libxcpc.error_stream;
 
     if((stream != NULL) && (libxcpc.loglevel >= XCPC_LOGLEVEL_PRINT)) {
         va_list arguments;
