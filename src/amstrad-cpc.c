@@ -487,6 +487,26 @@ static void vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
     }
 }
 
+static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t psg_wr_port_a(XcpcPsg8910* psg_8910, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t psg_rd_port_b(XcpcPsg8910* psg_8910, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t psg_wr_port_b(XcpcPsg8910* psg_8910, uint8_t data)
+{
+    return data;
+}
+
 static void amstrad_cpc_paint_default(AMSTRAD_CPC_EMULATOR* self)
 {
 }
@@ -1576,6 +1596,10 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
     /* create psg_8910 */ {
         self->psg_8910 = xcpc_psg_8910_new();
         self->psg_8910->iface.user_data = self;
+        self->psg_8910->iface.rd_port_a = &psg_rd_port_a;
+        self->psg_8910->iface.wr_port_a = &psg_wr_port_a;
+        self->psg_8910->iface.rd_port_b = &psg_rd_port_b;
+        self->psg_8910->iface.wr_port_b = &psg_wr_port_b;
     }
     /* create fdc_765a */ {
         self->fdc_765a = xcpc_fdc_765a_new();

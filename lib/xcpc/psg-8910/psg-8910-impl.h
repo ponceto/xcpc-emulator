@@ -30,6 +30,10 @@ typedef struct _XcpcPsg8910      XcpcPsg8910;
 struct _XcpcPsg8910Iface
 {
     void* user_data;
+    uint8_t (*rd_port_a)(XcpcPsg8910* psg_8910, uint8_t data);
+    uint8_t (*wr_port_a)(XcpcPsg8910* psg_8910, uint8_t data);
+    uint8_t (*rd_port_b)(XcpcPsg8910* psg_8910, uint8_t data);
+    uint8_t (*wr_port_b)(XcpcPsg8910* psg_8910, uint8_t data);
 };
 
 struct _XcpcPsg8910State
