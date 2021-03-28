@@ -19,7 +19,6 @@
 
 #include <xcpc.h>
 #include <sys/time.h>
-#include <xcpc/blitter/blitter.h>
 #include <xcpc/monitor/monitor.h>
 #include <xcpc/keyboard/keyboard.h>
 #include <xcpc/joystick/joystick.h>
@@ -47,7 +46,6 @@ typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 struct _AMSTRAD_CPC_EMULATOR
 {
     XcpcSettings* settings;
-    XcpcBlitter*  blitter;
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;
     XcpcJoystick* joystick;

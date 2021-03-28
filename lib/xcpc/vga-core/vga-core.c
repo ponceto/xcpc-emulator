@@ -33,10 +33,10 @@ static void xcpc_vga_core_init_mode0_lut(XcpcVgaCore* self)
     unsigned int count = countof(self->state.mode0);
 
     for(index = 0; index < count; ++index) {
-        self->state.mode0[index] = ((index & 0x80) >> 7) | ((index & 0x08) >> 2)
-                                 | ((index & 0x20) >> 3) | ((index & 0x02) << 2)
-                                 | ((index & 0x40) >> 2) | ((index & 0x04) << 3)
-                                 | ((index & 0x10) << 2) | ((index & 0x01) << 7)
+        self->state.mode0[index] = ((index & BIT7) >> 7) | ((index & BIT3) >> 2)
+                                 | ((index & BIT5) >> 3) | ((index & BIT1) << 2)
+                                 | ((index & BIT6) >> 2) | ((index & BIT2) << 3)
+                                 | ((index & BIT4) << 2) | ((index & BIT0) << 7)
                                  ;
     }
 }
@@ -47,10 +47,10 @@ static void xcpc_vga_core_init_mode1_lut(XcpcVgaCore* self)
     unsigned int count = countof(self->state.mode1);
 
     for(index = 0; index < count; ++index) {
-        self->state.mode1[index] = ((index & 0x80) >> 7) | ((index & 0x08) >> 2)
-                                 | ((index & 0x40) >> 4) | ((index & 0x04) << 1)
-                                 | ((index & 0x20) >> 1) | ((index & 0x02) << 4)
-                                 | ((index & 0x10) << 2) | ((index & 0x01) << 7)
+        self->state.mode1[index] = ((index & BIT7) >> 7) | ((index & BIT3) >> 2)
+                                 | ((index & BIT6) >> 4) | ((index & BIT2) << 1)
+                                 | ((index & BIT5) >> 1) | ((index & BIT1) << 4)
+                                 | ((index & BIT4) << 2) | ((index & BIT0) << 7)
                                  ;
     }
 }
@@ -61,10 +61,10 @@ static void xcpc_vga_core_init_mode2_lut(XcpcVgaCore* self)
     unsigned int count = countof(self->state.mode2);
 
     for(index = 0; index < count; ++index) {
-        self->state.mode2[index] = ((index & 0x80) >> 7) | ((index & 0x40) >> 5)
-                                 | ((index & 0x20) >> 3) | ((index & 0x10) >> 1)
-                                 | ((index & 0x08) << 1) | ((index & 0x04) << 3)
-                                 | ((index & 0x02) << 5) | ((index & 0x01) << 7)
+        self->state.mode2[index] = ((index & BIT7) >> 7) | ((index & BIT6) >> 5)
+                                 | ((index & BIT5) >> 3) | ((index & BIT4) >> 1)
+                                 | ((index & BIT3) << 1) | ((index & BIT2) << 3)
+                                 | ((index & BIT1) << 5) | ((index & BIT0) << 7)
                                  ;
     }
 }

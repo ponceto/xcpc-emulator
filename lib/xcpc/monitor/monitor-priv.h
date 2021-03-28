@@ -23,6 +23,16 @@
 extern "C" {
 #endif
 
+typedef struct _XcpcMonitorArea XcpcMonitorArea;
+
+struct _XcpcMonitorArea
+{
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+};
+
 #ifdef __cplusplus
 }
 #endif

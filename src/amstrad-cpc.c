@@ -42,7 +42,6 @@ enum RamSize
 
 AMSTRAD_CPC_EMULATOR amstrad_cpc = {
     NULL,     /* settings */
-    NULL,     /* blitter  */
     NULL,     /* monitor  */
     NULL,     /* keyboard */
     NULL,     /* joystick */
@@ -370,12 +369,12 @@ static void vdc_hsync(XcpcVdc6845 *vdc_6845, int hsync, void* user_data)
       }
     }
     /* XXX */ {
-      XcpcBlitter *blitter = self->blitter;
+      XcpcMonitor *monitor = self->monitor;
       struct _scanline *sl = &self->scanline[(self->cur_scanline + 1) % 312];
       int ix = 0;
       sl->mode = vga_core->state.rmr & 0x03;
       do {
-        sl->ink[ix] = blitter->state.palette[vga_core->state.ink[ix]].pixel;
+        sl->ink[ix] = monitor->state.palette[vga_core->state.ink[ix]].pixel;
       } while(++ix < 17);
     }
   }
@@ -441,18 +440,18 @@ static void amstrad_cpc_paint_default(AMSTRAD_CPC_EMULATOR *self)
 
 static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
 {
-  XcpcBlitter *blitter = self->blitter;
+  XcpcMonitor *monitor = self->monitor;
   XcpcVdc6845 *vdc_6845 = self->vdc_6845;
   XcpcVgaCore *vga_core = self->vga_core;
   unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
   unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-  unsigned int hp = ((XCPC_BLITTER_WIDTH >> 0) - (hd << 4)) >> 1;
+  unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
   unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
   unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
   unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-  unsigned int vp = ((XCPC_BLITTER_HEIGHT >> 1) - (vd * mr)) >> 1;
+  unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = NULL;
-  uint8_t *dst = (uint8_t *) blitter->state.image->data, *nxt = dst;
+  uint8_t *dst = (uint8_t *) monitor->state.image->data, *nxt = dst;
   uint8_t pixel;
   unsigned int cx, cy, ra;
   uint16_t addr;
@@ -462,9 +461,9 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
 
   sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
-    nxt += XCPC_BLITTER_WIDTH;
+    nxt += XCPC_MONITOR_WIDTH;
     pixel = sl->ink[16];
-    for(cx = 0; cx < XCPC_BLITTER_WIDTH; cx++) {
+    for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
       *dst++ = *nxt++ = pixel;
     }
     dst = nxt; sl++;
@@ -472,7 +471,7 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
   sl = &self->scanline[6];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
-      nxt += XCPC_BLITTER_WIDTH;
+      nxt += XCPC_MONITOR_WIDTH;
       switch(sl->mode) {
         case 0x00:
           pixel = sl->ink[16];
@@ -664,30 +663,30 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
   }
   sl = &self->scanline[(vd * mr) + (0 * vp)];
   for(cy = 0; cy < vp; cy++) {
-    nxt += XCPC_BLITTER_WIDTH;
+    nxt += XCPC_MONITOR_WIDTH;
     pixel = sl->ink[16];
-    for(cx = 0; cx < XCPC_BLITTER_WIDTH; cx++) {
+    for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
       *dst++ = *nxt++ = pixel;
     }
     dst = nxt; sl++;
   }
-  (void) xcpc_blitter_put_image(self->blitter);
+  (void) xcpc_monitor_put_image(self->monitor);
 }
 
 static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
 {
-  XcpcBlitter *blitter = self->blitter;
+  XcpcMonitor *monitor = self->monitor;
   XcpcVdc6845 *vdc_6845 = self->vdc_6845;
   XcpcVgaCore *vga_core = self->vga_core;
   unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
   unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-  unsigned int hp = ((XCPC_BLITTER_WIDTH >> 0) - (hd << 4)) >> 1;
+  unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
   unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
   unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
   unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-  unsigned int vp = ((XCPC_BLITTER_HEIGHT >> 1) - (vd * mr)) >> 1;
+  unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = NULL;
-  uint16_t *dst = (uint16_t *) blitter->state.image->data, *nxt = dst;
+  uint16_t *dst = (uint16_t *) monitor->state.image->data, *nxt = dst;
   uint16_t pixel;
   unsigned int cx, cy, ra;
   uint16_t addr;
@@ -697,9 +696,9 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
 
   sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
-    nxt += XCPC_BLITTER_WIDTH;
+    nxt += XCPC_MONITOR_WIDTH;
     pixel = sl->ink[16];
-    for(cx = 0; cx < XCPC_BLITTER_WIDTH; cx++) {
+    for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
       *dst++ = *nxt++ = pixel;
     }
     dst = nxt; sl++;
@@ -707,7 +706,7 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
   sl = &self->scanline[6];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
-      nxt += XCPC_BLITTER_WIDTH;
+      nxt += XCPC_MONITOR_WIDTH;
       switch(sl->mode) {
         case 0x00:
           pixel = sl->ink[16];
@@ -899,30 +898,30 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
   }
   sl = &self->scanline[(vd * mr) + (0 * vp)];
   for(cy = 0; cy < vp; cy++) {
-    nxt += XCPC_BLITTER_WIDTH;
+    nxt += XCPC_MONITOR_WIDTH;
     pixel = sl->ink[16];
-    for(cx = 0; cx < XCPC_BLITTER_WIDTH; cx++) {
+    for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
       *dst++ = *nxt++ = pixel;
     }
     dst = nxt; sl++;
   }
-  (void) xcpc_blitter_put_image(self->blitter);
+  (void) xcpc_monitor_put_image(self->monitor);
 }
 
 static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
 {
-  XcpcBlitter *blitter = self->blitter;
+  XcpcMonitor *monitor = self->monitor;
   XcpcVdc6845 *vdc_6845 = self->vdc_6845;
   XcpcVgaCore *vga_core = self->vga_core;
   unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
   unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-  unsigned int hp = ((XCPC_BLITTER_WIDTH >> 0) - (hd << 4)) >> 1;
+  unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
   unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
   unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
   unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-  unsigned int vp = ((XCPC_BLITTER_HEIGHT >> 1) - (vd * mr)) >> 1;
+  unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
   struct _scanline *sl = NULL;
-  uint32_t *dst = (uint32_t *) blitter->state.image->data, *nxt = dst;
+  uint32_t *dst = (uint32_t *) monitor->state.image->data, *nxt = dst;
   uint32_t pixel;
   unsigned int cx, cy, ra;
   uint16_t addr;
@@ -932,9 +931,9 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
 
   sl = &self->scanline[(vt * mr) - (1 * vp)];
   for(cy = 0; cy < vp; cy++) {
-    nxt += XCPC_BLITTER_WIDTH;
+    nxt += XCPC_MONITOR_WIDTH;
     pixel = sl->ink[16];
-    for(cx = 0; cx < XCPC_BLITTER_WIDTH; cx++) {
+    for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
       *dst++ = *nxt++ = pixel;
     }
     dst = nxt; sl++;
@@ -942,7 +941,7 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
   sl = &self->scanline[6];
   for(cy = 0; cy < vd; cy++) {
     for(ra = 0; ra < mr; ra++) {
-      nxt += XCPC_BLITTER_WIDTH;
+      nxt += XCPC_MONITOR_WIDTH;
       switch(sl->mode) {
         case 0x00:
           pixel = sl->ink[16];
@@ -1134,14 +1133,14 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
   }
   sl = &self->scanline[(vd * mr) + (0 * vp)];
   for(cy = 0; cy < vp; cy++) {
-    nxt += XCPC_BLITTER_WIDTH;
+    nxt += XCPC_MONITOR_WIDTH;
     pixel = sl->ink[16];
-    for(cx = 0; cx < XCPC_BLITTER_WIDTH; cx++) {
+    for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
       *dst++ = *nxt++ = pixel;
     }
     dst = nxt; sl++;
   }
-  (void) xcpc_blitter_put_image(self->blitter);
+  (void) xcpc_monitor_put_image(self->monitor);
 }
 
 static void amstrad_cpc_keybd_default(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
@@ -1268,9 +1267,6 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
         xcpc_log_error("unknown computer model");
         break;
     }
-  }
-  /* create blitter */ {
-    self->blitter = xcpc_blitter_new();
   }
   /* create monitor */ {
     self->monitor = xcpc_monitor_new();
@@ -1513,16 +1509,10 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR *self)
   /* destroy monitor */ {
     self->monitor = xcpc_monitor_delete(self->monitor);
   }
-  /* destroy blitter */ {
-    self->blitter = xcpc_blitter_delete(self->blitter);
-  }
 }
 
 void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR *self)
 {
-  /* reset blitter */ {
-    (void) xcpc_blitter_reset(self->blitter);
-  }
   /* reset monitor */ {
     (void) xcpc_monitor_reset(self->monitor);
   }
@@ -1759,14 +1749,14 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
 
   if(self != NULL) {
     /* realize */ {
-        (void) xcpc_blitter_realize ( self->blitter
+        (void) xcpc_monitor_realize ( self->monitor
                                     , self->monitor_model
                                     , XtDisplay(widget)
                                     , XtWindow(widget)
                                     , (use_xshm != 0 ? True : False) );
     }
     /* init paint handler */ {
-      switch(self->blitter->state.image->bits_per_pixel) {
+      switch(self->monitor->state.image->bits_per_pixel) {
         case 8:
           self->paint.proc = &amstrad_cpc_paint_08bpp;
           break;
@@ -1801,7 +1791,7 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
 unsigned long amstrad_cpc_resize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent *event)
 {
   if(self != NULL) {
-    (void) xcpc_blitter_resize(self->blitter, event);
+    (void) xcpc_monitor_resize(self->monitor, event);
   }
   return 0UL;
 }
@@ -1809,7 +1799,7 @@ unsigned long amstrad_cpc_resize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self,
 unsigned long amstrad_cpc_redraw_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent *event)
 {
   if(self != NULL) {
-    (void) xcpc_blitter_expose(self->blitter, event);
+    (void) xcpc_monitor_expose(self->monitor, event);
   }
   return 0UL;
 }

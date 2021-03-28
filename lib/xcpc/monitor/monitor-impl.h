@@ -23,6 +23,9 @@
 extern "C" {
 #endif
 
+#define XCPC_MONITOR_WIDTH  768
+#define XCPC_MONITOR_HEIGHT 576
+
 typedef struct _XcpcMonitorIface XcpcMonitorIface;
 typedef struct _XcpcMonitorState XcpcMonitorState;
 typedef struct _XcpcMonitor      XcpcMonitor;
@@ -42,7 +45,20 @@ struct _XcpcMonitorIface
 
 struct _XcpcMonitorState
 {
-    void* reserved;
+    Display* display;
+    Screen*  screen;
+    Visual*  visual;
+    XImage*  image;
+    GC       gc;
+    Window   window;
+    Colormap colormap;
+    int      depth;
+    int      px;
+    int      py;
+    Bool     try_xshm;
+    Bool     has_xshm;
+    Bool     use_xshm;
+    XColor   palette[32];
 };
 
 struct _XcpcMonitor

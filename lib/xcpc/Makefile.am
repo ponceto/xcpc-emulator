@@ -44,10 +44,6 @@ libxcpc_la_SOURCES = \
 	xlib/xlib.h \
 	xlib/xlib-impl.h \
 	xlib/xlib-priv.h \
-	blitter/blitter.c \
-	blitter/blitter.h \
-	blitter/blitter-impl.h \
-	blitter/blitter-priv.h \
 	monitor/monitor.c \
 	monitor/monitor.h \
 	monitor/monitor-impl.h \
