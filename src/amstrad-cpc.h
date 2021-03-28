@@ -19,6 +19,7 @@
 
 #include <xcpc.h>
 #include <sys/time.h>
+#include <xcpc/options/options.h>
 #include <xcpc/monitor/monitor.h>
 #include <xcpc/keyboard/keyboard.h>
 #include <xcpc/joystick/joystick.h>
@@ -31,7 +32,6 @@
 #include <xcpc/ram-bank/ram-bank.h>
 #include <xcpc/rom-bank/rom-bank.h>
 #include <xcpc/snapshot/snapshot.h>
-#include <xcpc/settings/settings.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,7 +45,7 @@ typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 
 struct _AMSTRAD_CPC_EMULATOR
 {
-    XcpcSettings* settings;
+    XcpcOptions*  options;
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;
     XcpcJoystick* joystick;

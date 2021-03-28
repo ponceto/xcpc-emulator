@@ -1,5 +1,5 @@
 /*
- * settings.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * options.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "settings-priv.h"
+#include "options-priv.h"
 
 static const char val_not_set[]      = "{not-set}";
 
@@ -98,7 +98,7 @@ static const char txt_quiet[]        = "set the loglevel to quiet mode";
 static const char txt_trace[]        = "set the loglevel to trace mode";
 static const char txt_debug[]        = "set the loglevel to debug mode";
 
-static void print_usage(XcpcSettings* self)
+static void print_usage(XcpcOptions* self)
 {
     const char* format = "    %-24s    %s";
 
@@ -150,12 +150,12 @@ static void print_usage(XcpcSettings* self)
     xcpc_println(""                                        );
 }
 
-static void print_version(XcpcSettings* self)
+static void print_version(XcpcOptions* self)
 {
     xcpc_println ( "Xcpc - Amstrad CPC emulator - v%d.%d.%d"
-                 , PACKAGE_MAJOR_VERSION
-                 , PACKAGE_MINOR_VERSION
-                 , PACKAGE_MICRO_VERSION );
+                 , xcpc_major_version()
+                 , xcpc_minor_version()
+                 , xcpc_micro_version() );
 }
 
 static char* replace_setting(char* actual, const char* string, int flag)
@@ -185,34 +185,34 @@ static int check_arg(const char* expected, const char* argument)
     return result == 0;
 }
 
-static void xcpc_settings_trace(const char* function)
+static void xcpc_options_trace(const char* function)
 {
-    xcpc_log_trace("XcpcSettings::%s()", function);
+    xcpc_log_trace("XcpcOptions::%s()", function);
 }
 
-XcpcSettings* xcpc_settings_alloc(void)
+XcpcOptions* xcpc_options_alloc(void)
 {
-    xcpc_settings_trace("alloc");
+    xcpc_options_trace("alloc");
 
-    return xcpc_new(XcpcSettings);
+    return xcpc_new(XcpcOptions);
 }
 
-XcpcSettings* xcpc_settings_free(XcpcSettings* self)
+XcpcOptions* xcpc_options_free(XcpcOptions* self)
 {
-    xcpc_settings_trace("free");
+    xcpc_options_trace("free");
 
-    return xcpc_delete(XcpcSettings, self);
+    return xcpc_delete(XcpcOptions, self);
 }
 
-XcpcSettings* xcpc_settings_construct(XcpcSettings* self)
+XcpcOptions* xcpc_options_construct(XcpcOptions* self)
 {
-    xcpc_settings_trace("construct");
+    xcpc_options_trace("construct");
 
     /* clear iface */ {
-        (void) memset(&self->iface, 0, sizeof(XcpcSettingsIface));
+        (void) memset(&self->iface, 0, sizeof(XcpcOptionsIface));
     }
     /* clear state */ {
-        (void) memset(&self->state, 0, sizeof(XcpcSettingsState));
+        (void) memset(&self->state, 0, sizeof(XcpcOptionsState));
     }
     /* construct */ {
         self->state.program      = replace_setting(NULL, val_not_set, 0);
@@ -251,9 +251,9 @@ XcpcSettings* xcpc_settings_construct(XcpcSettings* self)
     return self;
 }
 
-XcpcSettings* xcpc_settings_destruct(XcpcSettings* self)
+XcpcOptions* xcpc_options_destruct(XcpcOptions* self)
 {
-    xcpc_settings_trace("destruct");
+    xcpc_options_trace("destruct");
 
     /* destruct */ {
         self->state.program      = replace_setting(self->state.program     , NULL, 0);
@@ -292,23 +292,23 @@ XcpcSettings* xcpc_settings_destruct(XcpcSettings* self)
     return self;
 }
 
-XcpcSettings* xcpc_settings_new(void)
+XcpcOptions* xcpc_options_new(void)
 {
-    xcpc_settings_trace("new");
+    xcpc_options_trace("new");
 
-    return xcpc_settings_construct(xcpc_settings_alloc());
+    return xcpc_options_construct(xcpc_options_alloc());
 }
 
-XcpcSettings* xcpc_settings_delete(XcpcSettings* self)
+XcpcOptions* xcpc_options_delete(XcpcOptions* self)
 {
-    xcpc_settings_trace("delete");
+    xcpc_options_trace("delete");
 
-    return xcpc_settings_free(xcpc_settings_destruct(self));
+    return xcpc_options_free(xcpc_options_destruct(self));
 }
 
-XcpcSettings* xcpc_settings_parse(XcpcSettings* self, int* argcp, char*** argvp)
+XcpcOptions* xcpc_options_parse(XcpcOptions* self, int* argcp, char*** argvp)
 {
-    xcpc_settings_trace("parse");
+    xcpc_options_trace("parse");
 
     if((argvp != NULL) && (argvp != NULL) && (*argvp != NULL)) {
         int    argi = 0;
@@ -362,38 +362,38 @@ XcpcSettings* xcpc_settings_parse(XcpcSettings* self, int* argcp, char*** argvp)
         (void) xcpc_set_loglevel(self->state.loglevel);
     }
     /* debug */ {
-        xcpc_log_debug("settings.program      = %s", self->state.program     );
-        xcpc_log_debug("settings.drive0       = %s", self->state.drive0      );
-        xcpc_log_debug("settings.drive1       = %s", self->state.drive1      );
-        xcpc_log_debug("settings.snapshot     = %s", self->state.snapshot    );
-        xcpc_log_debug("settings.model        = %s", self->state.model       );
-        xcpc_log_debug("settings.monitor      = %s", self->state.monitor     );
-        xcpc_log_debug("settings.keyboard     = %s", self->state.keyboard    );
-        xcpc_log_debug("settings.refresh      = %s", self->state.refresh     );
-        xcpc_log_debug("settings.manufacturer = %s", self->state.manufacturer);
-        xcpc_log_debug("settings.sysrom       = %s", self->state.sysrom      );
-        xcpc_log_debug("settings.rom000       = %s", self->state.rom000      );
-        xcpc_log_debug("settings.rom001       = %s", self->state.rom001      );
-        xcpc_log_debug("settings.rom002       = %s", self->state.rom002      );
-        xcpc_log_debug("settings.rom003       = %s", self->state.rom003      );
-        xcpc_log_debug("settings.rom004       = %s", self->state.rom004      );
-        xcpc_log_debug("settings.rom005       = %s", self->state.rom005      );
-        xcpc_log_debug("settings.rom006       = %s", self->state.rom006      );
-        xcpc_log_debug("settings.rom007       = %s", self->state.rom007      );
-        xcpc_log_debug("settings.rom008       = %s", self->state.rom008      );
-        xcpc_log_debug("settings.rom009       = %s", self->state.rom009      );
-        xcpc_log_debug("settings.rom010       = %s", self->state.rom010      );
-        xcpc_log_debug("settings.rom011       = %s", self->state.rom011      );
-        xcpc_log_debug("settings.rom012       = %s", self->state.rom012      );
-        xcpc_log_debug("settings.rom013       = %s", self->state.rom013      );
-        xcpc_log_debug("settings.rom014       = %s", self->state.rom014      );
-        xcpc_log_debug("settings.rom015       = %s", self->state.rom015      );
-        xcpc_log_debug("settings.turbo        = %d", self->state.turbo       );
-        xcpc_log_debug("settings.xshm         = %d", self->state.xshm        );
-        xcpc_log_debug("settings.fps          = %d", self->state.fps         );
-        xcpc_log_debug("settings.help         = %d", self->state.help        );
-        xcpc_log_debug("settings.version      = %d", self->state.version     );
-        xcpc_log_debug("settings.loglevel     = %d", self->state.loglevel    );
+        xcpc_log_debug("options.program      = %s", self->state.program     );
+        xcpc_log_debug("options.drive0       = %s", self->state.drive0      );
+        xcpc_log_debug("options.drive1       = %s", self->state.drive1      );
+        xcpc_log_debug("options.snapshot     = %s", self->state.snapshot    );
+        xcpc_log_debug("options.model        = %s", self->state.model       );
+        xcpc_log_debug("options.monitor      = %s", self->state.monitor     );
+        xcpc_log_debug("options.keyboard     = %s", self->state.keyboard    );
+        xcpc_log_debug("options.refresh      = %s", self->state.refresh     );
+        xcpc_log_debug("options.manufacturer = %s", self->state.manufacturer);
+        xcpc_log_debug("options.sysrom       = %s", self->state.sysrom      );
+        xcpc_log_debug("options.rom000       = %s", self->state.rom000      );
+        xcpc_log_debug("options.rom001       = %s", self->state.rom001      );
+        xcpc_log_debug("options.rom002       = %s", self->state.rom002      );
+        xcpc_log_debug("options.rom003       = %s", self->state.rom003      );
+        xcpc_log_debug("options.rom004       = %s", self->state.rom004      );
+        xcpc_log_debug("options.rom005       = %s", self->state.rom005      );
+        xcpc_log_debug("options.rom006       = %s", self->state.rom006      );
+        xcpc_log_debug("options.rom007       = %s", self->state.rom007      );
+        xcpc_log_debug("options.rom008       = %s", self->state.rom008      );
+        xcpc_log_debug("options.rom009       = %s", self->state.rom009      );
+        xcpc_log_debug("options.rom010       = %s", self->state.rom010      );
+        xcpc_log_debug("options.rom011       = %s", self->state.rom011      );
+        xcpc_log_debug("options.rom012       = %s", self->state.rom012      );
+        xcpc_log_debug("options.rom013       = %s", self->state.rom013      );
+        xcpc_log_debug("options.rom014       = %s", self->state.rom014      );
+        xcpc_log_debug("options.rom015       = %s", self->state.rom015      );
+        xcpc_log_debug("options.turbo        = %d", self->state.turbo       );
+        xcpc_log_debug("options.xshm         = %d", self->state.xshm        );
+        xcpc_log_debug("options.fps          = %d", self->state.fps         );
+        xcpc_log_debug("options.help         = %d", self->state.help        );
+        xcpc_log_debug("options.version      = %d", self->state.version     );
+        xcpc_log_debug("options.loglevel     = %d", self->state.loglevel    );
     }
     if(self->state.help != 0) {
         print_usage(self);

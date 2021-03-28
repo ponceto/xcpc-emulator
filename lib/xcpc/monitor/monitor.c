@@ -37,8 +37,12 @@ static void xcpc_monitor_trace(const char* function)
 
 static XcpcMonitor* xcpc_monitor_init(XcpcMonitor* self, Display* display, Window window, Bool try_xshm)
 {
-    if((display == NULL) || (window  == None)) {
-        return self;
+    xcpc_monitor_trace("init");
+
+    /* check parameters */ {
+        if((display == NULL) || (window  == None)) {
+            return self;
+        }
     }
     /* init attributes */ {
         XWindowAttributes attributes;
@@ -69,6 +73,8 @@ static XcpcMonitor* xcpc_monitor_init(XcpcMonitor* self, Display* display, Windo
 
 static XcpcMonitor* xcpc_monitor_fini(XcpcMonitor* self)
 {
+    xcpc_monitor_trace("fini");
+
     /* clear attributes */ {
         self->state.display  = NULL;
         self->state.screen   = NULL;
@@ -89,8 +95,12 @@ static XcpcMonitor* xcpc_monitor_fini(XcpcMonitor* self)
 
 static XcpcMonitor* xcpc_monitor_init_image(XcpcMonitor* self)
 {
-    if((self->state.display == NULL) || (self->state.visual == NULL)) {
-        return self;
+    xcpc_monitor_trace("init_image");
+
+    /* check if realized */ {
+        if((self->state.display == NULL) || (self->state.visual == NULL)) {
+            return self;
+        }
     }
     /* create xshm image */ {
         if(self->state.image == NULL) {
@@ -133,8 +143,12 @@ static XcpcMonitor* xcpc_monitor_init_image(XcpcMonitor* self)
 
 static XcpcMonitor* xcpc_monitor_fini_image(XcpcMonitor* self)
 {
-    if((self->state.display == NULL) || (self->state.image == NULL)) {
-        return self;
+    xcpc_monitor_trace("fini_image");
+
+    /* check if realized */ {
+        if((self->state.display == NULL) || (self->state.image == NULL)) {
+            return self;
+        }
     }
     /* detach xshm */ {
         if(self->state.use_xshm != False) {
@@ -149,8 +163,12 @@ static XcpcMonitor* xcpc_monitor_fini_image(XcpcMonitor* self)
 
 static XcpcMonitor* xcpc_monitor_init_palette(XcpcMonitor* self, XcpcMonitorModel monitor_model)
 {
-    if((self->state.display == NULL) || (self->state.colormap == None)) {
-        return self;
+    xcpc_monitor_trace("init_palette");
+
+    /* check if realized */ {
+        if((self->state.display == NULL) || (self->state.colormap == None)) {
+            return self;
+        }
     }
     /* init palette */ {
         unsigned short color_index = 0;
@@ -198,8 +216,12 @@ static XcpcMonitor* xcpc_monitor_init_palette(XcpcMonitor* self, XcpcMonitorMode
 
 static XcpcMonitor* xcpc_monitor_fini_palette(XcpcMonitor* self)
 {
-    if((self->state.display == NULL) || (self->state.colormap == None)) {
-        return self;
+    xcpc_monitor_trace("fini_palette");
+
+    /* check if realized */ {
+        if((self->state.display == NULL) || (self->state.colormap == None)) {
+            return self;
+        }
     }
     /* free palette */ {
         unsigned short color_index = 0;
@@ -402,8 +424,10 @@ XcpcMonitor* xcpc_monitor_resize(XcpcMonitor* self, XEvent* event)
 {
     xcpc_monitor_trace("resize");
 
-    if((event == NULL) || (event->type != ConfigureNotify)) {
-        return self;
+    /* check event */ {
+        if((event == NULL) || (event->type != ConfigureNotify)) {
+            return self;
+        }
     }
     /* compute px */ {
         if(event->xconfigure.width > self->state.image->width) {
@@ -428,8 +452,10 @@ XcpcMonitor* xcpc_monitor_expose(XcpcMonitor* self, XEvent* event)
 {
     xcpc_monitor_trace("expose");
 
-    if((event == NULL) || (event->type != Expose)) {
-        return self;
+    /* check event */ {
+        if((event == NULL) || (event->type != Expose)) {
+            return self;
+        }
     }
     /* expose */ {
         Display* display = self->state.display;
