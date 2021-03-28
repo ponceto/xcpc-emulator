@@ -194,7 +194,7 @@ const char* xcpc_snapshot_strerror(XcpcSnapshotStatus status)
     return "XCPC_SNAPSHOT_UNKNOWN_ERROR";
 }
 
-XcpcSnapshot* xcpc_snapshot_get_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
+XcpcSnapshot* xcpc_snapshot_fetch_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
 {
     xcpc_snapshot_trace("get_cpu_z80a");
 
@@ -232,7 +232,7 @@ XcpcSnapshot* xcpc_snapshot_get_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z8
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
+XcpcSnapshot* xcpc_snapshot_fetch_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
 {
     xcpc_snapshot_trace("get_vga_core");
 
@@ -260,7 +260,7 @@ XcpcSnapshot* xcpc_snapshot_get_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_co
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
+XcpcSnapshot* xcpc_snapshot_fetch_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
 {
     xcpc_snapshot_trace("get_vdc_6845");
 
@@ -288,7 +288,7 @@ XcpcSnapshot* xcpc_snapshot_get_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_68
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
+XcpcSnapshot* xcpc_snapshot_fetch_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
 {
     xcpc_snapshot_trace("get_ppi_8255");
 
@@ -301,7 +301,7 @@ XcpcSnapshot* xcpc_snapshot_get_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_82
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
+XcpcSnapshot* xcpc_snapshot_fetch_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
 {
     xcpc_snapshot_trace("get_psg_8910");
 
@@ -327,7 +327,7 @@ XcpcSnapshot* xcpc_snapshot_get_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_89
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
+XcpcSnapshot* xcpc_snapshot_fetch_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
 {
     xcpc_snapshot_trace("get_fdc_765a");
 
@@ -337,7 +337,7 @@ XcpcSnapshot* xcpc_snapshot_get_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_76
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
+XcpcSnapshot* xcpc_snapshot_fetch_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
 {
     xcpc_snapshot_trace("get_ram_bank");
 
@@ -353,7 +353,7 @@ XcpcSnapshot* xcpc_snapshot_get_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_ba
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
+XcpcSnapshot* xcpc_snapshot_fetch_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
 {
     xcpc_snapshot_trace("get_ram_conf");
 
@@ -363,7 +363,7 @@ XcpcSnapshot* xcpc_snapshot_get_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
+XcpcSnapshot* xcpc_snapshot_fetch_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
 {
     xcpc_snapshot_trace("get_rom_conf");
 
@@ -373,7 +373,7 @@ XcpcSnapshot* xcpc_snapshot_get_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
+XcpcSnapshot* xcpc_snapshot_fetch_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
 {
     xcpc_snapshot_trace("get_ram_size");
 
@@ -385,7 +385,7 @@ XcpcSnapshot* xcpc_snapshot_get_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
+XcpcSnapshot* xcpc_snapshot_store_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
 {
     xcpc_snapshot_trace("set_cpu_z80a");
 
@@ -423,7 +423,7 @@ XcpcSnapshot* xcpc_snapshot_set_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z8
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
+XcpcSnapshot* xcpc_snapshot_store_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
 {
     xcpc_snapshot_trace("set_vga_core");
 
@@ -451,7 +451,7 @@ XcpcSnapshot* xcpc_snapshot_set_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_co
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
+XcpcSnapshot* xcpc_snapshot_store_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
 {
     xcpc_snapshot_trace("set_vdc_6845");
 
@@ -479,7 +479,7 @@ XcpcSnapshot* xcpc_snapshot_set_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_68
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
+XcpcSnapshot* xcpc_snapshot_store_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
 {
     xcpc_snapshot_trace("set_ppi_8255");
 
@@ -492,7 +492,7 @@ XcpcSnapshot* xcpc_snapshot_set_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_82
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
+XcpcSnapshot* xcpc_snapshot_store_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
 {
     xcpc_snapshot_trace("set_psg_8910");
 
@@ -518,7 +518,7 @@ XcpcSnapshot* xcpc_snapshot_set_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_89
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
+XcpcSnapshot* xcpc_snapshot_store_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
 {
     xcpc_snapshot_trace("set_fdc_765a");
 
@@ -528,7 +528,7 @@ XcpcSnapshot* xcpc_snapshot_set_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_76
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
+XcpcSnapshot* xcpc_snapshot_store_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
 {
     xcpc_snapshot_trace("set_ram_bank");
 
@@ -544,7 +544,7 @@ XcpcSnapshot* xcpc_snapshot_set_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_ba
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
+XcpcSnapshot* xcpc_snapshot_store_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
 {
     xcpc_snapshot_trace("set_ram_conf");
 
@@ -554,7 +554,7 @@ XcpcSnapshot* xcpc_snapshot_set_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
+XcpcSnapshot* xcpc_snapshot_store_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
 {
     xcpc_snapshot_trace("set_rom_conf");
 
@@ -564,7 +564,7 @@ XcpcSnapshot* xcpc_snapshot_set_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
+XcpcSnapshot* xcpc_snapshot_store_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
 {
     xcpc_snapshot_trace("set_ram_size");
 

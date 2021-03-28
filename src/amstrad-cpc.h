@@ -72,11 +72,10 @@ struct _AMSTRAD_CPC_EMULATOR
             uint8_t config;
         } rom;
     } memory;
-    struct _scanline {
-        unsigned int  mode;
-        unsigned long ink[17];
-    } scanline[312];
-    int cur_scanline;
+    struct _scanlines {
+        XcpcScanline array[312];
+        int          index;
+    } scanlines;
     struct _handlers {
         PaintProc paint;
         KeybdProc keybd;

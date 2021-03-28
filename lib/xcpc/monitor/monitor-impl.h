@@ -29,6 +29,7 @@ extern "C" {
 typedef struct _XcpcMonitorIface XcpcMonitorIface;
 typedef struct _XcpcMonitorState XcpcMonitorState;
 typedef struct _XcpcMonitor      XcpcMonitor;
+typedef struct _XcpcScanline     XcpcScanline;
 
 struct _XcpcMonitorIface
 {
@@ -57,6 +58,15 @@ struct _XcpcMonitor
 {
     XcpcMonitorIface iface;
     XcpcMonitorState state;
+};
+
+struct _XcpcScanline
+{
+    uint8_t mode;
+    struct {
+        uint8_t  value;
+        uint32_t pixel;
+    } ink[17];
 };
 
 #ifdef __cplusplus
