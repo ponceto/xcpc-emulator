@@ -76,7 +76,7 @@ static char* build_filename(const char* directory, const char* filename)
     return strdup(buffer);
 }
 
-static void compute_stats(AMSTRAD_CPC_EMULATOR *self)
+static void compute_stats(AMSTRAD_CPC_EMULATOR* self)
 {
     struct timeval prev_time = self->timer.profiler;
     struct timeval curr_time = self->timer.profiler;
@@ -120,7 +120,7 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR *self)
     }
 }
 
-static void cpc_mem_select(AMSTRAD_CPC_EMULATOR *self)
+static void cpc_mem_select(AMSTRAD_CPC_EMULATOR* self)
 {
     if(self->ramsize >= RAM_128K) {
         switch(self->memory.ram.config) {
@@ -214,41 +214,41 @@ static void cpc_mem_select(AMSTRAD_CPC_EMULATOR *self)
     }
 }
 
-static uint8_t cpu_mreq_m1(XcpcCpuZ80a *cpu_z80a, uint16_t addr)
+static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
 {
-    AMSTRAD_CPC_EMULATOR *self = SELF(cpu_z80a->iface.user_data);
+    AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
     return self->memory.rd.bank[addr >> 14][addr & 0x3fff];
 }
 
-static uint8_t cpu_mreq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t addr)
+static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
 {
-    AMSTRAD_CPC_EMULATOR *self = SELF(cpu_z80a->iface.user_data);
+    AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
     return self->memory.rd.bank[addr >> 14][addr & 0x3fff];
 }
 
-static uint8_t cpu_mreq_wr(XcpcCpuZ80a *cpu_z80a, uint16_t addr, uint8_t data)
+static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
 {
-    AMSTRAD_CPC_EMULATOR *self = SELF(cpu_z80a->iface.user_data);
+    AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
     self->memory.wr.bank[addr >> 14][addr & 0x3fff] = data;
 
     return data;
 }
 
-static uint8_t cpu_iorq_m1(XcpcCpuZ80a *cpu_z80a, uint16_t port)
+static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port)
 {
-    AMSTRAD_CPC_EMULATOR *self = SELF(cpu_z80a->iface.user_data);
+    AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
     self->vga_core->state.counter &= 0x1f;
 
     return 0x00;
 }
 
-static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
+static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port)
 {
-    AMSTRAD_CPC_EMULATOR *self = SELF(cpu_z80a->iface.user_data);
+    AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
     uint8_t data = 0x00;
 
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
@@ -330,9 +330,9 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a *cpu_z80a, uint16_t port)
     return data;
 }
 
-static uint8_t cpu_iorq_wr(XcpcCpuZ80a *cpu_z80a, uint16_t port, uint8_t data)
+static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 {
-    AMSTRAD_CPC_EMULATOR *self = SELF(cpu_z80a->iface.user_data);
+    AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
@@ -426,12 +426,12 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a *cpu_z80a, uint16_t port, uint8_t data)
     return data;
 }
 
-static void vdc_hsync(XcpcVdc6845 *vdc_6845, int hsync)
+static void vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
 {
-    AMSTRAD_CPC_EMULATOR *self = SELF(vdc_6845->iface.user_data);
-    XcpcMonitor *monitor  = self->monitor;
-    XcpcCpuZ80a *cpu_z80a = self->cpu_z80a;
-    XcpcVgaCore *vga_core = self->vga_core;
+    AMSTRAD_CPC_EMULATOR* self = SELF(vdc_6845->iface.user_data);
+    XcpcMonitor* monitor  = self->monitor;
+    XcpcCpuZ80a* cpu_z80a = self->cpu_z80a;
+    XcpcVgaCore* vga_core = self->vga_core;
 
     if(hsync == 0) {
         /* falling edge */ {
@@ -448,7 +448,7 @@ static void vdc_hsync(XcpcVdc6845 *vdc_6845, int hsync)
                 }
             }
             /* update scanline */ {
-                struct _scanline *sl = &self->scanline[(self->cur_scanline + 1) % 312];
+                struct _scanline* sl = &self->scanline[(self->cur_scanline + 1) % 312];
                 int index = 0;
                 sl->mode = vga_core->state.rmr & 0x03;
                 do {
@@ -464,10 +464,10 @@ static void vdc_hsync(XcpcVdc6845 *vdc_6845, int hsync)
     }
 }
 
-static void vdc_vsync(XcpcVdc6845 *vdc_6845, int vsync)
+static void vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 {
-    AMSTRAD_CPC_EMULATOR *self = SELF(vdc_6845->iface.user_data);
-    XcpcVgaCore *vga_core = self->vga_core;
+    AMSTRAD_CPC_EMULATOR* self = SELF(vdc_6845->iface.user_data);
+    XcpcVgaCore* vga_core = self->vga_core;
 
     if(vsync != 0) {
         /* rising edge */ {
@@ -481,15 +481,15 @@ static void vdc_vsync(XcpcVdc6845 *vdc_6845, int vsync)
     }
 }
 
-static void amstrad_cpc_paint_default(AMSTRAD_CPC_EMULATOR *self)
+static void amstrad_cpc_paint_default(AMSTRAD_CPC_EMULATOR* self)
 {
 }
 
-static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
+static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
 {
-    XcpcMonitor *monitor = self->monitor;
-    XcpcVdc6845 *vdc_6845 = self->vdc_6845;
-    XcpcVgaCore *vga_core = self->vga_core;
+    XcpcMonitor* monitor = self->monitor;
+    XcpcVdc6845* vdc_6845 = self->vdc_6845;
+    XcpcVgaCore* vga_core = self->vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
     unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
@@ -497,8 +497,9 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    struct _scanline *sl = NULL;
-    uint8_t *dst = (uint8_t *) monitor->state.image->data, *nxt = dst;
+    struct _scanline* sl = NULL;
+    uint8_t* dst = (uint8_t*) monitor->state.image->data;
+    uint8_t* nxt = dst;
     uint8_t pixel;
     unsigned int cx, cy, ra;
     uint16_t addr;
@@ -720,11 +721,11 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR *self)
     (void) xcpc_monitor_put_image(self->monitor);
 }
 
-static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
+static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
 {
-    XcpcMonitor *monitor = self->monitor;
-    XcpcVdc6845 *vdc_6845 = self->vdc_6845;
-    XcpcVgaCore *vga_core = self->vga_core;
+    XcpcMonitor* monitor = self->monitor;
+    XcpcVdc6845* vdc_6845 = self->vdc_6845;
+    XcpcVgaCore* vga_core = self->vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
     unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
@@ -732,8 +733,9 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    struct _scanline *sl = NULL;
-    uint16_t *dst = (uint16_t *) monitor->state.image->data, *nxt = dst;
+    struct _scanline* sl = NULL;
+    uint16_t* dst = (uint16_t*) monitor->state.image->data;
+    uint16_t* nxt = dst;
     uint16_t pixel;
     unsigned int cx, cy, ra;
     uint16_t addr;
@@ -955,11 +957,11 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR *self)
     (void) xcpc_monitor_put_image(self->monitor);
 }
 
-static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
+static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
 {
-    XcpcMonitor *monitor = self->monitor;
-    XcpcVdc6845 *vdc_6845 = self->vdc_6845;
-    XcpcVgaCore *vga_core = self->vga_core;
+    XcpcMonitor* monitor = self->monitor;
+    XcpcVdc6845* vdc_6845 = self->vdc_6845;
+    XcpcVgaCore* vga_core = self->vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
     unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
@@ -967,8 +969,9 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    struct _scanline *sl = NULL;
-    uint32_t *dst = (uint32_t *) monitor->state.image->data, *nxt = dst;
+    struct _scanline* sl = NULL;
+    uint32_t* dst = (uint32_t*) monitor->state.image->data;
+    uint32_t* nxt = dst;
     uint32_t pixel;
     unsigned int cx, cy, ra;
     uint16_t addr;
@@ -1190,27 +1193,27 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR *self)
     (void) xcpc_monitor_put_image(self->monitor);
 }
 
-static void amstrad_cpc_keybd_default(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
+static void amstrad_cpc_keybd_default(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
 }
 
-static void amstrad_cpc_keybd_qwerty(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
+static void amstrad_cpc_keybd_qwerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     (void) xcpc_keyboard_qwerty(self->keyboard, &event->xkey);
 }
 
-static void amstrad_cpc_keybd_azerty(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
+static void amstrad_cpc_keybd_azerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     (void) xcpc_keyboard_azerty(self->keyboard, &event->xkey);
 }
 
-static void amstrad_cpc_mouse_default(AMSTRAD_CPC_EMULATOR *self, XEvent *event)
+static void amstrad_cpc_mouse_default(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
 }
 
 extern void amstrad_cpc_new(int* argc, char*** argv)
 {
-    AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+    AMSTRAD_CPC_EMULATOR* self = &amstrad_cpc;
 
     /* memset */ {
         (void) memset(self, 0, sizeof(AMSTRAD_CPC_EMULATOR()));
@@ -1225,7 +1228,7 @@ extern void amstrad_cpc_new(int* argc, char*** argv)
 
 extern void amstrad_cpc_delete(void)
 {
-    AMSTRAD_CPC_EMULATOR *self = &amstrad_cpc;
+    AMSTRAD_CPC_EMULATOR* self = &amstrad_cpc;
 
     /* delete options */ {
         self->options = xcpc_options_delete(self->options);
@@ -1235,7 +1238,7 @@ extern void amstrad_cpc_delete(void)
     }
 }
 
-void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
+void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
 {
     char* system_rom = NULL;
     char* amsdos_rom = NULL;
@@ -1495,7 +1498,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR *self)
     }
 }
 
-void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR *self)
+void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR* self)
 {
     /* cleanup handlers */ {
         self->handlers.mouse = &amstrad_cpc_mouse_default;
@@ -1568,7 +1571,7 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR *self)
     }
 }
 
-void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR *self)
+void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR* self)
 {
     /* reset monitor */ {
         (void) xcpc_monitor_reset(self->monitor);
@@ -1654,7 +1657,7 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR *self)
     }
 }
 
-void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
+void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
@@ -1714,7 +1717,7 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
     }
 }
 
-void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
+void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
@@ -1766,7 +1769,7 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char *filename)
     }
 }
 
-void amstrad_cpc_insert_drive0(AMSTRAD_CPC_EMULATOR* self, const char *filename)
+void amstrad_cpc_insert_drive0(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     (void) xcpc_fdc_765a_insert(self->fdc_765a, 0, filename);
 }
@@ -1776,7 +1779,7 @@ void amstrad_cpc_remove_drive0(AMSTRAD_CPC_EMULATOR* self)
     (void) xcpc_fdc_765a_remove(self->fdc_765a, 0);
 }
 
-void amstrad_cpc_insert_drive1(AMSTRAD_CPC_EMULATOR* self, const char *filename)
+void amstrad_cpc_insert_drive1(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     (void) xcpc_fdc_765a_insert(self->fdc_765a, 1, filename);
 }
@@ -1847,7 +1850,7 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
     return 0UL;
 }
 
-unsigned long amstrad_cpc_resize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent *event)
+unsigned long amstrad_cpc_resize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     if(self != NULL) {
         (void) xcpc_monitor_resize(self->monitor, event);
@@ -1855,7 +1858,7 @@ unsigned long amstrad_cpc_resize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self,
     return 0UL;
 }
 
-unsigned long amstrad_cpc_redraw_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent *event)
+unsigned long amstrad_cpc_redraw_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     if(self != NULL) {
         (void) xcpc_monitor_expose(self->monitor, event);
@@ -1865,7 +1868,7 @@ unsigned long amstrad_cpc_redraw_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self,
 
 unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
-    XcpcCpuZ80a *cpu_z80a = self->cpu_z80a;
+    XcpcCpuZ80a* cpu_z80a = self->cpu_z80a;
     unsigned long elapsed = 0;
     unsigned long timeout = 0;
 
@@ -1941,7 +1944,7 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
     return timeout;
 }
 
-unsigned long amstrad_cpc_input_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent *event)
+unsigned long amstrad_cpc_input_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     switch(event->type) {
         case KeyPress:
