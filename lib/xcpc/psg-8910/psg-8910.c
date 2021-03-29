@@ -22,6 +22,16 @@
 #include <string.h>
 #include "psg-8910-priv.h"
 
+static uint8_t default_rd_handler(XcpcPsg8910* psg_8910, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t default_wr_handler(XcpcPsg8910* psg_8910, uint8_t data)
+{
+    return data;
+}
+
 static void xcpc_psg_8910_trace(const char* function)
 {
     xcpc_log_trace("XcpcPsg8910::%s()", function);
@@ -50,6 +60,13 @@ XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
     }
     /* clear state */ {
         (void) memset(&self->state, 0, sizeof(XcpcPsg8910State));
+    }
+    /* initialize iface */ {
+        self->iface.user_data = NULL;
+        self->iface.rd_port_a = &default_rd_handler;
+        self->iface.wr_port_a = &default_wr_handler;
+        self->iface.rd_port_b = &default_rd_handler;
+        self->iface.wr_port_b = &default_wr_handler;
     }
     return xcpc_psg_8910_reset(self);
 }

@@ -22,6 +22,14 @@
 #include <string.h>
 #include "vdc-6845-priv.h"
 
+static void default_hsync_callback(XcpcVdc6845* self, int hsync)
+{
+}
+
+static void default_vsync_callback(XcpcVdc6845* self, int vsync)
+{
+}
+
 static void xcpc_vdc_6845_trace(const char* function)
 {
     xcpc_log_trace("XcpcVdc6845::%s()", function);
@@ -50,6 +58,11 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
     }
     /* clear state */ {
         (void) memset(&self->state, 0, sizeof(XcpcVdc6845State));
+    }
+    /* initialize iface */ {
+        self->iface.user_data      = NULL;
+        self->iface.hsync_callback = &default_hsync_callback;
+        self->iface.vsync_callback = &default_vsync_callback;
     }
     return xcpc_vdc_6845_reset(self);
 }

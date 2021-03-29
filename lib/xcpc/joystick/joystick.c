@@ -51,6 +51,9 @@ XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self)
     /* clear state */ {
         (void) memset(&self->state, 0, sizeof(XcpcJoystickState));
     }
+    /* initialize iface */ {
+        self->iface.user_data = NULL;
+    }
     return xcpc_joystick_reset(self);
 }
 

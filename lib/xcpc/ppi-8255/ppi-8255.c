@@ -22,6 +22,16 @@
 #include <string.h>
 #include "ppi-8255-priv.h"
 
+static uint8_t default_rd_handler(XcpcPpi8255* ppi_8255, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t default_wr_handler(XcpcPpi8255* ppi_8255, uint8_t data)
+{
+    return data;
+}
+
 static void xcpc_ppi_8255_trace(const char* function)
 {
     xcpc_log_trace("XcpcPpi8255::%s()", function);
@@ -50,6 +60,15 @@ XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
     }
     /* clear state */ {
         (void) memset(&self->state, 0, sizeof(XcpcPpi8255State));
+    }
+    /* initialize iface */ {
+        self->iface.user_data = NULL;
+        self->iface.rd_port_a = &default_rd_handler;
+        self->iface.wr_port_a = &default_wr_handler;
+        self->iface.rd_port_b = &default_rd_handler;
+        self->iface.wr_port_b = &default_wr_handler;
+        self->iface.rd_port_c = &default_rd_handler;
+        self->iface.wr_port_c = &default_wr_handler;
     }
     return xcpc_ppi_8255_reset(self);
 }

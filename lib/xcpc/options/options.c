@@ -214,6 +214,9 @@ XcpcOptions* xcpc_options_construct(XcpcOptions* self)
     /* clear state */ {
         (void) memset(&self->state, 0, sizeof(XcpcOptionsState));
     }
+    /* initialize iface */ {
+        self->iface.user_data = NULL;
+    }
     /* construct */ {
         self->state.program      = replace_setting(NULL, val_not_set, 0);
         self->state.drive0       = replace_setting(NULL, val_not_set, 0);

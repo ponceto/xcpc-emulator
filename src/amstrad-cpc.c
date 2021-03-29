@@ -487,6 +487,36 @@ static void vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
     }
 }
 
+static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
+{
+    return data;
+}
+
+static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
+{
+    return data;
+}
+
 static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data)
 {
     return data;
@@ -1592,6 +1622,12 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
     /* create ppi_8255 */ {
         self->ppi_8255 = xcpc_ppi_8255_new();
         self->ppi_8255->iface.user_data = self;
+        self->ppi_8255->iface.rd_port_a = &ppi_rd_port_a;
+        self->ppi_8255->iface.wr_port_a = &ppi_wr_port_a;
+        self->ppi_8255->iface.rd_port_b = &ppi_rd_port_b;
+        self->ppi_8255->iface.wr_port_b = &ppi_wr_port_b;
+        self->ppi_8255->iface.rd_port_c = &ppi_rd_port_c;
+        self->ppi_8255->iface.wr_port_c = &ppi_wr_port_c;
     }
     /* create psg_8910 */ {
         self->psg_8910 = xcpc_psg_8910_new();

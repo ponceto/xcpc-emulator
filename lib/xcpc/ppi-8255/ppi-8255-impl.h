@@ -30,6 +30,12 @@ typedef struct _XcpcPpi8255      XcpcPpi8255;
 struct _XcpcPpi8255Iface
 {
     void* user_data;
+    uint8_t (*rd_port_a)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*wr_port_a)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*rd_port_b)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*wr_port_b)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*rd_port_c)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*wr_port_c)(XcpcPpi8255* ppi_8255, uint8_t data);
 };
 
 struct _XcpcPpi8255State

@@ -284,6 +284,9 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
     /* clear state */ {
         (void) memset(&self->state, 0, sizeof(XcpcMonitorState));
     }
+    /* initialize iface */ {
+        self->iface.user_data = NULL;
+    }
     /* init attributes */ {
         self->state.display  = NULL;
         self->state.screen   = NULL;

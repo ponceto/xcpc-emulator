@@ -378,6 +378,36 @@ static const uint8_t CyclesXX[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 0, 0, 0
 };
 
+static uint8_t default_mreq_m1_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
+{
+    return 0x00;
+}
+
+static uint8_t default_mreq_rd_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
+{
+    return 0x00;
+}
+
+static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
+{
+    return 0x00;
+}
+
+static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
+{
+    return 0x00;
+}
+
+static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
+{
+    return 0x00;
+}
+
+static uint8_t default_iorq_wr_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
+{
+    return 0x00;
+}
+
 static void xcpc_cpu_z80a_trace(const char* function)
 {
     xcpc_log_trace("XcpcCpuZ80a::%s()", function);
@@ -406,6 +436,15 @@ XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
     }
     /* clear state */ {
         (void) memset(&self->state, 0, sizeof(XcpcCpuZ80aState));
+    }
+    /* initialize iface */ {
+        self->iface.user_data = NULL;
+        self->iface.mreq_m1   = &default_mreq_m1_handler;
+        self->iface.mreq_rd   = &default_mreq_rd_handler;
+        self->iface.mreq_wr   = &default_mreq_wr_handler;
+        self->iface.iorq_m1   = &default_iorq_m1_handler;
+        self->iface.iorq_rd   = &default_iorq_rd_handler;
+        self->iface.iorq_wr   = &default_iorq_wr_handler;
     }
     return xcpc_cpu_z80a_reset(self);
 }
