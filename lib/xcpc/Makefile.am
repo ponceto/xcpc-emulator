@@ -48,6 +48,10 @@ libxcpc_la_SOURCES = \
 	options/options.h \
 	options/options-impl.h \
 	options/options-priv.h \
+	machine/machine.c \
+	machine/machine.h \
+	machine/machine-impl.h \
+	machine/machine-priv.h \
 	monitor/monitor.c \
 	monitor/monitor.h \
 	monitor/monitor-impl.h \
