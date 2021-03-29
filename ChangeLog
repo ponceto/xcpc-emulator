@@ -1,3 +1,7 @@
+2021-03-29	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* SIGBUS error fix on big-endian systems (Sparc, ...)
+
 2021-03-25	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Motif2 user interface improved.
