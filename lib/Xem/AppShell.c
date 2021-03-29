@@ -198,7 +198,7 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* nu
 static void Realize(Widget widget, XtValueMask* mask, XSetWindowAttributes* attributes)
 {
     XemAppShellWidget self = (XemAppShellWidget) widget;
-    unsigned int xdnd_version = 5;
+    unsigned long xdnd_version = 5;
 
     if(self->core.parent != NULL) {
         XtWidgetGeometry request;

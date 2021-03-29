@@ -1,61 +1,69 @@
-2021-03-25	Olivier Poncet <ponceto@free.fr>
+2021-03-29	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
-	* Motif2 GUI improved
-	* Very huge refactoring
-	* Codebase cleaned
-	* Some bugs fixed
-	* Compilation warnings fixed
-	* Lot's of improvements
+	* SIGBUS error fix on big-endian systems (Sparc, ...)
+
+2021-03-25	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* Motif2 user interface improved.
+	* Very huge refactoring.
+	* Codebase cleaned.
+	* Some bugs fixed.
+	* Compilation warnings fixed.
+	* Lot's of improvements.
 	* GLib-2.0 / GObject-2.0 dependency removed.
 
-2021-03-16	Olivier Poncet <ponceto@free.fr>
+2021-03-16	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Copyright modification for 2021.
-	* Refactoring
+	* A new version numbering scheme.
+	* Refactoring of the Motif2 user interface.
+	* Very big refactoring of the emulation core.
+	* The libdsk has been upgraded to the 1.4.2 version.
+	* The lib765 has been upgraded to the 0.4.2 version.
 
-2020-02-19	Olivier Poncet <ponceto@free.fr>
+2020-02-19	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Copyright modification for 2020.
-	* Autotoolization updated
+	* Autotoolization updated.
 	* Some warning fixes.
-	* Import of lib765 v0.4.2
-	* Import of libdsk v1.4.2
+	* Pre-import of libdsk v1.4.2.
+	* Pre-import of lib765 v0.4.2.
 
-2014-05-21	Olivier Poncet <ponceto@free.fr>
+2014-05-21	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Copyright modification for 2014.
 
-2013-09-29	Olivier Poncet <ponceto@free.fr>
+2013-09-29	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Copyright modification for 2013.
 
-2012-05-08	Olivier Poncet <ponceto@free.fr>
+2012-05-08	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Copyright modification for 2012.
 
-2008-01-11	Olivier Poncet <ponceto@free.fr>
+2008-01-11	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Copyright modification for 2008.
 	* Initial snapshot loading (--snapshot=filename).
 	* Embedded libdsk (external dependency removed).
 	* Z80 core cleanup & reimplementation.
 
-2007-01-22	Olivier Poncet <ponceto@free.fr>
+2007-01-22	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Just a little correction to avoid a core dump.
 
-2007-01-08	Olivier Poncet <ponceto@free.fr>
+2007-01-08	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* TODO section added into the README.
 	* Copyright modification for 2007.
 	* XemEmulator widget correction (thanks to Andrea Musuruane).
 
-2006-12-11	Olivier Poncet <ponceto@free.fr>
+2006-12-11	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Z80 core cleanup.
 	* Z80 core reimplementation (80% done).
 
-2006-12-04	Olivier Poncet <ponceto@free.fr>
+2006-12-04	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* X11-SHM (XShm) permissions corrections (0600->0666).
 	* FPS statistics (can be disabled with the '--no-fps' option).
@@ -67,19 +75,19 @@
 	* Misc. corrections & improvements.
 	* Z80 improvements.
 
-2006-11-27	Olivier Poncet <ponceto@free.fr>
+2006-11-27	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* X11-SHM (XShm) support.
 	* CRTC-6845 improvements.
 	* Timing & interrupt generation improvements.
 	* Some minor corrections & cleanup.
 
-2006-11-20	Olivier Poncet <ponceto@free.fr>
+2006-11-20	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Embedded lib765 cleanup.
 	* FDC/FDD improvements.
 
-2006-11-13	Olivier Poncet <ponceto@free.fr>
+2006-11-13	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Embedded lib765 (heavyly hacked).
 	* FDC/FDD support improvements.
@@ -87,14 +95,14 @@
 	* Some minor corrections.
 	* Just require libdsk: http://www.seasip.demon.co.uk/Unix/LibDsk/
 
-2006-11-06	Olivier Poncet <ponceto@free.fr>
+2006-11-06	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Preliminary (but working) FDC implementation by using lib765.
 	* Preliminary (but working) FDD implementation by using libDSK.
 	* lib765 & libdsk: http://www.seasip.demon.co.uk/Unix/LibDsk/
 	* Drive A/B floppy disk support.
 
-2006-10-30	Olivier Poncet <ponceto@free.fr>
+2006-10-30	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Source code cleanup.
 	* Preliminary (but not already working) floppy disk support.
@@ -104,7 +112,7 @@
 	* Gate-Array GObjectized.
 	* Version number added in the about dialog.
 
-2006-10-23	Olivier Poncet <ponceto@free.fr>
+2006-10-23	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Source code cleanup.
 	* Requires GLib >= 2.6.0.
@@ -118,7 +126,7 @@
 	* Internal devices rewritten as a GObject subclass.
 	* Preliminary FPS statistics (in terminal).
 
-2006-10-16	Olivier Poncet <ponceto@free.fr>
+2006-10-16	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Port decoding rewritten.
 	* ROM selection bug corrected.
@@ -127,7 +135,7 @@
 	* Support of multimodes games (sorcery, crafton & xunk, etc).
 	* GFX code cleanup.
 
-2006-10-09	Olivier Poncet <ponceto@free.fr>
+2006-10-09	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* GLib-2.0 / GObject-2.0 support added.
 	* Autoconf / Automake enhancements (GUI autodetection).
@@ -139,7 +147,7 @@
 	* Preliminary (but working) support of X Drag & Drop protocol (Xdnd).
 	* Snapshot loading with Drag & Drop from a file manager (i.e nautilus).
 
-2006-10-02	Olivier Poncet <ponceto@free.fr>
+2006-10-02	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Source code cleanup (continued).
 	* GUI code cleanup & improvements.
@@ -147,7 +155,7 @@
 	* Improved Z80 emulation.
 	* Improved keyboard handling (qwerty & azerty layout).
 
-2006-09-25	Olivier Poncet <ponceto@free.fr>
+2006-09-25	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Source code cleanup.
 	* Improved Z80 emulation.
@@ -155,11 +163,11 @@
 	* XArea widget rewritten.
 	* Improved keyboard handling.
 
-2006-09-11	Olivier Poncet <ponceto@free.fr>
+2006-09-11	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Autoconf / Automake support.
 
-2006-09-03	Olivier Poncet <ponceto@free.fr>
+2006-09-03	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Xcpc source code repository is now hosted on SourceForge.
 	* Home Page:                http://xcpc.emuunlim.com/
@@ -170,56 +178,56 @@
 	* Initial import & Release: xcpc-20010905.
 	* Initial import & Release: xcpc-20010906.
 
-2001-09-06	Olivier Poncet <ponceto@free.fr>
+2001-09-06	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Some changes in GUIs source code and some improvements.
 
-2001-09-05	Olivier Poncet <ponceto@free.fr>
+2001-09-05	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Some minor changes in source code.
 
-2001-09-04	Olivier Poncet <ponceto@free.fr>
+2001-09-04	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Complete rewrite of the emulator. Needs the Athena (Xaw) widget set,
 	  and/or a Motif 1.2 (Xm) compliant distribution to compile Xcpc (like
 	  OpenMotif, Lesstif, OSF Motif, ...).
 
-2001-07-04	Olivier Poncet <ponceto@free.fr>
+2001-07-04	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Improved CRTC 6845 and gate-array emulation; supports Sorcery like games.
 	* GFX routines rewritten.
 	* Partial support of multi-modes.
 
-2001-06-15	Olivier Poncet <ponceto@free.fr>
+2001-06-15	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Improved CRTC 6845 emulation; supports Space Racer like modes.
 
-2001-06-14	Olivier Poncet <ponceto@free.fr>
+2001-06-14	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Improved GUI and event manager.
 	* Improved Z80 encapsulation.
 
-2001-06-13	Olivier Poncet <ponceto@free.fr>
+2001-06-13	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Improved gate_array and crtc support.
 	* Removed FAST_GFX conditionnal compilation; dynamic configuration.
 
-2001-06-12	Olivier Poncet <ponceto@free.fr>
+2001-06-12	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Display bugs corrected; complete rewrite of display routines.
 	* GUI module added.
 	* Some modifications in source code.
 
-2001-06-01	Olivier Poncet <ponceto@free.fr>
+2001-06-01	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Lots of improvements in GUI (GFX mode added).
 
-2001-05-30	Olivier Poncet <ponceto@free.fr>
+2001-05-30	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Added terminal GUI (load & save snapshot).
 	* Added back buffer manager (when GUI takes control).
 
-2001-05-28	Olivier Poncet <ponceto@free.fr>
+2001-05-28	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* First public release.
 	* No support of DISC images.
