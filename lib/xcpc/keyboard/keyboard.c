@@ -52,7 +52,7 @@ XcpcKeyboard* xcpc_keyboard_construct(XcpcKeyboard* self)
         (void) memset(&self->state, 0, sizeof(XcpcKeyboardState));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
+        (void) xcpc_keyboard_set_iface(self, NULL);
     }
     return xcpc_keyboard_reset(self);
 }
@@ -76,6 +76,19 @@ XcpcKeyboard* xcpc_keyboard_delete(XcpcKeyboard* self)
     xcpc_keyboard_trace("delete");
 
     return xcpc_keyboard_free(xcpc_keyboard_destruct(self));
+}
+
+XcpcKeyboard* xcpc_keyboard_set_iface(XcpcKeyboard* self, const XcpcKeyboardIface* iface)
+{
+    xcpc_keyboard_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
 }
 
 XcpcKeyboard* xcpc_keyboard_reset(XcpcKeyboard* self)

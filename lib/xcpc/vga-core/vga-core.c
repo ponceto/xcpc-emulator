@@ -120,7 +120,7 @@ XcpcVgaCore* xcpc_vga_core_construct(XcpcVgaCore* self)
         (void) memset(&self->state, 0, sizeof(XcpcVgaCoreState));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
+        (void) xcpc_vga_core_set_iface(self, NULL);
     }
     return xcpc_vga_core_reset(self);
 }
@@ -144,6 +144,19 @@ XcpcVgaCore* xcpc_vga_core_delete(XcpcVgaCore* self)
     xcpc_vga_core_trace("delete");
 
     return xcpc_vga_core_free(xcpc_vga_core_destruct(self));
+}
+
+XcpcVgaCore* xcpc_vga_core_set_iface(XcpcVgaCore* self, const XcpcVgaCoreIface* iface)
+{
+    xcpc_vga_core_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
 }
 
 XcpcVgaCore* xcpc_vga_core_reset(XcpcVgaCore* self)

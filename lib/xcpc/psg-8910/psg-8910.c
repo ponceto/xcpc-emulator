@@ -62,11 +62,7 @@ XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
         (void) memset(&self->state, 0, sizeof(XcpcPsg8910State));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
-        self->iface.rd_port_a = &default_rd_handler;
-        self->iface.wr_port_a = &default_wr_handler;
-        self->iface.rd_port_b = &default_rd_handler;
-        self->iface.wr_port_b = &default_wr_handler;
+        (void) xcpc_psg_8910_set_iface(self, NULL);
     }
     return xcpc_psg_8910_reset(self);
 }
@@ -90,6 +86,23 @@ XcpcPsg8910* xcpc_psg_8910_delete(XcpcPsg8910* self)
     xcpc_psg_8910_trace("delete");
 
     return xcpc_psg_8910_free(xcpc_psg_8910_destruct(self));
+}
+
+XcpcPsg8910* xcpc_psg_8910_set_iface(XcpcPsg8910* self, const XcpcPsg8910Iface* iface)
+{
+    xcpc_psg_8910_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+        self->iface.rd_port_a = &default_rd_handler;
+        self->iface.wr_port_a = &default_wr_handler;
+        self->iface.rd_port_b = &default_rd_handler;
+        self->iface.wr_port_b = &default_wr_handler;
+    }
+    return self;
 }
 
 XcpcPsg8910* xcpc_psg_8910_reset(XcpcPsg8910* self)

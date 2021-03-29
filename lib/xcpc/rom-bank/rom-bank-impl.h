@@ -23,6 +23,9 @@
 extern "C" {
 #endif
 
+#define XCPC_ROM_BANK_IFACE(instance) (&(instance)->iface)
+#define XCPC_ROM_BANK_STATE(instance) (&(instance)->state)
+
 typedef enum   _XcpcRomBankStatus XcpcRomBankStatus;
 typedef struct _XcpcRomBankIface  XcpcRomBankIface;
 typedef struct _XcpcRomBankState  XcpcRomBankState;

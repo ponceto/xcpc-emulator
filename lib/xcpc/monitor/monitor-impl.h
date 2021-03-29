@@ -23,8 +23,8 @@
 extern "C" {
 #endif
 
-#define XCPC_MONITOR_WIDTH  768
-#define XCPC_MONITOR_HEIGHT 576
+#define XCPC_MONITOR_IFACE(instance) (&(instance)->iface)
+#define XCPC_MONITOR_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcMonitorIface XcpcMonitorIface;
 typedef struct _XcpcMonitorState XcpcMonitorState;
@@ -68,6 +68,9 @@ struct _XcpcScanline
         uint32_t pixel;
     } ink[17];
 };
+
+#define XCPC_MONITOR_WIDTH  768
+#define XCPC_MONITOR_HEIGHT 576
 
 #ifdef __cplusplus
 }

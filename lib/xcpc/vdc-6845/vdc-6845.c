@@ -60,9 +60,7 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
         (void) memset(&self->state, 0, sizeof(XcpcVdc6845State));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
-        self->iface.hsync     = &default_hsync_handler;
-        self->iface.vsync     = &default_vsync_handler;
+        (void) xcpc_vdc_6845_set_iface(self, NULL);
     }
     return xcpc_vdc_6845_reset(self);
 }
@@ -86,6 +84,21 @@ XcpcVdc6845* xcpc_vdc_6845_delete(XcpcVdc6845* self)
     xcpc_vdc_6845_trace("delete");
 
     return xcpc_vdc_6845_free(xcpc_vdc_6845_destruct(self));
+}
+
+XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* iface)
+{
+    xcpc_vdc_6845_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+        self->iface.hsync     = &default_hsync_handler;
+        self->iface.vsync     = &default_vsync_handler;
+    }
+    return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_reset(XcpcVdc6845* self)

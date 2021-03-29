@@ -23,6 +23,9 @@
 extern "C" {
 #endif
 
+#define XCPC_OPTIONS_IFACE(instance) (&(instance)->iface)
+#define XCPC_OPTIONS_STATE(instance) (&(instance)->state)
+
 typedef struct _XcpcOptionsIface XcpcOptionsIface;
 typedef struct _XcpcOptionsState XcpcOptionsState;
 typedef struct _XcpcOptions      XcpcOptions;

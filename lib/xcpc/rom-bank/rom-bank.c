@@ -78,6 +78,19 @@ XcpcRomBank* xcpc_rom_bank_delete(XcpcRomBank* self)
     return xcpc_rom_bank_free(xcpc_rom_bank_destruct(self));
 }
 
+XcpcRomBank* xcpc_rom_bank_set_iface(XcpcRomBank* self, const XcpcRomBankIface* iface)
+{
+    xcpc_rom_bank_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
+}
+
 XcpcRomBank* xcpc_rom_bank_reset(XcpcRomBank* self)
 {
     xcpc_rom_bank_trace("reset");

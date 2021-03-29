@@ -29,6 +29,7 @@ extern XcpcMonitor* xcpc_monitor_construct   (XcpcMonitor* monitor);
 extern XcpcMonitor* xcpc_monitor_destruct    (XcpcMonitor* monitor);
 extern XcpcMonitor* xcpc_monitor_new         (void);
 extern XcpcMonitor* xcpc_monitor_delete      (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_set_iface   (XcpcMonitor* monitor, const XcpcMonitorIface* monitor_iface);
 extern XcpcMonitor* xcpc_monitor_reset       (XcpcMonitor* monitor);
 extern XcpcMonitor* xcpc_monitor_realize     (XcpcMonitor* monitor, XcpcMonitorModel monitor_model, Display* display, Window window, Bool try_xshm);
 extern XcpcMonitor* xcpc_monitor_unrealize   (XcpcMonitor* monitor);

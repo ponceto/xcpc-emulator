@@ -52,7 +52,7 @@ XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self)
         (void) memset(&self->state, 0, sizeof(XcpcRamBankState));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
+        (void) xcpc_ram_bank_set_iface(self, NULL);
     }
     return xcpc_ram_bank_reset(self);
 }
@@ -76,6 +76,19 @@ XcpcRamBank* xcpc_ram_bank_delete(XcpcRamBank* self)
     xcpc_ram_bank_trace("delete");
 
     return xcpc_ram_bank_free(xcpc_ram_bank_destruct(self));
+}
+
+XcpcRamBank* xcpc_ram_bank_set_iface(XcpcRamBank* self, const XcpcRamBankIface* iface)
+{
+    xcpc_ram_bank_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
 }
 
 XcpcRamBank* xcpc_ram_bank_reset(XcpcRamBank* self)

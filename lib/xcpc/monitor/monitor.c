@@ -285,7 +285,7 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
         (void) memset(&self->state, 0, sizeof(XcpcMonitorState));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
+        (void) xcpc_monitor_set_iface(self, NULL);
     }
     /* init attributes */ {
         self->state.display  = NULL;
@@ -339,6 +339,19 @@ XcpcMonitor* xcpc_monitor_delete(XcpcMonitor* self)
     xcpc_monitor_trace("delete");
 
     return xcpc_monitor_free(xcpc_monitor_destruct(self));
+}
+
+XcpcMonitor* xcpc_monitor_set_iface(XcpcMonitor* self, const XcpcMonitorIface* iface)
+{
+    xcpc_monitor_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
 }
 
 XcpcMonitor* xcpc_monitor_reset(XcpcMonitor* self)

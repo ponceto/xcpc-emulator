@@ -29,6 +29,7 @@ extern XcpcRamBank*      xcpc_ram_bank_construct (XcpcRamBank* ram_bank);
 extern XcpcRamBank*      xcpc_ram_bank_destruct  (XcpcRamBank* ram_bank);
 extern XcpcRamBank*      xcpc_ram_bank_new       (void);
 extern XcpcRamBank*      xcpc_ram_bank_delete    (XcpcRamBank* ram_bank);
+extern XcpcRamBank*      xcpc_ram_bank_set_iface (XcpcRamBank* ram_bank, const XcpcRamBankIface* ram_bank_iface);
 extern XcpcRamBank*      xcpc_ram_bank_reset     (XcpcRamBank* ram_bank);
 extern XcpcRamBankStatus xcpc_ram_bank_load      (XcpcRamBank* ram_bank, const char* filename, size_t offset);
 extern XcpcRamBankStatus xcpc_ram_bank_copy      (XcpcRamBank* ram_bank, const uint8_t* data, size_t size);

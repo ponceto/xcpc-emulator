@@ -62,13 +62,7 @@ XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
         (void) memset(&self->state, 0, sizeof(XcpcPpi8255State));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
-        self->iface.rd_port_a = &default_rd_handler;
-        self->iface.wr_port_a = &default_wr_handler;
-        self->iface.rd_port_b = &default_rd_handler;
-        self->iface.wr_port_b = &default_wr_handler;
-        self->iface.rd_port_c = &default_rd_handler;
-        self->iface.wr_port_c = &default_wr_handler;
+        (void) xcpc_ppi_8255_set_iface(self, NULL);
     }
     return xcpc_ppi_8255_reset(self);
 }
@@ -92,6 +86,25 @@ XcpcPpi8255* xcpc_ppi_8255_delete(XcpcPpi8255* self)
     xcpc_ppi_8255_trace("delete");
 
     return xcpc_ppi_8255_free(xcpc_ppi_8255_destruct(self));
+}
+
+XcpcPpi8255* xcpc_ppi_8255_set_iface(XcpcPpi8255* self, const XcpcPpi8255Iface* iface)
+{
+    xcpc_ppi_8255_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+        self->iface.rd_port_a = &default_rd_handler;
+        self->iface.wr_port_a = &default_wr_handler;
+        self->iface.rd_port_b = &default_rd_handler;
+        self->iface.wr_port_b = &default_wr_handler;
+        self->iface.rd_port_c = &default_rd_handler;
+        self->iface.wr_port_c = &default_wr_handler;
+    }
+    return self;
 }
 
 XcpcPpi8255* xcpc_ppi_8255_reset(XcpcPpi8255* self)

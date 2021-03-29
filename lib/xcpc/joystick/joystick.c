@@ -52,7 +52,7 @@ XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self)
         (void) memset(&self->state, 0, sizeof(XcpcJoystickState));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
+        (void) xcpc_joystick_set_iface(self, NULL);
     }
     return xcpc_joystick_reset(self);
 }
@@ -76,6 +76,19 @@ XcpcJoystick* xcpc_joystick_delete(XcpcJoystick* self)
     xcpc_joystick_trace("delete");
 
     return xcpc_joystick_free(xcpc_joystick_destruct(self));
+}
+
+XcpcJoystick* xcpc_joystick_set_iface(XcpcJoystick* self, const XcpcJoystickIface* iface)
+{
+    xcpc_joystick_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
 }
 
 XcpcJoystick* xcpc_joystick_reset(XcpcJoystick* self)

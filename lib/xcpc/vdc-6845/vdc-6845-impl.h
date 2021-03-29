@@ -23,6 +23,9 @@
 extern "C" {
 #endif
 
+#define XCPC_VDC_6845_IFACE(instance) (&(instance)->iface)
+#define XCPC_VDC_6845_STATE(instance) (&(instance)->state)
+
 typedef struct _XcpcVdc6845Iface XcpcVdc6845Iface;
 typedef struct _XcpcVdc6845State XcpcVdc6845State;
 typedef struct _XcpcVdc6845      XcpcVdc6845;

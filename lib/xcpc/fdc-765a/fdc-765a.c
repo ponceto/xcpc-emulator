@@ -52,7 +52,7 @@ XcpcFdc765a* xcpc_fdc_765a_construct(XcpcFdc765a* self)
         (void) memset(&self->state, 0, sizeof(XcpcFdc765aState));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
+        (void) xcpc_fdc_765a_set_iface(self, NULL);
     }
     /* initialize state */ {
         self->state.fdc_impl = xcpc_fdc_impl_new();
@@ -96,6 +96,19 @@ XcpcFdc765a* xcpc_fdc_765a_delete(XcpcFdc765a* self)
     xcpc_fdc_765a_trace("delete");
 
     return xcpc_fdc_765a_free(xcpc_fdc_765a_destruct(self));
+}
+
+XcpcFdc765a* xcpc_fdc_765a_set_iface(XcpcFdc765a* self, const XcpcFdc765aIface* iface)
+{
+    xcpc_fdc_765a_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
 }
 
 XcpcFdc765a* xcpc_fdc_765a_reset(XcpcFdc765a* self)
