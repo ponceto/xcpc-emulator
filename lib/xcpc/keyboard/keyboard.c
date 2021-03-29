@@ -52,7 +52,7 @@ XcpcKeyboard* xcpc_keyboard_construct(XcpcKeyboard* self)
         (void) memset(&self->state, 0, sizeof(XcpcKeyboardState));
     }
     /* initialize iface */ {
-        self->iface.user_data = NULL;
+        self->iface.user_data = self;
     }
     return xcpc_keyboard_reset(self);
 }

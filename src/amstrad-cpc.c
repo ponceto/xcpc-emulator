@@ -1616,8 +1616,8 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
     /* create vdc_6845 */ {
         self->vdc_6845 = xcpc_vdc_6845_new();
         self->vdc_6845->iface.user_data = self;
-        self->vdc_6845->iface.hsync_callback = &vdc_hsync;
-        self->vdc_6845->iface.vsync_callback = &vdc_vsync;
+        self->vdc_6845->iface.hsync     = &vdc_hsync;
+        self->vdc_6845->iface.vsync     = &vdc_vsync;
     }
     /* create ppi_8255 */ {
         self->ppi_8255 = xcpc_ppi_8255_new();

@@ -22,11 +22,11 @@
 #include <string.h>
 #include "vdc-6845-priv.h"
 
-static void default_hsync_callback(XcpcVdc6845* self, int hsync)
+static void default_hsync_handler(XcpcVdc6845* self, int hsync)
 {
 }
 
-static void default_vsync_callback(XcpcVdc6845* self, int vsync)
+static void default_vsync_handler(XcpcVdc6845* self, int vsync)
 {
 }
 
@@ -60,9 +60,9 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
         (void) memset(&self->state, 0, sizeof(XcpcVdc6845State));
     }
     /* initialize iface */ {
-        self->iface.user_data      = NULL;
-        self->iface.hsync_callback = &default_hsync_callback;
-        self->iface.vsync_callback = &default_vsync_callback;
+        self->iface.user_data = self;
+        self->iface.hsync     = &default_hsync_handler;
+        self->iface.vsync     = &default_vsync_handler;
     }
     return xcpc_vdc_6845_reset(self);
 }
@@ -161,11 +161,11 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
             self->state.ctrs.named.vsync_counter = 16;
         }
     }
-    if((self->state.ctrs.named.vsync_signal != old_vsync_signal) && (self->iface.vsync_callback != NULL)) {
-        (*self->iface.vsync_callback)(self, self->state.ctrs.named.vsync_signal);
+    if(self->state.ctrs.named.vsync_signal != old_vsync_signal) {
+        (*self->iface.vsync)(self, self->state.ctrs.named.vsync_signal);
     }
-    if((self->state.ctrs.named.hsync_signal != old_hsync_signal) && (self->iface.hsync_callback != NULL)) {
-        (*self->iface.hsync_callback)(self, self->state.ctrs.named.hsync_signal);
+    if(self->state.ctrs.named.hsync_signal != old_hsync_signal) {
+        (*self->iface.hsync)(self, self->state.ctrs.named.hsync_signal);
     }
     return self;
 }

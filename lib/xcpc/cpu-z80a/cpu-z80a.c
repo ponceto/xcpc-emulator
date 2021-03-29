@@ -438,7 +438,7 @@ XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
         (void) memset(&self->state, 0, sizeof(XcpcCpuZ80aState));
     }
     /* initialize iface */ {
-        self->iface.user_data = NULL;
+        self->iface.user_data = self;
         self->iface.mreq_m1   = &default_mreq_m1_handler;
         self->iface.mreq_rd   = &default_mreq_rd_handler;
         self->iface.mreq_wr   = &default_mreq_wr_handler;

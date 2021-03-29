@@ -52,7 +52,7 @@ XcpcFdc765a* xcpc_fdc_765a_construct(XcpcFdc765a* self)
         (void) memset(&self->state, 0, sizeof(XcpcFdc765aState));
     }
     /* initialize iface */ {
-        self->iface.user_data = NULL;
+        self->iface.user_data = self;
     }
     /* initialize state */ {
         self->state.fdc_impl = xcpc_fdc_impl_new();

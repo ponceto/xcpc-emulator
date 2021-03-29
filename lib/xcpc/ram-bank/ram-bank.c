@@ -52,7 +52,7 @@ XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self)
         (void) memset(&self->state, 0, sizeof(XcpcRamBankState));
     }
     /* initialize iface */ {
-        self->iface.user_data = NULL;
+        self->iface.user_data = self;
     }
     return xcpc_ram_bank_reset(self);
 }

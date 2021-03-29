@@ -62,7 +62,7 @@ XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
         (void) memset(&self->state, 0, sizeof(XcpcPsg8910State));
     }
     /* initialize iface */ {
-        self->iface.user_data = NULL;
+        self->iface.user_data = self;
         self->iface.rd_port_a = &default_rd_handler;
         self->iface.wr_port_a = &default_wr_handler;
         self->iface.rd_port_b = &default_rd_handler;

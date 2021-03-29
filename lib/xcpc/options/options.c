@@ -215,7 +215,7 @@ XcpcOptions* xcpc_options_construct(XcpcOptions* self)
         (void) memset(&self->state, 0, sizeof(XcpcOptionsState));
     }
     /* initialize iface */ {
-        self->iface.user_data = NULL;
+        self->iface.user_data = self;
     }
     /* construct */ {
         self->state.program      = replace_setting(NULL, val_not_set, 0);
