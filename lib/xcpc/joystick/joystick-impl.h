@@ -27,12 +27,18 @@ extern "C" {
 #define XCPC_JOYSTICK_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcJoystickIface XcpcJoystickIface;
+typedef struct _XcpcJoystickSetup XcpcJoystickSetup;
 typedef struct _XcpcJoystickState XcpcJoystickState;
 typedef struct _XcpcJoystick      XcpcJoystick;
 
 struct _XcpcJoystickIface
 {
     void* user_data;
+};
+
+struct _XcpcJoystickSetup
+{
+    int reserved;
 };
 
 struct _XcpcJoystickState
@@ -43,6 +49,7 @@ struct _XcpcJoystickState
 struct _XcpcJoystick
 {
     XcpcJoystickIface iface;
+    XcpcJoystickSetup setup;
     XcpcJoystickState state;
 };
 

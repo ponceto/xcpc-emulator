@@ -27,6 +27,7 @@ extern "C" {
 #define XCPC_PSG_8910_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcPsg8910Iface XcpcPsg8910Iface;
+typedef struct _XcpcPsg8910Setup XcpcPsg8910Setup;
 typedef struct _XcpcPsg8910State XcpcPsg8910State;
 typedef struct _XcpcPsg8910      XcpcPsg8910;
 
@@ -37,6 +38,11 @@ struct _XcpcPsg8910Iface
     uint8_t (*wr_port_a)(XcpcPsg8910* psg_8910, uint8_t data);
     uint8_t (*rd_port_b)(XcpcPsg8910* psg_8910, uint8_t data);
     uint8_t (*wr_port_b)(XcpcPsg8910* psg_8910, uint8_t data);
+};
+
+struct _XcpcPsg8910Setup
+{
+    int reserved;
 };
 
 struct _XcpcPsg8910State
@@ -74,6 +80,7 @@ struct _XcpcPsg8910State
 struct _XcpcPsg8910
 {
     XcpcPsg8910Iface iface;
+    XcpcPsg8910Setup setup;
     XcpcPsg8910State state;
 };
 

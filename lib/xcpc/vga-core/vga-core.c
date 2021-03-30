@@ -113,10 +113,9 @@ XcpcVgaCore* xcpc_vga_core_construct(XcpcVgaCore* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcVgaCoreIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcVgaCoreSetup));
         (void) memset(&self->state, 0, sizeof(XcpcVgaCoreState));
     }
     /* initialize iface */ {

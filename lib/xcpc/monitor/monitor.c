@@ -295,10 +295,9 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcMonitorIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcMonitorSetup));
         (void) memset(&self->state, 0, sizeof(XcpcMonitorState));
     }
     /* initialize iface */ {

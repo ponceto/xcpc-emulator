@@ -27,14 +27,20 @@ extern "C" {
 #define XCPC_VDC_6845_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcVdc6845Iface XcpcVdc6845Iface;
+typedef struct _XcpcVdc6845Setup XcpcVdc6845Setup;
 typedef struct _XcpcVdc6845State XcpcVdc6845State;
 typedef struct _XcpcVdc6845      XcpcVdc6845;
 
 struct _XcpcVdc6845Iface
 {
     void* user_data;
-    void (*hsync)(XcpcVdc6845* vdc_6856, int hsync);
-    void (*vsync)(XcpcVdc6845* vdc_6856, int vsync);
+    uint8_t (*hsync)(XcpcVdc6845* vdc_6856, int hsync);
+    uint8_t (*vsync)(XcpcVdc6845* vdc_6856, int vsync);
+};
+
+struct _XcpcVdc6845Setup
+{
+    int reserved;
 };
 
 struct _XcpcVdc6845State
@@ -87,6 +93,7 @@ struct _XcpcVdc6845State
 struct _XcpcVdc6845
 {
     XcpcVdc6845Iface iface;
+    XcpcVdc6845Setup setup;
     XcpcVdc6845State state;
 };
 

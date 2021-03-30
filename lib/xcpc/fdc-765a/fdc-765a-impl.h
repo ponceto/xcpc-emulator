@@ -29,13 +29,28 @@ extern "C" {
 typedef struct fdc_765      XcpcFdcImpl;
 typedef struct floppy_drive XcpcFddImpl;
 
+typedef enum   _XcpcFdc765aDrive XcpcFdc765aDrive;
 typedef struct _XcpcFdc765aIface XcpcFdc765aIface;
+typedef struct _XcpcFdc765aSetup XcpcFdc765aSetup;
 typedef struct _XcpcFdc765aState XcpcFdc765aState;
 typedef struct _XcpcFdc765a      XcpcFdc765a;
+
+enum _XcpcFdc765aDrive
+{
+    XCPC_FDC_765A_DRIVE0 = 0,
+    XCPC_FDC_765A_DRIVE1 = 1,
+    XCPC_FDC_765A_DRIVE2 = 2,
+    XCPC_FDC_765A_DRIVE3 = 3
+};
 
 struct _XcpcFdc765aIface
 {
     void* user_data;
+};
+
+struct _XcpcFdc765aSetup
+{
+    int reserved;
 };
 
 struct _XcpcFdc765aState
@@ -50,6 +65,7 @@ struct _XcpcFdc765aState
 struct _XcpcFdc765a
 {
     XcpcFdc765aIface iface;
+    XcpcFdc765aSetup setup;
     XcpcFdc765aState state;
 };
 

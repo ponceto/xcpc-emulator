@@ -59,10 +59,9 @@ XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcPsg8910Iface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcPsg8910Setup));
         (void) memset(&self->state, 0, sizeof(XcpcPsg8910State));
     }
     /* initialize iface */ {

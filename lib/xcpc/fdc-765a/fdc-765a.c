@@ -45,10 +45,9 @@ XcpcFdc765a* xcpc_fdc_765a_construct(XcpcFdc765a* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcFdc765aIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcFdc765aSetup));
         (void) memset(&self->state, 0, sizeof(XcpcFdc765aState));
     }
     /* initialize iface */ {
@@ -71,12 +70,6 @@ XcpcFdc765a* xcpc_fdc_765a_destruct(XcpcFdc765a* self)
 {
     log_trace("destruct");
 
-    /* detach drives */ {
-        (void) xcpc_fdc_765a_detach(self, 3);
-        (void) xcpc_fdc_765a_detach(self, 2);
-        (void) xcpc_fdc_765a_detach(self, 1);
-        (void) xcpc_fdc_765a_detach(self, 0);
-    }
     /* finalize state */ {
         self->state.fd3_impl = xcpc_fdd_impl_delete(self->state.fd3_impl);
         self->state.fd2_impl = xcpc_fdd_impl_delete(self->state.fd2_impl);
@@ -138,17 +131,19 @@ XcpcFdc765a* xcpc_fdc_765a_clock(XcpcFdc765a* self)
 
 XcpcFdc765a* xcpc_fdc_765a_attach(XcpcFdc765a* self, int drive)
 {
+    log_trace("attach");
+
     switch(drive) {
-        case 0:
+        case XCPC_FDC_765A_DRIVE0:
             (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd0_impl, drive);
             break;
-        case 1:
+        case XCPC_FDC_765A_DRIVE1:
             (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd1_impl, drive);
             break;
-        case 2:
+        case XCPC_FDC_765A_DRIVE2:
             (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd2_impl, drive);
             break;
-        case 3:
+        case XCPC_FDC_765A_DRIVE3:
             (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd3_impl, drive);
             break;
         default:
@@ -159,17 +154,19 @@ XcpcFdc765a* xcpc_fdc_765a_attach(XcpcFdc765a* self, int drive)
 
 XcpcFdc765a* xcpc_fdc_765a_detach(XcpcFdc765a* self, int drive)
 {
+    log_trace("detach");
+
     switch(drive) {
-        case 0:
+        case XCPC_FDC_765A_DRIVE0:
             (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
             break;
-        case 1:
+        case XCPC_FDC_765A_DRIVE1:
             (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
             break;
-        case 2:
+        case XCPC_FDC_765A_DRIVE2:
             (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
             break;
-        case 3:
+        case XCPC_FDC_765A_DRIVE3:
             (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
             break;
         default:
@@ -180,17 +177,19 @@ XcpcFdc765a* xcpc_fdc_765a_detach(XcpcFdc765a* self, int drive)
 
 XcpcFdc765a* xcpc_fdc_765a_insert(XcpcFdc765a* self, int drive, const char* filename)
 {
+    log_trace("insert");
+
     switch(drive) {
-        case 0:
+        case XCPC_FDC_765A_DRIVE0:
             (void) xcpc_fdd_impl_insert(self->state.fd0_impl, filename);
             break;
-        case 1:
+        case XCPC_FDC_765A_DRIVE1:
             (void) xcpc_fdd_impl_insert(self->state.fd1_impl, filename);
             break;
-        case 2:
+        case XCPC_FDC_765A_DRIVE2:
             (void) xcpc_fdd_impl_insert(self->state.fd2_impl, filename);
             break;
-        case 3:
+        case XCPC_FDC_765A_DRIVE3:
             (void) xcpc_fdd_impl_insert(self->state.fd3_impl, filename);
             break;
         default:
@@ -201,17 +200,19 @@ XcpcFdc765a* xcpc_fdc_765a_insert(XcpcFdc765a* self, int drive, const char* file
 
 XcpcFdc765a* xcpc_fdc_765a_remove(XcpcFdc765a* self, int drive)
 {
+    log_trace("remove");
+
     switch(drive) {
-        case 0:
+        case XCPC_FDC_765A_DRIVE0:
             (void) xcpc_fdd_impl_remove(self->state.fd0_impl);
             break;
-        case 1:
+        case XCPC_FDC_765A_DRIVE1:
             (void) xcpc_fdd_impl_remove(self->state.fd1_impl);
             break;
-        case 2:
+        case XCPC_FDC_765A_DRIVE2:
             (void) xcpc_fdd_impl_remove(self->state.fd2_impl);
             break;
-        case 3:
+        case XCPC_FDC_765A_DRIVE3:
             (void) xcpc_fdd_impl_remove(self->state.fd3_impl);
             break;
         default:
@@ -261,15 +262,15 @@ XcpcFdcImpl* xcpc_fdc_impl_delete(XcpcFdcImpl* fdc_impl)
 XcpcFdcImpl* xcpc_fdc_impl_reset(XcpcFdcImpl* fdc_impl)
 {
     if(fdc_impl != NULL) {
-        XcpcFddImpl* fd0 = fdc_getdrive(fdc_impl, 0);
-        XcpcFddImpl* fd1 = fdc_getdrive(fdc_impl, 1);
-        XcpcFddImpl* fd2 = fdc_getdrive(fdc_impl, 2);
-        XcpcFddImpl* fd3 = fdc_getdrive(fdc_impl, 3);
+        XcpcFddImpl* fd0 = fdc_getdrive(fdc_impl, XCPC_FDC_765A_DRIVE0);
+        XcpcFddImpl* fd1 = fdc_getdrive(fdc_impl, XCPC_FDC_765A_DRIVE1);
+        XcpcFddImpl* fd2 = fdc_getdrive(fdc_impl, XCPC_FDC_765A_DRIVE2);
+        XcpcFddImpl* fd3 = fdc_getdrive(fdc_impl, XCPC_FDC_765A_DRIVE3);
         fdc_reset(fdc_impl);
-        fdc_setdrive(fdc_impl, 0, fd0);
-        fdc_setdrive(fdc_impl, 1, fd1);
-        fdc_setdrive(fdc_impl, 2, fd2);
-        fdc_setdrive(fdc_impl, 3, fd3);
+        fdc_setdrive(fdc_impl, XCPC_FDC_765A_DRIVE0, fd0);
+        fdc_setdrive(fdc_impl, XCPC_FDC_765A_DRIVE1, fd1);
+        fdc_setdrive(fdc_impl, XCPC_FDC_765A_DRIVE2, fd2);
+        fdc_setdrive(fdc_impl, XCPC_FDC_765A_DRIVE3, fd3);
     }
     return fdc_impl;
 }

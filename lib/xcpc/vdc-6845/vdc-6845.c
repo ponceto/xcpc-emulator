@@ -27,14 +27,18 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcVdc6845::%s()", function);
 }
 
-static void default_hsync_handler(XcpcVdc6845* self, int hsync)
+static uint8_t default_hsync_handler(XcpcVdc6845* self, int hsync)
 {
     log_trace("default_hsync_handler");
+
+    return 0x00;
 }
 
-static void default_vsync_handler(XcpcVdc6845* self, int vsync)
+static uint8_t default_vsync_handler(XcpcVdc6845* self, int vsync)
 {
     log_trace("default_vsync_handler");
+
+    return 0x00;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_alloc(void)
@@ -55,10 +59,9 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcVdc6845Iface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcVdc6845Setup));
         (void) memset(&self->state, 0, sizeof(XcpcVdc6845State));
     }
     /* initialize iface */ {

@@ -28,6 +28,7 @@ extern "C" {
 
 typedef enum   _XcpcRomBankStatus XcpcRomBankStatus;
 typedef struct _XcpcRomBankIface  XcpcRomBankIface;
+typedef struct _XcpcRomBankSetup  XcpcRomBankSetup;
 typedef struct _XcpcRomBankState  XcpcRomBankState;
 typedef struct _XcpcRomBank       XcpcRomBank;
 
@@ -42,6 +43,11 @@ struct _XcpcRomBankIface
     void* user_data;
 };
 
+struct _XcpcRomBankSetup
+{
+    int reserved;
+};
+
 struct _XcpcRomBankState
 {
     uint8_t data[16384];
@@ -50,6 +56,7 @@ struct _XcpcRomBankState
 struct _XcpcRomBank
 {
     XcpcRomBankIface iface;
+    XcpcRomBankSetup setup;
     XcpcRomBankState state;
 };
 

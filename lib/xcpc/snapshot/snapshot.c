@@ -51,7 +51,7 @@ XcpcSnapshot* xcpc_snapshot_construct(XcpcSnapshot* self)
 {
     log_trace("construct");
 
-    /* clear instance */ {
+    /* clear all */ {
         (void) memset(self, 0, sizeof(XcpcSnapshot));
     }
     /* initialize signature */ {

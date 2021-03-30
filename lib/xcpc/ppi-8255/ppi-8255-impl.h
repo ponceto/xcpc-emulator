@@ -27,6 +27,7 @@ extern "C" {
 #define XCPC_PPI_8255_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcPpi8255Iface XcpcPpi8255Iface;
+typedef struct _XcpcPpi8255Setup XcpcPpi8255Setup;
 typedef struct _XcpcPpi8255State XcpcPpi8255State;
 typedef struct _XcpcPpi8255      XcpcPpi8255;
 
@@ -41,6 +42,11 @@ struct _XcpcPpi8255Iface
     uint8_t (*wr_port_c)(XcpcPpi8255* ppi_8255, uint8_t data);
 };
 
+struct _XcpcPpi8255Setup
+{
+    int reserved;
+};
+
 struct _XcpcPpi8255State
 {
     uint8_t port_a;
@@ -52,6 +58,7 @@ struct _XcpcPpi8255State
 struct _XcpcPpi8255
 {
     XcpcPpi8255Iface iface;
+    XcpcPpi8255Setup setup;
     XcpcPpi8255State state;
 };
 

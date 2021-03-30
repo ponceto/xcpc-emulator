@@ -45,7 +45,7 @@ XcpcSnapshotReader* xcpc_snapshot_reader_construct(XcpcSnapshotReader* self, Xcp
 {
     log_trace("construct");
 
-    /* clear instance */ {
+    /* clear all */ {
         (void) memset(self, 0, sizeof(XcpcSnapshotReader));
     }
     /* initialize members */ {

@@ -208,10 +208,9 @@ XcpcOptions* xcpc_options_construct(XcpcOptions* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcOptionsIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcOptionsSetup));
         (void) memset(&self->state, 0, sizeof(XcpcOptionsState));
     }
     /* initialize iface */ {

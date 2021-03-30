@@ -91,12 +91,14 @@ struct _AMSTRAD_CPC_EMULATOR
         unsigned int count;
         unsigned int drawn;
     } frame;
-    int  ramsize;
-    int  computer_model;
-    int  monitor_model;
-    int  keyboard_layout;
-    int  refresh_rate;
-    int  manufacturer;
+    struct _setup {
+        int  computer_model;
+        int  monitor_model;
+        int  refresh_rate;
+        int  keyboard_layout;
+        int  manufacturer;
+        int  ramsize;
+    } setup;
     int  cpu_period;
     char stats[256];
 };

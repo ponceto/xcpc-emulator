@@ -45,10 +45,9 @@ XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcRamBankIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcRamBankSetup));
         (void) memset(&self->state, 0, sizeof(XcpcRamBankState));
     }
     /* initialize iface */ {

@@ -27,6 +27,7 @@ extern "C" {
 #define XCPC_MONITOR_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcMonitorIface XcpcMonitorIface;
+typedef struct _XcpcMonitorSetup XcpcMonitorSetup;
 typedef struct _XcpcMonitorState XcpcMonitorState;
 typedef struct _XcpcMonitor      XcpcMonitor;
 typedef struct _XcpcScanline     XcpcScanline;
@@ -34,6 +35,11 @@ typedef struct _XcpcScanline     XcpcScanline;
 struct _XcpcMonitorIface
 {
     void* user_data;
+};
+
+struct _XcpcMonitorSetup
+{
+    int reserved;
 };
 
 struct _XcpcMonitorState
@@ -57,6 +63,7 @@ struct _XcpcMonitorState
 struct _XcpcMonitor
 {
     XcpcMonitorIface iface;
+    XcpcMonitorSetup setup;
     XcpcMonitorState state;
 };
 

@@ -443,10 +443,9 @@ XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcCpuZ80aIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcCpuZ80aSetup));
         (void) memset(&self->state, 0, sizeof(XcpcCpuZ80aState));
     }
     /* initialize iface */ {

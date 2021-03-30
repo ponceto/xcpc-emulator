@@ -59,10 +59,9 @@ XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcPpi8255Iface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcPpi8255Setup));
         (void) memset(&self->state, 0, sizeof(XcpcPpi8255State));
     }
     /* initialize iface */ {

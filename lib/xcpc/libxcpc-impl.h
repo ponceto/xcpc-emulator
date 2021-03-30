@@ -51,6 +51,7 @@ typedef enum  _XcpcMonitorModel   XcpcMonitorModel;
 typedef enum  _XcpcRefreshRate    XcpcRefreshRate;
 typedef enum  _XcpcKeyboardLayout XcpcKeyboardLayout;
 typedef enum  _XcpcManufacturer   XcpcManufacturer;
+typedef enum  _XcpcRamSize        XcpcRamSize;
 typedef enum  _XcpcColor          XcpcColor;
 
 enum _XcpcLogLevel
@@ -111,6 +112,19 @@ enum _XcpcManufacturer
     XCPC_MANUFACTURER_SCHNEIDER =  5,
     XCPC_MANUFACTURER_ORION     =  6,
     XCPC_MANUFACTURER_AMSTRAD   =  7,
+};
+
+enum _XcpcRamSize
+{
+    XCPC_RAMSIZE_UNKNOWN = -1,
+    XCPC_RAMSIZE_64K     =  ( 64 * 1024),
+    XCPC_RAMSIZE_128K    =  (128 * 1024),
+    XCPC_RAMSIZE_192K    =  (192 * 1024),
+    XCPC_RAMSIZE_256K    =  (256 * 1024),
+    XCPC_RAMSIZE_320K    =  (320 * 1024),
+    XCPC_RAMSIZE_384K    =  (384 * 1024),
+    XCPC_RAMSIZE_448K    =  (448 * 1024),
+    XCPC_RAMSIZE_512K    =  (512 * 1024),
 };
 
 enum _XcpcColor

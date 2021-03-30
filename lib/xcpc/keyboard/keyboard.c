@@ -45,10 +45,9 @@ XcpcKeyboard* xcpc_keyboard_construct(XcpcKeyboard* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcKeyboardIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcKeyboardSetup));
         (void) memset(&self->state, 0, sizeof(XcpcKeyboardState));
     }
     /* initialize iface */ {

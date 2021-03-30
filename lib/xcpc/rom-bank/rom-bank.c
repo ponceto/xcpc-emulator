@@ -45,10 +45,9 @@ XcpcRomBank* xcpc_rom_bank_construct(XcpcRomBank* self)
 {
     log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcRomBankIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcRomBankSetup));
         (void) memset(&self->state, 0, sizeof(XcpcRomBankState));
     }
     /* initialize iface */ {

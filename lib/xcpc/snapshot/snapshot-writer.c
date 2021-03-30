@@ -45,7 +45,7 @@ XcpcSnapshotWriter* xcpc_snapshot_writer_construct(XcpcSnapshotWriter* self, Xcp
 {
     log_trace("construct");
 
-    /* clear instance */ {
+    /* clear all */ {
         (void) memset(self, 0, sizeof(XcpcSnapshotWriter));
     }
     /* initialize members */ {

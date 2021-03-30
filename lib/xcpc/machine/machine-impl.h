@@ -41,14 +41,22 @@ extern "C" {
 
 typedef struct _XcpcMachineIface XcpcMachineIface;
 typedef struct _XcpcMachineState XcpcMachineState;
+typedef struct _XcpcMachineSetup XcpcMachineSetup;
 typedef struct _XcpcMachine      XcpcMachine;
 
 struct _XcpcMachineIface
 {
     void* user_data;
-    void (*drive0_error)(XcpcMachine* machine);
-    void (*drive1_error)(XcpcMachine* machine);
-    void (*snapshot_error)(XcpcMachine* machine);
+};
+
+struct _XcpcMachineSetup
+{
+    XcpcComputerModel  computer_model;
+    XcpcMonitorModel   monitor_model;
+    XcpcRefreshRate    refresh_rate;
+    XcpcKeyboardLayout keyboard_layout;
+    XcpcManufacturer   manufacturer;
+    XcpcRamSize        ramsize;
 };
 
 struct _XcpcMachineState
@@ -70,6 +78,7 @@ struct _XcpcMachineState
 struct _XcpcMachine
 {
     XcpcMachineIface iface;
+    XcpcMachineSetup setup;
     XcpcMachineState state;
 };
 

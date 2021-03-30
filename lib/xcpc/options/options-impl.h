@@ -27,12 +27,18 @@ extern "C" {
 #define XCPC_OPTIONS_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcOptionsIface XcpcOptionsIface;
+typedef struct _XcpcOptionsSetup XcpcOptionsSetup;
 typedef struct _XcpcOptionsState XcpcOptionsState;
 typedef struct _XcpcOptions      XcpcOptions;
 
 struct _XcpcOptionsIface
 {
     void* user_data;
+};
+
+struct _XcpcOptionsSetup
+{
+    int reserved;
 };
 
 struct _XcpcOptionsState
@@ -74,6 +80,7 @@ struct _XcpcOptionsState
 struct _XcpcOptions
 {
     XcpcOptionsIface iface;
+    XcpcOptionsSetup setup;
     XcpcOptionsState state;
 };
 

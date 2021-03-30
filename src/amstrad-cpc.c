@@ -28,16 +28,6 @@
 #include <Xem/Emulator.h>
 #include "amstrad-cpc.h"
 
-enum RamSize
-{
-    RAM_16K  = ( 16 * 1024),
-    RAM_32K  = ( 32 * 1024),
-    RAM_48K  = ( 48 * 1024),
-    RAM_64K  = ( 64 * 1024),
-    RAM_72K  = ( 72 * 1024),
-    RAM_128K = (128 * 1024)
-};
-
 #define SELF(user_data) ((AMSTRAD_CPC_EMULATOR*)(user_data))
 
 AMSTRAD_CPC_EMULATOR amstrad_cpc = {
@@ -122,7 +112,7 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR* self)
 
 static void cpc_mem_select(AMSTRAD_CPC_EMULATOR* self)
 {
-    if(self->ramsize >= RAM_128K) {
+    if(self->setup.ramsize >= XCPC_RAMSIZE_128K) {
         switch(self->memory.ram.config) {
             case 0x00:
                 {
@@ -295,8 +285,8 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port)
                     self->ppi_8255->state.port_b = ((0                                             & 0x01) << 7)
                                                  | ((1                                             & 0x01) << 6)
                                                  | ((1                                             & 0x01) << 5)
-                                                 | ((self->refresh_rate                            & 0x01) << 4)
-                                                 | ((self->manufacturer                            & 0x07) << 1)
+                                                 | ((self->setup.refresh_rate                      & 0x01) << 4)
+                                                 | ((self->setup.manufacturer                      & 0x07) << 1)
                                                  | ((self->vdc_6845->state.ctrs.named.vsync_signal & 0x01) << 0);
                     data = self->ppi_8255->state.port_b;
                     break;
@@ -426,7 +416,7 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     return data;
 }
 
-static void vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
+static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(vdc_6845->iface.user_data);
     XcpcMonitor* monitor  = self->monitor;
@@ -468,9 +458,10 @@ static void vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
             /* do nothing */
         }
     }
+    return 0x00;
 }
 
-static void vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
+static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(vdc_6845->iface.user_data);
     XcpcVgaCore* vga_core = self->vga_core;
@@ -485,6 +476,7 @@ static void vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
             /* do nothing */
         }
     }
+    return 0x00;
 }
 
 static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
@@ -643,6 +635,8 @@ static void create_fdc_765a(AMSTRAD_CPC_EMULATOR* self)
 
     self->fdc_765a = xcpc_fdc_765a_new();
     self->fdc_765a = xcpc_fdc_765a_set_iface(self->fdc_765a, &fdc_765a_iface);
+    (void) xcpc_fdc_765a_attach(self->fdc_765a, XCPC_FDC_765A_DRIVE0);
+    (void) xcpc_fdc_765a_attach(self->fdc_765a, XCPC_FDC_765A_DRIVE1);
 }
 
 static void create_ram_bank(AMSTRAD_CPC_EMULATOR* self)
@@ -652,7 +646,7 @@ static void create_ram_bank(AMSTRAD_CPC_EMULATOR* self)
     };
 
     /* create ram banks */ {
-        size_t requested = self->ramsize;
+        size_t requested = self->setup.ramsize;
         size_t allocated = 0UL;
         unsigned int bank_index = 0;
         unsigned int bank_count = countof(self->ram_bank);
@@ -1934,48 +1928,48 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
     const char* cpc_dosrom       = self->options->state.rom007;
 
     /* init machine */ {
-        self->computer_model = xcpc_computer_model(cpc_model, XCPC_COMPUTER_MODEL_6128);
-        switch(self->computer_model) {
+        self->setup.computer_model = xcpc_computer_model(cpc_model, XCPC_COMPUTER_MODEL_6128);
+        switch(self->setup.computer_model) {
             case XCPC_COMPUTER_MODEL_464:
                 {
-                    self->handlers.paint  = &amstrad_cpc_paint_default;
-                    self->handlers.keybd  = &amstrad_cpc_keybd_default;
-                    self->handlers.mouse  = &amstrad_cpc_mouse_default;
-                    self->ramsize         = RAM_64K;
-                    self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
-                    self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
-                    self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
-                    self->manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
-                    system_rom            = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc464.rom"));
-                    amsdos_rom            = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : NULL                                );
+                    self->handlers.paint        = &amstrad_cpc_paint_default;
+                    self->handlers.keybd        = &amstrad_cpc_keybd_default;
+                    self->handlers.mouse        = &amstrad_cpc_mouse_default;
+                    self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
+                    self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
+                    self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
+                    self->setup.manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
+                    self->setup.ramsize         = XCPC_RAMSIZE_64K;
+                    system_rom                  = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc464.rom"));
+                    amsdos_rom                  = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : NULL                                );
                 }
                 break;
             case XCPC_COMPUTER_MODEL_664:
                 {
-                    self->handlers.paint  = &amstrad_cpc_paint_default;
-                    self->handlers.keybd  = &amstrad_cpc_keybd_default;
-                    self->handlers.mouse  = &amstrad_cpc_mouse_default;
-                    self->ramsize         = RAM_64K;
-                    self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
-                    self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
-                    self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
-                    self->manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
-                    system_rom            = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc664.rom"));
-                    amsdos_rom            = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : build_filename("roms", "amsdos.rom"));
+                    self->handlers.paint        = &amstrad_cpc_paint_default;
+                    self->handlers.keybd        = &amstrad_cpc_keybd_default;
+                    self->handlers.mouse        = &amstrad_cpc_mouse_default;
+                    self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
+                    self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
+                    self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
+                    self->setup.manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
+                    self->setup.ramsize         = XCPC_RAMSIZE_64K;
+                    system_rom                  = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc664.rom"));
+                    amsdos_rom                  = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : build_filename("roms", "amsdos.rom"));
                 }
                 break;
             case XCPC_COMPUTER_MODEL_6128:
                 {
-                    self->handlers.paint  = &amstrad_cpc_paint_default;
-                    self->handlers.keybd  = &amstrad_cpc_keybd_default;
-                    self->handlers.mouse  = &amstrad_cpc_mouse_default;
-                    self->ramsize         = RAM_128K;
-                    self->monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
-                    self->keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
-                    self->refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
-                    self->manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
-                    system_rom            = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc6128.rom"));
-                    amsdos_rom            = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : build_filename("roms", "amsdos.rom" ));
+                    self->handlers.paint        = &amstrad_cpc_paint_default;
+                    self->handlers.keybd        = &amstrad_cpc_keybd_default;
+                    self->handlers.mouse        = &amstrad_cpc_mouse_default;
+                    self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
+                    self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
+                    self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
+                    self->setup.manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
+                    self->setup.ramsize         = XCPC_RAMSIZE_128K;
+                    system_rom                  = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc6128.rom"));
+                    amsdos_rom                  = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : build_filename("roms", "amsdos.rom" ));
                 }
                 break;
             default:
@@ -2011,7 +2005,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
         self->frame.drawn = 0;
     }
     /* compute frame rate/time and cpu period */ {
-        switch(self->refresh_rate) {
+        switch(self->setup.refresh_rate) {
             case XCPC_REFRESH_RATE_50HZ:
                 self->frame.rate = 50;
                 self->frame.time = 20000;
@@ -2023,7 +2017,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
                 self->cpu_period = (int) (4000000.0 / (60.0 * 262.5));
                 break;
             default:
-                xcpc_log_error("unsupported refresh rate %d", self->refresh_rate);
+                xcpc_log_error("unsupported refresh rate %d", self->setup.refresh_rate);
                 break;
         }
         if(self->options->state.turbo != 0) {
@@ -2122,7 +2116,7 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
-    uint32_t           ram_size = self->ramsize;
+    uint32_t           ram_size = self->setup.ramsize;
 
     /* load snapshot */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
@@ -2148,8 +2142,8 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
     }
     /* fetch ram */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            uint32_t     snap_size  = self->ramsize;
-            uint32_t     bank_size  = RAM_16K;
+            uint32_t     snap_size  = self->setup.ramsize;
+            uint32_t     bank_size  = 16384;
             unsigned int bank_index = 0;
             while(snap_size >= bank_size) {
                 (void) xcpc_snapshot_fetch_ram_bank(snapshot, self->ram_bank[bank_index++]);
@@ -2182,7 +2176,7 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
-    uint32_t           ram_size = self->ramsize;
+    uint32_t           ram_size = self->setup.ramsize;
 
     /* store devices */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
@@ -2203,8 +2197,8 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
     }
     /* store ram */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            uint32_t     snap_size  = self->ramsize;
-            uint32_t     bank_size  = RAM_16K;
+            uint32_t     snap_size  = self->setup.ramsize;
+            uint32_t     bank_size  = 16384;
             unsigned int bank_index = 0;
             while(snap_size >= bank_size) {
                 (void) xcpc_snapshot_store_ram_bank(snapshot, self->ram_bank[bank_index++]);
@@ -2232,22 +2226,30 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 
 void amstrad_cpc_insert_drive0(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
-    (void) xcpc_fdc_765a_insert(self->fdc_765a, 0, filename);
+    xcpc_log_debug("amstrad_cpc_insert_drive0 <%s>", filename);
+
+    (void) xcpc_fdc_765a_insert(self->fdc_765a, XCPC_FDC_765A_DRIVE0, filename);
 }
 
 void amstrad_cpc_remove_drive0(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_fdc_765a_remove(self->fdc_765a, 0);
+    xcpc_log_debug("amstrad_cpc_remove_drive0");
+
+    (void) xcpc_fdc_765a_remove(self->fdc_765a, XCPC_FDC_765A_DRIVE0);
 }
 
 void amstrad_cpc_insert_drive1(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
-    (void) xcpc_fdc_765a_insert(self->fdc_765a, 1, filename);
+    xcpc_log_debug("amstrad_cpc_insert_drive1 <%s>", filename);
+
+    (void) xcpc_fdc_765a_insert(self->fdc_765a, XCPC_FDC_765A_DRIVE1, filename);
 }
 
 void amstrad_cpc_remove_drive1(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_fdc_765a_remove(self->fdc_765a, 1);
+    xcpc_log_debug("amstrad_cpc_remove_drive1");
+
+    (void) xcpc_fdc_765a_remove(self->fdc_765a, XCPC_FDC_765A_DRIVE1);
 }
 
 unsigned long amstrad_cpc_create_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
@@ -2273,7 +2275,7 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
     if(self != NULL) {
         /* realize */ {
             (void) xcpc_monitor_realize ( self->monitor
-                                        , self->monitor_model
+                                        , self->setup.monitor_model
                                         , XtDisplay(widget)
                                         , XtWindow(widget)
                                         , (use_xshm != 0 ? True : False) );
@@ -2295,7 +2297,7 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
             }
         }
         /* init keybd handler */ {
-            switch(self->keyboard_layout) {
+            switch(self->setup.keyboard_layout) {
                 case XCPC_KEYBOARD_LAYOUT_QWERTY:
                     self->handlers.keybd = &amstrad_cpc_keybd_qwerty;
                     break;

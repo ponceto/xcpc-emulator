@@ -33,6 +33,15 @@ extern XcpcMachine* xcpc_machine_set_iface (XcpcMachine* machine, const XcpcMach
 extern XcpcMachine* xcpc_machine_reset     (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_clock     (XcpcMachine* machine);
 
+extern XcpcMachine* xcpc_machine_insert_drive0 (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_remove_drive0 (XcpcMachine* machine);
+
+extern XcpcMachine* xcpc_machine_insert_drive1 (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_remove_drive1 (XcpcMachine* machine);
+
+extern XcpcMachine* xcpc_machine_load_snapshot (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_save_snapshot (XcpcMachine* machine, const char* filename);
+
 #ifdef __cplusplus
 }
 #endif
