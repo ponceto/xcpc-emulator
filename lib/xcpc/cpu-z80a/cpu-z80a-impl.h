@@ -34,8 +34,8 @@ typedef struct _XcpcCpuZ80a      XcpcCpuZ80a;
 struct _XcpcCpuZ80aIface
 {
     void* user_data;
-    uint8_t (*mreq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr);
-    uint8_t (*mreq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr);
+    uint8_t (*mreq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
+    uint8_t (*mreq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
     uint8_t (*mreq_wr)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
     uint8_t (*iorq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
     uint8_t (*iorq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);

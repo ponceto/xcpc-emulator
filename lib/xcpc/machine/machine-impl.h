@@ -96,6 +96,14 @@ struct _XcpcMachine
     XcpcMachineSetup setup;
     XcpcMachineState state;
     XcpcMachinePager pager;
+    struct _scanlines {
+        XcpcScanline array[312];
+        int          index;
+    } scanlines;
+    struct _signals {
+        int hsync;
+        int vsync;
+    } signals;
 };
 
 #ifdef __cplusplus

@@ -87,6 +87,10 @@ struct _AMSTRAD_CPC_EMULATOR
         unsigned int count;
         unsigned int drawn;
     } frame;
+    struct _signals {
+        int hsync;
+        int vsync;
+    } signals;
     struct _setup {
         int  computer_model;
         int  monitor_model;

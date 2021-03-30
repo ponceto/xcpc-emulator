@@ -185,8 +185,8 @@ extern "C" {
 #define PREV_PC prev_pc
 #define LAST_OP last_op
 
-#define MREQ_M1(addr, data) (void)(data=(*IFACE.mreq_m1)((self),(addr)))
-#define MREQ_RD(addr, data) (void)(data=(*IFACE.mreq_rd)((self),(addr)))
+#define MREQ_M1(addr, data) (void)(data=(*IFACE.mreq_m1)((self),(addr),(0x00)))
+#define MREQ_RD(addr, data) (void)(data=(*IFACE.mreq_rd)((self),(addr),(0x00)))
 #define MREQ_WR(addr, data) (void)((*IFACE.mreq_wr)((self),(addr),(data)))
 
 #define IORQ_M1(port, data) (void)(data=(*IFACE.iorq_m1)((self),(port),(0x00)))
@@ -232,7 +232,7 @@ extern "C" {
 
 #define m_fetch_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++, 0x00); \
     } while(0)
 
 /*
@@ -241,7 +241,7 @@ extern "C" {
 
 #define m_fetch_cb_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++, 0x00); \
     } while(0)
 
 /*
@@ -250,7 +250,7 @@ extern "C" {
 
 #define m_fetch_dd_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++, 0x00); \
     } while(0)
 
 /*
@@ -259,7 +259,7 @@ extern "C" {
 
 #define m_fetch_ed_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++, 0x00); \
     } while(0)
 
 /*
@@ -268,7 +268,7 @@ extern "C" {
 
 #define m_fetch_fd_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(self, PC_W++); \
+        last_op = (*IFACE.mreq_m1)(self, PC_W++, 0x00); \
     } while(0)
 
 /*
@@ -277,7 +277,7 @@ extern "C" {
 
 #define m_fetch_ddcb_opcode() \
     do { \
-        last_op = (*IFACE.mreq_rd)(self, PC_W++); \
+        last_op = (*IFACE.mreq_rd)(self, PC_W++, 0x00); \
     } while(0)
 
 /*
@@ -286,7 +286,7 @@ extern "C" {
 
 #define m_fetch_fdcb_opcode() \
     do { \
-        last_op = (*IFACE.mreq_rd)(self, PC_W++); \
+        last_op = (*IFACE.mreq_rd)(self, PC_W++, 0x00); \
     } while(0)
 
 /*
@@ -295,7 +295,7 @@ extern "C" {
 
 #define m_fetch_ddcb_offset() \
     do { \
-        WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(self, PC_W++)); \
+        WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(self, PC_W++, 0x00)); \
     } while(0)
 
 /*
@@ -304,7 +304,7 @@ extern "C" {
 
 #define m_fetch_fdcb_offset() \
     do { \
-        WZ_W = IY_W + SIGNED_BYTE((*IFACE.mreq_rd)(self, PC_W++)); \
+        WZ_W = IY_W + SIGNED_BYTE((*IFACE.mreq_rd)(self, PC_W++, 0x00)); \
     } while(0)
 
 /*
@@ -1522,7 +1522,7 @@ enum Codes
 };
 
 #define WrZ80(addr,data)  ((*IFACE.mreq_wr)((SELF),(addr),(data)))
-#define RdZ80(addr)       ((*IFACE.mreq_rd)((SELF),(addr)))
+#define RdZ80(addr)       ((*IFACE.mreq_rd)((SELF),(addr),(0x00)))
 #define OutZ80(addr,data) ((*IFACE.iorq_wr)((SELF),(addr),(data)))
 #define InZ80(addr)       ((*IFACE.iorq_rd)((SELF),(addr),(0x00)))
 

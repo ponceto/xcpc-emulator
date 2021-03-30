@@ -121,66 +121,278 @@ static void cpc_mem_select(XcpcMachine* self)
     }
 }
 
-static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
+static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-    const uint8_t byte = (self->pager.bank.rd[addr >> 14][addr & 0x3fff]);
+    const uint16_t index  = ((addr >> 14) & 0x0003);
+    const uint16_t offset = ((addr >>  0) & 0x3fff);
 
-    return byte;
+    /* mreq m1 */ {
+        data = self->pager.bank.rd[index][offset];
+    }
+    return data;
 }
 
-static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
+static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-    const uint8_t byte = (self->pager.bank.rd[addr >> 14][addr & 0x3fff]);
+    const uint16_t index  = ((addr >> 14) & 0x0003);
+    const uint16_t offset = ((addr >>  0) & 0x3fff);
 
-    return byte;
+    /* mreq rd */ {
+        data = self->pager.bank.rd[index][offset];
+    }
+    return data;
 }
 
 static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-    const uint8_t byte = (self->pager.bank.wr[addr >> 14][addr & 0x3fff] = data);
+    const uint16_t index  = ((addr >> 14) & 0x0003);
+    const uint16_t offset = ((addr >>  0) & 0x3fff);
 
-    return byte;
+    /* mreq wr */ {
+        self->pager.bank.wr[index][offset] = data;
+    }
+    return data;
 }
 
 static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("cpu_iorq_m1");
+    /* clear data */ {
+        data = 0x00;
     }
-    return 0x00;
+    /* iorq m1 */ {
+        self->state.vga_core->state.counter &= 0x1f;
+    }
+    return data;
 }
 
 static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("cpu_iorq_rd");
+    /* clear data */ {
+        data = 0x00;
     }
-    return 0x00;
+    /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
+        if((port & 0x8000) == 0) {
+            xcpc_log_alert("cpu_iorq_rd(0x%04x) : vga-core [---- illegal ----]", port);
+        }
+    }
+    /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
+        if((port & 0x4000) == 0) {
+            switch((port >> 8) & 3) {
+                case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    break;
+                case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    break;
+                case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [- not supported -]", port);
+                    break;
+                case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
+                    data = xcpc_vdc_6845_rd(self->state.vdc_6845, 0xff);
+                    break;
+            }
+        }
+    }
+    /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
+        if((port & 0x2000) == 0) {
+            xcpc_log_alert("cpu_iorq_rd(0x%04x) : rom-conf [---- illegal ----]", port);
+        }
+    }
+    /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
+        if((port & 0x1000) == 0) {
+            xcpc_log_alert("cpu_iorq_rd(0x%04x) : prt-port [---- illegal ----]", port);
+        }
+    }
+    /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
+        if((port & 0x0800) == 0) {
+            switch((port >> 8) & 3) {
+                case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
+                    self->state.ppi_8255->state.port_a = self->state.keyboard->state.keys[self->state.keyboard->state.line];
+                    data = self->state.ppi_8255->state.port_a;
+                    break;
+                case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
+                    self->state.ppi_8255->state.port_b = ((0                        & 0x01) << 7)
+                                                       | ((1                        & 0x01) << 6)
+                                                       | ((1                        & 0x01) << 5)
+                                                       | ((self->setup.refresh_rate & 0x01) << 4)
+                                                       | ((self->setup.manufacturer & 0x07) << 1)
+                                                       | ((self->signals.vsync      & 0x01) << 0);
+                    data = self->state.ppi_8255->state.port_b;
+                    break;
+                case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
+                    data = self->state.ppi_8255->state.port_c;
+                    break;
+                case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : ppi-8255 [---- illegal ----]", port);
+                    break;
+            }
+        }
+    }
+    /* fdc-765a [-----0--0xxxxxxx] [0xfb7f] */ {
+        if((port & 0x0480) == 0) {
+            switch(((port >> 7) & 2) | (port & 1)) {
+                case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
+                    break;
+                case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
+                    break;
+                case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
+                    xcpc_fdc_765a_rd_stat(self->state.fdc_765a, &data);
+                    break;
+                case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
+                    xcpc_fdc_765a_rd_data(self->state.fdc_765a, &data);
+                    break;
+            }
+        }
+    }
+    return data;
 }
 
 static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("cpu_iorq_wr");
+    /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
+        if((port & 0x8000) == 0) {
+            switch((data >> 6) & 3) {
+                case 0: /* Select pen */
+                    self->state.vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
+                    break;
+                case 1: /* Select color */
+                    self->state.vga_core->state.ink[self->state.vga_core->state.pen] = data & 0x1f;
+                    break;
+                case 2: /* Interrupt control, ROM configuration and screen mode */
+                    if((data & 0x10) != 0) {
+                        self->state.vga_core->state.counter = 0;
+                    }
+                    self->state.vga_core->state.rmr = data & 0x1f;
+                    cpc_mem_select(self);
+                    break;
+                case 3: /* RAM memory management */
+                    self->pager.conf.ram = data & 0x3f;
+                    cpc_mem_select(self);
+                    break;
+            }
+        }
     }
-    return 0x00;
+    /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
+        if((port & 0x4000) == 0) {
+            switch((port >> 8) & 3) {
+                case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
+                    xcpc_vdc_6845_rs(self->state.vdc_6845, data);
+                    break;
+                case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
+                    xcpc_vdc_6845_wr(self->state.vdc_6845, data);
+                    break;
+                case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
+                    xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [- not supported -]", port);
+                    break;
+                case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
+                    xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    break;
+            }
+        }
+    }
+    /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
+        if((port & 0x2000) == 0) {
+            self->pager.conf.rom = data;
+            cpc_mem_select(self);
+        }
+    }
+    /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
+        if((port & 0x1000) == 0) {
+            /* xxx */
+        }
+    }
+    /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
+        if((port & 0x0800) == 0) {
+            switch((port >> 8) & 3) {
+                case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
+                    self->state.ppi_8255->state.port_a = data;
+                    break;
+                case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
+                /*  self->state.ppi_8255->state.port_b = data; */
+                    break;
+                case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
+                    self->state.ppi_8255->state.port_c = data;
+                    self->state.keyboard->state.line = data & 0x0F;
+                    break;
+                case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
+                    self->state.ppi_8255->state.ctrl_p = data;
+                    break;
+            }
+        }
+    }
+    /* fdc-765a [-----0--0xxxxxxx] [0xfb7f] */ {
+        if((port & 0x0480) == 0) {
+            switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
+                case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
+                    xcpc_fdc_765a_set_motor(self->state.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    break;
+                case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
+                    xcpc_fdc_765a_set_motor(self->state.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    break;
+                case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
+                    xcpc_fdc_765a_wr_stat(self->state.fdc_765a, &data);
+                    break;
+                case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
+                    xcpc_fdc_765a_wr_data(self->state.fdc_765a, &data);
+                    break;
+            }
+        }
+    }
+    return data;
 }
 
 static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
 {
     XcpcMachine* self = ((XcpcMachine*)(vdc_6845->iface.user_data));
+    XcpcMonitor* monitor  = self->state.monitor;
+    XcpcCpuZ80a* cpu_z80a = self->state.cpu_z80a;
+    XcpcVgaCore* vga_core = self->state.vga_core;
 
-    if(self != NULL) {
-        log_trace("vdc_hsync");
+    if((self->signals.hsync = hsync) == 0) {
+        /* falling edge */ {
+            if(++vga_core->state.counter == 52) {
+                xcpc_cpu_z80a_pulse_int(cpu_z80a);
+                vga_core->state.counter = 0;
+            }
+            if(vga_core->state.delayed > 0) {
+                if(--vga_core->state.delayed == 0) {
+                    if(vga_core->state.counter >= 32) {
+                        xcpc_cpu_z80a_pulse_int(cpu_z80a);
+                    }
+                    vga_core->state.counter = 0;
+                }
+            }
+            /* update scanline */ {
+                XcpcScanline* scanline = &self->scanlines.array[(self->scanlines.index + 1) % 312];
+                /* update mode */ {
+                    scanline->mode = vga_core->state.rmr & 0x03;
+                }
+                /* update colors */ {
+                    int index = 0;
+                    do {
+                        const uint8_t ink = vga_core->state.ink[index];
+                        scanline->ink[index].value = ink;
+                        scanline->ink[index].pixel = monitor->state.palette[ink].pixel;
+                    } while(++index < 17);
+                }
+            }
+        }
+    }
+    else {
+        /* rising edge */ {
+            /* do nothing */
+        }
     }
     return 0x00;
 }
@@ -189,8 +401,15 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 {
     XcpcMachine* self = ((XcpcMachine*)(vdc_6845->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("vdc_vsync");
+    if((self->signals.vsync = vsync) != 0) {
+        /* rising edge */ {
+            self->state.vga_core->state.delayed = 2;
+        }
+    }
+    else {
+        /* falling edge */ {
+            /* do nothing */
+        }
     }
     return 0x00;
 }
@@ -702,6 +921,10 @@ XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
         self->pager.conf.ram = 0x00;
         self->pager.conf.rom = 0x00;
         cpc_mem_select(self);
+    }
+    /* signals */ {
+        self->signals.hsync = 0;
+        self->signals.vsync = 0;
     }
     return self;
 }

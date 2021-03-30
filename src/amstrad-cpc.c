@@ -204,26 +204,39 @@ static void cpc_mem_select(AMSTRAD_CPC_EMULATOR* self)
     }
 }
 
-static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
+static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
+    const uint16_t index  = ((addr >> 14) & 0x0003);
+    const uint16_t offset = ((addr >>  0) & 0x3fff);
 
-    return self->pager.bank.rd[addr >> 14][addr & 0x3fff];
+    /* mreq m1 */ {
+        data = self->pager.bank.rd[index][offset];
+    }
+    return data;
 }
 
-static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
+static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
+    const uint16_t index  = ((addr >> 14) & 0x0003);
+    const uint16_t offset = ((addr >>  0) & 0x3fff);
 
-    return self->pager.bank.rd[addr >> 14][addr & 0x3fff];
+    /* mreq rd */ {
+        data = self->pager.bank.rd[index][offset];
+    }
+    return data;
 }
 
 static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
+    const uint16_t index  = ((addr >> 14) & 0x0003);
+    const uint16_t offset = ((addr >>  0) & 0x3fff);
 
-    self->pager.bank.wr[addr >> 14][addr & 0x3fff] = data;
-
+    /* mreq wr */ {
+        self->pager.bank.wr[index][offset] = data;
+    }
     return data;
 }
 
@@ -245,20 +258,20 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd[0x%04x]: vga-core [---- illegal ----]\n", port);
+            xcpc_log_alert("cpu_iorq_rd(0x%04x) : vga-core [---- illegal ----]", port);
         }
     }
     /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
         if((port & 0x4000) == 0) {
             switch((port >> 8) & 3) {
                 case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
-                    xcpc_log_alert("cpu_iorq_rd[0x%04x]: vdc-6845 [---- illegal ----]\n", port);
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
                     break;
                 case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
-                    xcpc_log_alert("cpu_iorq_rd[0x%04x]: vdc-6845 [---- illegal ----]\n", port);
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
                     break;
                 case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
-                    xcpc_log_alert("cpu_iorq_rd[0x%04x]: vdc-6845 [- not supported -]\n", port);
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [- not supported -]", port);
                     break;
                 case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
                     data = xcpc_vdc_6845_rd(self->vdc_6845, 0xff);
@@ -268,12 +281,12 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
         if((port & 0x2000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd[0x%04x]: rom-conf [---- illegal ----]\n", port);
+            xcpc_log_alert("cpu_iorq_rd(0x%04x) : rom-conf [---- illegal ----]", port);
         }
     }
     /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
         if((port & 0x1000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd[0x%04x]: prt-port [---- illegal ----]\n", port);
+            xcpc_log_alert("cpu_iorq_rd(0x%04x) : prt-port [---- illegal ----]", port);
         }
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
@@ -284,19 +297,19 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                     data = self->ppi_8255->state.port_a;
                     break;
                 case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-                    self->ppi_8255->state.port_b = ((0                                             & 0x01) << 7)
-                                                 | ((1                                             & 0x01) << 6)
-                                                 | ((1                                             & 0x01) << 5)
-                                                 | ((self->setup.refresh_rate                      & 0x01) << 4)
-                                                 | ((self->setup.manufacturer                      & 0x07) << 1)
-                                                 | ((self->vdc_6845->state.ctrs.named.vsync_signal & 0x01) << 0);
+                    self->ppi_8255->state.port_b = ((0                        & 0x01) << 7)
+                                                 | ((1                        & 0x01) << 6)
+                                                 | ((1                        & 0x01) << 5)
+                                                 | ((self->setup.refresh_rate & 0x01) << 4)
+                                                 | ((self->setup.manufacturer & 0x07) << 1)
+                                                 | ((self->signals.vsync      & 0x01) << 0);
                     data = self->ppi_8255->state.port_b;
                     break;
                 case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
                     data = self->ppi_8255->state.port_c;
                     break;
                 case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
-                    xcpc_log_alert("cpu_iorq_rd[0x%04x]: ppi-8255 [---- illegal ----]\n", port);
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : ppi-8255 [---- illegal ----]", port);
                     break;
             }
         }
@@ -305,10 +318,10 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x0480) == 0) {
             switch(((port >> 7) & 2) | (port & 1)) {
                 case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-                    xcpc_log_alert("cpu_iorq_rd[0x%04x]: fdc-765a [---- illegal ----]\n", port);
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
                     break;
                 case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-                    xcpc_log_alert("cpu_iorq_rd[0x%04x]: fdc-765a [---- illegal ----]\n", port);
+                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
                     break;
                 case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
                     xcpc_fdc_765a_rd_stat(self->fdc_765a, &data);
@@ -359,10 +372,10 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                     xcpc_vdc_6845_wr(self->vdc_6845, data);
                     break;
                 case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
-                    xcpc_log_alert("cpu_iorq_wr[0x%04x]: vdc-6845 [- Not Supported -]\n", port);
+                    xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [- not supported -]", port);
                     break;
                 case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
-                    xcpc_log_alert("cpu_iorq_wr[0x%04x]: vdc-6845 [---- Illegal ----]\n", port);
+                    xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [---- illegal ----]", port);
                     break;
             }
         }
@@ -385,7 +398,7 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                     self->ppi_8255->state.port_a = data;
                     break;
                 case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-                    /*self->ppi_8255->state.port_b = data;*/
+                /*  self->ppi_8255->state.port_b = data; */
                     break;
                 case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
                     self->ppi_8255->state.port_c = data;
@@ -425,7 +438,7 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     XcpcCpuZ80a* cpu_z80a = self->cpu_z80a;
     XcpcVgaCore* vga_core = self->vga_core;
 
-    if(hsync == 0) {
+    if((self->signals.hsync = hsync) == 0) {
         /* falling edge */ {
             if(++vga_core->state.counter == 52) {
                 xcpc_cpu_z80a_pulse_int(cpu_z80a);
@@ -466,11 +479,10 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
 static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(vdc_6845->iface.user_data);
-    XcpcVgaCore* vga_core = self->vga_core;
 
-    if(vsync != 0) {
+    if((self->signals.vsync = vsync) != 0) {
         /* rising edge */ {
-            vga_core->state.delayed = 2;
+            self->vga_core->state.delayed = 2;
         }
     }
     else {
@@ -950,11 +962,11 @@ static void reset_devices(AMSTRAD_CPC_EMULATOR* self)
     reset_exp_bank(self);
 }
 
-static void amstrad_cpc_paint_default(AMSTRAD_CPC_EMULATOR* self)
+static void cpc_paint_default(AMSTRAD_CPC_EMULATOR* self)
 {
 }
 
-static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
+static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
 {
     XcpcMonitor* monitor = self->monitor;
     XcpcVdc6845* vdc_6845 = self->vdc_6845;
@@ -1002,8 +1014,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1065,8 +1077,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1144,8 +1156,8 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1260,7 +1272,7 @@ static void amstrad_cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
     (void) xcpc_monitor_put_image(self->monitor);
 }
 
-static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
+static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
 {
     XcpcMonitor* monitor = self->monitor;
     XcpcVdc6845* vdc_6845 = self->vdc_6845;
@@ -1308,8 +1320,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1371,8 +1383,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1450,8 +1462,8 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1566,7 +1578,7 @@ static void amstrad_cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
     (void) xcpc_monitor_put_image(self->monitor);
 }
 
-static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
+static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
 {
     XcpcMonitor* monitor = self->monitor;
     XcpcVdc6845* vdc_6845 = self->vdc_6845;
@@ -1614,8 +1626,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1677,8 +1689,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1756,8 +1768,8 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                             for(cx = 0; cx < hd; cx++) {
                                 /* decode */ {
                                     addr = ((sa & 0x3000) << 2) | ((ra & 0x0007) << 11) | (((sa + cx) & 0x03ff) << 1);
-                                    bank = (addr >> 14);
-                                    disp = (addr & 0x3fff);
+                                    bank = ((addr >> 14) & 0x0003);
+                                    disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->ram_bank[bank]->state.data[disp | 0];
@@ -1872,21 +1884,21 @@ static void amstrad_cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
     (void) xcpc_monitor_put_image(self->monitor);
 }
 
-static void amstrad_cpc_keybd_default(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
+static void cpc_keybd_default(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
 }
 
-static void amstrad_cpc_keybd_qwerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
+static void cpc_keybd_qwerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     (void) xcpc_keyboard_qwerty(self->keyboard, &event->xkey);
 }
 
-static void amstrad_cpc_keybd_azerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
+static void cpc_keybd_azerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     (void) xcpc_keyboard_azerty(self->keyboard, &event->xkey);
 }
 
-static void amstrad_cpc_mouse_default(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
+static void cpc_mouse_default(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
 }
 
@@ -1895,7 +1907,7 @@ void amstrad_cpc_new(int* argc, char*** argv)
     AMSTRAD_CPC_EMULATOR* self = &amstrad_cpc;
 
     /* memset */ {
-        (void) memset(self, 0, sizeof(AMSTRAD_CPC_EMULATOR()));
+        (void) memset(self, 0, sizeof(AMSTRAD_CPC_EMULATOR));
     }
     /* create options */ {
         self->options = xcpc_options_new();
@@ -1913,7 +1925,7 @@ void amstrad_cpc_delete(void)
         self->options = xcpc_options_delete(self->options);
     }
     /* memset */ {
-        (void) memset(self, 0, sizeof(AMSTRAD_CPC_EMULATOR()));
+        (void) memset(self, 0, sizeof(AMSTRAD_CPC_EMULATOR));
     }
 }
 
@@ -1934,9 +1946,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
         switch(self->setup.computer_model) {
             case XCPC_COMPUTER_MODEL_464:
                 {
-                    self->handlers.paint        = &amstrad_cpc_paint_default;
-                    self->handlers.keybd        = &amstrad_cpc_keybd_default;
-                    self->handlers.mouse        = &amstrad_cpc_mouse_default;
+                    self->handlers.paint        = &cpc_paint_default;
+                    self->handlers.keybd        = &cpc_keybd_default;
+                    self->handlers.mouse        = &cpc_mouse_default;
                     self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
                     self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
                     self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
@@ -1948,9 +1960,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
                 break;
             case XCPC_COMPUTER_MODEL_664:
                 {
-                    self->handlers.paint        = &amstrad_cpc_paint_default;
-                    self->handlers.keybd        = &amstrad_cpc_keybd_default;
-                    self->handlers.mouse        = &amstrad_cpc_mouse_default;
+                    self->handlers.paint        = &cpc_paint_default;
+                    self->handlers.keybd        = &cpc_keybd_default;
+                    self->handlers.mouse        = &cpc_mouse_default;
                     self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
                     self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
                     self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
@@ -1962,9 +1974,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
                 break;
             case XCPC_COMPUTER_MODEL_6128:
                 {
-                    self->handlers.paint        = &amstrad_cpc_paint_default;
-                    self->handlers.keybd        = &amstrad_cpc_keybd_default;
-                    self->handlers.mouse        = &amstrad_cpc_mouse_default;
+                    self->handlers.paint        = &cpc_paint_default;
+                    self->handlers.keybd        = &cpc_keybd_default;
+                    self->handlers.mouse        = &cpc_mouse_default;
                     self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
                     self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
                     self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
@@ -2005,6 +2017,10 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
         self->frame.time  = 0;
         self->frame.count = 0;
         self->frame.drawn = 0;
+    }
+    /* initialize signals */ {
+        self->signals.hsync = 0;
+        self->signals.vsync = 0;
     }
     /* compute frame rate/time and cpu period */ {
         switch(self->setup.refresh_rate) {
@@ -2060,9 +2076,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
 void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR* self)
 {
     /* cleanup handlers */ {
-        self->handlers.mouse = &amstrad_cpc_mouse_default;
-        self->handlers.keybd = &amstrad_cpc_keybd_default;
-        self->handlers.paint = &amstrad_cpc_paint_default;
+        self->handlers.mouse = &cpc_mouse_default;
+        self->handlers.keybd = &cpc_keybd_default;
+        self->handlers.paint = &cpc_paint_default;
     }
     /* cleanup memory pager */ {
         unsigned int bank_index = 0;
@@ -2108,6 +2124,10 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR* self)
         self->frame.time  |= 0; /* no reset */
         self->frame.count &= 0; /* do reset */
         self->frame.drawn &= 0; /* do reset */
+    }
+    /* signals */ {
+        self->signals.hsync &= 0; /* clear hsync */
+        self->signals.vsync &= 0; /* clear vsync */
     }
     /* stats */ {
         self->stats[0]  = '\0';
@@ -2285,29 +2305,29 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
         /* init paint handler */ {
             switch(self->monitor->state.image->bits_per_pixel) {
                 case 8:
-                    self->handlers.paint = &amstrad_cpc_paint_08bpp;
+                    self->handlers.paint = &cpc_paint_08bpp;
                     break;
                 case 16:
-                    self->handlers.paint = &amstrad_cpc_paint_16bpp;
+                    self->handlers.paint = &cpc_paint_16bpp;
                     break;
                 case 32:
-                    self->handlers.paint = &amstrad_cpc_paint_32bpp;
+                    self->handlers.paint = &cpc_paint_32bpp;
                     break;
                 default:
-                    self->handlers.paint = &amstrad_cpc_paint_default;
+                    self->handlers.paint = &cpc_paint_default;
                     break;
             }
         }
         /* init keybd handler */ {
             switch(self->setup.keyboard_layout) {
                 case XCPC_KEYBOARD_LAYOUT_QWERTY:
-                    self->handlers.keybd = &amstrad_cpc_keybd_qwerty;
+                    self->handlers.keybd = &cpc_keybd_qwerty;
                     break;
                 case XCPC_KEYBOARD_LAYOUT_AZERTY:
-                    self->handlers.keybd = &amstrad_cpc_keybd_azerty;
+                    self->handlers.keybd = &cpc_keybd_azerty;
                     break;
                 default:
-                    self->handlers.keybd = &amstrad_cpc_keybd_default;
+                    self->handlers.keybd = &cpc_keybd_default;
                     break;
             }
         }
