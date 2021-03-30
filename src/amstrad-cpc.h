@@ -58,20 +58,16 @@ struct _AMSTRAD_CPC_EMULATOR
     XcpcRamBank*  ram_bank[8];
     XcpcRomBank*  rom_bank[2];
     XcpcRomBank*  exp_bank[256];
-    struct _memory {
+    struct _pager {
         struct {
-            uint8_t* bank[4];
-        } rd;
+            uint8_t* rd[4];
+            uint8_t* wr[4];
+        } bank;
         struct {
-            uint8_t* bank[4];
-        } wr;
-        struct {
-            uint8_t config;
-        } ram;
-        struct {
-            uint8_t config;
-        } rom;
-    } memory;
+            uint8_t ram;
+            uint8_t rom;
+        } conf;
+    } pager;
     struct _scanlines {
         XcpcScanline array[312];
         int          index;

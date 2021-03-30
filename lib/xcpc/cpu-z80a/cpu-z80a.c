@@ -404,14 +404,14 @@ static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t
     return 0x00;
 }
 
-static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* self, uint16_t addr)
+static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
 {
     log_trace("default_iorq_m1_handler");
 
     return 0x00;
 }
 
-static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* self, uint16_t addr)
+static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
 {
     log_trace("default_iorq_rd_handler");
 

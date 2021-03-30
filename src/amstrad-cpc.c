@@ -113,93 +113,93 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR* self)
 static void cpc_mem_select(AMSTRAD_CPC_EMULATOR* self)
 {
     if(self->setup.ramsize >= XCPC_RAMSIZE_128K) {
-        switch(self->memory.ram.config) {
+        switch(self->pager.conf.ram) {
             case 0x00:
                 {
-                    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
-                    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->state.data;
-                    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
-                    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[1]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
                 }
                 break;
             case 0x01:
                 {
-                    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
-                    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->state.data;
-                    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
-                    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[1]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[7]->state.data;
                 }
                 break;
             case 0x02:
                 {
-                    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[4]->state.data;
-                    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[5]->state.data;
-                    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[6]->state.data;
-                    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[4]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[5]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[6]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[7]->state.data;
                 }
                 break;
             case 0x03:
                 {
-                    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
-                    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[3]->state.data;
-                    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
-                    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[7]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[7]->state.data;
                 }
                 break;
             case 0x04:
                 {
-                    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
-                    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[4]->state.data;
-                    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
-                    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[4]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
                 }
                 break;
             case 0x05:
                 {
-                    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
-                    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[5]->state.data;
-                    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
-                    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[5]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
                 }
                 break;
             case 0x06:
                 {
-                    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
-                    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[6]->state.data;
-                    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
-                    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[6]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
                 }
                 break;
             case 0x07:
                 {
-                    self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
-                    self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[7]->state.data;
-                    self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
-                    self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[7]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
                 }
                 break;
             default:
-                xcpc_log_alert("ram-select: unsupported ram configuration (%02x)", self->memory.ram.config);
+                xcpc_log_alert("ram-select: unsupported ram configuration (%02x)", self->pager.conf.ram);
                 break;
         }
     }
     else {
-        self->memory.rd.bank[0] = self->memory.wr.bank[0] = self->ram_bank[0]->state.data;
-        self->memory.rd.bank[1] = self->memory.wr.bank[1] = self->ram_bank[1]->state.data;
-        self->memory.rd.bank[2] = self->memory.wr.bank[2] = self->ram_bank[2]->state.data;
-        self->memory.rd.bank[3] = self->memory.wr.bank[3] = self->ram_bank[3]->state.data;
+        self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
+        self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[1]->state.data;
+        self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
+        self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
     }
     if((self->vga_core->state.rmr & 0x04) == 0) {
         if(self->rom_bank[0] != NULL) {
-            self->memory.rd.bank[0] = self->rom_bank[0]->state.data;
+            self->pager.bank.rd[0] = self->rom_bank[0]->state.data;
         }
     }
     if((self->vga_core->state.rmr & 0x08) == 0) {
         if(self->rom_bank[1] != NULL) {
-            self->memory.rd.bank[3] = self->rom_bank[1]->state.data;
+            self->pager.bank.rd[3] = self->rom_bank[1]->state.data;
         }
-        if(self->exp_bank[self->memory.rom.config] != NULL) {
-            self->memory.rd.bank[3] = self->exp_bank[self->memory.rom.config]->state.data;
+        if(self->exp_bank[self->pager.conf.rom] != NULL) {
+            self->pager.bank.rd[3] = self->exp_bank[self->pager.conf.rom]->state.data;
         }
     }
 }
@@ -208,26 +208,26 @@ static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
-    return self->memory.rd.bank[addr >> 14][addr & 0x3fff];
+    return self->pager.bank.rd[addr >> 14][addr & 0x3fff];
 }
 
 static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
-    return self->memory.rd.bank[addr >> 14][addr & 0x3fff];
+    return self->pager.bank.rd[addr >> 14][addr & 0x3fff];
 }
 
 static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
-    self->memory.wr.bank[addr >> 14][addr & 0x3fff] = data;
+    self->pager.bank.wr[addr >> 14][addr & 0x3fff] = data;
 
     return data;
 }
 
-static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port)
+static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
@@ -236,11 +236,13 @@ static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port)
     return 0x00;
 }
 
-static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port)
+static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
-    uint8_t data = 0x00;
 
+    /* clear data */ {
+        data = 0x00;
+    }
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
             xcpc_log_alert("cpu_iorq_rd[0x%04x]: vga-core [---- illegal ----]\n", port);
@@ -341,7 +343,7 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                     cpc_mem_select(self);
                     break;
                 case 3: /* RAM memory management */
-                    self->memory.ram.config = data & 0x3f;
+                    self->pager.conf.ram = data & 0x3f;
                     cpc_mem_select(self);
                     break;
             }
@@ -367,7 +369,7 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
         if((port & 0x2000) == 0) {
-            self->memory.rom.config = data;
+            self->pager.conf.rom = data;
             cpc_mem_select(self);
         }
     }
@@ -1984,11 +1986,11 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
         unsigned int bank_index = 0;
         unsigned int bank_count = 4;
         for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-            self->memory.rd.bank[bank_index] = NULL;
-            self->memory.wr.bank[bank_index] = NULL;
+            self->pager.bank.rd[bank_index] = NULL;
+            self->pager.bank.wr[bank_index] = NULL;
         }
-        self->memory.ram.config = 0x00;
-        self->memory.rom.config = 0x00;
+        self->pager.conf.ram = 0x00;
+        self->pager.conf.rom = 0x00;
     }
     /* initialize timers */ {
         if(gettimeofday(&self->timer.deadline, NULL) != 0) {
@@ -2066,11 +2068,11 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR* self)
         unsigned int bank_index = 0;
         unsigned int bank_count = 4;
         for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-            self->memory.rd.bank[bank_index] = NULL;
-            self->memory.wr.bank[bank_index] = NULL;
+            self->pager.bank.rd[bank_index] = NULL;
+            self->pager.bank.wr[bank_index] = NULL;
         }
-        self->memory.ram.config = 0x00;
-        self->memory.rom.config = 0x00;
+        self->pager.conf.ram = 0x00;
+        self->pager.conf.rom = 0x00;
     }
     /* delete devices */ {
         delete_devices(self);
@@ -2086,11 +2088,11 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR* self)
         unsigned int bank_index = 0;
         unsigned int bank_count = 4;
         for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-            self->memory.rd.bank[bank_index] = NULL;
-            self->memory.wr.bank[bank_index] = NULL;
+            self->pager.bank.rd[bank_index] = NULL;
+            self->pager.bank.wr[bank_index] = NULL;
         }
-        self->memory.ram.config = 0x00;
-        self->memory.rom.config = 0x00;
+        self->pager.conf.ram = 0x00;
+        self->pager.conf.rom = 0x00;
         cpc_mem_select(self);
     }
     /* timer */ {
@@ -2135,8 +2137,8 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
     }
     /* fetch ram/rom */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            (void) xcpc_snapshot_fetch_ram_conf(snapshot, &self->memory.ram.config);
-            (void) xcpc_snapshot_fetch_rom_conf(snapshot, &self->memory.rom.config);
+            (void) xcpc_snapshot_fetch_ram_conf(snapshot, &self->pager.conf.ram);
+            (void) xcpc_snapshot_fetch_rom_conf(snapshot, &self->pager.conf.rom);
             (void) xcpc_snapshot_fetch_ram_size(snapshot, &ram_size);
         }
     }
@@ -2190,8 +2192,8 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
     }
     /* store ram/rom */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            (void) xcpc_snapshot_store_ram_conf(snapshot, &self->memory.ram.config);
-            (void) xcpc_snapshot_store_rom_conf(snapshot, &self->memory.rom.config);
+            (void) xcpc_snapshot_store_ram_conf(snapshot, &self->pager.conf.ram);
+            (void) xcpc_snapshot_store_rom_conf(snapshot, &self->pager.conf.rom);
             (void) xcpc_snapshot_store_ram_size(snapshot, &ram_size);
         }
     }

@@ -40,8 +40,9 @@ extern "C" {
 #define XCPC_MACHINE_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcMachineIface XcpcMachineIface;
-typedef struct _XcpcMachineState XcpcMachineState;
 typedef struct _XcpcMachineSetup XcpcMachineSetup;
+typedef struct _XcpcMachineState XcpcMachineState;
+typedef struct _XcpcMachinePager XcpcMachinePager;
 typedef struct _XcpcMachine      XcpcMachine;
 
 struct _XcpcMachineIface
@@ -75,11 +76,26 @@ struct _XcpcMachineState
     XcpcRomBank*  exp_bank[256];
 };
 
+struct _XcpcMachinePager
+{
+    struct
+    {
+        uint8_t* rd[4];
+        uint8_t* wr[4];
+    } bank;
+    struct
+    {
+        uint8_t ram;
+        uint8_t rom;
+    } conf;
+};
+
 struct _XcpcMachine
 {
     XcpcMachineIface iface;
     XcpcMachineSetup setup;
     XcpcMachineState state;
+    XcpcMachinePager pager;
 };
 
 #ifdef __cplusplus

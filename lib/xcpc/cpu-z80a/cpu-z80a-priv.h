@@ -185,13 +185,13 @@ extern "C" {
 #define PREV_PC prev_pc
 #define LAST_OP last_op
 
-#define MREQ_M1(addr, data) (void)(data=(*IFACE.mreq_m1)(self,addr))
-#define MREQ_RD(addr, data) (void)(data=(*IFACE.mreq_rd)(self,addr))
-#define MREQ_WR(addr, data) (void)((*IFACE.mreq_wr)(self,addr,data))
+#define MREQ_M1(addr, data) (void)(data=(*IFACE.mreq_m1)((self),(addr)))
+#define MREQ_RD(addr, data) (void)(data=(*IFACE.mreq_rd)((self),(addr)))
+#define MREQ_WR(addr, data) (void)((*IFACE.mreq_wr)((self),(addr),(data)))
 
-#define IORQ_M1(port, data) (void)(data=(*IFACE.iorq_m1)(self,port))
-#define IORQ_RD(port, data) (void)(data=(*IFACE.iorq_rd)(self,port))
-#define IORQ_WR(port, data) (void)((*IFACE.iorq_wr)(self,port,data))
+#define IORQ_M1(port, data) (void)(data=(*IFACE.iorq_m1)((self),(port),(0x00)))
+#define IORQ_RD(port, data) (void)(data=(*IFACE.iorq_rd)((self),(port),(0x00)))
+#define IORQ_WR(port, data) (void)((*IFACE.iorq_wr)((self),(port),(data)))
 
 #define SIGNED_BYTE(value) ((int8_t)(value))
 #define UNSIGNED_BYTE(value) ((uint8_t)(value))
@@ -1521,10 +1521,10 @@ enum Codes
     RET_M,LD_SP_HL,JP_M,EI,CALL_M,PFX_FD,CP_BYTE,RST38
 };
 
-#define WrZ80(addr,value)  ((*IFACE.mreq_wr)((SELF),(addr),(value)))
-#define RdZ80(addr)        ((*IFACE.mreq_rd)((SELF),(addr)))
-#define OutZ80(addr,value) ((*IFACE.iorq_wr)((SELF),(addr),(value)))
-#define InZ80(addr)        ((*IFACE.iorq_rd)((SELF),(addr)))
+#define WrZ80(addr,data)  ((*IFACE.mreq_wr)((SELF),(addr),(data)))
+#define RdZ80(addr)       ((*IFACE.mreq_rd)((SELF),(addr)))
+#define OutZ80(addr,data) ((*IFACE.iorq_wr)((SELF),(addr),(data)))
+#define InZ80(addr)       ((*IFACE.iorq_rd)((SELF),(addr),(0x00)))
 
 #define S(Fl)        REGS.AF.b.l|=Fl
 #define R(Fl)        REGS.AF.b.l&=~(Fl)
