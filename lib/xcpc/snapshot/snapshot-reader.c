@@ -22,28 +22,28 @@
 #include <string.h>
 #include "snapshot-reader-priv.h"
 
-static void xcpc_snapshot_reader_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcSnapshotReader::%s()", function);
 }
 
 XcpcSnapshotReader* xcpc_snapshot_reader_alloc(void)
 {
-    xcpc_snapshot_reader_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcSnapshotReader);
 }
 
 XcpcSnapshotReader* xcpc_snapshot_reader_free(XcpcSnapshotReader* self)
 {
-    xcpc_snapshot_reader_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcSnapshotReader, self);
 }
 
 XcpcSnapshotReader* xcpc_snapshot_reader_construct(XcpcSnapshotReader* self, XcpcSnapshot* snapshot)
 {
-    xcpc_snapshot_reader_trace("construct");
+    log_trace("construct");
 
     /* clear instance */ {
         (void) memset(self, 0, sizeof(XcpcSnapshotReader));
@@ -58,28 +58,28 @@ XcpcSnapshotReader* xcpc_snapshot_reader_construct(XcpcSnapshotReader* self, Xcp
 
 XcpcSnapshotReader* xcpc_snapshot_reader_destruct(XcpcSnapshotReader* self)
 {
-    xcpc_snapshot_reader_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcSnapshotReader* xcpc_snapshot_reader_new(XcpcSnapshot* snapshot)
 {
-    xcpc_snapshot_reader_trace("new");
+    log_trace("new");
 
     return xcpc_snapshot_reader_construct(xcpc_snapshot_reader_alloc(), snapshot);
 }
 
 XcpcSnapshotReader* xcpc_snapshot_reader_delete(XcpcSnapshotReader* self)
 {
-    xcpc_snapshot_reader_trace("delete");
+    log_trace("delete");
 
     return xcpc_snapshot_reader_free(xcpc_snapshot_reader_destruct(self));
 }
 
 static XcpcSnapshotStatus xcpc_snapshot_reader_load_header(XcpcSnapshotReader* self)
 {
-    xcpc_snapshot_reader_trace("load_header");
+    log_trace("load_header");
     /* load header */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             void*  header_data = &self->snapshot->header;
@@ -97,7 +97,7 @@ static XcpcSnapshotStatus xcpc_snapshot_reader_load_memory(XcpcSnapshotReader* s
 {
     size_t remaining_bytes = 0;
 
-    xcpc_snapshot_reader_trace("load_memory");
+    log_trace("load_memory");
     /* compute and check remaining memory size */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             remaining_bytes |= (((size_t)(self->snapshot->header.ram_size_h)) << 18);
@@ -142,7 +142,7 @@ static XcpcSnapshotStatus xcpc_snapshot_reader_load_memory(XcpcSnapshotReader* s
 
 XcpcSnapshotStatus xcpc_snapshot_reader_load(XcpcSnapshotReader* self, const char* filename)
 {
-    xcpc_snapshot_reader_trace("load");
+    log_trace("load");
 
     /* sanity check */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {

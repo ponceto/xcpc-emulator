@@ -22,14 +22,19 @@
 #include <string.h>
 #include "machine-priv.h"
 
-static void xcpc_machine_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcMachine::%s()", function);
 }
 
-static void xcpc_machine_create_devices(XcpcMachine* self)
+static void default_error_handler(XcpcMachine* self)
 {
-    xcpc_machine_trace("create_devices");
+    log_trace("default_error_handler");
+}
+
+static void create_devices(XcpcMachine* self)
+{
+    log_trace("create_devices");
 
     /* monitor */ {
         if(self->state.monitor == NULL) {
@@ -105,9 +110,9 @@ static void xcpc_machine_create_devices(XcpcMachine* self)
     }
 }
 
-static void xcpc_machine_delete_devices(XcpcMachine* self)
+static void delete_devices(XcpcMachine* self)
 {
-    xcpc_machine_trace("delete_devices");
+    log_trace("delete_devices");
 
     /* monitor */ {
         if(self->state.monitor != NULL) {
@@ -183,9 +188,9 @@ static void xcpc_machine_delete_devices(XcpcMachine* self)
     }
 }
 
-static void xcpc_machine_reset_devices(XcpcMachine* self)
+static void reset_devices(XcpcMachine* self)
 {
-    xcpc_machine_trace("reset_devices");
+    log_trace("reset_devices");
 
     /* monitor */ {
         if(self->state.monitor != NULL) {
@@ -263,21 +268,21 @@ static void xcpc_machine_reset_devices(XcpcMachine* self)
 
 XcpcMachine* xcpc_machine_alloc(void)
 {
-    xcpc_machine_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcMachine);
 }
 
 XcpcMachine* xcpc_machine_free(XcpcMachine* self)
 {
-    xcpc_machine_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcMachine, self);
 }
 
 XcpcMachine* xcpc_machine_construct(XcpcMachine* self)
 {
-    xcpc_machine_trace("construct");
+    log_trace("construct");
 
     /* clear iface */ {
         (void) memset(&self->iface, 0, sizeof(XcpcMachineIface));
@@ -289,54 +294,60 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self)
         (void) xcpc_machine_set_iface(self, NULL);
     }
     /* create devices */ {
-        xcpc_machine_create_devices(self);
+        create_devices(self);
     }
-    return xcpc_machine_reset(self);
+    /* reset */ {
+        (void) xcpc_machine_reset(self);
+    }
+    return self;
 }
 
 XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
 {
-    xcpc_machine_trace("destruct");
+    log_trace("destruct");
 
     /* delete devices */ {
-        xcpc_machine_delete_devices(self);
+        delete_devices(self);
     }
     return self;
 }
 
 XcpcMachine* xcpc_machine_new(void)
 {
-    xcpc_machine_trace("new");
+    log_trace("new");
 
     return xcpc_machine_construct(xcpc_machine_alloc());
 }
 
 XcpcMachine* xcpc_machine_delete(XcpcMachine* self)
 {
-    xcpc_machine_trace("delete");
+    log_trace("delete");
 
     return xcpc_machine_free(xcpc_machine_destruct(self));
 }
 
 XcpcMachine* xcpc_machine_set_iface(XcpcMachine* self, const XcpcMachineIface* iface)
 {
-    xcpc_machine_trace("set_iface");
+    log_trace("set_iface");
 
     if(iface != NULL) {
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data      = self;
+        self->iface.drive0_error   = &default_error_handler;
+        self->iface.drive1_error   = &default_error_handler;
+        self->iface.snapshot_error = &default_error_handler;
     }
     return self;
 }
 
 XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
 {
-    xcpc_machine_trace("reset");
+    log_trace("reset");
 
     /* reset devices */ {
-        xcpc_machine_reset_devices(self);
+        reset_devices(self);
     }
     return self;
 }

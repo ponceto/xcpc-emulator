@@ -33,10 +33,9 @@ extern XcpcMonitor* xcpc_monitor_set_iface   (XcpcMonitor* monitor, const XcpcMo
 extern XcpcMonitor* xcpc_monitor_reset       (XcpcMonitor* monitor);
 extern XcpcMonitor* xcpc_monitor_realize     (XcpcMonitor* monitor, XcpcMonitorModel monitor_model, Display* display, Window window, Bool try_xshm);
 extern XcpcMonitor* xcpc_monitor_unrealize   (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_is_realized (XcpcMonitor* monitor);
 extern XcpcMonitor* xcpc_monitor_put_image   (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_resize      (XcpcMonitor* monitor, XEvent* event);
-extern XcpcMonitor* xcpc_monitor_expose      (XcpcMonitor* monitor, XEvent* event);
+extern XcpcMonitor* xcpc_monitor_expose      (XcpcMonitor* monitor, XExposeEvent* event);
+extern XcpcMonitor* xcpc_monitor_resize      (XcpcMonitor* monitor, XConfigureEvent* event);
 
 #ifdef __cplusplus
 }

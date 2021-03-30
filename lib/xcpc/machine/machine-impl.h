@@ -46,6 +46,9 @@ typedef struct _XcpcMachine      XcpcMachine;
 struct _XcpcMachineIface
 {
     void* user_data;
+    void (*drive0_error)(XcpcMachine* machine);
+    void (*drive1_error)(XcpcMachine* machine);
+    void (*snapshot_error)(XcpcMachine* machine);
 };
 
 struct _XcpcMachineState

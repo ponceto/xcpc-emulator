@@ -22,28 +22,28 @@
 #include <string.h>
 #include "joystick-priv.h"
 
-static void xcpc_joystick_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcJoystick::%s()", function);
 }
 
 XcpcJoystick* xcpc_joystick_alloc(void)
 {
-    xcpc_joystick_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcJoystick);
 }
 
 XcpcJoystick* xcpc_joystick_free(XcpcJoystick* self)
 {
-    xcpc_joystick_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcJoystick, self);
 }
 
 XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self)
 {
-    xcpc_joystick_trace("construct");
+    log_trace("construct");
 
     /* clear iface */ {
         (void) memset(&self->iface, 0, sizeof(XcpcJoystickIface));
@@ -54,33 +54,36 @@ XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self)
     /* initialize iface */ {
         (void) xcpc_joystick_set_iface(self, NULL);
     }
-    return xcpc_joystick_reset(self);
+    /* reset */ {
+        (void) xcpc_joystick_reset(self);
+    }
+    return self;
 }
 
 XcpcJoystick* xcpc_joystick_destruct(XcpcJoystick* self)
 {
-    xcpc_joystick_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcJoystick* xcpc_joystick_new(void)
 {
-    xcpc_joystick_trace("new");
+    log_trace("new");
 
     return xcpc_joystick_construct(xcpc_joystick_alloc());
 }
 
 XcpcJoystick* xcpc_joystick_delete(XcpcJoystick* self)
 {
-    xcpc_joystick_trace("delete");
+    log_trace("delete");
 
     return xcpc_joystick_free(xcpc_joystick_destruct(self));
 }
 
 XcpcJoystick* xcpc_joystick_set_iface(XcpcJoystick* self, const XcpcJoystickIface* iface)
 {
-    xcpc_joystick_trace("set_iface");
+    log_trace("set_iface");
 
     if(iface != NULL) {
         *(&self->iface) = *(iface);
@@ -93,7 +96,7 @@ XcpcJoystick* xcpc_joystick_set_iface(XcpcJoystick* self, const XcpcJoystickIfac
 
 XcpcJoystick* xcpc_joystick_reset(XcpcJoystick* self)
 {
-    xcpc_joystick_trace("reset");
+    log_trace("reset");
 
     return self;
 }

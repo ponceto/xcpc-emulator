@@ -2313,16 +2313,16 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
 
 unsigned long amstrad_cpc_resize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
-    if(self != NULL) {
-        (void) xcpc_monitor_resize(self->monitor, event);
+    if((self != NULL) && (event != NULL) && (event->type == ConfigureNotify)) {
+        (void) xcpc_monitor_resize(self->monitor, &event->xconfigure);
     }
     return 0UL;
 }
 
 unsigned long amstrad_cpc_redraw_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
-    if(self != NULL) {
-        (void) xcpc_monitor_expose(self->monitor, event);
+    if((self != NULL) && (event != NULL) && (event->type == Expose)) {
+        (void) xcpc_monitor_expose(self->monitor, &event->xexpose);
     }
     return 0UL;
 }

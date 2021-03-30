@@ -28,16 +28,75 @@
 #endif
 #include "monitor-priv.h"
 
-#define BadPixel ((unsigned long)(~0L))
-
-static void xcpc_monitor_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcMonitor::%s()", function);
 }
 
-static XcpcMonitor* xcpc_monitor_init(XcpcMonitor* self, Display* display, Window window, Bool try_xshm)
+static XColor* clear_color(XColor* color)
 {
-    xcpc_monitor_trace("init");
+    if(color != NULL) {
+        color->pixel = ((unsigned long)(~0L));
+        color->red   = 0U;
+        color->green = 0U;
+        color->blue  = 0U;
+        color->flags = DoRed | DoGreen | DoBlue;
+        color->pad   = 0;
+    }
+    return color;
+}
+
+static XColor* alloc_color(Display* display, Colormap colormap, XColor* color)
+{
+    if(color != NULL) {
+        Status status = XAllocColor(display, colormap, color);
+        if(status != 0) {
+            xcpc_log_debug ( "%s::alloc_color(), color allocated (pixel = 0x%08lx, rgb = { 0x%04x, 0x%04x, 0x%04x })"
+                           , "XcpcMonitor"
+                           , color->pixel
+                           , color->red
+                           , color->green
+                           , color->blue );
+        }
+        else {
+            xcpc_log_error ( "%s::alloc_color(), unable to allocate color (pixel = 0x%08lx, rgb = { 0x%04x, 0x%04x, 0x%04x })"
+                           , "XcpcMonitor"
+                           , color->pixel
+                           , color->red
+                           , color->green
+                           , color->blue );
+        }
+    }
+    return color;
+}
+
+static XColor* free_color(Display* display, Colormap colormap, XColor* color)
+{
+    if(color != NULL) {
+        Status status = XFreeColors(display, colormap, &color->pixel, 1, 0);
+        if(status != 0) {
+            xcpc_log_debug ( "%s::free_color(), color freed (pixel = 0x%08lx, rgb = { 0x%04x, 0x%04x, 0x%04x })"
+                           , "XcpcMonitor"
+                           , color->pixel
+                           , color->red
+                           , color->green
+                           , color->blue );
+        }
+        else {
+            xcpc_log_error ( "%s::free_color(), unable to free color (pixel = 0x%08lx, rgb = { 0x%04x, 0x%04x, 0x%04x })"
+                           , "XcpcMonitor"
+                           , color->pixel
+                           , color->red
+                           , color->green
+                           , color->blue );
+        }
+    }
+    return color;
+}
+
+static XcpcMonitor* init_attributes(XcpcMonitor* self, Display* display, Window window, Bool try_xshm)
+{
+    log_trace("init");
 
     /* check parameters */ {
         if((display == NULL) || (window  == None)) {
@@ -71,9 +130,9 @@ static XcpcMonitor* xcpc_monitor_init(XcpcMonitor* self, Display* display, Windo
     return self;
 }
 
-static XcpcMonitor* xcpc_monitor_fini(XcpcMonitor* self)
+static XcpcMonitor* fini_attributes(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("fini");
+    log_trace("fini");
 
     /* clear attributes */ {
         self->state.display  = NULL;
@@ -93,9 +152,9 @@ static XcpcMonitor* xcpc_monitor_fini(XcpcMonitor* self)
     return self;
 }
 
-static XcpcMonitor* xcpc_monitor_init_image(XcpcMonitor* self)
+static XcpcMonitor* init_image(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("init_image");
+    log_trace("init_image");
 
     /* check if realized */ {
         if((self->state.display == NULL) || (self->state.visual == NULL)) {
@@ -141,9 +200,9 @@ static XcpcMonitor* xcpc_monitor_init_image(XcpcMonitor* self)
     return self;
 }
 
-static XcpcMonitor* xcpc_monitor_fini_image(XcpcMonitor* self)
+static XcpcMonitor* fini_image(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("fini_image");
+    log_trace("fini_image");
 
     /* check if realized */ {
         if((self->state.display == NULL) || (self->state.image == NULL)) {
@@ -161,9 +220,9 @@ static XcpcMonitor* xcpc_monitor_fini_image(XcpcMonitor* self)
     return self;
 }
 
-static XcpcMonitor* xcpc_monitor_init_palette(XcpcMonitor* self, XcpcMonitorModel monitor_model)
+static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorModel monitor_model)
 {
-    xcpc_monitor_trace("init_palette");
+    log_trace("init_palette");
 
     /* check if realized */ {
         if((self->state.display == NULL) || (self->state.colormap == None)) {
@@ -171,19 +230,14 @@ static XcpcMonitor* xcpc_monitor_init_palette(XcpcMonitor* self, XcpcMonitorMode
         }
     }
     /* init palette */ {
-        unsigned short color_index = 0;
-        unsigned short color_count = countof(self->state.palette);
-        for(color_index = 0; color_index < color_count; ++color_index) {
-            XColor *color = &self->state.palette[color_index];
+        int color_index = 0;
+        int color_count = countof(self->state.palette);
+        do {
+            XColor* color = &self->state.palette[color_index];
             /* clear color */ {
-                color->pixel = BadPixel;
-                color->red   = 0U;
-                color->green = 0U;
-                color->blue  = 0U;
-                color->flags = DoRed | DoGreen | DoBlue;
-                color->pad   = 0;
+                (void) clear_color(color);
             }
-            /* init color */ {
+            /* get color */ {
                 (void) xcpc_color_get_values ( monitor_model
                                              , color_index
                                              , &color->red
@@ -191,32 +245,16 @@ static XcpcMonitor* xcpc_monitor_init_palette(XcpcMonitor* self, XcpcMonitorMode
                                              , &color->blue );
             }
             /* alloc color */ {
-                Status allocated = XAllocColor(self->state.display, self->state.colormap, color);
-                if(allocated != 0) {
-                    xcpc_log_debug ( "%s::init_palette(), color allocated (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
-                                   , "XcpcMonitor"
-                                   , color->pixel
-                                   , color->red
-                                   , color->green
-                                   , color->blue );
-                }
-                else {
-                    xcpc_log_error ( "%s::init_palette(), unable to allocate color (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
-                                   , "XcpcMonitor"
-                                   , color->pixel
-                                   , color->red
-                                   , color->green
-                                   , color->blue );
-                }
+                (void) alloc_color(self->state.display, self->state.colormap, color);
             }
-        }
+        } while(++color_index < color_count);
     }
     return self;
 }
 
-static XcpcMonitor* xcpc_monitor_fini_palette(XcpcMonitor* self)
+static XcpcMonitor* fini_palette(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("fini_palette");
+    log_trace("fini_palette");
 
     /* check if realized */ {
         if((self->state.display == NULL) || (self->state.colormap == None)) {
@@ -224,59 +262,38 @@ static XcpcMonitor* xcpc_monitor_fini_palette(XcpcMonitor* self)
         }
     }
     /* free palette */ {
-        unsigned short color_index = 0;
-        unsigned short color_count = countof(self->state.palette);
-        for(color_index = 0; color_index < color_count; ++color_index) {
+        int color_index = 0;
+        int color_count = countof(self->state.palette);
+        do {
             XColor* color = &self->state.palette[color_index];
             /* free color */ {
-                Status freed = XFreeColors(self->state.display, self->state.colormap, &color->pixel, 1, 0);
-                if(freed != 0) {
-                    xcpc_log_debug ( "%s::fini_palette(), color freed (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
-                                   , "XcpcMonitor"
-                                   , color->pixel
-                                   , color->red
-                                   , color->green
-                                   , color->blue );
-                }
-                else {
-                    xcpc_log_error ( "%s::fini_palette(), unable to free color (pixel = 0x%08lx, rgb = [0x%04x, 0x%04x, 0x%04x])"
-                                   , "XcpcMonitor"
-                                   , color->pixel
-                                   , color->red
-                                   , color->green
-                                   , color->blue );
-                }
+                (void) free_color(self->state.display, self->state.colormap, color);
             }
             /* clear color */ {
-                color->pixel = BadPixel;
-                color->red   = 0U;
-                color->green = 0U;
-                color->blue  = 0U;
-                color->flags = DoRed | DoGreen | DoBlue;
-                color->pad   = 0;
+                (void) clear_color(color);
             }
-        }
+        } while(++color_index < color_count);
     }
     return self;
 }
 
 XcpcMonitor* xcpc_monitor_alloc(void)
 {
-    xcpc_monitor_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcMonitor);
 }
 
 XcpcMonitor* xcpc_monitor_free(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcMonitor, self);
 }
 
 XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("construct");
+    log_trace("construct");
 
     /* clear iface */ {
         (void) memset(&self->iface, 0, sizeof(XcpcMonitorIface));
@@ -303,47 +320,45 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
         self->state.use_xshm = False;
     }
     /* init palette */ {
-        unsigned short color_index = 0;
-        unsigned short color_count = countof(self->state.palette);
-        for(color_index = 0; color_index < color_count; ++color_index) {
-            XColor* color = &self->state.palette[color_index];
-            /* init color */ {
-                color->pixel = BadPixel;
-                color->red   = 0U;
-                color->green = 0U;
-                color->blue  = 0U;
-                color->flags = DoRed | DoGreen | DoBlue;
-                color->pad   = 0;
-            }
-        }
+        int color_index = 0;
+        int color_count = countof(self->state.palette);
+        do {
+            (void) clear_color(&self->state.palette[color_index]);
+        } while(++color_index < color_count);
     }
-    return xcpc_monitor_reset(self);
+    /* reset */ {
+        (void) xcpc_monitor_reset(self);
+    }
+    return self;
 }
 
 XcpcMonitor* xcpc_monitor_destruct(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("destruct");
+    log_trace("destruct");
 
-    return xcpc_monitor_unrealize(self);
+    /* unrealize */ {
+        (void) xcpc_monitor_unrealize(self);
+    }
+    return self;
 }
 
 XcpcMonitor* xcpc_monitor_new(void)
 {
-    xcpc_monitor_trace("new");
+    log_trace("new");
 
     return xcpc_monitor_construct(xcpc_monitor_alloc());
 }
 
 XcpcMonitor* xcpc_monitor_delete(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("delete");
+    log_trace("delete");
 
     return xcpc_monitor_free(xcpc_monitor_destruct(self));
 }
 
 XcpcMonitor* xcpc_monitor_set_iface(XcpcMonitor* self, const XcpcMonitorIface* iface)
 {
-    xcpc_monitor_trace("set_iface");
+    log_trace("set_iface");
 
     if(iface != NULL) {
         *(&self->iface) = *(iface);
@@ -356,64 +371,54 @@ XcpcMonitor* xcpc_monitor_set_iface(XcpcMonitor* self, const XcpcMonitorIface* i
 
 XcpcMonitor* xcpc_monitor_reset(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("reset");
+    log_trace("reset");
 
     return self;
 }
 
 XcpcMonitor* xcpc_monitor_realize(XcpcMonitor* self, XcpcMonitorModel monitor_model, Display* display, Window window, Bool try_xshm)
 {
-    xcpc_monitor_trace("realize");
+    log_trace("realize");
 
     /* unrealize */ {
         (void) xcpc_monitor_unrealize(self);
     }
     /* initialize attributes */ {
-        (void) xcpc_monitor_init(self, display, window, try_xshm);
+        (void) init_attributes(self, display, window, try_xshm);
     }
     /* initialize image */ {
-        (void) xcpc_monitor_init_image(self);
+        (void) init_image(self);
     }
     /* initialize palette */ {
-        (void) xcpc_monitor_init_palette(self, monitor_model);
+        (void) init_palette(self, monitor_model);
     }
     return self;
 }
 
 XcpcMonitor* xcpc_monitor_unrealize(XcpcMonitor* self)
 {
-    xcpc_monitor_trace("unrealize");
+    log_trace("unrealize");
 
     /* finalize palette */ {
-        (void) xcpc_monitor_fini_palette(self);
+        (void) fini_palette(self);
     }
     /* finalize image */ {
-        (void) xcpc_monitor_fini_image(self);
+        (void) fini_image(self);
     }
     /* finalize attributes */ {
-        (void) xcpc_monitor_fini(self);
-    }
-    return self;
-}
-
-XcpcMonitor* xcpc_monitor_is_realized(XcpcMonitor* self)
-{
-    if((self->state.display == NULL)
-    || (self->state.screen  == NULL)
-    || (self->state.visual  == NULL)
-    || (self->state.image   == NULL)) {
-        return NULL;
+        (void) fini_attributes(self);
     }
     return self;
 }
 
 XcpcMonitor* xcpc_monitor_put_image(XcpcMonitor* self)
 {
+    Display* display = self->state.display;
+    Window   window  = self->state.window;
+    XImage*  image   = self->state.image;
+    GC       gc      = self->state.gc;
+
     /* blit the image */ {
-        Display* display = self->state.display;
-        Window   window  = self->state.window;
-        XImage*  image   = self->state.image;
-        GC       gc      = self->state.gc;
         if((display != NULL)
         && (window  != None)
         && (image   != NULL)) {
@@ -436,55 +441,22 @@ XcpcMonitor* xcpc_monitor_put_image(XcpcMonitor* self)
     return self;
 }
 
-XcpcMonitor* xcpc_monitor_resize(XcpcMonitor* self, XEvent* event)
+XcpcMonitor* xcpc_monitor_expose(XcpcMonitor* self, XExposeEvent* event)
 {
-    xcpc_monitor_trace("resize");
+    Display* display = self->state.display;
+    Window   window  = self->state.window;
+    XImage*  image   = self->state.image;
+    GC       gc      = self->state.gc;
 
-    /* check event */ {
-        if((event == NULL) || (event->type != ConfigureNotify)) {
-            return self;
-        }
-    }
-    /* compute px */ {
-        if(event->xconfigure.width > self->state.image->width) {
-            self->state.px = (event->xconfigure.width - self->state.image->width) / 2;
-        }
-        else {
-            self->state.px = 0;
-        }
-    }
-    /* compute py */ {
-        if(event->xconfigure.height > self->state.image->height) {
-            self->state.py = (event->xconfigure.height - self->state.image->height) / 2;
-        }
-        else {
-            self->state.py = 0;
-        }
-    }
-    return self;
-}
-
-XcpcMonitor* xcpc_monitor_expose(XcpcMonitor* self, XEvent* event)
-{
-    xcpc_monitor_trace("expose");
-
-    /* check event */ {
-        if((event == NULL) || (event->type != Expose)) {
+    log_trace("expose");
+    /* is realized ? */ {
+        if((display == NULL) || (window == None) || (image == NULL)) {
             return self;
         }
     }
     /* expose */ {
-        Display* display = self->state.display;
-        Window   window  = self->state.window;
-        XImage*  image   = self->state.image;
-        GC       gc      = self->state.gc;
         XcpcMonitorArea area1;
         XcpcMonitorArea area2;
-        /* is realized ? */ {
-            if((display == NULL) || (window == None) || (image == NULL)) {
-                return self;
-            }
-        }
         /* init area1 */ {
             area1.x1 = self->state.px;
             area1.y1 = self->state.py;
@@ -492,10 +464,10 @@ XcpcMonitor* xcpc_monitor_expose(XcpcMonitor* self, XEvent* event)
             area1.y2 = ((area1.y1 + image->height) - 1);
         }
         /* init area2 */ {
-            area2.x1 = event->xexpose.x;
-            area2.y1 = event->xexpose.y;
-            area2.x2 = ((area2.x1 + event->xexpose.width ) - 1);
-            area2.y2 = ((area2.y1 + event->xexpose.height) - 1);
+            area2.x1 = event->x;
+            area2.y1 = event->y;
+            area2.x2 = ((area2.x1 + event->width ) - 1);
+            area2.y2 = ((area2.y1 + event->height) - 1);
         }
         /* intersect areas */ {
             if((area2.x1 > area1.x2)
@@ -540,6 +512,30 @@ XcpcMonitor* xcpc_monitor_expose(XcpcMonitor* self, XEvent* event)
                                 , self->state.use_xshm
                                 , False );
             (void) XFlush(display);
+        }
+    }
+    return self;
+}
+
+XcpcMonitor* xcpc_monitor_resize(XcpcMonitor* self, XConfigureEvent* event)
+{
+    log_trace("resize");
+    /* resize */ {
+        /* compute px */ {
+            if(event->width >= self->state.image->width) {
+                self->state.px = +((event->width - self->state.image->width) / 2);
+            }
+            else {
+                self->state.px = -((self->state.image->width - event->width) / 2);
+            }
+        }
+        /* compute py */ {
+            if(event->height >= self->state.image->height) {
+                self->state.py = +((event->height - self->state.image->height) / 2);
+            }
+            else {
+                self->state.py = -((self->state.image->height - event->height) / 2);
+            }
         }
     }
     return self;

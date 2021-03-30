@@ -22,36 +22,38 @@
 #include <string.h>
 #include "vdc-6845-priv.h"
 
-static void default_hsync_handler(XcpcVdc6845* self, int hsync)
-{
-}
-
-static void default_vsync_handler(XcpcVdc6845* self, int vsync)
-{
-}
-
-static void xcpc_vdc_6845_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcVdc6845::%s()", function);
 }
 
+static void default_hsync_handler(XcpcVdc6845* self, int hsync)
+{
+    log_trace("default_hsync_handler");
+}
+
+static void default_vsync_handler(XcpcVdc6845* self, int vsync)
+{
+    log_trace("default_vsync_handler");
+}
+
 XcpcVdc6845* xcpc_vdc_6845_alloc(void)
 {
-    xcpc_vdc_6845_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcVdc6845);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_free(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcVdc6845, self);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("construct");
+    log_trace("construct");
 
     /* clear iface */ {
         (void) memset(&self->iface, 0, sizeof(XcpcVdc6845Iface));
@@ -62,33 +64,36 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
     /* initialize iface */ {
         (void) xcpc_vdc_6845_set_iface(self, NULL);
     }
-    return xcpc_vdc_6845_reset(self);
+    /* reset */ {
+        (void) xcpc_vdc_6845_reset(self);
+    }
+    return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_destruct(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_new(void)
 {
-    xcpc_vdc_6845_trace("new");
+    log_trace("new");
 
     return xcpc_vdc_6845_construct(xcpc_vdc_6845_alloc());
 }
 
 XcpcVdc6845* xcpc_vdc_6845_delete(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("delete");
+    log_trace("delete");
 
     return xcpc_vdc_6845_free(xcpc_vdc_6845_destruct(self));
 }
 
 XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* iface)
 {
-    xcpc_vdc_6845_trace("set_iface");
+    log_trace("set_iface");
 
     if(iface != NULL) {
         *(&self->iface) = *(iface);
@@ -103,7 +108,7 @@ XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* 
 
 XcpcVdc6845* xcpc_vdc_6845_reset(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("reset");
+    log_trace("reset");
 
     /* reset registers */ {
         self->state.regs.named.address_register         = DEFAULT_VALUE_OF_ADDRESS_REGISTER;

@@ -378,58 +378,70 @@ static const uint8_t CyclesXX[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 0, 0, 0
 };
 
-static uint8_t default_mreq_m1_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
-{
-    return 0x00;
-}
-
-static uint8_t default_mreq_rd_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
-{
-    return 0x00;
-}
-
-static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
-{
-    return 0x00;
-}
-
-static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
-{
-    return 0x00;
-}
-
-static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr)
-{
-    return 0x00;
-}
-
-static uint8_t default_iorq_wr_handler(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
-{
-    return 0x00;
-}
-
-static void xcpc_cpu_z80a_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcCpuZ80a::%s()", function);
 }
 
+static uint8_t default_mreq_m1_handler(XcpcCpuZ80a* self, uint16_t addr)
+{
+    log_trace("default_mreq_m1_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_mreq_rd_handler(XcpcCpuZ80a* self, uint16_t addr)
+{
+    log_trace("default_mreq_rd_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+{
+    log_trace("default_mreq_wr_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* self, uint16_t addr)
+{
+    log_trace("default_iorq_m1_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* self, uint16_t addr)
+{
+    log_trace("default_iorq_rd_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_iorq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+{
+    log_trace("default_iorq_wr_handler");
+
+    return 0x00;
+}
+
 XcpcCpuZ80a* xcpc_cpu_z80a_alloc(void)
 {
-    xcpc_cpu_z80a_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcCpuZ80a);
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_free(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcCpuZ80a, self);
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("construct");
+    log_trace("construct");
 
     /* clear iface */ {
         (void) memset(&self->iface, 0, sizeof(XcpcCpuZ80aIface));
@@ -440,33 +452,36 @@ XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
     /* initialize iface */ {
         (void) xcpc_cpu_z80a_set_iface(self, NULL);
     }
-    return xcpc_cpu_z80a_reset(self);
+    /* reset */ {
+        (void) xcpc_cpu_z80a_reset(self);
+    }
+    return self;
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_destruct(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_new(void)
 {
-    xcpc_cpu_z80a_trace("new");
+    log_trace("new");
 
     return xcpc_cpu_z80a_construct(xcpc_cpu_z80a_alloc());
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_delete(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("delete");
+    log_trace("delete");
 
     return xcpc_cpu_z80a_free(xcpc_cpu_z80a_destruct(self));
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_set_iface(XcpcCpuZ80a* self, const XcpcCpuZ80aIface* iface)
 {
-    xcpc_cpu_z80a_trace("set_iface");
+    log_trace("set_iface");
 
     if(iface != NULL) {
         *(&self->iface) = *(iface);
@@ -485,7 +500,7 @@ XcpcCpuZ80a* xcpc_cpu_z80a_set_iface(XcpcCpuZ80a* self, const XcpcCpuZ80aIface* 
 
 XcpcCpuZ80a* xcpc_cpu_z80a_reset(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("reset");
+    log_trace("reset");
 
     /* reset state.regs */ {
         AF_R = 0;

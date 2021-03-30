@@ -22,28 +22,28 @@
 #include <string.h>
 #include "fdc-765a-priv.h"
 
-static void xcpc_fdc_765a_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcFdc765a::%s()", function);
 }
 
 XcpcFdc765a* xcpc_fdc_765a_alloc(void)
 {
-    xcpc_fdc_765a_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcFdc765a);
 }
 
 XcpcFdc765a* xcpc_fdc_765a_free(XcpcFdc765a* self)
 {
-    xcpc_fdc_765a_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcFdc765a, self);
 }
 
 XcpcFdc765a* xcpc_fdc_765a_construct(XcpcFdc765a* self)
 {
-    xcpc_fdc_765a_trace("construct");
+    log_trace("construct");
 
     /* clear iface */ {
         (void) memset(&self->iface, 0, sizeof(XcpcFdc765aIface));
@@ -61,12 +61,15 @@ XcpcFdc765a* xcpc_fdc_765a_construct(XcpcFdc765a* self)
         self->state.fd2_impl = xcpc_fdd_impl_new();
         self->state.fd3_impl = xcpc_fdd_impl_new();
     }
-    return xcpc_fdc_765a_reset(self);
+    /* reset */ {
+        (void) xcpc_fdc_765a_reset(self);
+    }
+    return self;
 }
 
 XcpcFdc765a* xcpc_fdc_765a_destruct(XcpcFdc765a* self)
 {
-    xcpc_fdc_765a_trace("destruct");
+    log_trace("destruct");
 
     /* detach drives */ {
         (void) xcpc_fdc_765a_detach(self, 3);
@@ -86,21 +89,21 @@ XcpcFdc765a* xcpc_fdc_765a_destruct(XcpcFdc765a* self)
 
 XcpcFdc765a* xcpc_fdc_765a_new(void)
 {
-    xcpc_fdc_765a_trace("new");
+    log_trace("new");
 
     return xcpc_fdc_765a_construct(xcpc_fdc_765a_alloc());
 }
 
 XcpcFdc765a* xcpc_fdc_765a_delete(XcpcFdc765a* self)
 {
-    xcpc_fdc_765a_trace("delete");
+    log_trace("delete");
 
     return xcpc_fdc_765a_free(xcpc_fdc_765a_destruct(self));
 }
 
 XcpcFdc765a* xcpc_fdc_765a_set_iface(XcpcFdc765a* self, const XcpcFdc765aIface* iface)
 {
-    xcpc_fdc_765a_trace("set_iface");
+    log_trace("set_iface");
 
     if(iface != NULL) {
         *(&self->iface) = *(iface);
@@ -113,7 +116,7 @@ XcpcFdc765a* xcpc_fdc_765a_set_iface(XcpcFdc765a* self, const XcpcFdc765aIface* 
 
 XcpcFdc765a* xcpc_fdc_765a_reset(XcpcFdc765a* self)
 {
-    xcpc_fdc_765a_trace("reset");
+    log_trace("reset");
 
     /* reset state */ {
         (void) xcpc_fdc_impl_reset(self->state.fdc_impl);

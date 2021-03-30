@@ -22,38 +22,42 @@
 #include <string.h>
 #include "ppi-8255-priv.h"
 
-static uint8_t default_rd_handler(XcpcPpi8255* ppi_8255, uint8_t data)
-{
-    return data;
-}
-
-static uint8_t default_wr_handler(XcpcPpi8255* ppi_8255, uint8_t data)
-{
-    return data;
-}
-
-static void xcpc_ppi_8255_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcPpi8255::%s()", function);
 }
 
+static uint8_t default_rd_handler(XcpcPpi8255* self, uint8_t data)
+{
+    log_trace("default_rd_handler");
+
+    return data;
+}
+
+static uint8_t default_wr_handler(XcpcPpi8255* self, uint8_t data)
+{
+    log_trace("default_wr_handler");
+
+    return data;
+}
+
 XcpcPpi8255* xcpc_ppi_8255_alloc(void)
 {
-    xcpc_ppi_8255_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcPpi8255);
 }
 
 XcpcPpi8255* xcpc_ppi_8255_free(XcpcPpi8255* self)
 {
-    xcpc_ppi_8255_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcPpi8255, self);
 }
 
 XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
 {
-    xcpc_ppi_8255_trace("construct");
+    log_trace("construct");
 
     /* clear iface */ {
         (void) memset(&self->iface, 0, sizeof(XcpcPpi8255Iface));
@@ -64,33 +68,36 @@ XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
     /* initialize iface */ {
         (void) xcpc_ppi_8255_set_iface(self, NULL);
     }
-    return xcpc_ppi_8255_reset(self);
+    /* reset */ {
+        (void) xcpc_ppi_8255_reset(self);
+    }
+    return self;
 }
 
 XcpcPpi8255* xcpc_ppi_8255_destruct(XcpcPpi8255* self)
 {
-    xcpc_ppi_8255_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcPpi8255* xcpc_ppi_8255_new(void)
 {
-    xcpc_ppi_8255_trace("new");
+    log_trace("new");
 
     return xcpc_ppi_8255_construct(xcpc_ppi_8255_alloc());
 }
 
 XcpcPpi8255* xcpc_ppi_8255_delete(XcpcPpi8255* self)
 {
-    xcpc_ppi_8255_trace("delete");
+    log_trace("delete");
 
     return xcpc_ppi_8255_free(xcpc_ppi_8255_destruct(self));
 }
 
 XcpcPpi8255* xcpc_ppi_8255_set_iface(XcpcPpi8255* self, const XcpcPpi8255Iface* iface)
 {
-    xcpc_ppi_8255_trace("set_iface");
+    log_trace("set_iface");
 
     if(iface != NULL) {
         *(&self->iface) = *(iface);
@@ -109,7 +116,7 @@ XcpcPpi8255* xcpc_ppi_8255_set_iface(XcpcPpi8255* self, const XcpcPpi8255Iface* 
 
 XcpcPpi8255* xcpc_ppi_8255_reset(XcpcPpi8255* self)
 {
-    xcpc_ppi_8255_trace("reset");
+    log_trace("reset");
 
     /* reset state */ {
         self->state.port_a = DEFAULT_VALUE_OF_PORT_A;

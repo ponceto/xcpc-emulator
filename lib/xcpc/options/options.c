@@ -98,6 +98,11 @@ static const char txt_quiet[]        = "set the loglevel to quiet mode";
 static const char txt_trace[]        = "set the loglevel to trace mode";
 static const char txt_debug[]        = "set the loglevel to debug mode";
 
+static void log_trace(const char* function)
+{
+    xcpc_log_trace("XcpcOptions::%s()", function);
+}
+
 static void print_usage(XcpcOptions* self)
 {
     const char* format = "    %-24s    %s";
@@ -185,28 +190,23 @@ static int check_arg(const char* expected, const char* argument)
     return result == 0;
 }
 
-static void xcpc_options_trace(const char* function)
-{
-    xcpc_log_trace("XcpcOptions::%s()", function);
-}
-
 XcpcOptions* xcpc_options_alloc(void)
 {
-    xcpc_options_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcOptions);
 }
 
 XcpcOptions* xcpc_options_free(XcpcOptions* self)
 {
-    xcpc_options_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcOptions, self);
 }
 
 XcpcOptions* xcpc_options_construct(XcpcOptions* self)
 {
-    xcpc_options_trace("construct");
+    log_trace("construct");
 
     /* clear iface */ {
         (void) memset(&self->iface, 0, sizeof(XcpcOptionsIface));
@@ -256,7 +256,7 @@ XcpcOptions* xcpc_options_construct(XcpcOptions* self)
 
 XcpcOptions* xcpc_options_destruct(XcpcOptions* self)
 {
-    xcpc_options_trace("destruct");
+    log_trace("destruct");
 
     /* destruct */ {
         self->state.program      = replace_setting(self->state.program     , NULL, 0);
@@ -297,21 +297,21 @@ XcpcOptions* xcpc_options_destruct(XcpcOptions* self)
 
 XcpcOptions* xcpc_options_new(void)
 {
-    xcpc_options_trace("new");
+    log_trace("new");
 
     return xcpc_options_construct(xcpc_options_alloc());
 }
 
 XcpcOptions* xcpc_options_delete(XcpcOptions* self)
 {
-    xcpc_options_trace("delete");
+    log_trace("delete");
 
     return xcpc_options_free(xcpc_options_destruct(self));
 }
 
 XcpcOptions* xcpc_options_parse(XcpcOptions* self, int* argcp, char*** argvp)
 {
-    xcpc_options_trace("parse");
+    log_trace("parse");
 
     if((argvp != NULL) && (argvp != NULL) && (*argvp != NULL)) {
         int    argi = 0;
