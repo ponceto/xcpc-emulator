@@ -220,7 +220,7 @@ static XcpcMonitor* fini_image(XcpcMonitor* self)
     return self;
 }
 
-static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorModel monitor_model)
+static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorType monitor_type)
 {
     log_trace("init_palette");
 
@@ -238,7 +238,7 @@ static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorModel monitor_mod
                 (void) clear_color(color);
             }
             /* get color */ {
-                (void) xcpc_color_get_values ( monitor_model
+                (void) xcpc_color_get_values ( monitor_type
                                              , color_index
                                              , &color->red
                                              , &color->green
@@ -375,7 +375,7 @@ XcpcMonitor* xcpc_monitor_reset(XcpcMonitor* self)
     return self;
 }
 
-XcpcMonitor* xcpc_monitor_realize(XcpcMonitor* self, XcpcMonitorModel monitor_model, Display* display, Window window, Bool try_xshm)
+XcpcMonitor* xcpc_monitor_realize(XcpcMonitor* self, XcpcMonitorType monitor_type, Display* display, Window window, Bool try_xshm)
 {
     log_trace("realize");
 
@@ -389,7 +389,7 @@ XcpcMonitor* xcpc_monitor_realize(XcpcMonitor* self, XcpcMonitorModel monitor_mo
         (void) init_image(self);
     }
     /* initialize palette */ {
-        (void) init_palette(self, monitor_model);
+        (void) init_palette(self, monitor_type);
     }
     return self;
 }

@@ -89,30 +89,30 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR* self)
     }
     /* compute and build the statistics */ {
         if(elapsed_us != 0) {
-            const double stats_frames  = (double) (self->frame.drawn * 1000000UL);
+            const double stats_frames  = (double) (self->stats.drawn * 1000000UL);
             const double stats_elapsed = (double) elapsed_us;
             const double stats_fps     = (stats_frames / stats_elapsed);
-            (void) snprintf(self->stats, sizeof(self->stats), "refresh = %2d Hz, framerate = %.2f fps", self->frame.rate, stats_fps);
+            (void) snprintf(self->stats.text, sizeof(self->stats.text), "refresh = %2d Hz, framerate = %.2f fps", self->stats.rate, stats_fps);
         }
         else {
-            (void) snprintf(self->stats, sizeof(self->stats), "refresh = %2d Hz", self->frame.rate);
+            (void) snprintf(self->stats.text, sizeof(self->stats.text), "refresh = %2d Hz", self->stats.rate);
         }
     }
     /* print statistics */ {
         if(self->options->state.fps != 0) {
-            xcpc_log_print(self->stats);
+            xcpc_log_print(self->stats.text);
         }
     }
     /* set the new reference */ {
         self->timer.profiler = curr_time;
-        self->frame.count    = 0;
-        self->frame.drawn    = 0;
+        self->stats.count    = 0;
+        self->stats.drawn    = 0;
     }
 }
 
 static void cpc_mem_select(AMSTRAD_CPC_EMULATOR* self)
 {
-    if(self->setup.ramsize >= XCPC_RAMSIZE_128K) {
+    if(self->setup.memory_size >= XCPC_MEMORY_SIZE_128K) {
         switch(self->pager.conf.ram) {
             case 0x00:
                 {
@@ -297,12 +297,12 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                     data = self->ppi_8255->state.port_a;
                     break;
                 case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-                    self->ppi_8255->state.port_b = ((0                        & 0x01) << 7)
-                                                 | ((1                        & 0x01) << 6)
-                                                 | ((1                        & 0x01) << 5)
-                                                 | ((self->setup.refresh_rate & 0x01) << 4)
-                                                 | ((self->setup.manufacturer & 0x07) << 1)
-                                                 | ((self->signals.vsync      & 0x01) << 0);
+                    self->ppi_8255->state.port_b = ((self->state.cassette  & 0x01) << 7)
+                                                 | ((self->state.parallel  & 0x01) << 6)
+                                                 | ((self->state.expansion & 0x01) << 5)
+                                                 | ((self->state.refresh   & 0x01) << 4)
+                                                 | ((self->state.company   & 0x07) << 1)
+                                                 | ((self->state.vsync     & 0x01) << 0);
                     data = self->ppi_8255->state.port_b;
                     break;
                 case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
@@ -438,7 +438,7 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     XcpcCpuZ80a* cpu_z80a = self->cpu_z80a;
     XcpcVgaCore* vga_core = self->vga_core;
 
-    if((self->signals.hsync = hsync) == 0) {
+    if((self->state.hsync = hsync) == 0) {
         /* falling edge */ {
             if(++vga_core->state.counter == 52) {
                 xcpc_cpu_z80a_pulse_int(cpu_z80a);
@@ -453,7 +453,7 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                 }
             }
             /* update scanline */ {
-                XcpcScanline* scanline = &self->scanlines.array[(self->scanlines.index + 1) % 312];
+                XcpcScanline* scanline = &self->frame.array[(self->frame.index + 1) % 312];
                 /* update mode */ {
                     scanline->mode = vga_core->state.rmr & 0x03;
                 }
@@ -480,7 +480,7 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(vdc_6845->iface.user_data);
 
-    if((self->signals.vsync = vsync) != 0) {
+    if((self->state.vsync = vsync) != 0) {
         /* rising edge */ {
             self->vga_core->state.delayed = 2;
         }
@@ -660,7 +660,7 @@ static void create_ram_bank(AMSTRAD_CPC_EMULATOR* self)
     };
 
     /* create ram banks */ {
-        size_t requested = self->setup.ramsize;
+        size_t requested = self->setup.memory_size;
         size_t allocated = 0UL;
         unsigned int bank_index = 0;
         unsigned int bank_count = countof(self->ram_bank);
@@ -962,7 +962,7 @@ static void reset_devices(AMSTRAD_CPC_EMULATOR* self)
     reset_exp_bank(self);
 }
 
-static void cpc_paint_default(AMSTRAD_CPC_EMULATOR* self)
+static void cpc_paint_unknown(AMSTRAD_CPC_EMULATOR* self)
 {
 }
 
@@ -978,7 +978,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    XcpcScanline* scanline = self->scanlines.array;
+    XcpcScanline* scanline = self->frame.array;
     uint8_t* dst = (uint8_t*) monitor->state.image->data;
     uint8_t* nxt = dst;
     uint8_t pixel;
@@ -988,7 +988,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
     uint16_t disp;
     uint8_t data;
 
-    scanline = &self->scanlines.array[(vt * mr) - (1 * vp)];
+    scanline = &self->frame.array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel = scanline->ink[16].pixel;
@@ -997,7 +997,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         dst = nxt; scanline++;
     }
-    scanline = &self->scanlines.array[6];
+    scanline = &self->frame.array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
             nxt += XCPC_MONITOR_WIDTH;
@@ -1260,7 +1260,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         sa += hd;
     }
-    scanline = &self->scanlines.array[(vd * mr) + (0 * vp)];
+    scanline = &self->frame.array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel = scanline->ink[16].pixel;
@@ -1284,7 +1284,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    XcpcScanline* scanline = self->scanlines.array;
+    XcpcScanline* scanline = self->frame.array;
     uint16_t* dst = (uint16_t*) monitor->state.image->data;
     uint16_t* nxt = dst;
     uint16_t pixel;
@@ -1294,7 +1294,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
     uint16_t disp;
     uint8_t data;
 
-    scanline = &self->scanlines.array[(vt * mr) - (1 * vp)];
+    scanline = &self->frame.array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel = scanline->ink[16].pixel;
@@ -1303,7 +1303,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         dst = nxt; scanline++;
     }
-    scanline = &self->scanlines.array[6];
+    scanline = &self->frame.array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
             nxt += XCPC_MONITOR_WIDTH;
@@ -1566,7 +1566,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         sa += hd;
     }
-    scanline = &self->scanlines.array[(vd * mr) + (0 * vp)];
+    scanline = &self->frame.array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel = scanline->ink[16].pixel;
@@ -1590,7 +1590,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    XcpcScanline* scanline = self->scanlines.array;
+    XcpcScanline* scanline = self->frame.array;
     uint32_t* dst = (uint32_t*) monitor->state.image->data;
     uint32_t* nxt = dst;
     uint32_t pixel;
@@ -1600,7 +1600,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
     uint16_t disp;
     uint8_t data;
 
-    scanline = &self->scanlines.array[(vt * mr) - (1 * vp)];
+    scanline = &self->frame.array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel = scanline->ink[16].pixel;
@@ -1609,7 +1609,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         dst = nxt; scanline++;
     }
-    scanline = &self->scanlines.array[6];
+    scanline = &self->frame.array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
             nxt += XCPC_MONITOR_WIDTH;
@@ -1872,7 +1872,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         sa += hd;
     }
-    scanline = &self->scanlines.array[(vd * mr) + (0 * vp)];
+    scanline = &self->frame.array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel = scanline->ink[16].pixel;
@@ -1884,7 +1884,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
     (void) xcpc_monitor_put_image(self->monitor);
 }
 
-static void cpc_keybd_default(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
+static void cpc_keybd_unknown(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
 }
 
@@ -1898,7 +1898,7 @@ static void cpc_keybd_azerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
     (void) xcpc_keyboard_azerty(self->keyboard, &event->xkey);
 }
 
-static void cpc_mouse_default(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
+static void cpc_mouse_unknown(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
 }
 
@@ -1933,61 +1933,84 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
 {
     char* system_rom = NULL;
     char* amsdos_rom = NULL;
-    const char* cpc_model        = self->options->state.model;
-    const char* cpc_monitor      = self->options->state.monitor;
-    const char* cpc_keyboard     = self->options->state.keyboard;
-    const char* cpc_refresh      = self->options->state.refresh;
-    const char* cpc_manufacturer = self->options->state.manufacturer;
-    const char* cpc_sysrom       = self->options->state.sysrom;
-    const char* cpc_dosrom       = self->options->state.rom007;
+    const char* opt_company  = XCPC_OPTIONS_STATE(self->options)->company;
+    const char* opt_machine  = XCPC_OPTIONS_STATE(self->options)->machine;
+    const char* opt_monitor  = XCPC_OPTIONS_STATE(self->options)->monitor;
+    const char* opt_refresh  = XCPC_OPTIONS_STATE(self->options)->refresh;
+    const char* opt_keyboard = XCPC_OPTIONS_STATE(self->options)->keyboard;
+    const char* opt_system   = XCPC_OPTIONS_STATE(self->options)->sysrom;
+    const char* opt_amsdos   = XCPC_OPTIONS_STATE(self->options)->rom007;
 
-    /* init machine */ {
-        self->setup.computer_model = xcpc_computer_model(cpc_model, XCPC_COMPUTER_MODEL_6128);
-        switch(self->setup.computer_model) {
-            case XCPC_COMPUTER_MODEL_464:
+    /* clear handlers */ {
+        self->handlers.paint = &cpc_paint_unknown;
+        self->handlers.keybd = &cpc_keybd_unknown;
+        self->handlers.mouse = &cpc_mouse_unknown;
+    }
+    /* fetch setup */ {
+        self->setup.company_name  = xcpc_company_name  (opt_company , XCPC_COMPANY_NAME_DEFAULT );
+        self->setup.machine_type  = xcpc_machine_type  (opt_machine , XCPC_MACHINE_TYPE_DEFAULT );
+        self->setup.monitor_type  = xcpc_monitor_type  (opt_monitor , XCPC_MONITOR_TYPE_DEFAULT );
+        self->setup.refresh_rate  = xcpc_refresh_rate  (opt_refresh , XCPC_REFRESH_RATE_DEFAULT );
+        self->setup.keyboard_type = xcpc_keyboard_type (opt_keyboard, XCPC_KEYBOARD_TYPE_DEFAULT);
+        self->setup.memory_size   = XCPC_MEMORY_SIZE_DEFAULT;
+    }
+    /* adjust company name */ {
+        if(self->setup.company_name == XCPC_COMPANY_NAME_DEFAULT) {
+            self->setup.company_name = XCPC_COMPANY_NAME_AMSTRAD;
+        }
+    }
+    /* adjust machine type */ {
+        if(self->setup.machine_type == XCPC_MACHINE_TYPE_DEFAULT) {
+            self->setup.machine_type = XCPC_MACHINE_TYPE_CPC6128;
+        }
+    }
+    /* adjust monitor type */ {
+        if(self->setup.monitor_type == XCPC_MONITOR_TYPE_DEFAULT) {
+            self->setup.monitor_type = XCPC_MONITOR_TYPE_COLOR;
+        }
+    }
+    /* adjust refresh rate */ {
+        if(self->setup.refresh_rate == XCPC_REFRESH_RATE_DEFAULT) {
+            self->setup.refresh_rate = XCPC_REFRESH_RATE_50HZ;
+        }
+    }
+    /* adjust keyboard type */ {
+        if(self->setup.keyboard_type == XCPC_KEYBOARD_TYPE_DEFAULT) {
+            self->setup.keyboard_type = XCPC_KEYBOARD_TYPE_QWERTY;
+        }
+    }
+    /* adjust memory size */ {
+        if(self->setup.memory_size == XCPC_MEMORY_SIZE_DEFAULT) {
+            if(self->setup.machine_type == XCPC_MACHINE_TYPE_CPC6128) {
+                self->setup.memory_size = XCPC_MEMORY_SIZE_128K;
+            }
+            else {
+                self->setup.memory_size = XCPC_MEMORY_SIZE_64K;
+            }
+        }
+    }
+    /* prepare roms */ {
+        switch(self->setup.machine_type) {
+            case XCPC_MACHINE_TYPE_CPC464:
                 {
-                    self->handlers.paint        = &cpc_paint_default;
-                    self->handlers.keybd        = &cpc_keybd_default;
-                    self->handlers.mouse        = &cpc_mouse_default;
-                    self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
-                    self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
-                    self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
-                    self->setup.manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
-                    self->setup.ramsize         = XCPC_RAMSIZE_64K;
-                    system_rom                  = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc464.rom"));
-                    amsdos_rom                  = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : NULL                                );
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc464.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : NULL                                );
                 }
                 break;
-            case XCPC_COMPUTER_MODEL_664:
+            case XCPC_MACHINE_TYPE_CPC664:
                 {
-                    self->handlers.paint        = &cpc_paint_default;
-                    self->handlers.keybd        = &cpc_keybd_default;
-                    self->handlers.mouse        = &cpc_mouse_default;
-                    self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
-                    self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
-                    self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
-                    self->setup.manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
-                    self->setup.ramsize         = XCPC_RAMSIZE_64K;
-                    system_rom                  = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc664.rom"));
-                    amsdos_rom                  = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : build_filename("roms", "amsdos.rom"));
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc664.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename("roms", "amsdos.rom"));
                 }
                 break;
-            case XCPC_COMPUTER_MODEL_6128:
+            case XCPC_MACHINE_TYPE_CPC6128:
                 {
-                    self->handlers.paint        = &cpc_paint_default;
-                    self->handlers.keybd        = &cpc_keybd_default;
-                    self->handlers.mouse        = &cpc_mouse_default;
-                    self->setup.monitor_model   = xcpc_monitor_model   (cpc_monitor     , XCPC_MONITOR_MODEL_CTM644  );
-                    self->setup.refresh_rate    = xcpc_refresh_rate    (cpc_refresh     , XCPC_REFRESH_RATE_50HZ     );
-                    self->setup.keyboard_layout = xcpc_keyboard_layout (cpc_keyboard    , XCPC_KEYBOARD_LAYOUT_QWERTY);
-                    self->setup.manufacturer    = xcpc_manufacturer    (cpc_manufacturer, XCPC_MANUFACTURER_AMSTRAD  );
-                    self->setup.ramsize         = XCPC_RAMSIZE_128K;
-                    system_rom                  = (is_set(cpc_sysrom) ? strdup(cpc_sysrom) : build_filename("roms", "cpc6128.rom"));
-                    amsdos_rom                  = (is_set(cpc_dosrom) ? strdup(cpc_dosrom) : build_filename("roms", "amsdos.rom" ));
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc6128.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename("roms", "amsdos.rom" ));
                 }
                 break;
             default:
-                xcpc_log_error("unknown computer model");
+                xcpc_log_error("unknown machine type");
                 break;
         }
     }
@@ -2012,34 +2035,44 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
             xcpc_log_error("gettimeofday() has failed");
         }
     }
-    /* initialize frame */ {
-        self->frame.rate  = 0;
-        self->frame.time  = 0;
-        self->frame.count = 0;
-        self->frame.drawn = 0;
+    /* initialize default state */ {
+        self->state.hsync     = 0; /* no hsync      */
+        self->state.vsync     = 0; /* no vsync      */
+        self->state.refresh   = 1; /* 50Hz          */
+        self->state.company   = 7; /* amstrad       */
+        self->state.expansion = 1; /* present       */
+        self->state.parallel  = 1; /* not connected */
+        self->state.cassette  = 0; /* no data       */
     }
-    /* initialize signals */ {
-        self->signals.hsync = 0;
-        self->signals.vsync = 0;
+    /* initialize stats */ {
+        self->stats.rate    = 0;
+        self->stats.time    = 0;
+        self->stats.count   = 0;
+        self->stats.drawn   = 0;
+        self->stats.text[0] = '\0';
     }
     /* compute frame rate/time and cpu period */ {
         switch(self->setup.refresh_rate) {
             case XCPC_REFRESH_RATE_50HZ:
-                self->frame.rate = 50;
-                self->frame.time = 20000;
-                self->cpu_period = (int) (4000000.0 / (50.0 * 312.5));
+                self->state.company = ((self->setup.company_name - 1) & 7);
+                self->state.refresh = 1;
+                self->stats.rate    = 50;
+                self->stats.time    = 20000;
+                self->cpu_period    = (int) (4000000.0 / (50.0 * 312.5));
                 break;
             case XCPC_REFRESH_RATE_60HZ:
-                self->frame.rate = 60;
-                self->frame.time = 16667;
-                self->cpu_period = (int) (4000000.0 / (60.0 * 262.5));
+                self->state.company = ((self->setup.company_name - 1) & 7);
+                self->state.refresh = 0;
+                self->stats.rate    = 60;
+                self->stats.time    = 16667;
+                self->cpu_period    = (int) (4000000.0 / (60.0 * 262.5));
                 break;
             default:
                 xcpc_log_error("unsupported refresh rate %d", self->setup.refresh_rate);
                 break;
         }
         if(self->options->state.turbo != 0) {
-            self->frame.time = 1000;
+            self->stats.time = 1000;
         }
     }
     /* reset instance */ {
@@ -2076,9 +2109,9 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
 void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR* self)
 {
     /* cleanup handlers */ {
-        self->handlers.mouse = &cpc_mouse_default;
-        self->handlers.keybd = &cpc_keybd_default;
-        self->handlers.paint = &cpc_paint_default;
+        self->handlers.mouse = &cpc_mouse_unknown;
+        self->handlers.keybd = &cpc_keybd_unknown;
+        self->handlers.paint = &cpc_paint_unknown;
     }
     /* cleanup memory pager */ {
         unsigned int bank_index = 0;
@@ -2119,18 +2152,21 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR* self)
             xcpc_log_error("gettimeofday() has failed");
         }
     }
-    /* frame */ {
-        self->frame.rate  |= 0; /* no reset */
-        self->frame.time  |= 0; /* no reset */
-        self->frame.count &= 0; /* do reset */
-        self->frame.drawn &= 0; /* do reset */
-    }
-    /* signals */ {
-        self->signals.hsync &= 0; /* clear hsync */
-        self->signals.vsync &= 0; /* clear vsync */
+    /* state */ {
+        self->state.hsync     &= 0; /* clear value */
+        self->state.vsync     &= 0; /* clear value */
+        self->state.refresh   |= 0; /* dont'modify */
+        self->state.company   |= 0; /* dont'modify */
+        self->state.expansion |= 0; /* dont'modify */
+        self->state.parallel  |= 0; /* dont'modify */
+        self->state.cassette  &= 0; /* clear value */
     }
     /* stats */ {
-        self->stats[0]  = '\0';
+        self->stats.rate      |= 0; /* dont'modify */
+        self->stats.time      |= 0; /* dont'modify */
+        self->stats.count     &= 0; /* clear value */
+        self->stats.drawn     &= 0; /* clear value */
+        self->stats.text[0]   &= 0; /* clear value */
     }
 }
 
@@ -2138,7 +2174,7 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
-    uint32_t           ram_size = self->setup.ramsize;
+    uint32_t           ram_size = self->setup.memory_size;
 
     /* load snapshot */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
@@ -2164,7 +2200,7 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
     }
     /* fetch ram */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            uint32_t     snap_size  = self->setup.ramsize;
+            uint32_t     snap_size  = self->setup.memory_size;
             uint32_t     bank_size  = 16384;
             unsigned int bank_index = 0;
             while(snap_size >= bank_size) {
@@ -2198,7 +2234,7 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
-    uint32_t           ram_size = self->setup.ramsize;
+    uint32_t           ram_size = self->setup.memory_size;
 
     /* store devices */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
@@ -2219,7 +2255,7 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
     }
     /* store ram */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            uint32_t     snap_size  = self->setup.ramsize;
+            uint32_t     snap_size  = self->setup.memory_size;
             uint32_t     bank_size  = 16384;
             unsigned int bank_index = 0;
             while(snap_size >= bank_size) {
@@ -2297,7 +2333,7 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
     if(self != NULL) {
         /* realize */ {
             (void) xcpc_monitor_realize ( self->monitor
-                                        , self->setup.monitor_model
+                                        , self->setup.monitor_type
                                         , XtDisplay(widget)
                                         , XtWindow(widget)
                                         , (use_xshm != 0 ? True : False) );
@@ -2314,20 +2350,20 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
                     self->handlers.paint = &cpc_paint_32bpp;
                     break;
                 default:
-                    self->handlers.paint = &cpc_paint_default;
+                    self->handlers.paint = &cpc_paint_unknown;
                     break;
             }
         }
         /* init keybd handler */ {
-            switch(self->setup.keyboard_layout) {
-                case XCPC_KEYBOARD_LAYOUT_QWERTY:
+            switch(self->setup.keyboard_type) {
+                case XCPC_KEYBOARD_TYPE_QWERTY:
                     self->handlers.keybd = &cpc_keybd_qwerty;
                     break;
-                case XCPC_KEYBOARD_LAYOUT_AZERTY:
+                case XCPC_KEYBOARD_TYPE_AZERTY:
                     self->handlers.keybd = &cpc_keybd_azerty;
                     break;
                 default:
-                    self->handlers.keybd = &cpc_keybd_default;
+                    self->handlers.keybd = &cpc_keybd_unknown;
                     break;
             }
         }
@@ -2360,7 +2396,7 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
     unsigned long timeout = 0;
 
     /* process each scanline */ {
-        self->scanlines.index = 0;
+        self->frame.index = 0;
         do {
             int cpu_tick;
             for(cpu_tick = 0; cpu_tick < self->cpu_period; cpu_tick += 4) {
@@ -2371,7 +2407,7 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
                     cpu_z80a->state.ctrs.i_period = i_period - (((i_period - cpu_z80a->state.ctrs.i_period) + 3) & (~3));
                 }
             }
-        } while(++self->scanlines.index < 312);
+        } while(++self->frame.index < 312);
     }
     /* clock the fdc */ {
         xcpc_fdc_765a_clock(fdc_765a);
@@ -2395,16 +2431,16 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
         }
     }
     /* draw the frame and compute stats if needed */ {
-        if((self->frame.count == 0) || (elapsed <= self->frame.time)) {
+        if((self->stats.count == 0) || (elapsed <= self->stats.time)) {
             (*self->handlers.paint)(self);
-            ++self->frame.drawn;
+            ++self->stats.drawn;
         }
-        if(++self->frame.count == self->frame.rate) {
+        if(++self->stats.count == self->stats.rate) {
             compute_stats(self);
         }
     }
     /* compute the next frame absolute time */ {
-        if((self->timer.deadline.tv_usec += self->frame.time) >= 1000000) {
+        if((self->timer.deadline.tv_usec += self->stats.time) >= 1000000) {
             self->timer.deadline.tv_usec -= 1000000;
             self->timer.deadline.tv_sec  += 1;
         }

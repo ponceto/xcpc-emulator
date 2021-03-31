@@ -26,11 +26,11 @@ Help options:
     --version                   display the version and exit
 
 Emulation options:
-    --model={value}             cpc464, cpc664, cpc6128
+    --company={value}           Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad
+    --machine={value}           cpc464, cpc664, cpc6128
     --monitor={value}           color, green, monochrome, ctm640, ctm644, gt64, gt65, cm14, mm12
-    --keyboard={value}          qwerty, azerty
     --refresh={value}           50Hz, 60Hz
-    --manufacturer={value}      Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad
+    --keyboard={value}          qwerty, azerty
     --sysrom={filename}         32Kb system rom
     --rom000={filename}         16Kb expansion rom #00
     --rom001={filename}         16Kb expansion rom #01
@@ -58,7 +58,7 @@ Misc. options:
     --xshm                      use the XShm extension
     --no-xshm                   don't use the XShm extension
     --fps                       print framerate
-    --no-fps                    don'tprint framerate
+    --no-fps                    don't print framerate
 
 Debug options:
     --quiet                     set the loglevel to quiet mode

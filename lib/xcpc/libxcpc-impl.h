@@ -44,15 +44,15 @@ extern "C" {
 #define xcpc_delete(type, pointer) ((type*)(xcpc_free(nameof(type), (pointer))))
 #endif
 
-typedef union _XcpcRegister       XcpcRegister;
-typedef enum  _XcpcLogLevel       XcpcLogLevel;
-typedef enum  _XcpcComputerModel  XcpcComputerModel;
-typedef enum  _XcpcMonitorModel   XcpcMonitorModel;
-typedef enum  _XcpcRefreshRate    XcpcRefreshRate;
-typedef enum  _XcpcKeyboardLayout XcpcKeyboardLayout;
-typedef enum  _XcpcManufacturer   XcpcManufacturer;
-typedef enum  _XcpcRamSize        XcpcRamSize;
-typedef enum  _XcpcColor          XcpcColor;
+typedef union _XcpcRegister     XcpcRegister;
+typedef enum  _XcpcLogLevel     XcpcLogLevel;
+typedef enum  _XcpcCompanyName  XcpcCompanyName;
+typedef enum  _XcpcMachineType  XcpcMachineType;
+typedef enum  _XcpcMonitorType  XcpcMonitorType;
+typedef enum  _XcpcRefreshRate  XcpcRefreshRate;
+typedef enum  _XcpcKeyboardType XcpcKeyboardType;
+typedef enum  _XcpcMemorySize   XcpcMemorySize;
+typedef enum  _XcpcColor        XcpcColor;
 
 enum _XcpcLogLevel
 {
@@ -65,66 +65,72 @@ enum _XcpcLogLevel
     XCPC_LOGLEVEL_DEBUG   =  5,
 };
 
-enum _XcpcComputerModel
+enum _XcpcCompanyName
 {
-    XCPC_COMPUTER_MODEL_UNKNOWN = -1,
-    XCPC_COMPUTER_MODEL_464     =  0,
-    XCPC_COMPUTER_MODEL_664     =  1,
-    XCPC_COMPUTER_MODEL_6128    =  2,
+    XCPC_COMPANY_NAME_UNKNOWN   = -1,
+    XCPC_COMPANY_NAME_DEFAULT   =  0,
+    XCPC_COMPANY_NAME_ISP       =  1,
+    XCPC_COMPANY_NAME_TRIUMPH   =  2,
+    XCPC_COMPANY_NAME_SAISHO    =  3,
+    XCPC_COMPANY_NAME_SOLAVOX   =  4,
+    XCPC_COMPANY_NAME_AWA       =  5,
+    XCPC_COMPANY_NAME_SCHNEIDER =  6,
+    XCPC_COMPANY_NAME_ORION     =  7,
+    XCPC_COMPANY_NAME_AMSTRAD   =  8,
 };
 
-enum _XcpcMonitorModel
+enum _XcpcMachineType
 {
-    XCPC_MONITOR_MODEL_UNKNOWN    = -1,
-    XCPC_MONITOR_MODEL_COLOR      =  0,
-    XCPC_MONITOR_MODEL_GREEN      =  1,
-    XCPC_MONITOR_MODEL_MONOCHROME =  2,
-    XCPC_MONITOR_MODEL_CTM640     =  3,
-    XCPC_MONITOR_MODEL_CTM644     =  4,
-    XCPC_MONITOR_MODEL_GT64       =  5,
-    XCPC_MONITOR_MODEL_GT65       =  6,
-    XCPC_MONITOR_MODEL_CM14       =  7,
-    XCPC_MONITOR_MODEL_MM12       =  8,
+    XCPC_MACHINE_TYPE_UNKNOWN = -1,
+    XCPC_MACHINE_TYPE_DEFAULT =  0,
+    XCPC_MACHINE_TYPE_CPC464  =  1,
+    XCPC_MACHINE_TYPE_CPC664  =  2,
+    XCPC_MACHINE_TYPE_CPC6128 =  3,
+};
+
+enum _XcpcMonitorType
+{
+    XCPC_MONITOR_TYPE_UNKNOWN    = -1,
+    XCPC_MONITOR_TYPE_DEFAULT    =  0,
+    XCPC_MONITOR_TYPE_COLOR      =  1,
+    XCPC_MONITOR_TYPE_GREEN      =  2,
+    XCPC_MONITOR_TYPE_MONOCHROME =  3,
+    XCPC_MONITOR_TYPE_CTM640     =  4,
+    XCPC_MONITOR_TYPE_CTM644     =  5,
+    XCPC_MONITOR_TYPE_GT64       =  6,
+    XCPC_MONITOR_TYPE_GT65       =  7,
+    XCPC_MONITOR_TYPE_CM14       =  8,
+    XCPC_MONITOR_TYPE_MM12       =  9,
 };
 
 enum _XcpcRefreshRate
 {
     XCPC_REFRESH_RATE_UNKNOWN = -1,
-    XCPC_REFRESH_RATE_60HZ    =  0,
+    XCPC_REFRESH_RATE_DEFAULT =  0,
     XCPC_REFRESH_RATE_50HZ    =  1,
+    XCPC_REFRESH_RATE_60HZ    =  2,
 };
 
-enum _XcpcKeyboardLayout
+enum _XcpcKeyboardType
 {
-    XCPC_KEYBOARD_LAYOUT_UNKNOWN = -1,
-    XCPC_KEYBOARD_LAYOUT_QWERTY  =  0,
-    XCPC_KEYBOARD_LAYOUT_AZERTY  =  1,
+    XCPC_KEYBOARD_TYPE_UNKNOWN = -1,
+    XCPC_KEYBOARD_TYPE_DEFAULT =  0,
+    XCPC_KEYBOARD_TYPE_QWERTY  =  1,
+    XCPC_KEYBOARD_TYPE_AZERTY  =  2,
 };
 
-enum _XcpcManufacturer
+enum _XcpcMemorySize
 {
-    XCPC_MANUFACTURER_UNKNOWN   = -1,
-    XCPC_MANUFACTURER_ISP       =  0,
-    XCPC_MANUFACTURER_TRIUMPH   =  1,
-    XCPC_MANUFACTURER_SAISHO    =  2,
-    XCPC_MANUFACTURER_SOLAVOX   =  3,
-    XCPC_MANUFACTURER_AWA       =  4,
-    XCPC_MANUFACTURER_SCHNEIDER =  5,
-    XCPC_MANUFACTURER_ORION     =  6,
-    XCPC_MANUFACTURER_AMSTRAD   =  7,
-};
-
-enum _XcpcRamSize
-{
-    XCPC_RAMSIZE_UNKNOWN = -1,
-    XCPC_RAMSIZE_64K     =  ( 64 * 1024),
-    XCPC_RAMSIZE_128K    =  (128 * 1024),
-    XCPC_RAMSIZE_192K    =  (192 * 1024),
-    XCPC_RAMSIZE_256K    =  (256 * 1024),
-    XCPC_RAMSIZE_320K    =  (320 * 1024),
-    XCPC_RAMSIZE_384K    =  (384 * 1024),
-    XCPC_RAMSIZE_448K    =  (448 * 1024),
-    XCPC_RAMSIZE_512K    =  (512 * 1024),
+    XCPC_MEMORY_SIZE_UNKNOWN = -1,
+    XCPC_MEMORY_SIZE_DEFAULT = (  0 * 1024),
+    XCPC_MEMORY_SIZE_64K     = ( 64 * 1024),
+    XCPC_MEMORY_SIZE_128K    = (128 * 1024),
+    XCPC_MEMORY_SIZE_192K    = (192 * 1024),
+    XCPC_MEMORY_SIZE_256K    = (256 * 1024),
+    XCPC_MEMORY_SIZE_320K    = (320 * 1024),
+    XCPC_MEMORY_SIZE_384K    = (384 * 1024),
+    XCPC_MEMORY_SIZE_448K    = (448 * 1024),
+    XCPC_MEMORY_SIZE_512K    = (512 * 1024),
 };
 
 enum _XcpcColor

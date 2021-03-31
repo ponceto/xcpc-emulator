@@ -68,10 +68,10 @@ struct _AMSTRAD_CPC_EMULATOR
             uint8_t rom;
         } conf;
     } pager;
-    struct _scanlines {
+    struct _frame {
         XcpcScanline array[312];
         int          index;
-    } scanlines;
+    } frame;
     struct _handlers {
         PaintProc paint;
         KeybdProc keybd;
@@ -81,26 +81,31 @@ struct _AMSTRAD_CPC_EMULATOR
         struct timeval deadline;
         struct timeval profiler;
     } timer;
-    struct _frame {
+    struct _setup {
+        XcpcCompanyName  company_name;
+        XcpcMachineType  machine_type;
+        XcpcMonitorType  monitor_type;
+        XcpcRefreshRate  refresh_rate;
+        XcpcKeyboardType keyboard_type;
+        XcpcMemorySize   memory_size;
+    } setup;
+    struct _state {
+        uint8_t hsync;
+        uint8_t vsync;
+        uint8_t refresh;
+        uint8_t company;
+        uint8_t expansion;
+        uint8_t parallel;
+        uint8_t cassette;
+    } state;
+    struct _stats {
         unsigned int rate;
         unsigned int time;
         unsigned int count;
         unsigned int drawn;
-    } frame;
-    struct _signals {
-        int hsync;
-        int vsync;
-    } signals;
-    struct _setup {
-        int  computer_model;
-        int  monitor_model;
-        int  refresh_rate;
-        int  keyboard_layout;
-        int  manufacturer;
-        int  ramsize;
-    } setup;
+        char text[256];
+    } stats;
     int  cpu_period;
-    char stats[256];
 };
 
 extern AMSTRAD_CPC_EMULATOR amstrad_cpc;

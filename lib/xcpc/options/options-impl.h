@@ -44,14 +44,11 @@ struct _XcpcOptionsSetup
 struct _XcpcOptionsState
 {
     char* program;
-    char* drive0;
-    char* drive1;
-    char* snapshot;
-    char* model;
+    char* company;
+    char* machine;
     char* monitor;
-    char* keyboard;
     char* refresh;
-    char* manufacturer;
+    char* keyboard;
     char* sysrom;
     char* rom000;
     char* rom001;
@@ -69,6 +66,9 @@ struct _XcpcOptionsState
     char* rom013;
     char* rom014;
     char* rom015;
+    char* drive0;
+    char* drive1;
+    char* snapshot;
     int   help;
     int   version;
     int   loglevel;

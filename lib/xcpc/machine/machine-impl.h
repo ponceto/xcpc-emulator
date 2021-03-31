@@ -42,7 +42,9 @@ extern "C" {
 typedef struct _XcpcMachineIface XcpcMachineIface;
 typedef struct _XcpcMachineSetup XcpcMachineSetup;
 typedef struct _XcpcMachineState XcpcMachineState;
+typedef struct _XcpcMachineBoard XcpcMachineBoard;
 typedef struct _XcpcMachinePager XcpcMachinePager;
+typedef struct _XcpcMachineFrame XcpcMachineFrame;
 typedef struct _XcpcMachine      XcpcMachine;
 
 struct _XcpcMachineIface
@@ -52,15 +54,26 @@ struct _XcpcMachineIface
 
 struct _XcpcMachineSetup
 {
-    XcpcComputerModel  computer_model;
-    XcpcMonitorModel   monitor_model;
-    XcpcRefreshRate    refresh_rate;
-    XcpcKeyboardLayout keyboard_layout;
-    XcpcManufacturer   manufacturer;
-    XcpcRamSize        ramsize;
+    XcpcCompanyName  company_name;
+    XcpcMachineType  machine_type;
+    XcpcMonitorType  monitor_type;
+    XcpcRefreshRate  refresh_rate;
+    XcpcKeyboardType keyboard_type;
+    XcpcMemorySize   memory_size;
 };
 
 struct _XcpcMachineState
+{
+    uint8_t hsync;
+    uint8_t vsync;
+    uint8_t refresh;
+    uint8_t company;
+    uint8_t expansion;
+    uint8_t parallel;
+    uint8_t cassette;
+};
+
+struct _XcpcMachineBoard
 {
     XcpcMonitor*  monitor;
     XcpcKeyboard* keyboard;
@@ -90,20 +103,20 @@ struct _XcpcMachinePager
     } conf;
 };
 
+struct _XcpcMachineFrame
+{
+    XcpcScanline array[312];
+    int          index;
+};
+
 struct _XcpcMachine
 {
     XcpcMachineIface iface;
     XcpcMachineSetup setup;
     XcpcMachineState state;
+    XcpcMachineBoard board;
     XcpcMachinePager pager;
-    struct _scanlines {
-        XcpcScanline array[312];
-        int          index;
-    } scanlines;
-    struct _signals {
-        int hsync;
-        int vsync;
-    } signals;
+    XcpcMachineFrame frame;
 };
 
 #ifdef __cplusplus

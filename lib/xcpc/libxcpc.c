@@ -357,15 +357,21 @@ extern void* xcpc_free(const char* type, void* pointer)
     return new_pointer;
 }
 
-XcpcComputerModel xcpc_computer_model(const char* label, XcpcComputerModel value)
+XcpcCompanyName xcpc_company_name(const char* label, XcpcCompanyName value)
 {
-    struct {
+    static struct {
         const char* label;
         int         value;
     } list[] = {
-        { "cpc464" , XCPC_COMPUTER_MODEL_464  },
-        { "cpc664" , XCPC_COMPUTER_MODEL_664  },
-        { "cpc6128", XCPC_COMPUTER_MODEL_6128 },
+        { "default"  , XCPC_COMPANY_NAME_DEFAULT   },
+        { "isp"      , XCPC_COMPANY_NAME_ISP       },
+        { "triumph"  , XCPC_COMPANY_NAME_TRIUMPH   },
+        { "saisho"   , XCPC_COMPANY_NAME_SAISHO    },
+        { "solavox"  , XCPC_COMPANY_NAME_SOLAVOX   },
+        { "awa"      , XCPC_COMPANY_NAME_AWA       },
+        { "schneider", XCPC_COMPANY_NAME_SCHNEIDER },
+        { "orion"    , XCPC_COMPANY_NAME_ORION     },
+        { "amstrad"  , XCPC_COMPANY_NAME_AMSTRAD   },
     };
 
     if((label != NULL) && (*label != '\0')) {
@@ -377,28 +383,20 @@ XcpcComputerModel xcpc_computer_model(const char* label, XcpcComputerModel value
                 break;
             }
         }
-    }
-    /* log */ {
-        xcpc_log_debug("xcpc_computer_model() : %d", value);
     }
     return value;
 }
 
-XcpcMonitorModel xcpc_monitor_model(const char* label, XcpcMonitorModel value)
+XcpcMachineType xcpc_machine_type(const char* label, XcpcMachineType value)
 {
-    struct {
+    static struct {
         const char* label;
         int         value;
     } list[] = {
-        { "color"     ,  XCPC_MONITOR_MODEL_COLOR      },
-        { "green"     ,  XCPC_MONITOR_MODEL_GREEN      },
-        { "monochrome",  XCPC_MONITOR_MODEL_MONOCHROME },
-        { "ctm640"    ,  XCPC_MONITOR_MODEL_CTM640     },
-        { "ctm644"    ,  XCPC_MONITOR_MODEL_CTM644     },
-        { "gt64"      ,  XCPC_MONITOR_MODEL_GT64       },
-        { "gt65"      ,  XCPC_MONITOR_MODEL_GT65       },
-        { "cm14"      ,  XCPC_MONITOR_MODEL_CM14       },
-        { "mm12"      ,  XCPC_MONITOR_MODEL_MM12       },
+        { "default", XCPC_MACHINE_TYPE_DEFAULT },
+        { "cpc464" , XCPC_MACHINE_TYPE_CPC464  },
+        { "cpc664" , XCPC_MACHINE_TYPE_CPC664  },
+        { "cpc6128", XCPC_MACHINE_TYPE_CPC6128 },
     };
 
     if((label != NULL) && (*label != '\0')) {
@@ -411,20 +409,49 @@ XcpcMonitorModel xcpc_monitor_model(const char* label, XcpcMonitorModel value)
             }
         }
     }
-    /* log */ {
-        xcpc_log_debug("xcpc_monitor_model() : %d", value);
+    return value;
+}
+
+XcpcMonitorType xcpc_monitor_type(const char* label, XcpcMonitorType value)
+{
+    static struct {
+        const char* label;
+        int         value;
+    } list[] = {
+        { "default"   ,  XCPC_MONITOR_TYPE_DEFAULT    },
+        { "color"     ,  XCPC_MONITOR_TYPE_COLOR      },
+        { "green"     ,  XCPC_MONITOR_TYPE_GREEN      },
+        { "monochrome",  XCPC_MONITOR_TYPE_MONOCHROME },
+        { "ctm640"    ,  XCPC_MONITOR_TYPE_CTM640     },
+        { "ctm644"    ,  XCPC_MONITOR_TYPE_CTM644     },
+        { "gt64"      ,  XCPC_MONITOR_TYPE_GT64       },
+        { "gt65"      ,  XCPC_MONITOR_TYPE_GT65       },
+        { "cm14"      ,  XCPC_MONITOR_TYPE_CM14       },
+        { "mm12"      ,  XCPC_MONITOR_TYPE_MM12       },
+    };
+
+    if((label != NULL) && (*label != '\0')) {
+        unsigned int index = 0;
+        unsigned int count = countof(list);
+        for(index = 0; index < count; ++index) {
+            if(strcasecmp(list[index].label, label) == 0) {
+                value = list[index].value;
+                break;
+            }
+        }
     }
     return value;
 }
 
 XcpcRefreshRate xcpc_refresh_rate(const char* label, XcpcRefreshRate value)
 {
-    struct {
+    static struct {
         const char* label;
         int         value;
     } list[] = {
-        { "60Hz", XCPC_REFRESH_RATE_60HZ },
-        { "50Hz", XCPC_REFRESH_RATE_50HZ },
+        { "default", XCPC_REFRESH_RATE_DEFAULT },
+        { "50hz"   , XCPC_REFRESH_RATE_50HZ    },
+        { "60hz"   , XCPC_REFRESH_RATE_60HZ    },
     };
 
     if((label != NULL) && (*label != '\0')) {
@@ -436,21 +463,19 @@ XcpcRefreshRate xcpc_refresh_rate(const char* label, XcpcRefreshRate value)
                 break;
             }
         }
-    }
-    /* log */ {
-        xcpc_log_debug("xcpc_refresh_rate() : %d", value);
     }
     return value;
 }
 
-XcpcKeyboardLayout xcpc_keyboard_layout(const char* label, XcpcKeyboardLayout value)
+XcpcKeyboardType xcpc_keyboard_type(const char* label, XcpcKeyboardType value)
 {
-    struct {
+    static struct {
         const char* label;
         int         value;
     } list[] = {
-        { "qwerty", XCPC_KEYBOARD_LAYOUT_QWERTY },
-        { "azerty", XCPC_KEYBOARD_LAYOUT_AZERTY },
+        { "default", XCPC_KEYBOARD_TYPE_DEFAULT },
+        { "qwerty" , XCPC_KEYBOARD_TYPE_QWERTY  },
+        { "azerty" , XCPC_KEYBOARD_TYPE_AZERTY  },
     };
 
     if((label != NULL) && (*label != '\0')) {
@@ -462,41 +487,6 @@ XcpcKeyboardLayout xcpc_keyboard_layout(const char* label, XcpcKeyboardLayout va
                 break;
             }
         }
-    }
-    /* log */ {
-        xcpc_log_debug("xcpc_keyboard_layout() : %d", value);
-    }
-    return value;
-}
-
-XcpcManufacturer xcpc_manufacturer(const char* label, XcpcManufacturer value)
-{
-    struct {
-        const char* label;
-        int         value;
-    } list[] = {
-        { "Isp"      , XCPC_MANUFACTURER_ISP       },
-        { "Triumph"  , XCPC_MANUFACTURER_TRIUMPH   },
-        { "Saisho"   , XCPC_MANUFACTURER_SAISHO    },
-        { "Solavox"  , XCPC_MANUFACTURER_SOLAVOX   },
-        { "Awa"      , XCPC_MANUFACTURER_AWA       },
-        { "Schneider", XCPC_MANUFACTURER_SCHNEIDER },
-        { "Orion"    , XCPC_MANUFACTURER_ORION     },
-        { "Amstrad"  , XCPC_MANUFACTURER_AMSTRAD   },
-    };
-
-    if((label != NULL) && (*label != '\0')) {
-        unsigned int index = 0;
-        unsigned int count = countof(list);
-        for(index = 0; index < count; ++index) {
-            if(strcasecmp(list[index].label, label) == 0) {
-                value = list[index].value;
-                break;
-            }
-        }
-    }
-    /* log */ {
-        xcpc_log_debug("xcpc_manufacturer() : %d", value);
     }
     return value;
 }
@@ -551,7 +541,7 @@ XcpcColor xcpc_monitor_color_get(const char* label)
     return XCPC_COLOR_UNKNOWN;
 }
 
-XcpcColor xcpc_color_get_values(XcpcMonitorModel monitor_model, XcpcColor color, unsigned short* r_out, unsigned short* g_out, unsigned short* b_out)
+XcpcColor xcpc_color_get_values(XcpcMonitorType monitor_type, XcpcColor color, unsigned short* r_out, unsigned short* g_out, unsigned short* b_out)
 {
     if((color >= 0) && (color <= 31)) {
         const XcpcColorEntry* color_entry = &monitor_color_array[color];
@@ -559,24 +549,24 @@ XcpcColor xcpc_color_get_values(XcpcMonitorModel monitor_model, XcpcColor color,
         unsigned short g_value = color_entry->green;
         unsigned short b_value = color_entry->blue;
         unsigned short l_value = color_entry->luminance;
-        switch(monitor_model) {
-            case XCPC_MONITOR_MODEL_COLOR:
-            case XCPC_MONITOR_MODEL_CTM640:
-            case XCPC_MONITOR_MODEL_CTM644:
-            case XCPC_MONITOR_MODEL_CM14:
+        switch(monitor_type) {
+            case XCPC_MONITOR_TYPE_COLOR:
+            case XCPC_MONITOR_TYPE_CTM640:
+            case XCPC_MONITOR_TYPE_CTM644:
+            case XCPC_MONITOR_TYPE_CM14:
                 r_value = (r_value | 0);
                 g_value = (g_value | 0);
                 b_value = (b_value | 0);
                 break;
-            case XCPC_MONITOR_MODEL_GREEN:
-            case XCPC_MONITOR_MODEL_GT64:
-            case XCPC_MONITOR_MODEL_GT65:
+            case XCPC_MONITOR_TYPE_GREEN:
+            case XCPC_MONITOR_TYPE_GT64:
+            case XCPC_MONITOR_TYPE_GT65:
                 r_value = (l_value & 0);
                 g_value = (l_value | 0);
                 b_value = (l_value & 0);
                 break;
-            case XCPC_MONITOR_MODEL_MONOCHROME:
-            case XCPC_MONITOR_MODEL_MM12:
+            case XCPC_MONITOR_TYPE_MONOCHROME:
+            case XCPC_MONITOR_TYPE_MM12:
                 r_value = (l_value | 0);
                 g_value = (l_value | 0);
                 b_value = (l_value | 0);
