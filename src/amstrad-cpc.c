@@ -31,19 +31,7 @@
 #define SELF(user_data) ((AMSTRAD_CPC_EMULATOR*)(user_data))
 
 AMSTRAD_CPC_EMULATOR amstrad_cpc = {
-    NULL,     /* options  */
-    NULL,     /* monitor  */
-    NULL,     /* keyboard */
-    NULL,     /* joystick */
-    NULL,     /* cpu_z80a */
-    NULL,     /* vga_core */
-    NULL,     /* vdc_6845 */
-    NULL,     /* ppi_8255 */
-    NULL,     /* psg_8910 */
-    NULL,     /* fdc_765a */
-    { NULL }, /* ram_bank */
-    { NULL }, /* rom_bank */
-    { NULL }, /* exp_bank */
+    NULL,
 };
 
 static int is_set(const char* value)
@@ -92,15 +80,15 @@ static void compute_stats(AMSTRAD_CPC_EMULATOR* self)
             const double stats_frames  = (double) (self->stats.drawn * 1000000UL);
             const double stats_elapsed = (double) elapsed_us;
             const double stats_fps     = (stats_frames / stats_elapsed);
-            (void) snprintf(self->stats.text, sizeof(self->stats.text), "refresh = %2d Hz, framerate = %.2f fps", self->stats.rate, stats_fps);
+            (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz, framerate = %.2f fps", self->stats.rate, stats_fps);
         }
         else {
-            (void) snprintf(self->stats.text, sizeof(self->stats.text), "refresh = %2d Hz", self->stats.rate);
+            (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz", self->stats.rate);
         }
     }
     /* print statistics */ {
-        if(self->options->state.fps != 0) {
-            xcpc_log_print(self->stats.text);
+        if(self->setup.fps != 0) {
+            xcpc_log_print(self->stats.buffer);
         }
     }
     /* set the new reference */ {
@@ -116,66 +104,66 @@ static void cpc_mem_select(AMSTRAD_CPC_EMULATOR* self)
         switch(self->pager.conf.ram) {
             case 0x00:
                 {
-                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
-                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[1]->state.data;
-                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
-                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[1]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[3]->state.data;
                 }
                 break;
             case 0x01:
                 {
-                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
-                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[1]->state.data;
-                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
-                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[7]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[1]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[7]->state.data;
                 }
                 break;
             case 0x02:
                 {
-                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[4]->state.data;
-                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[5]->state.data;
-                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[6]->state.data;
-                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[7]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[4]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[5]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[6]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[7]->state.data;
                 }
                 break;
             case 0x03:
                 {
-                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
-                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[3]->state.data;
-                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
-                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[7]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[3]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[7]->state.data;
                 }
                 break;
             case 0x04:
                 {
-                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
-                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[4]->state.data;
-                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
-                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[4]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[3]->state.data;
                 }
                 break;
             case 0x05:
                 {
-                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
-                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[5]->state.data;
-                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
-                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[5]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[3]->state.data;
                 }
                 break;
             case 0x06:
                 {
-                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
-                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[6]->state.data;
-                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
-                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[6]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[3]->state.data;
                 }
                 break;
             case 0x07:
                 {
-                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
-                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[7]->state.data;
-                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
-                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
+                    self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
+                    self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[7]->state.data;
+                    self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[2]->state.data;
+                    self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[3]->state.data;
                 }
                 break;
             default:
@@ -184,22 +172,22 @@ static void cpc_mem_select(AMSTRAD_CPC_EMULATOR* self)
         }
     }
     else {
-        self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->ram_bank[0]->state.data;
-        self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->ram_bank[1]->state.data;
-        self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->ram_bank[2]->state.data;
-        self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->ram_bank[3]->state.data;
+        self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
+        self->pager.bank.rd[1] = self->pager.bank.wr[1] = self->board.ram_bank[1]->state.data;
+        self->pager.bank.rd[2] = self->pager.bank.wr[2] = self->board.ram_bank[2]->state.data;
+        self->pager.bank.rd[3] = self->pager.bank.wr[3] = self->board.ram_bank[3]->state.data;
     }
-    if((self->vga_core->state.rmr & 0x04) == 0) {
-        if(self->rom_bank[0] != NULL) {
-            self->pager.bank.rd[0] = self->rom_bank[0]->state.data;
+    if((self->board.vga_core->state.rmr & 0x04) == 0) {
+        if(self->board.rom_bank[0] != NULL) {
+            self->pager.bank.rd[0] = self->board.rom_bank[0]->state.data;
         }
     }
-    if((self->vga_core->state.rmr & 0x08) == 0) {
-        if(self->rom_bank[1] != NULL) {
-            self->pager.bank.rd[3] = self->rom_bank[1]->state.data;
+    if((self->board.vga_core->state.rmr & 0x08) == 0) {
+        if(self->board.rom_bank[1] != NULL) {
+            self->pager.bank.rd[3] = self->board.rom_bank[1]->state.data;
         }
-        if(self->exp_bank[self->pager.conf.rom] != NULL) {
-            self->pager.bank.rd[3] = self->exp_bank[self->pager.conf.rom]->state.data;
+        if(self->board.exp_bank[self->pager.conf.rom] != NULL) {
+            self->pager.bank.rd[3] = self->board.exp_bank[self->pager.conf.rom]->state.data;
         }
     }
 }
@@ -244,7 +232,7 @@ static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(cpu_z80a->iface.user_data);
 
-    self->vga_core->state.counter &= 0x1f;
+    self->board.vga_core->state.counter &= 0x1f;
 
     return 0x00;
 }
@@ -274,7 +262,7 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [- not supported -]", port);
                     break;
                 case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
-                    data = xcpc_vdc_6845_rd(self->vdc_6845, 0xff);
+                    data = xcpc_vdc_6845_rd(self->board.vdc_6845, 0xff);
                     break;
             }
         }
@@ -293,20 +281,20 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x0800) == 0) {
             switch((port >> 8) & 3) {
                 case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-                    self->ppi_8255->state.port_a = self->keyboard->state.keys[self->keyboard->state.line];
-                    data = self->ppi_8255->state.port_a;
+                    self->board.ppi_8255->state.port_a = self->board.keyboard->state.keys[self->board.keyboard->state.line];
+                    data = self->board.ppi_8255->state.port_a;
                     break;
                 case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-                    self->ppi_8255->state.port_b = ((self->state.cassette  & 0x01) << 7)
-                                                 | ((self->state.parallel  & 0x01) << 6)
-                                                 | ((self->state.expansion & 0x01) << 5)
-                                                 | ((self->state.refresh   & 0x01) << 4)
-                                                 | ((self->state.company   & 0x07) << 1)
-                                                 | ((self->state.vsync     & 0x01) << 0);
-                    data = self->ppi_8255->state.port_b;
+                    self->board.ppi_8255->state.port_b = ((self->state.cassette  & 0x01) << 7)
+                                                       | ((self->state.parallel  & 0x01) << 6)
+                                                       | ((self->state.expansion & 0x01) << 5)
+                                                       | ((self->state.refresh   & 0x01) << 4)
+                                                       | ((self->state.company   & 0x07) << 1)
+                                                       | ((self->state.vsync     & 0x01) << 0);
+                    data = self->board.ppi_8255->state.port_b;
                     break;
                 case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
-                    data = self->ppi_8255->state.port_c;
+                    data = self->board.ppi_8255->state.port_c;
                     break;
                 case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : ppi-8255 [---- illegal ----]", port);
@@ -324,10 +312,10 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
                     break;
                 case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-                    xcpc_fdc_765a_rd_stat(self->fdc_765a, &data);
+                    xcpc_fdc_765a_rd_stat(self->board.fdc_765a, &data);
                     break;
                 case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-                    xcpc_fdc_765a_rd_data(self->fdc_765a, &data);
+                    xcpc_fdc_765a_rd_data(self->board.fdc_765a, &data);
                     break;
             }
         }
@@ -343,16 +331,16 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x8000) == 0) {
             switch((data >> 6) & 3) {
                 case 0: /* Select pen */
-                    self->vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
+                    self->board.vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
                     break;
                 case 1: /* Select color */
-                    self->vga_core->state.ink[self->vga_core->state.pen] = data & 0x1f;
+                    self->board.vga_core->state.ink[self->board.vga_core->state.pen] = data & 0x1f;
                     break;
                 case 2: /* Interrupt control, ROM configuration and screen mode */
                     if((data & 0x10) != 0) {
-                        self->vga_core->state.counter = 0;
+                        self->board.vga_core->state.counter = 0;
                     }
-                    self->vga_core->state.rmr = data & 0x1f;
+                    self->board.vga_core->state.rmr = data & 0x1f;
                     cpc_mem_select(self);
                     break;
                 case 3: /* RAM memory management */
@@ -366,10 +354,10 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x4000) == 0) {
             switch((port >> 8) & 3) {
                 case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
-                    xcpc_vdc_6845_rs(self->vdc_6845, data);
+                    xcpc_vdc_6845_rs(self->board.vdc_6845, data);
                     break;
                 case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
-                    xcpc_vdc_6845_wr(self->vdc_6845, data);
+                    xcpc_vdc_6845_wr(self->board.vdc_6845, data);
                     break;
                 case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
                     xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [- not supported -]", port);
@@ -395,17 +383,17 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x0800) == 0) {
             switch((port >> 8) & 3) {
                 case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-                    self->ppi_8255->state.port_a = data;
+                    self->board.ppi_8255->state.port_a = data;
                     break;
                 case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-                /*  self->ppi_8255->state.port_b = data; */
+                /*  self->board.ppi_8255->state.port_b = data; */
                     break;
                 case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
-                    self->ppi_8255->state.port_c = data;
-                    self->keyboard->state.line = data & 0x0F;
+                    self->board.ppi_8255->state.port_c = data;
+                    self->board.keyboard->state.line = data & 0x0F;
                     break;
                 case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
-                    self->ppi_8255->state.ctrl_p = data;
+                    self->board.ppi_8255->state.ctrl_p = data;
                     break;
             }
         }
@@ -414,16 +402,16 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x0480) == 0) {
             switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
                 case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
-                    xcpc_fdc_765a_set_motor(self->fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
                     break;
                 case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
-                    xcpc_fdc_765a_set_motor(self->fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
                     break;
                 case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
-                    xcpc_fdc_765a_wr_stat(self->fdc_765a, &data);
+                    xcpc_fdc_765a_wr_stat(self->board.fdc_765a, &data);
                     break;
                 case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
-                    xcpc_fdc_765a_wr_data(self->fdc_765a, &data);
+                    xcpc_fdc_765a_wr_data(self->board.fdc_765a, &data);
                     break;
             }
         }
@@ -434,9 +422,9 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
 {
     AMSTRAD_CPC_EMULATOR* self = SELF(vdc_6845->iface.user_data);
-    XcpcMonitor* monitor  = self->monitor;
-    XcpcCpuZ80a* cpu_z80a = self->cpu_z80a;
-    XcpcVgaCore* vga_core = self->vga_core;
+    XcpcMonitor* monitor  = self->board.monitor;
+    XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
+    XcpcVgaCore* vga_core = self->board.vga_core;
 
     if((self->state.hsync = hsync) == 0) {
         /* falling edge */ {
@@ -482,7 +470,7 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 
     if((self->state.vsync = vsync) != 0) {
         /* rising edge */ {
-            self->vga_core->state.delayed = 2;
+            self->board.vga_core->state.delayed = 2;
         }
     }
     else {
@@ -549,8 +537,8 @@ static void create_monitor(AMSTRAD_CPC_EMULATOR* self)
         self /* user_data */
     };
 
-    self->monitor = xcpc_monitor_new();
-    self->monitor = xcpc_monitor_set_iface(self->monitor, &monitor_iface);
+    self->board.monitor = xcpc_monitor_new();
+    self->board.monitor = xcpc_monitor_set_iface(self->board.monitor, &monitor_iface);
 }
 
 static void create_keyboard(AMSTRAD_CPC_EMULATOR* self)
@@ -559,8 +547,8 @@ static void create_keyboard(AMSTRAD_CPC_EMULATOR* self)
         self /* user_data */
     };
 
-    self->keyboard = xcpc_keyboard_new();
-    self->keyboard = xcpc_keyboard_set_iface(self->keyboard, &keyboard_iface);
+    self->board.keyboard = xcpc_keyboard_new();
+    self->board.keyboard = xcpc_keyboard_set_iface(self->board.keyboard, &keyboard_iface);
 }
 
 static void create_joystick(AMSTRAD_CPC_EMULATOR* self)
@@ -569,8 +557,8 @@ static void create_joystick(AMSTRAD_CPC_EMULATOR* self)
         self /* user_data */
     };
 
-    self->joystick = xcpc_joystick_new();
-    self->joystick = xcpc_joystick_set_iface(self->joystick, &joystick_iface);
+    self->board.joystick = xcpc_joystick_new();
+    self->board.joystick = xcpc_joystick_set_iface(self->board.joystick, &joystick_iface);
 }
 
 static void create_cpu_z80a(AMSTRAD_CPC_EMULATOR* self)
@@ -585,8 +573,8 @@ static void create_cpu_z80a(AMSTRAD_CPC_EMULATOR* self)
         &cpu_iorq_wr, /* iorq_wr   */
     };
 
-    self->cpu_z80a = xcpc_cpu_z80a_new();
-    self->cpu_z80a = xcpc_cpu_z80a_set_iface(self->cpu_z80a, &cpu_z80a_iface);
+    self->board.cpu_z80a = xcpc_cpu_z80a_new();
+    self->board.cpu_z80a = xcpc_cpu_z80a_set_iface(self->board.cpu_z80a, &cpu_z80a_iface);
 }
 
 static void create_vga_core(AMSTRAD_CPC_EMULATOR* self)
@@ -595,8 +583,8 @@ static void create_vga_core(AMSTRAD_CPC_EMULATOR* self)
         self /* user_data */
     };
 
-    self->vga_core = xcpc_vga_core_new();
-    self->vga_core = xcpc_vga_core_set_iface(self->vga_core, &vga_core_iface);
+    self->board.vga_core = xcpc_vga_core_new();
+    self->board.vga_core = xcpc_vga_core_set_iface(self->board.vga_core, &vga_core_iface);
 }
 
 static void create_vdc_6845(AMSTRAD_CPC_EMULATOR* self)
@@ -607,8 +595,8 @@ static void create_vdc_6845(AMSTRAD_CPC_EMULATOR* self)
         &vdc_vsync, /* vsync     */
     };
 
-    self->vdc_6845 = xcpc_vdc_6845_new();
-    self->vdc_6845 = xcpc_vdc_6845_set_iface(self->vdc_6845, &vdc_6845_iface);
+    self->board.vdc_6845 = xcpc_vdc_6845_new();
+    self->board.vdc_6845 = xcpc_vdc_6845_set_iface(self->board.vdc_6845, &vdc_6845_iface);
 }
 
 static void create_ppi_8255(AMSTRAD_CPC_EMULATOR* self)
@@ -623,8 +611,8 @@ static void create_ppi_8255(AMSTRAD_CPC_EMULATOR* self)
         &ppi_wr_port_c, /* wr_port_c */
     };
 
-    self->ppi_8255 = xcpc_ppi_8255_new();
-    self->ppi_8255 = xcpc_ppi_8255_set_iface(self->ppi_8255, &ppi_8255_iface);
+    self->board.ppi_8255 = xcpc_ppi_8255_new();
+    self->board.ppi_8255 = xcpc_ppi_8255_set_iface(self->board.ppi_8255, &ppi_8255_iface);
 }
 
 static void create_psg_8910(AMSTRAD_CPC_EMULATOR* self)
@@ -637,8 +625,8 @@ static void create_psg_8910(AMSTRAD_CPC_EMULATOR* self)
         &psg_wr_port_b, /* wr_port_b */
     };
 
-    self->psg_8910 = xcpc_psg_8910_new();
-    self->psg_8910 = xcpc_psg_8910_set_iface(self->psg_8910, &psg_8910_iface);
+    self->board.psg_8910 = xcpc_psg_8910_new();
+    self->board.psg_8910 = xcpc_psg_8910_set_iface(self->board.psg_8910, &psg_8910_iface);
 }
 
 static void create_fdc_765a(AMSTRAD_CPC_EMULATOR* self)
@@ -647,10 +635,10 @@ static void create_fdc_765a(AMSTRAD_CPC_EMULATOR* self)
         self /* user_data */
     };
 
-    self->fdc_765a = xcpc_fdc_765a_new();
-    self->fdc_765a = xcpc_fdc_765a_set_iface(self->fdc_765a, &fdc_765a_iface);
-    (void) xcpc_fdc_765a_attach(self->fdc_765a, XCPC_FDC_765A_DRIVE0);
-    (void) xcpc_fdc_765a_attach(self->fdc_765a, XCPC_FDC_765A_DRIVE1);
+    self->board.fdc_765a = xcpc_fdc_765a_new();
+    self->board.fdc_765a = xcpc_fdc_765a_set_iface(self->board.fdc_765a, &fdc_765a_iface);
+    (void) xcpc_fdc_765a_attach(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0);
+    (void) xcpc_fdc_765a_attach(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1);
 }
 
 static void create_ram_bank(AMSTRAD_CPC_EMULATOR* self)
@@ -663,15 +651,15 @@ static void create_ram_bank(AMSTRAD_CPC_EMULATOR* self)
         size_t requested = self->setup.memory_size;
         size_t allocated = 0UL;
         unsigned int bank_index = 0;
-        unsigned int bank_count = countof(self->ram_bank);
+        unsigned int bank_count = countof(self->board.ram_bank);
         for(bank_index = 0; bank_index < bank_count; ++bank_index) {
             if(allocated < requested) {
-                self->ram_bank[bank_index] = xcpc_ram_bank_new();
-                self->ram_bank[bank_index] = xcpc_ram_bank_set_iface(self->ram_bank[bank_index], &ram_bank_iface);
-                allocated += sizeof(self->ram_bank[bank_index]->state.data);
+                self->board.ram_bank[bank_index] = xcpc_ram_bank_new();
+                self->board.ram_bank[bank_index] = xcpc_ram_bank_set_iface(self->board.ram_bank[bank_index], &ram_bank_iface);
+                allocated += sizeof(self->board.ram_bank[bank_index]->state.data);
             }
             else {
-                self->ram_bank[bank_index] = NULL;
+                self->board.ram_bank[bank_index] = NULL;
                 allocated += 0UL;
             }
         }
@@ -690,7 +678,7 @@ static void create_rom_bank(AMSTRAD_CPC_EMULATOR* self, const char* system_rom)
         if(rom_status != XCPC_ROM_BANK_STATUS_SUCCESS) {
             xcpc_log_error("lower-rom: loading error (%s)", system_rom);
         }
-        self->rom_bank[0] = xcpc_rom_bank_set_iface(rom_bank, &rom_bank_iface);
+        self->board.rom_bank[0] = xcpc_rom_bank_set_iface(rom_bank, &rom_bank_iface);
     }
     /* create upper rom bank */ {
         XcpcRomBank*      rom_bank   = xcpc_rom_bank_new();
@@ -698,7 +686,7 @@ static void create_rom_bank(AMSTRAD_CPC_EMULATOR* self, const char* system_rom)
         if(rom_status != XCPC_ROM_BANK_STATUS_SUCCESS) {
             xcpc_log_error("upper-rom: loading error (%s)", system_rom);
         }
-        self->rom_bank[1] = xcpc_rom_bank_set_iface(rom_bank, &rom_bank_iface);
+        self->board.rom_bank[1] = xcpc_rom_bank_set_iface(rom_bank, &rom_bank_iface);
     }
 }
 
@@ -708,27 +696,27 @@ static void create_exp_bank(AMSTRAD_CPC_EMULATOR* self, const char* amsdos_rom)
         self /* user_data */
     };
     const char* cpc_expansions[16] = {
-        self->options->state.rom000,
-        self->options->state.rom001,
-        self->options->state.rom002,
-        self->options->state.rom003,
-        self->options->state.rom004,
-        self->options->state.rom005,
-        self->options->state.rom006,
-        self->options->state.rom007,
-        self->options->state.rom008,
-        self->options->state.rom009,
-        self->options->state.rom010,
-        self->options->state.rom011,
-        self->options->state.rom012,
-        self->options->state.rom013,
-        self->options->state.rom014,
-        self->options->state.rom015,
+        XCPC_OPTIONS_STATE(self->options)->rom000,
+        XCPC_OPTIONS_STATE(self->options)->rom001,
+        XCPC_OPTIONS_STATE(self->options)->rom002,
+        XCPC_OPTIONS_STATE(self->options)->rom003,
+        XCPC_OPTIONS_STATE(self->options)->rom004,
+        XCPC_OPTIONS_STATE(self->options)->rom005,
+        XCPC_OPTIONS_STATE(self->options)->rom006,
+        XCPC_OPTIONS_STATE(self->options)->rom007,
+        XCPC_OPTIONS_STATE(self->options)->rom008,
+        XCPC_OPTIONS_STATE(self->options)->rom009,
+        XCPC_OPTIONS_STATE(self->options)->rom010,
+        XCPC_OPTIONS_STATE(self->options)->rom011,
+        XCPC_OPTIONS_STATE(self->options)->rom012,
+        XCPC_OPTIONS_STATE(self->options)->rom013,
+        XCPC_OPTIONS_STATE(self->options)->rom014,
+        XCPC_OPTIONS_STATE(self->options)->rom015,
     };
 
     /* create expansion roms banks */ {
         unsigned int bank_index = 0;
-        unsigned int bank_count = countof(self->exp_bank);
+        unsigned int bank_count = countof(self->board.exp_bank);
         for(bank_index = 0; bank_index < bank_count; ++bank_index) {
             const char* filename = NULL;
             if(bank_index < countof(cpc_expansions)) {
@@ -743,10 +731,10 @@ static void create_exp_bank(AMSTRAD_CPC_EMULATOR* self, const char* amsdos_rom)
                 if((rom_bank == NULL) || (rom_status != XCPC_ROM_BANK_STATUS_SUCCESS)) {
                     xcpc_log_error("expansion-rom: loading error (%s)", filename);
                 }
-                self->exp_bank[bank_index] = xcpc_rom_bank_set_iface(rom_bank, &rom_bank_iface);
+                self->board.exp_bank[bank_index] = xcpc_rom_bank_set_iface(rom_bank, &rom_bank_iface);
             }
             else {
-                self->exp_bank[bank_index] = NULL;
+                self->board.exp_bank[bank_index] = NULL;
             }
         }
     }
@@ -754,57 +742,57 @@ static void create_exp_bank(AMSTRAD_CPC_EMULATOR* self, const char* amsdos_rom)
 
 static void delete_monitor(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->monitor = xcpc_monitor_delete(self->monitor);
+    self->board.monitor = xcpc_monitor_delete(self->board.monitor);
 }
 
 static void delete_keyboard(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->keyboard = xcpc_keyboard_delete(self->keyboard);
+    self->board.keyboard = xcpc_keyboard_delete(self->board.keyboard);
 }
 
 static void delete_joystick(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->joystick = xcpc_joystick_delete(self->joystick);
+    self->board.joystick = xcpc_joystick_delete(self->board.joystick);
 }
 
 static void delete_cpu_z80a(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->cpu_z80a = xcpc_cpu_z80a_delete(self->cpu_z80a);
+    self->board.cpu_z80a = xcpc_cpu_z80a_delete(self->board.cpu_z80a);
 }
 
 static void delete_vga_core(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->vga_core = xcpc_vga_core_delete(self->vga_core);
+    self->board.vga_core = xcpc_vga_core_delete(self->board.vga_core);
 }
 
 static void delete_vdc_6845(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->vdc_6845 = xcpc_vdc_6845_delete(self->vdc_6845);
+    self->board.vdc_6845 = xcpc_vdc_6845_delete(self->board.vdc_6845);
 }
 
 static void delete_ppi_8255(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->ppi_8255 = xcpc_ppi_8255_delete(self->ppi_8255);
+    self->board.ppi_8255 = xcpc_ppi_8255_delete(self->board.ppi_8255);
 }
 
 static void delete_psg_8910(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->psg_8910 = xcpc_psg_8910_delete(self->psg_8910);
+    self->board.psg_8910 = xcpc_psg_8910_delete(self->board.psg_8910);
 }
 
 static void delete_fdc_765a(AMSTRAD_CPC_EMULATOR* self)
 {
-    self->fdc_765a = xcpc_fdc_765a_delete(self->fdc_765a);
+    self->board.fdc_765a = xcpc_fdc_765a_delete(self->board.fdc_765a);
 }
 
 static void delete_ram_bank(AMSTRAD_CPC_EMULATOR* self)
 {
     unsigned int bank_index = 0;
-    unsigned int bank_count = countof(self->ram_bank);
+    unsigned int bank_count = countof(self->board.ram_bank);
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        XcpcRamBank* ram_bank = self->ram_bank[bank_index];
+        XcpcRamBank* ram_bank = self->board.ram_bank[bank_index];
         if(ram_bank != NULL) {
-            ram_bank = self->ram_bank[bank_index] = xcpc_ram_bank_delete(ram_bank);
+            ram_bank = self->board.ram_bank[bank_index] = xcpc_ram_bank_delete(ram_bank);
         }
     }
 }
@@ -812,11 +800,11 @@ static void delete_ram_bank(AMSTRAD_CPC_EMULATOR* self)
 static void delete_rom_bank(AMSTRAD_CPC_EMULATOR* self)
 {
     unsigned int bank_index = 0;
-    unsigned int bank_count = countof(self->rom_bank);
+    unsigned int bank_count = countof(self->board.rom_bank);
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        XcpcRomBank* rom_bank = self->rom_bank[bank_index];
+        XcpcRomBank* rom_bank = self->board.rom_bank[bank_index];
         if(rom_bank != NULL) {
-            rom_bank = self->rom_bank[bank_index] = xcpc_rom_bank_delete(rom_bank);
+            rom_bank = self->board.rom_bank[bank_index] = xcpc_rom_bank_delete(rom_bank);
         }
     }
 }
@@ -824,66 +812,66 @@ static void delete_rom_bank(AMSTRAD_CPC_EMULATOR* self)
 static void delete_exp_bank(AMSTRAD_CPC_EMULATOR* self)
 {
     unsigned int bank_index = 0;
-    unsigned int bank_count = countof(self->exp_bank);
+    unsigned int bank_count = countof(self->board.exp_bank);
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        XcpcRomBank* exp_bank = self->exp_bank[bank_index];
+        XcpcRomBank* exp_bank = self->board.exp_bank[bank_index];
         if(exp_bank != NULL) {
-            exp_bank = self->exp_bank[bank_index] = xcpc_rom_bank_delete(exp_bank);
+            exp_bank = self->board.exp_bank[bank_index] = xcpc_rom_bank_delete(exp_bank);
         }
     }
 }
 
 static void reset_monitor(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_monitor_reset(self->monitor);
+    (void) xcpc_monitor_reset(self->board.monitor);
 }
 
 static void reset_keyboard(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_keyboard_reset(self->keyboard);
+    (void) xcpc_keyboard_reset(self->board.keyboard);
 }
 
 static void reset_joystick(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_joystick_reset(self->joystick);
+    (void) xcpc_joystick_reset(self->board.joystick);
 }
 
 static void reset_cpu_z80a(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_cpu_z80a_reset(self->cpu_z80a);
+    (void) xcpc_cpu_z80a_reset(self->board.cpu_z80a);
 }
 
 static void reset_vga_core(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_vga_core_reset(self->vga_core);
+    (void) xcpc_vga_core_reset(self->board.vga_core);
 }
 
 static void reset_vdc_6845(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_vdc_6845_reset(self->vdc_6845);
+    (void) xcpc_vdc_6845_reset(self->board.vdc_6845);
 }
 
 static void reset_ppi_8255(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_ppi_8255_reset(self->ppi_8255);
+    (void) xcpc_ppi_8255_reset(self->board.ppi_8255);
 }
 
 static void reset_psg_8910(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_psg_8910_reset(self->psg_8910);
+    (void) xcpc_psg_8910_reset(self->board.psg_8910);
 }
 
 static void reset_fdc_765a(AMSTRAD_CPC_EMULATOR* self)
 {
-    (void) xcpc_fdc_765a_reset(self->fdc_765a);
+    (void) xcpc_fdc_765a_reset(self->board.fdc_765a);
 }
 
 static void reset_ram_bank(AMSTRAD_CPC_EMULATOR* self)
 {
     unsigned int bank_index = 0;
-    unsigned int bank_count = countof(self->ram_bank);
+    unsigned int bank_count = countof(self->board.ram_bank);
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        XcpcRamBank* ram_bank = self->ram_bank[bank_index];
+        XcpcRamBank* ram_bank = self->board.ram_bank[bank_index];
         if(ram_bank != NULL) {
             (void) xcpc_ram_bank_reset(ram_bank);
         }
@@ -893,9 +881,9 @@ static void reset_ram_bank(AMSTRAD_CPC_EMULATOR* self)
 static void reset_rom_bank(AMSTRAD_CPC_EMULATOR* self)
 {
     unsigned int bank_index = 0;
-    unsigned int bank_count = countof(self->rom_bank);
+    unsigned int bank_count = countof(self->board.rom_bank);
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        XcpcRomBank* rom_bank = self->rom_bank[bank_index];
+        XcpcRomBank* rom_bank = self->board.rom_bank[bank_index];
         if(rom_bank != NULL) {
             (void) xcpc_rom_bank_reset(rom_bank);
         }
@@ -905,16 +893,16 @@ static void reset_rom_bank(AMSTRAD_CPC_EMULATOR* self)
 static void reset_exp_bank(AMSTRAD_CPC_EMULATOR* self)
 {
     unsigned int bank_index = 0;
-    unsigned int bank_count = countof(self->exp_bank);
+    unsigned int bank_count = countof(self->board.exp_bank);
     for(bank_index = 0; bank_index < bank_count; ++bank_index) {
-        XcpcRomBank* exp_bank = self->exp_bank[bank_index];
+        XcpcRomBank* exp_bank = self->board.exp_bank[bank_index];
         if(exp_bank != NULL) {
             (void) xcpc_rom_bank_reset(exp_bank);
         }
     }
 }
 
-static void create_devices(AMSTRAD_CPC_EMULATOR* self, const char* system_rom, const char* amsdos_rom)
+static void construct_board(AMSTRAD_CPC_EMULATOR* self, const char* system_rom, const char* amsdos_rom)
 {
     create_monitor(self);
     create_keyboard(self);
@@ -930,7 +918,7 @@ static void create_devices(AMSTRAD_CPC_EMULATOR* self, const char* system_rom, c
     create_exp_bank(self, amsdos_rom);
 }
 
-static void delete_devices(AMSTRAD_CPC_EMULATOR* self)
+static void destruct_board(AMSTRAD_CPC_EMULATOR* self)
 {
     delete_exp_bank(self);
     delete_rom_bank(self);
@@ -946,7 +934,7 @@ static void delete_devices(AMSTRAD_CPC_EMULATOR* self)
     delete_monitor(self);
 }
 
-static void reset_devices(AMSTRAD_CPC_EMULATOR* self)
+static void reset_board(AMSTRAD_CPC_EMULATOR* self)
 {
     reset_monitor(self);
     reset_keyboard(self);
@@ -968,9 +956,9 @@ static void cpc_paint_unknown(AMSTRAD_CPC_EMULATOR* self)
 
 static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
 {
-    XcpcMonitor* monitor = self->monitor;
-    XcpcVdc6845* vdc_6845 = self->vdc_6845;
-    XcpcVgaCore* vga_core = self->vga_core;
+    XcpcMonitor* monitor = self->board.monitor;
+    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcVgaCore* vga_core = self->board.vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
     unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
@@ -1018,7 +1006,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode0[data];
@@ -1037,7 +1025,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode0[data];
@@ -1081,7 +1069,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode1[data];
@@ -1108,7 +1096,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode1[data];
@@ -1160,7 +1148,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode2[data];
@@ -1203,7 +1191,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode2[data];
@@ -1269,14 +1257,14 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         dst = nxt; scanline++;
     }
-    (void) xcpc_monitor_put_image(self->monitor);
+    (void) xcpc_monitor_put_image(self->board.monitor);
 }
 
 static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
 {
-    XcpcMonitor* monitor = self->monitor;
-    XcpcVdc6845* vdc_6845 = self->vdc_6845;
-    XcpcVgaCore* vga_core = self->vga_core;
+    XcpcMonitor* monitor = self->board.monitor;
+    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcVgaCore* vga_core = self->board.vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
     unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
@@ -1324,7 +1312,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode0[data];
@@ -1343,7 +1331,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode0[data];
@@ -1387,7 +1375,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode1[data];
@@ -1414,7 +1402,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode1[data];
@@ -1466,7 +1454,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode2[data];
@@ -1509,7 +1497,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode2[data];
@@ -1575,14 +1563,14 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         dst = nxt; scanline++;
     }
-    (void) xcpc_monitor_put_image(self->monitor);
+    (void) xcpc_monitor_put_image(self->board.monitor);
 }
 
 static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
 {
-    XcpcMonitor* monitor = self->monitor;
-    XcpcVdc6845* vdc_6845 = self->vdc_6845;
-    XcpcVgaCore* vga_core = self->vga_core;
+    XcpcMonitor* monitor = self->board.monitor;
+    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcVgaCore* vga_core = self->board.vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
     unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
@@ -1630,7 +1618,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode0[data];
@@ -1649,7 +1637,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode0[data];
@@ -1693,7 +1681,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode1[data];
@@ -1720,7 +1708,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode1[data];
@@ -1772,7 +1760,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                     disp = ((addr >>  0) & 0x3fff);
                                 }
                                 /* fetch 1st byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 0];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 0];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode2[data];
@@ -1815,7 +1803,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                     *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
-                                    data = self->ram_bank[bank]->state.data[disp | 1];
+                                    data = self->board.ram_bank[bank]->state.data[disp | 1];
                                 }
                                 /* pixel 0 */ {
                                     data = vga_core->state.mode2[data];
@@ -1881,7 +1869,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
         }
         dst = nxt; scanline++;
     }
-    (void) xcpc_monitor_put_image(self->monitor);
+    (void) xcpc_monitor_put_image(self->board.monitor);
 }
 
 static void cpc_keybd_unknown(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
@@ -1890,12 +1878,12 @@ static void cpc_keybd_unknown(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 
 static void cpc_keybd_qwerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
-    (void) xcpc_keyboard_qwerty(self->keyboard, &event->xkey);
+    (void) xcpc_keyboard_qwerty(self->board.keyboard, &event->xkey);
 }
 
 static void cpc_keybd_azerty(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
-    (void) xcpc_keyboard_azerty(self->keyboard, &event->xkey);
+    (void) xcpc_keyboard_azerty(self->board.keyboard, &event->xkey);
 }
 
 static void cpc_mouse_unknown(AMSTRAD_CPC_EMULATOR* self, XEvent* event)
@@ -1906,7 +1894,7 @@ void amstrad_cpc_new(int* argc, char*** argv)
 {
     AMSTRAD_CPC_EMULATOR* self = &amstrad_cpc;
 
-    /* memset */ {
+    /* clear all */ {
         (void) memset(self, 0, sizeof(AMSTRAD_CPC_EMULATOR));
     }
     /* create options */ {
@@ -1940,19 +1928,23 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
     const char* opt_keyboard = XCPC_OPTIONS_STATE(self->options)->keyboard;
     const char* opt_system   = XCPC_OPTIONS_STATE(self->options)->sysrom;
     const char* opt_amsdos   = XCPC_OPTIONS_STATE(self->options)->rom007;
+    const char* opt_drive0   = XCPC_OPTIONS_STATE(self->options)->drive0;
+    const char* opt_drive1   = XCPC_OPTIONS_STATE(self->options)->drive1;
+    const char* opt_snapshot = XCPC_OPTIONS_STATE(self->options)->snapshot;
+    const int   opt_turbo    = XCPC_OPTIONS_STATE(self->options)->turbo;
+    const int   opt_xshm     = XCPC_OPTIONS_STATE(self->options)->xshm;
+    const int   opt_fps      = XCPC_OPTIONS_STATE(self->options)->fps;
 
-    /* clear handlers */ {
-        self->handlers.paint = &cpc_paint_unknown;
-        self->handlers.keybd = &cpc_keybd_unknown;
-        self->handlers.mouse = &cpc_mouse_unknown;
-    }
-    /* fetch setup */ {
-        self->setup.company_name  = xcpc_company_name  (opt_company , XCPC_COMPANY_NAME_DEFAULT );
-        self->setup.machine_type  = xcpc_machine_type  (opt_machine , XCPC_MACHINE_TYPE_DEFAULT );
-        self->setup.monitor_type  = xcpc_monitor_type  (opt_monitor , XCPC_MONITOR_TYPE_DEFAULT );
-        self->setup.refresh_rate  = xcpc_refresh_rate  (opt_refresh , XCPC_REFRESH_RATE_DEFAULT );
-        self->setup.keyboard_type = xcpc_keyboard_type (opt_keyboard, XCPC_KEYBOARD_TYPE_DEFAULT);
+    /* initialize setup */ {
+        self->setup.company_name  = xcpc_company_name(opt_company, XCPC_COMPANY_NAME_DEFAULT );
+        self->setup.machine_type  = xcpc_machine_type(opt_machine, XCPC_MACHINE_TYPE_DEFAULT );
+        self->setup.monitor_type  = xcpc_monitor_type(opt_monitor, XCPC_MONITOR_TYPE_DEFAULT );
+        self->setup.refresh_rate  = xcpc_refresh_rate(opt_refresh, XCPC_REFRESH_RATE_DEFAULT );
+        self->setup.keyboard_type = xcpc_keyboard_type(opt_keyboard, XCPC_KEYBOARD_TYPE_DEFAULT);
         self->setup.memory_size   = XCPC_MEMORY_SIZE_DEFAULT;
+        self->setup.turbo         = opt_turbo;
+        self->setup.xshm          = opt_xshm;
+        self->setup.fps           = opt_fps;
     }
     /* adjust company name */ {
         if(self->setup.company_name == XCPC_COMPANY_NAME_DEFAULT) {
@@ -2014,10 +2006,19 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
                 break;
         }
     }
-    /* create devices */ {
-        create_devices(self, system_rom, amsdos_rom);
+    /* initialize state */ {
+        self->state.hsync     = 0; /* no hsync      */
+        self->state.vsync     = 0; /* no vsync      */
+        self->state.refresh   = 1; /* 50Hz          */
+        self->state.company   = 7; /* amstrad       */
+        self->state.expansion = 1; /* present       */
+        self->state.parallel  = 1; /* not connected */
+        self->state.cassette  = 0; /* no data       */
     }
-    /* initialize memory pager */ {
+    /* initialize board */ {
+        construct_board(self, system_rom, amsdos_rom);
+    }
+    /* initialize pager */ {
         unsigned int bank_index = 0;
         unsigned int bank_count = 4;
         for(bank_index = 0; bank_index < bank_count; ++bank_index) {
@@ -2027,7 +2028,17 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
         self->pager.conf.ram = 0x00;
         self->pager.conf.rom = 0x00;
     }
-    /* initialize timers */ {
+    /* initialize frame */ {
+        self->frame.index = 0;
+    }
+    /* initialize stats */ {
+        self->stats.rate      = 0;
+        self->stats.time      = 0;
+        self->stats.count     = 0;
+        self->stats.drawn     = 0;
+        self->stats.buffer[0] = '\0';
+    }
+    /* initialize timer */ {
         if(gettimeofday(&self->timer.deadline, NULL) != 0) {
             xcpc_log_error("gettimeofday() has failed");
         }
@@ -2035,21 +2046,10 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
             xcpc_log_error("gettimeofday() has failed");
         }
     }
-    /* initialize default state */ {
-        self->state.hsync     = 0; /* no hsync      */
-        self->state.vsync     = 0; /* no vsync      */
-        self->state.refresh   = 1; /* 50Hz          */
-        self->state.company   = 7; /* amstrad       */
-        self->state.expansion = 1; /* present       */
-        self->state.parallel  = 1; /* not connected */
-        self->state.cassette  = 0; /* no data       */
-    }
-    /* initialize stats */ {
-        self->stats.rate    = 0;
-        self->stats.time    = 0;
-        self->stats.count   = 0;
-        self->stats.drawn   = 0;
-        self->stats.text[0] = '\0';
+    /* initialize handlers */ {
+        self->handlers.paint = &cpc_paint_unknown;
+        self->handlers.keybd = &cpc_keybd_unknown;
+        self->handlers.mouse = &cpc_mouse_unknown;
     }
     /* compute frame rate/time and cpu period */ {
         switch(self->setup.refresh_rate) {
@@ -2071,7 +2071,7 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
                 xcpc_log_error("unsupported refresh rate %d", self->setup.refresh_rate);
                 break;
         }
-        if(self->options->state.turbo != 0) {
+        if(self->setup.turbo != 0) {
             self->stats.time = 1000;
         }
     }
@@ -2079,21 +2079,18 @@ void amstrad_cpc_start(AMSTRAD_CPC_EMULATOR* self)
         amstrad_cpc_reset(self);
     }
     /* load initial drive0 */ {
-        const char* drive0 = self->options->state.drive0;
-        if(is_set(drive0)) {
-            amstrad_cpc_insert_drive0(self, drive0);
+        if(is_set(opt_drive0)) {
+            amstrad_cpc_insert_drive0(self, opt_drive0);
         }
     }
     /* load initial drive1 */ {
-        const char* drive1 = self->options->state.drive1;
-        if(is_set(drive1)) {
-            amstrad_cpc_insert_drive1(self, drive1);
+        if(is_set(opt_drive1)) {
+            amstrad_cpc_insert_drive1(self, opt_drive1);
         }
     }
     /* load initial snapshot */ {
-        const char* snapshot = self->options->state.snapshot;
-        if(is_set(snapshot)) {
-            amstrad_cpc_load_snapshot(self, snapshot);
+        if(is_set(opt_snapshot)) {
+            amstrad_cpc_load_snapshot(self, opt_snapshot);
         }
     }
     /* cleanup */ {
@@ -2124,14 +2121,14 @@ void amstrad_cpc_close(AMSTRAD_CPC_EMULATOR* self)
         self->pager.conf.rom = 0x00;
     }
     /* delete devices */ {
-        delete_devices(self);
+        destruct_board(self);
     }
 }
 
 void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR* self)
 {
     /* reset devices */ {
-        reset_devices(self);
+        reset_board(self);
     }
     /* reset memory pager */ {
         unsigned int bank_index = 0;
@@ -2166,7 +2163,7 @@ void amstrad_cpc_reset(AMSTRAD_CPC_EMULATOR* self)
         self->stats.time      |= 0; /* dont'modify */
         self->stats.count     &= 0; /* clear value */
         self->stats.drawn     &= 0; /* clear value */
-        self->stats.text[0]   &= 0; /* clear value */
+        self->stats.buffer[0] &= 0; /* clear value */
     }
 }
 
@@ -2183,12 +2180,12 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
     }
     /* fetch devices */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            (void) xcpc_snapshot_fetch_cpu_z80a(snapshot, self->cpu_z80a);
-            (void) xcpc_snapshot_fetch_vga_core(snapshot, self->vga_core);
-            (void) xcpc_snapshot_fetch_vdc_6845(snapshot, self->vdc_6845);
-            (void) xcpc_snapshot_fetch_ppi_8255(snapshot, self->ppi_8255);
-            (void) xcpc_snapshot_fetch_psg_8910(snapshot, self->psg_8910);
-            (void) xcpc_snapshot_fetch_fdc_765a(snapshot, self->fdc_765a);
+            (void) xcpc_snapshot_fetch_cpu_z80a(snapshot, self->board.cpu_z80a);
+            (void) xcpc_snapshot_fetch_vga_core(snapshot, self->board.vga_core);
+            (void) xcpc_snapshot_fetch_vdc_6845(snapshot, self->board.vdc_6845);
+            (void) xcpc_snapshot_fetch_ppi_8255(snapshot, self->board.ppi_8255);
+            (void) xcpc_snapshot_fetch_psg_8910(snapshot, self->board.psg_8910);
+            (void) xcpc_snapshot_fetch_fdc_765a(snapshot, self->board.fdc_765a);
         }
     }
     /* fetch ram/rom */ {
@@ -2204,7 +2201,7 @@ void amstrad_cpc_load_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
             uint32_t     bank_size  = 16384;
             unsigned int bank_index = 0;
             while(snap_size >= bank_size) {
-                (void) xcpc_snapshot_fetch_ram_bank(snapshot, self->ram_bank[bank_index++]);
+                (void) xcpc_snapshot_fetch_ram_bank(snapshot, self->board.ram_bank[bank_index++]);
                 snap_size -= bank_size;
             }
             if(snap_size != 0) {
@@ -2238,12 +2235,12 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 
     /* store devices */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            (void) xcpc_snapshot_store_cpu_z80a(snapshot, self->cpu_z80a);
-            (void) xcpc_snapshot_store_vga_core(snapshot, self->vga_core);
-            (void) xcpc_snapshot_store_vdc_6845(snapshot, self->vdc_6845);
-            (void) xcpc_snapshot_store_ppi_8255(snapshot, self->ppi_8255);
-            (void) xcpc_snapshot_store_psg_8910(snapshot, self->psg_8910);
-            (void) xcpc_snapshot_store_fdc_765a(snapshot, self->fdc_765a);
+            (void) xcpc_snapshot_store_cpu_z80a(snapshot, self->board.cpu_z80a);
+            (void) xcpc_snapshot_store_vga_core(snapshot, self->board.vga_core);
+            (void) xcpc_snapshot_store_vdc_6845(snapshot, self->board.vdc_6845);
+            (void) xcpc_snapshot_store_ppi_8255(snapshot, self->board.ppi_8255);
+            (void) xcpc_snapshot_store_psg_8910(snapshot, self->board.psg_8910);
+            (void) xcpc_snapshot_store_fdc_765a(snapshot, self->board.fdc_765a);
         }
     }
     /* store ram/rom */ {
@@ -2259,7 +2256,7 @@ void amstrad_cpc_save_snapshot(AMSTRAD_CPC_EMULATOR* self, const char* filename)
             uint32_t     bank_size  = 16384;
             unsigned int bank_index = 0;
             while(snap_size >= bank_size) {
-                (void) xcpc_snapshot_store_ram_bank(snapshot, self->ram_bank[bank_index++]);
+                (void) xcpc_snapshot_store_ram_bank(snapshot, self->board.ram_bank[bank_index++]);
                 snap_size -= bank_size;
             }
             if(snap_size != 0) {
@@ -2286,28 +2283,28 @@ void amstrad_cpc_insert_drive0(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     xcpc_log_debug("amstrad_cpc_insert_drive0 <%s>", filename);
 
-    (void) xcpc_fdc_765a_insert(self->fdc_765a, XCPC_FDC_765A_DRIVE0, filename);
+    (void) xcpc_fdc_765a_insert(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0, filename);
 }
 
 void amstrad_cpc_remove_drive0(AMSTRAD_CPC_EMULATOR* self)
 {
     xcpc_log_debug("amstrad_cpc_remove_drive0");
 
-    (void) xcpc_fdc_765a_remove(self->fdc_765a, XCPC_FDC_765A_DRIVE0);
+    (void) xcpc_fdc_765a_remove(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0);
 }
 
 void amstrad_cpc_insert_drive1(AMSTRAD_CPC_EMULATOR* self, const char* filename)
 {
     xcpc_log_debug("amstrad_cpc_insert_drive1 <%s>", filename);
 
-    (void) xcpc_fdc_765a_insert(self->fdc_765a, XCPC_FDC_765A_DRIVE1, filename);
+    (void) xcpc_fdc_765a_insert(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1, filename);
 }
 
 void amstrad_cpc_remove_drive1(AMSTRAD_CPC_EMULATOR* self)
 {
     xcpc_log_debug("amstrad_cpc_remove_drive1");
 
-    (void) xcpc_fdc_765a_remove(self->fdc_765a, XCPC_FDC_765A_DRIVE1);
+    (void) xcpc_fdc_765a_remove(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1);
 }
 
 unsigned long amstrad_cpc_create_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
@@ -2328,18 +2325,16 @@ unsigned long amstrad_cpc_destroy_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
 
 unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
-    int use_xshm = self->options->state.xshm;
-
     if(self != NULL) {
         /* realize */ {
-            (void) xcpc_monitor_realize ( self->monitor
+            (void) xcpc_monitor_realize ( self->board.monitor
                                         , self->setup.monitor_type
                                         , XtDisplay(widget)
                                         , XtWindow(widget)
-                                        , (use_xshm != 0 ? True : False) );
+                                        , (self->setup.xshm != 0 ? True : False) );
         }
         /* init paint handler */ {
-            switch(self->monitor->state.image->bits_per_pixel) {
+            switch(self->board.monitor->state.image->bits_per_pixel) {
                 case 8:
                     self->handlers.paint = &cpc_paint_08bpp;
                     break;
@@ -2374,7 +2369,7 @@ unsigned long amstrad_cpc_realize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self
 unsigned long amstrad_cpc_resize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     if((self != NULL) && (event != NULL) && (event->type == ConfigureNotify)) {
-        (void) xcpc_monitor_resize(self->monitor, &event->xconfigure);
+        (void) xcpc_monitor_resize(self->board.monitor, &event->xconfigure);
     }
     return 0UL;
 }
@@ -2382,16 +2377,16 @@ unsigned long amstrad_cpc_resize_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self,
 unsigned long amstrad_cpc_redraw_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
     if((self != NULL) && (event != NULL) && (event->type == Expose)) {
-        (void) xcpc_monitor_expose(self->monitor, &event->xexpose);
+        (void) xcpc_monitor_expose(self->board.monitor, &event->xexpose);
     }
     return 0UL;
 }
 
 unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, XEvent* event)
 {
-    XcpcCpuZ80a* cpu_z80a = self->cpu_z80a;
-    XcpcVdc6845* vdc_6845 = self->vdc_6845;
-    XcpcFdc765a* fdc_765a = self->fdc_765a;
+    XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
+    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcFdc765a* fdc_765a = self->board.fdc_765a;
     unsigned long elapsed = 0;
     unsigned long timeout = 0;
 
@@ -2403,7 +2398,7 @@ unsigned long amstrad_cpc_timer_proc(Widget widget, AMSTRAD_CPC_EMULATOR* self, 
                 xcpc_vdc_6845_clock(vdc_6845);
                 if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
                     int32_t i_period = cpu_z80a->state.ctrs.i_period;
-                    xcpc_cpu_z80a_clock(self->cpu_z80a);
+                    xcpc_cpu_z80a_clock(self->board.cpu_z80a);
                     cpu_z80a->state.ctrs.i_period = i_period - (((i_period - cpu_z80a->state.ctrs.i_period) + 3) & (~3));
                 }
             }

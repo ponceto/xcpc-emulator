@@ -45,19 +45,41 @@ typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 
 struct _AMSTRAD_CPC_EMULATOR
 {
-    XcpcOptions*  options;
-    XcpcMonitor*  monitor;
-    XcpcKeyboard* keyboard;
-    XcpcJoystick* joystick;
-    XcpcCpuZ80a*  cpu_z80a;
-    XcpcVgaCore*  vga_core;
-    XcpcVdc6845*  vdc_6845;
-    XcpcPpi8255*  ppi_8255;
-    XcpcPsg8910*  psg_8910;
-    XcpcFdc765a*  fdc_765a;
-    XcpcRamBank*  ram_bank[8];
-    XcpcRomBank*  rom_bank[2];
-    XcpcRomBank*  exp_bank[256];
+    XcpcOptions* options;
+    struct _setup {
+        XcpcCompanyName  company_name;
+        XcpcMachineType  machine_type;
+        XcpcMonitorType  monitor_type;
+        XcpcRefreshRate  refresh_rate;
+        XcpcKeyboardType keyboard_type;
+        XcpcMemorySize   memory_size;
+        int              turbo;
+        int              xshm;
+        int              fps;
+    } setup;
+    struct _state {
+        uint8_t hsync;
+        uint8_t vsync;
+        uint8_t refresh;
+        uint8_t company;
+        uint8_t expansion;
+        uint8_t parallel;
+        uint8_t cassette;
+    } state;
+    struct _board {
+        XcpcMonitor*  monitor;
+        XcpcKeyboard* keyboard;
+        XcpcJoystick* joystick;
+        XcpcCpuZ80a*  cpu_z80a;
+        XcpcVgaCore*  vga_core;
+        XcpcVdc6845*  vdc_6845;
+        XcpcPpi8255*  ppi_8255;
+        XcpcPsg8910*  psg_8910;
+        XcpcFdc765a*  fdc_765a;
+        XcpcRamBank*  ram_bank[8];
+        XcpcRomBank*  rom_bank[2];
+        XcpcRomBank*  exp_bank[256];
+    } board;
     struct _pager {
         struct {
             uint8_t* rd[4];
@@ -72,40 +94,23 @@ struct _AMSTRAD_CPC_EMULATOR
         XcpcScanline array[312];
         int          index;
     } frame;
-    struct _handlers {
-        PaintProc paint;
-        KeybdProc keybd;
-        MouseProc mouse;
-    } handlers;
-    struct _timer {
-        struct timeval deadline;
-        struct timeval profiler;
-    } timer;
-    struct _setup {
-        XcpcCompanyName  company_name;
-        XcpcMachineType  machine_type;
-        XcpcMonitorType  monitor_type;
-        XcpcRefreshRate  refresh_rate;
-        XcpcKeyboardType keyboard_type;
-        XcpcMemorySize   memory_size;
-    } setup;
-    struct _state {
-        uint8_t hsync;
-        uint8_t vsync;
-        uint8_t refresh;
-        uint8_t company;
-        uint8_t expansion;
-        uint8_t parallel;
-        uint8_t cassette;
-    } state;
     struct _stats {
         unsigned int rate;
         unsigned int time;
         unsigned int count;
         unsigned int drawn;
-        char text[256];
+        char         buffer[256];
     } stats;
-    int  cpu_period;
+    struct _timer {
+        struct timeval deadline;
+        struct timeval profiler;
+    } timer;
+    struct _handlers {
+        PaintProc paint;
+        KeybdProc keybd;
+        MouseProc mouse;
+    } handlers;
+    int cpu_period;
 };
 
 extern AMSTRAD_CPC_EMULATOR amstrad_cpc;
