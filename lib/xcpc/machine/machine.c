@@ -382,8 +382,9 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                     int index = 0;
                     do {
                         const uint8_t ink = vga_core->state.ink[index];
-                        scanline->ink[index].value = ink;
-                        scanline->ink[index].pixel = monitor->state.palette[ink].pixel;
+                        scanline->color[index].value  = ink;
+                        scanline->color[index].pixel1 = monitor->state.palette1[ink].pixel;
+                        scanline->color[index].pixel2 = monitor->state.palette2[ink].pixel;
                     } while(++index < 17);
                 }
             }

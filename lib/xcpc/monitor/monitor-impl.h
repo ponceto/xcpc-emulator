@@ -57,7 +57,8 @@ struct _XcpcMonitorState
     Bool     try_xshm;
     Bool     has_xshm;
     Bool     use_xshm;
-    XColor   palette[32];
+    XColor   palette1[32];
+    XColor   palette2[32];
 };
 
 struct _XcpcMonitor
@@ -72,8 +73,10 @@ struct _XcpcScanline
     uint8_t mode;
     struct {
         uint8_t  value;
-        uint32_t pixel;
-    } ink[17];
+        uint32_t pixel1;
+        uint32_t pixel2;
+    } color[17];
+    uint8_t data[1024];
 };
 
 #define XCPC_MONITOR_WIDTH  768

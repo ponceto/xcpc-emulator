@@ -231,9 +231,9 @@ static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorType monitor_type
     }
     /* init palette */ {
         int color_index = 0;
-        int color_count = countof(self->state.palette);
+        int color_count = countof(self->state.palette1);
         do {
-            XColor* color = &self->state.palette[color_index];
+            XColor* color = &self->state.palette1[color_index];
             /* clear color */ {
                 (void) clear_color(color);
             }
@@ -243,6 +243,31 @@ static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorType monitor_type
                                              , &color->red
                                              , &color->green
                                              , &color->blue );
+            }
+            /* alloc color */ {
+                (void) alloc_color(self->state.display, self->state.colormap, color);
+            }
+        } while(++color_index < color_count);
+    }
+    /* init palette2 */ {
+        int color_index = 0;
+        int color_count = countof(self->state.palette2);
+        do {
+            XColor* color = &self->state.palette2[color_index];
+            /* clear color */ {
+                (void) clear_color(color);
+            }
+            /* get color */ {
+                (void) xcpc_color_get_values ( monitor_type
+                                             , color_index
+                                             , &color->red
+                                             , &color->green
+                                             , &color->blue );
+            }
+            /* adjust rgb */ {
+                color->red   = ((((uint32_t) color->red  ) * 5) / 8);
+                color->green = ((((uint32_t) color->green) * 5) / 8);
+                color->blue  = ((((uint32_t) color->blue ) * 5) / 8);
             }
             /* alloc color */ {
                 (void) alloc_color(self->state.display, self->state.colormap, color);
@@ -263,9 +288,22 @@ static XcpcMonitor* fini_palette(XcpcMonitor* self)
     }
     /* free palette */ {
         int color_index = 0;
-        int color_count = countof(self->state.palette);
+        int color_count = countof(self->state.palette1);
         do {
-            XColor* color = &self->state.palette[color_index];
+            XColor* color = &self->state.palette1[color_index];
+            /* free color */ {
+                (void) free_color(self->state.display, self->state.colormap, color);
+            }
+            /* clear color */ {
+                (void) clear_color(color);
+            }
+        } while(++color_index < color_count);
+    }
+    /* free palette2 */ {
+        int color_index = 0;
+        int color_count = countof(self->state.palette2);
+        do {
+            XColor* color = &self->state.palette2[color_index];
             /* free color */ {
                 (void) free_color(self->state.display, self->state.colormap, color);
             }
@@ -318,11 +356,18 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
         self->state.has_xshm = False;
         self->state.use_xshm = False;
     }
-    /* init palette */ {
+    /* init palette1 */ {
         int color_index = 0;
-        int color_count = countof(self->state.palette);
+        int color_count = countof(self->state.palette1);
         do {
-            (void) clear_color(&self->state.palette[color_index]);
+            (void) clear_color(&self->state.palette1[color_index]);
+        } while(++color_index < color_count);
+    }
+    /* init palette2 */ {
+        int color_index = 0;
+        int color_count = countof(self->state.palette2);
+        do {
+            (void) clear_color(&self->state.palette2[color_index]);
         } while(++color_index < color_count);
     }
     /* reset */ {

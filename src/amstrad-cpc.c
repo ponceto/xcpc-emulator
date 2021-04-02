@@ -449,8 +449,9 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                     int index = 0;
                     do {
                         const uint8_t ink = vga_core->state.ink[index];
-                        scanline->ink[index].value = ink;
-                        scanline->ink[index].pixel = monitor->state.palette[ink].pixel;
+                        scanline->color[index].value  = ink;
+                        scanline->color[index].pixel1 = monitor->state.palette1[ink].pixel;
+                        scanline->color[index].pixel2 = monitor->state.palette2[ink].pixel;
                     } while(++index < 17);
                 }
             }
@@ -969,7 +970,7 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
     XcpcScanline* scanline = self->frame.array;
     uint8_t* dst = (uint8_t*) monitor->state.image->data;
     uint8_t* nxt = dst;
-    uint8_t pixel;
+    uint8_t pixel1, pixel2;
     unsigned int cx, cy, ra;
     uint16_t addr;
     uint16_t bank;
@@ -979,9 +980,11 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
     scanline = &self->frame.array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
-        pixel = scanline->ink[16].pixel;
+        pixel1 = scanline->color[16].pixel1;
+        pixel2 = scanline->color[16].pixel2;
         for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
-            *dst++ = *nxt++ = pixel;
+            *dst++ = pixel1;
+            *nxt++ = pixel2;
         }
         dst = nxt; scanline++;
     }
@@ -993,9 +996,11 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x00: /* mode 0 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1007,48 +1012,48 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode0[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode0[data];
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 4;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 4;
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode0[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode0[data];
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 4;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 4;
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1056,9 +1061,11 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x01: /* mode 1 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1070,64 +1077,76 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode1[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode1[data];
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 2;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode1[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode1[data];
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 2;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1135,9 +1154,11 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x02: /* mode 2 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1149,96 +1170,132 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode2[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode2[data];
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
+                                    data >>= 1;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 4 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 5 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 6 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 7 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode2[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode2[data];
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
+                                    data >>= 1;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 4 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 5 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 6 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 7 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1251,9 +1308,11 @@ static void cpc_paint_08bpp(AMSTRAD_CPC_EMULATOR* self)
     scanline = &self->frame.array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
-        pixel = scanline->ink[16].pixel;
+        pixel1 = scanline->color[16].pixel1;
+        pixel2 = scanline->color[16].pixel2;
         for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
-            *dst++ = *nxt++ = pixel;
+            *dst++ = pixel1;
+            *nxt++ = pixel2;
         }
         dst = nxt; scanline++;
     }
@@ -1275,7 +1334,7 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
     XcpcScanline* scanline = self->frame.array;
     uint16_t* dst = (uint16_t*) monitor->state.image->data;
     uint16_t* nxt = dst;
-    uint16_t pixel;
+    uint16_t pixel1, pixel2;
     unsigned int cx, cy, ra;
     uint16_t addr;
     uint16_t bank;
@@ -1285,9 +1344,11 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
     scanline = &self->frame.array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
-        pixel = scanline->ink[16].pixel;
+        pixel1 = scanline->color[16].pixel1;
+        pixel2 = scanline->color[16].pixel2;
         for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
-            *dst++ = *nxt++ = pixel;
+            *dst++ = pixel1;
+            *nxt++ = pixel2;
         }
         dst = nxt; scanline++;
     }
@@ -1299,9 +1360,11 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x00: /* mode 0 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1313,48 +1376,48 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode0[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode0[data];
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 4;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 4;
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode0[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode0[data];
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 4;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 4;
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1362,9 +1425,11 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x01: /* mode 1 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1376,64 +1441,76 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode1[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode1[data];
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 2;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode1[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode1[data];
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 2;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1441,9 +1518,11 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x02: /* mode 2 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1455,96 +1534,132 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode2[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode2[data];
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
+                                    data >>= 1;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 4 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 5 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 6 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 7 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode2[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode2[data];
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
+                                    data >>= 1;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 4 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 5 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 6 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 7 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1557,9 +1672,11 @@ static void cpc_paint_16bpp(AMSTRAD_CPC_EMULATOR* self)
     scanline = &self->frame.array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
-        pixel = scanline->ink[16].pixel;
+        pixel1 = scanline->color[16].pixel1;
+        pixel2 = scanline->color[16].pixel2;
         for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
-            *dst++ = *nxt++ = pixel;
+            *dst++ = pixel1;
+            *nxt++ = pixel2;
         }
         dst = nxt; scanline++;
     }
@@ -1581,7 +1698,7 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
     XcpcScanline* scanline = self->frame.array;
     uint32_t* dst = (uint32_t*) monitor->state.image->data;
     uint32_t* nxt = dst;
-    uint32_t pixel;
+    uint32_t pixel1, pixel2;
     unsigned int cx, cy, ra;
     uint16_t addr;
     uint16_t bank;
@@ -1591,9 +1708,11 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
     scanline = &self->frame.array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
-        pixel = scanline->ink[16].pixel;
+        pixel1 = scanline->color[16].pixel1;
+        pixel2 = scanline->color[16].pixel2;
         for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
-            *dst++ = *nxt++ = pixel;
+            *dst++ = pixel1;
+            *nxt++ = pixel2;
         }
         dst = nxt; scanline++;
     }
@@ -1605,9 +1724,11 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x00: /* mode 0 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1619,48 +1740,48 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode0[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode0[data];
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 4;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 4;
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode0[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode0[data];
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 4;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x0f].pixel1;
+                                    pixel2 = scanline->color[data & 0x0f].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 4;
-                                    pixel = scanline->ink[data & 0x0f].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1668,9 +1789,11 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x01: /* mode 1 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1682,64 +1805,76 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode1[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode1[data];
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 2;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode1[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode1[data];
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
+                                    data >>= 2;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x03].pixel1;
+                                    pixel2 = scanline->color[data & 0x03].pixel2;
+                                    *dst++ = pixel1; *dst++ = pixel1;
+                                    *nxt++ = pixel2; *nxt++ = pixel2;
                                     data >>= 2;
-                                    pixel = scanline->ink[data & 0x03].pixel;
-                                    *dst++ = *nxt++ = pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1747,9 +1882,11 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                 case 0x02: /* mode 2 */
                     {
                         /* left border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                         /* active display */ {
@@ -1761,96 +1898,132 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
                                 }
                                 /* fetch 1st byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 0];
+                                    data = vga_core->state.mode2[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode2[data];
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
+                                    data >>= 1;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 4 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 5 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 6 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 7 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* fetch 2nd byte */ {
                                     data = self->board.ram_bank[bank]->state.data[disp | 1];
+                                    data = vga_core->state.mode2[data];
                                 }
                                 /* pixel 0 */ {
-                                    data = vga_core->state.mode2[data];
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
+                                    data >>= 1;
                                 }
                                 /* pixel 1 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 2 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 3 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 4 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 5 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 6 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                                 /* pixel 7 */ {
+                                    pixel1 = scanline->color[data & 0x01].pixel1;
+                                    pixel2 = scanline->color[data & 0x01].pixel2;
+                                    *dst++ = pixel1;
+                                    *nxt++ = pixel2;
                                     data >>= 1;
-                                    pixel = scanline->ink[data & 0x01].pixel;
-                                    *dst++ = *nxt++ = pixel;
                                 }
                             }
                         }
                         /* right border */ {
-                            pixel = scanline->ink[16].pixel;
+                            pixel1 = scanline->color[16].pixel1;
+                            pixel2 = scanline->color[16].pixel2;
                             for(cx = 0; cx < hp; cx++) {
-                                *dst++ = *nxt++ = pixel;
+                                *dst++ = pixel1;
+                                *nxt++ = pixel2;
                             }
                         }
                     }
@@ -1863,9 +2036,11 @@ static void cpc_paint_32bpp(AMSTRAD_CPC_EMULATOR* self)
     scanline = &self->frame.array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
-        pixel = scanline->ink[16].pixel;
+        pixel1 = scanline->color[16].pixel1;
+        pixel2 = scanline->color[16].pixel2;
         for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
-            *dst++ = *nxt++ = pixel;
+            *dst++ = pixel1;
+            *nxt++ = pixel2;
         }
         dst = nxt; scanline++;
     }
