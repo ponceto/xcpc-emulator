@@ -62,6 +62,7 @@ struct _XcpcMachineIface
 
 struct _XcpcMachineSetup
 {
+    XcpcOptions*     options;
     XcpcCompanyName  company_name;
     XcpcMachineType  machine_type;
     XcpcMonitorType  monitor_type;
@@ -127,6 +128,7 @@ struct _XcpcMachineStats
     unsigned int count;
     unsigned int drawn;
     char         buffer[256];
+    int          cpu_period;
 };
 
 struct _XcpcMachineTimer
@@ -144,7 +146,6 @@ struct _XcpcMachineFuncs
 
 struct _XcpcMachine
 {
-    XcpcOptions* options;
     XcpcMachineIface iface;
     XcpcMachineSetup setup;
     XcpcMachineState state;
@@ -154,7 +155,6 @@ struct _XcpcMachine
     XcpcMachineStats stats;
     XcpcMachineTimer timer;
     XcpcMachineFuncs funcs;
-    int cpu_period;
 };
 
 #ifdef __cplusplus

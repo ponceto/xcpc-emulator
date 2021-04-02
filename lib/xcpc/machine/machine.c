@@ -1710,6 +1710,7 @@ static void reset_iface(XcpcMachine* self)
 
 static void construct_setup(XcpcMachine* self)
 {
+    self->setup.options       = xcpc_options_new();
     self->setup.company_name  = XCPC_COMPANY_NAME_DEFAULT;
     self->setup.machine_type  = XCPC_MACHINE_TYPE_DEFAULT;
     self->setup.monitor_type  = XCPC_MONITOR_TYPE_DEFAULT;
@@ -1723,6 +1724,7 @@ static void construct_setup(XcpcMachine* self)
 
 static void destruct_setup(XcpcMachine* self)
 {
+    self->setup.options = xcpc_options_delete(self->setup.options);
 }
 
 static void reset_setup(XcpcMachine* self)
@@ -2086,11 +2088,12 @@ static void reset_frame(XcpcMachine* self)
 
 static void construct_stats(XcpcMachine* self)
 {
-    self->stats.rate      = 0;
-    self->stats.time      = 0;
-    self->stats.count     = 0;
-    self->stats.drawn     = 0;
-    self->stats.buffer[0] = '\0';
+    self->stats.rate       = 0;
+    self->stats.time       = 0;
+    self->stats.count      = 0;
+    self->stats.drawn      = 0;
+    self->stats.buffer[0]  = '\0';
+    self->stats.cpu_period = 0;
 }
 
 static void destruct_stats(XcpcMachine* self)
@@ -2099,11 +2102,12 @@ static void destruct_stats(XcpcMachine* self)
 
 static void reset_stats(XcpcMachine* self)
 {
-    self->stats.rate      |= 0; /* dont'modify */
-    self->stats.time      |= 0; /* dont'modify */
-    self->stats.count     &= 0; /* clear value */
-    self->stats.drawn     &= 0; /* clear value */
-    self->stats.buffer[0] &= 0; /* clear value */
+    self->stats.rate       |= 0; /* dont'modify */
+    self->stats.time       |= 0; /* dont'modify */
+    self->stats.count      &= 0; /* clear value */
+    self->stats.drawn      &= 0; /* clear value */
+    self->stats.buffer[0]  &= 0; /* clear value */
+    self->stats.cpu_period |= 0; /* dont'modify */
 }
 
 static void construct_timer(XcpcMachine* self)
@@ -2172,9 +2176,6 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self)
         (void) memset(&self->timer, 0, sizeof(XcpcMachineTimer));
         (void) memset(&self->funcs, 0, sizeof(XcpcMachineFuncs));
     }
-    /* create options */ {
-        self->options = xcpc_options_new();
-    }
     /* construct all subsystems */ {
         construct_iface(self);
         construct_setup(self);
@@ -2206,9 +2207,6 @@ XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
         destruct_state(self);
         destruct_setup(self);
         destruct_iface(self);
-    }
-    /* delete options */ {
-        self->options = xcpc_options_delete(self->options);
     }
     return self;
 }
@@ -2260,6 +2258,35 @@ XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
 
 XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
 {
+    XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
+    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcFdc765a* fdc_765a = self->board.fdc_765a;
+
+    /* process each scanline */ {
+        self->frame.index = 0;
+        do {
+            int cpu_tick;
+            for(cpu_tick = 0; cpu_tick < self->stats.cpu_period; cpu_tick += 4) {
+                xcpc_vdc_6845_clock(vdc_6845);
+                if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
+                    int32_t i_period = cpu_z80a->state.ctrs.i_period;
+                    xcpc_cpu_z80a_clock(self->board.cpu_z80a);
+                    cpu_z80a->state.ctrs.i_period = i_period - (((i_period - cpu_z80a->state.ctrs.i_period) + 3) & (~3));
+                }
+            }
+        } while(++self->frame.index < 312);
+    }
+    /* clock the fdc */ {
+        xcpc_fdc_765a_clock(fdc_765a);
+    }
+    return self;
+}
+
+XcpcMachine* xcpc_machine_parse(XcpcMachine* self, int* argc, char*** argv)
+{
+    /* parse command-line */ {
+        (void) xcpc_options_parse(self->setup.options, argc, argv);
+    }
     return self;
 }
 
@@ -2267,19 +2294,19 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
 {
     char* system_rom = NULL;
     char* amsdos_rom = NULL;
-    const char* opt_company  = XCPC_OPTIONS_STATE(self->options)->company;
-    const char* opt_machine  = XCPC_OPTIONS_STATE(self->options)->machine;
-    const char* opt_monitor  = XCPC_OPTIONS_STATE(self->options)->monitor;
-    const char* opt_refresh  = XCPC_OPTIONS_STATE(self->options)->refresh;
-    const char* opt_keyboard = XCPC_OPTIONS_STATE(self->options)->keyboard;
-    const char* opt_system   = XCPC_OPTIONS_STATE(self->options)->sysrom;
-    const char* opt_amsdos   = XCPC_OPTIONS_STATE(self->options)->rom007;
-    const char* opt_drive0   = XCPC_OPTIONS_STATE(self->options)->drive0;
-    const char* opt_drive1   = XCPC_OPTIONS_STATE(self->options)->drive1;
-    const char* opt_snapshot = XCPC_OPTIONS_STATE(self->options)->snapshot;
-    const int   opt_turbo    = XCPC_OPTIONS_STATE(self->options)->turbo;
-    const int   opt_xshm     = XCPC_OPTIONS_STATE(self->options)->xshm;
-    const int   opt_fps      = XCPC_OPTIONS_STATE(self->options)->fps;
+    const char* opt_company  = XCPC_OPTIONS_STATE(self->setup.options)->company;
+    const char* opt_machine  = XCPC_OPTIONS_STATE(self->setup.options)->machine;
+    const char* opt_monitor  = XCPC_OPTIONS_STATE(self->setup.options)->monitor;
+    const char* opt_refresh  = XCPC_OPTIONS_STATE(self->setup.options)->refresh;
+    const char* opt_keyboard = XCPC_OPTIONS_STATE(self->setup.options)->keyboard;
+    const char* opt_system   = XCPC_OPTIONS_STATE(self->setup.options)->sysrom;
+    const char* opt_amsdos   = XCPC_OPTIONS_STATE(self->setup.options)->rom007;
+    const char* opt_drive0   = XCPC_OPTIONS_STATE(self->setup.options)->drive0;
+    const char* opt_drive1   = XCPC_OPTIONS_STATE(self->setup.options)->drive1;
+    const char* opt_snapshot = XCPC_OPTIONS_STATE(self->setup.options)->snapshot;
+    const int   opt_turbo    = XCPC_OPTIONS_STATE(self->setup.options)->turbo;
+    const int   opt_xshm     = XCPC_OPTIONS_STATE(self->setup.options)->xshm;
+    const int   opt_fps      = XCPC_OPTIONS_STATE(self->setup.options)->fps;
 
     /* initialize setup */ {
         self->setup.company_name  = xcpc_company_name(opt_company, XCPC_COMPANY_NAME_DEFAULT);
@@ -2378,22 +2405,22 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
     }
     /* load expansion roms */ {
         const char* cpc_expansions[16] = {
-            XCPC_OPTIONS_STATE(self->options)->rom000,
-            XCPC_OPTIONS_STATE(self->options)->rom001,
-            XCPC_OPTIONS_STATE(self->options)->rom002,
-            XCPC_OPTIONS_STATE(self->options)->rom003,
-            XCPC_OPTIONS_STATE(self->options)->rom004,
-            XCPC_OPTIONS_STATE(self->options)->rom005,
-            XCPC_OPTIONS_STATE(self->options)->rom006,
-            XCPC_OPTIONS_STATE(self->options)->rom007,
-            XCPC_OPTIONS_STATE(self->options)->rom008,
-            XCPC_OPTIONS_STATE(self->options)->rom009,
-            XCPC_OPTIONS_STATE(self->options)->rom010,
-            XCPC_OPTIONS_STATE(self->options)->rom011,
-            XCPC_OPTIONS_STATE(self->options)->rom012,
-            XCPC_OPTIONS_STATE(self->options)->rom013,
-            XCPC_OPTIONS_STATE(self->options)->rom014,
-            XCPC_OPTIONS_STATE(self->options)->rom015,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom000,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom001,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom002,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom003,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom004,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom005,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom006,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom007,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom008,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom009,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom010,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom011,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom012,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom013,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom014,
+            XCPC_OPTIONS_STATE(self->setup.options)->rom015,
         };
         /* create expansion roms banks */ {
             const XcpcRomBankIface exp_bank_iface = {
@@ -2432,18 +2459,18 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
     /* compute frame rate/time and cpu period */ {
         switch(self->setup.refresh_rate) {
             case XCPC_REFRESH_RATE_50HZ:
-                self->state.company = ((self->setup.company_name - 1) & 7);
-                self->state.refresh = 1;
-                self->stats.rate    = 50;
-                self->stats.time    = 20000;
-                self->cpu_period    = (int) (4000000.0 / (50.0 * 312.5));
+                self->state.company    = ((self->setup.company_name - 1) & 7);
+                self->state.refresh    = 1;
+                self->stats.rate       = 50;
+                self->stats.time       = 20000;
+                self->stats.cpu_period = (int) (4000000.0 / (50.0 * 312.5));
                 break;
             case XCPC_REFRESH_RATE_60HZ:
-                self->state.company = ((self->setup.company_name - 1) & 7);
-                self->state.refresh = 0;
-                self->stats.rate    = 60;
-                self->stats.time    = 16667;
-                self->cpu_period    = (int) (4000000.0 / (60.0 * 262.5));
+                self->state.company    = ((self->setup.company_name - 1) & 7);
+                self->state.refresh    = 0;
+                self->stats.rate       = 60;
+                self->stats.time       = 16667;
+                self->stats.cpu_period = (int) (4000000.0 / (60.0 * 262.5));
                 break;
             default:
                 xcpc_log_error("unsupported refresh rate %d", self->setup.refresh_rate);
@@ -2486,14 +2513,6 @@ XcpcMachine* xcpc_machine_close(XcpcMachine* self)
 {
     /* unrealize */ {
         (void) xcpc_monitor_unrealize(self->board.monitor);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_parse(XcpcMachine* self, int* argc, char*** argv)
-{
-    /* parse command-line */ {
-        (void) xcpc_options_parse(self->options, argc, argv);
     }
     return self;
 }
@@ -2731,28 +2750,11 @@ unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
 
 unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
 {
-    XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
-    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
-    XcpcFdc765a* fdc_765a = self->board.fdc_765a;
     unsigned long elapsed = 0;
     unsigned long timeout = 0;
 
-    /* process each scanline */ {
-        self->frame.index = 0;
-        do {
-            int cpu_tick;
-            for(cpu_tick = 0; cpu_tick < self->cpu_period; cpu_tick += 4) {
-                xcpc_vdc_6845_clock(vdc_6845);
-                if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
-                    int32_t i_period = cpu_z80a->state.ctrs.i_period;
-                    xcpc_cpu_z80a_clock(self->board.cpu_z80a);
-                    cpu_z80a->state.ctrs.i_period = i_period - (((i_period - cpu_z80a->state.ctrs.i_period) + 3) & (~3));
-                }
-            }
-        } while(++self->frame.index < 312);
-    }
-    /* clock the fdc */ {
-        xcpc_fdc_765a_clock(fdc_765a);
+    /* clock the machine */ {
+        xcpc_machine_clock(self);
     }
     /* compute the elapsed time in us */ {
         struct timeval prev_time = self->timer.deadline;
