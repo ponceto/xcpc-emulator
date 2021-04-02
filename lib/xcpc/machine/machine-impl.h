@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 #define XCPC_MACHINE_IFACE(instance) (&(instance)->iface)
+#define XCPC_MACHINE_SETUP(instance) (&(instance)->setup)
 #define XCPC_MACHINE_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcMachineIface XcpcMachineIface;
@@ -45,7 +46,12 @@ typedef struct _XcpcMachineState XcpcMachineState;
 typedef struct _XcpcMachineBoard XcpcMachineBoard;
 typedef struct _XcpcMachinePager XcpcMachinePager;
 typedef struct _XcpcMachineFrame XcpcMachineFrame;
+typedef struct _XcpcMachineFuncs XcpcMachineFuncs;
 typedef struct _XcpcMachine      XcpcMachine;
+
+typedef void (*XcpcPaintFunc)(XcpcMachine* machine);
+typedef void (*XcpcKeybdFunc)(XcpcMachine* machine, XEvent* xevent);
+typedef void (*XcpcMouseFunc)(XcpcMachine* machine, XEvent* xevent);
 
 struct _XcpcMachineIface
 {
@@ -60,6 +66,9 @@ struct _XcpcMachineSetup
     XcpcRefreshRate  refresh_rate;
     XcpcKeyboardType keyboard_type;
     XcpcMemorySize   memory_size;
+    int              turbo;
+    int              xshm;
+    int              fps;
 };
 
 struct _XcpcMachineState
@@ -109,6 +118,13 @@ struct _XcpcMachineFrame
     int          index;
 };
 
+struct _XcpcMachineFuncs
+{
+    XcpcPaintFunc paint_func;
+    XcpcKeybdFunc keybd_func;
+    XcpcMouseFunc mouse_func;
+};
+
 struct _XcpcMachine
 {
     XcpcMachineIface iface;
@@ -117,6 +133,7 @@ struct _XcpcMachine
     XcpcMachineBoard board;
     XcpcMachinePager pager;
     XcpcMachineFrame frame;
+    XcpcMachineFuncs funcs;
 };
 
 #ifdef __cplusplus

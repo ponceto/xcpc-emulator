@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define XCPC_PPI_8255_IFACE(instance) (&(instance)->iface)
+#define XCPC_PPI_8255_SETUP(instance) (&(instance)->setup)
 #define XCPC_PPI_8255_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcPpi8255Iface XcpcPpi8255Iface;

@@ -422,7 +422,7 @@ static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
     if(self != NULL) {
         log_trace("ppi_rd_port_a");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
@@ -432,7 +432,7 @@ static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
     if(self != NULL) {
         log_trace("ppi_wr_port_a");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
@@ -442,7 +442,7 @@ static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
     if(self != NULL) {
         log_trace("ppi_rd_port_b");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
@@ -452,7 +452,7 @@ static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
     if(self != NULL) {
         log_trace("ppi_wr_port_b");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
@@ -462,7 +462,7 @@ static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
     if(self != NULL) {
         log_trace("ppi_rd_port_c");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
@@ -472,7 +472,7 @@ static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
     if(self != NULL) {
         log_trace("ppi_wr_port_c");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data)
@@ -482,7 +482,7 @@ static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data)
     if(self != NULL) {
         log_trace("psg_rd_port_a");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t psg_wr_port_a(XcpcPsg8910* psg_8910, uint8_t data)
@@ -492,7 +492,7 @@ static uint8_t psg_wr_port_a(XcpcPsg8910* psg_8910, uint8_t data)
     if(self != NULL) {
         log_trace("psg_wr_port_a");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t psg_rd_port_b(XcpcPsg8910* psg_8910, uint8_t data)
@@ -502,7 +502,7 @@ static uint8_t psg_rd_port_b(XcpcPsg8910* psg_8910, uint8_t data)
     if(self != NULL) {
         log_trace("psg_rd_port_b");
     }
-    return 0x00;
+    return data;
 }
 
 static uint8_t psg_wr_port_b(XcpcPsg8910* psg_8910, uint8_t data)
@@ -512,7 +512,39 @@ static uint8_t psg_wr_port_b(XcpcPsg8910* psg_8910, uint8_t data)
     if(self != NULL) {
         log_trace("psg_wr_port_b");
     }
-    return 0x00;
+    return data;
+}
+
+static void paint_default(XcpcMachine* machine)
+{
+}
+
+static void paint_08bpp(XcpcMachine* machine)
+{
+}
+
+static void paint_16bpp(XcpcMachine* machine)
+{
+}
+
+static void paint_32bpp(XcpcMachine* machine)
+{
+}
+
+static void keybd_default(XcpcMachine* machine, XEvent* xevent)
+{
+}
+
+static void keybd_qwerty(XcpcMachine* machine, XEvent* xevent)
+{
+}
+
+static void keybd_azerty(XcpcMachine* machine, XEvent* xevent)
+{
+}
+
+static void mouse_default(XcpcMachine* machine, XEvent* xevent)
+{
 }
 
 static void construct_iface(XcpcMachine* self)
@@ -536,6 +568,9 @@ static void construct_setup(XcpcMachine* self)
     self->setup.refresh_rate  = XCPC_REFRESH_RATE_DEFAULT;
     self->setup.keyboard_type = XCPC_KEYBOARD_TYPE_DEFAULT;
     self->setup.memory_size   = XCPC_MEMORY_SIZE_DEFAULT;
+    self->setup.turbo         = 0;
+    self->setup.xshm          = 0;
+    self->setup.fps           = 0;
 }
 
 static void destruct_setup(XcpcMachine* self)
@@ -679,8 +714,8 @@ static void construct_board(XcpcMachine* self)
         const XcpcRamBankIface ram_bank_iface = {
             self /* user_data */
         };
-        int ram_index = 0;
-        int ram_count = countof(self->board.ram_bank);
+        unsigned int ram_index = 0;
+        unsigned int ram_count = countof(self->board.ram_bank);
         do {
             if(self->board.ram_bank[ram_index] == NULL) {
                 self->board.ram_bank[ram_index] = xcpc_ram_bank_new();
@@ -692,8 +727,8 @@ static void construct_board(XcpcMachine* self)
         const XcpcRomBankIface rom_bank_iface = {
             self /* user_data */
         };
-        int rom_index = 0;
-        int rom_count = countof(self->board.rom_bank);
+        unsigned int rom_index = 0;
+        unsigned int rom_count = countof(self->board.rom_bank);
         do {
             if(self->board.rom_bank[rom_index] == NULL) {
                 self->board.rom_bank[rom_index] = xcpc_rom_bank_new();
@@ -702,8 +737,8 @@ static void construct_board(XcpcMachine* self)
         } while(++rom_index < rom_count);
     }
     /* exp_bank */ {
-        int exp_index = 0;
-        int exp_count = countof(self->board.exp_bank);
+        unsigned int exp_index = 0;
+        unsigned int exp_count = countof(self->board.exp_bank);
         do {
             if(self->board.exp_bank[exp_index] == NULL) {
                 self->board.exp_bank[exp_index] = xcpc_rom_bank_new();
@@ -714,39 +749,36 @@ static void construct_board(XcpcMachine* self)
 
 static void destruct_board(XcpcMachine* self)
 {
-    /* monitor */ {
-        if(self->board.monitor != NULL) {
-            self->board.monitor = xcpc_monitor_delete(self->board.monitor);
-        }
+    /* exp_bank */ {
+        unsigned int exp_index = 0;
+        unsigned int exp_count = countof(self->board.exp_bank);
+        do {
+            if(self->board.exp_bank[exp_index] != NULL) {
+                self->board.exp_bank[exp_index] = xcpc_rom_bank_delete(self->board.exp_bank[exp_index]);
+            }
+        } while(++exp_index < exp_count);
     }
-    /* keyboard */ {
-        if(self->board.keyboard != NULL) {
-            self->board.keyboard = xcpc_keyboard_delete(self->board.keyboard);
-        }
+    /* rom_bank */ {
+        unsigned int rom_index = 0;
+        unsigned int rom_count = countof(self->board.rom_bank);
+        do {
+            if(self->board.rom_bank[rom_index] != NULL) {
+                self->board.rom_bank[rom_index] = xcpc_rom_bank_delete(self->board.rom_bank[rom_index]);
+            }
+        } while(++rom_index < rom_count);
     }
-    /* joystick */ {
-        if(self->board.joystick != NULL) {
-            self->board.joystick = xcpc_joystick_delete(self->board.joystick);
-        }
+    /* ram_bank */ {
+        unsigned int ram_index = 0;
+        unsigned int ram_count = countof(self->board.ram_bank);
+        do {
+            if(self->board.ram_bank[ram_index] != NULL) {
+                self->board.ram_bank[ram_index] = xcpc_ram_bank_delete(self->board.ram_bank[ram_index]);
+            }
+        } while(++ram_index < ram_count);
     }
-    /* cpu_z80a */ {
-        if(self->board.cpu_z80a != NULL) {
-            self->board.cpu_z80a = xcpc_cpu_z80a_delete(self->board.cpu_z80a);
-        }
-    }
-    /* vga_core */ {
-        if(self->board.vga_core != NULL) {
-            self->board.vga_core = xcpc_vga_core_delete(self->board.vga_core);
-        }
-    }
-    /* vdc_6845 */ {
-        if(self->board.vdc_6845 != NULL) {
-            self->board.vdc_6845 = xcpc_vdc_6845_delete(self->board.vdc_6845);
-        }
-    }
-    /* ppi_8255 */ {
-        if(self->board.ppi_8255 != NULL) {
-            self->board.ppi_8255 = xcpc_ppi_8255_delete(self->board.ppi_8255);
+    /* fdc_765a */ {
+        if(self->board.fdc_765a != NULL) {
+            self->board.fdc_765a = xcpc_fdc_765a_delete(self->board.fdc_765a);
         }
     }
     /* psg_8910 */ {
@@ -754,37 +786,40 @@ static void destruct_board(XcpcMachine* self)
             self->board.psg_8910 = xcpc_psg_8910_delete(self->board.psg_8910);
         }
     }
-    /* fdc_765a */ {
-        if(self->board.fdc_765a != NULL) {
-            self->board.fdc_765a = xcpc_fdc_765a_delete(self->board.fdc_765a);
+    /* ppi_8255 */ {
+        if(self->board.ppi_8255 != NULL) {
+            self->board.ppi_8255 = xcpc_ppi_8255_delete(self->board.ppi_8255);
         }
     }
-    /* ram_bank */ {
-        int ram_index = 0;
-        int ram_count = countof(self->board.ram_bank);
-        do {
-            if(self->board.ram_bank[ram_index] != NULL) {
-                self->board.ram_bank[ram_index] = xcpc_ram_bank_delete(self->board.ram_bank[ram_index]);
-            }
-        } while(++ram_index < ram_count);
+    /* vdc_6845 */ {
+        if(self->board.vdc_6845 != NULL) {
+            self->board.vdc_6845 = xcpc_vdc_6845_delete(self->board.vdc_6845);
+        }
     }
-    /* rom_bank */ {
-        int rom_index = 0;
-        int rom_count = countof(self->board.rom_bank);
-        do {
-            if(self->board.rom_bank[rom_index] != NULL) {
-                self->board.rom_bank[rom_index] = xcpc_rom_bank_delete(self->board.rom_bank[rom_index]);
-            }
-        } while(++rom_index < rom_count);
+    /* vga_core */ {
+        if(self->board.vga_core != NULL) {
+            self->board.vga_core = xcpc_vga_core_delete(self->board.vga_core);
+        }
     }
-    /* exp_bank */ {
-        int exp_index = 0;
-        int exp_count = countof(self->board.exp_bank);
-        do {
-            if(self->board.exp_bank[exp_index] != NULL) {
-                self->board.exp_bank[exp_index] = xcpc_rom_bank_delete(self->board.exp_bank[exp_index]);
-            }
-        } while(++exp_index < exp_count);
+    /* cpu_z80a */ {
+        if(self->board.cpu_z80a != NULL) {
+            self->board.cpu_z80a = xcpc_cpu_z80a_delete(self->board.cpu_z80a);
+        }
+    }
+    /* joystick */ {
+        if(self->board.joystick != NULL) {
+            self->board.joystick = xcpc_joystick_delete(self->board.joystick);
+        }
+    }
+    /* keyboard */ {
+        if(self->board.keyboard != NULL) {
+            self->board.keyboard = xcpc_keyboard_delete(self->board.keyboard);
+        }
+    }
+    /* monitor */ {
+        if(self->board.monitor != NULL) {
+            self->board.monitor = xcpc_monitor_delete(self->board.monitor);
+        }
     }
 }
 
@@ -836,8 +871,8 @@ static void reset_board(XcpcMachine* self)
         }
     }
     /* ram_bank */ {
-        int ram_index = 0;
-        int ram_count = countof(self->board.ram_bank);
+        unsigned int ram_index = 0;
+        unsigned int ram_count = countof(self->board.ram_bank);
         do {
             if(self->board.ram_bank[ram_index] != NULL) {
                 (void) xcpc_ram_bank_reset(self->board.ram_bank[ram_index]);
@@ -845,8 +880,8 @@ static void reset_board(XcpcMachine* self)
         } while(++ram_index < ram_count);
     }
     /* rom_bank */ {
-        int rom_index = 0;
-        int rom_count = countof(self->board.rom_bank);
+        unsigned int rom_index = 0;
+        unsigned int rom_count = countof(self->board.rom_bank);
         do {
             if(self->board.rom_bank[rom_index] != NULL) {
                 (void) xcpc_rom_bank_reset(self->board.rom_bank[rom_index]);
@@ -854,8 +889,8 @@ static void reset_board(XcpcMachine* self)
         } while(++rom_index < rom_count);
     }
     /* exp_bank */ {
-        int exp_index = 0;
-        int exp_count = countof(self->board.exp_bank);
+        unsigned int exp_index = 0;
+        unsigned int exp_count = countof(self->board.exp_bank);
         do {
             if(self->board.exp_bank[exp_index] != NULL) {
                 (void) xcpc_rom_bank_reset(self->board.exp_bank[exp_index]);
@@ -895,6 +930,21 @@ static void reset_frame(XcpcMachine* self)
 {
 }
 
+static void construct_funcs(XcpcMachine* self)
+{
+    self->funcs.paint_func = &paint_default;
+    self->funcs.keybd_func = &keybd_default;
+    self->funcs.mouse_func = &mouse_default;
+}
+
+static void destruct_funcs(XcpcMachine* self)
+{
+}
+
+static void reset_funcs(XcpcMachine* self)
+{
+}
+
 XcpcMachine* xcpc_machine_alloc(void)
 {
     log_trace("alloc");
@@ -920,6 +970,7 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self)
         (void) memset(&self->board, 0, sizeof(XcpcMachineBoard));
         (void) memset(&self->pager, 0, sizeof(XcpcMachinePager));
         (void) memset(&self->frame, 0, sizeof(XcpcMachineFrame));
+        (void) memset(&self->funcs, 0, sizeof(XcpcMachineFuncs));
     }
     /* construct all subsystems */ {
         construct_iface(self);
@@ -928,6 +979,7 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self)
         construct_board(self);
         construct_pager(self);
         construct_frame(self);
+        construct_funcs(self);
     }
     /* reset */ {
         (void) xcpc_machine_reset(self);
@@ -940,6 +992,7 @@ XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
     log_trace("destruct");
 
     /* destruct all subsystems */ {
+        destruct_funcs(self);
         destruct_frame(self);
         destruct_pager(self);
         destruct_board(self);
@@ -988,6 +1041,7 @@ XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
         reset_board(self);
         reset_pager(self);
         reset_frame(self);
+        reset_funcs(self);
     }
     return self;
 }
@@ -1049,4 +1103,102 @@ XcpcMachine* xcpc_machine_save_snapshot(XcpcMachine* self, const char* filename)
     log_trace("xcpc_machine_save_snapshot");
 
     return self;
+}
+
+unsigned long xcpc_machine_create_proc(XcpcMachine* self, XEvent* event)
+{
+    return 0UL;
+}
+
+unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event)
+{
+    return 0UL;
+}
+
+unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event)
+{
+    if(self != NULL) {
+        /* realize */ {
+            (void) xcpc_monitor_realize ( self->board.monitor
+                                        , self->setup.monitor_type
+                                        , event->xany.display
+                                        , event->xany.window
+                                        , (self->setup.xshm != 0 ? True : False) );
+        }
+        /* init paint handler */ {
+            switch(self->board.monitor->state.image->bits_per_pixel) {
+                case 8:
+                    self->funcs.paint_func = &paint_08bpp;
+                    break;
+                case 16:
+                    self->funcs.paint_func = &paint_16bpp;
+                    break;
+                case 32:
+                    self->funcs.paint_func = &paint_32bpp;
+                    break;
+                default:
+                    self->funcs.paint_func = &paint_default;
+                    break;
+            }
+        }
+        /* init keybd handler */ {
+            switch(self->setup.keyboard_type) {
+                case XCPC_KEYBOARD_TYPE_QWERTY:
+                    self->funcs.keybd_func = &keybd_qwerty;
+                    break;
+                case XCPC_KEYBOARD_TYPE_AZERTY:
+                    self->funcs.keybd_func = &keybd_azerty;
+                    break;
+                default:
+                    self->funcs.keybd_func = &keybd_default;
+                    break;
+            }
+        }
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event)
+{
+    if((self != NULL) && (event != NULL) && (event->type == ConfigureNotify)) {
+        (void) xcpc_monitor_resize(self->board.monitor, &event->xconfigure);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
+{
+    if((self != NULL) && (event != NULL) && (event->type == Expose)) {
+        (void) xcpc_monitor_expose(self->board.monitor, &event->xexpose);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
+{
+    return 0UL;
+}
+
+unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event)
+{
+    switch(event->type) {
+        case KeyPress:
+            (*self->funcs.keybd_func)(self, event);
+            break;
+        case KeyRelease:
+            (*self->funcs.keybd_func)(self, event);
+            break;
+        case ButtonPress:
+            (*self->funcs.mouse_func)(self, event);
+            break;
+        case ButtonRelease:
+            (*self->funcs.mouse_func)(self, event);
+            break;
+        case MotionNotify:
+            (*self->funcs.mouse_func)(self, event);
+            break;
+        default:
+            break;
+    }
+    return 0UL;
 }

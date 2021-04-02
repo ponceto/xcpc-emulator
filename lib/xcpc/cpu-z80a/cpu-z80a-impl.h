@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define XCPC_CPU_Z80A_IFACE(instance) (&(instance)->iface)
+#define XCPC_CPU_Z80A_SETUP(instance) (&(instance)->setup)
 #define XCPC_CPU_Z80A_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcCpuZ80aIface XcpcCpuZ80aIface;

@@ -685,7 +685,7 @@ Widget XcpcCreateApplication(Widget toplevel)
   XtSetArg(arglist[argcount], XtNemuDestroyProc, &amstrad_cpc_destroy_proc); argcount++;
   XtSetArg(arglist[argcount], XtNemuRealizeProc, &amstrad_cpc_realize_proc); argcount++;
   XtSetArg(arglist[argcount], XtNemuResizeProc , &amstrad_cpc_resize_proc ); argcount++;
-  XtSetArg(arglist[argcount], XtNemuRedrawProc , &amstrad_cpc_redraw_proc ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuExposeProc , &amstrad_cpc_expose_proc ); argcount++;
   XtSetArg(arglist[argcount], XtNemuTimerProc  , &amstrad_cpc_timer_proc  ); argcount++;
   XtSetArg(arglist[argcount], XtNemuInputProc  , &amstrad_cpc_input_proc  ); argcount++;
   gui->emulator = XemCreateEmulator(gui->main_wnd, "emulator", arglist, argcount);

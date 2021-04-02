@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define XCPC_JOYSTICK_IFACE(instance) (&(instance)->iface)
+#define XCPC_JOYSTICK_SETUP(instance) (&(instance)->setup)
 #define XCPC_JOYSTICK_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcJoystickIface XcpcJoystickIface;

@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define XCPC_PSG_8910_IFACE(instance) (&(instance)->iface)
+#define XCPC_PSG_8910_SETUP(instance) (&(instance)->setup)
 #define XCPC_PSG_8910_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcPsg8910Iface XcpcPsg8910Iface;

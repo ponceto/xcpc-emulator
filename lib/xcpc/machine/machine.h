@@ -42,6 +42,14 @@ extern XcpcMachine* xcpc_machine_remove_drive1 (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_load_snapshot (XcpcMachine* machine, const char* filename);
 extern XcpcMachine* xcpc_machine_save_snapshot (XcpcMachine* machine, const char* filename);
 
+extern unsigned long xcpc_machine_create_proc  (XcpcMachine* machine, XEvent* event);
+extern unsigned long xcpc_machine_destroy_proc (XcpcMachine* machine, XEvent* event);
+extern unsigned long xcpc_machine_realize_proc (XcpcMachine* machine, XEvent* event);
+extern unsigned long xcpc_machine_resize_proc  (XcpcMachine* machine, XEvent* event);
+extern unsigned long xcpc_machine_expose_proc  (XcpcMachine* machine, XEvent* event);
+extern unsigned long xcpc_machine_timer_proc   (XcpcMachine* machine, XEvent* event);
+extern unsigned long xcpc_machine_input_proc   (XcpcMachine* machine, XEvent* event);
+
 #ifdef __cplusplus
 }
 #endif

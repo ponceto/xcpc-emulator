@@ -39,9 +39,9 @@ extern "C" {
 
 typedef struct _AMSTRAD_CPC_EMULATOR AMSTRAD_CPC_EMULATOR;
 
-typedef void (*PaintProc)(AMSTRAD_CPC_EMULATOR* self);
-typedef void (*KeybdProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
-typedef void (*MouseProc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
+typedef void (*PaintFunc)(AMSTRAD_CPC_EMULATOR* self);
+typedef void (*KeybdFunc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
+typedef void (*MouseFunc)(AMSTRAD_CPC_EMULATOR* self, XEvent* xevent);
 
 struct _AMSTRAD_CPC_EMULATOR
 {
@@ -105,11 +105,11 @@ struct _AMSTRAD_CPC_EMULATOR
         struct timeval deadline;
         struct timeval profiler;
     } timer;
-    struct _handlers {
-        PaintProc paint;
-        KeybdProc keybd;
-        MouseProc mouse;
-    } handlers;
+    struct _funcs {
+        PaintFunc paint_func;
+        KeybdFunc keybd_func;
+        MouseFunc mouse_func;
+    } funcs;
     int cpu_period;
 };
 
@@ -129,13 +129,13 @@ extern void          amstrad_cpc_remove_drive0 (AMSTRAD_CPC_EMULATOR* amstrad_cp
 extern void          amstrad_cpc_insert_drive1 (AMSTRAD_CPC_EMULATOR* amstrad_cpc, const char* filename);
 extern void          amstrad_cpc_remove_drive1 (AMSTRAD_CPC_EMULATOR* amstrad_cpc);
 
-extern unsigned long amstrad_cpc_create_proc   (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
-extern unsigned long amstrad_cpc_destroy_proc  (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
-extern unsigned long amstrad_cpc_realize_proc  (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
-extern unsigned long amstrad_cpc_resize_proc   (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
-extern unsigned long amstrad_cpc_redraw_proc   (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
-extern unsigned long amstrad_cpc_timer_proc    (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
-extern unsigned long amstrad_cpc_input_proc    (Widget widget, AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_create_proc   (AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_destroy_proc  (AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_realize_proc  (AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_resize_proc   (AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_expose_proc   (AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_timer_proc    (AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
+extern unsigned long amstrad_cpc_input_proc    (AMSTRAD_CPC_EMULATOR* amstrad_cpc, XEvent* event);
 
 #ifdef __cplusplus
 }

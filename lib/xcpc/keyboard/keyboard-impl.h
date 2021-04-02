@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define XCPC_KEYBOARD_IFACE(instance) (&(instance)->iface)
+#define XCPC_KEYBOARD_SETUP(instance) (&(instance)->setup)
 #define XCPC_KEYBOARD_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcKeyboardIface XcpcKeyboardIface;

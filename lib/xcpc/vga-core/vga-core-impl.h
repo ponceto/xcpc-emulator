@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define XCPC_VGA_CORE_IFACE(instance) (&(instance)->iface)
+#define XCPC_VGA_CORE_SETUP(instance) (&(instance)->setup)
 #define XCPC_VGA_CORE_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcVgaCoreIface XcpcVgaCoreIface;
