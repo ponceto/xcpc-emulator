@@ -23,18 +23,15 @@
 extern "C" {
 #endif
 
+#define XCPC_RAM_BANK_IFACE(instance) (&(instance)->iface)
+#define XCPC_RAM_BANK_SETUP(instance) (&(instance)->setup)
+#define XCPC_RAM_BANK_STATE(instance) (&(instance)->state)
+
 typedef enum   _XcpcRamBankStatus XcpcRamBankStatus;
 typedef struct _XcpcRamBankIface  XcpcRamBankIface;
+typedef struct _XcpcRamBankSetup  XcpcRamBankSetup;
 typedef struct _XcpcRamBankState  XcpcRamBankState;
 typedef struct _XcpcRamBank       XcpcRamBank;
-
-#ifndef XCPC_RAM_BANK_IFACE
-#define XCPC_RAM_BANK_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_RAM_BANK_STATE
-#define XCPC_RAM_BANK_STATE(instance, field) instance->state.field
-#endif
 
 enum _XcpcRamBankStatus
 {
@@ -47,6 +44,11 @@ struct _XcpcRamBankIface
     void* user_data;
 };
 
+struct _XcpcRamBankSetup
+{
+    int reserved;
+};
+
 struct _XcpcRamBankState
 {
     uint8_t data[16384];
@@ -55,6 +57,7 @@ struct _XcpcRamBankState
 struct _XcpcRamBank
 {
     XcpcRamBankIface iface;
+    XcpcRamBankSetup setup;
     XcpcRamBankState state;
 };
 

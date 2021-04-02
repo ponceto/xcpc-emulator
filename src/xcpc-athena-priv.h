@@ -17,6 +17,7 @@
 #ifndef __XCPC_ATHENA_PRIV_H__
 #define __XCPC_ATHENA_PRIV_H__
 
+#include <xcpc/machine/machine.h>
 #include "xcpc-athena.h"
 
 #ifdef __cplusplus

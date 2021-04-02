@@ -51,8 +51,8 @@ extern "C" {
 #define XtNemuResizeProc "emuResizeProc"
 #endif
 
-#ifndef XtNemuRedrawProc
-#define XtNemuRedrawProc "emuRedrawProc"
+#ifndef XtNemuExposeProc
+#define XtNemuExposeProc "emuExposeProc"
 #endif
 
 #ifndef XtNemuTimerProc

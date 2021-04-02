@@ -44,10 +44,14 @@ libxcpc_la_SOURCES = \
 	xlib/xlib.h \
 	xlib/xlib-impl.h \
 	xlib/xlib-priv.h \
-	blitter/blitter.c \
-	blitter/blitter.h \
-	blitter/blitter-impl.h \
-	blitter/blitter-priv.h \
+	options/options.c \
+	options/options.h \
+	options/options-impl.h \
+	options/options-priv.h \
+	machine/machine.c \
+	machine/machine.h \
+	machine/machine-impl.h \
+	machine/machine-priv.h \
 	monitor/monitor.c \
 	monitor/monitor.h \
 	monitor/monitor-impl.h \
@@ -100,10 +104,6 @@ libxcpc_la_SOURCES = \
 	rom-bank/rom-bank.h \
 	rom-bank/rom-bank-impl.h \
 	rom-bank/rom-bank-priv.h \
-	settings/settings.c \
-	settings/settings.h \
-	settings/settings-impl.h \
-	settings/settings-priv.h \
 	snapshot/snapshot.c \
 	snapshot/snapshot.h \
 	snapshot/snapshot-impl.h \

@@ -1,5 +1,5 @@
 /*
- * blitter-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * options.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,27 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_BLITTER_PRIV_H__
-#define __XCPC_BLITTER_PRIV_H__
+#ifndef __XCPC_OPTIONS_H__
+#define __XCPC_OPTIONS_H__
 
-#include <xcpc/blitter/blitter.h>
+#include <xcpc/options/options-impl.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _XcpcBlitterArea XcpcBlitterArea;
-
-struct _XcpcBlitterArea
-{
-    int x1;
-    int y1;
-    int x2;
-    int y2;
-};
+extern XcpcOptions* xcpc_options_alloc     (void);
+extern XcpcOptions* xcpc_options_free      (XcpcOptions* options);
+extern XcpcOptions* xcpc_options_construct (XcpcOptions* options);
+extern XcpcOptions* xcpc_options_destruct  (XcpcOptions* options);
+extern XcpcOptions* xcpc_options_new       (void);
+extern XcpcOptions* xcpc_options_delete    (XcpcOptions* options);
+extern XcpcOptions* xcpc_options_parse     (XcpcOptions* options, int* argc, char*** argv);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __XCPC_BLITTER_PRIV_H__ */
+#endif /* __XCPC_OPTIONS_H__ */

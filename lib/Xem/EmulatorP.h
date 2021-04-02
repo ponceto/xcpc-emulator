@@ -24,13 +24,13 @@
 extern "C" {
 #endif
 
-typedef unsigned long (*XemEmulatorCreateProc)  (Widget widget, XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorDestroyProc) (Widget widget, XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorRealizeProc) (Widget widget, XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorResizeProc)  (Widget widget, XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorRedrawProc)  (Widget widget, XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorInputProc)   (Widget widget, XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorTimerProc)   (Widget widget, XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorCreateProc)  (XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorDestroyProc) (XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorRealizeProc) (XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorResizeProc)  (XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorExposeProc)  (XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorInputProc)   (XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorTimerProc)   (XtPointer data, XEvent* event);
 
 typedef struct _XemEmulatorClassPart
 {
@@ -52,7 +52,7 @@ typedef struct _XemEmulatorPart
     XemEmulatorDestroyProc destroy_proc;
     XemEmulatorRealizeProc realize_proc;
     XemEmulatorResizeProc  resize_proc;
-    XemEmulatorRedrawProc  redraw_proc;
+    XemEmulatorExposeProc  expose_proc;
     XemEmulatorInputProc   input_proc;
     XemEmulatorTimerProc   timer_proc;
     XtIntervalId           timer;

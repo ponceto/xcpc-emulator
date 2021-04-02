@@ -23,10 +23,10 @@
 extern "C" {
 #endif
 
-#define DEFAULT_VALUE_OF_CTRL_P 0x00
 #define DEFAULT_VALUE_OF_PORT_A 0x00
 #define DEFAULT_VALUE_OF_PORT_B 0x00
 #define DEFAULT_VALUE_OF_PORT_C 0x00
+#define DEFAULT_VALUE_OF_CTRL_P 0x00
 
 #ifdef __cplusplus
 }

@@ -378,62 +378,128 @@ static const uint8_t CyclesXX[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 0, 0, 0
 };
 
-static void xcpc_cpu_z80a_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcCpuZ80a::%s()", function);
 }
 
+static uint8_t default_mreq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+{
+    log_trace("default_mreq_m1_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_mreq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+{
+    log_trace("default_mreq_rd_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+{
+    log_trace("default_mreq_wr_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+{
+    log_trace("default_iorq_m1_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+{
+    log_trace("default_iorq_rd_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_iorq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+{
+    log_trace("default_iorq_wr_handler");
+
+    return 0x00;
+}
+
 XcpcCpuZ80a* xcpc_cpu_z80a_alloc(void)
 {
-    xcpc_cpu_z80a_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcCpuZ80a);
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_free(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcCpuZ80a, self);
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("construct");
+    log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcCpuZ80aIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcCpuZ80aSetup));
         (void) memset(&self->state, 0, sizeof(XcpcCpuZ80aState));
     }
-    return xcpc_cpu_z80a_reset(self);
+    /* initialize iface */ {
+        (void) xcpc_cpu_z80a_set_iface(self, NULL);
+    }
+    /* reset */ {
+        (void) xcpc_cpu_z80a_reset(self);
+    }
+    return self;
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_destruct(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_new(void)
 {
-    xcpc_cpu_z80a_trace("new");
+    log_trace("new");
 
     return xcpc_cpu_z80a_construct(xcpc_cpu_z80a_alloc());
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_delete(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("delete");
+    log_trace("delete");
 
     return xcpc_cpu_z80a_free(xcpc_cpu_z80a_destruct(self));
 }
 
+XcpcCpuZ80a* xcpc_cpu_z80a_set_iface(XcpcCpuZ80a* self, const XcpcCpuZ80aIface* iface)
+{
+    log_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+        self->iface.mreq_m1   = &default_mreq_m1_handler;
+        self->iface.mreq_rd   = &default_mreq_rd_handler;
+        self->iface.mreq_wr   = &default_mreq_wr_handler;
+        self->iface.iorq_m1   = &default_iorq_m1_handler;
+        self->iface.iorq_rd   = &default_iorq_rd_handler;
+        self->iface.iorq_wr   = &default_iorq_wr_handler;
+    }
+    return self;
+}
+
 XcpcCpuZ80a* xcpc_cpu_z80a_reset(XcpcCpuZ80a* self)
 {
-    xcpc_cpu_z80a_trace("reset");
+    log_trace("reset");
 
     /* reset state.regs */ {
         AF_R = 0;
@@ -516,7 +582,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 6;
       goto epilog;
     case 0x06: /* LD B,n            */
-      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -540,7 +606,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 6;
       goto epilog;
     case 0x0e: /* LD C,n            */
-      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -564,7 +630,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 6;
       goto epilog;
     case 0x16: /* LD D,n            */
-      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -591,7 +657,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 6;
       goto epilog;
     case 0x1e: /* LD E,n            */
-      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -618,7 +684,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 6;
       goto epilog;
     case 0x26: /* LD H,n            */
-      self->state.regs.HL.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.HL.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -640,7 +706,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 6;
       goto epilog;
     case 0x2e: /* LD L,n            */
-      self->state.regs.HL.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.HL.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -658,7 +724,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 6;
       goto epilog;
     case 0x3e: /* LD A,n            */
-      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -700,7 +766,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 4;
       goto epilog;
     case 0x46: /* LD B,(HL)         */
-      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -748,7 +814,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 4;
       goto epilog;
     case 0x4e: /* LD C,(HL)         */
-      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -796,7 +862,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 4;
       goto epilog;
     case 0x56: /* LD D,(HL)         */
-      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -844,7 +910,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 4;
       goto epilog;
     case 0x5e: /* LD E,(HL)         */
-      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -892,7 +958,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 4;
       goto epilog;
     case 0x66: /* LD H,(HL)         */
-      self->state.regs.HL.b.h = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      self->state.regs.HL.b.h = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -940,7 +1006,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 4;
       goto epilog;
     case 0x6e: /* LD L,(HL)         */
-      self->state.regs.HL.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      self->state.regs.HL.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -1036,7 +1102,7 @@ execute_opcode:
       self->state.ctrs.i_period -= 4;
       goto epilog;
     case 0x7e: /* LD A,(HL)         */
-      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       self->state.ctrs.m_cycles += 2;
       self->state.ctrs.t_states += 7;
       self->state.ctrs.i_period -= 7;
@@ -1151,7 +1217,7 @@ execute_opcode:
       goto epilog;
     case 0x86: /* ADD A,(HL)        */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       WZ.w.l = T1.b.l + T2.b.l;
       WZ.b.h = OP_ADD | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -1287,7 +1353,7 @@ execute_opcode:
       goto epilog;
     case 0x8e: /* ADC A,(HL)        */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       WZ.w.l = T1.b.l + T2.b.l + (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_ADC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -1423,7 +1489,7 @@ execute_opcode:
       goto epilog;
     case 0x96: /* SUB A,(HL)        */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_SUB | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -1559,7 +1625,7 @@ execute_opcode:
       goto epilog;
     case 0x9e: /* SBC A,(HL)        */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       WZ.w.l = T1.b.l - T2.b.l - (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_SBC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -1659,7 +1725,7 @@ execute_opcode:
       goto epilog;
     case 0xa6: /* AND A,(HL)        */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       WZ.w.l = T1.b.l & T2.b.l;
       WZ.b.h = OP_AND | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -1747,7 +1813,7 @@ execute_opcode:
       goto epilog;
     case 0xae: /* XOR A,(HL)        */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       WZ.w.l = T1.b.l ^ T2.b.l;
       WZ.b.h = OP_XOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -1835,7 +1901,7 @@ execute_opcode:
       goto epilog;
     case 0xb6: /* OR A,(HL)         */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       WZ.w.l = T1.b.l | T2.b.l;
       WZ.b.h = OP_IOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -1953,7 +2019,7 @@ execute_opcode:
       goto epilog;
     case 0xbe: /* CP A,(HL)         */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.HL.w.l, 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_CMP | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -1985,7 +2051,7 @@ execute_opcode:
       goto epilog;
     case 0xc6: /* ADD A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l + T2.b.l;
       WZ.b.h = OP_ADD | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -2007,7 +2073,7 @@ execute_opcode:
       goto fetch_cb_opcode;
     case 0xce: /* ADC A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l + T2.b.l + (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_ADC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -2024,7 +2090,7 @@ execute_opcode:
       goto epilog;
     case 0xd6: /* SUB A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_SUB | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -2043,7 +2109,7 @@ execute_opcode:
       goto fetch_dd_opcode;
     case 0xde: /* SBC A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l - (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_SBC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -2060,7 +2126,7 @@ execute_opcode:
       goto epilog;
     case 0xe6: /* AND A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l & T2.b.l;
       WZ.b.h = OP_AND | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -2076,7 +2142,7 @@ execute_opcode:
       goto fetch_ed_opcode;
     case 0xee: /* XOR A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l ^ T2.b.l;
       WZ.b.h = OP_XOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -2087,7 +2153,7 @@ execute_opcode:
       goto epilog;
     case 0xf6: /* OR A,n            */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l | T2.b.l;
       WZ.b.h = OP_IOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -2100,7 +2166,7 @@ execute_opcode:
       goto fetch_fd_opcode;
     case 0xfe: /* CP A,n            */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_CMP | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -2139,7 +2205,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x06: /* LD B,n            */
-      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -2163,7 +2229,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x0e: /* LD C,n            */
-      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -2187,7 +2253,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x16: /* LD D,n            */
-      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -2214,7 +2280,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x1e: /* LD E,n            */
-      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -2241,7 +2307,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x26: /* LD IXh,n          */
-      self->state.regs.IX.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.IX.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -2263,7 +2329,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x2e: /* LD IXl,n          */
-      self->state.regs.IX.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.IX.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -2281,7 +2347,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x3e: /* LD A,n            */
-      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -2323,7 +2389,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x46: /* LD B,(IX+d)       */
-      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2371,7 +2437,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x4e: /* LD C,(IX+d)       */
-      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2419,7 +2485,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x56: /* LD D,(IX+d)       */
-      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2467,7 +2533,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x5e: /* LD E,(IX+d)       */
-      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2515,7 +2581,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x66: /* LD H,(IX+d)       */
-      self->state.regs.HL.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.HL.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2563,7 +2629,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x6e: /* LD L,(IX+d)       */
-      self->state.regs.HL.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.HL.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2575,37 +2641,37 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x70: /* LD (IX+d),B       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.BC.b.h);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.BC.b.h);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x71: /* LD (IX+d),C       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.BC.b.l);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.BC.b.l);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x72: /* LD (IX+d),D       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.DE.b.h);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.DE.b.h);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x73: /* LD (IX+d),E       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.DE.b.l);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.DE.b.l);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x74: /* LD (IX+d),H       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.HL.b.h);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.HL.b.h);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x75: /* LD (IX+d),L       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.HL.b.l);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.HL.b.l);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2617,7 +2683,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x77: /* LD (IX+d),A       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.AF.b.h);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.AF.b.h);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2659,7 +2725,7 @@ execute_dd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x7e: /* LD A,(IX+d)       */
-      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -2774,7 +2840,7 @@ execute_dd_opcode:
       goto epilog;
     case 0x86: /* ADD A,(IX+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l + T2.b.l;
       WZ.b.h = OP_ADD | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -2910,7 +2976,7 @@ execute_dd_opcode:
       goto epilog;
     case 0x8e: /* ADC A,(IX+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l + T2.b.l + (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_ADC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3046,7 +3112,7 @@ execute_dd_opcode:
       goto epilog;
     case 0x96: /* SUB A,(IX+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_SUB | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3182,7 +3248,7 @@ execute_dd_opcode:
       goto epilog;
     case 0x9e: /* SBC A,(IX+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l - T2.b.l - (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_SBC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3282,7 +3348,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xa6: /* AND A,(IX+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l & T2.b.l;
       WZ.b.h = OP_AND | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -3370,7 +3436,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xae: /* XOR A,(IX+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l ^ T2.b.l;
       WZ.b.h = OP_XOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -3458,7 +3524,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xb6: /* OR A,(IX+d)       */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l | T2.b.l;
       WZ.b.h = OP_IOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -3576,7 +3642,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xbe: /* CP A,(IX+d)       */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IX.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_CMP | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3608,7 +3674,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xc6: /* ADD A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l + T2.b.l;
       WZ.b.h = OP_ADD | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3627,7 +3693,7 @@ execute_dd_opcode:
       goto fetch_ddcb_opcode;
     case 0xce: /* ADC A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l + T2.b.l + (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_ADC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3644,7 +3710,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xd6: /* SUB A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_SUB | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3661,7 +3727,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xde: /* SBC A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l - (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_SBC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3678,7 +3744,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xe6: /* AND A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l & T2.b.l;
       WZ.b.h = OP_AND | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -3689,7 +3755,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xee: /* XOR A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l ^ T2.b.l;
       WZ.b.h = OP_XOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -3700,7 +3766,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xf6: /* OR A,n            */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l | T2.b.l;
       WZ.b.h = OP_IOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -3711,7 +3777,7 @@ execute_dd_opcode:
       goto epilog;
     case 0xfe: /* CP A,n            */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_CMP | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -3750,7 +3816,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x06: /* LD B,n            */
-      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -3774,7 +3840,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x0e: /* LD C,n            */
-      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -3798,7 +3864,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x16: /* LD D,n            */
-      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -3825,7 +3891,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x1e: /* LD E,n            */
-      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -3852,7 +3918,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x26: /* LD IYh,n          */
-      self->state.regs.IY.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.IY.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -3874,7 +3940,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x2e: /* LD IYl,n          */
-      self->state.regs.IY.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.IY.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -3892,7 +3958,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 10;
       goto epilog;
     case 0x3e: /* LD A,n            */
-      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       self->state.ctrs.m_cycles += 3;
       self->state.ctrs.t_states += 11;
       self->state.ctrs.i_period -= 11;
@@ -3934,7 +4000,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x46: /* LD B,(IY+d)       */
-      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.BC.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -3982,7 +4048,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x4e: /* LD C,(IY+d)       */
-      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.BC.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -4030,7 +4096,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x56: /* LD D,(IY+d)       */
-      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.DE.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -4078,7 +4144,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x5e: /* LD E,(IY+d)       */
-      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.DE.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -4126,7 +4192,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x66: /* LD H,(IY+d)       */
-      self->state.regs.HL.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.HL.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -4174,7 +4240,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x6e: /* LD L,(IY+d)       */
-      self->state.regs.HL.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.HL.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -4186,37 +4252,37 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x70: /* LD (IY+d),B       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.BC.b.h);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.BC.b.h);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x71: /* LD (IY+d),C       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.BC.b.l);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.BC.b.l);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x72: /* LD (IY+d),D       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.DE.b.h);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.DE.b.h);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x73: /* LD (IY+d),E       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.DE.b.l);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.DE.b.l);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x74: /* LD (IY+d),H       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.HL.b.h);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.HL.b.h);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
       goto epilog;
     case 0x75: /* LD (IY+d),L       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.HL.b.l);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.HL.b.l);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -4228,7 +4294,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x77: /* LD (IY+d),A       */
-      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)), self->state.regs.AF.b.h);
+      (*self->iface.mreq_wr)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), self->state.regs.AF.b.h);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -4270,7 +4336,7 @@ execute_fd_opcode:
       self->state.ctrs.i_period -= 8;
       goto epilog;
     case 0x7e: /* LD A,(IY+d)       */
-      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      self->state.regs.AF.b.h = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       self->state.ctrs.m_cycles += 5;
       self->state.ctrs.t_states += 19;
       self->state.ctrs.i_period -= 19;
@@ -4385,7 +4451,7 @@ execute_fd_opcode:
       goto epilog;
     case 0x86: /* ADD A,(IY+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l + T2.b.l;
       WZ.b.h = OP_ADD | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -4521,7 +4587,7 @@ execute_fd_opcode:
       goto epilog;
     case 0x8e: /* ADC A,(IY+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l + T2.b.l + (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_ADC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -4657,7 +4723,7 @@ execute_fd_opcode:
       goto epilog;
     case 0x96: /* SUB A,(IY+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_SUB | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -4793,7 +4859,7 @@ execute_fd_opcode:
       goto epilog;
     case 0x9e: /* SBC A,(IY+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l - T2.b.l - (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_SBC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -4893,7 +4959,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xa6: /* AND A,(IY+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l & T2.b.l;
       WZ.b.h = OP_AND | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -4981,7 +5047,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xae: /* XOR A,(IY+d)      */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l ^ T2.b.l;
       WZ.b.h = OP_XOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -5069,7 +5135,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xb6: /* OR A,(IY+d)       */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l | T2.b.l;
       WZ.b.h = OP_IOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -5187,7 +5253,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xbe: /* CP A,(IY+d)       */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++)));
+      T2.b.l = (*self->iface.mreq_rd)(self, (self->state.regs.IY.w.l + (int8_t) (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00)), 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_CMP | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -5219,7 +5285,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xc6: /* ADD A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l + T2.b.l;
       WZ.b.h = OP_ADD | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -5238,7 +5304,7 @@ execute_fd_opcode:
       goto fetch_fdcb_opcode;
     case 0xce: /* ADC A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l + T2.b.l + (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_ADC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -5255,7 +5321,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xd6: /* SUB A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_SUB | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -5272,7 +5338,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xde: /* SBC A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l - (self->state.regs.AF.b.l & CF);
       WZ.b.h = OP_SBC | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {
@@ -5289,7 +5355,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xe6: /* AND A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l & T2.b.l;
       WZ.b.h = OP_AND | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -5300,7 +5366,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xee: /* XOR A,n           */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l ^ T2.b.l;
       WZ.b.h = OP_XOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -5311,7 +5377,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xf6: /* OR A,n            */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l | T2.b.l;
       WZ.b.h = OP_IOR | (WZ.b.l & (SF | YF | XF)) | PZSTable[WZ.b.l];
       self->state.regs.AF.b.h = WZ.b.l;
@@ -5322,7 +5388,7 @@ execute_fd_opcode:
       goto epilog;
     case 0xfe: /* CP A,n            */
       T1.b.l = self->state.regs.AF.b.h;
-      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++);
+      T2.b.l = (*self->iface.mreq_rd)(self, self->state.regs.PC.w.l++, 0x00);
       WZ.w.l = T1.b.l - T2.b.l;
       WZ.b.h = OP_CMP | (WZ.b.l & (SF | YF | XF)) | ((WZ.b.l ^ T1.b.l ^ T2.b.l) & HF) | (WZ.b.h & CF);
       if(WZ.b.l == 0) {

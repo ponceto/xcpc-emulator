@@ -29,6 +29,7 @@ extern XcpcFdc765a* xcpc_fdc_765a_construct (XcpcFdc765a* fdc_765a);
 extern XcpcFdc765a* xcpc_fdc_765a_destruct  (XcpcFdc765a* fdc_765a);
 extern XcpcFdc765a* xcpc_fdc_765a_new       (void);
 extern XcpcFdc765a* xcpc_fdc_765a_delete    (XcpcFdc765a* fdc_765a);
+extern XcpcFdc765a* xcpc_fdc_765a_set_iface (XcpcFdc765a* fdc_765a, const XcpcFdc765aIface* fdc_765a_iface);
 extern XcpcFdc765a* xcpc_fdc_765a_reset     (XcpcFdc765a* fdc_765a);
 extern XcpcFdc765a* xcpc_fdc_765a_clock     (XcpcFdc765a* fdc_765a);
 extern XcpcFdc765a* xcpc_fdc_765a_attach    (XcpcFdc765a* fdc_765a, int drive);

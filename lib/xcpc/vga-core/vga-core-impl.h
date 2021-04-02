@@ -23,21 +23,23 @@
 extern "C" {
 #endif
 
+#define XCPC_VGA_CORE_IFACE(instance) (&(instance)->iface)
+#define XCPC_VGA_CORE_SETUP(instance) (&(instance)->setup)
+#define XCPC_VGA_CORE_STATE(instance) (&(instance)->state)
+
 typedef struct _XcpcVgaCoreIface XcpcVgaCoreIface;
+typedef struct _XcpcVgaCoreSetup XcpcVgaCoreSetup;
 typedef struct _XcpcVgaCoreState XcpcVgaCoreState;
 typedef struct _XcpcVgaCore      XcpcVgaCore;
-
-#ifndef XCPC_VGA_CORE_IFACE
-#define XCPC_VGA_CORE_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_VGA_CORE_STATE
-#define XCPC_VGA_CORE_STATE(instance, field) instance->state.field
-#endif
 
 struct _XcpcVgaCoreIface
 {
     void* user_data;
+};
+
+struct _XcpcVgaCoreSetup
+{
+    int reserved;
 };
 
 struct _XcpcVgaCoreState
@@ -55,6 +57,7 @@ struct _XcpcVgaCoreState
 struct _XcpcVgaCore
 {
     XcpcVgaCoreIface iface;
+    XcpcVgaCoreSetup setup;
     XcpcVgaCoreState state;
 };
 

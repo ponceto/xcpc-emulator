@@ -22,69 +22,87 @@
 #include <string.h>
 #include "ram-bank-priv.h"
 
-static void xcpc_ram_bank_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcRamBank::%s()", function);
 }
 
 XcpcRamBank* xcpc_ram_bank_alloc(void)
 {
-    xcpc_ram_bank_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcRamBank);
 }
 
 XcpcRamBank* xcpc_ram_bank_free(XcpcRamBank* self)
 {
-    xcpc_ram_bank_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcRamBank, self);
 }
 
 XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self)
 {
-    xcpc_ram_bank_trace("construct");
+    log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcRamBankIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcRamBankSetup));
         (void) memset(&self->state, 0, sizeof(XcpcRamBankState));
     }
-    return xcpc_ram_bank_reset(self);
+    /* initialize iface */ {
+        (void) xcpc_ram_bank_set_iface(self, NULL);
+    }
+    /* reset */ {
+        (void) xcpc_ram_bank_reset(self);
+    }
+    return self;
 }
 
 XcpcRamBank* xcpc_ram_bank_destruct(XcpcRamBank* self)
 {
-    xcpc_ram_bank_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcRamBank* xcpc_ram_bank_new(void)
 {
-    xcpc_ram_bank_trace("new");
+    log_trace("new");
 
     return xcpc_ram_bank_construct(xcpc_ram_bank_alloc());
 }
 
 XcpcRamBank* xcpc_ram_bank_delete(XcpcRamBank* self)
 {
-    xcpc_ram_bank_trace("delete");
+    log_trace("delete");
 
     return xcpc_ram_bank_free(xcpc_ram_bank_destruct(self));
 }
 
+XcpcRamBank* xcpc_ram_bank_set_iface(XcpcRamBank* self, const XcpcRamBankIface* iface)
+{
+    log_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
+}
+
 XcpcRamBank* xcpc_ram_bank_reset(XcpcRamBank* self)
 {
-    xcpc_ram_bank_trace("reset");
+    log_trace("reset");
 
     /* reset state */ {
         unsigned int index = 0;
         unsigned int count = countof(self->state.data);
-        for(index = 0; index < count; ++index) {
+        do {
             self->state.data[index] &= 0;
-        }
+        } while(++index < count);
     }
     return self;
 }
@@ -94,7 +112,7 @@ XcpcRamBankStatus xcpc_ram_bank_load(XcpcRamBank* self, const char* filename, si
     XcpcRamBankStatus status = XCPC_RAM_BANK_STATUS_SUCCESS;
     FILE*             file   = NULL;
 
-    xcpc_ram_bank_trace("load");
+    log_trace("load");
     /* check filename */ {
         if(status == XCPC_RAM_BANK_STATUS_SUCCESS) {
             if((filename == NULL) || (*filename == '\0')) {
@@ -139,7 +157,7 @@ XcpcRamBankStatus xcpc_ram_bank_copy(XcpcRamBank* self, const uint8_t* data, siz
 {
     XcpcRamBankStatus status = XCPC_RAM_BANK_STATUS_SUCCESS;
 
-    xcpc_ram_bank_trace("copy");
+    log_trace("copy");
     /* check data and size */ {
         if(status == XCPC_RAM_BANK_STATUS_SUCCESS) {
             if((data == NULL) || (size > sizeof(self->state.data))) {

@@ -1,5 +1,5 @@
 /*
- * settings-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * options-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_SETTINGS_IMPL_H__
-#define __XCPC_SETTINGS_IMPL_H__
+#ifndef __XCPC_OPTIONS_IMPL_H__
+#define __XCPC_OPTIONS_IMPL_H__
 
 #include <xcpc/libxcpc.h>
 
@@ -23,34 +23,33 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcSettingsIface XcpcSettingsIface;
-typedef struct _XcpcSettingsState XcpcSettingsState;
-typedef struct _XcpcSettings      XcpcSettings;
+#define XCPC_OPTIONS_IFACE(instance) (&(instance)->iface)
+#define XCPC_OPTIONS_SETUP(instance) (&(instance)->setup)
+#define XCPC_OPTIONS_STATE(instance) (&(instance)->state)
 
-#ifndef XCPC_SETTINGS_IFACE
-#define XCPC_SETTINGS_IFACE(instance, field) instance->iface.field
-#endif
+typedef struct _XcpcOptionsIface XcpcOptionsIface;
+typedef struct _XcpcOptionsSetup XcpcOptionsSetup;
+typedef struct _XcpcOptionsState XcpcOptionsState;
+typedef struct _XcpcOptions      XcpcOptions;
 
-#ifndef XCPC_SETTINGS_STATE
-#define XCPC_SETTINGS_STATE(instance, field) instance->state.field
-#endif
-
-struct _XcpcSettingsIface
+struct _XcpcOptionsIface
 {
     void* user_data;
 };
 
-struct _XcpcSettingsState
+struct _XcpcOptionsSetup
+{
+    int reserved;
+};
+
+struct _XcpcOptionsState
 {
     char* program;
-    char* drive0;
-    char* drive1;
-    char* snapshot;
-    char* model;
+    char* company;
+    char* machine;
     char* monitor;
-    char* keyboard;
     char* refresh;
-    char* manufacturer;
+    char* keyboard;
     char* sysrom;
     char* rom000;
     char* rom001;
@@ -68,6 +67,9 @@ struct _XcpcSettingsState
     char* rom013;
     char* rom014;
     char* rom015;
+    char* drive0;
+    char* drive1;
+    char* snapshot;
     int   help;
     int   version;
     int   loglevel;
@@ -76,14 +78,15 @@ struct _XcpcSettingsState
     int   fps;
 };
 
-struct _XcpcSettings
+struct _XcpcOptions
 {
-    XcpcSettingsIface iface;
-    XcpcSettingsState state;
+    XcpcOptionsIface iface;
+    XcpcOptionsSetup setup;
+    XcpcOptionsState state;
 };
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __XCPC_SETTINGS_IMPL_H__ */
+#endif /* __XCPC_OPTIONS_IMPL_H__ */

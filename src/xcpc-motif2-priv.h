@@ -17,6 +17,7 @@
 #ifndef __XCPC_MOTIF2_PRIV_H__
 #define __XCPC_MOTIF2_PRIV_H__
 
+#include <xcpc/machine/machine.h>
 #include "xcpc-motif2.h"
 
 #ifdef __cplusplus
@@ -130,6 +131,7 @@ typedef struct _XcpcApplicationRec
     FILE*            input_stream;
     FILE*            print_stream;
     FILE*            error_stream;
+    XcpcMachine*     machine;
     XtAppContext     appcontext;
     XcpcResourcesRec resources;
     XcpcPixmapsRec   pixmaps;

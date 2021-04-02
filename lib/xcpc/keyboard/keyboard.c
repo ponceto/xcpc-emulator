@@ -22,71 +22,89 @@
 #include <string.h>
 #include "keyboard-priv.h"
 
-static void xcpc_keyboard_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcKeyboard::%s()", function);
 }
 
 XcpcKeyboard* xcpc_keyboard_alloc(void)
 {
-    xcpc_keyboard_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcKeyboard);
 }
 
 XcpcKeyboard* xcpc_keyboard_free(XcpcKeyboard* self)
 {
-    xcpc_keyboard_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcKeyboard, self);
 }
 
 XcpcKeyboard* xcpc_keyboard_construct(XcpcKeyboard* self)
 {
-    xcpc_keyboard_trace("construct");
+    log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcKeyboardIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcKeyboardSetup));
         (void) memset(&self->state, 0, sizeof(XcpcKeyboardState));
     }
-    return xcpc_keyboard_reset(self);
+    /* initialize iface */ {
+        (void) xcpc_keyboard_set_iface(self, NULL);
+    }
+    /* reset */ {
+        (void) xcpc_keyboard_reset(self);
+    }
+    return self;
 }
 
 XcpcKeyboard* xcpc_keyboard_destruct(XcpcKeyboard* self)
 {
-    xcpc_keyboard_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcKeyboard* xcpc_keyboard_new(void)
 {
-    xcpc_keyboard_trace("new");
+    log_trace("new");
 
     return xcpc_keyboard_construct(xcpc_keyboard_alloc());
 }
 
 XcpcKeyboard* xcpc_keyboard_delete(XcpcKeyboard* self)
 {
-    xcpc_keyboard_trace("delete");
+    log_trace("delete");
 
     return xcpc_keyboard_free(xcpc_keyboard_destruct(self));
 }
 
+XcpcKeyboard* xcpc_keyboard_set_iface(XcpcKeyboard* self, const XcpcKeyboardIface* iface)
+{
+    log_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
+}
+
 XcpcKeyboard* xcpc_keyboard_reset(XcpcKeyboard* self)
 {
-    xcpc_keyboard_trace("reset");
+    log_trace("reset");
 
     /* reset state */ {
         unsigned int index = 0;
         unsigned int count = countof(self->state.keys);
-        for(index = 0; index < count; ++index) {
+        do {
             self->state.mode        = 0x00;
             self->state.line        = 0x00;
             self->state.keys[index] = 0xff;
-        }
+        } while(++index < count);
     }
     return self;
 }

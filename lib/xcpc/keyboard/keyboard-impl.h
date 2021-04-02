@@ -23,21 +23,23 @@
 extern "C" {
 #endif
 
+#define XCPC_KEYBOARD_IFACE(instance) (&(instance)->iface)
+#define XCPC_KEYBOARD_SETUP(instance) (&(instance)->setup)
+#define XCPC_KEYBOARD_STATE(instance) (&(instance)->state)
+
 typedef struct _XcpcKeyboardIface XcpcKeyboardIface;
+typedef struct _XcpcKeyboardSetup XcpcKeyboardSetup;
 typedef struct _XcpcKeyboardState XcpcKeyboardState;
 typedef struct _XcpcKeyboard      XcpcKeyboard;
-
-#ifndef XCPC_KEYBOARD_IFACE
-#define XCPC_KEYBOARD_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_KEYBOARD_STATE
-#define XCPC_KEYBOARD_STATE(instance, field) instance->state.field
-#endif
 
 struct _XcpcKeyboardIface
 {
     void* user_data;
+};
+
+struct _XcpcKeyboardSetup
+{
+    int reserved;
 };
 
 struct _XcpcKeyboardState
@@ -50,6 +52,7 @@ struct _XcpcKeyboardState
 struct _XcpcKeyboard
 {
     XcpcKeyboardIface iface;
+    XcpcKeyboardSetup setup;
     XcpcKeyboardState state;
 };
 

@@ -22,30 +22,30 @@
 #include <string.h>
 #include "snapshot-writer-priv.h"
 
-static void xcpc_snapshot_writer_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcSnapshotWriter::%s()", function);
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_alloc(void)
 {
-    xcpc_snapshot_writer_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcSnapshotWriter);
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_free(XcpcSnapshotWriter* self)
 {
-    xcpc_snapshot_writer_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcSnapshotWriter, self);
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_construct(XcpcSnapshotWriter* self, XcpcSnapshot* snapshot)
 {
-    xcpc_snapshot_writer_trace("construct");
+    log_trace("construct");
 
-    /* clear instance */ {
+    /* clear all */ {
         (void) memset(self, 0, sizeof(XcpcSnapshotWriter));
     }
     /* initialize members */ {
@@ -58,28 +58,28 @@ XcpcSnapshotWriter* xcpc_snapshot_writer_construct(XcpcSnapshotWriter* self, Xcp
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_destruct(XcpcSnapshotWriter* self)
 {
-    xcpc_snapshot_writer_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_new(XcpcSnapshot* snapshot)
 {
-    xcpc_snapshot_writer_trace("new");
+    log_trace("new");
 
     return xcpc_snapshot_writer_construct(xcpc_snapshot_writer_alloc(), snapshot);
 }
 
 XcpcSnapshotWriter* xcpc_snapshot_writer_delete(XcpcSnapshotWriter* self)
 {
-    xcpc_snapshot_writer_trace("delete");
+    log_trace("delete");
 
     return xcpc_snapshot_writer_free(xcpc_snapshot_writer_destruct(self));
 }
 
 static XcpcSnapshotStatus xcpc_snapshot_writer_save_header(XcpcSnapshotWriter* self)
 {
-    xcpc_snapshot_writer_trace("save_header");
+    log_trace("save_header");
     /* save header */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             void*  header_data = &self->snapshot->header;
@@ -97,7 +97,7 @@ static XcpcSnapshotStatus xcpc_snapshot_writer_save_memory(XcpcSnapshotWriter* s
 {
     size_t remaining_bytes = 0;
 
-    xcpc_snapshot_writer_trace("save_memory");
+    log_trace("save_memory");
     /* compute and check remaining memory size */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             remaining_bytes |= (((size_t)(self->snapshot->header.ram_size_h)) << 18);
@@ -142,7 +142,7 @@ static XcpcSnapshotStatus xcpc_snapshot_writer_save_memory(XcpcSnapshotWriter* s
 
 XcpcSnapshotStatus xcpc_snapshot_writer_save(XcpcSnapshotWriter* self, const char* filename)
 {
-    xcpc_snapshot_writer_trace("save");
+    log_trace("save");
 
     /* sanity check */ {
         if(self->status == XCPC_SNAPSHOT_STATUS_SUCCESS) {

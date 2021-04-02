@@ -23,14 +23,19 @@
 extern "C" {
 #endif
 
-extern XcpcMonitor* xcpc_monitor_alloc     (void);
-extern XcpcMonitor* xcpc_monitor_free      (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_construct (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_destruct  (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_new       (void);
-extern XcpcMonitor* xcpc_monitor_delete    (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_reset     (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_clock     (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_alloc       (void);
+extern XcpcMonitor* xcpc_monitor_free        (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_construct   (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_destruct    (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_new         (void);
+extern XcpcMonitor* xcpc_monitor_delete      (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_set_iface   (XcpcMonitor* monitor, const XcpcMonitorIface* monitor_iface);
+extern XcpcMonitor* xcpc_monitor_reset       (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_realize     (XcpcMonitor* monitor, XcpcMonitorType monitor_type, Display* display, Window window, Bool try_xshm);
+extern XcpcMonitor* xcpc_monitor_unrealize   (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_put_image   (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_expose      (XcpcMonitor* monitor, XExposeEvent* event);
+extern XcpcMonitor* xcpc_monitor_resize      (XcpcMonitor* monitor, XConfigureEvent* event);
 
 #ifdef __cplusplus
 }

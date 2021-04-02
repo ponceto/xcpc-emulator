@@ -22,69 +22,87 @@
 #include <string.h>
 #include "rom-bank-priv.h"
 
-static void xcpc_rom_bank_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcRomBank::%s()", function);
 }
 
 XcpcRomBank* xcpc_rom_bank_alloc(void)
 {
-    xcpc_rom_bank_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcRomBank);
 }
 
 XcpcRomBank* xcpc_rom_bank_free(XcpcRomBank* self)
 {
-    xcpc_rom_bank_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcRomBank, self);
 }
 
 XcpcRomBank* xcpc_rom_bank_construct(XcpcRomBank* self)
 {
-    xcpc_rom_bank_trace("construct");
+    log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcRomBankIface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcRomBankSetup));
         (void) memset(&self->state, 0, sizeof(XcpcRomBankState));
     }
-    return xcpc_rom_bank_reset(self);
+    /* initialize iface */ {
+        self->iface.user_data = self;
+    }
+    /* reset */ {
+        (void) xcpc_rom_bank_reset(self);
+    }
+    return self;
 }
 
 XcpcRomBank* xcpc_rom_bank_destruct(XcpcRomBank* self)
 {
-    xcpc_rom_bank_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcRomBank* xcpc_rom_bank_new(void)
 {
-    xcpc_rom_bank_trace("new");
+    log_trace("new");
 
     return xcpc_rom_bank_construct(xcpc_rom_bank_alloc());
 }
 
 XcpcRomBank* xcpc_rom_bank_delete(XcpcRomBank* self)
 {
-    xcpc_rom_bank_trace("delete");
+    log_trace("delete");
 
     return xcpc_rom_bank_free(xcpc_rom_bank_destruct(self));
 }
 
+XcpcRomBank* xcpc_rom_bank_set_iface(XcpcRomBank* self, const XcpcRomBankIface* iface)
+{
+    log_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+    }
+    return self;
+}
+
 XcpcRomBank* xcpc_rom_bank_reset(XcpcRomBank* self)
 {
-    xcpc_rom_bank_trace("reset");
+    log_trace("reset");
 
     /* reset state */ {
         unsigned int index = 0;
         unsigned int count = countof(self->state.data);
-        for(index = 0; index < count; ++index) {
+        do {
             self->state.data[index] |= 0;
-        }
+        } while(++index < count);
     }
     return self;
 }
@@ -94,7 +112,7 @@ XcpcRomBankStatus xcpc_rom_bank_load(XcpcRomBank* self, const char* filename, si
     XcpcRomBankStatus status = XCPC_ROM_BANK_STATUS_SUCCESS;
     FILE*             file   = NULL;
 
-    xcpc_rom_bank_trace("load");
+    log_trace("load");
     /* check filename */ {
         if(status == XCPC_ROM_BANK_STATUS_SUCCESS) {
             if((filename == NULL) || (*filename == '\0')) {
@@ -139,7 +157,7 @@ XcpcRomBankStatus xcpc_rom_bank_copy(XcpcRomBank* self, const uint8_t* data, siz
 {
     XcpcRomBankStatus status = XCPC_ROM_BANK_STATUS_SUCCESS;
 
-    xcpc_rom_bank_trace("copy");
+    log_trace("copy");
     /* check data and size */ {
         if(status == XCPC_ROM_BANK_STATUS_SUCCESS) {
             if((data == NULL) || (size > sizeof(self->state.data))) {

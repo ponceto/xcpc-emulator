@@ -23,21 +23,29 @@
 extern "C" {
 #endif
 
+#define XCPC_PPI_8255_IFACE(instance) (&(instance)->iface)
+#define XCPC_PPI_8255_SETUP(instance) (&(instance)->setup)
+#define XCPC_PPI_8255_STATE(instance) (&(instance)->state)
+
 typedef struct _XcpcPpi8255Iface XcpcPpi8255Iface;
+typedef struct _XcpcPpi8255Setup XcpcPpi8255Setup;
 typedef struct _XcpcPpi8255State XcpcPpi8255State;
 typedef struct _XcpcPpi8255      XcpcPpi8255;
-
-#ifndef XCPC_PPI_8255_IFACE
-#define XCPC_PPI_8255_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_PPI_8255_STATE
-#define XCPC_PPI_8255_STATE(instance, field) instance->state.field
-#endif
 
 struct _XcpcPpi8255Iface
 {
     void* user_data;
+    uint8_t (*rd_port_a)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*wr_port_a)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*rd_port_b)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*wr_port_b)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*rd_port_c)(XcpcPpi8255* ppi_8255, uint8_t data);
+    uint8_t (*wr_port_c)(XcpcPpi8255* ppi_8255, uint8_t data);
+};
+
+struct _XcpcPpi8255Setup
+{
+    int reserved;
 };
 
 struct _XcpcPpi8255State
@@ -51,6 +59,7 @@ struct _XcpcPpi8255State
 struct _XcpcPpi8255
 {
     XcpcPpi8255Iface iface;
+    XcpcPpi8255Setup setup;
     XcpcPpi8255State state;
 };
 

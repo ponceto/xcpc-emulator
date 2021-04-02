@@ -23,33 +23,65 @@
 extern "C" {
 #endif
 
+#define XCPC_MONITOR_IFACE(instance) (&(instance)->iface)
+#define XCPC_MONITOR_SETUP(instance) (&(instance)->setup)
+#define XCPC_MONITOR_STATE(instance) (&(instance)->state)
+
 typedef struct _XcpcMonitorIface XcpcMonitorIface;
+typedef struct _XcpcMonitorSetup XcpcMonitorSetup;
 typedef struct _XcpcMonitorState XcpcMonitorState;
 typedef struct _XcpcMonitor      XcpcMonitor;
-
-#ifndef XCPC_MONITOR_IFACE
-#define XCPC_MONITOR_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_MONITOR_STATE
-#define XCPC_MONITOR_STATE(instance, field) instance->state.field
-#endif
+typedef struct _XcpcScanline     XcpcScanline;
 
 struct _XcpcMonitorIface
 {
     void* user_data;
 };
 
+struct _XcpcMonitorSetup
+{
+    int reserved;
+};
+
 struct _XcpcMonitorState
 {
-    void* reserved;
+    Display* display;
+    Screen*  screen;
+    Visual*  visual;
+    XImage*  image;
+    GC       gc;
+    Window   window;
+    Colormap colormap;
+    int      depth;
+    int      px;
+    int      py;
+    Bool     try_xshm;
+    Bool     has_xshm;
+    Bool     use_xshm;
+    XColor   palette1[32];
+    XColor   palette2[32];
 };
 
 struct _XcpcMonitor
 {
     XcpcMonitorIface iface;
+    XcpcMonitorSetup setup;
     XcpcMonitorState state;
 };
+
+struct _XcpcScanline
+{
+    uint8_t mode;
+    struct {
+        uint8_t  value;
+        uint32_t pixel1;
+        uint32_t pixel2;
+    } color[17];
+    uint8_t data[1024];
+};
+
+#define XCPC_MONITOR_WIDTH  768
+#define XCPC_MONITOR_HEIGHT 576
 
 #ifdef __cplusplus
 }

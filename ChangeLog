@@ -1,3 +1,11 @@
+2021-04-02	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* Better, stronger, faster.
+	* Very huge refactoring and codebase cleaned.
+	* The migration from old code to libxcpc is complete.
+	* Some bugs have been fixed.
+	* CRT rendering added.
+
 2021-03-29	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* SIGBUS error fix on big-endian systems (Sparc, ...)

@@ -22,62 +22,98 @@
 #include <string.h>
 #include "psg-8910-priv.h"
 
-static void xcpc_psg_8910_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcPsg8910::%s()", function);
 }
 
+static uint8_t default_rd_handler(XcpcPsg8910* self, uint8_t data)
+{
+    log_trace("default_rd_handler");
+
+    return data;
+}
+
+static uint8_t default_wr_handler(XcpcPsg8910* self, uint8_t data)
+{
+    log_trace("default_wr_handler");
+
+    return data;
+}
+
 XcpcPsg8910* xcpc_psg_8910_alloc(void)
 {
-    xcpc_psg_8910_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcPsg8910);
 }
 
 XcpcPsg8910* xcpc_psg_8910_free(XcpcPsg8910* self)
 {
-    xcpc_psg_8910_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcPsg8910, self);
 }
 
 XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
 {
-    xcpc_psg_8910_trace("construct");
+    log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcPsg8910Iface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcPsg8910Setup));
         (void) memset(&self->state, 0, sizeof(XcpcPsg8910State));
     }
-    return xcpc_psg_8910_reset(self);
+    /* initialize iface */ {
+        (void) xcpc_psg_8910_set_iface(self, NULL);
+    }
+    /* reset */ {
+        (void) xcpc_psg_8910_reset(self);
+    }
+    return self;
 }
 
 XcpcPsg8910* xcpc_psg_8910_destruct(XcpcPsg8910* self)
 {
-    xcpc_psg_8910_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcPsg8910* xcpc_psg_8910_new(void)
 {
-    xcpc_psg_8910_trace("new");
+    log_trace("new");
 
     return xcpc_psg_8910_construct(xcpc_psg_8910_alloc());
 }
 
 XcpcPsg8910* xcpc_psg_8910_delete(XcpcPsg8910* self)
 {
-    xcpc_psg_8910_trace("delete");
+    log_trace("delete");
 
     return xcpc_psg_8910_free(xcpc_psg_8910_destruct(self));
 }
 
+XcpcPsg8910* xcpc_psg_8910_set_iface(XcpcPsg8910* self, const XcpcPsg8910Iface* iface)
+{
+    log_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+        self->iface.rd_port_a = &default_rd_handler;
+        self->iface.wr_port_a = &default_wr_handler;
+        self->iface.rd_port_b = &default_rd_handler;
+        self->iface.wr_port_b = &default_wr_handler;
+    }
+    return self;
+}
+
 XcpcPsg8910* xcpc_psg_8910_reset(XcpcPsg8910* self)
 {
-    xcpc_psg_8910_trace("reset");
+    log_trace("reset");
 
     /* reset state */ {
         self->state.regs.named.address_register      = DEFAULT_VALUE_OF_ADDRESS_REGISTER;

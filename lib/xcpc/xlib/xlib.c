@@ -29,13 +29,23 @@
 #include "xlib-priv.h"
 
 #ifdef HAVE_XSHM
-static XErrorHandler xshm_error_handler = NULL;
-static Bool          xshm_error_occured = False;
+static struct {
+    XErrorHandler error_handler;
+    Bool          error_occured;
+} x11_xshm = {
+    NULL, /* error_handler */
+    False /* error_occured */
+};
+
+static void log_trace(const char* function)
+{
+    xcpc_log_trace("XcpcXlib::%s()", function);
+}
 
 static int XShmErrorHandler(Display* display, XErrorEvent* event)
 {
     if((display != NULL) && (event != NULL)) {
-        xshm_error_occured = True;
+        x11_xshm.error_occured = True;
     }
     return 0;
 }
@@ -43,6 +53,7 @@ static int XShmErrorHandler(Display* display, XErrorEvent* event)
 
 static int _XcpcDestroyImage(XImage *image)
 {
+    log_trace("_XcpcDestroyImage");
     if(image != NULL) {
         xcpc_log_debug ( "destroying XImage (shm = %s, depth = %d, width = %d, height = %d)"
                        , "no"
@@ -69,16 +80,21 @@ XImage* XcpcCreateImage ( Display*     display
                         , unsigned int width
                         , unsigned int height )
 {
-    XImage* image = XCreateImage ( display
-                                 , visual
-                                 , depth
-                                 , format
-                                 , 0
-                                 , NULL
-                                 , width
-                                 , height
-                                 , 32
-                                 , 0 );
+    XImage* image = NULL;
+
+    log_trace("XcpcCreateImage");
+    if(image == NULL) {
+        image = XCreateImage ( display
+                             , visual
+                             , depth
+                             , format
+                             , 0
+                             , NULL
+                             , width
+                             , height
+                             , 32
+                             , 0 );
+    }
     if(image != NULL) {
         image->data = Xmalloc(image->height * image->bytes_per_line);
         if(image->data != NULL) {
@@ -107,6 +123,7 @@ XImage* XcpcCreateImage ( Display*     display
 
 static int _XcpcDestroyShmImage(XImage *image)
 {
+    log_trace("_XcpcDestroyShmImage");
     if(image != NULL) {
         xcpc_log_debug ( "destroying XImage (shm = %s, depth = %d, width = %d, height = %d)"
                        , "yes"
@@ -149,17 +166,20 @@ XImage* XcpcCreateShmImage ( Display*     display
                            , unsigned int width
                            , unsigned int height )
 {
-#ifndef HAVE_XSHM
     XImage* image = NULL;
-#else
-    XImage* image = XShmCreateImage ( display
-                                    , visual
-                                    , depth
-                                    , format
-                                    , NULL
-                                    , NULL
-                                    , width
-                                    , height );
+
+    log_trace("XcpcCreateShmImage");
+#ifdef HAVE_XSHM
+    if(image == NULL) {
+        image = XShmCreateImage ( display
+                                , visual
+                                , depth
+                                , format
+                                , NULL
+                                , NULL
+                                , width
+                                , height );
+    }
     if(image != NULL) {
         XShmSegmentInfo* xshm_segment_info = Xnew(XShmSegmentInfo);
         if(xshm_segment_info != NULL) {
@@ -197,6 +217,7 @@ Bool XcpcAttachShmImage(Display* display, XImage* image)
 {
     Bool xshm_attached = False;
 
+    log_trace("XcpcAttachShmImage");
 #ifdef HAVE_XSHM
     if(image->obdata == NULL) {
         return False;
@@ -206,22 +227,22 @@ Bool XcpcAttachShmImage(Display* display, XImage* image)
             (void) XSync(display, False);
         }
         /* install X11/XShm error handler */ {
-            xshm_error_occured = False;
-            xshm_error_handler = &XShmErrorHandler;
-            xshm_error_handler = XSetErrorHandler(xshm_error_handler);
+            x11_xshm.error_occured = False;
+            x11_xshm.error_handler = &XShmErrorHandler;
+            x11_xshm.error_handler = XSetErrorHandler(x11_xshm.error_handler);
         }
         /* attach the XShm segment */ {
             (void) XShmAttach(display, XSHM_SEGMENT_INFO(image->obdata));
             (void) XSync(display, False);
         }
         /* check for error */ {
-            if(xshm_error_occured == False) {
+            if(x11_xshm.error_occured == False) {
                 xshm_attached = True;
             }
         }
         /* restore X11/XShm error handler */ {
-            xshm_error_occured = False;
-            xshm_error_handler = XSetErrorHandler(xshm_error_handler);
+            x11_xshm.error_occured = False;
+            x11_xshm.error_handler = XSetErrorHandler(x11_xshm.error_handler);
         }
     }
 #endif
@@ -246,6 +267,7 @@ Bool XcpcDetachShmImage(Display* display, XImage* image)
 {
     Bool xshm_detached = False;
 
+    log_trace("XcpcDetachShmImage");
 #ifdef HAVE_XSHM
     if(image->obdata == NULL) {
         return False;
@@ -255,22 +277,22 @@ Bool XcpcDetachShmImage(Display* display, XImage* image)
             (void) XSync(display, False);
         }
         /* install X11/XShm error handler */ {
-            xshm_error_occured = False;
-            xshm_error_handler = &XShmErrorHandler;
-            xshm_error_handler = XSetErrorHandler(xshm_error_handler);
+            x11_xshm.error_occured = False;
+            x11_xshm.error_handler = &XShmErrorHandler;
+            x11_xshm.error_handler = XSetErrorHandler(x11_xshm.error_handler);
         }
         /* detach the XShm segment */ {
             (void) XShmDetach(display, XSHM_SEGMENT_INFO(image->obdata));
             (void) XSync(display, False);
         }
         /* check for error */ {
-            if(xshm_error_occured == False) {
+            if(x11_xshm.error_occured == False) {
                 xshm_detached = True;
             }
         }
         /* restore X11/XShm error handler */ {
-            xshm_error_occured = False;
-            xshm_error_handler = XSetErrorHandler(xshm_error_handler);
+            x11_xshm.error_occured = False;
+            x11_xshm.error_handler = XSetErrorHandler(x11_xshm.error_handler);
         }
     }
 #endif
@@ -295,6 +317,7 @@ Bool XcpcQueryShmExtension(Display* display)
 {
     Bool has_xshm = False;
 
+    log_trace("XcpcQueryShmExtension");
 #ifdef HAVE_XSHM
     if(has_xshm == False) {
         has_xshm = XShmQueryExtension(display);

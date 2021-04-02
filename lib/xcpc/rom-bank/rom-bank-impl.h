@@ -23,18 +23,15 @@
 extern "C" {
 #endif
 
+#define XCPC_ROM_BANK_IFACE(instance) (&(instance)->iface)
+#define XCPC_ROM_BANK_SETUP(instance) (&(instance)->setup)
+#define XCPC_ROM_BANK_STATE(instance) (&(instance)->state)
+
 typedef enum   _XcpcRomBankStatus XcpcRomBankStatus;
 typedef struct _XcpcRomBankIface  XcpcRomBankIface;
+typedef struct _XcpcRomBankSetup  XcpcRomBankSetup;
 typedef struct _XcpcRomBankState  XcpcRomBankState;
 typedef struct _XcpcRomBank       XcpcRomBank;
-
-#ifndef XCPC_ROM_BANK_IFACE
-#define XCPC_ROM_BANK_IFACE(instance, field) instance->iface.field
-#endif
-
-#ifndef XCPC_ROM_BANK_STATE
-#define XCPC_ROM_BANK_STATE(instance, field) instance->state.field
-#endif
 
 enum _XcpcRomBankStatus
 {
@@ -47,6 +44,11 @@ struct _XcpcRomBankIface
     void* user_data;
 };
 
+struct _XcpcRomBankSetup
+{
+    int reserved;
+};
+
 struct _XcpcRomBankState
 {
     uint8_t data[16384];
@@ -55,6 +57,7 @@ struct _XcpcRomBankState
 struct _XcpcRomBank
 {
     XcpcRomBankIface iface;
+    XcpcRomBankSetup setup;
     XcpcRomBankState state;
 };
 

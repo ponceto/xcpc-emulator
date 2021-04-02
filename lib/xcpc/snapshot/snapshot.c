@@ -28,30 +28,30 @@ static const char snapshot_signature[8] = {
     'M', 'V', ' ', '-', ' ', 'S', 'N', 'A'
 };
 
-static void xcpc_snapshot_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcSnapshot::%s()", function);
 }
 
 XcpcSnapshot* xcpc_snapshot_alloc(void)
 {
-    xcpc_snapshot_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcSnapshot);
 }
 
 XcpcSnapshot* xcpc_snapshot_free(XcpcSnapshot* self)
 {
-    xcpc_snapshot_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcSnapshot, self);
 }
 
 XcpcSnapshot* xcpc_snapshot_construct(XcpcSnapshot* self)
 {
-    xcpc_snapshot_trace("construct");
+    log_trace("construct");
 
-    /* clear instance */ {
+    /* clear all */ {
         (void) memset(self, 0, sizeof(XcpcSnapshot));
     }
     /* initialize signature */ {
@@ -68,21 +68,21 @@ XcpcSnapshot* xcpc_snapshot_construct(XcpcSnapshot* self)
 
 XcpcSnapshot* xcpc_snapshot_destruct(XcpcSnapshot* self)
 {
-    xcpc_snapshot_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcSnapshot* xcpc_snapshot_new(void)
 {
-    xcpc_snapshot_trace("new");
+    log_trace("new");
 
     return xcpc_snapshot_construct(xcpc_snapshot_alloc());
 }
 
 XcpcSnapshot* xcpc_snapshot_delete(XcpcSnapshot* self)
 {
-    xcpc_snapshot_trace("delete");
+    log_trace("delete");
 
     return xcpc_snapshot_free(xcpc_snapshot_destruct(self));
 }
@@ -91,7 +91,7 @@ XcpcSnapshotStatus xcpc_snapshot_sanity_check(XcpcSnapshot* self)
 {
     XcpcSnapshotStatus status = XCPC_SNAPSHOT_STATUS_SUCCESS;
 
-    xcpc_snapshot_trace("sanity_check");
+    log_trace("sanity_check");
     /* check header size */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             const size_t compiled_header_size = sizeof(self->header);
@@ -139,7 +139,7 @@ XcpcSnapshotStatus xcpc_snapshot_load(XcpcSnapshot* self, const char* filename)
 {
     XcpcSnapshotStatus status = XCPC_SNAPSHOT_STATUS_SUCCESS;
 
-    xcpc_snapshot_trace("load");
+    log_trace("load");
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
         status = xcpc_snapshot_sanity_check(self);
     }
@@ -155,7 +155,7 @@ XcpcSnapshotStatus xcpc_snapshot_save(XcpcSnapshot* self, const char* filename)
 {
     XcpcSnapshotStatus status = XCPC_SNAPSHOT_STATUS_SUCCESS;
 
-    xcpc_snapshot_trace("save");
+    log_trace("save");
     if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
         status = xcpc_snapshot_sanity_check(self);
     }
@@ -194,9 +194,9 @@ const char* xcpc_snapshot_strerror(XcpcSnapshotStatus status)
     return "XCPC_SNAPSHOT_UNKNOWN_ERROR";
 }
 
-XcpcSnapshot* xcpc_snapshot_get_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
+XcpcSnapshot* xcpc_snapshot_fetch_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
 {
-    xcpc_snapshot_trace("get_cpu_z80a");
+    log_trace("fetch_cpu_z80a");
 
     if(cpu_z80a != NULL) {
         (void) xcpc_cpu_z80a_set_af_l(cpu_z80a, self->header.cpu_p_af_l);
@@ -232,9 +232,9 @@ XcpcSnapshot* xcpc_snapshot_get_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z8
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
+XcpcSnapshot* xcpc_snapshot_fetch_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
 {
-    xcpc_snapshot_trace("get_vga_core");
+    log_trace("fetch_vga_core");
 
     if(vga_core != NULL) {
         vga_core->state.pen       = self->header.vga_ink_ix;
@@ -260,9 +260,9 @@ XcpcSnapshot* xcpc_snapshot_get_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_co
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
+XcpcSnapshot* xcpc_snapshot_fetch_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
 {
-    xcpc_snapshot_trace("get_vdc_6845");
+    log_trace("fetch_vdc_6845");
 
     if(vdc_6845 != NULL) {
         vdc_6845->state.regs.array.addr       = self->header.vdc_reg_ix;
@@ -288,9 +288,9 @@ XcpcSnapshot* xcpc_snapshot_get_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_68
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
+XcpcSnapshot* xcpc_snapshot_fetch_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
 {
-    xcpc_snapshot_trace("get_ppi_8255");
+    log_trace("fetch_ppi_8255");
 
     if(ppi_8255 != NULL) {
         ppi_8255->state.port_a = self->header.ppi_port_a;
@@ -301,9 +301,9 @@ XcpcSnapshot* xcpc_snapshot_get_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_82
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
+XcpcSnapshot* xcpc_snapshot_fetch_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
 {
-    xcpc_snapshot_trace("get_psg_8910");
+    log_trace("fetch_psg_8910");
 
     if(psg_8910 != NULL) {
         psg_8910->state.regs.array.addr       = self->header.psg_reg_ix;
@@ -327,9 +327,9 @@ XcpcSnapshot* xcpc_snapshot_get_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_89
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
+XcpcSnapshot* xcpc_snapshot_fetch_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
 {
-    xcpc_snapshot_trace("get_fdc_765a");
+    log_trace("fetch_fdc_765a");
 
     if(fdc_765a != NULL) {
         /* do nothing */
@@ -337,9 +337,9 @@ XcpcSnapshot* xcpc_snapshot_get_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_76
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
+XcpcSnapshot* xcpc_snapshot_fetch_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
 {
-    xcpc_snapshot_trace("get_ram_bank");
+    log_trace("fetch_ram_bank");
 
     if(ram_bank != NULL) {
         if(self->banknum < countof(self->memory)) {
@@ -353,9 +353,9 @@ XcpcSnapshot* xcpc_snapshot_get_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_ba
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
+XcpcSnapshot* xcpc_snapshot_fetch_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
 {
-    xcpc_snapshot_trace("get_ram_conf");
+    log_trace("fetch_ram_conf");
 
     if(ram_conf != NULL) {
         *ram_conf = self->header.ram_select;
@@ -363,9 +363,9 @@ XcpcSnapshot* xcpc_snapshot_get_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
+XcpcSnapshot* xcpc_snapshot_fetch_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
 {
-    xcpc_snapshot_trace("get_rom_conf");
+    log_trace("fetch_rom_conf");
 
     if(rom_conf != NULL) {
         *rom_conf = self->header.rom_select;
@@ -373,9 +373,9 @@ XcpcSnapshot* xcpc_snapshot_get_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_get_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
+XcpcSnapshot* xcpc_snapshot_fetch_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
 {
-    xcpc_snapshot_trace("get_ram_size");
+    log_trace("fetch_ram_size");
 
     if(ram_size != NULL) {
         *ram_size = 0UL;
@@ -385,9 +385,9 @@ XcpcSnapshot* xcpc_snapshot_get_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
+XcpcSnapshot* xcpc_snapshot_store_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z80a)
 {
-    xcpc_snapshot_trace("set_cpu_z80a");
+    log_trace("store_cpu_z80a");
 
     if(cpu_z80a != NULL) {
         self->header.cpu_p_af_l = xcpc_cpu_z80a_get_af_l(cpu_z80a);
@@ -423,9 +423,9 @@ XcpcSnapshot* xcpc_snapshot_set_cpu_z80a(XcpcSnapshot* self, XcpcCpuZ80a* cpu_z8
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
+XcpcSnapshot* xcpc_snapshot_store_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_core)
 {
-    xcpc_snapshot_trace("set_vga_core");
+    log_trace("store_vga_core");
 
     if(vga_core != NULL) {
         self->header.vga_ink_ix = vga_core->state.pen;
@@ -451,9 +451,9 @@ XcpcSnapshot* xcpc_snapshot_set_vga_core(XcpcSnapshot* self, XcpcVgaCore* vga_co
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
+XcpcSnapshot* xcpc_snapshot_store_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_6845)
 {
-    xcpc_snapshot_trace("set_vdc_6845");
+    log_trace("store_vdc_6845");
 
     if(vdc_6845 != NULL) {
         self->header.vdc_reg_ix = vdc_6845->state.regs.array.addr;
@@ -479,9 +479,9 @@ XcpcSnapshot* xcpc_snapshot_set_vdc_6845(XcpcSnapshot* self, XcpcVdc6845* vdc_68
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
+XcpcSnapshot* xcpc_snapshot_store_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_8255)
 {
-    xcpc_snapshot_trace("set_ppi_8255");
+    log_trace("store_ppi_8255");
 
     if(ppi_8255 != NULL) {
         self->header.ppi_port_a = ppi_8255->state.port_a;
@@ -492,9 +492,9 @@ XcpcSnapshot* xcpc_snapshot_set_ppi_8255(XcpcSnapshot* self, XcpcPpi8255* ppi_82
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
+XcpcSnapshot* xcpc_snapshot_store_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_8910)
 {
-    xcpc_snapshot_trace("set_psg_8910");
+    log_trace("store_psg_8910");
 
     if(psg_8910 != NULL) {
         self->header.psg_reg_ix = psg_8910->state.regs.array.addr;
@@ -518,9 +518,9 @@ XcpcSnapshot* xcpc_snapshot_set_psg_8910(XcpcSnapshot* self, XcpcPsg8910* psg_89
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
+XcpcSnapshot* xcpc_snapshot_store_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_765a)
 {
-    xcpc_snapshot_trace("set_fdc_765a");
+    log_trace("store_fdc_765a");
 
     if(fdc_765a != NULL) {
         /* do nothing */
@@ -528,9 +528,9 @@ XcpcSnapshot* xcpc_snapshot_set_fdc_765a(XcpcSnapshot* self, XcpcFdc765a* fdc_76
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
+XcpcSnapshot* xcpc_snapshot_store_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_bank)
 {
-    xcpc_snapshot_trace("set_ram_bank");
+    log_trace("store_ram_bank");
 
     if(ram_bank != NULL) {
         if(self->banknum < countof(self->memory)) {
@@ -544,9 +544,9 @@ XcpcSnapshot* xcpc_snapshot_set_ram_bank(XcpcSnapshot* self, XcpcRamBank* ram_ba
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
+XcpcSnapshot* xcpc_snapshot_store_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
 {
-    xcpc_snapshot_trace("set_ram_conf");
+    log_trace("store_ram_conf");
 
     if(ram_conf != NULL) {
         self->header.ram_select = *ram_conf;
@@ -554,9 +554,9 @@ XcpcSnapshot* xcpc_snapshot_set_ram_conf(XcpcSnapshot* self, uint8_t* ram_conf)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
+XcpcSnapshot* xcpc_snapshot_store_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
 {
-    xcpc_snapshot_trace("set_rom_conf");
+    log_trace("store_rom_conf");
 
     if(rom_conf != NULL) {
         self->header.rom_select = *rom_conf;
@@ -564,9 +564,9 @@ XcpcSnapshot* xcpc_snapshot_set_rom_conf(XcpcSnapshot* self, uint8_t* rom_conf)
     return self;
 }
 
-XcpcSnapshot* xcpc_snapshot_set_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
+XcpcSnapshot* xcpc_snapshot_store_ram_size(XcpcSnapshot* self, uint32_t* ram_size)
 {
-    xcpc_snapshot_trace("set_ram_size");
+    log_trace("store_ram_size");
 
     if(ram_size != NULL) {
         self->header.ram_size_l = ((uint8_t)(((*ram_size) >> 10) & 0xff));

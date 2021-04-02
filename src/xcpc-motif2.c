@@ -26,7 +26,6 @@
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
-#include "amstrad-cpc.h"
 #include "xcpc-motif2-priv.h"
 
 /*
@@ -234,7 +233,7 @@ static XcpcApplication Pause(XcpcApplication self)
 static XcpcApplication Reset(XcpcApplication self)
 {
     if(self->layout.emulator != NULL) {
-        amstrad_cpc_reset(&amstrad_cpc);
+        (void) xcpc_machine_reset(self->machine);
     }
     return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Reset"));
 }
@@ -248,7 +247,7 @@ static XcpcApplication Reset(XcpcApplication self)
 static XcpcApplication LoadSnapshot(XcpcApplication self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        amstrad_cpc_load_snapshot(&amstrad_cpc, filename);
+        xcpc_machine_load_snapshot(self->machine, filename);
     }
     return self;
 }
@@ -256,7 +255,7 @@ static XcpcApplication LoadSnapshot(XcpcApplication self, const char* filename)
 static XcpcApplication SaveSnapshot(XcpcApplication self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        amstrad_cpc_save_snapshot(&amstrad_cpc, filename);
+        xcpc_machine_save_snapshot(self->machine, filename);
     }
     return self;
 }
@@ -270,14 +269,14 @@ static XcpcApplication SaveSnapshot(XcpcApplication self, const char* filename)
 static XcpcApplication InsertDiskIntoDrive0(XcpcApplication self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        amstrad_cpc_insert_drive0(&amstrad_cpc, filename);
+        xcpc_machine_insert_drive0(self->machine, filename);
     }
     return self;
 }
 
 static XcpcApplication RemoveDiskFromDrive0(XcpcApplication self)
 {
-    amstrad_cpc_remove_drive0(&amstrad_cpc);
+    xcpc_machine_remove_drive0(self->machine);
 
     return self;
 }
@@ -291,14 +290,14 @@ static XcpcApplication RemoveDiskFromDrive0(XcpcApplication self)
 static XcpcApplication InsertDiskIntoDrive1(XcpcApplication self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        amstrad_cpc_insert_drive1(&amstrad_cpc, filename);
+        xcpc_machine_insert_drive1(self->machine, filename);
     }
     return self;
 }
 
 static XcpcApplication RemoveDiskFromDrive1(XcpcApplication self)
 {
-    amstrad_cpc_remove_drive1(&amstrad_cpc);
+    xcpc_machine_remove_drive1(self->machine);
 
     return self;
 }
@@ -1123,15 +1122,15 @@ static XcpcApplication BuildLayout(XcpcApplication self)
     }
     /* emulator */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNborderWidth   , 0                        ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuContext    , &amstrad_cpc             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuCreateProc , &amstrad_cpc_create_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuDestroyProc, &amstrad_cpc_destroy_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuRealizeProc, &amstrad_cpc_realize_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuResizeProc , &amstrad_cpc_resize_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuRedrawProc , &amstrad_cpc_redraw_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuTimerProc  , &amstrad_cpc_timer_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuInputProc  , &amstrad_cpc_input_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XmNborderWidth   , 0                         ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuContext    , self->machine             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuCreateProc , &xcpc_machine_create_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuRealizeProc, &xcpc_machine_realize_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuResizeProc , &xcpc_machine_resize_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuExposeProc , &xcpc_machine_expose_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuInputProc  , &xcpc_machine_input_proc  ); ++argcount;
         self->layout.emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
         XtAddCallback(self->layout.emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.emulator);
         XtManageChild(self->layout.emulator);
@@ -1169,6 +1168,12 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
         self->print_stream = stdout;
         self->error_stream = stderr;
     }
+    /* intialize the machine */ {
+        self->machine = xcpc_machine_new();
+    }
+    /* parse the command-line */ {
+        (void) xcpc_machine_parse(self->machine, argc, argv);
+    }
     /* set language proc */ {
         (void) XtSetLanguageProc(NULL, NULL, NULL);
     }
@@ -1198,12 +1203,6 @@ XcpcApplication XcpcApplicationInit(XcpcApplication self, int* argc, char*** arg
         if(self->resources.debug_flag != FALSE) {
             (void) xcpc_set_loglevel(XCPC_LOGLEVEL_DEBUG);
         }
-    }
-    /* initialize libxcpc */ {
-        xcpc_begin();
-    }
-    /* intialize the emulator */ {
-        amstrad_cpc_new(argc, argv);
     }
     /* build user interface */ {
         (void) BuildLayout(self);
@@ -1242,10 +1241,7 @@ XcpcApplication XcpcApplicationFini(XcpcApplication self)
         }
     }
     /* finalize the emulator */ {
-        amstrad_cpc_delete();
-    }
-    /* finalize libxcpc */ {
-        xcpc_end();
+        self->machine = xcpc_machine_delete(self->machine);
     }
     return DebugInstance(self, "XcpcApplicationFini()");
 }
@@ -1271,7 +1267,7 @@ static void setup(void)
     }
 }
 
-int xcpc(int* argc, char*** argv)
+int xcpc_main(int* argc, char*** argv)
 {
     XcpcApplicationRec self;
 

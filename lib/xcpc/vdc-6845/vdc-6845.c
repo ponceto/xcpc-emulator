@@ -22,62 +22,96 @@
 #include <string.h>
 #include "vdc-6845-priv.h"
 
-static void xcpc_vdc_6845_trace(const char* function)
+static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcVdc6845::%s()", function);
 }
 
+static uint8_t default_hsync_handler(XcpcVdc6845* self, int hsync)
+{
+    log_trace("default_hsync_handler");
+
+    return 0x00;
+}
+
+static uint8_t default_vsync_handler(XcpcVdc6845* self, int vsync)
+{
+    log_trace("default_vsync_handler");
+
+    return 0x00;
+}
+
 XcpcVdc6845* xcpc_vdc_6845_alloc(void)
 {
-    xcpc_vdc_6845_trace("alloc");
+    log_trace("alloc");
 
     return xcpc_new(XcpcVdc6845);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_free(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("free");
+    log_trace("free");
 
     return xcpc_delete(XcpcVdc6845, self);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("construct");
+    log_trace("construct");
 
-    /* clear iface */ {
+    /* clear all */ {
         (void) memset(&self->iface, 0, sizeof(XcpcVdc6845Iface));
-    }
-    /* clear state */ {
+        (void) memset(&self->setup, 0, sizeof(XcpcVdc6845Setup));
         (void) memset(&self->state, 0, sizeof(XcpcVdc6845State));
     }
-    return xcpc_vdc_6845_reset(self);
+    /* initialize iface */ {
+        (void) xcpc_vdc_6845_set_iface(self, NULL);
+    }
+    /* reset */ {
+        (void) xcpc_vdc_6845_reset(self);
+    }
+    return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_destruct(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("destruct");
+    log_trace("destruct");
 
     return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_new(void)
 {
-    xcpc_vdc_6845_trace("new");
+    log_trace("new");
 
     return xcpc_vdc_6845_construct(xcpc_vdc_6845_alloc());
 }
 
 XcpcVdc6845* xcpc_vdc_6845_delete(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("delete");
+    log_trace("delete");
 
     return xcpc_vdc_6845_free(xcpc_vdc_6845_destruct(self));
 }
 
+XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* iface)
+{
+    log_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = self;
+        self->iface.hsync     = &default_hsync_handler;
+        self->iface.vsync     = &default_vsync_handler;
+    }
+    return self;
+}
+
 XcpcVdc6845* xcpc_vdc_6845_reset(XcpcVdc6845* self)
 {
-    xcpc_vdc_6845_trace("reset");
+    log_trace("reset");
 
     /* reset registers */ {
         self->state.regs.named.address_register         = DEFAULT_VALUE_OF_ADDRESS_REGISTER;
@@ -148,11 +182,11 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
             self->state.ctrs.named.vsync_counter = 16;
         }
     }
-    if((self->state.ctrs.named.vsync_signal != old_vsync_signal) && (self->iface.vsync_callback != NULL)) {
-        (*self->iface.vsync_callback)(self, self->state.ctrs.named.vsync_signal, self->iface.user_data);
+    if(self->state.ctrs.named.vsync_signal != old_vsync_signal) {
+        (*self->iface.vsync)(self, self->state.ctrs.named.vsync_signal);
     }
-    if((self->state.ctrs.named.hsync_signal != old_hsync_signal) && (self->iface.hsync_callback != NULL)) {
-        (*self->iface.hsync_callback)(self, self->state.ctrs.named.hsync_signal, self->iface.user_data);
+    if(self->state.ctrs.named.hsync_signal != old_hsync_signal) {
+        (*self->iface.hsync)(self, self->state.ctrs.named.hsync_signal);
     }
     return self;
 }
