@@ -32,7 +32,6 @@
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
-#include "amstrad-cpc.h"
 #include "xcpc-athena-priv.h"
 
 /*
@@ -82,6 +81,12 @@ static XcpcResourcesRec xcpc_resources = {
   FALSE, /* debug_flag */
 };
 
+/*
+ * Xcpc emulator
+ */
+
+XcpcMachine* xcpc_machine = NULL;
+
 /**
  * Destroy Callback
  *
@@ -127,7 +132,7 @@ static void OnLoadSnapshotOkCbk(Widget widget, XcpcApplication gui, XtPointer cb
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
-    amstrad_cpc_load_snapshot(&amstrad_cpc, value);
+    xcpc_machine_load_snapshot(xcpc_machine, value);
   }
   OnCloseCbk(widget, gui, cbs);
 }
@@ -187,7 +192,7 @@ static void OnSaveSnapshotOkCbk(Widget widget, XcpcApplication gui, XtPointer cb
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if(value != NULL) {
-    amstrad_cpc_save_snapshot(&amstrad_cpc, value);
+    xcpc_machine_save_snapshot(xcpc_machine, value);
   }
   OnCloseCbk(widget, gui, cbs);
 }
@@ -247,7 +252,7 @@ static void OnDriveAInsertOkCbk(Widget widget, XcpcApplication gui, XtPointer cb
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if((value != NULL) && (*value != '\0')) {
-    amstrad_cpc_insert_drive0(&amstrad_cpc, value);
+    xcpc_machine_insert_drive0(xcpc_machine, value);
   }
   OnCloseCbk(widget, gui, cbs);
 }
@@ -305,7 +310,7 @@ static void OnDriveAInsertCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
  */
 static void OnDriveAEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  amstrad_cpc_remove_drive0(&amstrad_cpc);
+  xcpc_machine_remove_drive0(xcpc_machine);
 }
 
 /**
@@ -319,7 +324,7 @@ static void OnDriveBInsertOkCbk(Widget widget, XcpcApplication gui, XtPointer cb
 {
   char *value = XawDialogGetValueString(XtParent(widget));
   if((value != NULL) && (*value != '\0')) {
-    amstrad_cpc_insert_drive1(&amstrad_cpc, value);
+    xcpc_machine_insert_drive1(xcpc_machine, value);
   }
   OnCloseCbk(widget, gui, cbs);
 }
@@ -377,7 +382,7 @@ static void OnDriveBInsertCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
  */
 static void OnDriveBEjectCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  amstrad_cpc_remove_drive1(&amstrad_cpc);
+  xcpc_machine_remove_drive1(xcpc_machine);
 }
 
 /**
@@ -418,7 +423,7 @@ static void OnPauseCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
  */
 static void OnResetCbk(Widget widget, XcpcApplication gui, XtPointer cbs)
 {
-  amstrad_cpc_reset(&amstrad_cpc);
+  xcpc_machine_reset(xcpc_machine);
   XtSetSensitive(gui->emulator, TRUE);
 }
 
@@ -535,11 +540,11 @@ static void OnDropURICbk(Widget widget, XcpcApplication gui, char *uri)
     }
     if((length = strlen(str)) >= 4) {
       if(strcmp(&str[length - 4], ".sna") == 0) {
-        amstrad_cpc_load_snapshot(&amstrad_cpc, str);
+        xcpc_machine_load_snapshot(xcpc_machine, str);
       }
       if(strcmp(&str[length - 4], ".dsk") == 0) {
-        amstrad_cpc_insert_drive0(&amstrad_cpc, str);
-        amstrad_cpc_insert_drive1(&amstrad_cpc, str);
+        xcpc_machine_insert_drive0(xcpc_machine, str);
+        xcpc_machine_insert_drive1(xcpc_machine, str);
       }
       XtSetSensitive(gui->emulator, TRUE);
       XtSetSensitive(gui->emulator, TRUE);
@@ -680,14 +685,14 @@ Widget XcpcCreateApplication(Widget toplevel)
   XtManageChild(gui->about_xcpc);
   /* emulator */
   argcount = 0;
-  XtSetArg(arglist[argcount], XtNemuContext    , &amstrad_cpc             ); argcount++;
-  XtSetArg(arglist[argcount], XtNemuCreateProc , &amstrad_cpc_create_proc ); argcount++;
-  XtSetArg(arglist[argcount], XtNemuDestroyProc, &amstrad_cpc_destroy_proc); argcount++;
-  XtSetArg(arglist[argcount], XtNemuRealizeProc, &amstrad_cpc_realize_proc); argcount++;
-  XtSetArg(arglist[argcount], XtNemuResizeProc , &amstrad_cpc_resize_proc ); argcount++;
-  XtSetArg(arglist[argcount], XtNemuExposeProc , &amstrad_cpc_expose_proc ); argcount++;
-  XtSetArg(arglist[argcount], XtNemuTimerProc  , &amstrad_cpc_timer_proc  ); argcount++;
-  XtSetArg(arglist[argcount], XtNemuInputProc  , &amstrad_cpc_input_proc  ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuContext    , xcpc_machine              ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuCreateProc , &xcpc_machine_create_proc ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuDestroyProc, &xcpc_machine_destroy_proc); argcount++;
+  XtSetArg(arglist[argcount], XtNemuRealizeProc, &xcpc_machine_realize_proc); argcount++;
+  XtSetArg(arglist[argcount], XtNemuResizeProc , &xcpc_machine_resize_proc ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuExposeProc , &xcpc_machine_expose_proc ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuTimerProc  , &xcpc_machine_timer_proc  ); argcount++;
+  XtSetArg(arglist[argcount], XtNemuInputProc  , &xcpc_machine_input_proc  ); argcount++;
   gui->emulator = XemCreateEmulator(gui->main_wnd, "emulator", arglist, argcount);
   XtManageChild(gui->emulator);
   /* XXX */
@@ -713,6 +718,12 @@ int xcpc_main(int* argc, char*** argv)
     Arg          arglist[4];
     Cardinal     argcount;
 
+    /* intialize the machine */ {
+        xcpc_machine = xcpc_machine_new();
+    }
+    /* parse the command-line */ {
+        (void) xcpc_machine_parse(xcpc_machine, argc, argv);
+    }
     /* set language proc */ {
         (void) XtSetLanguageProc(NULL, NULL, NULL);
     }
@@ -741,9 +752,6 @@ int xcpc_main(int* argc, char*** argv)
             (void) xcpc_set_loglevel(XCPC_LOGLEVEL_DEBUG);
         }
     }
-    /* intialize the emulator */ {
-        amstrad_cpc_new(argc, argv);
-    }
     /* create application and run */ {
         application = XcpcCreateApplication(toplevel);
         XtManageChild(application);
@@ -759,7 +767,7 @@ int xcpc_main(int* argc, char*** argv)
         XtDestroyApplicationContext(appcontext);
     }
     /* finalize the emulator */ {
-        amstrad_cpc_delete();
+        xcpc_machine = xcpc_machine_delete(xcpc_machine);
     }
     return(EXIT_SUCCESS);
 }

@@ -46,6 +46,8 @@ typedef struct _XcpcMachineState XcpcMachineState;
 typedef struct _XcpcMachineBoard XcpcMachineBoard;
 typedef struct _XcpcMachinePager XcpcMachinePager;
 typedef struct _XcpcMachineFrame XcpcMachineFrame;
+typedef struct _XcpcMachineStats XcpcMachineStats;
+typedef struct _XcpcMachineTimer XcpcMachineTimer;
 typedef struct _XcpcMachineFuncs XcpcMachineFuncs;
 typedef struct _XcpcMachine      XcpcMachine;
 
@@ -118,6 +120,21 @@ struct _XcpcMachineFrame
     int          index;
 };
 
+struct _XcpcMachineStats
+{
+    unsigned int rate;
+    unsigned int time;
+    unsigned int count;
+    unsigned int drawn;
+    char         buffer[256];
+};
+
+struct _XcpcMachineTimer
+{
+    struct timeval deadline;
+    struct timeval profiler;
+};
+
 struct _XcpcMachineFuncs
 {
     XcpcPaintFunc paint_func;
@@ -127,13 +144,17 @@ struct _XcpcMachineFuncs
 
 struct _XcpcMachine
 {
+    XcpcOptions* options;
     XcpcMachineIface iface;
     XcpcMachineSetup setup;
     XcpcMachineState state;
     XcpcMachineBoard board;
     XcpcMachinePager pager;
     XcpcMachineFrame frame;
+    XcpcMachineStats stats;
+    XcpcMachineTimer timer;
     XcpcMachineFuncs funcs;
+    int cpu_period;
 };
 
 #ifdef __cplusplus
