@@ -440,7 +440,7 @@ static void OnAboutXcpcCbk(Widget widget, XcpcApplication* self, XtPointer cbs)
 
 /*
  * ---------------------------------------------------------------------------
- * XcpcApplication* private methods
+ * XcpcApplication private methods
  * ---------------------------------------------------------------------------
  */
 
@@ -607,19 +607,13 @@ static XcpcApplication* BuildLayout(XcpcApplication* self)
     return self;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * XcpcApplication* public methods
- * ---------------------------------------------------------------------------
- */
-
-XcpcApplication* XcpcApplicationInit(XcpcApplication* self, int* argc, char*** argv)
+static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* clear instance */ {
-        (void) memset(self, 0, sizeof(XcpcApplicationRec));
+        (void) memset(self, 0, sizeof(XcpcApplication));
     }
     /* intialize the machine */ {
         self->machine = xcpc_machine_new();
@@ -665,24 +659,7 @@ XcpcApplication* XcpcApplicationInit(XcpcApplication* self, int* argc, char*** a
     return self;
 }
 
-XcpcApplication* XcpcApplicationMain(XcpcApplication* self)
-{
-    if(XtAppGetExitFlag(self->appcontext) == FALSE) {
-        /* realize toplevel shell */ {
-            if((self->layout.toplevel != NULL)) {
-                XtRealizeWidget(self->layout.toplevel);
-            }
-        }
-        /* run application loop  */ {
-            if((self->appcontext != NULL)) {
-                XtAppMainLoop(self->appcontext);
-            }
-        }
-    }
-    return self;
-}
-
-XcpcApplication* XcpcApplicationFini(XcpcApplication* self)
+static XcpcApplication* Destruct(XcpcApplication* self)
 {
     /* destroy toplevel shell */ {
         if(self->layout.toplevel != NULL) {
@@ -700,6 +677,44 @@ XcpcApplication* XcpcApplicationFini(XcpcApplication* self)
     return self;
 }
 
+static XcpcApplication* MainLoop(XcpcApplication* self)
+{
+    if(XtAppGetExitFlag(self->appcontext) == FALSE) {
+        /* realize toplevel shell */ {
+            if((self->layout.toplevel != NULL)) {
+                XtRealizeWidget(self->layout.toplevel);
+            }
+        }
+        /* run application loop  */ {
+            if((self->appcontext != NULL)) {
+                XtAppMainLoop(self->appcontext);
+            }
+        }
+    }
+    return self;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * XcpcApplication public methods
+ * ---------------------------------------------------------------------------
+ */
+
+XcpcApplication* XcpcApplicationNew(int* argc, char*** argv)
+{
+    return Construct(xcpc_new(XcpcApplication), argc, argv);
+}
+
+XcpcApplication* XcpcApplicationDelete(XcpcApplication* self)
+{
+    return xcpc_delete(XcpcApplication, Destruct(self));
+}
+
+XcpcApplication* XcpcApplicationLoop(XcpcApplication* self)
+{
+    return MainLoop(self);
+}
+
 /*
  * ---------------------------------------------------------------------------
  * XcpcApplication
@@ -708,12 +723,19 @@ XcpcApplication* XcpcApplicationFini(XcpcApplication* self)
 
 int xcpc_main(int* argc, char*** argv)
 {
-    XcpcApplicationRec self;
+    XcpcApplication* self = XcpcApplicationNew(argc, argv);
 
-    /* let's go */ {
-        (void) XcpcApplicationInit(&self, argc, argv);
-        (void) XcpcApplicationMain(&self);
-        (void) XcpcApplicationFini(&self);
+    /* main */ {
+        (void) XcpcApplicationLoop(self);
+    }
+    /* delete */ {
+        self = XcpcApplicationDelete(self);
     }
     return EXIT_SUCCESS;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ * End-Of-File
+ * ---------------------------------------------------------------------------
+ */
