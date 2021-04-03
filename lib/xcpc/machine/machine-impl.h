@@ -117,18 +117,19 @@ struct _XcpcMachinePager
 
 struct _XcpcMachineFrame
 {
-    XcpcScanline array[312];
-    int          index;
+    XcpcScanline scanline_array[312];
+    unsigned int scanline_index;
+    unsigned int scanline_count;
+    unsigned int rate;
+    unsigned int duration;
+    unsigned int cpu_ticks;
 };
 
 struct _XcpcMachineStats
 {
-    unsigned int rate;
-    unsigned int time;
     unsigned int count;
     unsigned int drawn;
     char         buffer[256];
-    int          cpu_period;
 };
 
 struct _XcpcMachineTimer

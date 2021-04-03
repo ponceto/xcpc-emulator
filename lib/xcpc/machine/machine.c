@@ -75,10 +75,10 @@ static void compute_stats(XcpcMachine* self)
             const double stats_frames  = (double) (self->stats.drawn * 1000000UL);
             const double stats_elapsed = (double) elapsed_us;
             const double stats_fps     = (stats_frames / stats_elapsed);
-            (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz, framerate = %.2f fps", self->stats.rate, stats_fps);
+            (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz, framerate = %.2f fps", self->frame.rate, stats_fps);
         }
         else {
-            (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz", self->stats.rate);
+            (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz", self->frame.rate);
         }
     }
     /* print statistics */ {
@@ -440,7 +440,7 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                 }
             }
             /* update scanline */ {
-                XcpcScanline* scanline = &self->frame.array[(self->frame.index + 1) % 312];
+                XcpcScanline* scanline = &self->frame.scanline_array[(self->frame.scanline_index + 1) % 312];
                 /* update mode */ {
                     scanline->mode = vga_core->state.rmr & 0x03;
                 }
@@ -597,7 +597,7 @@ static void paint_08bpp(XcpcMachine* self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    XcpcScanline* scanline = self->frame.array;
+    XcpcScanline* scanline = self->frame.scanline_array;
     uint8_t* dst = (uint8_t*) monitor->state.image->data;
     uint8_t* nxt = dst;
     uint8_t pixel1, pixel2;
@@ -607,7 +607,7 @@ static void paint_08bpp(XcpcMachine* self)
     uint16_t disp;
     uint8_t data;
 
-    scanline = &self->frame.array[(vt * mr) - (1 * vp)];
+    scanline = &self->frame.scanline_array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel1 = scanline->color[16].pixel1;
@@ -618,7 +618,7 @@ static void paint_08bpp(XcpcMachine* self)
         }
         dst = nxt; scanline++;
     }
-    scanline = &self->frame.array[6];
+    scanline = &self->frame.scanline_array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
             nxt += XCPC_MONITOR_WIDTH;
@@ -935,7 +935,7 @@ static void paint_08bpp(XcpcMachine* self)
         }
         sa += hd;
     }
-    scanline = &self->frame.array[(vd * mr) + (0 * vp)];
+    scanline = &self->frame.scanline_array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel1 = scanline->color[16].pixel1;
@@ -961,7 +961,7 @@ static void paint_16bpp(XcpcMachine* self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    XcpcScanline* scanline = self->frame.array;
+    XcpcScanline* scanline = self->frame.scanline_array;
     uint16_t* dst = (uint16_t*) monitor->state.image->data;
     uint16_t* nxt = dst;
     uint16_t pixel1, pixel2;
@@ -971,7 +971,7 @@ static void paint_16bpp(XcpcMachine* self)
     uint16_t disp;
     uint8_t data;
 
-    scanline = &self->frame.array[(vt * mr) - (1 * vp)];
+    scanline = &self->frame.scanline_array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel1 = scanline->color[16].pixel1;
@@ -982,7 +982,7 @@ static void paint_16bpp(XcpcMachine* self)
         }
         dst = nxt; scanline++;
     }
-    scanline = &self->frame.array[6];
+    scanline = &self->frame.scanline_array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
             nxt += XCPC_MONITOR_WIDTH;
@@ -1299,7 +1299,7 @@ static void paint_16bpp(XcpcMachine* self)
         }
         sa += hd;
     }
-    scanline = &self->frame.array[(vd * mr) + (0 * vp)];
+    scanline = &self->frame.scanline_array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel1 = scanline->color[16].pixel1;
@@ -1325,7 +1325,7 @@ static void paint_32bpp(XcpcMachine* self)
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
     unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
-    XcpcScanline* scanline = self->frame.array;
+    XcpcScanline* scanline = self->frame.scanline_array;
     uint32_t* dst = (uint32_t*) monitor->state.image->data;
     uint32_t* nxt = dst;
     uint32_t pixel1, pixel2;
@@ -1335,7 +1335,7 @@ static void paint_32bpp(XcpcMachine* self)
     uint16_t disp;
     uint8_t data;
 
-    scanline = &self->frame.array[(vt * mr) - (1 * vp)];
+    scanline = &self->frame.scanline_array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel1 = scanline->color[16].pixel1;
@@ -1346,7 +1346,7 @@ static void paint_32bpp(XcpcMachine* self)
         }
         dst = nxt; scanline++;
     }
-    scanline = &self->frame.array[6];
+    scanline = &self->frame.scanline_array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
             nxt += XCPC_MONITOR_WIDTH;
@@ -1663,7 +1663,7 @@ static void paint_32bpp(XcpcMachine* self)
         }
         sa += hd;
     }
-    scanline = &self->frame.array[(vd * mr) + (0 * vp)];
+    scanline = &self->frame.scanline_array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
         nxt += XCPC_MONITOR_WIDTH;
         pixel1 = scanline->color[16].pixel1;
@@ -1748,13 +1748,13 @@ static void destruct_state(XcpcMachine* self)
 
 static void reset_state(XcpcMachine* self)
 {
-    self->state.hsync     &= 0; /* clear value */
-    self->state.vsync     &= 0; /* clear value */
-    self->state.refresh   |= 0; /* dont'modify */
-    self->state.company   |= 0; /* dont'modify */
-    self->state.expansion |= 0; /* dont'modify */
-    self->state.parallel  |= 0; /* dont'modify */
-    self->state.cassette  &= 0; /* clear value */
+    self->state.hsync     &= 0; /* clear value  */
+    self->state.vsync     &= 0; /* clear value  */
+    self->state.refresh   |= 0; /* don't modify */
+    self->state.company   |= 0; /* don't modify */
+    self->state.expansion |= 0; /* don't modify */
+    self->state.parallel  |= 0; /* don't modify */
+    self->state.cassette  &= 0; /* clear value  */
 }
 
 static void construct_board(XcpcMachine* self)
@@ -2076,6 +2076,11 @@ static void reset_pager(XcpcMachine* self)
 
 static void construct_frame(XcpcMachine* self)
 {
+    self->frame.scanline_index = 0;
+    self->frame.scanline_count = 0;
+    self->frame.rate           = 0;
+    self->frame.duration       = 0;
+    self->frame.cpu_ticks      = 0;
 }
 
 static void destruct_frame(XcpcMachine* self)
@@ -2084,16 +2089,18 @@ static void destruct_frame(XcpcMachine* self)
 
 static void reset_frame(XcpcMachine* self)
 {
+    self->frame.scanline_index &= 0; /* clear value  */
+    self->frame.scanline_count |= 0; /* don't modify */
+    self->frame.rate           |= 0; /* don't modify */
+    self->frame.duration       |= 0; /* don't modify */
+    self->frame.cpu_ticks      |= 0; /* don't modify */
 }
 
 static void construct_stats(XcpcMachine* self)
 {
-    self->stats.rate       = 0;
-    self->stats.time       = 0;
-    self->stats.count      = 0;
-    self->stats.drawn      = 0;
-    self->stats.buffer[0]  = '\0';
-    self->stats.cpu_period = 0;
+    self->stats.count     = 0;
+    self->stats.drawn     = 0;
+    self->stats.buffer[0] = '\0';
 }
 
 static void destruct_stats(XcpcMachine* self)
@@ -2102,12 +2109,9 @@ static void destruct_stats(XcpcMachine* self)
 
 static void reset_stats(XcpcMachine* self)
 {
-    self->stats.rate       |= 0; /* dont'modify */
-    self->stats.time       |= 0; /* dont'modify */
-    self->stats.count      &= 0; /* clear value */
-    self->stats.drawn      &= 0; /* clear value */
-    self->stats.buffer[0]  &= 0; /* clear value */
-    self->stats.cpu_period |= 0; /* dont'modify */
+    self->stats.count     &= 0; /* clear value  */
+    self->stats.drawn     &= 0; /* clear value  */
+    self->stats.buffer[0] &= 0; /* clear value  */
 }
 
 static void construct_timer(XcpcMachine* self)
@@ -2263,18 +2267,21 @@ XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
     XcpcFdc765a* fdc_765a = self->board.fdc_765a;
 
     /* process each scanline */ {
-        self->frame.index = 0;
+        self->frame.scanline_index = 0;
         do {
-            int cpu_tick;
-            for(cpu_tick = 0; cpu_tick < self->stats.cpu_period; cpu_tick += 4) {
+            int32_t old_i_period;
+            int32_t new_i_period;
+            int cpu_ticks = self->frame.cpu_ticks;
+            do {
                 xcpc_vdc_6845_clock(vdc_6845);
                 if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
-                    int32_t i_period = cpu_z80a->state.ctrs.i_period;
+                    old_i_period = cpu_z80a->state.ctrs.i_period;
                     xcpc_cpu_z80a_clock(self->board.cpu_z80a);
-                    cpu_z80a->state.ctrs.i_period = i_period - (((i_period - cpu_z80a->state.ctrs.i_period) + 3) & (~3));
+                    new_i_period = cpu_z80a->state.ctrs.i_period;
+                    cpu_z80a->state.ctrs.i_period = old_i_period - (((old_i_period - new_i_period) + 3) & (~3));
                 }
-            }
-        } while(++self->frame.index < 312);
+            } while((cpu_ticks -= 4) > 0);
+        } while(++self->frame.scanline_index < self->frame.scanline_count);
     }
     /* clock the fdc */ {
         xcpc_fdc_765a_clock(fdc_765a);
@@ -2459,25 +2466,29 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
     /* compute frame rate/time and cpu period */ {
         switch(self->setup.refresh_rate) {
             case XCPC_REFRESH_RATE_50HZ:
-                self->state.company    = ((self->setup.company_name - 1) & 7);
-                self->state.refresh    = 1;
-                self->stats.rate       = 50;
-                self->stats.time       = 20000;
-                self->stats.cpu_period = (int) (4000000.0 / (50.0 * 312.5));
+                self->state.company        = ((self->setup.company_name - 1) & 7);
+                self->state.refresh        = 1;
+                self->frame.rate           = 50;
+                self->frame.duration       = 20000;
+                self->frame.scanline_count = 312;
+                self->frame.scanline_index = 0;
+                self->frame.cpu_ticks      = (int) (4000000.0 / (50.0 * 312.5));
                 break;
             case XCPC_REFRESH_RATE_60HZ:
-                self->state.company    = ((self->setup.company_name - 1) & 7);
-                self->state.refresh    = 0;
-                self->stats.rate       = 60;
-                self->stats.time       = 16667;
-                self->stats.cpu_period = (int) (4000000.0 / (60.0 * 262.5));
+                self->state.company        = ((self->setup.company_name - 1) & 7);
+                self->state.refresh        = 0;
+                self->frame.rate           = 60;
+                self->frame.duration       = 16667;
+                self->frame.scanline_count = 262;
+                self->frame.scanline_index = 0;
+                self->frame.cpu_ticks      = (int) (4000000.0 / (60.0 * 262.5));
                 break;
             default:
                 xcpc_log_error("unsupported refresh rate %d", self->setup.refresh_rate);
                 break;
         }
         if(self->setup.turbo != 0) {
-            self->stats.time = 1000;
+            self->frame.duration = 1000;
         }
     }
     /* reset instance */ {
@@ -2775,16 +2786,16 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
         }
     }
     /* draw the frame and compute stats if needed */ {
-        if((self->stats.count == 0) || (elapsed <= self->stats.time)) {
+        if((self->stats.count == 0) || (elapsed <= self->frame.duration)) {
             (*self->funcs.paint_func)(self);
             ++self->stats.drawn;
         }
-        if(++self->stats.count == self->stats.rate) {
+        if(++self->stats.count == self->frame.rate) {
             compute_stats(self);
         }
     }
     /* compute the next frame absolute time */ {
-        if((self->timer.deadline.tv_usec += self->stats.time) >= 1000000) {
+        if((self->timer.deadline.tv_usec += self->frame.duration) >= 1000000) {
             self->timer.deadline.tv_usec -= 1000000;
             self->timer.deadline.tv_sec  += 1;
         }
