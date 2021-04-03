@@ -17,6 +17,17 @@
 #ifndef __XCPC_ATHENA_PRIV_H__
 #define __XCPC_ATHENA_PRIV_H__
 
+#include <X11/Intrinsic.h>
+#include <X11/Xaw/Box.h>
+#include <X11/Xaw/MenuButton.h>
+#include <X11/Xaw/SimpleMenu.h>
+#include <X11/Xaw/SmeBSB.h>
+#include <X11/Xaw/SmeLine.h>
+#include <X11/Xaw/Dialog.h>
+#include <Xem/StringDefs.h>
+#include <Xem/AppShell.h>
+#include <Xem/DlgShell.h>
+#include <Xem/Emulator.h>
 #include <xcpc/machine/machine.h>
 #include "xcpc-athena.h"
 
@@ -24,19 +35,22 @@
 extern "C" {
 #endif
 
-#ifndef _
-#define _(string) (string)
-#endif
+typedef struct _XcpcResourcesRec   XcpcResourcesRec;
+typedef struct _XcpcLayoutRec      XcpcLayoutRec;
+typedef struct _XcpcApplicationRec XcpcApplicationRec;
 
-typedef struct _XcpcResourcesRec
+struct _XcpcResourcesRec
 {
+    String  appname;
+    String  appclass;
     Boolean quiet_flag;
     Boolean trace_flag;
     Boolean debug_flag;
-} XcpcResourcesRec, *XcpcResources;
+};
 
-typedef struct _XcpcApplicationRec
+struct _XcpcLayoutRec
 {
+    Widget toplevel;
     Widget main_wnd;
     Widget menu_bar;
     Widget file_menu;
@@ -61,7 +75,15 @@ typedef struct _XcpcApplicationRec
     Widget separator4;
     Widget about_xcpc;
     Widget emulator;
-} XcpcApplicationRec;
+};
+
+struct _XcpcApplicationRec
+{
+    XcpcMachine*     machine;
+    XtAppContext     appcontext;
+    XcpcResourcesRec resources;
+    XcpcLayoutRec    layout;
+};
 
 #ifdef __cplusplus
 }

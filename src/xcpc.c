@@ -20,16 +20,54 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "xcpc.h"
+
+static char XAPPLRESDIR[PATH_MAX + 1] = "{not-set}";
+
+/*
+ * ---------------------------------------------------------------------------
+ * setup
+ * ---------------------------------------------------------------------------
+ */
+
+static int setup(void)
+{
+    /* XAPPLRESDIR */ {
+        const char* var_name = "XAPPLRESDIR";
+        const char* var_value = getenv(var_name);
+        const char* var_default = XCPC_RESDIR;
+        if((var_value == NULL) || (*var_value == '\0')) {
+            (void) snprintf(XAPPLRESDIR, sizeof(XAPPLRESDIR), "%s=%s", var_name, var_default);
+        }
+        else {
+            (void) snprintf(XAPPLRESDIR, sizeof(XAPPLRESDIR), "%s=%s", var_name, var_value);
+        }
+        (void) putenv(XAPPLRESDIR);
+    }
+    return EXIT_SUCCESS;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * main
+ * ---------------------------------------------------------------------------
+ */
 
 int main(int argc, char* argv[])
 {
-    int status = EXIT_SUCCESS;
+    int status = setup();
 
-    /* run xcpc */ {
+    if(status == EXIT_SUCCESS) {
         xcpc_begin();
         status = xcpc_main(&argc, &argv);
         xcpc_end();
     }
     return status;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ * End-Of-File
+ * ---------------------------------------------------------------------------
+ */
