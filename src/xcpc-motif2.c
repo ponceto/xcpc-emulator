@@ -360,16 +360,27 @@ static void DropUriCallback(Widget widget, XcpcApplication* self, char* uri)
             *eol = '\0';
         }
         if((length = strlen(str)) >= 4) {
-            if(strcmp(&str[length - 4], ".sna") == 0) {
+            if(strcasecmp(&str[length - 4], ".sna") == 0) {
                 (void) LoadSnapshot(self, str);
                 (void) Play(self);
             }
-            if(strcmp(&str[length - 4], ".dsk") == 0) {
+            if(strcasecmp(&str[length - 4], ".dsk") == 0) {
                 (void) InsertOrRemoveDisk(self, str);
                 (void) Play(self);
             }
         }
     }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * File callbacks
+ * ---------------------------------------------------------------------------
+ */
+
+static void ExitCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+{
+    (void) Exit(self);
 }
 
 /*
@@ -384,7 +395,6 @@ static void LoadSnapshotOkCallback(Widget widget, XcpcApplication* self, XmFileS
 
     if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
         (void) LoadSnapshot(self, filename);
-        (void) Play(self);
     }
     if(filename != NULL) {
         filename = (XtFree(filename), NULL);
@@ -412,7 +422,9 @@ static void LoadSnapshotCallback(Widget widget, XcpcApplication* self, XmAnyCall
         XtManageChild(dialog);
         title = (XmStringFree(title), NULL);
     }
-    (void) Pause(self);
+    /* pause */ {
+        (void) Pause(self);
+    }
 }
 
 /*
@@ -427,7 +439,6 @@ static void SaveSnapshotOkCallback(Widget widget, XcpcApplication* self, XmFileS
 
     if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
         (void) SaveSnapshot(self, filename);
-        (void) Play(self);
     }
     if(filename != NULL) {
         filename = (XtFree(filename), NULL);
@@ -455,7 +466,9 @@ static void SaveSnapshotCallback(Widget widget, XcpcApplication* self, XmAnyCall
         XtManageChild(dialog);
         title = (XmStringFree(title), NULL);
     }
-    (void) Pause(self);
+    /* pause */ {
+        (void) Pause(self);
+    }
 }
 
 /*
@@ -470,7 +483,6 @@ static void InsertDrive0OkCallback(Widget widget, XcpcApplication* self, XmFileS
 
     if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
         (void) InsertDiskIntoDrive0(self, filename);
-        (void) Play(self);
     }
     if(filename != NULL) {
         filename = (XtFree(filename), NULL);
@@ -498,13 +510,14 @@ static void InsertDrive0Callback(Widget widget, XcpcApplication* self, XmAnyCall
         XtManageChild(dialog);
         title = (XmStringFree(title), NULL);
     }
-    (void) Pause(self);
+    /* pause */ {
+        (void) Pause(self);
+    }
 }
 
 static void RemoveDrive0Callback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
 {
     (void) RemoveDiskFromDrive0(self);
-    (void) Play(self);
 }
 
 /*
@@ -519,7 +532,6 @@ static void InsertDrive1OkCallback(Widget widget, XcpcApplication* self, XmFileS
 
     if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
         (void) InsertDiskIntoDrive1(self, filename);
-        (void) Play(self);
     }
     if(filename != NULL) {
         filename = (XtFree(filename), NULL);
@@ -547,24 +559,14 @@ static void InsertDrive1Callback(Widget widget, XcpcApplication* self, XmAnyCall
         XtManageChild(dialog);
         title = (XmStringFree(title), NULL);
     }
-    (void) Pause(self);
+    /* pause */ {
+        (void) Pause(self);
+    }
 }
 
 static void RemoveDrive1Callback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
 {
     (void) RemoveDiskFromDrive1(self);
-    (void) Play(self);
-}
-
-/*
- * ---------------------------------------------------------------------------
- * Miscellaneous callbacks
- * ---------------------------------------------------------------------------
- */
-
-static void ExitCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
-{
-    (void) Exit(self);
 }
 
 /*
@@ -599,7 +601,9 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStr
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
-    XmString title = XmStringCreateLocalized(_("Legal Info ..."));
+    XmString title = XmStringCreateLocalized(_(
+        "Legal Info ..."
+    ));
     XmString message = XmStringCreateLocalized(_(
         "Amstrad has kindly given it's permission for it's copyrighted\n"
         "material to be redistributed but Amstrad retains it's copyright.\n\n"
@@ -629,7 +633,9 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStr
         message = (XmStringFree(message), NULL);
         title = (XmStringFree(title), NULL);
     }
-    (void) Pause(self);
+    /* pause */ {
+        (void) Pause(self);
+    }
 }
 
 /*
@@ -642,9 +648,11 @@ static void AboutCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStr
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
-    XmString title = XmStringCreateLocalized(_("About Xcpc ..."));
+    XmString title = XmStringCreateLocalized(_(
+        "About Xcpc ..."
+    ));
     XmString message = XmStringCreateLocalized(_(
-        PACKAGE_STRING " - Amstrad CPC Emulator - Copyright (c) 2001-2021 - Olivier Poncet\n\n"
+        PACKAGE_STRING " - Amstrad CPC emulator - Copyright (c) 2001-2021 - Olivier Poncet\n\n"
         "This program is free software: you can redistribute it and/or modify\n"
         "it under the terms of the GNU General Public License as published by\n"
         "the Free Software Foundation, either version 2 of the License, or\n"
@@ -677,7 +685,9 @@ static void AboutCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStr
         message = (XmStringFree(message), NULL);
         title = (XmStringFree(title), NULL);
     }
-    (void) Pause(self);
+    /* pause */ {
+        (void) Pause(self);
+    }
 }
 
 /*
@@ -764,7 +774,7 @@ static XcpcApplication* BuildCtrlMenu(XcpcApplication* self)
         XtAddCallback(menu->pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* ctrl-pause-emu */ {
-        XmString string = XmStringCreateLocalized(_("Play / Pause"));
+        XmString string = XmStringCreateLocalized(_("Play/Pause"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.null_icon); ++argcount;
@@ -1107,21 +1117,12 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
         XtGetApplicationResources(self->layout.toplevel, (XtPointer) &self->resources, application_resources, XtNumber(application_resources), arglist, argcount);
     }
     /* get application name and class */ {
-        XtGetApplicationNameAndClass(XtDisplay(self->layout.toplevel), &self->resources.appname, &self->resources.appclass);
-    }
-    /* check command-line flags */ {
-        if(self->resources.quiet_flag != FALSE) {
-            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_QUIET);
-        }
-        if(self->resources.trace_flag != FALSE) {
-            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_TRACE);
-        }
-        if(self->resources.debug_flag != FALSE) {
-            (void) xcpc_set_loglevel(XCPC_LOGLEVEL_DEBUG);
-        }
+        XtGetApplicationNameAndClass(XtDisplay(self->layout.toplevel), &self->resources.app_name, &self->resources.app_class);
     }
     /* build user interface */ {
         (void) BuildLayout(self);
+    }
+    /* play */ {
         (void) Play(self);
     }
     return self;

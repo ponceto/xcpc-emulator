@@ -43,8 +43,8 @@ typedef struct _XcpcApplicationRec XcpcApplicationRec;
 
 struct _XcpcResourcesRec
 {
-    String  appname;
-    String  appclass;
+    String  app_name;
+    String  app_class;
     Boolean quiet_flag;
     Boolean trace_flag;
     Boolean debug_flag;

@@ -18,7 +18,11 @@
 #define __XCPC_ATHENA_PRIV_H__
 
 #include <X11/Intrinsic.h>
+#include <X11/Xaw/XawInit.h>
 #include <X11/Xaw/Box.h>
+#include <X11/Xaw/Form.h>
+#include <X11/Xaw/Paned.h>
+#include <X11/Xaw/Viewport.h>
 #include <X11/Xaw/MenuButton.h>
 #include <X11/Xaw/SimpleMenu.h>
 #include <X11/Xaw/SmeBSB.h>
@@ -36,45 +40,82 @@ extern "C" {
 #endif
 
 typedef struct _XcpcResourcesRec   XcpcResourcesRec;
+typedef struct _XcpcFileMenuRec    XcpcFileMenuRec;
+typedef struct _XcpcDrv0MenuRec    XcpcDrv0MenuRec;
+typedef struct _XcpcDrv1MenuRec    XcpcDrv1MenuRec;
+typedef struct _XcpcCtrlMenuRec    XcpcCtrlMenuRec;
+typedef struct _XcpcHelpMenuRec    XcpcHelpMenuRec;
 typedef struct _XcpcLayoutRec      XcpcLayoutRec;
+typedef struct _XcpcMenuBarRec     XcpcMenuBarRec;
 typedef struct _XcpcApplicationRec XcpcApplicationRec;
 
 struct _XcpcResourcesRec
 {
-    String  appname;
-    String  appclass;
+    String  app_name;
+    String  app_class;
     Boolean quiet_flag;
     Boolean trace_flag;
     Boolean debug_flag;
 };
 
-struct _XcpcLayoutRec
+struct _XcpcFileMenuRec
 {
-    Widget toplevel;
-    Widget main_wnd;
-    Widget menu_bar;
-    Widget file_menu;
-    Widget file_pldn;
+    Widget menu;
+    Widget pulldown;
     Widget load_snapshot;
     Widget save_snapshot;
     Widget separator1;
-    Widget drivea_insert;
-    Widget drivea_eject;
-    Widget separator2;
-    Widget driveb_insert;
-    Widget driveb_eject;
-    Widget separator3;
-    Widget exit_emulator;
-    Widget ctrl_menu;
-    Widget ctrl_pldn;
-    Widget pause_emu;
-    Widget reset_emu;
-    Widget help_menu;
-    Widget help_pldn;
-    Widget legal_info;
-    Widget separator4;
-    Widget about_xcpc;
+    Widget exit;
+};
+
+struct _XcpcDrv0MenuRec
+{
+    Widget menu;
+    Widget pulldown;
+    Widget drive0_insert;
+    Widget drive0_remove;
+};
+
+struct _XcpcDrv1MenuRec
+{
+    Widget menu;
+    Widget pulldown;
+    Widget drive1_insert;
+    Widget drive1_remove;
+};
+
+struct _XcpcCtrlMenuRec
+{
+    Widget menu;
+    Widget pulldown;
+    Widget pause_emulator;
+    Widget reset_emulator;
+};
+
+struct _XcpcHelpMenuRec
+{
+    Widget menu;
+    Widget pulldown;
+    Widget legal;
+    Widget separator1;
+    Widget about;
+};
+
+struct _XcpcLayoutRec
+{
+    Widget toplevel;
+    Widget window;
     Widget emulator;
+};
+
+struct _XcpcMenuBarRec
+{
+    Widget widget;
+    XcpcFileMenuRec file;
+    XcpcCtrlMenuRec ctrl;
+    XcpcDrv0MenuRec drv0;
+    XcpcDrv1MenuRec drv1;
+    XcpcHelpMenuRec help;
 };
 
 struct _XcpcApplicationRec
@@ -83,6 +124,7 @@ struct _XcpcApplicationRec
     XtAppContext     appcontext;
     XcpcResourcesRec resources;
     XcpcLayoutRec    layout;
+    XcpcMenuBarRec   menubar;
 };
 
 #ifdef __cplusplus
