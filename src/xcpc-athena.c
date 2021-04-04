@@ -45,6 +45,7 @@ static XrmOptionDescRec options[] = {
  */
 
 static String fallback_resources[] = {
+    ".pixmapFilePath: " XCPC_RESDIR "/bitmaps",
     "Xcpc*title: Xcpc - Amstrad CPC emulator",
     "Xcpc*menubar.borderWidth: 0",
     "Xcpc*menubar.?.borderWidth: 0",
