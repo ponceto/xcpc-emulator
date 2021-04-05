@@ -82,7 +82,7 @@ struct _XcpcScanline
     uint8_t data[1024];
 };
 
-#define XCPC_MONITOR_TOTAL_WIDTH  832
+#define XCPC_MONITOR_TOTAL_WIDTH  1024
 #define XCPC_MONITOR_TOTAL_HEIGHT 625
 
 #define XCPC_MONITOR_VISIBLE_WIDTH  768
