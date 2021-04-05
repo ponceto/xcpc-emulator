@@ -34,18 +34,6 @@ dist_bitmaps_DATA = \
 	question-circle.png \
 	save.png \
 	sync.png \
-	xcpc-icon.xpm \
-	xcpc-mask.xpm \
-	eject.xpm \
-	empty.xpm \
-	folder-open.xpm \
-	info-circle.xpm \
-	pause.xpm \
-	play.xpm \
-	power-off.xpm \
-	question-circle.xpm \
-	save.xpm \
-	sync.xpm \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

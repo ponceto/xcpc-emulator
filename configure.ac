@@ -118,6 +118,7 @@ AC_CONFIG_FILES([
 	share/pixmaps/Makefile
 	share/xcpc/Makefile
 	share/xcpc/bitmaps/Makefile
+	share/xcpc/pixmaps/Makefile
 	share/xcpc/roms/Makefile
 	share/xcpc/disks/Makefile
 	share/xcpc/snapshots/Makefile

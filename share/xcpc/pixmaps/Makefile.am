@@ -16,15 +16,24 @@
 #
 
 # ----------------------------------------------------------------------------
-# SUBDIRS
+# bitmaps resources
 # ----------------------------------------------------------------------------
 
-SUBDIRS = \
-	bitmaps \
-	pixmaps \
-	roms \
-	disks \
-	snapshots \
+bitmapsdir = $(datadir)/@PACKAGE@/bitmaps
+
+dist_bitmaps_DATA = \
+	xcpc-icon.xpm \
+	xcpc-mask.xpm \
+	eject.xpm \
+	empty.xpm \
+	folder-open.xpm \
+	info-circle.xpm \
+	pause.xpm \
+	play.xpm \
+	power-off.xpm \
+	question-circle.xpm \
+	save.xpm \
+	sync.xpm \
 	$(NULL)
 
 # ----------------------------------------------------------------------------
