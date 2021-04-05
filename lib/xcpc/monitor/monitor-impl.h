@@ -53,8 +53,10 @@ struct _XcpcMonitorState
     Window   window;
     Colormap colormap;
     int      depth;
-    int      px;
-    int      py;
+    int      visible_x;
+    int      visible_y;
+    int      visible_w;
+    int      visible_h;
     Bool     try_xshm;
     Bool     has_xshm;
     Bool     use_xshm;
@@ -80,8 +82,11 @@ struct _XcpcScanline
     uint8_t data[1024];
 };
 
-#define XCPC_MONITOR_WIDTH  768
-#define XCPC_MONITOR_HEIGHT 576
+#define XCPC_MONITOR_TOTAL_WIDTH  832
+#define XCPC_MONITOR_TOTAL_HEIGHT 625
+
+#define XCPC_MONITOR_VISIBLE_WIDTH  768
+#define XCPC_MONITOR_VISIBLE_HEIGHT 576
 
 #ifdef __cplusplus
 }

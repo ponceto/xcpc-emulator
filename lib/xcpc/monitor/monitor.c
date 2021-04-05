@@ -107,19 +107,21 @@ static XcpcMonitor* init_attributes(XcpcMonitor* self, Display* display, Window 
         XWindowAttributes attributes;
         Status status = XGetWindowAttributes(display, window, &attributes);
         if(status != 0) {
-            self->state.display  = display;
-            self->state.screen   = attributes.screen;
-            self->state.visual   = attributes.visual;
-            self->state.image    = NULL;
-            self->state.gc       = DefaultGCOfScreen(attributes.screen);
-            self->state.window   = window;
-            self->state.colormap = attributes.colormap;
-            self->state.depth    = attributes.depth;
-            self->state.px       = 0;
-            self->state.py       = 0;
-            self->state.try_xshm = try_xshm;
-            self->state.has_xshm = False;
-            self->state.use_xshm = False;
+            self->state.display   = display;
+            self->state.screen    = attributes.screen;
+            self->state.visual    = attributes.visual;
+            self->state.image     = NULL;
+            self->state.gc        = DefaultGCOfScreen(attributes.screen);
+            self->state.window    = window;
+            self->state.colormap  = attributes.colormap;
+            self->state.depth     = attributes.depth;
+            self->state.visible_x = 0;
+            self->state.visible_y = 0;
+            self->state.visible_w = XCPC_MONITOR_VISIBLE_WIDTH;
+            self->state.visible_h = XCPC_MONITOR_VISIBLE_HEIGHT;
+            self->state.try_xshm  = try_xshm;
+            self->state.has_xshm  = False;
+            self->state.use_xshm  = False;
         }
         if(status != 0) {
             if(self->state.try_xshm != False) {
@@ -135,19 +137,21 @@ static XcpcMonitor* fini_attributes(XcpcMonitor* self)
     log_trace("fini");
 
     /* clear attributes */ {
-        self->state.display  = NULL;
-        self->state.screen   = NULL;
-        self->state.visual   = NULL;
-        self->state.image    = NULL;
-        self->state.gc       = NULL;
-        self->state.window   = None;
-        self->state.colormap = None;
-        self->state.depth    = 0;
-        self->state.px       = 0;
-        self->state.py       = 0;
-        self->state.try_xshm = False;
-        self->state.has_xshm = False;
-        self->state.use_xshm = False;
+        self->state.display   = NULL;
+        self->state.screen    = NULL;
+        self->state.visual    = NULL;
+        self->state.image     = NULL;
+        self->state.gc        = NULL;
+        self->state.window    = None;
+        self->state.colormap  = None;
+        self->state.depth     = 0;
+        self->state.visible_x = 0;
+        self->state.visible_y = 0;
+        self->state.visible_w = 0;
+        self->state.visible_h = 0;
+        self->state.try_xshm  = False;
+        self->state.has_xshm  = False;
+        self->state.use_xshm  = False;
     }
     return self;
 }
@@ -168,8 +172,8 @@ static XcpcMonitor* init_image(XcpcMonitor* self)
                                                        , self->state.visual
                                                        , self->state.depth
                                                        , ZPixmap
-                                                       , XCPC_MONITOR_WIDTH
-                                                       , XCPC_MONITOR_HEIGHT );
+                                                       , XCPC_MONITOR_TOTAL_WIDTH
+                                                       , XCPC_MONITOR_TOTAL_HEIGHT );
                 if(self->state.image != NULL) {
                     self->state.use_xshm = XcpcAttachShmImage(self->state.display, self->state.image);
                     if(self->state.use_xshm == False) {
@@ -185,16 +189,16 @@ static XcpcMonitor* init_image(XcpcMonitor* self)
                                                 , self->state.visual
                                                 , self->state.depth
                                                 , ZPixmap
-                                                , XCPC_MONITOR_WIDTH
-                                                , XCPC_MONITOR_HEIGHT );
+                                                , XCPC_MONITOR_TOTAL_WIDTH
+                                                , XCPC_MONITOR_TOTAL_HEIGHT );
         }
     }
     /* resize window */ {
         if(self->state.image != NULL) {
             (void) XResizeWindow ( self->state.display
                                  , self->state.window
-                                 , self->state.image->width
-                                 , self->state.image->height );
+                                 , self->state.visible_w
+                                 , self->state.visible_h );
         }
     }
     return self;
@@ -342,19 +346,21 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
         (void) xcpc_monitor_set_iface(self, NULL);
     }
     /* init attributes */ {
-        self->state.display  = NULL;
-        self->state.screen   = NULL;
-        self->state.visual   = NULL;
-        self->state.image    = NULL;
-        self->state.gc       = NULL;
-        self->state.window   = None;
-        self->state.colormap = None;
-        self->state.depth    = 0;
-        self->state.px       = 0;
-        self->state.py       = 0;
-        self->state.try_xshm = False;
-        self->state.has_xshm = False;
-        self->state.use_xshm = False;
+        self->state.display   = NULL;
+        self->state.screen    = NULL;
+        self->state.visual    = NULL;
+        self->state.image     = NULL;
+        self->state.gc        = NULL;
+        self->state.window    = None;
+        self->state.colormap  = None;
+        self->state.depth     = 0;
+        self->state.visible_x = 0;
+        self->state.visible_y = 0;
+        self->state.visible_w = 0;
+        self->state.visible_h = 0;
+        self->state.try_xshm  = False;
+        self->state.has_xshm  = False;
+        self->state.use_xshm  = False;
     }
     /* init palette1 */ {
         int color_index = 0;
@@ -463,6 +469,12 @@ XcpcMonitor* xcpc_monitor_put_image(XcpcMonitor* self)
     GC       gc      = self->state.gc;
 
     /* blit the image */ {
+        const int img_w = self->state.visible_w;
+        const int img_h = self->state.visible_h;
+        const int src_x = ((image->width  - img_w) >> 1);
+        const int src_y = ((image->height - img_h) >> 1);
+        const int dst_x = self->state.visible_x;
+        const int dst_y = self->state.visible_y;
         if((display != NULL)
         && (window  != None)
         && (image   != NULL)) {
@@ -471,12 +483,12 @@ XcpcMonitor* xcpc_monitor_put_image(XcpcMonitor* self)
                                 , window
                                 , gc
                                 , image
-                                , 0
-                                , 0
-                                , self->state.px
-                                , self->state.py
-                                , image->width
-                                , image->height
+                                , src_x
+                                , src_y
+                                , dst_x
+                                , dst_y
+                                , img_w
+                                , img_h
                                 , self->state.use_xshm
                                 , False );
             (void) XFlush(display);
@@ -499,60 +511,60 @@ XcpcMonitor* xcpc_monitor_expose(XcpcMonitor* self, XExposeEvent* event)
         }
     }
     /* expose */ {
-        XcpcMonitorArea area1;
-        XcpcMonitorArea area2;
-        /* init area1 */ {
-            area1.x1 = self->state.px;
-            area1.y1 = self->state.py;
-            area1.x2 = ((area1.x1 + image->width ) - 1);
-            area1.y2 = ((area1.y1 + image->height) - 1);
+        XcpcMonitorArea monitor;
+        XcpcMonitorArea refresh;
+        /* init monitor area */ {
+            monitor.x1 = self->state.visible_x;
+            monitor.y1 = self->state.visible_y;
+            monitor.x2 = ((monitor.x1 + self->state.visible_w) - 1);
+            monitor.y2 = ((monitor.y1 + self->state.visible_h) - 1);
         }
-        /* init area2 */ {
-            area2.x1 = event->x;
-            area2.y1 = event->y;
-            area2.x2 = ((area2.x1 + event->width ) - 1);
-            area2.y2 = ((area2.y1 + event->height) - 1);
+        /* init refresh area */ {
+            refresh.x1 = event->x;
+            refresh.y1 = event->y;
+            refresh.x2 = ((refresh.x1 + event->width ) - 1);
+            refresh.y2 = ((refresh.y1 + event->height) - 1);
         }
-        /* intersect areas */ {
-            if((area2.x1 > area1.x2)
-            || (area2.x2 < area1.x1)
-            || (area2.y1 > area1.y2)
-            || (area2.y2 < area1.y1)) {
-                (void) XClearArea ( display
-                                  , window
-                                  , area2.x1
-                                  , area2.y1
-                                  , ((area2.x2 - area2.x1) + 1)
-                                  , ((area2.y2 - area2.y1) + 1)
-                                  , False );
-                (void) XFlush(display);
+        /* intersect both areas */ {
+            if((refresh.x1 > monitor.x2)
+            || (refresh.x2 < monitor.x1)
+            || (refresh.y1 > monitor.y2)
+            || (refresh.y2 < monitor.y1)) {
                 return self;
             }
-            if(area2.x1 < area1.x1) {
-                area2.x1 = area1.x1;
+            if(refresh.x1 < monitor.x1) {
+                refresh.x1 = monitor.x1;
             }
-            if(area2.x2 > area1.x2) {
-                area2.x2 = area1.x2;
+            if(refresh.x2 > monitor.x2) {
+                refresh.x2 = monitor.x2;
             }
-            if(area2.y1 < area1.y1) {
-                area2.y1 = area1.y1;
+            if(refresh.y1 < monitor.y1) {
+                refresh.y1 = monitor.y1;
             }
-            if(area2.y2 > area1.y2) {
-                area2.y2 = area1.y2;
+            if(refresh.y2 > monitor.y2) {
+                refresh.y2 = monitor.y2;
             }
         }
         /* put image */ {
+            const int src_w = self->state.visible_w;
+            const int src_h = self->state.visible_h;
+            const int src_x = ((image->width  - src_w) >> 1) + (refresh.x1 - self->state.visible_x);
+            const int src_y = ((image->height - src_h) >> 1) + (refresh.y1 - self->state.visible_y);
+            const int dst_w = ((refresh.x2 - refresh.x1) + 1);
+            const int dst_h = ((refresh.y2 - refresh.y1) + 1);
+            const int dst_x = refresh.x1;
+            const int dst_y = refresh.y1;
             (void) XSync(display, False);
             (void) XcpcPutImage ( display
                                 , window
                                 , gc
                                 , image
-                                , area2.x1 - self->state.px
-                                , area2.y1 - self->state.py
-                                , area2.x1
-                                , area2.y1
-                                , ((area2.x2 - area2.x1) + 1)
-                                , ((area2.y2 - area2.y1) + 1)
+                                , src_x
+                                , src_y
+                                , dst_x
+                                , dst_y
+                                , dst_w
+                                , dst_h
                                 , self->state.use_xshm
                                 , False );
             (void) XFlush(display);
@@ -565,20 +577,24 @@ XcpcMonitor* xcpc_monitor_resize(XcpcMonitor* self, XConfigureEvent* event)
 {
     log_trace("resize");
     /* resize */ {
-        /* compute px */ {
-            if(event->width >= self->state.image->width) {
-                self->state.px = +((event->width - self->state.image->width) / 2);
+        /* compute visible_x */ {
+            const int event_width   = event->width;
+            const int visible_width = self->state.visible_w;
+            if(event_width >= visible_width) {
+                self->state.visible_x = +((event_width - visible_width) / 2);
             }
             else {
-                self->state.px = -((self->state.image->width - event->width) / 2);
+                self->state.visible_x = -((visible_width - event_width) / 2);
             }
         }
-        /* compute py */ {
-            if(event->height >= self->state.image->height) {
-                self->state.py = +((event->height - self->state.image->height) / 2);
+        /* compute visible_y */ {
+            const int event_height   = event->height;
+            const int visible_height = self->state.visible_h;
+            if(event_height >= visible_height) {
+                self->state.visible_y = +((event_height - visible_height) / 2);
             }
             else {
-                self->state.py = -((self->state.image->height - event->height) / 2);
+                self->state.visible_y = -((visible_height - event_height) / 2);
             }
         }
     }

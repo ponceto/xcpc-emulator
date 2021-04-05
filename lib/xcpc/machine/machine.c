@@ -592,11 +592,11 @@ static void paint_08bpp(XcpcMachine* self)
     XcpcVgaCore* vga_core = self->board.vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
+    unsigned int hp = ((XCPC_MONITOR_TOTAL_WIDTH >> 0) - (hd << 4)) >> 1;
     unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
+    unsigned int vp = ((XCPC_MONITOR_TOTAL_HEIGHT >> 1) - (vd * mr)) >> 1;
     XcpcScanline* scanline = self->frame.scanline_array;
     uint8_t* dst = (uint8_t*) monitor->state.image->data;
     uint8_t* nxt = dst;
@@ -609,10 +609,10 @@ static void paint_08bpp(XcpcMachine* self)
 
     scanline = &self->frame.scanline_array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
-        nxt += XCPC_MONITOR_WIDTH;
+        nxt += XCPC_MONITOR_TOTAL_WIDTH;
         pixel1 = scanline->color[16].pixel1;
         pixel2 = scanline->color[16].pixel2;
-        for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
+        for(cx = 0; cx < XCPC_MONITOR_TOTAL_WIDTH; cx++) {
             *dst++ = pixel1;
             *nxt++ = pixel2;
         }
@@ -621,7 +621,7 @@ static void paint_08bpp(XcpcMachine* self)
     scanline = &self->frame.scanline_array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
-            nxt += XCPC_MONITOR_WIDTH;
+            nxt += XCPC_MONITOR_TOTAL_WIDTH;
             switch(scanline->mode) {
                 case 0x00: /* mode 0 */
                     {
@@ -937,10 +937,10 @@ static void paint_08bpp(XcpcMachine* self)
     }
     scanline = &self->frame.scanline_array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
-        nxt += XCPC_MONITOR_WIDTH;
+        nxt += XCPC_MONITOR_TOTAL_WIDTH;
         pixel1 = scanline->color[16].pixel1;
         pixel2 = scanline->color[16].pixel2;
-        for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
+        for(cx = 0; cx < XCPC_MONITOR_TOTAL_WIDTH; cx++) {
             *dst++ = pixel1;
             *nxt++ = pixel2;
         }
@@ -956,11 +956,11 @@ static void paint_16bpp(XcpcMachine* self)
     XcpcVgaCore* vga_core = self->board.vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
+    unsigned int hp = ((XCPC_MONITOR_TOTAL_WIDTH >> 0) - (hd << 4)) >> 1;
     unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
+    unsigned int vp = ((XCPC_MONITOR_TOTAL_HEIGHT >> 1) - (vd * mr)) >> 1;
     XcpcScanline* scanline = self->frame.scanline_array;
     uint16_t* dst = (uint16_t*) monitor->state.image->data;
     uint16_t* nxt = dst;
@@ -973,10 +973,10 @@ static void paint_16bpp(XcpcMachine* self)
 
     scanline = &self->frame.scanline_array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
-        nxt += XCPC_MONITOR_WIDTH;
+        nxt += XCPC_MONITOR_TOTAL_WIDTH;
         pixel1 = scanline->color[16].pixel1;
         pixel2 = scanline->color[16].pixel2;
-        for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
+        for(cx = 0; cx < XCPC_MONITOR_TOTAL_WIDTH; cx++) {
             *dst++ = pixel1;
             *nxt++ = pixel2;
         }
@@ -985,7 +985,7 @@ static void paint_16bpp(XcpcMachine* self)
     scanline = &self->frame.scanline_array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
-            nxt += XCPC_MONITOR_WIDTH;
+            nxt += XCPC_MONITOR_TOTAL_WIDTH;
             switch(scanline->mode) {
                 case 0x00: /* mode 0 */
                     {
@@ -1301,10 +1301,10 @@ static void paint_16bpp(XcpcMachine* self)
     }
     scanline = &self->frame.scanline_array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
-        nxt += XCPC_MONITOR_WIDTH;
+        nxt += XCPC_MONITOR_TOTAL_WIDTH;
         pixel1 = scanline->color[16].pixel1;
         pixel2 = scanline->color[16].pixel2;
-        for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
+        for(cx = 0; cx < XCPC_MONITOR_TOTAL_WIDTH; cx++) {
             *dst++ = pixel1;
             *nxt++ = pixel2;
         }
@@ -1320,11 +1320,11 @@ static void paint_32bpp(XcpcMachine* self)
     XcpcVgaCore* vga_core = self->board.vga_core;
     unsigned int sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
     unsigned int hd = (vdc_6845->state.regs.named.horizontal_displayed < 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int hp = ((XCPC_MONITOR_WIDTH >> 0) - (hd << 4)) >> 1;
+    unsigned int hp = ((XCPC_MONITOR_TOTAL_WIDTH >> 0) - (hd << 4)) >> 1;
     unsigned int mr = vdc_6845->state.regs.named.maximum_scanline_address + 1;
     unsigned int vt = vdc_6845->state.regs.named.vertical_total + 1;
     unsigned int vd = (vdc_6845->state.regs.named.vertical_displayed < 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int vp = ((XCPC_MONITOR_HEIGHT >> 1) - (vd * mr)) >> 1;
+    unsigned int vp = ((XCPC_MONITOR_TOTAL_HEIGHT >> 1) - (vd * mr)) >> 1;
     XcpcScanline* scanline = self->frame.scanline_array;
     uint32_t* dst = (uint32_t*) monitor->state.image->data;
     uint32_t* nxt = dst;
@@ -1337,10 +1337,10 @@ static void paint_32bpp(XcpcMachine* self)
 
     scanline = &self->frame.scanline_array[(vt * mr) - (1 * vp)];
     for(cy = 0; cy < vp; cy++) {
-        nxt += XCPC_MONITOR_WIDTH;
+        nxt += XCPC_MONITOR_TOTAL_WIDTH;
         pixel1 = scanline->color[16].pixel1;
         pixel2 = scanline->color[16].pixel2;
-        for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
+        for(cx = 0; cx < XCPC_MONITOR_TOTAL_WIDTH; cx++) {
             *dst++ = pixel1;
             *nxt++ = pixel2;
         }
@@ -1349,7 +1349,7 @@ static void paint_32bpp(XcpcMachine* self)
     scanline = &self->frame.scanline_array[6];
     for(cy = 0; cy < vd; cy++) {
         for(ra = 0; ra < mr; ra++) {
-            nxt += XCPC_MONITOR_WIDTH;
+            nxt += XCPC_MONITOR_TOTAL_WIDTH;
             switch(scanline->mode) {
                 case 0x00: /* mode 0 */
                     {
@@ -1665,10 +1665,10 @@ static void paint_32bpp(XcpcMachine* self)
     }
     scanline = &self->frame.scanline_array[(vd * mr) + (0 * vp)];
     for(cy = 0; cy < vp; cy++) {
-        nxt += XCPC_MONITOR_WIDTH;
+        nxt += XCPC_MONITOR_TOTAL_WIDTH;
         pixel1 = scanline->color[16].pixel1;
         pixel2 = scanline->color[16].pixel2;
-        for(cx = 0; cx < XCPC_MONITOR_WIDTH; cx++) {
+        for(cx = 0; cx < XCPC_MONITOR_TOTAL_WIDTH; cx++) {
             *dst++ = pixel1;
             *nxt++ = pixel2;
         }
