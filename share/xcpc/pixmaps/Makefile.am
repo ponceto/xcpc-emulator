@@ -16,12 +16,12 @@
 #
 
 # ----------------------------------------------------------------------------
-# bitmaps resources
+# pixmaps resources
 # ----------------------------------------------------------------------------
 
-bitmapsdir = $(datadir)/@PACKAGE@/bitmaps
+pixmapsdir = $(datadir)/@PACKAGE@/pixmaps
 
-dist_bitmaps_DATA = \
+dist_pixmaps_DATA = \
 	xcpc-icon.xpm \
 	xcpc-mask.xpm \
 	eject.xpm \
