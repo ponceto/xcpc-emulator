@@ -99,6 +99,7 @@ struct _XcpcCtrlMenuRec
 {
     Widget menu;
     Widget pulldown;
+    Widget play_emulator;
     Widget pause_emulator;
     Widget reset_emulator;
 };
@@ -134,6 +135,7 @@ struct _XcpcToolBarRec
     Widget widget;
     Widget load_snapshot;
     Widget save_snapshot;
+    Widget play_emulator;
     Widget pause_emulator;
     Widget reset_emulator;
 };

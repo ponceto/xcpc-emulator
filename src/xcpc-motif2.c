@@ -86,6 +86,20 @@ static XtResource application_resources[] = {
  * ---------------------------------------------------------------------------
  */
 
+static void ShowWidget(Widget widget)
+{
+    if(widget != NULL) {
+        XtManageChild(widget);
+    }
+}
+
+static void HideWidget(Widget widget)
+{
+    if(widget != NULL) {
+        XtUnmanageChild(widget);
+    }
+}
+
 static Widget FindShell(Widget widget)
 {
     while((widget != NULL) && (XtIsShell(widget) == FALSE)) {
@@ -176,23 +190,11 @@ static XcpcApplication* Exit(XcpcApplication* self)
 
 static XcpcApplication* Play(XcpcApplication* self)
 {
-    Arg      arglist[4];
-    Cardinal argcount = 0;
-
-    if(self->menubar.ctrl.pause_emulator != NULL) {
-        XmString string = XmStringCreateLocalized(_("Pause"));
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP_AND_STRING     ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_pause); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelString, string                  ); ++argcount;
-        XtSetValues(self->menubar.ctrl.pause_emulator, arglist, argcount);
-        string = (XmStringFree(string), NULL);
-    }
-    if(self->toolbar.pause_emulator != NULL) {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP                ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_pause); ++argcount;
-        XtSetValues(self->toolbar.pause_emulator, arglist, argcount);
+    /* show/hide controls */ {
+        HideWidget(self->menubar.ctrl.play_emulator);
+        ShowWidget(self->menubar.ctrl.pause_emulator);
+        HideWidget(self->toolbar.play_emulator);
+        ShowWidget(self->toolbar.pause_emulator);
     }
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, TRUE);
@@ -203,23 +205,11 @@ static XcpcApplication* Play(XcpcApplication* self)
 
 static XcpcApplication* Pause(XcpcApplication* self)
 {
-    Arg      arglist[4];
-    Cardinal argcount = 0;
-
-    if(self->menubar.ctrl.pause_emulator != NULL) {
-        XmString string = XmStringCreateLocalized(_("Play"));
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP_AND_STRING    ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_play); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelString, string                 ); ++argcount;
-        XtSetValues(self->menubar.ctrl.pause_emulator, arglist, argcount);
-        string = (XmStringFree(string), NULL);
-    }
-    if(self->toolbar.pause_emulator != NULL) {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP               ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_play); ++argcount;
-        XtSetValues(self->toolbar.pause_emulator, arglist, argcount);
+    /* show/hide controls */ {
+        ShowWidget(self->menubar.ctrl.play_emulator);
+        HideWidget(self->menubar.ctrl.pause_emulator);
+        ShowWidget(self->toolbar.play_emulator);
+        HideWidget(self->toolbar.pause_emulator);
     }
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, FALSE);
@@ -575,14 +565,14 @@ static void RemoveDrive1Callback(Widget widget, XcpcApplication* self, XmAnyCall
  * ---------------------------------------------------------------------------
  */
 
+static void PlayCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+{
+    (void) Play(self);
+}
+
 static void PauseCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
 {
-    if(XtIsSensitive(self->layout.emulator) != FALSE) {
-        (void) Pause(self);
-    }
-    else {
-        (void) Play(self);
-    }
+    (void) Pause(self);
 }
 
 static void ResetCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
@@ -773,11 +763,23 @@ static XcpcApplication* BuildCtrlMenu(XcpcApplication* self)
         menu->pulldown = XmCreatePulldownMenu(self->menubar.widget, "ctrl-pulldown", arglist, argcount);
         XtAddCallback(menu->pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
-    /* ctrl-pause-emu */ {
-        XmString string = XmStringCreateLocalized(_("Play/Pause"));
+    /* ctrl-play-emu */ {
+        XmString string = XmStringCreateLocalized(_("Play"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.null_icon); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_play); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        menu->play_emulator = XmCreatePushButtonGadget(menu->pulldown, "ctrl-play-emu", arglist, argcount);
+        XtAddCallback(menu->play_emulator, XmNactivateCallback, (XtCallbackProc) &PlayCallback, (XtPointer) self);
+        XtAddCallback(menu->play_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->play_emulator);
+        XtManageChild(menu->play_emulator);
+        string = (XmStringFree(string), NULL);
+    }
+    /* ctrl-pause-emu */ {
+        XmString string = XmStringCreateLocalized(_("Pause"));
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_pause); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
         menu->pause_emulator = XmCreatePushButtonGadget(menu->pulldown, "ctrl-pause-emu", arglist, argcount);
         XtAddCallback(menu->pause_emulator, XmNactivateCallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
@@ -1016,10 +1018,19 @@ static XcpcApplication* BuildToolBar(XcpcApplication* self)
         XtAddCallback(toolbar->save_snapshot, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->save_snapshot);
         XtManageChild(toolbar->save_snapshot);
     }
-    /* tool-pause-emu */ {
+    /* tool-play-emu */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP               ); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.null_icon); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_play); ++argcount;
+        toolbar->play_emulator = XmCreateCascadeButtonGadget(toolbar->widget, "tool-play-emu", arglist, argcount);
+        XtAddCallback(toolbar->play_emulator, XmNactivateCallback, (XtCallbackProc) &PlayCallback, (XtPointer) self);
+        XtAddCallback(toolbar->play_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->play_emulator);
+        XtManageChild(toolbar->play_emulator);
+    }
+    /* tool-pause-emu */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelType  , XmPIXMAP                ); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_pause); ++argcount;
         toolbar->pause_emulator = XmCreateCascadeButtonGadget(toolbar->widget, "tool-pause-emu", arglist, argcount);
         XtAddCallback(toolbar->pause_emulator, XmNactivateCallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
         XtAddCallback(toolbar->pause_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->pause_emulator);

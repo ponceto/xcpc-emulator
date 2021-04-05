@@ -45,7 +45,7 @@ static XrmOptionDescRec options[] = {
  */
 
 static String fallback_resources[] = {
-    ".pixmapFilePath: " XCPC_RESDIR "/bitmaps",
+    ".pixmapFilePath: " XCPC_RESDIR "/pixmaps",
     "Xcpc*title: Xcpc - Amstrad CPC emulator",
     "Xcpc*menubar.borderWidth: 0",
     "Xcpc*menubar.?.borderWidth: 0",
@@ -82,6 +82,20 @@ static XtResource application_resources[] = {
  * Toolkit utilities
  * ---------------------------------------------------------------------------
  */
+
+static void ShowWidget(Widget widget)
+{
+    if(widget != NULL) {
+        XtManageChild(widget);
+    }
+}
+
+static void HideWidget(Widget widget)
+{
+    if(widget != NULL) {
+        XtUnmanageChild(widget);
+    }
+}
 
 static Widget FindShell(Widget widget)
 {
@@ -128,13 +142,9 @@ static XcpcApplication* Exit(XcpcApplication* self)
 
 static XcpcApplication* Play(XcpcApplication* self)
 {
-    Arg      arglist[4];
-    Cardinal argcount = 0;
-
-    if(self->menubar.ctrl.pause_emulator != NULL) {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XtNlabel, _("Pause")); ++argcount;
-        XtSetValues(self->menubar.ctrl.pause_emulator, arglist, argcount);
+    /* show/hide controls */ {
+        HideWidget(self->menubar.ctrl.play_emulator);
+        ShowWidget(self->menubar.ctrl.pause_emulator);
     }
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, TRUE);
@@ -145,13 +155,9 @@ static XcpcApplication* Play(XcpcApplication* self)
 
 static XcpcApplication* Pause(XcpcApplication* self)
 {
-    Arg      arglist[4];
-    Cardinal argcount = 0;
-
-    if(self->menubar.ctrl.pause_emulator != NULL) {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XtNlabel, _("Play")); ++argcount;
-        XtSetValues(self->menubar.ctrl.pause_emulator, arglist, argcount);
+    /* show/hide controls */ {
+        ShowWidget(self->menubar.ctrl.play_emulator);
+        HideWidget(self->menubar.ctrl.pause_emulator);
     }
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, FALSE);
@@ -580,14 +586,14 @@ static void ExitCallback(Widget widget, XcpcApplication* self, XtPointer info)
  * ---------------------------------------------------------------------------
  */
 
+static void PlayCallback(Widget widget, XcpcApplication* self, XtPointer info)
+{
+    (void) Play(self);
+}
+
 static void PauseCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
-    if(XtIsSensitive(self->layout.emulator) != FALSE) {
-        (void) Pause(self);
-    }
-    else {
-        (void) Play(self);
-    }
+    (void) Pause(self);
 }
 
 static void ResetCallback(Widget widget, XcpcApplication* self, XtPointer info)
@@ -786,9 +792,17 @@ static XcpcApplication* BuildCtrlMenu(XcpcApplication* self)
         self->menubar.ctrl.pulldown = XtCreatePopupShell("ctrl-pulldown", simpleMenuWidgetClass, self->menubar.ctrl.menu, arglist, argcount);
         XtAddCallback(self->menubar.ctrl.pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.ctrl.pulldown);
     }
+    /* ctrl-play-emu */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Play")); ++argcount;
+        self->menubar.ctrl.play_emulator = XtCreateWidget("ctrl-play-emu", smeBSBObjectClass, self->menubar.ctrl.pulldown, arglist, argcount);
+        XtAddCallback(self->menubar.ctrl.play_emulator, XtNcallback, (XtCallbackProc) &PlayCallback, (XtPointer) self);
+        XtAddCallback(self->menubar.ctrl.play_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.ctrl.play_emulator);
+        XtManageChild(self->menubar.ctrl.play_emulator);
+    }
     /* ctrl-pause-emu */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNlabel, _("Play/Pause")); ++argcount;
+        XtSetArg(arglist[argcount], XtNlabel, _("Pause")); ++argcount;
         self->menubar.ctrl.pause_emulator = XtCreateWidget("ctrl-pause-emu", smeBSBObjectClass, self->menubar.ctrl.pulldown, arglist, argcount);
         XtAddCallback(self->menubar.ctrl.pause_emulator, XtNcallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
         XtAddCallback(self->menubar.ctrl.pause_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.ctrl.pause_emulator);
