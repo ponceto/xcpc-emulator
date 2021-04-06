@@ -117,9 +117,10 @@ struct _XcpcMachinePager
 
 struct _XcpcMachineFrame
 {
-    XcpcScanline scanline_array[312];
-    unsigned int scanline_index;
+    XcpcScanline scanline_array[576];
     unsigned int scanline_count;
+    unsigned int beam_x;
+    unsigned int beam_y;
     unsigned int rate;
     unsigned int duration;
     unsigned int cpu_ticks;

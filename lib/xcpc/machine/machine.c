@@ -425,7 +425,15 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
     XcpcVgaCore* vga_core = self->board.vga_core;
 
-    if((self->state.hsync = hsync) == 0) {
+    if((self->state.hsync = hsync) != 0) {
+        const unsigned int last_scanline = countof(self->frame.scanline_array) - 1;
+        /* rising edge */ {
+            if(++self->frame.beam_y > last_scanline) {
+                self->frame.beam_y = last_scanline;
+            }
+        }
+    }
+    else {
         /* falling edge */ {
             if(++vga_core->state.counter == 52) {
                 xcpc_cpu_z80a_pulse_int(cpu_z80a);
@@ -440,7 +448,7 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                 }
             }
             /* update scanline */ {
-                XcpcScanline* scanline = &self->frame.scanline_array[(self->frame.scanline_index + 1) % 312];
+                XcpcScanline* scanline = &self->frame.scanline_array[self->frame.beam_y];
                 /* update mode */ {
                     scanline->mode = vga_core->state.rmr & 0x03;
                 }
@@ -454,11 +462,6 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                     } while(++index < 17);
                 }
             }
-        }
-    }
-    else {
-        /* rising edge */ {
-            self->frame.scanline_index += 1;
         }
     }
     return 0x00;
@@ -475,7 +478,7 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
     }
     else {
         /* falling edge */ {
-            self->frame.scanline_index &= 0;
+            self->frame.beam_y &= 0;
         }
     }
     return 0x00;
@@ -2103,8 +2106,9 @@ static void reset_pager(XcpcMachine* self)
 
 static void construct_frame(XcpcMachine* self)
 {
-    self->frame.scanline_index = 0;
     self->frame.scanline_count = 0;
+    self->frame.beam_x         = 0;
+    self->frame.beam_y         = 0;
     self->frame.rate           = 0;
     self->frame.duration       = 0;
     self->frame.cpu_ticks      = 0;
@@ -2116,8 +2120,9 @@ static void destruct_frame(XcpcMachine* self)
 
 static void reset_frame(XcpcMachine* self)
 {
-    self->frame.scanline_index &= 0; /* clear value  */
     self->frame.scanline_count |= 0; /* don't modify */
+    self->frame.beam_x         &= 0; /* clear value  */
+    self->frame.beam_y         &= 0; /* clear value  */
     self->frame.rate           |= 0; /* don't modify */
     self->frame.duration       |= 0; /* don't modify */
     self->frame.cpu_ticks      |= 0; /* don't modify */
@@ -2498,7 +2503,8 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
                 self->frame.rate           = 50;
                 self->frame.duration       = 20000;
                 self->frame.scanline_count = 312;
-                self->frame.scanline_index = 0;
+                self->frame.beam_x         = 0;
+                self->frame.beam_y         = 0;
                 self->frame.cpu_ticks      = (int) (4000000.0 / (50.0 * 312.5));
                 break;
             case XCPC_REFRESH_RATE_60HZ:
@@ -2507,7 +2513,8 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
                 self->frame.rate           = 60;
                 self->frame.duration       = 16667;
                 self->frame.scanline_count = 262;
-                self->frame.scanline_index = 0;
+                self->frame.beam_x         = 0;
+                self->frame.beam_y         = 0;
                 self->frame.cpu_ticks      = (int) (4000000.0 / (60.0 * 262.5));
                 break;
             default:
