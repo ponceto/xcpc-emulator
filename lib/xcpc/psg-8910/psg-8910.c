@@ -41,6 +41,71 @@ static uint8_t default_wr_handler(XcpcPsg8910* self, uint8_t data)
     return data;
 }
 
+static void reset_setup(XcpcPsg8910* self)
+{
+    /* reset caps_of */ {
+        self->setup.caps_of.addr       = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x00] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x01] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x02] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x03] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x04] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x05] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x06] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x07] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x08] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x09] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0a] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0b] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0c] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0d] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0e] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0f] = (REG_READABLE | REG_WRITABLE);
+    }
+    /* reset mask_of */ {
+        self->setup.mask_of.addr       = 0xff;
+        self->setup.mask_of.data[0x00] = 0xff;
+        self->setup.mask_of.data[0x01] = 0x0f;
+        self->setup.mask_of.data[0x02] = 0xff;
+        self->setup.mask_of.data[0x03] = 0x0f;
+        self->setup.mask_of.data[0x04] = 0xff;
+        self->setup.mask_of.data[0x05] = 0x0f;
+        self->setup.mask_of.data[0x06] = 0x1f;
+        self->setup.mask_of.data[0x07] = 0xff;
+        self->setup.mask_of.data[0x08] = 0x1f;
+        self->setup.mask_of.data[0x09] = 0x1f;
+        self->setup.mask_of.data[0x0a] = 0x1f;
+        self->setup.mask_of.data[0x0b] = 0xff;
+        self->setup.mask_of.data[0x0c] = 0xff;
+        self->setup.mask_of.data[0x0d] = 0x0f;
+        self->setup.mask_of.data[0x0e] = 0xff;
+        self->setup.mask_of.data[0x0f] = 0xff;
+    }
+}
+
+static void reset_state(XcpcPsg8910* self)
+{
+    /* reset internal registers */ {
+        self->state.regs.named.address_register      = 0x00;
+        self->state.regs.named.channel_a_fine_tune   = 0x00;
+        self->state.regs.named.channel_a_coarse_tune = 0x00;
+        self->state.regs.named.channel_b_fine_tune   = 0x00;
+        self->state.regs.named.channel_b_coarse_tune = 0x00;
+        self->state.regs.named.channel_c_fine_tune   = 0x00;
+        self->state.regs.named.channel_c_coarse_tune = 0x00;
+        self->state.regs.named.noise_period          = 0x00;
+        self->state.regs.named.mixer_and_io_control  = 0x00;
+        self->state.regs.named.channel_a_volume      = 0x00;
+        self->state.regs.named.channel_b_volume      = 0x00;
+        self->state.regs.named.channel_c_volume      = 0x00;
+        self->state.regs.named.envelope_fine_tune    = 0x00;
+        self->state.regs.named.envelope_coarse_tune  = 0x00;
+        self->state.regs.named.envelope_shape        = 0x00;
+        self->state.regs.named.io_port_a             = 0x00;
+        self->state.regs.named.io_port_b             = 0x00;
+    }
+}
+
 XcpcPsg8910* xcpc_psg_8910_alloc(void)
 {
     log_trace("alloc");
@@ -111,28 +176,37 @@ XcpcPsg8910* xcpc_psg_8910_set_iface(XcpcPsg8910* self, const XcpcPsg8910Iface* 
     return self;
 }
 
+XcpcPsg8910* xcpc_psg_8910_debug(XcpcPsg8910* self)
+{
+    /* debug state */ {
+        xcpc_log_debug("psg_8910.address_register      = 0x%02x", self->state.regs.named.address_register     );
+        xcpc_log_debug("psg_8910.channel_a_fine_tune   = 0x%02x", self->state.regs.named.channel_a_fine_tune  );
+        xcpc_log_debug("psg_8910.channel_a_coarse_tune = 0x%02x", self->state.regs.named.channel_a_coarse_tune);
+        xcpc_log_debug("psg_8910.channel_b_fine_tune   = 0x%02x", self->state.regs.named.channel_b_fine_tune  );
+        xcpc_log_debug("psg_8910.channel_b_coarse_tune = 0x%02x", self->state.regs.named.channel_b_coarse_tune);
+        xcpc_log_debug("psg_8910.channel_c_fine_tune   = 0x%02x", self->state.regs.named.channel_c_fine_tune  );
+        xcpc_log_debug("psg_8910.channel_c_coarse_tune = 0x%02x", self->state.regs.named.channel_c_coarse_tune);
+        xcpc_log_debug("psg_8910.noise_period          = 0x%02x", self->state.regs.named.noise_period         );
+        xcpc_log_debug("psg_8910.mixer_and_io_control  = 0x%02x", self->state.regs.named.mixer_and_io_control );
+        xcpc_log_debug("psg_8910.channel_a_volume      = 0x%02x", self->state.regs.named.channel_a_volume     );
+        xcpc_log_debug("psg_8910.channel_b_volume      = 0x%02x", self->state.regs.named.channel_b_volume     );
+        xcpc_log_debug("psg_8910.channel_c_volume      = 0x%02x", self->state.regs.named.channel_c_volume     );
+        xcpc_log_debug("psg_8910.envelope_fine_tune    = 0x%02x", self->state.regs.named.envelope_fine_tune   );
+        xcpc_log_debug("psg_8910.envelope_coarse_tune  = 0x%02x", self->state.regs.named.envelope_coarse_tune );
+        xcpc_log_debug("psg_8910.envelope_shape        = 0x%02x", self->state.regs.named.envelope_shape       );
+        xcpc_log_debug("psg_8910.io_port_a             = 0x%02x", self->state.regs.named.io_port_a            );
+        xcpc_log_debug("psg_8910.io_port_b             = 0x%02x", self->state.regs.named.io_port_b            );
+    }
+    return self;
+}
+
 XcpcPsg8910* xcpc_psg_8910_reset(XcpcPsg8910* self)
 {
     log_trace("reset");
 
-    /* reset state */ {
-        self->state.regs.named.address_register      = DEFAULT_VALUE_OF_ADDRESS_REGISTER;
-        self->state.regs.named.channel_a_fine_tune   = DEFAULT_VALUE_OF_CHANNEL_A_FINE_TUNE;
-        self->state.regs.named.channel_a_coarse_tune = DEFAULT_VALUE_OF_CHANNEL_A_COARSE_TUNE;
-        self->state.regs.named.channel_b_fine_tune   = DEFAULT_VALUE_OF_CHANNEL_B_FINE_TUNE;
-        self->state.regs.named.channel_b_coarse_tune = DEFAULT_VALUE_OF_CHANNEL_B_COARSE_TUNE;
-        self->state.regs.named.channel_c_fine_tune   = DEFAULT_VALUE_OF_CHANNEL_C_FINE_TUNE;
-        self->state.regs.named.channel_c_coarse_tune = DEFAULT_VALUE_OF_CHANNEL_C_COARSE_TUNE;
-        self->state.regs.named.noise_period          = DEFAULT_VALUE_OF_NOISE_PERIOD;
-        self->state.regs.named.mixer_and_io_control  = DEFAULT_VALUE_OF_MIXER_AND_IO_CONTROL;
-        self->state.regs.named.channel_a_volume      = DEFAULT_VALUE_OF_CHANNEL_A_VOLUME;
-        self->state.regs.named.channel_b_volume      = DEFAULT_VALUE_OF_CHANNEL_B_VOLUME;
-        self->state.regs.named.channel_c_volume      = DEFAULT_VALUE_OF_CHANNEL_C_VOLUME;
-        self->state.regs.named.envelope_fine_tune    = DEFAULT_VALUE_OF_ENVELOPE_FINE_TUNE;
-        self->state.regs.named.envelope_coarse_tune  = DEFAULT_VALUE_OF_ENVELOPE_COARSE_TUNE;
-        self->state.regs.named.envelope_shape        = DEFAULT_VALUE_OF_ENVELOPE_SHAPE;
-        self->state.regs.named.io_port_a             = DEFAULT_VALUE_OF_IO_PORT_A;
-        self->state.regs.named.io_port_b             = DEFAULT_VALUE_OF_IO_PORT_B;
+    /* reset */ {
+        reset_setup(self);
+        reset_state(self);
     }
     return self;
 }
@@ -144,228 +218,54 @@ XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
 
 uint8_t xcpc_psg_8910_rg(XcpcPsg8910* self, uint8_t data_bus)
 {
-    if(IS_READABLE_ADDRESS_REGISTER) {
-        data_bus = self->state.regs.named.address_register;
-        data_bus &= MASK_OF_ADDRESS_REGISTER;
+    uint8_t const is_readable   = (self->setup.caps_of.addr & REG_READABLE);
+    uint8_t const register_mask = (self->setup.mask_of.addr);
+    uint8_t*      register_addr = (&self->state.regs.named.address_register);
+
+    if(is_readable != 0) {
+        data_bus = (*register_addr &= register_mask);
     }
     return data_bus;
 }
 
 uint8_t xcpc_psg_8910_rs(XcpcPsg8910* self, uint8_t data_bus)
 {
-    if(IS_WRITABLE_ADDRESS_REGISTER) {
-        data_bus &= MASK_OF_ADDRESS_REGISTER;
-        self->state.regs.named.address_register = data_bus;
+    uint8_t const is_writable   = (self->setup.caps_of.addr & REG_WRITABLE);
+    uint8_t const register_mask = (self->setup.mask_of.addr);
+    uint8_t*      register_addr = (&self->state.regs.named.address_register);
+
+    if(is_writable != 0) {
+        *register_addr = (data_bus &= register_mask);
     }
     return data_bus;
 }
 
 uint8_t xcpc_psg_8910_rd(XcpcPsg8910* self, uint8_t data_bus)
 {
-    switch(self->state.regs.named.address_register) {
-        case INDEX_OF_CHANNEL_A_FINE_TUNE:
-            if(IS_READABLE_CHANNEL_A_FINE_TUNE) {
-                data_bus = self->state.regs.named.channel_a_fine_tune;
-                data_bus &= MASK_OF_CHANNEL_A_FINE_TUNE;
-            }
-            break;
-        case INDEX_OF_CHANNEL_A_COARSE_TUNE:
-            if(IS_READABLE_CHANNEL_A_COARSE_TUNE) {
-                data_bus = self->state.regs.named.channel_a_coarse_tune;
-                data_bus &= MASK_OF_CHANNEL_A_COARSE_TUNE;
-            }
-            break;
-        case INDEX_OF_CHANNEL_B_FINE_TUNE:
-            if(IS_READABLE_CHANNEL_B_FINE_TUNE) {
-                data_bus = self->state.regs.named.channel_b_fine_tune;
-                data_bus &= MASK_OF_CHANNEL_B_FINE_TUNE;
-            }
-            break;
-        case INDEX_OF_CHANNEL_B_COARSE_TUNE:
-            if(IS_READABLE_CHANNEL_B_COARSE_TUNE) {
-                data_bus = self->state.regs.named.channel_b_coarse_tune;
-                data_bus &= MASK_OF_CHANNEL_B_COARSE_TUNE;
-            }
-            break;
-        case INDEX_OF_CHANNEL_C_FINE_TUNE:
-            if(IS_READABLE_CHANNEL_C_FINE_TUNE) {
-                data_bus = self->state.regs.named.channel_c_fine_tune;
-                data_bus &= MASK_OF_CHANNEL_C_FINE_TUNE;
-            }
-            break;
-        case INDEX_OF_CHANNEL_C_COARSE_TUNE:
-            if(IS_READABLE_CHANNEL_C_COARSE_TUNE) {
-                data_bus = self->state.regs.named.channel_c_coarse_tune;
-                data_bus &= MASK_OF_CHANNEL_C_COARSE_TUNE;
-            }
-            break;
-        case INDEX_OF_NOISE_PERIOD:
-            if(IS_READABLE_NOISE_PERIOD) {
-                data_bus = self->state.regs.named.noise_period;
-                data_bus &= MASK_OF_NOISE_PERIOD;
-            }
-            break;
-        case INDEX_OF_MIXER_AND_IO_CONTROL:
-            if(IS_READABLE_MIXER_AND_IO_CONTROL) {
-                data_bus = self->state.regs.named.mixer_and_io_control;
-                data_bus &= MASK_OF_MIXER_AND_IO_CONTROL;
-            }
-            break;
-        case INDEX_OF_CHANNEL_A_VOLUME:
-            if(IS_READABLE_CHANNEL_A_VOLUME) {
-                data_bus = self->state.regs.named.channel_a_volume;
-                data_bus &= MASK_OF_CHANNEL_A_VOLUME;
-            }
-            break;
-        case INDEX_OF_CHANNEL_B_VOLUME:
-            if(IS_READABLE_CHANNEL_B_VOLUME) {
-                data_bus = self->state.regs.named.channel_b_volume;
-                data_bus &= MASK_OF_CHANNEL_B_VOLUME;
-            }
-            break;
-        case INDEX_OF_CHANNEL_C_VOLUME:
-            if(IS_READABLE_CHANNEL_C_VOLUME) {
-                data_bus = self->state.regs.named.channel_c_volume;
-                data_bus &= MASK_OF_CHANNEL_C_VOLUME;
-            }
-            break;
-        case INDEX_OF_ENVELOPE_FINE_TUNE:
-            if(IS_READABLE_ENVELOPE_FINE_TUNE) {
-                data_bus = self->state.regs.named.envelope_fine_tune;
-                data_bus &= MASK_OF_ENVELOPE_FINE_TUNE;
-            }
-            break;
-        case INDEX_OF_ENVELOPE_COARSE_TUNE:
-            if(IS_READABLE_ENVELOPE_COARSE_TUNE) {
-                data_bus = self->state.regs.named.envelope_coarse_tune;
-                data_bus &= MASK_OF_ENVELOPE_COARSE_TUNE;
-            }
-            break;
-        case INDEX_OF_ENVELOPE_SHAPE:
-            if(IS_READABLE_ENVELOPE_SHAPE) {
-                data_bus = self->state.regs.named.envelope_shape;
-                data_bus &= MASK_OF_ENVELOPE_SHAPE;
-            }
-            break;
-        case INDEX_OF_IO_PORT_A:
-            if(IS_READABLE_IO_PORT_A) {
-                data_bus = self->state.regs.named.io_port_a;
-                data_bus &= MASK_OF_IO_PORT_A;
-            }
-            break;
-        case INDEX_OF_IO_PORT_B:
-            if(IS_READABLE_IO_PORT_B) {
-                data_bus = self->state.regs.named.io_port_b;
-                data_bus &= MASK_OF_IO_PORT_B;
-            }
-            break;
-        default:
-            break;
+    const uint8_t address_register = self->state.regs.named.address_register;
+
+    if(address_register < PSG_REGISTER_COUNT) {
+        uint8_t const is_readable   = (self->setup.caps_of.data[address_register] & REG_READABLE);
+        uint8_t const register_mask = (self->setup.mask_of.data[address_register]);
+        uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
+        if(is_readable != 0) {
+            data_bus = (*register_addr &= register_mask);
+        }
     }
     return data_bus;
 }
 
 uint8_t xcpc_psg_8910_wr(XcpcPsg8910* self, uint8_t data_bus)
 {
-    switch(self->state.regs.named.address_register) {
-        case INDEX_OF_CHANNEL_A_FINE_TUNE:
-            if(IS_WRITABLE_CHANNEL_A_FINE_TUNE) {
-                data_bus &= MASK_OF_CHANNEL_A_FINE_TUNE;
-                self->state.regs.named.channel_a_fine_tune = data_bus;
-            }
-            break;
-        case INDEX_OF_CHANNEL_A_COARSE_TUNE:
-            if(IS_WRITABLE_CHANNEL_A_COARSE_TUNE) {
-                data_bus &= MASK_OF_CHANNEL_A_COARSE_TUNE;
-                self->state.regs.named.channel_a_coarse_tune = data_bus;
-            }
-            break;
-        case INDEX_OF_CHANNEL_B_FINE_TUNE:
-            if(IS_WRITABLE_CHANNEL_B_FINE_TUNE) {
-                data_bus &= MASK_OF_CHANNEL_B_FINE_TUNE;
-                self->state.regs.named.channel_b_fine_tune = data_bus;
-            }
-            break;
-        case INDEX_OF_CHANNEL_B_COARSE_TUNE:
-            if(IS_WRITABLE_CHANNEL_B_COARSE_TUNE) {
-                data_bus &= MASK_OF_CHANNEL_B_COARSE_TUNE;
-                self->state.regs.named.channel_b_coarse_tune = data_bus;
-            }
-            break;
-        case INDEX_OF_CHANNEL_C_FINE_TUNE:
-            if(IS_WRITABLE_CHANNEL_C_FINE_TUNE) {
-                data_bus &= MASK_OF_CHANNEL_C_FINE_TUNE;
-                self->state.regs.named.channel_c_fine_tune = data_bus;
-            }
-            break;
-        case INDEX_OF_CHANNEL_C_COARSE_TUNE:
-            if(IS_WRITABLE_CHANNEL_C_COARSE_TUNE) {
-                data_bus &= MASK_OF_CHANNEL_C_COARSE_TUNE;
-                self->state.regs.named.channel_c_coarse_tune = data_bus;
-            }
-            break;
-        case INDEX_OF_NOISE_PERIOD:
-            if(IS_WRITABLE_NOISE_PERIOD) {
-                data_bus &= MASK_OF_NOISE_PERIOD;
-                self->state.regs.named.noise_period = data_bus;
-            }
-            break;
-        case INDEX_OF_MIXER_AND_IO_CONTROL:
-            if(IS_WRITABLE_MIXER_AND_IO_CONTROL) {
-                data_bus &= MASK_OF_MIXER_AND_IO_CONTROL;
-                self->state.regs.named.mixer_and_io_control = data_bus;
-            }
-            break;
-        case INDEX_OF_CHANNEL_A_VOLUME:
-            if(IS_WRITABLE_CHANNEL_A_VOLUME) {
-                data_bus &= MASK_OF_CHANNEL_A_VOLUME;
-                self->state.regs.named.channel_a_volume = data_bus;
-            }
-            break;
-        case INDEX_OF_CHANNEL_B_VOLUME:
-            if(IS_WRITABLE_CHANNEL_B_VOLUME) {
-                data_bus &= MASK_OF_CHANNEL_B_VOLUME;
-                self->state.regs.named.channel_b_volume = data_bus;
-            }
-            break;
-        case INDEX_OF_CHANNEL_C_VOLUME:
-            if(IS_WRITABLE_CHANNEL_C_VOLUME) {
-                data_bus &= MASK_OF_CHANNEL_C_VOLUME;
-                self->state.regs.named.channel_c_volume = data_bus;
-            }
-            break;
-        case INDEX_OF_ENVELOPE_FINE_TUNE:
-            if(IS_WRITABLE_ENVELOPE_FINE_TUNE) {
-                data_bus &= MASK_OF_ENVELOPE_FINE_TUNE;
-                self->state.regs.named.envelope_fine_tune = data_bus;
-            }
-            break;
-        case INDEX_OF_ENVELOPE_COARSE_TUNE:
-            if(IS_WRITABLE_ENVELOPE_COARSE_TUNE) {
-                data_bus &= MASK_OF_ENVELOPE_COARSE_TUNE;
-                self->state.regs.named.envelope_coarse_tune = data_bus;
-            }
-            break;
-        case INDEX_OF_ENVELOPE_SHAPE:
-            if(IS_WRITABLE_ENVELOPE_SHAPE) {
-                data_bus &= MASK_OF_ENVELOPE_SHAPE;
-                self->state.regs.named.envelope_shape = data_bus;
-            }
-            break;
-        case INDEX_OF_IO_PORT_A:
-            if(IS_WRITABLE_IO_PORT_A) {
-                data_bus &= MASK_OF_IO_PORT_A;
-                self->state.regs.named.io_port_a = data_bus;
-            }
-            break;
-        case INDEX_OF_IO_PORT_B:
-            if(IS_WRITABLE_IO_PORT_B) {
-                data_bus &= MASK_OF_IO_PORT_B;
-                self->state.regs.named.io_port_b = data_bus;
-            }
-            break;
-        default:
-            break;
+    const uint8_t address_register = self->state.regs.named.address_register;
+
+    if(address_register < PSG_REGISTER_COUNT) {
+        uint8_t const is_writable   = (self->setup.caps_of.data[address_register] & REG_WRITABLE);
+        uint8_t const register_mask = (self->setup.mask_of.data[address_register]);
+        uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
+        if(is_writable != 0) {
+            *register_addr = (data_bus &= register_mask);
+        }
     }
     return data_bus;
 }

@@ -51,71 +51,71 @@ static uint8_t default_vsync_handler(XcpcVdc6845* self, int vsync)
 static void reset_setup(XcpcVdc6845* self)
 {
     /* reset caps_of */ {
-        self->setup.caps_of.addr       = (IS_READABLE_ADDRESS_REGISTER         | IS_WRITABLE_ADDRESS_REGISTER        );
-        self->setup.caps_of.data[0x00] = (IS_READABLE_HORIZONTAL_TOTAL         | IS_WRITABLE_HORIZONTAL_TOTAL        );
-        self->setup.caps_of.data[0x01] = (IS_READABLE_HORIZONTAL_DISPLAYED     | IS_WRITABLE_HORIZONTAL_DISPLAYED    );
-        self->setup.caps_of.data[0x02] = (IS_READABLE_HORIZONTAL_SYNC_POSITION | IS_WRITABLE_HORIZONTAL_SYNC_POSITION);
-        self->setup.caps_of.data[0x03] = (IS_READABLE_SYNC_WIDTH               | IS_WRITABLE_SYNC_WIDTH              );
-        self->setup.caps_of.data[0x04] = (IS_READABLE_VERTICAL_TOTAL           | IS_WRITABLE_VERTICAL_TOTAL          );
-        self->setup.caps_of.data[0x05] = (IS_READABLE_VERTICAL_TOTAL_ADJUST    | IS_WRITABLE_VERTICAL_TOTAL_ADJUST   );
-        self->setup.caps_of.data[0x06] = (IS_READABLE_VERTICAL_DISPLAYED       | IS_WRITABLE_VERTICAL_DISPLAYED      );
-        self->setup.caps_of.data[0x07] = (IS_READABLE_VERTICAL_SYNC_POSITION   | IS_WRITABLE_VERTICAL_SYNC_POSITION  );
-        self->setup.caps_of.data[0x08] = (IS_READABLE_INTERLACE_MODE_AND_SKEW  | IS_WRITABLE_INTERLACE_MODE_AND_SKEW );
-        self->setup.caps_of.data[0x09] = (IS_READABLE_MAXIMUM_SCANLINE_ADDRESS | IS_WRITABLE_MAXIMUM_SCANLINE_ADDRESS);
-        self->setup.caps_of.data[0x0a] = (IS_READABLE_CURSOR_START             | IS_WRITABLE_CURSOR_START            );
-        self->setup.caps_of.data[0x0b] = (IS_READABLE_CURSOR_END               | IS_WRITABLE_CURSOR_END              );
-        self->setup.caps_of.data[0x0c] = (IS_READABLE_START_ADDRESS_HIGH       | IS_WRITABLE_START_ADDRESS_HIGH      );
-        self->setup.caps_of.data[0x0d] = (IS_READABLE_START_ADDRESS_LOW        | IS_WRITABLE_START_ADDRESS_LOW       );
-        self->setup.caps_of.data[0x0e] = (IS_READABLE_CURSOR_HIGH              | IS_WRITABLE_CURSOR_HIGH             );
-        self->setup.caps_of.data[0x0f] = (IS_READABLE_CURSOR_LOW               | IS_WRITABLE_CURSOR_LOW              );
-        self->setup.caps_of.data[0x10] = (IS_READABLE_LIGHT_PEN_HIGH           | IS_WRITABLE_LIGHT_PEN_HIGH          );
-        self->setup.caps_of.data[0x11] = (IS_READABLE_LIGHT_PEN_LOW            | IS_WRITABLE_LIGHT_PEN_LOW           );
+        self->setup.caps_of.addr       = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x00] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x01] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x02] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x03] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x04] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x05] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x06] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x07] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x08] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x09] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0a] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0b] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0c] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0d] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0e] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0f] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x10] = (REG_READABLE | NOT_WRITABLE);
+        self->setup.caps_of.data[0x11] = (REG_READABLE | NOT_WRITABLE);
     }
     /* reset mask_of */ {
-        self->setup.mask_of.addr       = MASK_OF_ADDRESS_REGISTER;
-        self->setup.mask_of.data[0x00] = MASK_OF_HORIZONTAL_TOTAL;
-        self->setup.mask_of.data[0x01] = MASK_OF_HORIZONTAL_DISPLAYED;
-        self->setup.mask_of.data[0x02] = MASK_OF_HORIZONTAL_SYNC_POSITION;
-        self->setup.mask_of.data[0x03] = MASK_OF_SYNC_WIDTH;
-        self->setup.mask_of.data[0x04] = MASK_OF_VERTICAL_TOTAL;
-        self->setup.mask_of.data[0x05] = MASK_OF_VERTICAL_TOTAL_ADJUST;
-        self->setup.mask_of.data[0x06] = MASK_OF_VERTICAL_DISPLAYED;
-        self->setup.mask_of.data[0x07] = MASK_OF_VERTICAL_SYNC_POSITION;
-        self->setup.mask_of.data[0x08] = MASK_OF_INTERLACE_MODE_AND_SKEW;
-        self->setup.mask_of.data[0x09] = MASK_OF_MAXIMUM_SCANLINE_ADDRESS;
-        self->setup.mask_of.data[0x0a] = MASK_OF_CURSOR_START;
-        self->setup.mask_of.data[0x0b] = MASK_OF_CURSOR_END;
-        self->setup.mask_of.data[0x0c] = MASK_OF_START_ADDRESS_HIGH;
-        self->setup.mask_of.data[0x0d] = MASK_OF_START_ADDRESS_LOW;
-        self->setup.mask_of.data[0x0e] = MASK_OF_CURSOR_HIGH;
-        self->setup.mask_of.data[0x0f] = MASK_OF_CURSOR_LOW;
-        self->setup.mask_of.data[0x10] = MASK_OF_LIGHT_PEN_HIGH;
-        self->setup.mask_of.data[0x11] = MASK_OF_LIGHT_PEN_LOW;
+        self->setup.mask_of.addr       = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x00] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x01] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x02] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x03] = 0x0f; /* ----xxxx */
+        self->setup.mask_of.data[0x04] = 0x7f; /* -xxxxxxx */
+        self->setup.mask_of.data[0x05] = 0x1f; /* ---xxxxx */
+        self->setup.mask_of.data[0x06] = 0x7f; /* -xxxxxxx */
+        self->setup.mask_of.data[0x07] = 0x7f; /* -xxxxxxx */
+        self->setup.mask_of.data[0x08] = 0x03; /* ------xx */
+        self->setup.mask_of.data[0x09] = 0x1f; /* ---xxxxx */
+        self->setup.mask_of.data[0x0a] = 0x7f; /* -xxxxxxx */
+        self->setup.mask_of.data[0x0b] = 0x1f; /* ---xxxxx */
+        self->setup.mask_of.data[0x0c] = 0x3f; /* --xxxxxx */
+        self->setup.mask_of.data[0x0d] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x0e] = 0x3f; /* --xxxxxx */
+        self->setup.mask_of.data[0x0f] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x10] = 0x3f; /* --xxxxxx */
+        self->setup.mask_of.data[0x11] = 0xff; /* xxxxxxxx */
     }
 }
 
 static void reset_state(XcpcVdc6845* self)
 {
     /* reset internal registers */ {
-        self->state.regs.named.address_register         = DEFAULT_VALUE_OF_ADDRESS_REGISTER;
-        self->state.regs.named.horizontal_total         = DEFAULT_VALUE_OF_HORIZONTAL_TOTAL;
-        self->state.regs.named.horizontal_displayed     = DEFAULT_VALUE_OF_HORIZONTAL_DISPLAYED;
-        self->state.regs.named.horizontal_sync_position = DEFAULT_VALUE_OF_HORIZONTAL_SYNC_POSITION;
-        self->state.regs.named.sync_width               = DEFAULT_VALUE_OF_SYNC_WIDTH;
-        self->state.regs.named.vertical_total           = DEFAULT_VALUE_OF_VERTICAL_TOTAL;
-        self->state.regs.named.vertical_total_adjust    = DEFAULT_VALUE_OF_VERTICAL_TOTAL_ADJUST;
-        self->state.regs.named.vertical_displayed       = DEFAULT_VALUE_OF_VERTICAL_DISPLAYED;
-        self->state.regs.named.vertical_sync_position   = DEFAULT_VALUE_OF_VERTICAL_SYNC_POSITION;
-        self->state.regs.named.interlace_mode_and_skew  = DEFAULT_VALUE_OF_INTERLACE_MODE_AND_SKEW;
-        self->state.regs.named.maximum_scanline_address = DEFAULT_VALUE_OF_MAXIMUM_SCANLINE_ADDRESS;
-        self->state.regs.named.cursor_start             = DEFAULT_VALUE_OF_CURSOR_START;
-        self->state.regs.named.cursor_end               = DEFAULT_VALUE_OF_CURSOR_END;
-        self->state.regs.named.start_address_high       = DEFAULT_VALUE_OF_START_ADDRESS_HIGH;
-        self->state.regs.named.start_address_low        = DEFAULT_VALUE_OF_START_ADDRESS_LOW;
-        self->state.regs.named.cursor_high              = DEFAULT_VALUE_OF_CURSOR_HIGH;
-        self->state.regs.named.cursor_low               = DEFAULT_VALUE_OF_CURSOR_LOW;
-        self->state.regs.named.light_pen_high           = DEFAULT_VALUE_OF_LIGHT_PEN_HIGH;
-        self->state.regs.named.light_pen_low            = DEFAULT_VALUE_OF_LIGHT_PEN_LOW;
+        self->state.regs.named.address_register         = 0x00; /*       0 */
+        self->state.regs.named.horizontal_total         = 0x3f; /*      63 */
+        self->state.regs.named.horizontal_displayed     = 0x28; /*      40 */
+        self->state.regs.named.horizontal_sync_position = 0x2e; /*      46 */
+        self->state.regs.named.sync_width               = 0x0e; /* 16 + 14 */
+        self->state.regs.named.vertical_total           = 0x26; /*      38 */
+        self->state.regs.named.vertical_total_adjust    = 0x00; /*       0 */
+        self->state.regs.named.vertical_displayed       = 0x19; /*      25 */
+        self->state.regs.named.vertical_sync_position   = 0x1e; /*      30 */
+        self->state.regs.named.interlace_mode_and_skew  = 0x00; /*       0 */
+        self->state.regs.named.maximum_scanline_address = 0x07; /*       7 */
+        self->state.regs.named.cursor_start             = 0x00; /*       0 */
+        self->state.regs.named.cursor_end               = 0x00; /*       0 */
+        self->state.regs.named.start_address_high       = 0x30; /*    0x30 */
+        self->state.regs.named.start_address_low        = 0x00; /*    0x00 */
+        self->state.regs.named.cursor_high              = 0x00; /*    0x00 */
+        self->state.regs.named.cursor_low               = 0x00; /*    0x00 */
+        self->state.regs.named.light_pen_high           = 0x00; /*    0x00 */
+        self->state.regs.named.light_pen_low            = 0x00; /*    0x00 */
     }
 }
 
@@ -334,8 +334,8 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
 
 uint8_t xcpc_vdc_6845_rg(XcpcVdc6845* self, uint8_t data_bus)
 {
-    uint8_t const is_readable   = (self->setup.caps_of.addr & 0x01);
-    uint8_t const register_mask = (self->setup.mask_of.addr & 0xff);
+    uint8_t const is_readable   = (self->setup.caps_of.addr & REG_READABLE);
+    uint8_t const register_mask = (self->setup.mask_of.addr);
     uint8_t*      register_addr = (&self->state.regs.named.address_register);
 
     if(is_readable != 0) {
@@ -346,8 +346,8 @@ uint8_t xcpc_vdc_6845_rg(XcpcVdc6845* self, uint8_t data_bus)
 
 uint8_t xcpc_vdc_6845_rs(XcpcVdc6845* self, uint8_t data_bus)
 {
-    uint8_t const is_writable   = (self->setup.caps_of.addr & 0x02);
-    uint8_t const register_mask = (self->setup.mask_of.addr & 0xff);
+    uint8_t const is_writable   = (self->setup.caps_of.addr & REG_WRITABLE);
+    uint8_t const register_mask = (self->setup.mask_of.addr);
     uint8_t*      register_addr = (&self->state.regs.named.address_register);
 
     if(is_writable != 0) {
@@ -360,9 +360,9 @@ uint8_t xcpc_vdc_6845_rd(XcpcVdc6845* self, uint8_t data_bus)
 {
     const uint8_t address_register = self->state.regs.named.address_register;
 
-    if(address_register < REGISTER_COUNT) {
-        uint8_t const is_readable   = (self->setup.caps_of.data[address_register] & 0x01);
-        uint8_t const register_mask = (self->setup.mask_of.data[address_register] & 0xff);
+    if(address_register < VDC_REGISTER_COUNT) {
+        uint8_t const is_readable   = (self->setup.caps_of.data[address_register] & REG_READABLE);
+        uint8_t const register_mask = (self->setup.mask_of.data[address_register]);
         uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
         if(is_readable != 0) {
             data_bus = (*register_addr &= register_mask);
@@ -375,9 +375,9 @@ uint8_t xcpc_vdc_6845_wr(XcpcVdc6845* self, uint8_t data_bus)
 {
     const uint8_t address_register = self->state.regs.named.address_register;
 
-    if(address_register < REGISTER_COUNT) {
-        uint8_t const is_writable   = (self->setup.caps_of.data[address_register] & 0x02);
-        uint8_t const register_mask = (self->setup.mask_of.data[address_register] & 0xff);
+    if(address_register < VDC_REGISTER_COUNT) {
+        uint8_t const is_writable   = (self->setup.caps_of.data[address_register] & REG_WRITABLE);
+        uint8_t const register_mask = (self->setup.mask_of.data[address_register]);
         uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
         if(is_writable != 0) {
             *register_addr = (data_bus &= register_mask);

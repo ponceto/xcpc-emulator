@@ -43,7 +43,16 @@ struct _XcpcPsg8910Iface
 
 struct _XcpcPsg8910Setup
 {
-    int reserved;
+    struct
+    {
+        uint8_t addr;
+        uint8_t data[16];
+    } caps_of;
+    struct
+    {
+        uint8_t addr;
+        uint8_t data[16];
+    } mask_of;
 };
 
 struct _XcpcPsg8910State
