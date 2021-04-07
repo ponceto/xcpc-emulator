@@ -88,7 +88,7 @@ XcpcRamBank* xcpc_ram_bank_set_iface(XcpcRamBank* self, const XcpcRamBankIface* 
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
     }
     return self;
 }

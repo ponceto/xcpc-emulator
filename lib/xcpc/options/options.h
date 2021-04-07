@@ -29,6 +29,7 @@ extern XcpcOptions* xcpc_options_construct (XcpcOptions* options);
 extern XcpcOptions* xcpc_options_destruct  (XcpcOptions* options);
 extern XcpcOptions* xcpc_options_new       (void);
 extern XcpcOptions* xcpc_options_delete    (XcpcOptions* options);
+extern XcpcOptions* xcpc_options_set_iface (XcpcOptions* options, const XcpcOptionsIface* options_iface);
 extern XcpcOptions* xcpc_options_parse     (XcpcOptions* options, int* argc, char*** argv);
 
 #ifdef __cplusplus

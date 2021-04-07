@@ -414,7 +414,7 @@ XcpcMonitor* xcpc_monitor_set_iface(XcpcMonitor* self, const XcpcMonitorIface* i
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
     }
     return self;
 }

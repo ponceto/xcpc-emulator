@@ -51,7 +51,7 @@ XcpcRomBank* xcpc_rom_bank_construct(XcpcRomBank* self)
         (void) memset(&self->state, 0, sizeof(XcpcRomBankState));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
+        (void) xcpc_rom_bank_set_iface(self, NULL);
     }
     /* reset */ {
         (void) xcpc_rom_bank_reset(self);

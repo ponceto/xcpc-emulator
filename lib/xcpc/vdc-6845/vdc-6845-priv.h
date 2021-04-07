@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#define REGISTER_COUNT                            18
+
 #define INDEX_OF_ADDRESS_REGISTER                 -1
 #define INDEX_OF_HORIZONTAL_TOTAL                  0
 #define INDEX_OF_HORIZONTAL_DISPLAYED              1
@@ -63,45 +65,45 @@ extern "C" {
 #define MASK_OF_LIGHT_PEN_HIGH                    0x3f /* 0b00111111 */
 #define MASK_OF_LIGHT_PEN_LOW                     0xff /* 0b11111111 */
 
-#define IS_READABLE_ADDRESS_REGISTER              0x0
-#define IS_READABLE_HORIZONTAL_TOTAL              0x0
-#define IS_READABLE_HORIZONTAL_DISPLAYED          0x0
-#define IS_READABLE_HORIZONTAL_SYNC_POSITION      0x0
-#define IS_READABLE_SYNC_WIDTH                    0x0
-#define IS_READABLE_VERTICAL_TOTAL                0x0
-#define IS_READABLE_VERTICAL_TOTAL_ADJUST         0x0
-#define IS_READABLE_VERTICAL_DISPLAYED            0x0
-#define IS_READABLE_VERTICAL_SYNC_POSITION        0x0
-#define IS_READABLE_INTERLACE_MODE_AND_SKEW       0x0
-#define IS_READABLE_MAXIMUM_SCANLINE_ADDRESS      0x0
-#define IS_READABLE_CURSOR_START                  0x0
-#define IS_READABLE_CURSOR_END                    0x0
-#define IS_READABLE_START_ADDRESS_HIGH            0x0
-#define IS_READABLE_START_ADDRESS_LOW             0x0
-#define IS_READABLE_CURSOR_HIGH                   0x1
-#define IS_READABLE_CURSOR_LOW                    0x1
-#define IS_READABLE_LIGHT_PEN_HIGH                0x1
-#define IS_READABLE_LIGHT_PEN_LOW                 0x1
+#define IS_READABLE_ADDRESS_REGISTER              0x00
+#define IS_READABLE_HORIZONTAL_TOTAL              0x00
+#define IS_READABLE_HORIZONTAL_DISPLAYED          0x00
+#define IS_READABLE_HORIZONTAL_SYNC_POSITION      0x00
+#define IS_READABLE_SYNC_WIDTH                    0x00
+#define IS_READABLE_VERTICAL_TOTAL                0x00
+#define IS_READABLE_VERTICAL_TOTAL_ADJUST         0x00
+#define IS_READABLE_VERTICAL_DISPLAYED            0x00
+#define IS_READABLE_VERTICAL_SYNC_POSITION        0x00
+#define IS_READABLE_INTERLACE_MODE_AND_SKEW       0x00
+#define IS_READABLE_MAXIMUM_SCANLINE_ADDRESS      0x00
+#define IS_READABLE_CURSOR_START                  0x00
+#define IS_READABLE_CURSOR_END                    0x00
+#define IS_READABLE_START_ADDRESS_HIGH            0x00
+#define IS_READABLE_START_ADDRESS_LOW             0x00
+#define IS_READABLE_CURSOR_HIGH                   0x01
+#define IS_READABLE_CURSOR_LOW                    0x01
+#define IS_READABLE_LIGHT_PEN_HIGH                0x01
+#define IS_READABLE_LIGHT_PEN_LOW                 0x01
 
-#define IS_WRITABLE_ADDRESS_REGISTER              0x1
-#define IS_WRITABLE_HORIZONTAL_TOTAL              0x1
-#define IS_WRITABLE_HORIZONTAL_DISPLAYED          0x1
-#define IS_WRITABLE_HORIZONTAL_SYNC_POSITION      0x1
-#define IS_WRITABLE_SYNC_WIDTH                    0x1
-#define IS_WRITABLE_VERTICAL_TOTAL                0x1
-#define IS_WRITABLE_VERTICAL_TOTAL_ADJUST         0x1
-#define IS_WRITABLE_VERTICAL_DISPLAYED            0x1
-#define IS_WRITABLE_VERTICAL_SYNC_POSITION        0x1
-#define IS_WRITABLE_INTERLACE_MODE_AND_SKEW       0x1
-#define IS_WRITABLE_MAXIMUM_SCANLINE_ADDRESS      0x1
-#define IS_WRITABLE_CURSOR_START                  0x1
-#define IS_WRITABLE_CURSOR_END                    0x1
-#define IS_WRITABLE_START_ADDRESS_HIGH            0x1
-#define IS_WRITABLE_START_ADDRESS_LOW             0x1
-#define IS_WRITABLE_CURSOR_HIGH                   0x1
-#define IS_WRITABLE_CURSOR_LOW                    0x1
-#define IS_WRITABLE_LIGHT_PEN_HIGH                0x0
-#define IS_WRITABLE_LIGHT_PEN_LOW                 0x0
+#define IS_WRITABLE_ADDRESS_REGISTER              0x02
+#define IS_WRITABLE_HORIZONTAL_TOTAL              0x02
+#define IS_WRITABLE_HORIZONTAL_DISPLAYED          0x02
+#define IS_WRITABLE_HORIZONTAL_SYNC_POSITION      0x02
+#define IS_WRITABLE_SYNC_WIDTH                    0x02
+#define IS_WRITABLE_VERTICAL_TOTAL                0x02
+#define IS_WRITABLE_VERTICAL_TOTAL_ADJUST         0x02
+#define IS_WRITABLE_VERTICAL_DISPLAYED            0x02
+#define IS_WRITABLE_VERTICAL_SYNC_POSITION        0x02
+#define IS_WRITABLE_INTERLACE_MODE_AND_SKEW       0x02
+#define IS_WRITABLE_MAXIMUM_SCANLINE_ADDRESS      0x02
+#define IS_WRITABLE_CURSOR_START                  0x02
+#define IS_WRITABLE_CURSOR_END                    0x02
+#define IS_WRITABLE_START_ADDRESS_HIGH            0x02
+#define IS_WRITABLE_START_ADDRESS_LOW             0x02
+#define IS_WRITABLE_CURSOR_HIGH                   0x02
+#define IS_WRITABLE_CURSOR_LOW                    0x02
+#define IS_WRITABLE_LIGHT_PEN_HIGH                0x00
+#define IS_WRITABLE_LIGHT_PEN_LOW                 0x00
 
 #define DEFAULT_VALUE_OF_ADDRESS_REGISTER         0x00 /*       0 */
 #define DEFAULT_VALUE_OF_HORIZONTAL_TOTAL         0x3f /*      63 */

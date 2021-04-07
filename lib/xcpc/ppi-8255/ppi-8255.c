@@ -102,7 +102,7 @@ XcpcPpi8255* xcpc_ppi_8255_set_iface(XcpcPpi8255* self, const XcpcPpi8255Iface* 
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
         self->iface.rd_port_a = &default_rd_handler;
         self->iface.wr_port_a = &default_wr_handler;
         self->iface.rd_port_b = &default_rd_handler;

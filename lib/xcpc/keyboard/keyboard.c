@@ -88,7 +88,7 @@ XcpcKeyboard* xcpc_keyboard_set_iface(XcpcKeyboard* self, const XcpcKeyboardIfac
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
     }
     return self;
 }

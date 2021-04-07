@@ -88,7 +88,7 @@ XcpcJoystick* xcpc_joystick_set_iface(XcpcJoystick* self, const XcpcJoystickIfac
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
     }
     return self;
 }

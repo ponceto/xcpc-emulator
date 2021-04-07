@@ -418,6 +418,11 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     return data;
 }
 
+static uint8_t vdc_frame(XcpcVdc6845* vdc_6845)
+{
+    return 0x00;
+}
+
 static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
 {
     XcpcMachine* self = ((XcpcMachine*)(vdc_6845->iface.user_data));
@@ -1843,6 +1848,7 @@ static void construct_board(XcpcMachine* self)
     /* vdc_6845 */ {
         const XcpcVdc6845Iface vdc_6845_iface = {
             self,       /* user_data */
+            &vdc_frame, /* frame     */
             &vdc_hsync, /* hsync     */
             &vdc_vsync, /* vsync     */
         };
@@ -2269,7 +2275,7 @@ XcpcMachine* xcpc_machine_set_iface(XcpcMachine* self, const XcpcMachineIface* i
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
     }
     return self;
 }

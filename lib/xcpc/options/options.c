@@ -214,7 +214,7 @@ XcpcOptions* xcpc_options_construct(XcpcOptions* self)
         (void) memset(&self->state, 0, sizeof(XcpcOptionsState));
     }
     /* initialize iface */ {
-        self->iface.user_data = self;
+        (void) xcpc_options_set_iface(self, NULL);
     }
     /* construct */ {
         self->state.program  = replace_setting(NULL, val_not_set, 0);
@@ -306,6 +306,19 @@ XcpcOptions* xcpc_options_delete(XcpcOptions* self)
     log_trace("delete");
 
     return xcpc_options_free(xcpc_options_destruct(self));
+}
+
+XcpcOptions* xcpc_options_set_iface(XcpcOptions* self, const XcpcOptionsIface* iface)
+{
+    log_trace("set_iface");
+
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = NULL;
+    }
+    return self;
 }
 
 XcpcOptions* xcpc_options_parse(XcpcOptions* self, int* argcp, char*** argvp)

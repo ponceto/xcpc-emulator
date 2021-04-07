@@ -102,7 +102,7 @@ XcpcPsg8910* xcpc_psg_8910_set_iface(XcpcPsg8910* self, const XcpcPsg8910Iface* 
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
         self->iface.rd_port_a = &default_rd_handler;
         self->iface.wr_port_a = &default_wr_handler;
         self->iface.rd_port_b = &default_rd_handler;

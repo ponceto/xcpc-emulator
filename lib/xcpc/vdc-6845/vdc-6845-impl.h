@@ -37,13 +37,23 @@ typedef struct _XcpcVdc6845      XcpcVdc6845;
 struct _XcpcVdc6845Iface
 {
     void* user_data;
-    uint8_t (*hsync)(XcpcVdc6845* vdc_6856, int hsync);
-    uint8_t (*vsync)(XcpcVdc6845* vdc_6856, int vsync);
+    uint8_t (*frame)(XcpcVdc6845* vdc_6845);
+    uint8_t (*hsync)(XcpcVdc6845* vdc_6845, int hsync);
+    uint8_t (*vsync)(XcpcVdc6845* vdc_6845, int vsync);
 };
 
 struct _XcpcVdc6845Setup
 {
-    int reserved;
+    struct
+    {
+        uint8_t addr;
+        uint8_t data[18];
+    } caps_of;
+    struct
+    {
+        uint8_t addr;
+        uint8_t data[18];
+    } mask_of;
 };
 
 struct _XcpcVdc6845State
@@ -86,9 +96,9 @@ struct _XcpcVdc6845Count
     uint8_t vertical_counter;
     uint8_t scanline_counter;
     uint8_t hsync_counter;
-    uint8_t hsync_signal;
+    uint8_t hsync_active;
     uint8_t vsync_counter;
-    uint8_t vsync_signal;
+    uint8_t vsync_active;
 };
 
 struct _XcpcVdc6845
