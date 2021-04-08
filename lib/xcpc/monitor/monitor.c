@@ -115,13 +115,31 @@ static XcpcMonitor* init_attributes(XcpcMonitor* self, Display* display, Window 
             self->state.window    = window;
             self->state.colormap  = attributes.colormap;
             self->state.depth     = attributes.depth;
+            self->state.total_w   = XCPC_MONITOR_50HZ_TOTAL_WIDTH;
+            self->state.total_h   = XCPC_MONITOR_50HZ_TOTAL_HEIGHT;
             self->state.visible_x = 0;
             self->state.visible_y = 0;
-            self->state.visible_w = XCPC_MONITOR_VISIBLE_WIDTH;
-            self->state.visible_h = XCPC_MONITOR_VISIBLE_HEIGHT;
+            self->state.visible_w = XCPC_MONITOR_50HZ_VISIBLE_WIDTH;
+            self->state.visible_h = XCPC_MONITOR_50HZ_VISIBLE_HEIGHT;
             self->state.try_xshm  = try_xshm;
             self->state.has_xshm  = False;
             self->state.use_xshm  = False;
+            switch(self->setup.refresh_rate) {
+                case XCPC_REFRESH_RATE_50HZ:
+                    self->state.total_w   = XCPC_MONITOR_50HZ_TOTAL_WIDTH;
+                    self->state.total_h   = XCPC_MONITOR_50HZ_TOTAL_HEIGHT;
+                    self->state.visible_w = XCPC_MONITOR_50HZ_VISIBLE_WIDTH;
+                    self->state.visible_h = XCPC_MONITOR_50HZ_VISIBLE_HEIGHT;
+                    break;
+                case XCPC_REFRESH_RATE_60HZ:
+                    self->state.total_w   = XCPC_MONITOR_60HZ_TOTAL_WIDTH;
+                    self->state.total_h   = XCPC_MONITOR_60HZ_TOTAL_HEIGHT;
+                    self->state.visible_w = XCPC_MONITOR_60HZ_VISIBLE_WIDTH;
+                    self->state.visible_h = XCPC_MONITOR_60HZ_VISIBLE_HEIGHT;
+                    break;
+                default:
+                    break;
+            }
         }
         if(status != 0) {
             if(self->state.try_xshm != False) {
@@ -145,6 +163,8 @@ static XcpcMonitor* fini_attributes(XcpcMonitor* self)
         self->state.window    = None;
         self->state.colormap  = None;
         self->state.depth     = 0;
+        self->state.total_w   = 0;
+        self->state.total_h   = 0;
         self->state.visible_x = 0;
         self->state.visible_y = 0;
         self->state.visible_w = 0;
@@ -172,8 +192,8 @@ static XcpcMonitor* init_image(XcpcMonitor* self)
                                                        , self->state.visual
                                                        , self->state.depth
                                                        , ZPixmap
-                                                       , XCPC_MONITOR_TOTAL_WIDTH
-                                                       , XCPC_MONITOR_TOTAL_HEIGHT );
+                                                       , self->state.total_w
+                                                       , self->state.total_h );
                 if(self->state.image != NULL) {
                     self->state.use_xshm = XcpcAttachShmImage(self->state.display, self->state.image);
                     if(self->state.use_xshm == False) {
@@ -189,8 +209,8 @@ static XcpcMonitor* init_image(XcpcMonitor* self)
                                                 , self->state.visual
                                                 , self->state.depth
                                                 , ZPixmap
-                                                , XCPC_MONITOR_TOTAL_WIDTH
-                                                , XCPC_MONITOR_TOTAL_HEIGHT );
+                                                , self->state.total_w
+                                                , self->state.total_h );
         }
     }
     /* resize window */ {
@@ -224,7 +244,7 @@ static XcpcMonitor* fini_image(XcpcMonitor* self)
     return self;
 }
 
-static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorType monitor_type)
+static XcpcMonitor* init_palette(XcpcMonitor* self)
 {
     log_trace("init_palette");
 
@@ -242,7 +262,7 @@ static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorType monitor_type
                 (void) clear_color(color);
             }
             /* get color */ {
-                (void) xcpc_color_get_values ( monitor_type
+                (void) xcpc_color_get_values ( self->setup.monitor_type
                                              , color_index
                                              , &color->red
                                              , &color->green
@@ -262,7 +282,7 @@ static XcpcMonitor* init_palette(XcpcMonitor* self, XcpcMonitorType monitor_type
                 (void) clear_color(color);
             }
             /* get color */ {
-                (void) xcpc_color_get_values ( monitor_type
+                (void) xcpc_color_get_values ( self->setup.monitor_type
                                              , color_index
                                              , &color->red
                                              , &color->green
@@ -345,6 +365,10 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
     /* initialize iface */ {
         (void) xcpc_monitor_set_iface(self, NULL);
     }
+    /* init setup */ {
+        self->setup.monitor_type = XCPC_MONITOR_TYPE_DEFAULT;
+        self->setup.refresh_rate = XCPC_REFRESH_RATE_DEFAULT;
+    }
     /* init attributes */ {
         self->state.display   = NULL;
         self->state.screen    = NULL;
@@ -354,6 +378,8 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
         self->state.window    = None;
         self->state.colormap  = None;
         self->state.depth     = 0;
+        self->state.total_w   = 0;
+        self->state.total_h   = 0;
         self->state.visible_x = 0;
         self->state.visible_y = 0;
         self->state.visible_w = 0;
@@ -426,12 +452,16 @@ XcpcMonitor* xcpc_monitor_reset(XcpcMonitor* self)
     return self;
 }
 
-XcpcMonitor* xcpc_monitor_realize(XcpcMonitor* self, XcpcMonitorType monitor_type, Display* display, Window window, Bool try_xshm)
+XcpcMonitor* xcpc_monitor_realize(XcpcMonitor* self, XcpcMonitorType monitor_type, XcpcRefreshRate refresh_rate, Display* display, Window window, Bool try_xshm)
 {
     log_trace("realize");
 
     /* unrealize */ {
         (void) xcpc_monitor_unrealize(self);
+    }
+    /* adjust setup */ {
+        self->setup.monitor_type = monitor_type;
+        self->setup.refresh_rate = refresh_rate;
     }
     /* initialize attributes */ {
         (void) init_attributes(self, display, window, try_xshm);
@@ -440,7 +470,7 @@ XcpcMonitor* xcpc_monitor_realize(XcpcMonitor* self, XcpcMonitorType monitor_typ
         (void) init_image(self);
     }
     /* initialize palette */ {
-        (void) init_palette(self, monitor_type);
+        (void) init_palette(self);
     }
     return self;
 }

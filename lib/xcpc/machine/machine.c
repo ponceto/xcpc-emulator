@@ -61,32 +61,38 @@ static void compute_stats(XcpcMachine* self)
         }
     }
     /* compute the elapsed time in us */ {
-        if(self->setup.fps != 0) {
-            const long long t1 = (((long long) prev_time.tv_sec) * 1000000LL) + ((long long) prev_time.tv_usec);
-            const long long t2 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
-            if(t2 >= t1) {
-                elapsed_us = ((unsigned long)(t2 - t1));
-            }
-            else {
-                elapsed_us = 0UL;
-            }
+        const long long t1 = (((long long) prev_time.tv_sec) * 1000000LL) + ((long long) prev_time.tv_usec);
+        const long long t2 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
+        if(t2 >= t1) {
+            elapsed_us = ((unsigned long)(t2 - t1));
+        }
+        else {
+            elapsed_us = 0UL;
         }
     }
     /* compute and print the statistics */ {
-        if(self->setup.fps != 0) {
-            if(elapsed_us != 0) {
-                const double stats_frames  = (double) (self->stats.drawn * 1000000UL);
-                const double stats_elapsed = (double) elapsed_us;
-                const double stats_fps     = (stats_frames / stats_elapsed);
-                (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz, framerate = %.2f fps, total-hsync = %d, total-vsync = %d", self->frame.rate, stats_fps, self->stats.hsync, self->stats.vsync);
-            }
-            else {
-                (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz", self->frame.rate);
-            }
-            xcpc_log_print(self->stats.buffer);
+        if(elapsed_us != 0) {
+            const double stats_frames  = (double) (self->stats.drawn * 1000000UL);
+            const double stats_elapsed = (double) elapsed_us;
+            const double stats_fps     = (stats_frames / stats_elapsed);
+            (void) snprintf ( self->stats.buffer, sizeof(self->stats.buffer)
+                            , "refresh = %2d Hz, framerate = %.2f fps, total-hsync = %d, total-vsync = %d"
+                            , self->frame.rate
+                            , stats_fps
+                            , self->stats.hsync
+                            , self->stats.vsync );
         }
         else {
-            self->stats.buffer[0] = '\0';
+            (void) snprintf ( self->stats.buffer, sizeof(self->stats.buffer)
+                            , "refresh = %2d Hz, total-hsync = %d, total-vsync = %d"
+                            , self->frame.rate
+                            , self->stats.hsync
+                            , self->stats.vsync );
+        }
+    }
+    /* print the statistics */ {
+        if(self->setup.fps != 0) {
+            xcpc_log_print(self->stats.buffer);
         }
     }
     /* set the new reference */ {
@@ -437,7 +443,6 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     }
     else {
         /* falling edge */ {
-            ++self->stats.hsync;
             if(++vga_core->state.counter == 52) {
                 xcpc_cpu_z80a_pulse_int(cpu_z80a);
                 vga_core->state.counter = 0;
@@ -465,6 +470,7 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                     } while(++index < 17);
                 }
             }
+            ++self->stats.hsync;
         }
     }
     return 0x00;
@@ -481,8 +487,8 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
     }
     else {
         /* falling edge */ {
-            ++self->stats.vsync;
             self->frame.beam_y &= 0;
+            ++self->stats.vsync;
         }
     }
     return 0x00;
@@ -668,10 +674,14 @@ static void paint_08bpp(XcpcMachine* self)
     unsigned int row;
     unsigned int col;
     unsigned int ras;
+    unsigned int remain = monitor->state.image->height;
 
     /* top border */ {
         const int cols = ((hs << 1) + (hd << 4));
         for(row = 0; row < vs; ++row) {
+            if(remain < 2) {
+                break;
+            }
             curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
             next_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
             pixel1 = scanline->color[16].pixel1;
@@ -681,11 +691,15 @@ static void paint_08bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
+            remain -= 2;
         }
     }
     /* active display */ {
         for(row = 0; row < vd; ++row) {
             for(ras = 0; ras < mr; ++ras) {
+                if(remain < 2) {
+                    break;
+                }
                 curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
                 next_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
                 switch(scanline->mode) {
@@ -995,6 +1009,7 @@ static void paint_08bpp(XcpcMachine* self)
                         break;
                 }
                 ++scanline;
+                remain -= 2;
             }
             sa += hd;
         }
@@ -1002,6 +1017,9 @@ static void paint_08bpp(XcpcMachine* self)
     /* bottom border */ {
         const int cols = ((hs << 1) + (hd << 4));
         for(row = 0; row < vs; ++row) {
+            if(remain < 2) {
+                break;
+            }
             curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
             next_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
             pixel1 = scanline->color[16].pixel1;
@@ -1011,6 +1029,7 @@ static void paint_08bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
+            remain -= 2;
         }
     }
     /* put image */ {
@@ -1041,10 +1060,14 @@ static void paint_16bpp(XcpcMachine* self)
     unsigned int row;
     unsigned int col;
     unsigned int ras;
+    unsigned int remain = monitor->state.image->height;
 
     /* top border */ {
         const int cols = ((hs << 1) + (hd << 4));
         for(row = 0; row < vs; ++row) {
+            if(remain < 2) {
+                break;
+            }
             curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
             next_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
             pixel1 = scanline->color[16].pixel1;
@@ -1054,11 +1077,15 @@ static void paint_16bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
+            remain -= 2;
         }
     }
     /* active display */ {
         for(row = 0; row < vd; ++row) {
             for(ras = 0; ras < mr; ++ras) {
+                if(remain < 2) {
+                    break;
+                }
                 curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
                 next_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
                 switch(scanline->mode) {
@@ -1368,6 +1395,7 @@ static void paint_16bpp(XcpcMachine* self)
                         break;
                 }
                 ++scanline;
+                remain -= 2;
             }
             sa += hd;
         }
@@ -1375,6 +1403,9 @@ static void paint_16bpp(XcpcMachine* self)
     /* bottom border */ {
         const int cols = ((hs << 1) + (hd << 4));
         for(row = 0; row < vs; ++row) {
+            if(remain < 2) {
+                break;
+            }
             curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
             next_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
             pixel1 = scanline->color[16].pixel1;
@@ -1384,6 +1415,7 @@ static void paint_16bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
+            remain -= 2;
         }
     }
     /* put image */ {
@@ -1414,10 +1446,14 @@ static void paint_32bpp(XcpcMachine* self)
     unsigned int row;
     unsigned int col;
     unsigned int ras;
+    unsigned int remain = monitor->state.image->height;
 
     /* top border */ {
         const int cols = ((hs << 1) + (hd << 4));
         for(row = 0; row < vs; ++row) {
+            if(remain < 2) {
+                break;
+            }
             curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
             next_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
             pixel1 = scanline->color[16].pixel1;
@@ -1427,11 +1463,15 @@ static void paint_32bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
+            remain -= 2;
         }
     }
     /* active display */ {
         for(row = 0; row < vd; ++row) {
             for(ras = 0; ras < mr; ++ras) {
+                if(remain < 2) {
+                    break;
+                }
                 curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
                 next_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
                 switch(scanline->mode) {
@@ -1741,6 +1781,7 @@ static void paint_32bpp(XcpcMachine* self)
                         break;
                 }
                 ++scanline;
+                remain -= 2;
             }
             sa += hd;
         }
@@ -1748,6 +1789,9 @@ static void paint_32bpp(XcpcMachine* self)
     /* bottom border */ {
         const int cols = ((hs << 1) + (hd << 4));
         for(row = 0; row < vs; ++row) {
+            if(remain < 2) {
+                break;
+            }
             curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
             next_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
             pixel1 = scanline->color[16].pixel1;
@@ -1757,6 +1801,7 @@ static void paint_32bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
+            remain -= 2;
         }
     }
     /* put image */ {
@@ -2802,6 +2847,7 @@ unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event)
         /* realize */ {
             (void) xcpc_monitor_realize ( self->board.monitor
                                         , self->setup.monitor_type
+                                        , self->setup.refresh_rate
                                         , event->xany.display
                                         , event->xany.window
                                         , (self->setup.xshm != 0 ? True : False) );
