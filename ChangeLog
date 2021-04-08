@@ -5,7 +5,7 @@
 	* PPI-8255 emulation improved.
 	* AY-3-8912 preliminary emulation (regs & I/O).
 	* Some bugs have been fixed.
-	* The Xaw and Motif user interface have been improved.
+	* The Xaw and Motif user interfaces have been improved.
 
 2021-04-02	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
