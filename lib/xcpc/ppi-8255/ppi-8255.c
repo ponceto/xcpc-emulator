@@ -130,3 +130,86 @@ XcpcPpi8255* xcpc_ppi_8255_clock(XcpcPpi8255* self)
 {
     return self;
 }
+
+uint8_t xcpc_ppi_8255_rd_port_a(XcpcPpi8255* self, uint8_t data_bus)
+{
+    /* read port a */ {
+        data_bus = (*self->iface.rd_port_a)(self, data_bus);
+    }
+    /* update latch */ {
+        self->state.port_a = data_bus;
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_ppi_8255_wr_port_a(XcpcPpi8255* self, uint8_t data_bus)
+{
+    /* update latch */ {
+        self->state.port_a = data_bus;
+    }
+    /* write port a */ {
+        data_bus = (*self->iface.wr_port_a)(self, data_bus);
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_ppi_8255_rd_port_b(XcpcPpi8255* self, uint8_t data_bus)
+{
+    /* read port b */ {
+        data_bus = (*self->iface.rd_port_b)(self, data_bus);
+    }
+    /* update latch */ {
+        self->state.port_b = data_bus;
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_ppi_8255_wr_port_b(XcpcPpi8255* self, uint8_t data_bus)
+{
+    /* update latch */ {
+        self->state.port_b = data_bus;
+    }
+    /* write port b */ {
+        data_bus = (*self->iface.wr_port_b)(self, data_bus);
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_ppi_8255_rd_port_c(XcpcPpi8255* self, uint8_t data_bus)
+{
+    /* read port c */ {
+        data_bus = (*self->iface.rd_port_c)(self, data_bus);
+    }
+    /* update latch */ {
+        self->state.port_c = data_bus;
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_ppi_8255_wr_port_c(XcpcPpi8255* self, uint8_t data_bus)
+{
+    /* update latch */ {
+        self->state.port_c = data_bus;
+    }
+    /* write port c */ {
+        data_bus = (*self->iface.wr_port_c)(self, data_bus);
+    }
+    return data_bus;
+}
+
+
+uint8_t xcpc_ppi_8255_rd_ctrl_p(XcpcPpi8255* self, uint8_t data_bus)
+{
+    /* read control register */ {
+        data_bus = self->state.ctrl_p;
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_ppi_8255_wr_ctrl_p(XcpcPpi8255* self, uint8_t data_bus)
+{
+    /* write control register */ {
+        self->state.ctrl_p = data_bus;
+    }
+    return data_bus;
+}

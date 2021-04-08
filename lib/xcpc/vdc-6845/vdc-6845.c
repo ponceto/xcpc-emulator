@@ -204,26 +204,29 @@ XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* 
 
 XcpcVdc6845* xcpc_vdc_6845_debug(XcpcVdc6845* self)
 {
+    const char* format = "  - %-24s : 0x%02x";
+
     /* debug state */ {
-        xcpc_log_debug("vdc_6845.address_register         = 0x%02x", self->state.regs.named.address_register        );
-        xcpc_log_debug("vdc_6845.horizontal_total         = 0x%02x", self->state.regs.named.horizontal_total        );
-        xcpc_log_debug("vdc_6845.horizontal_displayed     = 0x%02x", self->state.regs.named.horizontal_displayed    );
-        xcpc_log_debug("vdc_6845.horizontal_sync_position = 0x%02x", self->state.regs.named.horizontal_sync_position);
-        xcpc_log_debug("vdc_6845.sync_width               = 0x%02x", self->state.regs.named.sync_width              );
-        xcpc_log_debug("vdc_6845.vertical_total           = 0x%02x", self->state.regs.named.vertical_total          );
-        xcpc_log_debug("vdc_6845.vertical_total_adjust    = 0x%02x", self->state.regs.named.vertical_total_adjust   );
-        xcpc_log_debug("vdc_6845.vertical_displayed       = 0x%02x", self->state.regs.named.vertical_displayed      );
-        xcpc_log_debug("vdc_6845.vertical_sync_position   = 0x%02x", self->state.regs.named.vertical_sync_position  );
-        xcpc_log_debug("vdc_6845.interlace_mode_and_skew  = 0x%02x", self->state.regs.named.interlace_mode_and_skew );
-        xcpc_log_debug("vdc_6845.maximum_scanline_address = 0x%02x", self->state.regs.named.maximum_scanline_address);
-        xcpc_log_debug("vdc_6845.cursor_start             = 0x%02x", self->state.regs.named.cursor_start            );
-        xcpc_log_debug("vdc_6845.cursor_end               = 0x%02x", self->state.regs.named.cursor_end              );
-        xcpc_log_debug("vdc_6845.start_address_high       = 0x%02x", self->state.regs.named.start_address_high      );
-        xcpc_log_debug("vdc_6845.start_address_low        = 0x%02x", self->state.regs.named.start_address_low       );
-        xcpc_log_debug("vdc_6845.cursor_high              = 0x%02x", self->state.regs.named.cursor_high             );
-        xcpc_log_debug("vdc_6845.cursor_low               = 0x%02x", self->state.regs.named.cursor_low              );
-        xcpc_log_debug("vdc_6845.light_pen_high           = 0x%02x", self->state.regs.named.light_pen_high          );
-        xcpc_log_debug("vdc_6845.light_pen_low            = 0x%02x", self->state.regs.named.light_pen_low           );
+        xcpc_log_debug("vdc_6845:");
+        xcpc_log_debug(format, "address_register"        , self->state.regs.named.address_register        );
+        xcpc_log_debug(format, "horizontal_total"        , self->state.regs.named.horizontal_total        );
+        xcpc_log_debug(format, "horizontal_displayed"    , self->state.regs.named.horizontal_displayed    );
+        xcpc_log_debug(format, "horizontal_sync_position", self->state.regs.named.horizontal_sync_position);
+        xcpc_log_debug(format, "sync_width"              , self->state.regs.named.sync_width              );
+        xcpc_log_debug(format, "vertical_total"          , self->state.regs.named.vertical_total          );
+        xcpc_log_debug(format, "vertical_total_adjust"   , self->state.regs.named.vertical_total_adjust   );
+        xcpc_log_debug(format, "vertical_displayed"      , self->state.regs.named.vertical_displayed      );
+        xcpc_log_debug(format, "vertical_sync_position"  , self->state.regs.named.vertical_sync_position  );
+        xcpc_log_debug(format, "interlace_mode_and_skew" , self->state.regs.named.interlace_mode_and_skew );
+        xcpc_log_debug(format, "maximum_scanline_address", self->state.regs.named.maximum_scanline_address);
+        xcpc_log_debug(format, "cursor_start"            , self->state.regs.named.cursor_start            );
+        xcpc_log_debug(format, "cursor_end"              , self->state.regs.named.cursor_end              );
+        xcpc_log_debug(format, "start_address_high"      , self->state.regs.named.start_address_high      );
+        xcpc_log_debug(format, "start_address_low"       , self->state.regs.named.start_address_low       );
+        xcpc_log_debug(format, "cursor_high"             , self->state.regs.named.cursor_high             );
+        xcpc_log_debug(format, "cursor_low"              , self->state.regs.named.cursor_low              );
+        xcpc_log_debug(format, "light_pen_high"          , self->state.regs.named.light_pen_high          );
+        xcpc_log_debug(format, "light_pen_low"           , self->state.regs.named.light_pen_low           );
     }
     return self;
 }

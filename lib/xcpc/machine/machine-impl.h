@@ -82,7 +82,13 @@ struct _XcpcMachineState
     uint8_t company;
     uint8_t expansion;
     uint8_t parallel;
-    uint8_t cassette;
+    uint8_t psg_data;
+    uint8_t psg_bdir;
+    uint8_t psg_bc1;
+    uint8_t psg_bc2;
+    uint8_t cas_read;
+    uint8_t cas_write;
+    uint8_t cas_motor;
 };
 
 struct _XcpcMachineBoard

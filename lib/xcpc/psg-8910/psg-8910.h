@@ -34,10 +34,11 @@ extern XcpcPsg8910* xcpc_psg_8910_debug     (XcpcPsg8910* psg_8910);
 extern XcpcPsg8910* xcpc_psg_8910_reset     (XcpcPsg8910* psg_8910);
 extern XcpcPsg8910* xcpc_psg_8910_clock     (XcpcPsg8910* psg_8910);
 
-extern uint8_t      xcpc_psg_8910_rg        (XcpcPsg8910* psg_8910, uint8_t data_bus);
-extern uint8_t      xcpc_psg_8910_rs        (XcpcPsg8910* psg_8910, uint8_t data_bus);
-extern uint8_t      xcpc_psg_8910_rd        (XcpcPsg8910* psg_8910, uint8_t data_bus);
-extern uint8_t      xcpc_psg_8910_wr        (XcpcPsg8910* psg_8910, uint8_t data_bus);
+extern uint8_t      xcpc_psg_8910_no_func   (XcpcPsg8910* psg_8910, uint8_t data_bus);
+extern uint8_t      xcpc_psg_8910_rd_addr   (XcpcPsg8910* psg_8910, uint8_t data_bus);
+extern uint8_t      xcpc_psg_8910_wr_addr   (XcpcPsg8910* psg_8910, uint8_t data_bus);
+extern uint8_t      xcpc_psg_8910_rd_data   (XcpcPsg8910* psg_8910, uint8_t data_bus);
+extern uint8_t      xcpc_psg_8910_wr_data   (XcpcPsg8910* psg_8910, uint8_t data_bus);
 
 #ifdef __cplusplus
 }

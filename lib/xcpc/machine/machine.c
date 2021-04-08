@@ -84,6 +84,10 @@ static void compute_stats(XcpcMachine* self)
     /* print statistics */ {
         if(self->setup.fps != 0) {
             xcpc_log_print(self->stats.buffer);
+#if 0
+            (void) xcpc_vdc_6845_debug(self->board.vdc_6845);
+            (void) xcpc_psg_8910_debug(self->board.psg_8910);
+#endif
         }
     }
     /* set the new reference */ {
@@ -251,16 +255,16 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
         if((port & 0x4000) == 0) {
             switch((port >> 8) & 3) {
-                case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
+                case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
                     break;
-                case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
+                case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
                     break;
-                case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
+                case 2: /* [-0----10xxxxxxxx] [0xbexx] */
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [- not supported -]", port);
                     break;
-                case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
+                case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
                     data = xcpc_vdc_6845_rd(self->board.vdc_6845, 0xff);
                     break;
             }
@@ -279,23 +283,16 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
         if((port & 0x0800) == 0) {
             switch((port >> 8) & 3) {
-                case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-                    self->board.ppi_8255->state.port_a = self->board.keyboard->state.keys[self->board.keyboard->state.line];
-                    data = self->board.ppi_8255->state.port_a;
+                case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
+                    data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
                     break;
-                case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-                    self->board.ppi_8255->state.port_b = ((self->state.cassette  & 0x01) << 7)
-                                                       | ((self->state.parallel  & 0x01) << 6)
-                                                       | ((self->state.expansion & 0x01) << 5)
-                                                       | ((self->state.refresh   & 0x01) << 4)
-                                                       | ((self->state.company   & 0x07) << 1)
-                                                       | ((self->state.vsync     & 0x01) << 0);
-                    data = self->board.ppi_8255->state.port_b;
+                case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
+                    data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
                     break;
-                case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
-                    data = self->board.ppi_8255->state.port_c;
+                case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
+                    data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
                     break;
-                case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
+                case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : ppi-8255 [---- illegal ----]", port);
                     break;
             }
@@ -304,16 +301,16 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     /* fdc-765a [-----0--0xxxxxxx] [0xfb7f] */ {
         if((port & 0x0480) == 0) {
             switch(((port >> 7) & 2) | (port & 1)) {
-                case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
+                case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
                     break;
-                case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
+                case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
                     xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
                     break;
-                case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
+                case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
                     xcpc_fdc_765a_rd_stat(self->board.fdc_765a, &data);
                     break;
-                case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
+                case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
                     xcpc_fdc_765a_rd_data(self->board.fdc_765a, &data);
                     break;
             }
@@ -352,16 +349,16 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
         if((port & 0x4000) == 0) {
             switch((port >> 8) & 3) {
-                case 0:  /* [-0----00xxxxxxxx] [0xbcxx] */
+                case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
                     xcpc_vdc_6845_rs(self->board.vdc_6845, data);
                     break;
-                case 1:  /* [-0----01xxxxxxxx] [0xbdxx] */
+                case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
                     xcpc_vdc_6845_wr(self->board.vdc_6845, data);
                     break;
-                case 2:  /* [-0----10xxxxxxxx] [0xbexx] */
+                case 2: /* [-0----10xxxxxxxx] [0xbexx] */
                     xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [- not supported -]", port);
                     break;
-                case 3:  /* [-0----11xxxxxxxx] [0xbfxx] */
+                case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
                     xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [---- illegal ----]", port);
                     break;
             }
@@ -381,18 +378,17 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
         if((port & 0x0800) == 0) {
             switch((port >> 8) & 3) {
-                case 0:  /* [----0-00xxxxxxxx] [0xf4xx] */
-                    self->board.ppi_8255->state.port_a = data;
+                case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
+                    (void) xcpc_ppi_8255_wr_port_a(self->board.ppi_8255, data);
                     break;
-                case 1:  /* [----0-01xxxxxxxx] [0xf5xx] */
-                /*  self->board.ppi_8255->state.port_b = data; */
+                case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
+                    (void) xcpc_ppi_8255_wr_port_b(self->board.ppi_8255, data);
                     break;
-                case 2:  /* [----0-10xxxxxxxx] [0xf6xx] */
-                    self->board.ppi_8255->state.port_c = data;
-                    self->board.keyboard->state.line = data & 0x0F;
+                case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
+                    (void) xcpc_ppi_8255_wr_port_c(self->board.ppi_8255, data);
                     break;
-                case 3:  /* [----0-11xxxxxxxx] [0xf7xx] */
-                    self->board.ppi_8255->state.ctrl_p = data;
+                case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
+                    (void) xcpc_ppi_8255_wr_ctrl_p(self->board.ppi_8255, data);
                     break;
             }
         }
@@ -400,16 +396,16 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     /* fdc-765a [-----0--0xxxxxxx] [0xfb7f] */ {
         if((port & 0x0480) == 0) {
             switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
-                case 0:  /* [-----0-00xxxxxx0] [0xfa7e] */
+                case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
                     xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
                     break;
-                case 1:  /* [-----0-00xxxxxx1] [0xfa7f] */
+                case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
                     xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
                     break;
-                case 2:  /* [-----0-10xxxxxx0] [0xfb7e] */
+                case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
                     xcpc_fdc_765a_wr_stat(self->board.fdc_765a, &data);
                     break;
-                case 3:  /* [-----0-10xxxxxx1] [0xfb7f] */
+                case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
                     xcpc_fdc_765a_wr_data(self->board.fdc_765a, &data);
                     break;
             }
@@ -493,8 +489,25 @@ static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("ppi_rd_port_a");
+    /* read from psg */ {
+        const uint8_t psg_function = (self->state.psg_bdir << 2)
+                                   | (self->state.psg_bc2  << 1)
+                                   | (self->state.psg_bc1  << 0)
+                                   ;
+        switch(psg_function & 0x07) {
+            case 0x03: /* read from psg */
+                data = xcpc_psg_8910_rd_data(self->board.psg_8910, (data = self->state.psg_data));
+                break;
+            case 0x06: /* write to psg  */
+                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
+                break;
+            case 0x07: /* latch address */
+                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
+                break;
+            default:   /* inactive      */
+                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
+                break;
+        }
     }
     return data;
 }
@@ -503,8 +516,25 @@ static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("ppi_wr_port_a");
+    /* write to psg */ {
+        const uint8_t psg_function = (self->state.psg_bdir << 2)
+                                   | (self->state.psg_bc2  << 1)
+                                   | (self->state.psg_bc1  << 0)
+                                   ;
+        switch(psg_function & 0x07) {
+            case 0x03: /* read from psg */
+                data = xcpc_psg_8910_no_func(self->board.psg_8910, (self->state.psg_data = data));
+                break;
+            case 0x06: /* write to psg  */
+                data = xcpc_psg_8910_wr_data(self->board.psg_8910, (self->state.psg_data = data));
+                break;
+            case 0x07: /* latch address */
+                data = xcpc_psg_8910_wr_addr(self->board.psg_8910, (self->state.psg_data = data));
+                break;
+            default:   /* inactive      */
+                data = xcpc_psg_8910_no_func(self->board.psg_8910, (self->state.psg_data = data));
+                break;
+        }
     }
     return data;
 }
@@ -513,8 +543,13 @@ static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("ppi_rd_port_b");
+    /* read port b */ {
+        data = ((self->state.cas_read  & 0x01) << 7)
+             | ((self->state.parallel  & 0x01) << 6)
+             | ((self->state.expansion & 0x01) << 5)
+             | ((self->state.refresh   & 0x01) << 4)
+             | ((self->state.company   & 0x07) << 1)
+             | ((self->state.vsync     & 0x01) << 0);
     }
     return data;
 }
@@ -523,18 +558,21 @@ static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("ppi_wr_port_b");
+    /* write port b - illegal */ {
+        data = ((self->state.cas_read  & 0x01) << 7)
+             | ((self->state.parallel  & 0x01) << 6)
+             | ((self->state.expansion & 0x01) << 5)
+             | ((self->state.refresh   & 0x01) << 4)
+             | ((self->state.company   & 0x07) << 1)
+             | ((self->state.vsync     & 0x01) << 0);
     }
     return data;
 }
 
 static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
-    if(self != NULL) {
-        log_trace("ppi_rd_port_c");
+    /* read port c */ {
+        /* illegal */
     }
     return data;
 }
@@ -543,8 +581,34 @@ static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("ppi_wr_port_c");
+    /* update state */ {
+        self->state.psg_bdir  = ((data & 0x80) >> 7);
+        self->state.psg_bc1   = ((data & 0x40) >> 6);
+        self->state.cas_write = ((data & 0x20) >> 5);
+        self->state.cas_motor = ((data & 0x10) >> 4);
+    }
+    /* update keyboard line */ {
+        (void) xcpc_keyboard_set_line(self->board.keyboard, ((data & 0x0f) >> 0));
+    }
+    /* execute psg operation */ {
+        const uint8_t psg_function = (self->state.psg_bdir << 2)
+                                   | (self->state.psg_bc2  << 1)
+                                   | (self->state.psg_bc1  << 0)
+                                   ;
+        switch(psg_function & 0x07) {
+            case 0x03: /* read from psg */
+                (void) xcpc_psg_8910_rd_data(self->board.psg_8910, self->state.psg_data);
+                break;
+            case 0x06: /* write to psg  */
+                (void) xcpc_psg_8910_wr_data(self->board.psg_8910, self->state.psg_data);
+                break;
+            case 0x07: /* latch address */
+                (void) xcpc_psg_8910_wr_addr(self->board.psg_8910, self->state.psg_data);
+                break;
+            default:   /* inactive      */
+                (void) xcpc_psg_8910_no_func(self->board.psg_8910, self->state.psg_data);
+                break;
+        }
     }
     return data;
 }
@@ -553,40 +617,25 @@ static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data)
 {
     XcpcMachine* self = ((XcpcMachine*)(psg_8910->iface.user_data));
 
-    if(self != NULL) {
-        log_trace("psg_rd_port_a");
+    /* read keyboard */ {
+        data = (self->state.psg_data = xcpc_keyboard_get_data(self->board.keyboard, 0xff));
     }
     return data;
 }
 
 static uint8_t psg_wr_port_a(XcpcPsg8910* psg_8910, uint8_t data)
 {
-    XcpcMachine* self = ((XcpcMachine*)(psg_8910->iface.user_data));
-
-    if(self != NULL) {
-        log_trace("psg_wr_port_a");
-    }
-    return data;
+    return 0xff;
 }
 
 static uint8_t psg_rd_port_b(XcpcPsg8910* psg_8910, uint8_t data)
 {
-    XcpcMachine* self = ((XcpcMachine*)(psg_8910->iface.user_data));
-
-    if(self != NULL) {
-        log_trace("psg_rd_port_b");
-    }
-    return data;
+    return 0xff;
 }
 
 static uint8_t psg_wr_port_b(XcpcPsg8910* psg_8910, uint8_t data)
 {
-    XcpcMachine* self = ((XcpcMachine*)(psg_8910->iface.user_data));
-
-    if(self != NULL) {
-        log_trace("psg_wr_port_b");
-    }
-    return data;
+    return 0xff;
 }
 
 static void paint_default(XcpcMachine* self)
@@ -1774,7 +1823,13 @@ static void construct_state(XcpcMachine* self)
     self->state.company   = 7; /* amstrad       */
     self->state.expansion = 1; /* present       */
     self->state.parallel  = 1; /* not connected */
-    self->state.cassette  = 0; /* no data       */
+    self->state.psg_data  = 0; /* no data       */
+    self->state.psg_bdir  = 0; /* no data       */
+    self->state.psg_bc1   = 0; /* no data       */
+    self->state.psg_bc2   = 1; /* always set    */
+    self->state.cas_read  = 0; /* no data       */
+    self->state.cas_write = 0; /* no data       */
+    self->state.cas_motor = 0; /* no data       */
 }
 
 static void destruct_state(XcpcMachine* self)
@@ -1789,7 +1844,13 @@ static void reset_state(XcpcMachine* self)
     self->state.company   |= 0; /* don't modify */
     self->state.expansion |= 0; /* don't modify */
     self->state.parallel  |= 0; /* don't modify */
-    self->state.cassette  &= 0; /* clear value  */
+    self->state.psg_data  &= 0; /* clear value  */
+    self->state.psg_bdir  &= 0; /* clear value  */
+    self->state.psg_bc1   &= 0; /* clear value  */
+    self->state.psg_bc2   |= 0; /* don't modify */
+    self->state.cas_read  &= 0; /* clear value  */
+    self->state.cas_write &= 0; /* clear value  */
+    self->state.cas_motor &= 0; /* clear value  */
 }
 
 static void construct_board(XcpcMachine* self)
@@ -2423,18 +2484,6 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
                 xcpc_log_error("unknown machine type");
                 break;
         }
-    }
-    /* initialize state */ {
-        self->state.hsync     = 0; /* no hsync      */
-        self->state.vsync     = 0; /* no vsync      */
-        self->state.refresh   = 1; /* 50Hz          */
-        self->state.company   = 7; /* amstrad       */
-        self->state.expansion = 1; /* present       */
-        self->state.parallel  = 1; /* not connected */
-        self->state.cassette  = 0; /* no data       */
-    }
-    /* initialize board */ {
-        //  construct_board(self, system_rom, amsdos_rom);
     }
     /* load lower rom */ {
         XcpcRomBankStatus status = xcpc_rom_bank_load(self->board.rom_bank[0], system_rom, 0x0000);
