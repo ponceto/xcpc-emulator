@@ -61,39 +61,40 @@ static void compute_stats(XcpcMachine* self)
         }
     }
     /* compute the elapsed time in us */ {
-        const long long t1 = (((long long) prev_time.tv_sec) * 1000000LL) + ((long long) prev_time.tv_usec);
-        const long long t2 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
-        if(t2 >= t1) {
-            elapsed_us = ((unsigned long)(t2 - t1));
-        }
-        else {
-            elapsed_us = 0UL;
-        }
-    }
-    /* compute and build the statistics */ {
-        if(elapsed_us != 0) {
-            const double stats_frames  = (double) (self->stats.drawn * 1000000UL);
-            const double stats_elapsed = (double) elapsed_us;
-            const double stats_fps     = (stats_frames / stats_elapsed);
-            (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz, framerate = %.2f fps", self->frame.rate, stats_fps);
-        }
-        else {
-            (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz", self->frame.rate);
-        }
-    }
-    /* print statistics */ {
         if(self->setup.fps != 0) {
+            const long long t1 = (((long long) prev_time.tv_sec) * 1000000LL) + ((long long) prev_time.tv_usec);
+            const long long t2 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
+            if(t2 >= t1) {
+                elapsed_us = ((unsigned long)(t2 - t1));
+            }
+            else {
+                elapsed_us = 0UL;
+            }
+        }
+    }
+    /* compute and print the statistics */ {
+        if(self->setup.fps != 0) {
+            if(elapsed_us != 0) {
+                const double stats_frames  = (double) (self->stats.drawn * 1000000UL);
+                const double stats_elapsed = (double) elapsed_us;
+                const double stats_fps     = (stats_frames / stats_elapsed);
+                (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz, framerate = %.2f fps, total-hsync = %d, total-vsync = %d", self->frame.rate, stats_fps, self->stats.hsync, self->stats.vsync);
+            }
+            else {
+                (void) snprintf(self->stats.buffer, sizeof(self->stats.buffer), "refresh = %2d Hz", self->frame.rate);
+            }
             xcpc_log_print(self->stats.buffer);
-#if 0
-            (void) xcpc_vdc_6845_debug(self->board.vdc_6845);
-            (void) xcpc_psg_8910_debug(self->board.psg_8910);
-#endif
+        }
+        else {
+            self->stats.buffer[0] = '\0';
         }
     }
     /* set the new reference */ {
         self->timer.profiler = curr_time;
         self->stats.count    = 0;
         self->stats.drawn    = 0;
+        self->stats.hsync    = 0;
+        self->stats.vsync    = 0;
     }
 }
 
@@ -436,6 +437,7 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     }
     else {
         /* falling edge */ {
+            ++self->stats.hsync;
             if(++vga_core->state.counter == 52) {
                 xcpc_cpu_z80a_pulse_int(cpu_z80a);
                 vga_core->state.counter = 0;
@@ -479,6 +481,7 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
     }
     else {
         /* falling edge */ {
+            ++self->stats.vsync;
             self->frame.beam_y &= 0;
         }
     }
@@ -2199,6 +2202,8 @@ static void construct_stats(XcpcMachine* self)
 {
     self->stats.count     = 0;
     self->stats.drawn     = 0;
+    self->stats.hsync     = 0;
+    self->stats.vsync     = 0;
     self->stats.buffer[0] = '\0';
 }
 
@@ -2210,6 +2215,8 @@ static void reset_stats(XcpcMachine* self)
 {
     self->stats.count     &= 0; /* clear value  */
     self->stats.drawn     &= 0; /* clear value  */
+    self->stats.hsync     &= 0; /* clear value  */
+    self->stats.vsync     &= 0; /* clear value  */
     self->stats.buffer[0] &= 0; /* clear value  */
 }
 

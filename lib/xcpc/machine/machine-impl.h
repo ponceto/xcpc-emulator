@@ -136,6 +136,8 @@ struct _XcpcMachineStats
 {
     unsigned int count;
     unsigned int drawn;
+    unsigned int hsync;
+    unsigned int vsync;
     char         buffer[256];
 };
 
