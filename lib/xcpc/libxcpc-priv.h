@@ -27,8 +27,13 @@ extern "C" {
 #define XCPC_DEFAULT_PRINT_STREAM stdout
 #define XCPC_DEFAULT_ERROR_STREAM stderr
 
-typedef struct _XcpcLibrary    XcpcLibrary;
-typedef struct _XcpcColorEntry XcpcColorEntry;
+typedef struct _XcpcLibrary           XcpcLibrary;
+typedef struct _XcpcCompanyNameEntry  XcpcCompanyNameEntry;
+typedef struct _XcpcMachineTypeEntry  XcpcMachineTypeEntry;
+typedef struct _XcpcMonitorTypeEntry  XcpcMonitorTypeEntry;
+typedef struct _XcpcRefreshRateEntry  XcpcRefreshRateEntry;
+typedef struct _XcpcKeyboardTypeEntry XcpcKeyboardTypeEntry;
+typedef struct _XcpcColorEntry        XcpcColorEntry;
 
 struct _XcpcLibrary
 {
@@ -42,10 +47,40 @@ struct _XcpcLibrary
     FILE* error_stream;
 };
 
+struct _XcpcCompanyNameEntry
+{
+    const char*     label;
+    XcpcCompanyName value;
+};
+
+struct _XcpcMachineTypeEntry
+{
+    const char*     label;
+    XcpcMachineType value;
+};
+
+struct _XcpcMonitorTypeEntry
+{
+    const char*     label;
+    XcpcMonitorType value;
+};
+
+struct _XcpcRefreshRateEntry
+{
+    const char*     label;
+    XcpcRefreshRate value;
+};
+
+struct _XcpcKeyboardTypeEntry
+{
+    const char*      label;
+    XcpcKeyboardType value;
+};
+
 struct _XcpcColorEntry
 {
-    XcpcColor      color;
     const char*    label;
+    XcpcColor      color;
     unsigned short red;
     unsigned short green;
     unsigned short blue;
