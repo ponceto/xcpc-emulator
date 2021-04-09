@@ -256,23 +256,54 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd(0x%04x) : vga-core [---- illegal ----]", port);
+            const uint8_t function = ((data >> 6) & 3);
+            switch(function) {
+                case 0: /* select pen */
+                    {
+                        data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                    }
+                    break;
+                case 1: /* select color */
+                    {
+                        data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                    }
+                    break;
+                case 2: /* interrupt control, rom configuration and screen mode */
+                    {
+                        data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                    }
+                    break;
+                case 3: /* ram memory management */
+                    {
+                        data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                    }
+                    break;
+            }
         }
     }
     /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
         if((port & 0x4000) == 0) {
-            switch((port >> 8) & 3) {
+            const uint8_t function = ((port >> 8) & 3);
+            switch(function) {
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
-                    data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    {
+                        data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    }
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
-                    data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    {
+                        data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    }
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
-                    data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    {
+                        data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    }
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
-                    data = xcpc_vdc_6845_rd_data(self->board.vdc_6845, data);
+                    {
+                        data = xcpc_vdc_6845_rd_data(self->board.vdc_6845, data);
+                    }
                     break;
             }
         }
@@ -289,36 +320,54 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
         if((port & 0x0800) == 0) {
-            switch((port >> 8) & 3) {
+            const uint8_t function = ((port >> 8) & 3);
+            switch(function) {
                 case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
-                    data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
+                    {
+                        data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
+                    }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
-                    data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
+                    {
+                        data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
+                    }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
-                    data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
+                    {
+                        data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
+                    }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : ppi-8255 [---- illegal ----]", port);
+                    {
+                        data = xcpc_ppi_8255_illegal(self->board.ppi_8255, data);
+                    }
                     break;
             }
         }
     }
     /* fdc-765a [-----0--0xxxxxxx] [0xfb7f] */ {
         if((port & 0x0480) == 0) {
-            switch(((port >> 7) & 2) | (port & 1)) {
+            const uint8_t function = (((port >> 7) & 2) | (port & 1));
+            switch(function) {
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
-                    data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
+                    {
+                        data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
+                    }
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
-                    data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
+                    {
+                        data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
+                    }
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
-                    data = xcpc_fdc_765a_rd_stat(self->board.fdc_765a, data);
+                    {
+                        data = xcpc_fdc_765a_rd_stat(self->board.fdc_765a, data);
+                    }
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
-                    data = xcpc_fdc_765a_rd_data(self->board.fdc_765a, data);
+                    {
+                        data = xcpc_fdc_765a_rd_data(self->board.fdc_765a, data);
+                    }
                     break;
             }
         }
@@ -332,41 +381,59 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
-            switch((data >> 6) & 3) {
-                case 0: /* Select pen */
-                    self->board.vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
-                    break;
-                case 1: /* Select color */
-                    self->board.vga_core->state.ink[self->board.vga_core->state.pen] = data & 0x1f;
-                    break;
-                case 2: /* Interrupt control, ROM configuration and screen mode */
-                    if((data & 0x10) != 0) {
-                        self->board.vga_core->state.counter = 0;
+            const uint8_t function = ((data >> 6) & 3);
+            switch(function) {
+                case 0: /* select pen */
+                    {
+                        self->board.vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
                     }
-                    self->board.vga_core->state.rmr = data & 0x1f;
-                    cpc_mem_select(self);
                     break;
-                case 3: /* RAM memory management */
-                    self->pager.conf.ram = data & 0x3f;
-                    cpc_mem_select(self);
+                case 1: /* select color */
+                    {
+                        self->board.vga_core->state.ink[self->board.vga_core->state.pen] = data & 0x1f;
+                    }
+                    break;
+                case 2: /* interrupt control, rom configuration and screen mode */
+                    {
+                        if((data & 0x10) != 0) {
+                            self->board.vga_core->state.counter = 0;
+                        }
+                        self->board.vga_core->state.rmr = data & 0x1f;
+                        cpc_mem_select(self);
+                    }
+                    break;
+                case 3: /* ram memory management */
+                    {
+                        self->pager.conf.ram = data & 0x3f;
+                        cpc_mem_select(self);
+                    }
                     break;
             }
         }
     }
     /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
         if((port & 0x4000) == 0) {
-            switch((port >> 8) & 3) {
+            const uint8_t function = ((port >> 8) & 3);
+            switch(function) {
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
-                    (void) xcpc_vdc_6845_wr_addr(self->board.vdc_6845, data);
+                    {
+                        (void) xcpc_vdc_6845_wr_addr(self->board.vdc_6845, data);
+                    }
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
-                    (void) xcpc_vdc_6845_wr_data(self->board.vdc_6845, data);
+                    {
+                        (void) xcpc_vdc_6845_wr_data(self->board.vdc_6845, data);
+                    }
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
-                    (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    {
+                        (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    }
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
-                    (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    {
+                        (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                    }
                     break;
             }
         }
@@ -384,36 +451,54 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
         if((port & 0x0800) == 0) {
-            switch((port >> 8) & 3) {
+            const uint8_t function = ((port >> 8) & 3);
+            switch(function) {
                 case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
-                    (void) xcpc_ppi_8255_wr_port_a(self->board.ppi_8255, data);
+                    {
+                        (void) xcpc_ppi_8255_wr_port_a(self->board.ppi_8255, data);
+                    }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
-                    (void) xcpc_ppi_8255_wr_port_b(self->board.ppi_8255, data);
+                    {
+                        (void) xcpc_ppi_8255_wr_port_b(self->board.ppi_8255, data);
+                    }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
-                    (void) xcpc_ppi_8255_wr_port_c(self->board.ppi_8255, data);
+                    {
+                        (void) xcpc_ppi_8255_wr_port_c(self->board.ppi_8255, data);
+                    }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
-                    (void) xcpc_ppi_8255_wr_ctrl_p(self->board.ppi_8255, data);
+                    {
+                        (void) xcpc_ppi_8255_wr_ctrl_p(self->board.ppi_8255, data);
+                    }
                     break;
             }
         }
     }
     /* fdc-765a [-----0--0xxxxxxx] [0xfb7f] */ {
         if((port & 0x0480) == 0) {
-            switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
+            const uint8_t function = (((port >> 7) & 2) | ((port >> 0) & 1));
+            switch(function) {
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
-                    (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    {
+                        (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, (((data & 1) << 1) | ((data & 1) << 0)));
+                    }
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
-                    (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    {
+                        (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, (((data & 1) << 1) | ((data & 1) << 0)));
+                    }
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
-                    (void) xcpc_fdc_765a_wr_stat(self->board.fdc_765a, data);
+                    {
+                        (void) xcpc_fdc_765a_wr_stat(self->board.fdc_765a, data);
+                    }
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
-                    (void) xcpc_fdc_765a_wr_data(self->board.fdc_765a, data);
+                    {
+                        (void) xcpc_fdc_765a_wr_data(self->board.fdc_765a, data);
+                    }
                     break;
             }
         }

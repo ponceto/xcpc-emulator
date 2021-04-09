@@ -131,6 +131,11 @@ XcpcPpi8255* xcpc_ppi_8255_clock(XcpcPpi8255* self)
     return self;
 }
 
+uint8_t xcpc_ppi_8255_illegal(XcpcPpi8255* self, uint8_t data_bus)
+{
+    return data_bus;
+}
+
 uint8_t xcpc_ppi_8255_rd_port_a(XcpcPpi8255* self, uint8_t data_bus)
 {
     /* read port a */ {

@@ -181,3 +181,8 @@ XcpcVgaCore* xcpc_vga_core_clock(XcpcVgaCore* self)
 {
     return self;
 }
+
+uint8_t xcpc_vga_core_illegal(XcpcVgaCore* self, uint8_t data_bus)
+{
+    return data_bus;
+}
