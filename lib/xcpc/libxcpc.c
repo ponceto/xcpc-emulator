@@ -390,7 +390,7 @@ const char* xcpc_about_text(void)
 
 XcpcCompanyName xcpc_company_name(const char* label, XcpcCompanyName value)
 {
-    static struct {
+    static const struct {
         const char* label;
         int         value;
     } list[] = {
@@ -420,7 +420,7 @@ XcpcCompanyName xcpc_company_name(const char* label, XcpcCompanyName value)
 
 XcpcMachineType xcpc_machine_type(const char* label, XcpcMachineType value)
 {
-    static struct {
+    static const struct {
         const char* label;
         int         value;
     } list[] = {
@@ -445,7 +445,7 @@ XcpcMachineType xcpc_machine_type(const char* label, XcpcMachineType value)
 
 XcpcMonitorType xcpc_monitor_type(const char* label, XcpcMonitorType value)
 {
-    static struct {
+    static const struct {
         const char* label;
         int         value;
     } list[] = {
@@ -476,7 +476,7 @@ XcpcMonitorType xcpc_monitor_type(const char* label, XcpcMonitorType value)
 
 XcpcRefreshRate xcpc_refresh_rate(const char* label, XcpcRefreshRate value)
 {
-    static struct {
+    static const struct {
         const char* label;
         int         value;
     } list[] = {
@@ -500,7 +500,7 @@ XcpcRefreshRate xcpc_refresh_rate(const char* label, XcpcRefreshRate value)
 
 XcpcKeyboardType xcpc_keyboard_type(const char* label, XcpcKeyboardType value)
 {
-    static struct {
+    static const struct {
         const char* label;
         int         value;
     } list[] = {
