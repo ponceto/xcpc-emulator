@@ -323,7 +323,12 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
     return self;
 }
 
-uint8_t xcpc_vdc_6845_rg(XcpcVdc6845* self, uint8_t data_bus)
+uint8_t xcpc_vdc_6845_illegal(XcpcVdc6845* self, uint8_t data_bus)
+{
+    return data_bus;
+}
+
+uint8_t xcpc_vdc_6845_rd_addr(XcpcVdc6845* self, uint8_t data_bus)
 {
     uint8_t const is_readable   = (self->setup.caps_of.addr & REG_READABLE);
     uint8_t const register_mask = (self->setup.mask_of.addr);
@@ -335,7 +340,7 @@ uint8_t xcpc_vdc_6845_rg(XcpcVdc6845* self, uint8_t data_bus)
     return data_bus;
 }
 
-uint8_t xcpc_vdc_6845_rs(XcpcVdc6845* self, uint8_t data_bus)
+uint8_t xcpc_vdc_6845_wr_addr(XcpcVdc6845* self, uint8_t data_bus)
 {
     uint8_t const is_writable   = (self->setup.caps_of.addr & REG_WRITABLE);
     uint8_t const register_mask = (self->setup.mask_of.addr);
@@ -347,7 +352,7 @@ uint8_t xcpc_vdc_6845_rs(XcpcVdc6845* self, uint8_t data_bus)
     return data_bus;
 }
 
-uint8_t xcpc_vdc_6845_rd(XcpcVdc6845* self, uint8_t data_bus)
+uint8_t xcpc_vdc_6845_rd_data(XcpcVdc6845* self, uint8_t data_bus)
 {
     const uint8_t address_register = self->state.regs.named.address_register;
 
@@ -362,7 +367,7 @@ uint8_t xcpc_vdc_6845_rd(XcpcVdc6845* self, uint8_t data_bus)
     return data_bus;
 }
 
-uint8_t xcpc_vdc_6845_wr(XcpcVdc6845* self, uint8_t data_bus)
+uint8_t xcpc_vdc_6845_wr_data(XcpcVdc6845* self, uint8_t data_bus)
 {
     const uint8_t address_register = self->state.regs.named.address_register;
 

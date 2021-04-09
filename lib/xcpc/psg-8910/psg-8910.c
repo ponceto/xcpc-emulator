@@ -219,7 +219,7 @@ XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
     return self;
 }
 
-uint8_t xcpc_psg_8910_no_func(XcpcPsg8910* self, uint8_t data_bus)
+uint8_t xcpc_psg_8910_illegal(XcpcPsg8910* self, uint8_t data_bus)
 {
     return data_bus;
 }

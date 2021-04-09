@@ -263,16 +263,16 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x4000) == 0) {
             switch((port >> 8) & 3) {
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [- not supported -]", port);
+                    data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
-                    data = xcpc_vdc_6845_rd(self->board.vdc_6845, 0xff);
+                    data = xcpc_vdc_6845_rd_data(self->board.vdc_6845, data);
                     break;
             }
         }
@@ -309,16 +309,16 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x0480) == 0) {
             switch(((port >> 7) & 2) | (port & 1)) {
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
+                    data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
+                    data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
-                    xcpc_fdc_765a_rd_stat(self->board.fdc_765a, &data);
+                    data = xcpc_fdc_765a_rd_stat(self->board.fdc_765a, data);
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
-                    xcpc_fdc_765a_rd_data(self->board.fdc_765a, &data);
+                    data = xcpc_fdc_765a_rd_data(self->board.fdc_765a, data);
                     break;
             }
         }
@@ -357,16 +357,16 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x4000) == 0) {
             switch((port >> 8) & 3) {
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
-                    xcpc_vdc_6845_rs(self->board.vdc_6845, data);
+                    (void) xcpc_vdc_6845_wr_addr(self->board.vdc_6845, data);
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
-                    xcpc_vdc_6845_wr(self->board.vdc_6845, data);
+                    (void) xcpc_vdc_6845_wr_data(self->board.vdc_6845, data);
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
-                    xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [- not supported -]", port);
+                    (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
-                    xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
                     break;
             }
         }
@@ -404,16 +404,16 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x0480) == 0) {
             switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
-                    xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
-                    xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
-                    xcpc_fdc_765a_wr_stat(self->board.fdc_765a, &data);
+                    (void) xcpc_fdc_765a_wr_stat(self->board.fdc_765a, data);
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
-                    xcpc_fdc_765a_wr_data(self->board.fdc_765a, &data);
+                    (void) xcpc_fdc_765a_wr_data(self->board.fdc_765a, data);
                     break;
             }
         }
@@ -508,13 +508,13 @@ static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
                 data = xcpc_psg_8910_rd_data(self->board.psg_8910, (data = self->state.psg_data));
                 break;
             case 0x06: /* write to psg  */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, (data = self->state.psg_data));
                 break;
             case 0x07: /* latch address */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, (data = self->state.psg_data));
                 break;
             default:   /* inactive      */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, (data = self->state.psg_data));
                 break;
         }
     }
@@ -532,7 +532,7 @@ static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
                                    ;
         switch(psg_function & 0x07) {
             case 0x03: /* read from psg */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (self->state.psg_data = data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, (self->state.psg_data = data));
                 break;
             case 0x06: /* write to psg  */
                 data = xcpc_psg_8910_wr_data(self->board.psg_8910, (self->state.psg_data = data));
@@ -541,7 +541,7 @@ static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
                 data = xcpc_psg_8910_wr_addr(self->board.psg_8910, (self->state.psg_data = data));
                 break;
             default:   /* inactive      */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (self->state.psg_data = data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, (self->state.psg_data = data));
                 break;
         }
     }
@@ -615,7 +615,7 @@ static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
                 (void) xcpc_psg_8910_wr_addr(self->board.psg_8910, self->state.psg_data);
                 break;
             default:   /* inactive      */
-                (void) xcpc_psg_8910_no_func(self->board.psg_8910, self->state.psg_data);
+                (void) xcpc_psg_8910_illegal(self->board.psg_8910, self->state.psg_data);
                 break;
         }
     }

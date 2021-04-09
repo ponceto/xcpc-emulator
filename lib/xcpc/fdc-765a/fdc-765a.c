@@ -221,29 +221,49 @@ XcpcFdc765a* xcpc_fdc_765a_remove(XcpcFdc765a* self, int drive)
     return self;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_set_motor(XcpcFdc765a* self, uint8_t motor)
+uint8_t xcpc_fdc_765a_set_motor(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_set_motor(self->state.fdc_impl, motor), self);
+    /* set motor */ {
+        (void) xcpc_fdc_impl_set_motor(self->state.fdc_impl, data);
+    }
+    return data;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_rd_stat(XcpcFdc765a* self, uint8_t* data)
+uint8_t xcpc_fdc_765a_illegal(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_rd_stat(self->state.fdc_impl, data), self);
+    return data;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_wr_stat(XcpcFdc765a* self, uint8_t* data)
+uint8_t xcpc_fdc_765a_rd_stat(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_wr_stat(self->state.fdc_impl, data), self);
+    /* read stat */ {
+        (void) xcpc_fdc_impl_rd_stat(self->state.fdc_impl, &data);
+    }
+    return data;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_rd_data(XcpcFdc765a* self, uint8_t* data)
+uint8_t xcpc_fdc_765a_wr_stat(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_rd_data(self->state.fdc_impl, data), self);
+    /* write stat */ {
+        (void) xcpc_fdc_impl_wr_stat(self->state.fdc_impl, &data);
+    }
+    return data;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_wr_data(XcpcFdc765a* self, uint8_t* data)
+uint8_t xcpc_fdc_765a_rd_data(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_wr_data(self->state.fdc_impl, data), self);
+    /* read data */ {
+        (void) xcpc_fdc_impl_rd_data(self->state.fdc_impl, &data);
+    }
+    return data;
+}
+
+uint8_t xcpc_fdc_765a_wr_data(XcpcFdc765a* self, uint8_t data)
+{
+    /* write data */ {
+        (void) xcpc_fdc_impl_wr_data(self->state.fdc_impl, &data);
+    }
+    return data;
 }
 
 XcpcFdcImpl* xcpc_fdc_impl_new(void)
