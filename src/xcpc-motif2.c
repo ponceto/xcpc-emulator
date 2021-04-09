@@ -591,17 +591,8 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStr
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
-    XmString title = XmStringCreateLocalized(_(
-        "Legal Info ..."
-    ));
-    XmString message = XmStringCreateLocalized(_(
-        "Amstrad has kindly given it's permission for it's copyrighted\n"
-        "material to be redistributed but Amstrad retains it's copyright.\n\n"
-        "Some of the Amstrad CPC ROM code is copyright Locomotive Software.\n\n"
-        "ROM and DISK images are protected under the copyrights of their authors,\n"
-        "and cannot be distributed in this package. You can download and/or use\n"
-        "ROM and DISK images at your own risk and responsibility."
-    ));
+    XmString title = XmStringCreateLocalized(_("Legal Info ..."));
+    XmString message = XmStringCreateLocalized(_(((char*)(xcpc_legal_text()))));
 
     /* legal dialog */ {
         Widget dialog = NULL;
@@ -638,22 +629,8 @@ static void AboutCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStr
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
-    XmString title = XmStringCreateLocalized(_(
-        "About Xcpc ..."
-    ));
-    XmString message = XmStringCreateLocalized(_(
-        PACKAGE_STRING " - Amstrad CPC emulator - Copyright (c) 2001-2021 - Olivier Poncet\n\n"
-        "This program is free software: you can redistribute it and/or modify\n"
-        "it under the terms of the GNU General Public License as published by\n"
-        "the Free Software Foundation, either version 2 of the License, or\n"
-        "(at your option) any later version.\n\n"
-        "This program is distributed in the hope that it will be useful,\n"
-        "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-        "GNU General Public License for more details.\n\n"
-        "You should have received a copy of the GNU General Public License\n"
-        "along with this program.  If not, see <http://www.gnu.org/licenses/>"
-    ));
+    XmString title = XmStringCreateLocalized(_("About Xcpc ..."));
+    XmString message = XmStringCreateLocalized(_(((char*)(xcpc_about_text()))));
 
     /* about dialog */ {
         Widget dialog = NULL;
