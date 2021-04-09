@@ -40,7 +40,8 @@ struct _XcpcMonitorIface
 
 struct _XcpcMonitorSetup
 {
-    int reserved;
+    XcpcMonitorType monitor_type;
+    XcpcRefreshRate refresh_rate;
 };
 
 struct _XcpcMonitorState
@@ -53,8 +54,12 @@ struct _XcpcMonitorState
     Window   window;
     Colormap colormap;
     int      depth;
-    int      px;
-    int      py;
+    int      total_w;
+    int      total_h;
+    int      visible_x;
+    int      visible_y;
+    int      visible_w;
+    int      visible_h;
     Bool     try_xshm;
     Bool     has_xshm;
     Bool     use_xshm;
@@ -79,9 +84,6 @@ struct _XcpcScanline
     } color[17];
     uint8_t data[1024];
 };
-
-#define XCPC_MONITOR_WIDTH  768
-#define XCPC_MONITOR_HEIGHT 576
 
 #ifdef __cplusplus
 }

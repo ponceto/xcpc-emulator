@@ -82,7 +82,13 @@ struct _XcpcMachineState
     uint8_t company;
     uint8_t expansion;
     uint8_t parallel;
-    uint8_t cassette;
+    uint8_t psg_data;
+    uint8_t psg_bdir;
+    uint8_t psg_bc1;
+    uint8_t psg_bc2;
+    uint8_t cas_read;
+    uint8_t cas_write;
+    uint8_t cas_motor;
 };
 
 struct _XcpcMachineBoard
@@ -117,18 +123,22 @@ struct _XcpcMachinePager
 
 struct _XcpcMachineFrame
 {
-    XcpcScanline array[312];
-    int          index;
+    XcpcScanline scanline_array[576];
+    unsigned int scanline_count;
+    unsigned int beam_x;
+    unsigned int beam_y;
+    unsigned int rate;
+    unsigned int duration;
+    unsigned int cpu_ticks;
 };
 
 struct _XcpcMachineStats
 {
-    unsigned int rate;
-    unsigned int time;
     unsigned int count;
     unsigned int drawn;
+    unsigned int hsync;
+    unsigned int vsync;
     char         buffer[256];
-    int          cpu_period;
 };
 
 struct _XcpcMachineTimer

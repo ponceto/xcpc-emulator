@@ -17,6 +17,11 @@
 #ifndef __XCPC_MOTIF2_PRIV_H__
 #define __XCPC_MOTIF2_PRIV_H__
 
+#include <Xm/XmAll.h>
+#include <Xem/StringDefs.h>
+#include <Xem/AppShell.h>
+#include <Xem/DlgShell.h>
+#include <Xem/Emulator.h>
 #include <xcpc/machine/machine.h>
 #include "xcpc-motif2.h"
 
@@ -24,21 +29,28 @@
 extern "C" {
 #endif
 
-#ifndef _
-#define _(string) (string)
-#endif
+typedef struct _XcpcResourcesRec   XcpcResourcesRec;
+typedef struct _XcpcPixmapsRec     XcpcPixmapsRec;
+typedef struct _XcpcFileMenuRec    XcpcFileMenuRec;
+typedef struct _XcpcDrv0MenuRec    XcpcDrv0MenuRec;
+typedef struct _XcpcDrv1MenuRec    XcpcDrv1MenuRec;
+typedef struct _XcpcCtrlMenuRec    XcpcCtrlMenuRec;
+typedef struct _XcpcHelpMenuRec    XcpcHelpMenuRec;
+typedef struct _XcpcLayoutRec      XcpcLayoutRec;
+typedef struct _XcpcMenuBarRec     XcpcMenuBarRec;
+typedef struct _XcpcToolBarRec     XcpcToolBarRec;
+typedef struct _XcpcApplicationRec XcpcApplicationRec;
 
-typedef struct _XcpcResourcesRec
+struct _XcpcResourcesRec
 {
-    String  appname;
-    String  appclass;
+    String  app_name;
+    String  app_class;
     Boolean quiet_flag;
     Boolean trace_flag;
     Boolean debug_flag;
+};
 
-} XcpcResourcesRec;
-
-typedef struct _XcpcPixmapsRec
+struct _XcpcPixmapsRec
 {
     Pixel  foreground;
     Pixel  background;
@@ -55,9 +67,9 @@ typedef struct _XcpcPixmapsRec
     Pixmap disk_remove;
     Pixmap help_legal;
     Pixmap help_about;
-} XcpcPixmapsRec;
+};
 
-typedef struct _XcpcFileMenuRec
+struct _XcpcFileMenuRec
 {
     Widget menu;
     Widget pulldown;
@@ -65,49 +77,50 @@ typedef struct _XcpcFileMenuRec
     Widget save_snapshot;
     Widget separator1;
     Widget exit;
-} XcpcFileMenuRec;
+};
 
-typedef struct _XcpcDrv0MenuRec
+struct _XcpcDrv0MenuRec
 {
     Widget menu;
     Widget pulldown;
     Widget drive0_insert;
     Widget drive0_remove;
-} XcpcDrv0MenuRec;
+};
 
-typedef struct _XcpcDrv1MenuRec
+struct _XcpcDrv1MenuRec
 {
     Widget menu;
     Widget pulldown;
     Widget drive1_insert;
     Widget drive1_remove;
-} XcpcDrv1MenuRec;
+};
 
-typedef struct _XcpcCtrlMenuRec
+struct _XcpcCtrlMenuRec
 {
     Widget menu;
     Widget pulldown;
+    Widget play_emulator;
     Widget pause_emulator;
     Widget reset_emulator;
-} XcpcCtrlMenuRec;
+};
 
-typedef struct _XcpcHelpMenuRec
+struct _XcpcHelpMenuRec
 {
     Widget menu;
     Widget pulldown;
     Widget legal;
     Widget separator1;
     Widget about;
-} XcpcHelpMenuRec;
+};
 
-typedef struct _XcpcLayoutRec
+struct _XcpcLayoutRec
 {
     Widget toplevel;
     Widget window;
     Widget emulator;
-} XcpcLayoutRec;
+};
 
-typedef struct _XcpcMenuBarRec
+struct _XcpcMenuBarRec
 {
     Widget widget;
     XcpcFileMenuRec file;
@@ -115,22 +128,20 @@ typedef struct _XcpcMenuBarRec
     XcpcDrv0MenuRec drv0;
     XcpcDrv1MenuRec drv1;
     XcpcHelpMenuRec help;
-} XcpcMenuBarRec;
+};
 
-typedef struct _XcpcToolBarRec
+struct _XcpcToolBarRec
 {
     Widget widget;
     Widget load_snapshot;
     Widget save_snapshot;
+    Widget play_emulator;
     Widget pause_emulator;
     Widget reset_emulator;
-} XcpcToolBarRec;
+};
 
-typedef struct _XcpcApplicationRec
+struct _XcpcApplicationRec
 {
-    FILE*            input_stream;
-    FILE*            print_stream;
-    FILE*            error_stream;
     XcpcMachine*     machine;
     XtAppContext     appcontext;
     XcpcResourcesRec resources;
@@ -138,7 +149,7 @@ typedef struct _XcpcApplicationRec
     XcpcLayoutRec    layout;
     XcpcMenuBarRec   menubar;
     XcpcToolBarRec   toolbar;
-} XcpcApplicationRec;
+};
 
 #ifdef __cplusplus
 }

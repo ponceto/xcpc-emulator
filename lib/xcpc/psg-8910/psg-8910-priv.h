@@ -23,95 +23,32 @@
 extern "C" {
 #endif
 
-#define INDEX_OF_ADDRESS_REGISTER              -1
-#define INDEX_OF_CHANNEL_A_FINE_TUNE            0
-#define INDEX_OF_CHANNEL_A_COARSE_TUNE          1
-#define INDEX_OF_CHANNEL_B_FINE_TUNE            2
-#define INDEX_OF_CHANNEL_B_COARSE_TUNE          3
-#define INDEX_OF_CHANNEL_C_FINE_TUNE            4
-#define INDEX_OF_CHANNEL_C_COARSE_TUNE          5
-#define INDEX_OF_NOISE_PERIOD                   6
-#define INDEX_OF_MIXER_AND_IO_CONTROL           7
-#define INDEX_OF_CHANNEL_A_VOLUME               8
-#define INDEX_OF_CHANNEL_B_VOLUME               9
-#define INDEX_OF_CHANNEL_C_VOLUME              10
-#define INDEX_OF_ENVELOPE_FINE_TUNE            11
-#define INDEX_OF_ENVELOPE_COARSE_TUNE          12
-#define INDEX_OF_ENVELOPE_SHAPE                13
-#define INDEX_OF_IO_PORT_A                     14
-#define INDEX_OF_IO_PORT_B                     15
+#define NOT_READABLE 0x00
+#define REG_READABLE 0x01
+#define NOT_WRITABLE 0x00
+#define REG_WRITABLE 0x02
 
-#define MASK_OF_ADDRESS_REGISTER               0xff
-#define MASK_OF_CHANNEL_A_FINE_TUNE            0xff
-#define MASK_OF_CHANNEL_A_COARSE_TUNE          0x0f
-#define MASK_OF_CHANNEL_B_FINE_TUNE            0xff
-#define MASK_OF_CHANNEL_B_COARSE_TUNE          0x0f
-#define MASK_OF_CHANNEL_C_FINE_TUNE            0xff
-#define MASK_OF_CHANNEL_C_COARSE_TUNE          0x0f
-#define MASK_OF_NOISE_PERIOD                   0x1f
-#define MASK_OF_MIXER_AND_IO_CONTROL           0xff
-#define MASK_OF_CHANNEL_A_VOLUME               0x1f
-#define MASK_OF_CHANNEL_B_VOLUME               0x1f
-#define MASK_OF_CHANNEL_C_VOLUME               0x1f
-#define MASK_OF_ENVELOPE_FINE_TUNE             0xff
-#define MASK_OF_ENVELOPE_COARSE_TUNE           0xff
-#define MASK_OF_ENVELOPE_SHAPE                 0x0f
-#define MASK_OF_IO_PORT_A                      0xff
-#define MASK_OF_IO_PORT_B                      0xff
-
-#define IS_READABLE_ADDRESS_REGISTER           0x1
-#define IS_READABLE_CHANNEL_A_FINE_TUNE        0x1
-#define IS_READABLE_CHANNEL_A_COARSE_TUNE      0x1
-#define IS_READABLE_CHANNEL_B_FINE_TUNE        0x1
-#define IS_READABLE_CHANNEL_B_COARSE_TUNE      0x1
-#define IS_READABLE_CHANNEL_C_FINE_TUNE        0x1
-#define IS_READABLE_CHANNEL_C_COARSE_TUNE      0x1
-#define IS_READABLE_NOISE_PERIOD               0x1
-#define IS_READABLE_MIXER_AND_IO_CONTROL       0x1
-#define IS_READABLE_CHANNEL_A_VOLUME           0x1
-#define IS_READABLE_CHANNEL_B_VOLUME           0x1
-#define IS_READABLE_CHANNEL_C_VOLUME           0x1
-#define IS_READABLE_ENVELOPE_FINE_TUNE         0x1
-#define IS_READABLE_ENVELOPE_COARSE_TUNE       0x1
-#define IS_READABLE_ENVELOPE_SHAPE             0x1
-#define IS_READABLE_IO_PORT_A                  0x1
-#define IS_READABLE_IO_PORT_B                  0x1
-
-#define IS_WRITABLE_ADDRESS_REGISTER           0x1
-#define IS_WRITABLE_CHANNEL_A_FINE_TUNE        0x1
-#define IS_WRITABLE_CHANNEL_A_COARSE_TUNE      0x1
-#define IS_WRITABLE_CHANNEL_B_FINE_TUNE        0x1
-#define IS_WRITABLE_CHANNEL_B_COARSE_TUNE      0x1
-#define IS_WRITABLE_CHANNEL_C_FINE_TUNE        0x1
-#define IS_WRITABLE_CHANNEL_C_COARSE_TUNE      0x1
-#define IS_WRITABLE_NOISE_PERIOD               0x1
-#define IS_WRITABLE_MIXER_AND_IO_CONTROL       0x1
-#define IS_WRITABLE_CHANNEL_A_VOLUME           0x1
-#define IS_WRITABLE_CHANNEL_B_VOLUME           0x1
-#define IS_WRITABLE_CHANNEL_C_VOLUME           0x1
-#define IS_WRITABLE_ENVELOPE_FINE_TUNE         0x1
-#define IS_WRITABLE_ENVELOPE_COARSE_TUNE       0x1
-#define IS_WRITABLE_ENVELOPE_SHAPE             0x1
-#define IS_WRITABLE_IO_PORT_A                  0x1
-#define IS_WRITABLE_IO_PORT_B                  0x1
-
-#define DEFAULT_VALUE_OF_ADDRESS_REGISTER      0x00
-#define DEFAULT_VALUE_OF_CHANNEL_A_FINE_TUNE   0x00
-#define DEFAULT_VALUE_OF_CHANNEL_A_COARSE_TUNE 0x00
-#define DEFAULT_VALUE_OF_CHANNEL_B_FINE_TUNE   0x00
-#define DEFAULT_VALUE_OF_CHANNEL_B_COARSE_TUNE 0x00
-#define DEFAULT_VALUE_OF_CHANNEL_C_FINE_TUNE   0x00
-#define DEFAULT_VALUE_OF_CHANNEL_C_COARSE_TUNE 0x00
-#define DEFAULT_VALUE_OF_NOISE_PERIOD          0x00
-#define DEFAULT_VALUE_OF_MIXER_AND_IO_CONTROL  0x00
-#define DEFAULT_VALUE_OF_CHANNEL_A_VOLUME      0x00
-#define DEFAULT_VALUE_OF_CHANNEL_B_VOLUME      0x00
-#define DEFAULT_VALUE_OF_CHANNEL_C_VOLUME      0x00
-#define DEFAULT_VALUE_OF_ENVELOPE_FINE_TUNE    0x00
-#define DEFAULT_VALUE_OF_ENVELOPE_COARSE_TUNE  0x00
-#define DEFAULT_VALUE_OF_ENVELOPE_SHAPE        0x00
-#define DEFAULT_VALUE_OF_IO_PORT_A             0x00
-#define DEFAULT_VALUE_OF_IO_PORT_B             0x00
+enum Psg8910Registers
+{
+    PSG_ADDRESS_REGISTER      = -1,
+    PSG_CHANNEL_A_FINE_TUNE   =  0,
+    PSG_CHANNEL_A_COARSE_TUNE =  1,
+    PSG_CHANNEL_B_FINE_TUNE   =  2,
+    PSG_CHANNEL_B_COARSE_TUNE =  3,
+    PSG_CHANNEL_C_FINE_TUNE   =  4,
+    PSG_CHANNEL_C_COARSE_TUNE =  5,
+    PSG_NOISE_PERIOD          =  6,
+    PSG_MIXER_AND_IO_CONTROL  =  7,
+    PSG_CHANNEL_A_VOLUME      =  8,
+    PSG_CHANNEL_B_VOLUME      =  9,
+    PSG_CHANNEL_C_VOLUME      = 10,
+    PSG_ENVELOPE_FINE_TUNE    = 11,
+    PSG_ENVELOPE_COARSE_TUNE  = 12,
+    PSG_ENVELOPE_SHAPE        = 13,
+    PSG_IO_PORT_A             = 14,
+    PSG_IO_PORT_B             = 15,
+    PSG_REGISTER_COUNT        = 16,
+};
 
 #ifdef __cplusplus
 }

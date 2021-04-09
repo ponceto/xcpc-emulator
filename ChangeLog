@@ -1,3 +1,12 @@
+2021-04-09	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* Refactoring and lot's of improvements.
+	* CRTC-6845 emulation rewritten.
+	* PPI-8255 emulation improved.
+	* AY-3-8912 preliminary emulation (regs & I/O).
+	* Some bugs have been fixed.
+	* The Xaw and Motif user interfaces have been improved.
+
 2021-04-02	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Better, stronger, faster.

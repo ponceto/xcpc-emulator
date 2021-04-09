@@ -27,6 +27,13 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcVdc6845::%s()", function);
 }
 
+static uint8_t default_frame_handler(XcpcVdc6845* self)
+{
+    log_trace("default_frame_handler");
+
+    return 0x00;
+}
+
 static uint8_t default_hsync_handler(XcpcVdc6845* self, int hsync)
 {
     log_trace("default_hsync_handler");
@@ -39,6 +46,90 @@ static uint8_t default_vsync_handler(XcpcVdc6845* self, int vsync)
     log_trace("default_vsync_handler");
 
     return 0x00;
+}
+
+static void reset_setup(XcpcVdc6845* self)
+{
+    /* reset caps_of */ {
+        self->setup.caps_of.addr       = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x00] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x01] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x02] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x03] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x04] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x05] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x06] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x07] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x08] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x09] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0a] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0b] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0c] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0d] = (NOT_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0e] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x0f] = (REG_READABLE | REG_WRITABLE);
+        self->setup.caps_of.data[0x10] = (REG_READABLE | NOT_WRITABLE);
+        self->setup.caps_of.data[0x11] = (REG_READABLE | NOT_WRITABLE);
+    }
+    /* reset mask_of */ {
+        self->setup.mask_of.addr       = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x00] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x01] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x02] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x03] = 0x0f; /* ----xxxx */
+        self->setup.mask_of.data[0x04] = 0x7f; /* -xxxxxxx */
+        self->setup.mask_of.data[0x05] = 0x1f; /* ---xxxxx */
+        self->setup.mask_of.data[0x06] = 0x7f; /* -xxxxxxx */
+        self->setup.mask_of.data[0x07] = 0x7f; /* -xxxxxxx */
+        self->setup.mask_of.data[0x08] = 0x03; /* ------xx */
+        self->setup.mask_of.data[0x09] = 0x1f; /* ---xxxxx */
+        self->setup.mask_of.data[0x0a] = 0x7f; /* -xxxxxxx */
+        self->setup.mask_of.data[0x0b] = 0x1f; /* ---xxxxx */
+        self->setup.mask_of.data[0x0c] = 0x3f; /* --xxxxxx */
+        self->setup.mask_of.data[0x0d] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x0e] = 0x3f; /* --xxxxxx */
+        self->setup.mask_of.data[0x0f] = 0xff; /* xxxxxxxx */
+        self->setup.mask_of.data[0x10] = 0x3f; /* --xxxxxx */
+        self->setup.mask_of.data[0x11] = 0xff; /* xxxxxxxx */
+    }
+}
+
+static void reset_state(XcpcVdc6845* self)
+{
+    /* reset internal registers */ {
+        self->state.regs.named.address_register         = 0x00; /*       0 */
+        self->state.regs.named.horizontal_total         = 0x3f; /*      63 */
+        self->state.regs.named.horizontal_displayed     = 0x28; /*      40 */
+        self->state.regs.named.horizontal_sync_position = 0x2e; /*      46 */
+        self->state.regs.named.sync_width               = 0x0e; /* 16 + 14 */
+        self->state.regs.named.vertical_total           = 0x26; /*      38 */
+        self->state.regs.named.vertical_total_adjust    = 0x00; /*       0 */
+        self->state.regs.named.vertical_displayed       = 0x19; /*      25 */
+        self->state.regs.named.vertical_sync_position   = 0x1e; /*      30 */
+        self->state.regs.named.interlace_mode_and_skew  = 0x00; /*       0 */
+        self->state.regs.named.maximum_scanline_address = 0x07; /*       7 */
+        self->state.regs.named.cursor_start             = 0x00; /*       0 */
+        self->state.regs.named.cursor_end               = 0x00; /*       0 */
+        self->state.regs.named.start_address_high       = 0x30; /*    0x30 */
+        self->state.regs.named.start_address_low        = 0x00; /*    0x00 */
+        self->state.regs.named.cursor_high              = 0x00; /*    0x00 */
+        self->state.regs.named.cursor_low               = 0x00; /*    0x00 */
+        self->state.regs.named.light_pen_high           = 0x00; /*    0x00 */
+        self->state.regs.named.light_pen_low            = 0x00; /*    0x00 */
+    }
+}
+
+static void reset_count(XcpcVdc6845* self)
+{
+    /* reset internal counters */ {
+        self->count.horizontal_counter = 0;
+        self->count.vertical_counter   = 0;
+        self->count.scanline_counter   = 0;
+        self->count.hsync_counter      = 0;
+        self->count.hsync_active       = 0;
+        self->count.vsync_counter      = 0;
+        self->count.vsync_active       = 0;
+    }
 }
 
 XcpcVdc6845* xcpc_vdc_6845_alloc(void)
@@ -63,6 +154,7 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
         (void) memset(&self->iface, 0, sizeof(XcpcVdc6845Iface));
         (void) memset(&self->setup, 0, sizeof(XcpcVdc6845Setup));
         (void) memset(&self->state, 0, sizeof(XcpcVdc6845State));
+        (void) memset(&self->count, 0, sizeof(XcpcVdc6845Count));
     }
     /* initialize iface */ {
         (void) xcpc_vdc_6845_set_iface(self, NULL);
@@ -102,9 +194,39 @@ XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* 
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
+        self->iface.frame     = &default_frame_handler;
         self->iface.hsync     = &default_hsync_handler;
         self->iface.vsync     = &default_vsync_handler;
+    }
+    return self;
+}
+
+XcpcVdc6845* xcpc_vdc_6845_debug(XcpcVdc6845* self)
+{
+    const char* format = "  - %-24s : 0x%02x";
+
+    /* debug state */ {
+        xcpc_log_debug("vdc_6845:");
+        xcpc_log_debug(format, "address_register"        , self->state.regs.named.address_register        );
+        xcpc_log_debug(format, "horizontal_total"        , self->state.regs.named.horizontal_total        );
+        xcpc_log_debug(format, "horizontal_displayed"    , self->state.regs.named.horizontal_displayed    );
+        xcpc_log_debug(format, "horizontal_sync_position", self->state.regs.named.horizontal_sync_position);
+        xcpc_log_debug(format, "sync_width"              , self->state.regs.named.sync_width              );
+        xcpc_log_debug(format, "vertical_total"          , self->state.regs.named.vertical_total          );
+        xcpc_log_debug(format, "vertical_total_adjust"   , self->state.regs.named.vertical_total_adjust   );
+        xcpc_log_debug(format, "vertical_displayed"      , self->state.regs.named.vertical_displayed      );
+        xcpc_log_debug(format, "vertical_sync_position"  , self->state.regs.named.vertical_sync_position  );
+        xcpc_log_debug(format, "interlace_mode_and_skew" , self->state.regs.named.interlace_mode_and_skew );
+        xcpc_log_debug(format, "maximum_scanline_address", self->state.regs.named.maximum_scanline_address);
+        xcpc_log_debug(format, "cursor_start"            , self->state.regs.named.cursor_start            );
+        xcpc_log_debug(format, "cursor_end"              , self->state.regs.named.cursor_end              );
+        xcpc_log_debug(format, "start_address_high"      , self->state.regs.named.start_address_high      );
+        xcpc_log_debug(format, "start_address_low"       , self->state.regs.named.start_address_low       );
+        xcpc_log_debug(format, "cursor_high"             , self->state.regs.named.cursor_high             );
+        xcpc_log_debug(format, "cursor_low"              , self->state.regs.named.cursor_low              );
+        xcpc_log_debug(format, "light_pen_high"          , self->state.regs.named.light_pen_high          );
+        xcpc_log_debug(format, "light_pen_low"           , self->state.regs.named.light_pen_low           );
     }
     return self;
 }
@@ -113,332 +235,144 @@ XcpcVdc6845* xcpc_vdc_6845_reset(XcpcVdc6845* self)
 {
     log_trace("reset");
 
-    /* reset registers */ {
-        self->state.regs.named.address_register         = DEFAULT_VALUE_OF_ADDRESS_REGISTER;
-        self->state.regs.named.horizontal_total         = DEFAULT_VALUE_OF_HORIZONTAL_TOTAL;
-        self->state.regs.named.horizontal_displayed     = DEFAULT_VALUE_OF_HORIZONTAL_DISPLAYED;
-        self->state.regs.named.horizontal_sync_position = DEFAULT_VALUE_OF_HORIZONTAL_SYNC_POSITION;
-        self->state.regs.named.sync_width               = DEFAULT_VALUE_OF_SYNC_WIDTH;
-        self->state.regs.named.vertical_total           = DEFAULT_VALUE_OF_VERTICAL_TOTAL;
-        self->state.regs.named.vertical_total_adjust    = DEFAULT_VALUE_OF_VERTICAL_TOTAL_ADJUST;
-        self->state.regs.named.vertical_displayed       = DEFAULT_VALUE_OF_VERTICAL_DISPLAYED;
-        self->state.regs.named.vertical_sync_position   = DEFAULT_VALUE_OF_VERTICAL_SYNC_POSITION;
-        self->state.regs.named.interlace_mode_and_skew  = DEFAULT_VALUE_OF_INTERLACE_MODE_AND_SKEW;
-        self->state.regs.named.maximum_scanline_address = DEFAULT_VALUE_OF_MAXIMUM_SCANLINE_ADDRESS;
-        self->state.regs.named.cursor_start             = DEFAULT_VALUE_OF_CURSOR_START;
-        self->state.regs.named.cursor_end               = DEFAULT_VALUE_OF_CURSOR_END;
-        self->state.regs.named.start_address_high       = DEFAULT_VALUE_OF_START_ADDRESS_HIGH;
-        self->state.regs.named.start_address_low        = DEFAULT_VALUE_OF_START_ADDRESS_LOW;
-        self->state.regs.named.cursor_high              = DEFAULT_VALUE_OF_CURSOR_HIGH;
-        self->state.regs.named.cursor_low               = DEFAULT_VALUE_OF_CURSOR_LOW;
-        self->state.regs.named.light_pen_high           = DEFAULT_VALUE_OF_LIGHT_PEN_HIGH;
-        self->state.regs.named.light_pen_low            = DEFAULT_VALUE_OF_LIGHT_PEN_LOW;
-    }
-    /* reset counters */ {
-        self->state.ctrs.named.horizontal_counter = 0;
-        self->state.ctrs.named.vertical_counter   = 0;
-        self->state.ctrs.named.scanline_counter   = 0;
-        self->state.ctrs.named.hsync_counter      = 0;
-        self->state.ctrs.named.vsync_counter      = 0;
-        self->state.ctrs.named.hsync_signal       = 0;
-        self->state.ctrs.named.vsync_signal       = 0;
+    /* reset */ {
+        reset_setup(self);
+        reset_state(self);
+        reset_count(self);
     }
     return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
 {
-    uint8_t old_hsync_signal = self->state.ctrs.named.hsync_signal;
-    uint8_t old_vsync_signal = self->state.ctrs.named.vsync_signal;
+    uint8_t const horizontal_total         = (self->state.regs.named.horizontal_total         + 1);
+    uint8_t const horizontal_displayed     = (self->state.regs.named.horizontal_displayed     + 0);
+    uint8_t const horizontal_sync_position = (self->state.regs.named.horizontal_sync_position + 0);
+    uint8_t const horizontal_sync_width    = (((self->state.regs.named.sync_width >> 0) & 0x0f)  );
+    uint8_t const horizontal_sync_active   = (self->count.hsync_active != 0                      );
+    uint8_t const vertical_total           = (self->state.regs.named.vertical_total           + 1);
+    uint8_t const vertical_displayed       = (self->state.regs.named.vertical_displayed       + 0);
+    uint8_t const vertical_sync_position   = (self->state.regs.named.vertical_sync_position   + 0);
+    uint8_t const vertical_sync_width      = (((self->state.regs.named.sync_width >> 4) & 0x0f)  );
+    uint8_t const vertical_sync_active     = (self->count.vsync_active != 0                      );
+    uint8_t const scanline_total           = (self->state.regs.named.maximum_scanline_address + 1);
+    uint8_t       process_horizontal       = 1;
+    uint8_t       process_scanline         = 0;
+    uint8_t       process_vertical         = 0;
+    uint8_t       process_frame            = 0;
 
-    if(self->state.ctrs.named.hsync_counter > 0) {
-        if(--self->state.ctrs.named.hsync_counter == 0) {
-            self->state.ctrs.named.hsync_signal = 0;
+    if(process_horizontal != 0) {
+        if(++self->count.horizontal_counter == horizontal_total) {
+            self->count.horizontal_counter = 0;
+            process_scanline = 1;
         }
-    }
-    if(++self->state.ctrs.named.horizontal_counter == (self->state.regs.named.horizontal_total + 1)) {
-        self->state.ctrs.named.horizontal_counter = 0;
-        if(self->state.ctrs.named.vsync_counter > 0) {
-            if(--self->state.ctrs.named.vsync_counter == 0) {
-                self->state.ctrs.named.vsync_signal = 0;
+        if(horizontal_sync_active != 0) {
+            self->count.hsync_counter = ((self->count.hsync_counter + 1) & 0x0f);
+            if(self->count.hsync_counter == horizontal_sync_width) {
+                self->count.hsync_counter = 0;
+                self->count.hsync_active  = 0;
             }
         }
-        if(++self->state.ctrs.named.scanline_counter == (self->state.regs.named.maximum_scanline_address + 1)) {
-            self->state.ctrs.named.scanline_counter = 0;
-            if(++self->state.ctrs.named.vertical_counter == (self->state.regs.named.vertical_total + 1)) {
-                self->state.ctrs.named.vertical_counter = 0;
+        else {
+            if(self->count.horizontal_counter == horizontal_sync_position) {
+                self->count.hsync_counter = 0;
+                self->count.hsync_active  = 1;
             }
         }
     }
-    if((self->state.ctrs.named.hsync_signal == 0) && (self->state.ctrs.named.horizontal_counter == self->state.regs.named.horizontal_sync_position)) {
-        self->state.ctrs.named.hsync_signal = 1;
-        if((self->state.ctrs.named.hsync_counter = (self->state.regs.named.sync_width >> 0) & 0x0f) == 0) {
-            self->state.ctrs.named.hsync_counter = 16;
+    if(process_scanline != 0) {
+        if(++self->count.scanline_counter == scanline_total) {
+            self->count.scanline_counter = 0;
+            process_vertical = 1;
+        }
+        if(vertical_sync_active != 0) {
+            self->count.vsync_counter = ((self->count.vsync_counter + 1) & 0x0f);
+            if(self->count.vsync_counter == vertical_sync_width) {
+                self->count.vsync_counter = 0;
+                self->count.vsync_active  = 0;
+            }
+        }
+        else {
+            if(self->count.vertical_counter == vertical_sync_position) {
+                self->count.vsync_counter = 0;
+                self->count.vsync_active  = 1;
+            }
         }
     }
-    if((self->state.ctrs.named.vsync_signal == 0) && (self->state.ctrs.named.vertical_counter == self->state.regs.named.vertical_sync_position)) {
-        self->state.ctrs.named.vsync_signal = 1;
-        if((self->state.ctrs.named.vsync_counter = (self->state.regs.named.sync_width >> 4) & 0x0f) == 0) {
-            self->state.ctrs.named.vsync_counter = 16;
+    if(process_vertical != 0) {
+        if(++self->count.vertical_counter == vertical_total) {
+            self->count.vertical_counter = 0;
+            process_frame = 1;
         }
     }
-    if(self->state.ctrs.named.vsync_signal != old_vsync_signal) {
-        (*self->iface.vsync)(self, self->state.ctrs.named.vsync_signal);
+    /* hsync handler */ {
+        if(self->count.hsync_active != horizontal_sync_active) {
+            (void) (*self->iface.hsync)(self, self->count.hsync_active);
+        }
     }
-    if(self->state.ctrs.named.hsync_signal != old_hsync_signal) {
-        (*self->iface.hsync)(self, self->state.ctrs.named.hsync_signal);
+    /* vsync handler */ {
+        if(self->count.vsync_active != vertical_sync_active) {
+            (void) (*self->iface.vsync)(self, self->count.vsync_active);
+        }
+    }
+    /* frame handler */ {
+        if(process_frame != 0) {
+            (void) (*self->iface.frame)(self);
+        }
     }
     return self;
 }
 
 uint8_t xcpc_vdc_6845_rg(XcpcVdc6845* self, uint8_t data_bus)
 {
-    if(IS_READABLE_ADDRESS_REGISTER) {
-        data_bus = self->state.regs.named.address_register;
-        data_bus &= MASK_OF_ADDRESS_REGISTER;
+    uint8_t const is_readable   = (self->setup.caps_of.addr & REG_READABLE);
+    uint8_t const register_mask = (self->setup.mask_of.addr);
+    uint8_t*      register_addr = (&self->state.regs.named.address_register);
+
+    if(is_readable != 0) {
+        data_bus = (*register_addr &= register_mask);
     }
     return data_bus;
 }
 
 uint8_t xcpc_vdc_6845_rs(XcpcVdc6845* self, uint8_t data_bus)
 {
-    if(IS_WRITABLE_ADDRESS_REGISTER) {
-        data_bus &= MASK_OF_ADDRESS_REGISTER;
-        self->state.regs.named.address_register = data_bus;
+    uint8_t const is_writable   = (self->setup.caps_of.addr & REG_WRITABLE);
+    uint8_t const register_mask = (self->setup.mask_of.addr);
+    uint8_t*      register_addr = (&self->state.regs.named.address_register);
+
+    if(is_writable != 0) {
+        *register_addr = (data_bus &= register_mask);
     }
     return data_bus;
 }
 
 uint8_t xcpc_vdc_6845_rd(XcpcVdc6845* self, uint8_t data_bus)
 {
-    switch(self->state.regs.named.address_register) {
-        case INDEX_OF_HORIZONTAL_TOTAL:
-            if(IS_READABLE_HORIZONTAL_TOTAL) {
-                data_bus = self->state.regs.named.horizontal_total;
-                data_bus &= MASK_OF_HORIZONTAL_TOTAL;
-            }
-            break;
-        case INDEX_OF_HORIZONTAL_DISPLAYED:
-            if(IS_READABLE_HORIZONTAL_DISPLAYED) {
-                data_bus = self->state.regs.named.horizontal_displayed;
-                data_bus &= MASK_OF_HORIZONTAL_DISPLAYED;
-            }
-            break;
-        case INDEX_OF_HORIZONTAL_SYNC_POSITION:
-            if(IS_READABLE_HORIZONTAL_SYNC_POSITION) {
-                data_bus = self->state.regs.named.horizontal_sync_position;
-                data_bus &= MASK_OF_HORIZONTAL_SYNC_POSITION;
-            }
-            break;
-        case INDEX_OF_SYNC_WIDTH:
-            if(IS_READABLE_SYNC_WIDTH) {
-                data_bus = self->state.regs.named.sync_width;
-                data_bus &= MASK_OF_SYNC_WIDTH;
-            }
-            break;
-        case INDEX_OF_VERTICAL_TOTAL:
-            if(IS_READABLE_VERTICAL_TOTAL) {
-                data_bus = self->state.regs.named.vertical_total;
-                data_bus &= MASK_OF_VERTICAL_TOTAL;
-            }
-            break;
-        case INDEX_OF_VERTICAL_TOTAL_ADJUST:
-            if(IS_READABLE_VERTICAL_TOTAL_ADJUST) {
-                data_bus = self->state.regs.named.vertical_total_adjust;
-                data_bus &= MASK_OF_VERTICAL_TOTAL_ADJUST;
-            }
-            break;
-        case INDEX_OF_VERTICAL_DISPLAYED:
-            if(IS_READABLE_VERTICAL_DISPLAYED) {
-                data_bus = self->state.regs.named.vertical_displayed;
-                data_bus &= MASK_OF_VERTICAL_DISPLAYED;
-            }
-            break;
-        case INDEX_OF_VERTICAL_SYNC_POSITION:
-            if(IS_READABLE_VERTICAL_SYNC_POSITION) {
-                data_bus = self->state.regs.named.vertical_sync_position;
-                data_bus &= MASK_OF_VERTICAL_SYNC_POSITION;
-            }
-            break;
-        case INDEX_OF_INTERLACE_MODE_AND_SKEW:
-            if(IS_READABLE_INTERLACE_MODE_AND_SKEW) {
-                data_bus = self->state.regs.named.interlace_mode_and_skew;
-                data_bus &= MASK_OF_INTERLACE_MODE_AND_SKEW;
-            }
-            break;
-        case INDEX_OF_MAXIMUM_SCANLINE_ADDRESS:
-            if(IS_READABLE_MAXIMUM_SCANLINE_ADDRESS) {
-                data_bus = self->state.regs.named.maximum_scanline_address;
-                data_bus &= MASK_OF_MAXIMUM_SCANLINE_ADDRESS;
-            }
-            break;
-        case INDEX_OF_CURSOR_START:
-            if(IS_READABLE_CURSOR_START) {
-                data_bus = self->state.regs.named.cursor_start;
-                data_bus &= MASK_OF_CURSOR_START;
-            }
-            break;
-        case INDEX_OF_CURSOR_END:
-            if(IS_READABLE_CURSOR_END) {
-                data_bus = self->state.regs.named.cursor_end;
-                data_bus &= MASK_OF_CURSOR_END;
-            }
-            break;
-        case INDEX_OF_START_ADDRESS_HIGH:
-            if(IS_READABLE_START_ADDRESS_HIGH) {
-                data_bus = self->state.regs.named.start_address_high;
-                data_bus &= MASK_OF_START_ADDRESS_HIGH;
-            }
-            break;
-        case INDEX_OF_START_ADDRESS_LOW:
-            if(IS_READABLE_START_ADDRESS_LOW) {
-                data_bus = self->state.regs.named.start_address_low;
-                data_bus &= MASK_OF_START_ADDRESS_LOW;
-            }
-            break;
-        case INDEX_OF_CURSOR_HIGH:
-            if(IS_READABLE_CURSOR_HIGH) {
-                data_bus = self->state.regs.named.cursor_high;
-                data_bus &= MASK_OF_CURSOR_HIGH;
-            }
-            break;
-        case INDEX_OF_CURSOR_LOW:
-            if(IS_READABLE_CURSOR_LOW) {
-                data_bus = self->state.regs.named.cursor_low;
-                data_bus &= MASK_OF_CURSOR_LOW;
-            }
-            break;
-        case INDEX_OF_LIGHT_PEN_HIGH:
-            if(IS_READABLE_LIGHT_PEN_HIGH) {
-                data_bus = self->state.regs.named.light_pen_high;
-                data_bus &= MASK_OF_LIGHT_PEN_HIGH;
-            }
-            break;
-        case INDEX_OF_LIGHT_PEN_LOW:
-            if(IS_READABLE_LIGHT_PEN_LOW) {
-                data_bus = self->state.regs.named.light_pen_low;
-                data_bus &= MASK_OF_LIGHT_PEN_LOW;
-            }
-            break;
-        default:
-            break;
+    const uint8_t address_register = self->state.regs.named.address_register;
+
+    if(address_register < VDC_REGISTER_COUNT) {
+        uint8_t const is_readable   = (self->setup.caps_of.data[address_register] & REG_READABLE);
+        uint8_t const register_mask = (self->setup.mask_of.data[address_register]);
+        uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
+        if(is_readable != 0) {
+            data_bus = (*register_addr &= register_mask);
+        }
     }
     return data_bus;
 }
 
 uint8_t xcpc_vdc_6845_wr(XcpcVdc6845* self, uint8_t data_bus)
 {
-    switch(self->state.regs.named.address_register) {
-        case INDEX_OF_HORIZONTAL_TOTAL:
-            if(IS_WRITABLE_HORIZONTAL_TOTAL) {
-                data_bus &= MASK_OF_HORIZONTAL_TOTAL;
-                self->state.regs.named.horizontal_total = data_bus;
-            }
-            break;
-        case INDEX_OF_HORIZONTAL_DISPLAYED:
-            if(IS_WRITABLE_HORIZONTAL_DISPLAYED) {
-                data_bus &= MASK_OF_HORIZONTAL_DISPLAYED;
-                self->state.regs.named.horizontal_displayed = data_bus;
-            }
-            break;
-        case INDEX_OF_HORIZONTAL_SYNC_POSITION:
-            if(IS_WRITABLE_HORIZONTAL_SYNC_POSITION) {
-                data_bus &= MASK_OF_HORIZONTAL_SYNC_POSITION;
-                self->state.regs.named.horizontal_sync_position = data_bus;
-            }
-            break;
-        case INDEX_OF_SYNC_WIDTH:
-            if(IS_WRITABLE_SYNC_WIDTH) {
-                data_bus &= MASK_OF_SYNC_WIDTH;
-                self->state.regs.named.sync_width = data_bus;
-            }
-            break;
-        case INDEX_OF_VERTICAL_TOTAL:
-            if(IS_WRITABLE_VERTICAL_TOTAL) {
-                data_bus &= MASK_OF_VERTICAL_TOTAL;
-                self->state.regs.named.vertical_total = data_bus;
-            }
-            break;
-        case INDEX_OF_VERTICAL_TOTAL_ADJUST:
-            if(IS_WRITABLE_VERTICAL_TOTAL_ADJUST) {
-                data_bus &= MASK_OF_VERTICAL_TOTAL_ADJUST;
-                self->state.regs.named.vertical_total_adjust = data_bus;
-            }
-            break;
-        case INDEX_OF_VERTICAL_DISPLAYED:
-            if(IS_WRITABLE_VERTICAL_DISPLAYED) {
-                data_bus &= MASK_OF_VERTICAL_DISPLAYED;
-                self->state.regs.named.vertical_displayed = data_bus;
-            }
-            break;
-        case INDEX_OF_VERTICAL_SYNC_POSITION:
-            if(IS_WRITABLE_VERTICAL_SYNC_POSITION) {
-                data_bus &= MASK_OF_VERTICAL_SYNC_POSITION;
-                self->state.regs.named.vertical_sync_position = data_bus;
-            }
-            break;
-        case INDEX_OF_INTERLACE_MODE_AND_SKEW:
-            if(IS_WRITABLE_INTERLACE_MODE_AND_SKEW) {
-                data_bus &= MASK_OF_INTERLACE_MODE_AND_SKEW;
-                self->state.regs.named.interlace_mode_and_skew = data_bus;
-            }
-            break;
-        case INDEX_OF_MAXIMUM_SCANLINE_ADDRESS:
-            if(IS_WRITABLE_MAXIMUM_SCANLINE_ADDRESS) {
-                data_bus &= MASK_OF_MAXIMUM_SCANLINE_ADDRESS;
-                self->state.regs.named.maximum_scanline_address = data_bus;
-            }
-            break;
-        case INDEX_OF_CURSOR_START:
-            if(IS_WRITABLE_CURSOR_START) {
-                data_bus &= MASK_OF_CURSOR_START;
-                self->state.regs.named.cursor_start = data_bus;
-            }
-            break;
-        case INDEX_OF_CURSOR_END:
-            if(IS_WRITABLE_CURSOR_END) {
-                data_bus &= MASK_OF_CURSOR_END;
-                self->state.regs.named.cursor_end = data_bus;
-            }
-            break;
-        case INDEX_OF_START_ADDRESS_HIGH:
-            if(IS_WRITABLE_START_ADDRESS_HIGH) {
-                data_bus &= MASK_OF_START_ADDRESS_HIGH;
-                self->state.regs.named.start_address_high = data_bus;
-            }
-            break;
-        case INDEX_OF_START_ADDRESS_LOW:
-            if(IS_WRITABLE_START_ADDRESS_LOW) {
-                data_bus &= MASK_OF_START_ADDRESS_LOW;
-                self->state.regs.named.start_address_low = data_bus;
-            }
-            break;
-        case INDEX_OF_CURSOR_HIGH:
-            if(IS_WRITABLE_CURSOR_HIGH) {
-                data_bus &= MASK_OF_CURSOR_HIGH;
-                self->state.regs.named.cursor_high = data_bus;
-            }
-            break;
-        case INDEX_OF_CURSOR_LOW:
-            if(IS_WRITABLE_CURSOR_LOW) {
-                data_bus &= MASK_OF_CURSOR_LOW;
-                self->state.regs.named.cursor_low = data_bus;
-            }
-            break;
-        case INDEX_OF_LIGHT_PEN_HIGH:
-            if(IS_WRITABLE_LIGHT_PEN_HIGH) {
-                data_bus &= MASK_OF_LIGHT_PEN_HIGH;
-                self->state.regs.named.light_pen_high = data_bus;
-            }
-            break;
-        case INDEX_OF_LIGHT_PEN_LOW:
-            if(IS_WRITABLE_LIGHT_PEN_LOW) {
-                data_bus &= MASK_OF_LIGHT_PEN_LOW;
-                self->state.regs.named.light_pen_low = data_bus;
-            }
-            break;
-        default:
-            break;
+    const uint8_t address_register = self->state.regs.named.address_register;
+
+    if(address_register < VDC_REGISTER_COUNT) {
+        uint8_t const is_writable   = (self->setup.caps_of.data[address_register] & REG_WRITABLE);
+        uint8_t const register_mask = (self->setup.mask_of.data[address_register]);
+        uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
+        if(is_writable != 0) {
+            *register_addr = (data_bus &= register_mask);
+        }
     }
     return data_bus;
 }

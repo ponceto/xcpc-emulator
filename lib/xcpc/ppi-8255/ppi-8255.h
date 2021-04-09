@@ -33,6 +33,15 @@ extern XcpcPpi8255* xcpc_ppi_8255_set_iface (XcpcPpi8255* ppi_8255, const XcpcPp
 extern XcpcPpi8255* xcpc_ppi_8255_reset     (XcpcPpi8255* ppi_8255);
 extern XcpcPpi8255* xcpc_ppi_8255_clock     (XcpcPpi8255* ppi_8255);
 
+extern uint8_t      xcpc_ppi_8255_rd_port_a (XcpcPpi8255* ppi_8255, uint8_t data_bus);
+extern uint8_t      xcpc_ppi_8255_wr_port_a (XcpcPpi8255* ppi_8255, uint8_t data_bus);
+extern uint8_t      xcpc_ppi_8255_rd_port_b (XcpcPpi8255* ppi_8255, uint8_t data_bus);
+extern uint8_t      xcpc_ppi_8255_wr_port_b (XcpcPpi8255* ppi_8255, uint8_t data_bus);
+extern uint8_t      xcpc_ppi_8255_rd_port_c (XcpcPpi8255* ppi_8255, uint8_t data_bus);
+extern uint8_t      xcpc_ppi_8255_wr_port_c (XcpcPpi8255* ppi_8255, uint8_t data_bus);
+extern uint8_t      xcpc_ppi_8255_rd_ctrl_p (XcpcPpi8255* ppi_8255, uint8_t data_bus);
+extern uint8_t      xcpc_ppi_8255_wr_ctrl_p (XcpcPpi8255* ppi_8255, uint8_t data_bus);
+
 #ifdef __cplusplus
 }
 #endif

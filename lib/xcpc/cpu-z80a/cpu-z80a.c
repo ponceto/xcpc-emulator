@@ -486,7 +486,7 @@ XcpcCpuZ80a* xcpc_cpu_z80a_set_iface(XcpcCpuZ80a* self, const XcpcCpuZ80aIface* 
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
         self->iface.mreq_m1   = &default_mreq_m1_handler;
         self->iface.mreq_rd   = &default_mreq_rd_handler;
         self->iface.mreq_wr   = &default_mreq_wr_handler;

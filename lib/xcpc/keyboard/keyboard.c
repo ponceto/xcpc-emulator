@@ -88,7 +88,7 @@ XcpcKeyboard* xcpc_keyboard_set_iface(XcpcKeyboard* self, const XcpcKeyboardIfac
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
     }
     return self;
 }
@@ -1072,4 +1072,17 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
         }
     }
     return self;
+}
+
+uint8_t xcpc_keyboard_set_line(XcpcKeyboard* self, uint8_t line)
+{
+    return self->state.line = line;
+}
+
+uint8_t xcpc_keyboard_get_data(XcpcKeyboard* self, uint8_t data)
+{
+    if(self->state.line < countof(self->state.keys)) {
+        return self->state.keys[self->state.line];
+    }
+    return data;
 }

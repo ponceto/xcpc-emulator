@@ -23,9 +23,11 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcApplicationRec* XcpcApplication;
+typedef struct _XcpcApplicationRec XcpcApplication;
 
-extern Widget XcpcCreateApplication(Widget toplevel);
+extern XcpcApplication* XcpcApplicationNew    (int* argc, char*** argv);
+extern XcpcApplication* XcpcApplicationLoop   (XcpcApplication* application);
+extern XcpcApplication* XcpcApplicationDelete (XcpcApplication* application);
 
 #ifdef __cplusplus
 }

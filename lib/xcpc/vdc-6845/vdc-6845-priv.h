@@ -23,105 +23,34 @@
 extern "C" {
 #endif
 
-#define INDEX_OF_ADDRESS_REGISTER                 -1
-#define INDEX_OF_HORIZONTAL_TOTAL                  0
-#define INDEX_OF_HORIZONTAL_DISPLAYED              1
-#define INDEX_OF_HORIZONTAL_SYNC_POSITION          2
-#define INDEX_OF_SYNC_WIDTH                        3
-#define INDEX_OF_VERTICAL_TOTAL                    4
-#define INDEX_OF_VERTICAL_TOTAL_ADJUST             5
-#define INDEX_OF_VERTICAL_DISPLAYED                6
-#define INDEX_OF_VERTICAL_SYNC_POSITION            7
-#define INDEX_OF_INTERLACE_MODE_AND_SKEW           8
-#define INDEX_OF_MAXIMUM_SCANLINE_ADDRESS          9
-#define INDEX_OF_CURSOR_START                     10
-#define INDEX_OF_CURSOR_END                       11
-#define INDEX_OF_START_ADDRESS_HIGH               12
-#define INDEX_OF_START_ADDRESS_LOW                13
-#define INDEX_OF_CURSOR_HIGH                      14
-#define INDEX_OF_CURSOR_LOW                       15
-#define INDEX_OF_LIGHT_PEN_HIGH                   16
-#define INDEX_OF_LIGHT_PEN_LOW                    17
+#define NOT_READABLE 0x00
+#define REG_READABLE 0x01
+#define NOT_WRITABLE 0x00
+#define REG_WRITABLE 0x02
 
-#define MASK_OF_ADDRESS_REGISTER                  0xff /* 0b11111111 */
-#define MASK_OF_HORIZONTAL_TOTAL                  0xff /* 0b11111111 */
-#define MASK_OF_HORIZONTAL_DISPLAYED              0xff /* 0b11111111 */
-#define MASK_OF_HORIZONTAL_SYNC_POSITION          0xff /* 0b11111111 */
-#define MASK_OF_SYNC_WIDTH                        0x0f /* 0b00001111 */
-#define MASK_OF_VERTICAL_TOTAL                    0x7f /* 0b01111111 */
-#define MASK_OF_VERTICAL_TOTAL_ADJUST             0x1f /* 0b00011111 */
-#define MASK_OF_VERTICAL_DISPLAYED                0x7f /* 0b01111111 */
-#define MASK_OF_VERTICAL_SYNC_POSITION            0x7f /* 0b01111111 */
-#define MASK_OF_INTERLACE_MODE_AND_SKEW           0x03 /* 0b00000011 */
-#define MASK_OF_MAXIMUM_SCANLINE_ADDRESS          0x1f /* 0b00011111 */
-#define MASK_OF_CURSOR_START                      0x7f /* 0b01111111 */
-#define MASK_OF_CURSOR_END                        0x1f /* 0b00011111 */
-#define MASK_OF_START_ADDRESS_HIGH                0x3f /* 0b00111111 */
-#define MASK_OF_START_ADDRESS_LOW                 0xff /* 0b11111111 */
-#define MASK_OF_CURSOR_HIGH                       0x3f /* 0b00111111 */
-#define MASK_OF_CURSOR_LOW                        0xff /* 0b11111111 */
-#define MASK_OF_LIGHT_PEN_HIGH                    0x3f /* 0b00111111 */
-#define MASK_OF_LIGHT_PEN_LOW                     0xff /* 0b11111111 */
-
-#define IS_READABLE_ADDRESS_REGISTER              0x0
-#define IS_READABLE_HORIZONTAL_TOTAL              0x0
-#define IS_READABLE_HORIZONTAL_DISPLAYED          0x0
-#define IS_READABLE_HORIZONTAL_SYNC_POSITION      0x0
-#define IS_READABLE_SYNC_WIDTH                    0x0
-#define IS_READABLE_VERTICAL_TOTAL                0x0
-#define IS_READABLE_VERTICAL_TOTAL_ADJUST         0x0
-#define IS_READABLE_VERTICAL_DISPLAYED            0x0
-#define IS_READABLE_VERTICAL_SYNC_POSITION        0x0
-#define IS_READABLE_INTERLACE_MODE_AND_SKEW       0x0
-#define IS_READABLE_MAXIMUM_SCANLINE_ADDRESS      0x0
-#define IS_READABLE_CURSOR_START                  0x0
-#define IS_READABLE_CURSOR_END                    0x0
-#define IS_READABLE_START_ADDRESS_HIGH            0x0
-#define IS_READABLE_START_ADDRESS_LOW             0x0
-#define IS_READABLE_CURSOR_HIGH                   0x1
-#define IS_READABLE_CURSOR_LOW                    0x1
-#define IS_READABLE_LIGHT_PEN_HIGH                0x1
-#define IS_READABLE_LIGHT_PEN_LOW                 0x1
-
-#define IS_WRITABLE_ADDRESS_REGISTER              0x1
-#define IS_WRITABLE_HORIZONTAL_TOTAL              0x1
-#define IS_WRITABLE_HORIZONTAL_DISPLAYED          0x1
-#define IS_WRITABLE_HORIZONTAL_SYNC_POSITION      0x1
-#define IS_WRITABLE_SYNC_WIDTH                    0x1
-#define IS_WRITABLE_VERTICAL_TOTAL                0x1
-#define IS_WRITABLE_VERTICAL_TOTAL_ADJUST         0x1
-#define IS_WRITABLE_VERTICAL_DISPLAYED            0x1
-#define IS_WRITABLE_VERTICAL_SYNC_POSITION        0x1
-#define IS_WRITABLE_INTERLACE_MODE_AND_SKEW       0x1
-#define IS_WRITABLE_MAXIMUM_SCANLINE_ADDRESS      0x1
-#define IS_WRITABLE_CURSOR_START                  0x1
-#define IS_WRITABLE_CURSOR_END                    0x1
-#define IS_WRITABLE_START_ADDRESS_HIGH            0x1
-#define IS_WRITABLE_START_ADDRESS_LOW             0x1
-#define IS_WRITABLE_CURSOR_HIGH                   0x1
-#define IS_WRITABLE_CURSOR_LOW                    0x1
-#define IS_WRITABLE_LIGHT_PEN_HIGH                0x0
-#define IS_WRITABLE_LIGHT_PEN_LOW                 0x0
-
-#define DEFAULT_VALUE_OF_ADDRESS_REGISTER         0x00
-#define DEFAULT_VALUE_OF_HORIZONTAL_TOTAL         0x65
-#define DEFAULT_VALUE_OF_HORIZONTAL_DISPLAYED     0x50
-#define DEFAULT_VALUE_OF_HORIZONTAL_SYNC_POSITION 0x56
-#define DEFAULT_VALUE_OF_SYNC_WIDTH               0x09
-#define DEFAULT_VALUE_OF_VERTICAL_TOTAL           0x18
-#define DEFAULT_VALUE_OF_VERTICAL_TOTAL_ADJUST    0x0a
-#define DEFAULT_VALUE_OF_VERTICAL_DISPLAYED       0x18
-#define DEFAULT_VALUE_OF_VERTICAL_SYNC_POSITION   0x18
-#define DEFAULT_VALUE_OF_INTERLACE_MODE_AND_SKEW  0x00
-#define DEFAULT_VALUE_OF_MAXIMUM_SCANLINE_ADDRESS 0x0b
-#define DEFAULT_VALUE_OF_CURSOR_START             0x00
-#define DEFAULT_VALUE_OF_CURSOR_END               0x0b
-#define DEFAULT_VALUE_OF_START_ADDRESS_HIGH       0x00
-#define DEFAULT_VALUE_OF_START_ADDRESS_LOW        0x80
-#define DEFAULT_VALUE_OF_CURSOR_HIGH              0x00
-#define DEFAULT_VALUE_OF_CURSOR_LOW               0x80
-#define DEFAULT_VALUE_OF_LIGHT_PEN_HIGH           0x00
-#define DEFAULT_VALUE_OF_LIGHT_PEN_LOW            0x00
+enum Vdc6845Registers
+{
+    VDC_ADDRESS_REGISTER         = -1,
+    VDC_HORIZONTAL_TOTAL         =  0,
+    VDC_HORIZONTAL_DISPLAYED     =  1,
+    VDC_HORIZONTAL_SYNC_POSITION =  2,
+    VDC_SYNC_WIDTH               =  3,
+    VDC_VERTICAL_TOTAL           =  4,
+    VDC_VERTICAL_TOTAL_ADJUST    =  5,
+    VDC_VERTICAL_DISPLAYED       =  6,
+    VDC_VERTICAL_SYNC_POSITION   =  7,
+    VDC_INTERLACE_MODE_AND_SKEW  =  8,
+    VDC_MAXIMUM_SCANLINE_ADDRESS =  9,
+    VDC_CURSOR_START             = 10,
+    VDC_CURSOR_END               = 11,
+    VDC_START_ADDRESS_HIGH       = 12,
+    VDC_START_ADDRESS_LOW        = 13,
+    VDC_CURSOR_HIGH              = 14,
+    VDC_CURSOR_LOW               = 15,
+    VDC_LIGHT_PEN_HIGH           = 16,
+    VDC_LIGHT_PEN_LOW            = 17,
+    VDC_REGISTER_COUNT           = 18,
+};
 
 #ifdef __cplusplus
 }

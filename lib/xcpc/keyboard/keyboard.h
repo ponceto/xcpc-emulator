@@ -34,6 +34,8 @@ extern XcpcKeyboard* xcpc_keyboard_reset     (XcpcKeyboard* keyboard);
 extern XcpcKeyboard* xcpc_keyboard_clock     (XcpcKeyboard* keyboard);
 extern XcpcKeyboard* xcpc_keyboard_qwerty    (XcpcKeyboard* keyboard, XKeyEvent* event);
 extern XcpcKeyboard* xcpc_keyboard_azerty    (XcpcKeyboard* keyboard, XKeyEvent* event);
+extern uint8_t       xcpc_keyboard_set_line  (XcpcKeyboard* keyboard, uint8_t line);
+extern uint8_t       xcpc_keyboard_get_data  (XcpcKeyboard* keyboard, uint8_t data);
 
 #ifdef __cplusplus
 }

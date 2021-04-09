@@ -16,6 +16,38 @@
 #
 
 # ----------------------------------------------------------------------------
+# AX_CHECK_C99
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_C99], [
+AC_PROG_CC_C99
+])dnl AX_CHECK_C99
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_CXX11
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_CXX11], [
+AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+])dnl AX_CHECK_CXX11
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_CXX14
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_CXX14], [
+AX_CXX_COMPILE_STDCXX([14], [noext], [mandatory])
+])dnl AX_CHECK_CXX14
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_CXX17
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_CXX17], [
+AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
+])dnl AX_CHECK_CXX17
+
+# ----------------------------------------------------------------------------
 # AX_RECURSIVE_EVAL
 # ----------------------------------------------------------------------------
 
@@ -36,83 +68,36 @@ $2=`(test "x$prefix" = xNONE && prefix="$ac_default_prefix"
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_DEFINES], [
-    AX_RECURSIVE_EVAL("${bindir}", XCPC_BINDIR)
-    AC_DEFINE_UNQUOTED(XCPC_BINDIR, ["${XCPC_BINDIR}"], [XCPC_BINDIR])
-    AC_SUBST(XCPC_BINDIR)
-
-    AX_RECURSIVE_EVAL("${libdir}", XCPC_LIBDIR)
-    AC_DEFINE_UNQUOTED(XCPC_LIBDIR, ["${XCPC_LIBDIR}"], [XCPC_LIBDIR])
-    AC_SUBST(XCPC_LIBDIR)
-
-    AX_RECURSIVE_EVAL("${datadir}", XCPC_DATDIR)
-    AC_DEFINE_UNQUOTED(XCPC_DATDIR, ["${XCPC_DATDIR}"], [XCPC_DATDIR])
-    AC_SUBST(XCPC_DATDIR)
-
-    AX_RECURSIVE_EVAL("${docdir}", XCPC_DOCDIR)
-    AC_DEFINE_UNQUOTED(XCPC_DOCDIR, ["${XCPC_DOCDIR}"], [XCPC_DOCDIR])
-    AC_SUBST(XCPC_DOCDIR)
-
-    AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}", XCPC_RESDIR)
-    AC_DEFINE_UNQUOTED(XCPC_RESDIR, ["${XCPC_RESDIR}"], [XCPC_RESDIR])
-    AC_SUBST(XCPC_RESDIR)
+AX_RECURSIVE_EVAL("${bindir}", XCPC_BINDIR)
+AC_DEFINE_UNQUOTED(XCPC_BINDIR, ["${XCPC_BINDIR}"], [XCPC_BINDIR])
+AC_SUBST(XCPC_BINDIR)
+AX_RECURSIVE_EVAL("${libdir}", XCPC_LIBDIR)
+AC_DEFINE_UNQUOTED(XCPC_LIBDIR, ["${XCPC_LIBDIR}"], [XCPC_LIBDIR])
+AC_SUBST(XCPC_LIBDIR)
+AX_RECURSIVE_EVAL("${datadir}", XCPC_DATDIR)
+AC_DEFINE_UNQUOTED(XCPC_DATDIR, ["${XCPC_DATDIR}"], [XCPC_DATDIR])
+AC_SUBST(XCPC_DATDIR)
+AX_RECURSIVE_EVAL("${docdir}", XCPC_DOCDIR)
+AC_DEFINE_UNQUOTED(XCPC_DOCDIR, ["${XCPC_DOCDIR}"], [XCPC_DOCDIR])
+AC_SUBST(XCPC_DOCDIR)
+AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}", XCPC_RESDIR)
+AC_DEFINE_UNQUOTED(XCPC_RESDIR, ["${XCPC_RESDIR}"], [XCPC_RESDIR])
+AC_SUBST(XCPC_RESDIR)
 ])dnl AX_DEFINES
 
 # ----------------------------------------------------------------------------
-# AX_CHECK_TYPES
+# AX_CHECK_BYTE_ORDER
 # ----------------------------------------------------------------------------
 
-AC_DEFUN([AX_CHECK_TYPES], [
-AC_TYPE_INT8_T
-if test "x${ac_cv_c_int8_t}" != "xyes"
-then
-    AC_MSG_ERROR([int8_t was not found])
-fi
-AC_TYPE_UINT8_T
-if test "x${ac_cv_c_uint8_t}" != "xyes"
-then
-    AC_MSG_ERROR([uint8_t was not found])
-fi
-AC_TYPE_INT16_T
-if test "x${ac_cv_c_int16_t}" != "xyes"
-then
-    AC_MSG_ERROR([int16_t was not found])
-fi
-AC_TYPE_UINT16_T
-if test "x${ac_cv_c_uint16_t}" != "xyes"
-then
-    AC_MSG_ERROR([uint16_t was not found])
-fi
-AC_TYPE_INT32_T
-if test "x${ac_cv_c_int32_t}" != "xyes"
-then
-    AC_MSG_ERROR([int32_t was not found])
-fi
-AC_TYPE_UINT32_T
-if test "x${ac_cv_c_uint32_t}" != "xyes"
-then
-    AC_MSG_ERROR([uint32_t was not found])
-fi
-AC_TYPE_INT64_T
-if test "x${ac_cv_c_int64_t}" != "xyes"
-then
-    AC_MSG_ERROR([int64_t was not found])
-fi
-AC_TYPE_UINT64_T
-if test "x${ac_cv_c_uint64_t}" != "xyes"
-then
-    AC_MSG_ERROR([uint64_t was not found])
-fi
-])dnl AX_CHECK_TYPES
-
-# ----------------------------------------------------------------------------
-# AX_CHECK_ENDIANNESS
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_CHECK_ENDIANNESS], [
-AC_C_BIGENDIAN([AC_DEFINE([MSB_FIRST], [1], [MSB First: 68k, sparc, ...])],
-               [AC_DEFINE([LSB_FIRST], [1], [LSB First: x86, alpha, ...])],
-               [AC_MSG_ERROR([unsupported byte-order ...])])
-])dnl AX_CHECK_ENDIANNESS
+AC_DEFUN([AX_CHECK_BYTE_ORDER], [
+AC_C_BIGENDIAN([
+AC_DEFINE([MSB_FIRST], [1], [Define to 1 if the host byte-ordering is MSB first.])
+], [
+AC_DEFINE([LSB_FIRST], [1], [Define to 1 if the host byte-ordering is LSB first.])
+], [
+AC_MSG_ERROR([unable to determine byte-order])
+])
+])dnl AX_CHECK_BYTE_ORDER
 
 # ----------------------------------------------------------------------------
 # AX_CHECK_X11

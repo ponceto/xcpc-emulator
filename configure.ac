@@ -38,7 +38,7 @@ m4_define([pkg_lt_revision], [m4_eval(pkg_interface_age)])
 m4_define([pkg_lt_age], [m4_eval(pkg_binary_age - pkg_interface_age)])
 
 # ----------------------------------------------------------------------------
-# Autoconf/Automake
+# Autoconf/Automake/Libtool
 # ----------------------------------------------------------------------------
 
 AC_INIT([pkg_name], [pkg_version], [pkg_bugreport])
@@ -58,7 +58,9 @@ AC_PROG_YACC
 # Checks
 # ----------------------------------------------------------------------------
 
-AX_CHECK_ENDIANNESS
+AX_CHECK_C99
+AX_CHECK_CXX14
+AX_CHECK_BYTE_ORDER
 
 # ----------------------------------------------------------------------------
 # Dependencies
@@ -116,6 +118,7 @@ AC_CONFIG_FILES([
 	share/pixmaps/Makefile
 	share/xcpc/Makefile
 	share/xcpc/bitmaps/Makefile
+	share/xcpc/pixmaps/Makefile
 	share/xcpc/roms/Makefile
 	share/xcpc/disks/Makefile
 	share/xcpc/snapshots/Makefile

@@ -26,22 +26,34 @@ extern "C" {
 #define XCPC_VDC_6845_IFACE(instance) (&(instance)->iface)
 #define XCPC_VDC_6845_SETUP(instance) (&(instance)->setup)
 #define XCPC_VDC_6845_STATE(instance) (&(instance)->state)
+#define XCPC_VDC_6845_COUNT(instance) (&(instance)->count)
 
 typedef struct _XcpcVdc6845Iface XcpcVdc6845Iface;
 typedef struct _XcpcVdc6845Setup XcpcVdc6845Setup;
 typedef struct _XcpcVdc6845State XcpcVdc6845State;
+typedef struct _XcpcVdc6845Count XcpcVdc6845Count;
 typedef struct _XcpcVdc6845      XcpcVdc6845;
 
 struct _XcpcVdc6845Iface
 {
     void* user_data;
-    uint8_t (*hsync)(XcpcVdc6845* vdc_6856, int hsync);
-    uint8_t (*vsync)(XcpcVdc6845* vdc_6856, int vsync);
+    uint8_t (*frame)(XcpcVdc6845* vdc_6845);
+    uint8_t (*hsync)(XcpcVdc6845* vdc_6845, int hsync);
+    uint8_t (*vsync)(XcpcVdc6845* vdc_6845, int vsync);
 };
 
 struct _XcpcVdc6845Setup
 {
-    int reserved;
+    struct
+    {
+        uint8_t addr;
+        uint8_t data[18];
+    } caps_of;
+    struct
+    {
+        uint8_t addr;
+        uint8_t data[18];
+    } mask_of;
 };
 
 struct _XcpcVdc6845State
@@ -76,19 +88,17 @@ struct _XcpcVdc6845State
             uint8_t light_pen_low;
         } named;
     } regs;
-    union
-    {
-        struct
-        {
-            uint8_t horizontal_counter;
-            uint8_t vertical_counter;
-            uint8_t scanline_counter;
-            uint8_t hsync_counter;
-            uint8_t vsync_counter;
-            uint8_t hsync_signal;
-            uint8_t vsync_signal;
-        } named;
-    } ctrs;
+};
+
+struct _XcpcVdc6845Count
+{
+    uint8_t horizontal_counter;
+    uint8_t vertical_counter;
+    uint8_t scanline_counter;
+    uint8_t hsync_counter;
+    uint8_t hsync_active;
+    uint8_t vsync_counter;
+    uint8_t vsync_active;
 };
 
 struct _XcpcVdc6845
@@ -96,6 +106,7 @@ struct _XcpcVdc6845
     XcpcVdc6845Iface iface;
     XcpcVdc6845Setup setup;
     XcpcVdc6845State state;
+    XcpcVdc6845Count count;
 };
 
 #ifdef __cplusplus

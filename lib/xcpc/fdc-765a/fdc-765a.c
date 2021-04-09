@@ -102,7 +102,7 @@ XcpcFdc765a* xcpc_fdc_765a_set_iface(XcpcFdc765a* self, const XcpcFdc765aIface* 
         *(&self->iface) = *(iface);
     }
     else {
-        self->iface.user_data = self;
+        self->iface.user_data = NULL;
     }
     return self;
 }
