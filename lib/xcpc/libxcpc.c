@@ -35,22 +35,22 @@ static XcpcLibrary libxcpc = {
 };
 
 static const XcpcCompanyNameEntry xcpc_company_name_table[] = {
-    { "default"   , XCPC_COMPANY_NAME_DEFAULT    },
-    { "isp"       , XCPC_COMPANY_NAME_ISP        },
-    { "triumph"   , XCPC_COMPANY_NAME_TRIUMPH    },
-    { "saisho"    , XCPC_COMPANY_NAME_SAISHO     },
-    { "solavox"   , XCPC_COMPANY_NAME_SOLAVOX    },
-    { "awa"       , XCPC_COMPANY_NAME_AWA        },
-    { "schneider" , XCPC_COMPANY_NAME_SCHNEIDER  },
-    { "orion"     , XCPC_COMPANY_NAME_ORION      },
-    { "amstrad"   , XCPC_COMPANY_NAME_AMSTRAD    },
+    { "default"  , XCPC_COMPANY_NAME_DEFAULT   },
+    { "isp"      , XCPC_COMPANY_NAME_ISP       },
+    { "triumph"  , XCPC_COMPANY_NAME_TRIUMPH   },
+    { "saisho"   , XCPC_COMPANY_NAME_SAISHO    },
+    { "solavox"  , XCPC_COMPANY_NAME_SOLAVOX   },
+    { "awa"      , XCPC_COMPANY_NAME_AWA       },
+    { "schneider", XCPC_COMPANY_NAME_SCHNEIDER },
+    { "orion"    , XCPC_COMPANY_NAME_ORION     },
+    { "amstrad"  , XCPC_COMPANY_NAME_AMSTRAD   },
 };
 
 static const XcpcMachineTypeEntry xcpc_machine_type_table[] = {
-    { "default"   , XCPC_MACHINE_TYPE_DEFAULT    },
-    { "cpc464"    , XCPC_MACHINE_TYPE_CPC464     },
-    { "cpc664"    , XCPC_MACHINE_TYPE_CPC664     },
-    { "cpc6128"   , XCPC_MACHINE_TYPE_CPC6128    },
+    { "default", XCPC_MACHINE_TYPE_DEFAULT },
+    { "cpc464" , XCPC_MACHINE_TYPE_CPC464  },
+    { "cpc664" , XCPC_MACHINE_TYPE_CPC664  },
+    { "cpc6128", XCPC_MACHINE_TYPE_CPC6128 },
 };
 
 static const XcpcMonitorTypeEntry xcpc_monitor_type_table[] = {
@@ -67,15 +67,15 @@ static const XcpcMonitorTypeEntry xcpc_monitor_type_table[] = {
 };
 
 static const XcpcRefreshRateEntry xcpc_refresh_rate_table[] = {
-    { "default"   , XCPC_REFRESH_RATE_DEFAULT    },
-    { "50hz"      , XCPC_REFRESH_RATE_50HZ       },
-    { "60hz"      , XCPC_REFRESH_RATE_60HZ       },
+    { "default", XCPC_REFRESH_RATE_DEFAULT },
+    { "50hz"   , XCPC_REFRESH_RATE_50HZ    },
+    { "60hz"   , XCPC_REFRESH_RATE_60HZ    },
 };
 
 static const XcpcKeyboardTypeEntry xcpc_keyboard_type_table[] = {
-    { "default"   , XCPC_KEYBOARD_TYPE_DEFAULT   },
-    { "qwerty"    , XCPC_KEYBOARD_TYPE_QWERTY    },
-    { "azerty"    , XCPC_KEYBOARD_TYPE_AZERTY    },
+    { "default", XCPC_KEYBOARD_TYPE_DEFAULT },
+    { "qwerty" , XCPC_KEYBOARD_TYPE_QWERTY  },
+    { "azerty" , XCPC_KEYBOARD_TYPE_AZERTY  },
 };
 
 static const XcpcColorEntry xcpc_color_table[] = {
