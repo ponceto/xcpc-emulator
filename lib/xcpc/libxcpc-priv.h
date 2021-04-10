@@ -33,6 +33,7 @@ typedef struct _XcpcMachineTypeEntry  XcpcMachineTypeEntry;
 typedef struct _XcpcMonitorTypeEntry  XcpcMonitorTypeEntry;
 typedef struct _XcpcRefreshRateEntry  XcpcRefreshRateEntry;
 typedef struct _XcpcKeyboardTypeEntry XcpcKeyboardTypeEntry;
+typedef struct _XcpcMemorySizeEntry   XcpcMemorySizeEntry;
 typedef struct _XcpcColorEntry        XcpcColorEntry;
 
 struct _XcpcLibrary
@@ -75,6 +76,12 @@ struct _XcpcKeyboardTypeEntry
 {
     const char*      label;
     XcpcKeyboardType value;
+};
+
+struct _XcpcMemorySizeEntry
+{
+    const char*    label;
+    XcpcMemorySize value;
 };
 
 struct _XcpcColorEntry

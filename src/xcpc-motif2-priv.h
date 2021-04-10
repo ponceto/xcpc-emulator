@@ -39,6 +39,7 @@ typedef struct _XcpcHelpMenuRec    XcpcHelpMenuRec;
 typedef struct _XcpcLayoutRec      XcpcLayoutRec;
 typedef struct _XcpcMenuBarRec     XcpcMenuBarRec;
 typedef struct _XcpcToolBarRec     XcpcToolBarRec;
+typedef struct _XcpcInfoBarRec     XcpcInfoBarRec;
 typedef struct _XcpcApplicationRec XcpcApplicationRec;
 
 struct _XcpcResourcesRec
@@ -140,6 +141,18 @@ struct _XcpcToolBarRec
     Widget reset_emulator;
 };
 
+struct _XcpcInfoBarRec
+{
+    Widget widget;
+    Widget frame0;
+    Widget frame1;
+    Widget frame2;
+    Widget status;
+    Widget drive0;
+    Widget drive1;
+    Widget system;
+};
+
 struct _XcpcApplicationRec
 {
     XcpcMachine*     machine;
@@ -149,6 +162,7 @@ struct _XcpcApplicationRec
     XcpcLayoutRec    layout;
     XcpcMenuBarRec   menubar;
     XcpcToolBarRec   toolbar;
+    XcpcInfoBarRec   infobar;
 };
 
 #ifdef __cplusplus

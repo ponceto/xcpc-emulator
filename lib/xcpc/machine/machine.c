@@ -2774,6 +2774,16 @@ XcpcMachine* xcpc_machine_remove_drive0(XcpcMachine* self)
     return self;
 }
 
+const char* xcpc_machine_filename_drive0(XcpcMachine* self)
+{
+    log_trace("xcpc_machine_filename_drive0");
+
+    if(self->board.fdc_765a != NULL) {
+        return xcpc_fdc_765a_filename(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0, NULL);
+    }
+    return NULL;
+}
+
 XcpcMachine* xcpc_machine_insert_drive1(XcpcMachine* self, const char* filename)
 {
     log_trace("xcpc_machine_insert_drive1");
@@ -2792,6 +2802,16 @@ XcpcMachine* xcpc_machine_remove_drive1(XcpcMachine* self)
         (void) xcpc_fdc_765a_remove(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1);
     }
     return self;
+}
+
+const char* xcpc_machine_filename_drive1(XcpcMachine* self)
+{
+    log_trace("xcpc_machine_filename_drive1");
+
+    if(self->board.fdc_765a != NULL) {
+        return xcpc_fdc_765a_filename(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1, NULL);
+    }
+    return NULL;
 }
 
 XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
@@ -3071,4 +3091,34 @@ unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event)
             break;
     }
     return 0UL;
+}
+
+XcpcCompanyName xcpc_machine_company_name(XcpcMachine* self)
+{
+    return self->setup.company_name;
+}
+
+XcpcMachineType xcpc_machine_machine_type(XcpcMachine* self)
+{
+    return self->setup.machine_type;
+}
+
+XcpcMonitorType xcpc_machine_monitor_type(XcpcMachine* self)
+{
+    return self->setup.monitor_type;
+}
+
+XcpcRefreshRate xcpc_machine_refresh_rate(XcpcMachine* self)
+{
+    return self->setup.refresh_rate;
+}
+
+XcpcKeyboardType xcpc_machine_keyboard_type(XcpcMachine* self)
+{
+    return self->setup.keyboard_type;
+}
+
+XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
+{
+    return self->setup.memory_size;
 }

@@ -36,21 +36,24 @@ static XcpcLibrary libxcpc = {
 
 static const XcpcCompanyNameEntry xcpc_company_name_table[] = {
     { "default"  , XCPC_COMPANY_NAME_DEFAULT   },
-    { "isp"      , XCPC_COMPANY_NAME_ISP       },
-    { "triumph"  , XCPC_COMPANY_NAME_TRIUMPH   },
-    { "saisho"   , XCPC_COMPANY_NAME_SAISHO    },
-    { "solavox"  , XCPC_COMPANY_NAME_SOLAVOX   },
-    { "awa"      , XCPC_COMPANY_NAME_AWA       },
-    { "schneider", XCPC_COMPANY_NAME_SCHNEIDER },
-    { "orion"    , XCPC_COMPANY_NAME_ORION     },
-    { "amstrad"  , XCPC_COMPANY_NAME_AMSTRAD   },
+    { "Isp"      , XCPC_COMPANY_NAME_ISP       },
+    { "Triumph"  , XCPC_COMPANY_NAME_TRIUMPH   },
+    { "Saisho"   , XCPC_COMPANY_NAME_SAISHO    },
+    { "Solavox"  , XCPC_COMPANY_NAME_SOLAVOX   },
+    { "Awa"      , XCPC_COMPANY_NAME_AWA       },
+    { "Schneider", XCPC_COMPANY_NAME_SCHNEIDER },
+    { "Orion"    , XCPC_COMPANY_NAME_ORION     },
+    { "Amstrad"  , XCPC_COMPANY_NAME_AMSTRAD   },
 };
 
 static const XcpcMachineTypeEntry xcpc_machine_type_table[] = {
-    { "default", XCPC_MACHINE_TYPE_DEFAULT },
-    { "cpc464" , XCPC_MACHINE_TYPE_CPC464  },
-    { "cpc664" , XCPC_MACHINE_TYPE_CPC664  },
-    { "cpc6128", XCPC_MACHINE_TYPE_CPC6128 },
+    { "default" , XCPC_MACHINE_TYPE_DEFAULT },
+    { "CPC 464" , XCPC_MACHINE_TYPE_CPC464  },
+    { "CPC 664" , XCPC_MACHINE_TYPE_CPC664  },
+    { "CPC 6128", XCPC_MACHINE_TYPE_CPC6128 },
+    { "CPC464"  , XCPC_MACHINE_TYPE_CPC464  },
+    { "CPC664"  , XCPC_MACHINE_TYPE_CPC664  },
+    { "CPC6128" , XCPC_MACHINE_TYPE_CPC6128 },
 };
 
 static const XcpcMonitorTypeEntry xcpc_monitor_type_table[] = {
@@ -58,24 +61,36 @@ static const XcpcMonitorTypeEntry xcpc_monitor_type_table[] = {
     { "color"     , XCPC_MONITOR_TYPE_COLOR      },
     { "green"     , XCPC_MONITOR_TYPE_GREEN      },
     { "monochrome", XCPC_MONITOR_TYPE_MONOCHROME },
-    { "ctm640"    , XCPC_MONITOR_TYPE_CTM640     },
-    { "ctm644"    , XCPC_MONITOR_TYPE_CTM644     },
-    { "gt64"      , XCPC_MONITOR_TYPE_GT64       },
-    { "gt65"      , XCPC_MONITOR_TYPE_GT65       },
-    { "cm14"      , XCPC_MONITOR_TYPE_CM14       },
-    { "mm12"      , XCPC_MONITOR_TYPE_MM12       },
+    { "CTM640"    , XCPC_MONITOR_TYPE_CTM640     },
+    { "CTM644"    , XCPC_MONITOR_TYPE_CTM644     },
+    { "GT64"      , XCPC_MONITOR_TYPE_GT64       },
+    { "GT65"      , XCPC_MONITOR_TYPE_GT65       },
+    { "CM14"      , XCPC_MONITOR_TYPE_CM14       },
+    { "MM12"      , XCPC_MONITOR_TYPE_MM12       },
 };
 
 static const XcpcRefreshRateEntry xcpc_refresh_rate_table[] = {
     { "default", XCPC_REFRESH_RATE_DEFAULT },
-    { "50hz"   , XCPC_REFRESH_RATE_50HZ    },
-    { "60hz"   , XCPC_REFRESH_RATE_60HZ    },
+    { "50Hz"   , XCPC_REFRESH_RATE_50HZ    },
+    { "60Hz"   , XCPC_REFRESH_RATE_60HZ    },
 };
 
 static const XcpcKeyboardTypeEntry xcpc_keyboard_type_table[] = {
     { "default", XCPC_KEYBOARD_TYPE_DEFAULT },
-    { "qwerty" , XCPC_KEYBOARD_TYPE_QWERTY  },
-    { "azerty" , XCPC_KEYBOARD_TYPE_AZERTY  },
+    { "QWERTY" , XCPC_KEYBOARD_TYPE_QWERTY  },
+    { "AZERTY" , XCPC_KEYBOARD_TYPE_AZERTY  },
+};
+
+static const XcpcMemorySizeEntry xcpc_memory_size_table[] = {
+    { "default", XCPC_MEMORY_SIZE_DEFAULT },
+    { "64Kb"   , XCPC_MEMORY_SIZE_64K     },
+    { "128Kb"  , XCPC_MEMORY_SIZE_128K    },
+    { "192Kb"  , XCPC_MEMORY_SIZE_192K    },
+    { "256Kb"  , XCPC_MEMORY_SIZE_256K    },
+    { "320Kb"  , XCPC_MEMORY_SIZE_320K    },
+    { "384Kb"  , XCPC_MEMORY_SIZE_384K    },
+    { "448Kb"  , XCPC_MEMORY_SIZE_448K    },
+    { "512Kb"  , XCPC_MEMORY_SIZE_512K    },
 };
 
 static const XcpcColorEntry xcpc_color_table[] = {
@@ -547,6 +562,22 @@ XcpcKeyboardType xcpc_keyboard_type(const char* label, XcpcKeyboardType value)
     return value;
 }
 
+XcpcMemorySize xcpc_memory_size(const char* label, XcpcMemorySize value)
+{
+    if((label != NULL) && (*label != '\0')) {
+        unsigned int       index = 0;
+        const unsigned int count = countof(xcpc_memory_size_table);
+        do {
+            const XcpcMemorySizeEntry* entry = &xcpc_memory_size_table[index];
+            if(strcasecmp(entry->label, label) == 0) {
+                value = entry->value;
+                break;
+            }
+        } while(++index < count);
+    }
+    return value;
+}
+
 XcpcColor xcpc_color_get_values(XcpcMonitorType monitor_type, XcpcColor color, unsigned short* r_out, unsigned short* g_out, unsigned short* b_out)
 {
     if((color >= 0) && (color <= 31)) {
@@ -595,4 +626,94 @@ XcpcColor xcpc_color_get_values(XcpcMonitorType monitor_type, XcpcColor color, u
         return color;
     }
     return XCPC_COLOR_UNKNOWN;
+}
+
+const char* xcpc_company_name_to_string(XcpcCompanyName value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_company_name_table);
+
+    do {
+        const XcpcCompanyNameEntry* entry = &xcpc_company_name_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_machine_type_to_string(XcpcMachineType value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_machine_type_table);
+
+    do {
+        const XcpcMachineTypeEntry* entry = &xcpc_machine_type_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_monitor_type_to_string(XcpcMonitorType value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_monitor_type_table);
+
+    do {
+        const XcpcMonitorTypeEntry* entry = &xcpc_monitor_type_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_refresh_rate_to_string(XcpcRefreshRate value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_refresh_rate_table);
+
+    do {
+        const XcpcRefreshRateEntry* entry = &xcpc_refresh_rate_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_keyboard_type_to_string(XcpcKeyboardType value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_keyboard_type_table);
+
+    do {
+        const XcpcKeyboardTypeEntry* entry = &xcpc_keyboard_type_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_memory_size_to_string(XcpcMemorySize value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_memory_size_table);
+
+    do {
+        const XcpcMemorySizeEntry* entry = &xcpc_memory_size_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
 }

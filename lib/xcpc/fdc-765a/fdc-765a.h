@@ -36,6 +36,7 @@ extern XcpcFdc765a* xcpc_fdc_765a_attach    (XcpcFdc765a* fdc_765a, int drive);
 extern XcpcFdc765a* xcpc_fdc_765a_detach    (XcpcFdc765a* fdc_765a, int drive);
 extern XcpcFdc765a* xcpc_fdc_765a_insert    (XcpcFdc765a* fdc_765a, int drive, const char* filename);
 extern XcpcFdc765a* xcpc_fdc_765a_remove    (XcpcFdc765a* fdc_765a, int drive);
+extern const char*  xcpc_fdc_765a_filename  (XcpcFdc765a* fdc_765a, int drive, const char* filename);
 extern uint8_t      xcpc_fdc_765a_set_motor (XcpcFdc765a* fdc_765a, uint8_t data);
 extern uint8_t      xcpc_fdc_765a_illegal   (XcpcFdc765a* fdc_765a, uint8_t data);
 extern uint8_t      xcpc_fdc_765a_rd_stat   (XcpcFdc765a* fdc_765a, uint8_t data);
