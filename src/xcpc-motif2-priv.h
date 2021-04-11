@@ -144,9 +144,6 @@ struct _XcpcToolBarRec
 struct _XcpcInfoBarRec
 {
     Widget widget;
-    Widget frame0;
-    Widget frame1;
-    Widget frame2;
     Widget status;
     Widget drive0;
     Widget drive1;

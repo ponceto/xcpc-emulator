@@ -25,15 +25,25 @@ dist_bitmaps_DATA = \
 	xcpc-icon.png \
 	xcpc-mask.png \
 	eject.png \
+	eject.xbm \
 	empty.png \
+	empty.xbm \
 	folder-open.png \
+	folder-open.xbm \
 	info-circle.png \
+	info-circle.xbm \
 	pause.png \
+	pause.xbm \
 	play.png \
+	play.xbm \
 	power-off.png \
+	power-off.xbm \
 	question-circle.png \
+	question-circle.xbm \
 	save.png \
+	save.xbm \
 	sync.png \
+	sync.xbm \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

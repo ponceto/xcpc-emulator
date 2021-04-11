@@ -45,11 +45,27 @@ static XrmOptionDescRec options[] = {
  */
 
 static String fallback_resources[] = {
+    ".bitmapFilePath: " XCPC_RESDIR "/bitmaps",
     ".pixmapFilePath: " XCPC_RESDIR "/pixmaps",
     "Xcpc*title: Xcpc - Amstrad CPC emulator",
-    "Xcpc*menubar.borderWidth: 0",
-    "Xcpc*menubar.?.borderWidth: 0",
-    "Xcpc*emulator.borderWidth: 0",
+    "Xcpc*main-window.menubar.borderWidth: 0",
+    "Xcpc*main-window.menubar.?.borderWidth: 0",
+    "Xcpc*main-window.toolbar.borderWidth: 0",
+    "Xcpc*main-window.toolbar.?.borderWidth: 0",
+    "Xcpc*main-window.infobar.borderWidth: 0",
+    "Xcpc*main-window.infobar.?.borderWidth: 0",
+    "Xcpc*main-window.emulator.borderWidth: 0",
+    "Xcpc*main-window.infobar*info-status.borderColor: black",
+    "Xcpc*main-window.infobar*info-status.background: darkgreen",
+    "Xcpc*main-window.infobar*info-status.foreground: grey90",
+    "Xcpc*main-window.infobar*info-drive0.borderColor: black",
+    "Xcpc*main-window.infobar*info-drive0.background: darkblue",
+    "Xcpc*main-window.infobar*info-drive0.foreground: yellow",
+    "Xcpc*main-window.infobar*info-drive1.borderColor: black",
+    "Xcpc*main-window.infobar*info-drive1.background: darkblue",
+    "Xcpc*main-window.infobar*info-drive1.foreground: yellow",
+    "Xcpc*main-window.infobar*info-drive1.foreground: yellow",
+    "Xcpc*main-window.menubar*SmeBSB.leftMargin: 24",
     NULL
 };
 
@@ -63,17 +79,91 @@ static XtResource application_resources[] = {
     /* xcpcQuietFlag */ {
         "xcpcQuietFlag", "XcpcQuietFlag", XtRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, quiet_flag),
-        XtRImmediate, (XtPointer) FALSE
+        XtRImmediate, (XtPointer) False
     },
     /* xcpcTraceFlag */ {
         "xcpcTraceFlag", "XcpcTraceFlag", XtRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, trace_flag),
-        XtRImmediate, (XtPointer) FALSE
+        XtRImmediate, (XtPointer) False
     },
     /* xcpcDebugFlag */ {
         "xcpcDebugFlag", "XcpcDebugFlag", XtRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, debug_flag),
-        XtRImmediate, (XtPointer) FALSE
+        XtRImmediate, (XtPointer) False
+    },
+};
+
+/*
+ * ---------------------------------------------------------------------------
+ * icons resources
+ * ---------------------------------------------------------------------------
+ */
+
+static XtResource icons_resources[] = {
+    /* foreground */ {
+        "foreground", "Foreground", XtRPixel,
+        sizeof(Pixel), XtOffsetOf(XcpcBitmapsRec, foreground),
+        XtRString, (XtPointer) XtDefaultForeground
+    },
+    /* background */ {
+        "background", "Background", XtRPixel,
+        sizeof(Pixel), XtOffsetOf(XcpcBitmapsRec, background),
+        XtRString, (XtPointer) XtDefaultBackground
+    },
+    /* xcpcNullBitmap */ {
+        "xcpcNullBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, null_icon),
+        XtRString, (XtPointer) "empty.xbm"
+    },
+    /* xcpcFileLoadBitmap */ {
+        "xcpcFileLoadBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, file_load),
+        XtRString, (XtPointer) "folder-open.xbm"
+    },
+    /* xcpcFileSaveBitmap */ {
+        "xcpcFileSaveBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, file_save),
+        XtRString, (XtPointer) "save.xbm"
+    },
+    /* xcpcFileExitBitmap */ {
+        "xcpcFileExitBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, file_exit),
+        XtRString, (XtPointer) "power-off.xbm"
+    },
+    /* xcpcCtrlPlayBitmap */ {
+        "xcpcCtrlPlayBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, ctrl_play),
+        XtRString, (XtPointer) "play.xbm"
+    },
+    /* xcpcCtrlPauseBitmap */ {
+        "xcpcCtrlPauseBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, ctrl_pause),
+        XtRString, (XtPointer) "pause.xbm"
+    },
+    /* xcpcCtrlResetBitmap */ {
+        "xcpcCtrlResetBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, ctrl_reset),
+        XtRString, (XtPointer) "sync.xbm"
+    },
+    /* xcpcDiskInsertBitmap */ {
+        "xcpcDiskInsertBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, disk_insert),
+        XtRString, (XtPointer) "folder-open.xbm"
+    },
+    /* xcpcDiskRemoveBitmap */ {
+        "xcpcDiskRemoveBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, disk_remove),
+        XtRString, (XtPointer) "eject.xbm"
+    },
+    /* xcpcHelpLegalBitmap */ {
+        "xcpcHelpLegalBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, help_legal),
+        XtRString, (XtPointer) "info-circle.xbm"
+    },
+    /* xcpcHelpAboutBitmap */ {
+        "xcpcHelpAboutBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, help_about),
+        XtRString, (XtPointer) "question-circle.xbm"
     },
 };
 
@@ -99,7 +189,7 @@ static void HideWidget(Widget widget)
 
 static Widget FindShell(Widget widget)
 {
-    while((widget != NULL) && (XtIsShell(widget) == FALSE)) {
+    while((widget != NULL) && (XtIsShell(widget) == False)) {
         widget = XtParent(widget);
     }
     return widget;
@@ -107,10 +197,20 @@ static Widget FindShell(Widget widget)
 
 static Widget FindTopLevelShell(Widget widget)
 {
-    while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    while((widget != NULL) && (XtIsTopLevelShell(widget) == False)) {
         widget = XtParent(widget);
     }
     return widget;
+}
+
+static void GetBitmaps(Widget widget, XcpcBitmapsRec* bitmaps)
+{
+    /* clear */ {
+        (void) memset(bitmaps, 0, sizeof(XcpcBitmapsRec));
+    }
+    /* load bitmaps */ {
+        XtGetApplicationResources(widget, (XtPointer) bitmaps, icons_resources, XtNumber(icons_resources), NULL, 0);
+    }
 }
 
 /*
@@ -119,15 +219,128 @@ static Widget FindTopLevelShell(Widget widget)
  * ---------------------------------------------------------------------------
  */
 
-static XcpcApplication* SetTitle(XcpcApplication* self, const char* title)
+static XcpcApplication* SetMachine(XcpcApplication* self)
 {
     Arg      arglist[4];
     Cardinal argcount = 0;
+    char     buffer[256];
 
+    /* build string */ {
+        (void) snprintf ( buffer, sizeof(buffer)
+                        , "%s %s %s, %s @ %s, %s"
+                        , xcpc_company_name_to_string(xcpc_machine_company_name(self->machine))
+                        , xcpc_machine_type_to_string(xcpc_machine_machine_type(self->machine))
+                        , xcpc_memory_size_to_string(xcpc_machine_memory_size(self->machine))
+                        , xcpc_monitor_type_to_string(xcpc_machine_monitor_type(self->machine))
+                        , xcpc_refresh_rate_to_string(xcpc_machine_refresh_rate(self->machine))
+                        , xcpc_keyboard_type_to_string(xcpc_machine_keyboard_type(self->machine)) );
+    }
+    if(self->infobar.system != NULL) {
+        XtUnmanageChild(self->infobar.system);
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, buffer); ++argcount;
+        XtSetValues(self->infobar.system, arglist, argcount);
+        XtManageChild(self->infobar.system);
+    }
+    return self;
+}
+
+static XcpcApplication* SetTitle(XcpcApplication* self, const char* string)
+{
+    Arg      arglist[4];
+    Cardinal argcount = 0;
+    char     buffer[256];
+
+    /* inititialize buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "Xcpc - Amstrad CPC emulator - %s", string);
+    }
     if(self->layout.toplevel != NULL) {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNtitle, title); ++argcount;
+        XtSetArg(arglist[argcount], XtNtitle, buffer); ++argcount;
         XtSetValues(self->layout.toplevel, arglist, argcount);
+    }
+    return self;
+}
+
+static XcpcApplication* SetStatus(XcpcApplication* self, const char* string)
+{
+    Arg      arglist[4];
+    Cardinal argcount = 0;
+    char     buffer[256];
+
+    /* inititialize buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s", string);
+    }
+    if(self->infobar.status != NULL) {
+        XtUnmanageChild(self->infobar.status);
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, buffer); ++argcount;
+        XtSetValues(self->infobar.status, arglist, argcount);
+        XtManageChild(self->infobar.status);
+    }
+    return SetTitle(SetMachine(self), string);
+}
+
+static XcpcApplication* SetDrive0(XcpcApplication* self)
+{
+    Arg      arglist[4];
+    Cardinal argcount = 0;
+    const char* filename = NULL;
+    char        buffer[256];
+
+    /* fetch filename */ {
+        filename = xcpc_machine_filename_drive0(self->machine);
+        if((filename != NULL) && (*filename != '\0')) {
+            const char* slash = strrchr(filename, '/');
+            if(slash != NULL) {
+                filename = (slash + 1);
+            }
+        }
+        else {
+            filename = _("{empty}");
+        }
+    }
+    /* init buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s %s", _("A:"), filename);
+    }
+    if(self->infobar.drive0 != NULL) {
+        XtUnmanageChild(self->infobar.drive0);
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, buffer); ++argcount;
+        XtSetValues(self->infobar.drive0, arglist, argcount);
+        XtManageChild(self->infobar.drive0);
+    }
+    return self;
+}
+
+static XcpcApplication* SetDrive1(XcpcApplication* self)
+{
+    Arg      arglist[4];
+    Cardinal argcount = 0;
+    const char* filename = NULL;
+    char        buffer[256];
+
+    /* fetch filename */ {
+        filename = xcpc_machine_filename_drive1(self->machine);
+        if((filename != NULL) && (*filename != '\0')) {
+            const char* slash = strrchr(filename, '/');
+            if(slash != NULL) {
+                filename = (slash + 1);
+            }
+        }
+        else {
+            filename = _("{empty}");
+        }
+    }
+    /* init buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s %s", _("B:"), filename);
+    }
+    if(self->infobar.drive1 != NULL) {
+        XtUnmanageChild(self->infobar.drive1);
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, buffer); ++argcount;
+        XtSetValues(self->infobar.drive1, arglist, argcount);
+        XtManageChild(self->infobar.drive1);
     }
     return self;
 }
@@ -145,12 +358,19 @@ static XcpcApplication* Play(XcpcApplication* self)
     /* show/hide controls */ {
         HideWidget(self->menubar.ctrl.play_emulator);
         ShowWidget(self->menubar.ctrl.pause_emulator);
+        HideWidget(self->toolbar.play_emulator);
+        ShowWidget(self->toolbar.pause_emulator);
     }
     if(self->layout.emulator != NULL) {
-        XtSetSensitive(self->layout.emulator, TRUE);
+        XtSetSensitive(self->layout.emulator, True);
         XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
     }
-    return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Playing"));
+    /* set status */ {
+        (void) SetStatus(self, _("Playing"));
+        (void) SetDrive0(self);
+        (void) SetDrive1(self);
+    }
+    return self;
 }
 
 static XcpcApplication* Pause(XcpcApplication* self)
@@ -158,12 +378,19 @@ static XcpcApplication* Pause(XcpcApplication* self)
     /* show/hide controls */ {
         ShowWidget(self->menubar.ctrl.play_emulator);
         HideWidget(self->menubar.ctrl.pause_emulator);
+        ShowWidget(self->toolbar.play_emulator);
+        HideWidget(self->toolbar.pause_emulator);
     }
     if(self->layout.emulator != NULL) {
-        XtSetSensitive(self->layout.emulator, FALSE);
+        XtSetSensitive(self->layout.emulator, False);
         XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
     }
-    return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Paused"));
+    /* set status */ {
+        (void) SetStatus(self, _("Paused"));
+        (void) SetDrive0(self);
+        (void) SetDrive1(self);
+    }
+    return self;
 }
 
 static XcpcApplication* Reset(XcpcApplication* self)
@@ -171,7 +398,12 @@ static XcpcApplication* Reset(XcpcApplication* self)
     if(self->layout.emulator != NULL) {
         (void) xcpc_machine_reset(self->machine);
     }
-    return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Reset"));
+    /* set status */ {
+        (void) SetStatus(self, _("Reset"));
+        (void) SetDrive0(self);
+        (void) SetDrive1(self);
+    }
+    return self;
 }
 
 /*
@@ -207,14 +439,14 @@ static XcpcApplication* InsertDiskIntoDrive0(XcpcApplication* self, const char* 
     if((filename != NULL) && (*filename != '\0')) {
         xcpc_machine_insert_drive0(self->machine, filename);
     }
-    return self;
+    return SetDrive0(self);
 }
 
 static XcpcApplication* RemoveDiskFromDrive0(XcpcApplication* self)
 {
     xcpc_machine_remove_drive0(self->machine);
 
-    return self;
+    return SetDrive0(self);
 }
 
 /*
@@ -228,14 +460,14 @@ static XcpcApplication* InsertDiskIntoDrive1(XcpcApplication* self, const char* 
     if((filename != NULL) && (*filename != '\0')) {
         xcpc_machine_insert_drive1(self->machine, filename);
     }
-    return self;
+    return SetDrive1(self);
 }
 
 static XcpcApplication* RemoveDiskFromDrive1(XcpcApplication* self)
 {
     xcpc_machine_remove_drive1(self->machine);
 
-    return self;
+    return SetDrive1(self);
 }
 
 /*
@@ -263,7 +495,7 @@ static XcpcApplication* InsertOrRemoveDisk(XcpcApplication* self, const char* fi
 
 static void DestroyCallback(Widget widget, Widget* reference, XtPointer pointer)
 {
-    if(XtIsApplicationShell(widget) != FALSE) {
+    if(XtIsApplicationShell(widget) != False) {
         XtAppSetExitFlag(XtWidgetToApplicationContext(widget));
     }
     if((widget != NULL) && (reference != NULL) && (widget == *reference)) {
@@ -271,7 +503,7 @@ static void DestroyCallback(Widget widget, Widget* reference, XtPointer pointer)
     }
 }
 
-static void DismissCallback(Widget widget, XcpcApplication* self, XtPointer* info)
+static void DismissCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Widget shell = FindShell(widget);
 
@@ -292,27 +524,55 @@ static void DismissCallback(Widget widget, XcpcApplication* self, XtPointer* inf
  * ---------------------------------------------------------------------------
  */
 
+static int CheckExtension(const char* filename, const char* extension)
+{
+    const int filename_length  = strlen(filename);
+    const int extension_length = strlen(extension);
+
+    if(filename_length >= extension_length) {
+        if(strcasecmp(&filename[filename_length - extension_length], extension) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void DropUriCallback(Widget widget, XcpcApplication* self, char* uri)
 {
-    int length = 0;
-
     if((uri != NULL) && (strncmp(uri, "file://", 7) == 0)) {
         char* str = &uri[7];
         char* eol = strstr(str, "\r\n");
         if(eol != NULL) {
             *eol = '\0';
         }
-        if((length = strlen(str)) >= 4) {
-            if(strcasecmp(&str[length - 4], ".sna") == 0) {
-                (void) LoadSnapshot(self, str);
-                (void) Play(self);
-            }
-            if(strcasecmp(&str[length - 4], ".dsk") == 0) {
-                (void) InsertOrRemoveDisk(self, str);
-                (void) Play(self);
-            }
+        if(CheckExtension(str, ".sna") != 0) {
+            (void) LoadSnapshot(self, str);
+            (void) Play(self);
+        }
+        else if(CheckExtension(str, ".dsk") != 0) {
+            (void) InsertOrRemoveDisk(self, str);
+            (void) Play(self);
+        }
+        else if(CheckExtension(str, ".dsk.gz") != 0) {
+            (void) InsertOrRemoveDisk(self, str);
+            (void) Play(self);
+        }
+        else if(CheckExtension(str, ".dsk.bz2") != 0) {
+            (void) InsertOrRemoveDisk(self, str);
+            (void) Play(self);
         }
     }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * File callbacks
+ * ---------------------------------------------------------------------------
+ */
+
+static void ExitCallback(Widget widget, XcpcApplication* self, XtPointer info)
+{
+    (void) Exit(self);
 }
 
 /*
@@ -333,8 +593,8 @@ static void LoadSnapshotOkCallback(Widget widget, XcpcApplication* self, XtPoint
 
 static void LoadSnapshotCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
-    Arg arglist[16];
-    Cardinal argcount;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
     Widget parent = FindTopLevelShell(widget);
     Widget shell  = NULL;
     Widget dialog = NULL;
@@ -343,7 +603,7 @@ static void LoadSnapshotCallback(Widget widget, XcpcApplication* self, XtPointer
 
     /* xcpc-load-snapshot-shell */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNtransient, TRUE); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransient, True); ++argcount;
         XtSetArg(arglist[argcount], XtNtransientFor, parent); ++argcount;
         shell = XtCreatePopupShell("xcpc-load-snapshot-shell", xemDlgShellWidgetClass, parent, arglist, argcount);
     }
@@ -394,8 +654,8 @@ static void SaveSnapshotOkCallback(Widget widget, XcpcApplication* self, XtPoint
 
 static void SaveSnapshotCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
-    Arg arglist[16];
-    Cardinal argcount;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
     Widget parent = FindTopLevelShell(widget);
     Widget shell  = NULL;
     Widget dialog = NULL;
@@ -404,7 +664,7 @@ static void SaveSnapshotCallback(Widget widget, XcpcApplication* self, XtPointer
 
     /* xcpc-save-snapshot-shell */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNtransient, TRUE); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransient, True); ++argcount;
         XtSetArg(arglist[argcount], XtNtransientFor, parent); ++argcount;
         shell = XtCreatePopupShell("xcpc-save-snapshot-shell", xemDlgShellWidgetClass, parent, arglist, argcount);
     }
@@ -455,8 +715,8 @@ static void InsertDrive0OkCallback(Widget widget, XcpcApplication* self, XtPoint
 
 static void InsertDrive0Callback(Widget widget, XcpcApplication* self, XtPointer info)
 {
-    Arg arglist[16];
-    Cardinal argcount;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
     Widget parent = FindTopLevelShell(widget);
     Widget shell  = NULL;
     Widget dialog = NULL;
@@ -465,7 +725,7 @@ static void InsertDrive0Callback(Widget widget, XcpcApplication* self, XtPointer
 
     /* xcpc-drive0-insert-shell */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNtransient, TRUE); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransient, True); ++argcount;
         XtSetArg(arglist[argcount], XtNtransientFor, parent); ++argcount;
         shell = XtCreatePopupShell("xcpc-drive0-insert-shell", xemDlgShellWidgetClass, parent, arglist, argcount);
     }
@@ -521,8 +781,8 @@ static void InsertDrive1OkCallback(Widget widget, XcpcApplication* self, XtPoint
 
 static void InsertDrive1Callback(Widget widget, XcpcApplication* self, XtPointer info)
 {
-    Arg arglist[16];
-    Cardinal argcount;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
     Widget parent = FindTopLevelShell(widget);
     Widget shell  = NULL;
     Widget dialog = NULL;
@@ -531,7 +791,7 @@ static void InsertDrive1Callback(Widget widget, XcpcApplication* self, XtPointer
 
     /* xcpc-drive1-insert-shell */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNtransient, TRUE); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransient, True); ++argcount;
         XtSetArg(arglist[argcount], XtNtransientFor, parent); ++argcount;
         shell = XtCreatePopupShell("xcpc-drive1-insert-shell", xemDlgShellWidgetClass, parent, arglist, argcount);
     }
@@ -571,17 +831,6 @@ static void RemoveDrive1Callback(Widget widget, XcpcApplication* self, XtPointer
 
 /*
  * ---------------------------------------------------------------------------
- * File callbacks
- * ---------------------------------------------------------------------------
- */
-
-static void ExitCallback(Widget widget, XcpcApplication* self, XtPointer info)
-{
-    Exit(self);
-}
-
-/*
- * ---------------------------------------------------------------------------
  * Controls callbacks
  * ---------------------------------------------------------------------------
  */
@@ -610,8 +859,8 @@ static void ResetCallback(Widget widget, XcpcApplication* self, XtPointer info)
 
 static void LegalCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
-    Arg arglist[16];
-    Cardinal argcount;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
     String title = _("Legal Info ...");
     String message = _(((char*)(xcpc_legal_text())));
     Widget parent = FindTopLevelShell(widget);
@@ -622,7 +871,7 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XtPointer info)
     /* xcpc-legal-shell */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNtitle, title); ++argcount;
-        XtSetArg(arglist[argcount], XtNtransient, TRUE); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransient, True); ++argcount;
         XtSetArg(arglist[argcount], XtNtransientFor, parent); ++argcount;
         shell = XtCreatePopupShell("xcpc-legal-shell", xemDlgShellWidgetClass, parent, arglist, argcount);
         XtAddCallback(shell, XtNdestroyCallback, (XtCallbackProc) &DismissCallback, (XtPointer) self);
@@ -656,8 +905,8 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XtPointer info)
 
 static void AboutCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
-    Arg arglist[16];
-    Cardinal argcount;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
     String title = _("About Xcpc ...");
     String message = _(((char*)(xcpc_about_text())));
     Widget parent = FindTopLevelShell(widget);
@@ -668,7 +917,7 @@ static void AboutCallback(Widget widget, XcpcApplication* self, XtPointer info)
     /* xcpc-about-shell */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNtitle, title); ++argcount;
-        XtSetArg(arglist[argcount], XtNtransient, TRUE); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransient, True); ++argcount;
         XtSetArg(arglist[argcount], XtNtransientFor, parent); ++argcount;
         shell = XtCreatePopupShell("xcpc-about-shell", xemDlgShellWidgetClass, parent, arglist, argcount);
         XtAddCallback(shell, XtNdestroyCallback, (XtCallbackProc) &DismissCallback, (XtPointer) self);
@@ -702,6 +951,7 @@ static void AboutCallback(Widget widget, XcpcApplication* self, XtPointer info)
 
 static XcpcApplication* BuildFileMenu(XcpcApplication* self)
 {
+    XcpcFileMenuRec* menu = &self->menubar.file;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
@@ -709,50 +959,54 @@ static XcpcApplication* BuildFileMenu(XcpcApplication* self)
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("File")); ++argcount;
         XtSetArg(arglist[argcount], XtNmenuName, "file-pulldown"); ++argcount;
-        self->menubar.file.menu = XtCreateWidget("file-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
-        XtAddCallback(self->menubar.file.menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.file.menu);
-        XtManageChild(self->menubar.file.menu);
+        menu->menu = XtCreateWidget("file-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
+        XtAddCallback(menu->menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
     }
     /* file-pulldown */ {
         argcount = 0;
-        self->menubar.file.pulldown = XtCreatePopupShell("file-pulldown", simpleMenuWidgetClass, self->menubar.file.menu, arglist, argcount);
-        XtAddCallback(self->menubar.file.pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.file.pulldown);
+        menu->pulldown = XtCreatePopupShell("file-pulldown", simpleMenuWidgetClass, menu->menu, arglist, argcount);
+        XtAddCallback(menu->pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* file-load-snapshot */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Load snapshot...")); ++argcount;
-        self->menubar.file.load_snapshot = XtCreateWidget("file-load-snapshot", smeBSBObjectClass, self->menubar.file.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.file.load_snapshot, XtNcallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
-        XtAddCallback(self->menubar.file.load_snapshot, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.file.load_snapshot);
-        XtManageChild(self->menubar.file.load_snapshot);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.file_load); ++argcount;
+        menu->load_snapshot = XtCreateWidget("file-load-snapshot", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->load_snapshot, XtNcallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
+        XtAddCallback(menu->load_snapshot, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->load_snapshot);
+        XtManageChild(menu->load_snapshot);
     }
     /* file-save-snapshot */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Save snapshot...")); ++argcount;
-        self->menubar.file.save_snapshot = XtCreateWidget("file-save-snapshot", smeBSBObjectClass, self->menubar.file.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.file.save_snapshot, XtNcallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
-        XtAddCallback(self->menubar.file.save_snapshot, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.file.save_snapshot);
-        XtManageChild(self->menubar.file.save_snapshot);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.file_save); ++argcount;
+        menu->save_snapshot = XtCreateWidget("file-save-snapshot", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->save_snapshot, XtNcallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
+        XtAddCallback(menu->save_snapshot, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->save_snapshot);
+        XtManageChild(menu->save_snapshot);
     }
     /* file-separator1 */ {
         argcount = 0;
-        self->menubar.file.separator1 = XtCreateWidget("file-separator1", smeLineObjectClass, self->menubar.file.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.file.separator1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.file.separator1);
-        XtManageChild(self->menubar.file.separator1);
+        menu->separator1 = XtCreateWidget("file-separator1", smeLineObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->separator1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
+        XtManageChild(menu->separator1);
     }
     /* file-exit */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Exit")); ++argcount;
-        self->menubar.file.exit = XtCreateWidget("file-exit", smeBSBObjectClass, self->menubar.file.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.file.exit, XtNcallback, (XtCallbackProc) &ExitCallback, (XtPointer) self);
-        XtAddCallback(self->menubar.file.exit, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.file.exit);
-        XtManageChild(self->menubar.file.exit);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.file_exit); ++argcount;
+        menu->exit = XtCreateWidget("file-exit", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->exit, XtNcallback, (XtCallbackProc) &ExitCallback, (XtPointer) self);
+        XtAddCallback(menu->exit, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->exit);
+        XtManageChild(menu->exit);
     }
     return self;
 }
 
 static XcpcApplication* BuildCtrlMenu(XcpcApplication* self)
 {
+    XcpcCtrlMenuRec* menu = &self->menubar.ctrl;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
@@ -760,44 +1014,48 @@ static XcpcApplication* BuildCtrlMenu(XcpcApplication* self)
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Controls")); ++argcount;
         XtSetArg(arglist[argcount], XtNmenuName, "ctrl-pulldown"); ++argcount;
-        self->menubar.ctrl.menu = XtCreateWidget("ctrl-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
-        XtAddCallback(self->menubar.ctrl.menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.ctrl.menu);
-        XtManageChild(self->menubar.ctrl.menu);
+        menu->menu = XtCreateWidget("ctrl-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
+        XtAddCallback(menu->menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
     }
     /* ctrl-pulldown */ {
         argcount = 0;
-        self->menubar.ctrl.pulldown = XtCreatePopupShell("ctrl-pulldown", simpleMenuWidgetClass, self->menubar.ctrl.menu, arglist, argcount);
-        XtAddCallback(self->menubar.ctrl.pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.ctrl.pulldown);
+        menu->pulldown = XtCreatePopupShell("ctrl-pulldown", simpleMenuWidgetClass, menu->menu, arglist, argcount);
+        XtAddCallback(menu->pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* ctrl-play-emu */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Play")); ++argcount;
-        self->menubar.ctrl.play_emulator = XtCreateWidget("ctrl-play-emu", smeBSBObjectClass, self->menubar.ctrl.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.ctrl.play_emulator, XtNcallback, (XtCallbackProc) &PlayCallback, (XtPointer) self);
-        XtAddCallback(self->menubar.ctrl.play_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.ctrl.play_emulator);
-        XtManageChild(self->menubar.ctrl.play_emulator);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.ctrl_play); ++argcount;
+        menu->play_emulator = XtCreateWidget("ctrl-play-emu", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->play_emulator, XtNcallback, (XtCallbackProc) &PlayCallback, (XtPointer) self);
+        XtAddCallback(menu->play_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->play_emulator);
+        XtManageChild(menu->play_emulator);
     }
     /* ctrl-pause-emu */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Pause")); ++argcount;
-        self->menubar.ctrl.pause_emulator = XtCreateWidget("ctrl-pause-emu", smeBSBObjectClass, self->menubar.ctrl.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.ctrl.pause_emulator, XtNcallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
-        XtAddCallback(self->menubar.ctrl.pause_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.ctrl.pause_emulator);
-        XtManageChild(self->menubar.ctrl.pause_emulator);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.ctrl_pause); ++argcount;
+        menu->pause_emulator = XtCreateWidget("ctrl-pause-emu", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->pause_emulator, XtNcallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
+        XtAddCallback(menu->pause_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pause_emulator);
+        XtManageChild(menu->pause_emulator);
     }
     /* ctrl-reset-emu */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Reset")); ++argcount;
-        self->menubar.ctrl.reset_emulator = XtCreateWidget("ctrl-reset-emu", smeBSBObjectClass, self->menubar.ctrl.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.ctrl.reset_emulator, XtNcallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
-        XtAddCallback(self->menubar.ctrl.reset_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.ctrl.reset_emulator);
-        XtManageChild(self->menubar.ctrl.reset_emulator);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.ctrl_reset); ++argcount;
+        menu->reset_emulator = XtCreateWidget("ctrl-reset-emu", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->reset_emulator, XtNcallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
+        XtAddCallback(menu->reset_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->reset_emulator);
+        XtManageChild(menu->reset_emulator);
     }
     return self;
 }
 
 static XcpcApplication* BuildDrv0Menu(XcpcApplication* self)
 {
+    XcpcDrv0MenuRec* menu = &self->menubar.drv0;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
@@ -805,36 +1063,39 @@ static XcpcApplication* BuildDrv0Menu(XcpcApplication* self)
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Drive A")); ++argcount;
         XtSetArg(arglist[argcount], XtNmenuName, "drv0-pulldown"); ++argcount;
-        self->menubar.drv0.menu = XtCreateWidget("drv0-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
-        XtAddCallback(self->menubar.drv0.menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.drv0.menu);
-        XtManageChild(self->menubar.drv0.menu);
+        menu->menu = XtCreateWidget("drv0-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
+        XtAddCallback(menu->menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
     }
     /* drv0-pulldown */ {
         argcount = 0;
-        self->menubar.drv0.pulldown = XtCreatePopupShell("drv0-pulldown", simpleMenuWidgetClass, self->menubar.drv0.menu, arglist, argcount);
-        XtAddCallback(self->menubar.drv0.pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.drv0.pulldown);
+        menu->pulldown = XtCreatePopupShell("drv0-pulldown", simpleMenuWidgetClass, menu->menu, arglist, argcount);
+        XtAddCallback(menu->pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* drv0-drive0-insert */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Insert disk...")); ++argcount;
-        self->menubar.drv0.drive0_insert = XtCreateWidget("drv0-drive0-insert", smeBSBObjectClass, self->menubar.drv0.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.drv0.drive0_insert, XtNcallback, (XtCallbackProc) &InsertDrive0Callback, (XtPointer) self);
-        XtAddCallback(self->menubar.drv0.drive0_insert, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.drv0.drive0_insert);
-        XtManageChild(self->menubar.drv0.drive0_insert);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.disk_insert); ++argcount;
+        menu->drive0_insert = XtCreateWidget("drv0-drive0-insert", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->drive0_insert, XtNcallback, (XtCallbackProc) &InsertDrive0Callback, (XtPointer) self);
+        XtAddCallback(menu->drive0_insert, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive0_insert);
+        XtManageChild(menu->drive0_insert);
     }
     /* drv0-drive0-remove */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Remove disk")); ++argcount;
-        self->menubar.drv0.drive0_remove = XtCreateWidget("drv0-drive0-remove", smeBSBObjectClass, self->menubar.drv0.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.drv0.drive0_remove, XtNcallback, (XtCallbackProc) &RemoveDrive0Callback, (XtPointer) self);
-        XtAddCallback(self->menubar.drv0.drive0_remove, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.drv0.drive0_remove);
-        XtManageChild(self->menubar.drv0.drive0_remove);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.disk_remove); ++argcount;
+        menu->drive0_remove = XtCreateWidget("drv0-drive0-remove", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->drive0_remove, XtNcallback, (XtCallbackProc) &RemoveDrive0Callback, (XtPointer) self);
+        XtAddCallback(menu->drive0_remove, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive0_remove);
+        XtManageChild(menu->drive0_remove);
     }
     return self;
 }
 
 static XcpcApplication* BuildDrv1Menu(XcpcApplication* self)
 {
+    XcpcDrv1MenuRec* menu = &self->menubar.drv1;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
@@ -842,36 +1103,39 @@ static XcpcApplication* BuildDrv1Menu(XcpcApplication* self)
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Drive B")); ++argcount;
         XtSetArg(arglist[argcount], XtNmenuName, "drv1-pulldown"); ++argcount;
-        self->menubar.drv1.menu = XtCreateWidget("drv1-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
-        XtAddCallback(self->menubar.drv1.menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.drv1.menu);
-        XtManageChild(self->menubar.drv1.menu);
+        menu->menu = XtCreateWidget("drv1-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
+        XtAddCallback(menu->menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
     }
     /* drv1-pulldown */ {
         argcount = 0;
-        self->menubar.drv1.pulldown = XtCreatePopupShell("drv1-pulldown", simpleMenuWidgetClass, self->menubar.drv1.menu, arglist, argcount);
-        XtAddCallback(self->menubar.drv1.pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.drv1.pulldown);
+        menu->pulldown = XtCreatePopupShell("drv1-pulldown", simpleMenuWidgetClass, menu->menu, arglist, argcount);
+        XtAddCallback(menu->pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* drv1-drive1-insert */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Insert disk...")); ++argcount;
-        self->menubar.drv1.drive1_insert = XtCreateWidget("drv1-drive1-insert", smeBSBObjectClass, self->menubar.drv1.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.drv1.drive1_insert, XtNcallback, (XtCallbackProc) &InsertDrive1Callback, (XtPointer) self);
-        XtAddCallback(self->menubar.drv1.drive1_insert, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.drv1.drive1_insert);
-        XtManageChild(self->menubar.drv1.drive1_insert);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.disk_insert); ++argcount;
+        menu->drive1_insert = XtCreateWidget("drv1-drive1-insert", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->drive1_insert, XtNcallback, (XtCallbackProc) &InsertDrive1Callback, (XtPointer) self);
+        XtAddCallback(menu->drive1_insert, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive1_insert);
+        XtManageChild(menu->drive1_insert);
     }
     /* drv1-drive1-remove */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Remove disk")); ++argcount;
-        self->menubar.drv1.drive1_remove = XtCreateWidget("drv1-drive1-remove", smeBSBObjectClass, self->menubar.drv1.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.drv1.drive1_remove, XtNcallback, (XtCallbackProc) &RemoveDrive1Callback, (XtPointer) self);
-        XtAddCallback(self->menubar.drv1.drive1_remove, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.drv1.drive1_remove);
-        XtManageChild(self->menubar.drv1.drive1_remove);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.disk_remove); ++argcount;
+        menu->drive1_remove = XtCreateWidget("drv1-drive1-remove", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->drive1_remove, XtNcallback, (XtCallbackProc) &RemoveDrive1Callback, (XtPointer) self);
+        XtAddCallback(menu->drive1_remove, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive1_remove);
+        XtManageChild(menu->drive1_remove);
     }
     return self;
 }
 
 static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
 {
+    XcpcHelpMenuRec* menu = &self->menubar.help;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
@@ -879,58 +1143,61 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Help")); ++argcount;
         XtSetArg(arglist[argcount], XtNmenuName, "help-pulldown"); ++argcount;
-        self->menubar.help.menu = XtCreateWidget("help-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
-        XtAddCallback(self->menubar.help.menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.help.menu);
-        XtManageChild(self->menubar.help.menu);
+        menu->menu = XtCreateWidget("help-menu", menuButtonWidgetClass, self->menubar.widget, arglist, argcount);
+        XtAddCallback(menu->menu, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->menu);
+        XtManageChild(menu->menu);
     }
     /* help-pulldown */ {
         argcount = 0;
-        self->menubar.help.pulldown = XtCreatePopupShell("help-pulldown", simpleMenuWidgetClass, self->menubar.help.menu, arglist, argcount);
-        XtAddCallback(self->menubar.help.pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.help.pulldown);
+        menu->pulldown = XtCreatePopupShell("help-pulldown", simpleMenuWidgetClass, menu->menu, arglist, argcount);
+        XtAddCallback(menu->pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
     /* help-legal */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Legal Info")); ++argcount;
-        self->menubar.help.legal = XtCreateWidget("help-legal", smeBSBObjectClass, self->menubar.help.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.help.legal, XtNcallback, (XtCallbackProc) &LegalCallback, (XtPointer) self);
-        XtAddCallback(self->menubar.help.legal, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.help.legal);
-        XtManageChild(self->menubar.help.legal);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.help_legal); ++argcount;
+        menu->legal = XtCreateWidget("help-legal", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->legal, XtNcallback, (XtCallbackProc) &LegalCallback, (XtPointer) self);
+        XtAddCallback(menu->legal, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->legal);
+        XtManageChild(menu->legal);
     }
     /* help-separator1 */ {
         argcount = 0;
-        self->menubar.help.separator1 = XtCreateWidget("help-separator1", smeLineObjectClass, self->menubar.help.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.help.separator1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.help.separator1);
-        XtManageChild(self->menubar.help.separator1);
+        menu->separator1 = XtCreateWidget("help-separator1", smeLineObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->separator1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
+        XtManageChild(menu->separator1);
     }
     /* help-about */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("About Xcpc")); ++argcount;
-        self->menubar.help.about = XtCreateWidget("help-about", smeBSBObjectClass, self->menubar.help.pulldown, arglist, argcount);
-        XtAddCallback(self->menubar.help.about, XtNcallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
-        XtAddCallback(self->menubar.help.about, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.help.about);
-        XtManageChild(self->menubar.help.about);
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.help_about); ++argcount;
+        menu->about = XtCreateWidget("help-about", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->about, XtNcallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
+        XtAddCallback(menu->about, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->about);
+        XtManageChild(menu->about);
     }
     return self;
 }
 
 static XcpcApplication* BuildMenuBar(XcpcApplication* self)
 {
+    XcpcMenuBarRec* menubar = &self->menubar;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* menubar */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNorientation, XtorientHorizontal); ++argcount;
-        XtSetArg(arglist[argcount], XtNresizable  , True              ); ++argcount;
+        XtSetArg(arglist[argcount], XtNresizable  , False             ); ++argcount;
         XtSetArg(arglist[argcount], XtNfromHoriz  , NULL              ); ++argcount;
         XtSetArg(arglist[argcount], XtNfromVert   , NULL              ); ++argcount;
         XtSetArg(arglist[argcount], XtNtop        , XtChainTop        ); ++argcount;
         XtSetArg(arglist[argcount], XtNbottom     , XtChainTop        ); ++argcount;
         XtSetArg(arglist[argcount], XtNleft       , XtChainLeft       ); ++argcount;
         XtSetArg(arglist[argcount], XtNright      , XtChainLeft       ); ++argcount;
-        self->menubar.widget = XtCreateWidget("menubar", boxWidgetClass, self->layout.window, arglist, argcount);
-        XtAddCallback(self->menubar.widget, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.widget);
-        XtManageChild(self->menubar.widget);
+        menubar->widget = XtCreateWidget("menubar", boxWidgetClass, self->layout.window, arglist, argcount);
+        XtAddCallback(menubar->widget, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menubar->widget);
+        XtManageChild(menubar->widget);
     }
     /* build all menus */ {
         (void) BuildFileMenu(self);
@@ -938,6 +1205,155 @@ static XcpcApplication* BuildMenuBar(XcpcApplication* self)
         (void) BuildDrv0Menu(self);
         (void) BuildDrv1Menu(self);
         (void) BuildHelpMenu(self);
+    }
+    return self;
+}
+
+static XcpcApplication* BuildToolBar(XcpcApplication* self)
+{
+    XcpcToolBarRec* toolbar = &self->toolbar;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+
+    /* toolbar */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNorientation, XtorientHorizontal  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNresizable  , False               ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromHoriz  , NULL                ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromVert   , self->menubar.widget); ++argcount;
+        XtSetArg(arglist[argcount], XtNtop        , XtChainTop          ); ++argcount;
+        XtSetArg(arglist[argcount], XtNbottom     , XtChainTop          ); ++argcount;
+        XtSetArg(arglist[argcount], XtNleft       , XtChainLeft         ); ++argcount;
+        XtSetArg(arglist[argcount], XtNright      , XtChainLeft         ); ++argcount;
+        toolbar->widget = XtCreateWidget("toolbar", boxWidgetClass, self->layout.window, arglist, argcount);
+        XtAddCallback(toolbar->widget, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->widget);
+        XtManageChild(toolbar->widget);
+    }
+    /* tool-load-snapshot */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Load")); ++argcount;
+        XtSetArg(arglist[argcount], XtNbitmap, self->bitmaps.file_load); ++argcount;
+        toolbar->load_snapshot = XtCreateWidget("tool-load-snapshot", commandWidgetClass, toolbar->widget, arglist, argcount);
+        XtAddCallback(toolbar->load_snapshot, XtNcallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
+        XtAddCallback(toolbar->load_snapshot, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->load_snapshot);
+        XtManageChild(toolbar->load_snapshot);
+    }
+    /* tool-save-snapshot */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Save")); ++argcount;
+        XtSetArg(arglist[argcount], XtNbitmap, self->bitmaps.file_save); ++argcount;
+        toolbar->save_snapshot = XtCreateWidget("tool-save-snapshot", commandWidgetClass, toolbar->widget, arglist, argcount);
+        XtAddCallback(toolbar->save_snapshot, XtNcallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
+        XtAddCallback(toolbar->save_snapshot, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->save_snapshot);
+        XtManageChild(toolbar->save_snapshot);
+    }
+    /* tool-play-emulator */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Play")); ++argcount;
+        XtSetArg(arglist[argcount], XtNbitmap, self->bitmaps.ctrl_play); ++argcount;
+        toolbar->play_emulator = XtCreateWidget("tool-play-emulator", commandWidgetClass, toolbar->widget, arglist, argcount);
+        XtAddCallback(toolbar->play_emulator, XtNcallback, (XtCallbackProc) &PlayCallback, (XtPointer) self);
+        XtAddCallback(toolbar->play_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->play_emulator);
+        XtManageChild(toolbar->play_emulator);
+    }
+    /* tool-pause-emulator */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Pause")); ++argcount;
+        XtSetArg(arglist[argcount], XtNbitmap, self->bitmaps.ctrl_pause); ++argcount;
+        toolbar->pause_emulator = XtCreateWidget("tool-pause-emulator", commandWidgetClass, toolbar->widget, arglist, argcount);
+        XtAddCallback(toolbar->pause_emulator, XtNcallback, (XtCallbackProc) &PauseCallback, (XtPointer) self);
+        XtAddCallback(toolbar->pause_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->pause_emulator);
+        XtManageChild(toolbar->pause_emulator);
+    }
+    /* tool-reset-emulator */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Reset")); ++argcount;
+        XtSetArg(arglist[argcount], XtNbitmap, self->bitmaps.ctrl_reset); ++argcount;
+        toolbar->reset_emulator = XtCreateWidget("tool-reset-emulator", commandWidgetClass, toolbar->widget, arglist, argcount);
+        XtAddCallback(toolbar->reset_emulator, XtNcallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
+        XtAddCallback(toolbar->reset_emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &toolbar->reset_emulator);
+        XtManageChild(toolbar->reset_emulator);
+    }
+    return self;
+}
+
+static XcpcApplication* BuildInfoBar(XcpcApplication* self)
+{
+    XcpcInfoBarRec* infobar = &self->infobar;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+
+    /* infobar */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNorientation, XtorientHorizontal   ); ++argcount;
+        XtSetArg(arglist[argcount], XtNresizable  , True                 ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromHoriz  , NULL                 ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromVert   , self->layout.emulator); ++argcount;
+        XtSetArg(arglist[argcount], XtNtop        , XtChainBottom        ); ++argcount;
+        XtSetArg(arglist[argcount], XtNbottom     , XtChainBottom        ); ++argcount;
+        XtSetArg(arglist[argcount], XtNleft       , XtChainLeft          ); ++argcount;
+        XtSetArg(arglist[argcount], XtNright      , XtChainLeft          ); ++argcount;
+        infobar->widget = XtCreateWidget("infobar", boxWidgetClass, self->layout.window, arglist, argcount);
+        XtAddCallback(infobar->widget, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->widget);
+        XtManageChild(infobar->widget);
+    }
+    /* info-status */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Status")); ++argcount;
+        infobar->status = XtCreateWidget("info-status", labelWidgetClass, infobar->widget, arglist, argcount);
+        XtAddCallback(infobar->status, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->status);
+        XtManageChild(infobar->status);
+    }
+    /* info-drive0 */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Drive0")); ++argcount;
+        infobar->drive0 = XtCreateWidget("info-drive0", labelWidgetClass, infobar->widget, arglist, argcount);
+        XtAddCallback(infobar->drive0, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->drive0);
+        XtManageChild(infobar->drive0);
+    }
+    /* info-drive1 */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Drive1")); ++argcount;
+        infobar->drive1 = XtCreateWidget("info-drive1", labelWidgetClass, infobar->widget, arglist, argcount);
+        XtAddCallback(infobar->drive1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->drive1);
+        XtManageChild(infobar->drive1);
+    }
+    /* info-system */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("System")); ++argcount;
+        infobar->system = XtCreateWidget("info-system", labelWidgetClass, infobar->widget, arglist, argcount);
+        XtAddCallback(infobar->system, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->system);
+        XtManageChild(infobar->system);
+    }
+    return self;
+}
+
+static XcpcApplication* BuildEmulator(XcpcApplication* self)
+{
+    XcpcLayoutRec* layout = &self->layout;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+
+    /* emulator */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNemuContext    , self->machine             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuCreateProc , &xcpc_machine_create_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuRealizeProc, &xcpc_machine_realize_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuResizeProc , &xcpc_machine_resize_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuExposeProc , &xcpc_machine_expose_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuInputProc  , &xcpc_machine_input_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNresizable     , True                      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromHoriz     , NULL                      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromVert      , self->toolbar.widget      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNtop           , XtChainTop                ); ++argcount;
+        XtSetArg(arglist[argcount], XtNbottom        , XtChainBottom             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNleft          , XtChainLeft               ); ++argcount;
+        XtSetArg(arglist[argcount], XtNright         , XtChainRight              ); ++argcount;
+        layout->emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
+        XtAddCallback(layout->emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);
+        XtManageChild(layout->emulator);
     }
     return self;
 }
@@ -954,29 +1370,20 @@ static XcpcApplication* BuildLayout(XcpcApplication* self)
         XtAddCallback(self->layout.window, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.window);
         XtManageChild(self->layout.window);
     }
+    /* get bitmaps */ {
+        GetBitmaps(self->layout.window, &self->bitmaps);
+    }
     /* menubar */ {
         (void) BuildMenuBar(self);
     }
+    /* toolbar */ {
+        (void) BuildToolBar(self);
+    }
     /* emulator */ {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XtNemuContext    , self->machine             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuCreateProc , &xcpc_machine_create_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuRealizeProc, &xcpc_machine_realize_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuResizeProc , &xcpc_machine_resize_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuExposeProc , &xcpc_machine_expose_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuInputProc  , &xcpc_machine_input_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNresizable     , True                      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNfromHoriz     , NULL                      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNfromVert      , self->menubar.widget      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNtop           , XtChainTop                ); ++argcount;
-        XtSetArg(arglist[argcount], XtNbottom        , XtChainBottom             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNleft          , XtChainLeft               ); ++argcount;
-        XtSetArg(arglist[argcount], XtNright         , XtChainRight              ); ++argcount;
-        self->layout.emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
-        XtAddCallback(self->layout.emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.emulator);
-        XtManageChild(self->layout.emulator);
+        (void) BuildEmulator(self);
+    }
+    /* infobar */ {
+        (void) BuildInfoBar(self);
     }
     return self;
 }
@@ -1004,8 +1411,8 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
     }
     /* create application context and toplevel shell */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNmappedWhenManaged, TRUE); ++argcount;
-        XtSetArg(arglist[argcount], XtNallowShellResize , TRUE); ++argcount;
+        XtSetArg(arglist[argcount], XtNmappedWhenManaged, True); ++argcount;
+        XtSetArg(arglist[argcount], XtNallowShellResize , True); ++argcount;
         self->layout.toplevel = XtOpenApplication(&self->appcontext, "Xcpc", options, XtNumber(options), argc, *argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
         XtAddCallback(self->layout.toplevel, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.toplevel);
         XtAddCallback(self->layout.toplevel, XtNdropURICallback, (XtCallbackProc) &DropUriCallback, (XtPointer) self);
@@ -1046,7 +1453,7 @@ static XcpcApplication* Destruct(XcpcApplication* self)
 
 static XcpcApplication* MainLoop(XcpcApplication* self)
 {
-    if(XtAppGetExitFlag(self->appcontext) == FALSE) {
+    if(XtAppGetExitFlag(self->appcontext) == False) {
         /* realize toplevel shell */ {
             if((self->layout.toplevel != NULL)) {
                 XtRealizeWidget(self->layout.toplevel);
