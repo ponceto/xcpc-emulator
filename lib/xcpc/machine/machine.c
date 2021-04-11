@@ -521,24 +521,9 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     if((self->state.hsync = hsync) != 0) {
         const unsigned int last_scanline = countof(self->frame.scanline_array) - 1;
         /* rising edge */ {
+            ++self->stats.hsync;
             if(++self->frame.beam_y > last_scanline) {
                 self->frame.beam_y = last_scanline;
-            }
-        }
-    }
-    else {
-        /* falling edge */ {
-            if(++vga_core->state.counter == 52) {
-                xcpc_cpu_z80a_pulse_int(cpu_z80a);
-                vga_core->state.counter = 0;
-            }
-            if(vga_core->state.delayed > 0) {
-                if(--vga_core->state.delayed == 0) {
-                    if(vga_core->state.counter >= 32) {
-                        xcpc_cpu_z80a_pulse_int(cpu_z80a);
-                    }
-                    vga_core->state.counter = 0;
-                }
             }
             /* update scanline */ {
                 XcpcScanline* scanline = &self->frame.scanline_array[self->frame.beam_y];
@@ -555,7 +540,23 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                     } while(++index < 17);
                 }
             }
-            ++self->stats.hsync;
+        }
+    }
+    else {
+        /* falling edge */ {
+            ++vga_core->state.counter;
+            if(vga_core->state.delayed == 0) {
+                if(vga_core->state.counter == 52) {
+                    xcpc_cpu_z80a_pulse_int(cpu_z80a);
+                    vga_core->state.counter = 0;
+                }
+            }
+            else if(--vga_core->state.delayed == 0) {
+                if(vga_core->state.counter >= 32) {
+                    xcpc_cpu_z80a_pulse_int(cpu_z80a);
+                }
+                vga_core->state.counter = 0;
+            }
         }
     }
     return 0x00;
@@ -567,13 +568,13 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 
     if((self->state.vsync = vsync) != 0) {
         /* rising edge */ {
+            ++self->stats.vsync;
             self->board.vga_core->state.delayed = 2;
         }
     }
     else {
         /* falling edge */ {
-            self->frame.beam_y &= 0;
-            ++self->stats.vsync;
+            self->frame.beam_y = 0;
         }
     }
     return 0x00;
