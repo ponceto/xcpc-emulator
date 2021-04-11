@@ -18,7 +18,7 @@ xorg-dev
 libmotif-dev
 ```
 
-Optionnal dependencies :
+Optional dependencies :
 
 ```
 zlib1g-dev
