@@ -152,14 +152,14 @@ static void reset_state(XcpcVdc6845* self)
 static void reset_count(XcpcVdc6845* self)
 {
     /* reset internal counters */ {
-        self->count.hcc            = 0;
-        self->count.vcc            = 0;
-        self->count.slc            = 0;
-        self->count.vac            = 0;
-        self->count.hsync_counter  = 0;
-        self->count.hsync_active   = 0;
-        self->count.vsync_counter  = 0;
-        self->count.vsync_active   = 0;
+        self->count.hcc          = 0;
+        self->count.vcc          = 0;
+        self->count.slc          = 0;
+        self->count.vac          = 0;
+        self->count.hsc          = 0;
+        self->count.vsc          = 0;
+        self->count.hsync_signal = 0;
+        self->count.vsync_signal = 0;
     }
 }
 
@@ -280,53 +280,53 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
     uint8_t const horizontal_displayed     = (self->state.regs.named.horizontal_displayed     + 0);
     uint8_t const horizontal_sync_position = (self->state.regs.named.horizontal_sync_position + 0);
     uint8_t const horizontal_sync_width    = (((self->state.regs.named.sync_width >> 0) & 0x0f)  );
-    uint8_t const horizontal_sync_active   = (self->count.hsync_active != 0                      );
+    uint8_t const horizontal_sync_signal   = (self->count.hsync_signal != 0                      );
     uint8_t const vertical_total           = (self->state.regs.named.vertical_total           + 1);
     uint8_t const vertical_displayed       = (self->state.regs.named.vertical_displayed       + 0);
     uint8_t const vertical_sync_position   = (self->state.regs.named.vertical_sync_position   + 0);
     uint8_t const vertical_sync_width      = (((self->state.regs.named.sync_width >> 4) & 0x0f)  );
-    uint8_t const vertical_sync_active     = (self->count.vsync_active != 0                      );
+    uint8_t const vertical_sync_signal     = (self->count.vsync_signal != 0                      );
     uint8_t const scanline_total           = (self->state.regs.named.maximum_scanline_address + 1);
     uint8_t       process_hcc              = 1;
     uint8_t       process_vcc              = 0;
-    uint8_t       provess_slc              = 0;
+    uint8_t       process_slc              = 0;
     uint8_t       process_frame            = 0;
 
     if(process_hcc != 0) {
         if(++self->count.hcc == horizontal_total) {
             self->count.hcc = 0;
-            provess_slc = 1;
+            process_slc = 1;
         }
-        if(horizontal_sync_active != 0) {
-            self->count.hsync_counter = ((self->count.hsync_counter + 1) & 0x0f);
-            if(self->count.hsync_counter == horizontal_sync_width) {
-                self->count.hsync_counter = 0;
-                self->count.hsync_active  = 0;
+        if(horizontal_sync_signal != 0) {
+            self->count.hsc = ((self->count.hsc + 1) & 0x0f);
+            if(self->count.hsc == horizontal_sync_width) {
+                self->count.hsc = 0;
+                self->count.hsync_signal  = 0;
             }
         }
         else {
             if(self->count.hcc == horizontal_sync_position) {
-                self->count.hsync_counter = 0;
-                self->count.hsync_active  = 1;
+                self->count.hsc = 0;
+                self->count.hsync_signal  = 1;
             }
         }
     }
-    if(provess_slc != 0) {
+    if(process_slc != 0) {
         if(++self->count.slc == scanline_total) {
             self->count.slc = 0;
             process_vcc = 1;
         }
-        if(vertical_sync_active != 0) {
-            self->count.vsync_counter = ((self->count.vsync_counter + 1) & 0x0f);
-            if(self->count.vsync_counter == vertical_sync_width) {
-                self->count.vsync_counter = 0;
-                self->count.vsync_active  = 0;
+        if(vertical_sync_signal != 0) {
+            self->count.vsc = ((self->count.vsc + 1) & 0x0f);
+            if(self->count.vsc == vertical_sync_width) {
+                self->count.vsc = 0;
+                self->count.vsync_signal  = 0;
             }
         }
         else {
             if(self->count.vcc == vertical_sync_position) {
-                self->count.vsync_counter = 0;
-                self->count.vsync_active  = 1;
+                self->count.vsc = 0;
+                self->count.vsync_signal  = 1;
             }
         }
     }
@@ -337,13 +337,13 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
         }
     }
     /* hsync handler */ {
-        if(self->count.hsync_active != horizontal_sync_active) {
-            (void) (*self->iface.hsync)(self, self->count.hsync_active);
+        if(self->count.hsync_signal != horizontal_sync_signal) {
+            (void) (*self->iface.hsync)(self, self->count.hsync_signal);
         }
     }
     /* vsync handler */ {
-        if(self->count.vsync_active != vertical_sync_active) {
-            (void) (*self->iface.vsync)(self, self->count.vsync_active);
+        if(self->count.vsync_signal != vertical_sync_signal) {
+            (void) (*self->iface.vsync)(self, self->count.vsync_signal);
         }
     }
     /* frame handler */ {
