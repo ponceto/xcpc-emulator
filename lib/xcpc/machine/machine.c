@@ -743,14 +743,20 @@ static void paint_08bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd = (vdc_6845->state.regs.named.horizontal_displayed <= 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int const hs = (((ht - hd) * 16) / 2);
-    unsigned int const mr = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd = (vdc_6845->state.regs.named.vertical_displayed <= 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int const vs = (((vt - vd) * mr) / 2);
+    unsigned int       sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
+    unsigned int const ht  = (vdc_6845->state.regs.named.horizontal_total + 1);
+    unsigned int const hd  = (vdc_6845->state.regs.named.horizontal_displayed <= 50 ? vdc_6845->state.regs.named.horizontal_displayed : 50);
+    unsigned int const hsp = (vdc_6845->state.regs.named.horizontal_sync_position);
+    unsigned int const hsw = (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
+    unsigned int const mr  = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
+    unsigned int const vt  = (vdc_6845->state.regs.named.vertical_total + 1);
+    unsigned int const vd  = (vdc_6845->state.regs.named.vertical_displayed <= 40 ? vdc_6845->state.regs.named.vertical_displayed : 40);
+    unsigned int const vsp = (vdc_6845->state.regs.named.vertical_sync_position);
+    unsigned int const vsw = (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
+    unsigned int const top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
+    unsigned int const bot = ((vt -  vd) * mr) - top;
+    unsigned int const lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
+    unsigned int const rgt = ((ht -  hd) * 16) - lft;
     unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
     uint8_t* image = (uint8_t*) monitor->state.image->data;
     uint8_t* curr_line;
@@ -763,8 +769,8 @@ static void paint_08bpp(XcpcMachine* self)
     unsigned int remain = monitor->state.image->height;
 
     /* top border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
+        const int cols = (ht << 4);
+        for(row = 0; row < top; ++row) {
             if(remain < 2) {
                 break;
             }
@@ -794,7 +800,7 @@ static void paint_08bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -846,7 +852,7 @@ static void paint_08bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -858,7 +864,7 @@ static void paint_08bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -938,7 +944,7 @@ static void paint_08bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -950,7 +956,7 @@ static void paint_08bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1086,7 +1092,7 @@ static void paint_08bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1101,8 +1107,8 @@ static void paint_08bpp(XcpcMachine* self)
         }
     }
     /* bottom border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
+        const int cols = (ht << 4);
+        for(row = 0; row < bot; ++row) {
             if(remain < 2) {
                 break;
             }
@@ -1129,14 +1135,20 @@ static void paint_16bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd = (vdc_6845->state.regs.named.horizontal_displayed <= 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int const hs = (((ht - hd) * 16) / 2);
-    unsigned int const mr = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd = (vdc_6845->state.regs.named.vertical_displayed <= 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int const vs = (((vt - vd) * mr) / 2);
+    unsigned int       sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
+    unsigned int const ht  = (vdc_6845->state.regs.named.horizontal_total + 1);
+    unsigned int const hd  = (vdc_6845->state.regs.named.horizontal_displayed <= 50 ? vdc_6845->state.regs.named.horizontal_displayed : 50);
+    unsigned int const hsp = (vdc_6845->state.regs.named.horizontal_sync_position);
+    unsigned int const hsw = (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
+    unsigned int const mr  = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
+    unsigned int const vt  = (vdc_6845->state.regs.named.vertical_total + 1);
+    unsigned int const vd  = (vdc_6845->state.regs.named.vertical_displayed <= 40 ? vdc_6845->state.regs.named.vertical_displayed : 40);
+    unsigned int const vsp = (vdc_6845->state.regs.named.vertical_sync_position);
+    unsigned int const vsw = (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
+    unsigned int const top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
+    unsigned int const bot = ((vt -  vd) * mr) - top;
+    unsigned int const lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
+    unsigned int const rgt = ((ht -  hd) * 16) - lft;
     unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
     uint16_t* image = (uint16_t*) monitor->state.image->data;
     uint16_t* curr_line;
@@ -1149,8 +1161,8 @@ static void paint_16bpp(XcpcMachine* self)
     unsigned int remain = monitor->state.image->height;
 
     /* top border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
+        const int cols = (ht << 4);
+        for(row = 0; row < top; ++row) {
             if(remain < 2) {
                 break;
             }
@@ -1180,7 +1192,7 @@ static void paint_16bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1232,7 +1244,7 @@ static void paint_16bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1244,7 +1256,7 @@ static void paint_16bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1324,7 +1336,7 @@ static void paint_16bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1336,7 +1348,7 @@ static void paint_16bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1472,7 +1484,7 @@ static void paint_16bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1487,8 +1499,8 @@ static void paint_16bpp(XcpcMachine* self)
         }
     }
     /* bottom border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
+        const int cols = (ht << 4);
+        for(row = 0; row < bot; ++row) {
             if(remain < 2) {
                 break;
             }
@@ -1515,14 +1527,20 @@ static void paint_32bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd = (vdc_6845->state.regs.named.horizontal_displayed <= 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int const hs = (((ht - hd) * 16) / 2);
-    unsigned int const mr = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd = (vdc_6845->state.regs.named.vertical_displayed <= 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int const vs = (((vt - vd) * mr) / 2);
+    unsigned int       sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
+    unsigned int const ht  = (vdc_6845->state.regs.named.horizontal_total + 1);
+    unsigned int const hd  = (vdc_6845->state.regs.named.horizontal_displayed <= 50 ? vdc_6845->state.regs.named.horizontal_displayed : 50);
+    unsigned int const hsp = (vdc_6845->state.regs.named.horizontal_sync_position);
+    unsigned int const hsw = (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
+    unsigned int const mr  = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
+    unsigned int const vt  = (vdc_6845->state.regs.named.vertical_total + 1);
+    unsigned int const vd  = (vdc_6845->state.regs.named.vertical_displayed <= 40 ? vdc_6845->state.regs.named.vertical_displayed : 40);
+    unsigned int const vsp = (vdc_6845->state.regs.named.vertical_sync_position);
+    unsigned int const vsw = (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
+    unsigned int const top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
+    unsigned int const bot = ((vt -  vd) * mr) - top;
+    unsigned int const lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
+    unsigned int const rgt = ((ht -  hd) * 16) - lft;
     unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
     uint32_t* image = (uint32_t*) monitor->state.image->data;
     uint32_t* curr_line;
@@ -1535,8 +1553,8 @@ static void paint_32bpp(XcpcMachine* self)
     unsigned int remain = monitor->state.image->height;
 
     /* top border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
+        const int cols = (ht << 4);
+        for(row = 0; row < top; ++row) {
             if(remain < 2) {
                 break;
             }
@@ -1566,7 +1584,7 @@ static void paint_32bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1618,7 +1636,7 @@ static void paint_32bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1630,7 +1648,7 @@ static void paint_32bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1710,7 +1728,7 @@ static void paint_32bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1722,7 +1740,7 @@ static void paint_32bpp(XcpcMachine* self)
                             /* left border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < lft; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1858,7 +1876,7 @@ static void paint_32bpp(XcpcMachine* self)
                             /* right border */ {
                                 pixel1 = scanline->color[16].pixel1;
                                 pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
+                                for(col = 0; col < rgt; ++col) {
                                     *curr_line++ = pixel1;
                                     *next_line++ = pixel2;
                                 }
@@ -1873,8 +1891,8 @@ static void paint_32bpp(XcpcMachine* self)
         }
     }
     /* bottom border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
+        const int cols = (ht << 4);
+        for(row = 0; row < bot; ++row) {
             if(remain < 2) {
                 break;
             }
