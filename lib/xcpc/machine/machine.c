@@ -743,35 +743,35 @@ static void paint_08bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht  = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd  = (vdc_6845->state.regs.named.horizontal_displayed <= 50 ? vdc_6845->state.regs.named.horizontal_displayed : 50);
-    unsigned int const hsp = (vdc_6845->state.regs.named.horizontal_sync_position);
-    unsigned int const hsw = (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
-    unsigned int const mr  = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt  = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd  = (vdc_6845->state.regs.named.vertical_displayed <= 40 ? vdc_6845->state.regs.named.vertical_displayed : 40);
-    unsigned int const vsp = (vdc_6845->state.regs.named.vertical_sync_position);
-    unsigned int const vsw = (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
-    unsigned int const top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
-    unsigned int const bot = ((vt -  vd) * mr) - top;
-    unsigned int const lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
-    unsigned int const rgt = ((ht -  hd) * 16) - lft;
-    unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
+    unsigned int sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | (vdc_6845->state.regs.named.start_address_low  << 0));
+    const int    ht  = (1 + (vdc_6845->state.regs.named.horizontal_total     < 63 ? vdc_6845->state.regs.named.horizontal_total     : 63));
+    const int    hd  = (0 + (vdc_6845->state.regs.named.horizontal_displayed < 52 ? vdc_6845->state.regs.named.horizontal_displayed : 52));
+    const int    hsp = (0 + (vdc_6845->state.regs.named.horizontal_sync_position));
+    const int    hsw = (0 + ((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
+    const int    vt  = (1 + (vdc_6845->state.regs.named.vertical_total     < 40 ? vdc_6845->state.regs.named.vertical_total     : 40));
+    const int    vd  = (0 + (vdc_6845->state.regs.named.vertical_displayed < 40 ? vdc_6845->state.regs.named.vertical_displayed : 40));
+    const int    vsp = (0 + (vdc_6845->state.regs.named.vertical_sync_position));
+    const int    vsw = (0 + ((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
+    const int    mr  = (1 + (vdc_6845->state.regs.named.maximum_scanline_address));
+    const int    top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
+    const int    bot = ((vt -  vd) * mr) - top;
+    const int    lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
+    const int    rgt = ((ht -  hd) * 16) - lft;
+    const unsigned int bytes_per_line  = monitor->state.image->bytes_per_line;
+    int                remaining_lines = monitor->state.image->height;
     uint8_t* image = (uint8_t*) monitor->state.image->data;
     uint8_t* curr_line;
     uint8_t* next_line;
     uint8_t pixel1;
     uint8_t pixel2;
-    unsigned int row;
-    unsigned int col;
-    unsigned int ras;
-    unsigned int remain = monitor->state.image->height;
+    int row;
+    int col;
+    int ras;
 
     /* top border */ {
         const int cols = (ht << 4);
         for(row = 0; row < top; ++row) {
-            if(remain < 2) {
+            if(remaining_lines < 2) {
                 break;
             }
             curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -783,13 +783,13 @@ static void paint_08bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
+            remaining_lines -= 2;
         }
     }
     /* active display */ {
         for(row = 0; row < vd; ++row) {
             for(ras = 0; ras < mr; ++ras) {
-                if(remain < 2) {
+                if(remaining_lines < 2) {
                     break;
                 }
                 curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -1101,7 +1101,7 @@ static void paint_08bpp(XcpcMachine* self)
                         break;
                 }
                 ++scanline;
-                remain -= 2;
+                remaining_lines -= 2;
             }
             sa += hd;
         }
@@ -1109,7 +1109,7 @@ static void paint_08bpp(XcpcMachine* self)
     /* bottom border */ {
         const int cols = (ht << 4);
         for(row = 0; row < bot; ++row) {
-            if(remain < 2) {
+            if(remaining_lines < 2) {
                 break;
             }
             curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -1121,7 +1121,7 @@ static void paint_08bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
+            remaining_lines -= 2;
         }
     }
     /* put image */ {
@@ -1135,35 +1135,35 @@ static void paint_16bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht  = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd  = (vdc_6845->state.regs.named.horizontal_displayed <= 50 ? vdc_6845->state.regs.named.horizontal_displayed : 50);
-    unsigned int const hsp = (vdc_6845->state.regs.named.horizontal_sync_position);
-    unsigned int const hsw = (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
-    unsigned int const mr  = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt  = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd  = (vdc_6845->state.regs.named.vertical_displayed <= 40 ? vdc_6845->state.regs.named.vertical_displayed : 40);
-    unsigned int const vsp = (vdc_6845->state.regs.named.vertical_sync_position);
-    unsigned int const vsw = (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
-    unsigned int const top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
-    unsigned int const bot = ((vt -  vd) * mr) - top;
-    unsigned int const lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
-    unsigned int const rgt = ((ht -  hd) * 16) - lft;
-    unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
+    unsigned int sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | (vdc_6845->state.regs.named.start_address_low  << 0));
+    const int    ht  = (1 + (vdc_6845->state.regs.named.horizontal_total     < 63 ? vdc_6845->state.regs.named.horizontal_total     : 63));
+    const int    hd  = (0 + (vdc_6845->state.regs.named.horizontal_displayed < 52 ? vdc_6845->state.regs.named.horizontal_displayed : 52));
+    const int    hsp = (0 + (vdc_6845->state.regs.named.horizontal_sync_position));
+    const int    hsw = (0 + ((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
+    const int    vt  = (1 + (vdc_6845->state.regs.named.vertical_total     < 40 ? vdc_6845->state.regs.named.vertical_total     : 40));
+    const int    vd  = (0 + (vdc_6845->state.regs.named.vertical_displayed < 40 ? vdc_6845->state.regs.named.vertical_displayed : 40));
+    const int    vsp = (0 + (vdc_6845->state.regs.named.vertical_sync_position));
+    const int    vsw = (0 + ((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
+    const int    mr  = (1 + (vdc_6845->state.regs.named.maximum_scanline_address));
+    const int    top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
+    const int    bot = ((vt -  vd) * mr) - top;
+    const int    lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
+    const int    rgt = ((ht -  hd) * 16) - lft;
+    const unsigned int bytes_per_line  = monitor->state.image->bytes_per_line;
+    int                remaining_lines = monitor->state.image->height;
     uint16_t* image = (uint16_t*) monitor->state.image->data;
     uint16_t* curr_line;
     uint16_t* next_line;
     uint16_t pixel1;
     uint16_t pixel2;
-    unsigned int row;
-    unsigned int col;
-    unsigned int ras;
-    unsigned int remain = monitor->state.image->height;
+    int row;
+    int col;
+    int ras;
 
     /* top border */ {
         const int cols = (ht << 4);
         for(row = 0; row < top; ++row) {
-            if(remain < 2) {
+            if(remaining_lines < 2) {
                 break;
             }
             curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -1175,13 +1175,13 @@ static void paint_16bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
+            remaining_lines -= 2;
         }
     }
     /* active display */ {
         for(row = 0; row < vd; ++row) {
             for(ras = 0; ras < mr; ++ras) {
-                if(remain < 2) {
+                if(remaining_lines < 2) {
                     break;
                 }
                 curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -1493,7 +1493,7 @@ static void paint_16bpp(XcpcMachine* self)
                         break;
                 }
                 ++scanline;
-                remain -= 2;
+                remaining_lines -= 2;
             }
             sa += hd;
         }
@@ -1501,7 +1501,7 @@ static void paint_16bpp(XcpcMachine* self)
     /* bottom border */ {
         const int cols = (ht << 4);
         for(row = 0; row < bot; ++row) {
-            if(remain < 2) {
+            if(remaining_lines < 2) {
                 break;
             }
             curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -1513,7 +1513,7 @@ static void paint_16bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
+            remaining_lines -= 2;
         }
     }
     /* put image */ {
@@ -1527,35 +1527,35 @@ static void paint_32bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht  = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd  = (vdc_6845->state.regs.named.horizontal_displayed <= 50 ? vdc_6845->state.regs.named.horizontal_displayed : 50);
-    unsigned int const hsp = (vdc_6845->state.regs.named.horizontal_sync_position);
-    unsigned int const hsw = (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
-    unsigned int const mr  = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt  = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd  = (vdc_6845->state.regs.named.vertical_displayed <= 40 ? vdc_6845->state.regs.named.vertical_displayed : 40);
-    unsigned int const vsp = (vdc_6845->state.regs.named.vertical_sync_position);
-    unsigned int const vsw = (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
-    unsigned int const top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
-    unsigned int const bot = ((vt -  vd) * mr) - top;
-    unsigned int const lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
-    unsigned int const rgt = ((ht -  hd) * 16) - lft;
-    unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
+    unsigned int sa  = ((vdc_6845->state.regs.named.start_address_high << 8) | (vdc_6845->state.regs.named.start_address_low  << 0));
+    const int    ht  = (1 + (vdc_6845->state.regs.named.horizontal_total     < 63 ? vdc_6845->state.regs.named.horizontal_total     : 63));
+    const int    hd  = (0 + (vdc_6845->state.regs.named.horizontal_displayed < 52 ? vdc_6845->state.regs.named.horizontal_displayed : 52));
+    const int    hsp = (0 + (vdc_6845->state.regs.named.horizontal_sync_position));
+    const int    hsw = (0 + ((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f));
+    const int    vt  = (1 + (vdc_6845->state.regs.named.vertical_total     < 40 ? vdc_6845->state.regs.named.vertical_total     : 40));
+    const int    vd  = (0 + (vdc_6845->state.regs.named.vertical_displayed < 40 ? vdc_6845->state.regs.named.vertical_displayed : 40));
+    const int    vsp = (0 + (vdc_6845->state.regs.named.vertical_sync_position));
+    const int    vsw = (0 + ((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f));
+    const int    mr  = (1 + (vdc_6845->state.regs.named.maximum_scanline_address));
+    const int    top = ((vt - vsp) * mr) - (((vsw != 0 ? vsw : 16) >> 1) << 0) -  8;
+    const int    bot = ((vt -  vd) * mr) - top;
+    const int    lft = ((ht - hsp) * 16) - (((hsw != 0 ? hsw : 16) >> 1) << 4) + 16;
+    const int    rgt = ((ht -  hd) * 16) - lft;
+    const unsigned int bytes_per_line  = monitor->state.image->bytes_per_line;
+    int                remaining_lines = monitor->state.image->height;
     uint32_t* image = (uint32_t*) monitor->state.image->data;
     uint32_t* curr_line;
     uint32_t* next_line;
     uint32_t pixel1;
     uint32_t pixel2;
-    unsigned int row;
-    unsigned int col;
-    unsigned int ras;
-    unsigned int remain = monitor->state.image->height;
+    int row;
+    int col;
+    int ras;
 
     /* top border */ {
         const int cols = (ht << 4);
         for(row = 0; row < top; ++row) {
-            if(remain < 2) {
+            if(remaining_lines < 2) {
                 break;
             }
             curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -1567,13 +1567,13 @@ static void paint_32bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
+            remaining_lines -= 2;
         }
     }
     /* active display */ {
         for(row = 0; row < vd; ++row) {
             for(ras = 0; ras < mr; ++ras) {
-                if(remain < 2) {
+                if(remaining_lines < 2) {
                     break;
                 }
                 curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -1885,7 +1885,7 @@ static void paint_32bpp(XcpcMachine* self)
                         break;
                 }
                 ++scanline;
-                remain -= 2;
+                remaining_lines -= 2;
             }
             sa += hd;
         }
@@ -1893,7 +1893,7 @@ static void paint_32bpp(XcpcMachine* self)
     /* bottom border */ {
         const int cols = (ht << 4);
         for(row = 0; row < bot; ++row) {
-            if(remain < 2) {
+            if(remaining_lines < 2) {
                 break;
             }
             curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
@@ -1905,7 +1905,7 @@ static void paint_32bpp(XcpcMachine* self)
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
+            remaining_lines -= 2;
         }
     }
     /* put image */ {
