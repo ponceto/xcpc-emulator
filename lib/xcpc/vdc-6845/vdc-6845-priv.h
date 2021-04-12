@@ -28,7 +28,7 @@ extern "C" {
 #define NOT_WRITABLE 0x00
 #define REG_WRITABLE 0x02
 
-enum Vdc6845Registers
+enum Vdc6845RegisterIndex
 {
     VDC_ADDRESS_REGISTER         = -1,
     VDC_HORIZONTAL_TOTAL         =  0,

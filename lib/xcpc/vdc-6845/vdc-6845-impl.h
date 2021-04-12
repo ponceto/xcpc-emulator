@@ -92,9 +92,10 @@ struct _XcpcVdc6845State
 
 struct _XcpcVdc6845Count
 {
-    uint8_t horizontal_counter;
-    uint8_t vertical_counter;
-    uint8_t scanline_counter;
+    uint8_t hcc; /* horizontal char counter */
+    uint8_t vcc; /* vertical char counter   */
+    uint8_t slc; /* scanline counter        */
+    uint8_t vac; /* vertival adjust counter */
     uint8_t hsync_counter;
     uint8_t hsync_active;
     uint8_t vsync_counter;
