@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "xcpc-motif2-priv.h"
 
 #ifndef _
@@ -481,6 +482,94 @@ static void DismissCallback(Widget widget, XcpcApplication* self, XtPointer info
  * ---------------------------------------------------------------------------
  */
 
+static int ConvertHexChar(const char* string)
+{
+    int  value     = 0;
+    char character = *string++;
+
+    /* check character */ {
+        if(character != '%') {
+            return -1;
+        }
+    }
+    /* convert 1st digit */ {
+        switch(character = *string++) {
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+                value = ((value << 4) | (0x0 + (character - '0')));
+                break;
+            case 'a': case 'b': case 'c':
+            case 'd': case 'e': case 'f':
+                value = ((value << 4) | (0xa + (character - 'a')));
+                break;
+            case 'A': case 'B': case 'C':
+            case 'D': case 'E': case 'F':
+                value = ((value << 4) | (0xa + (character - 'A')));
+                break;
+            default:
+                return -1;
+        }
+    }
+    /* convert 2nd digit */ {
+        switch(character = *string++) {
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+                value = ((value << 4) | (0x0 + (character - '0')));
+                break;
+            case 'a': case 'b': case 'c':
+            case 'd': case 'e': case 'f':
+                value = ((value << 4) | (0xa + (character - 'a')));
+                break;
+            case 'A': case 'B': case 'C':
+            case 'D': case 'E': case 'F':
+                value = ((value << 4) | (0xa + (character - 'A')));
+                break;
+            default:
+                return -1;
+        }
+    }
+    return value;
+}
+
+static void DeserializeURI(char* buffer, size_t buflen, const char* uri)
+{
+    const char nul = '\0';
+    const char cr  = '\r';
+    const char lf  = '\n';
+    char character = *uri;
+
+    /* deserialize */ {
+        if(character != nul) {
+            do {
+                if(buflen <= 1) {
+                    break;
+                }
+                if((character == cr) || (character == lf)) {
+                    break;
+                }
+                else if(character == '%') {
+                    const int hexval = ConvertHexChar(uri);
+                    if(hexval != -1) {
+                        *buffer = ((char)(hexval & 0xff));
+                        uri += 2;
+                    }
+                    else {
+                        *buffer = character;
+                    }
+                }
+                else {
+                    *buffer = character;
+                }
+                ++buffer;
+                --buflen;
+            } while((character = *++uri) != nul);
+        }
+    }
+    /* terminate buffer */ {
+        *buffer = nul;
+    }
+}
+
 static int CheckExtension(const char* filename, const char* extension)
 {
     const int filename_length  = strlen(filename);
@@ -494,28 +583,26 @@ static int CheckExtension(const char* filename, const char* extension)
     return 0;
 }
 
-static void DropUriCallback(Widget widget, XcpcApplication* self, char* uri)
+static void DropUriCallback(Widget widget, XcpcApplication* self, const char* uri)
 {
+    char filename[PATH_MAX + 1];
+
     if((uri != NULL) && (strncmp(uri, "file://", 7) == 0)) {
-        char* str = &uri[7];
-        char* eol = strstr(str, "\r\n");
-        if(eol != NULL) {
-            *eol = '\0';
-        }
-        if(CheckExtension(str, ".sna") != 0) {
-            (void) LoadSnapshot(self, str);
+        DeserializeURI(filename, sizeof(filename), &uri[7]);
+        if(CheckExtension(filename, ".sna") != 0) {
+            (void) LoadSnapshot(self, filename);
             (void) Play(self);
         }
-        else if(CheckExtension(str, ".dsk") != 0) {
-            (void) InsertOrRemoveDisk(self, str);
+        else if(CheckExtension(filename, ".dsk") != 0) {
+            (void) InsertOrRemoveDisk(self, filename);
             (void) Play(self);
         }
-        else if(CheckExtension(str, ".dsk.gz") != 0) {
-            (void) InsertOrRemoveDisk(self, str);
+        else if(CheckExtension(filename, ".dsk.gz") != 0) {
+            (void) InsertOrRemoveDisk(self, filename);
             (void) Play(self);
         }
-        else if(CheckExtension(str, ".dsk.bz2") != 0) {
-            (void) InsertOrRemoveDisk(self, str);
+        else if(CheckExtension(filename, ".dsk.bz2") != 0) {
+            (void) InsertOrRemoveDisk(self, filename);
             (void) Play(self);
         }
     }
