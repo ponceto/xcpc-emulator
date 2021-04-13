@@ -356,6 +356,9 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
 
 uint8_t xcpc_vdc_6845_illegal(XcpcVdc6845* self, uint8_t data_bus)
 {
+    /* log */ {
+        xcpc_log_debug("vdc_6845: illegal access");
+    }
     return data_bus;
 }
 

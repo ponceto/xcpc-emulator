@@ -133,6 +133,9 @@ XcpcPpi8255* xcpc_ppi_8255_clock(XcpcPpi8255* self)
 
 uint8_t xcpc_ppi_8255_illegal(XcpcPpi8255* self, uint8_t data_bus)
 {
+    /* log */ {
+        xcpc_log_debug("ppi_8255: illegal access");
+    }
     return data_bus;
 }
 
