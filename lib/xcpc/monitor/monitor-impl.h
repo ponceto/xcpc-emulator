@@ -54,6 +54,8 @@ struct _XcpcMonitorState
     Window   window;
     Colormap colormap;
     int      depth;
+    int      image_x;
+    int      image_y;
     int      total_w;
     int      total_h;
     int      visible_x;

@@ -115,10 +115,12 @@ static XcpcMonitor* init_attributes(XcpcMonitor* self, Display* display, Window 
             self->state.window    = window;
             self->state.colormap  = attributes.colormap;
             self->state.depth     = attributes.depth;
+            self->state.image_x   = 0;
+            self->state.image_y   = 0;
             self->state.total_w   = XCPC_MONITOR_50HZ_TOTAL_WIDTH;
             self->state.total_h   = XCPC_MONITOR_50HZ_TOTAL_HEIGHT;
-            self->state.visible_x = 0;
-            self->state.visible_y = 0;
+            self->state.visible_x = XCPC_MONITOR_50HZ_VISIBLE_X;
+            self->state.visible_y = XCPC_MONITOR_50HZ_VISIBLE_Y;
             self->state.visible_w = XCPC_MONITOR_50HZ_VISIBLE_WIDTH;
             self->state.visible_h = XCPC_MONITOR_50HZ_VISIBLE_HEIGHT;
             self->state.try_xshm  = try_xshm;
@@ -128,12 +130,16 @@ static XcpcMonitor* init_attributes(XcpcMonitor* self, Display* display, Window 
                 case XCPC_REFRESH_RATE_50HZ:
                     self->state.total_w   = XCPC_MONITOR_50HZ_TOTAL_WIDTH;
                     self->state.total_h   = XCPC_MONITOR_50HZ_TOTAL_HEIGHT;
+                    self->state.visible_x = XCPC_MONITOR_50HZ_VISIBLE_X;
+                    self->state.visible_y = XCPC_MONITOR_50HZ_VISIBLE_Y;
                     self->state.visible_w = XCPC_MONITOR_50HZ_VISIBLE_WIDTH;
                     self->state.visible_h = XCPC_MONITOR_50HZ_VISIBLE_HEIGHT;
                     break;
                 case XCPC_REFRESH_RATE_60HZ:
                     self->state.total_w   = XCPC_MONITOR_60HZ_TOTAL_WIDTH;
                     self->state.total_h   = XCPC_MONITOR_60HZ_TOTAL_HEIGHT;
+                    self->state.visible_x = XCPC_MONITOR_60HZ_VISIBLE_X;
+                    self->state.visible_y = XCPC_MONITOR_60HZ_VISIBLE_Y;
                     self->state.visible_w = XCPC_MONITOR_60HZ_VISIBLE_WIDTH;
                     self->state.visible_h = XCPC_MONITOR_60HZ_VISIBLE_HEIGHT;
                     break;
@@ -163,6 +169,8 @@ static XcpcMonitor* fini_attributes(XcpcMonitor* self)
         self->state.window    = None;
         self->state.colormap  = None;
         self->state.depth     = 0;
+        self->state.image_x   = 0;
+        self->state.image_y   = 0;
         self->state.total_w   = 0;
         self->state.total_h   = 0;
         self->state.visible_x = 0;
@@ -378,6 +386,8 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
         self->state.window    = None;
         self->state.colormap  = None;
         self->state.depth     = 0;
+        self->state.image_x   = 0;
+        self->state.image_y   = 0;
         self->state.total_w   = 0;
         self->state.total_h   = 0;
         self->state.visible_x = 0;
@@ -499,15 +509,15 @@ XcpcMonitor* xcpc_monitor_put_image(XcpcMonitor* self)
     GC       gc      = self->state.gc;
 
     /* blit the image */ {
-        const int img_w = self->state.visible_w;
-        const int img_h = self->state.visible_h;
-        const int src_x = ((image->width  - img_w) >> 1);
-        const int src_y = ((image->height - img_h) >> 1);
-        const int dst_x = self->state.visible_x;
-        const int dst_y = self->state.visible_y;
         if((display != NULL)
         && (window  != None)
         && (image   != NULL)) {
+            const int src_x = self->state.visible_x;
+            const int src_y = self->state.visible_y;
+            const int dst_x = self->state.image_x;
+            const int dst_y = self->state.image_y;
+            const int dst_w = self->state.visible_w;
+            const int dst_h = self->state.visible_h;
             (void) XSync(display, False);
             (void) XcpcPutImage ( display
                                 , window
@@ -517,8 +527,8 @@ XcpcMonitor* xcpc_monitor_put_image(XcpcMonitor* self)
                                 , src_y
                                 , dst_x
                                 , dst_y
-                                , img_w
-                                , img_h
+                                , dst_w
+                                , dst_h
                                 , self->state.use_xshm
                                 , False );
             (void) XFlush(display);
@@ -544,8 +554,8 @@ XcpcMonitor* xcpc_monitor_expose(XcpcMonitor* self, XExposeEvent* event)
         XcpcMonitorArea monitor;
         XcpcMonitorArea refresh;
         /* init monitor area */ {
-            monitor.x1 = self->state.visible_x;
-            monitor.y1 = self->state.visible_y;
+            monitor.x1 = self->state.image_x;
+            monitor.y1 = self->state.image_y;
             monitor.x2 = ((monitor.x1 + self->state.visible_w) - 1);
             monitor.y2 = ((monitor.y1 + self->state.visible_h) - 1);
         }
@@ -576,14 +586,12 @@ XcpcMonitor* xcpc_monitor_expose(XcpcMonitor* self, XExposeEvent* event)
             }
         }
         /* put image */ {
-            const int src_w = self->state.visible_w;
-            const int src_h = self->state.visible_h;
-            const int src_x = ((image->width  - src_w) >> 1) + (refresh.x1 - self->state.visible_x);
-            const int src_y = ((image->height - src_h) >> 1) + (refresh.y1 - self->state.visible_y);
-            const int dst_w = ((refresh.x2 - refresh.x1) + 1);
-            const int dst_h = ((refresh.y2 - refresh.y1) + 1);
+            const int src_x = self->state.visible_x + (refresh.x1 - self->state.image_x);
+            const int src_y = self->state.visible_y + (refresh.y1 - self->state.image_y);
             const int dst_x = refresh.x1;
             const int dst_y = refresh.y1;
+            const int dst_w = ((refresh.x2 - refresh.x1) + 1);
+            const int dst_h = ((refresh.y2 - refresh.y1) + 1);
             (void) XSync(display, False);
             (void) XcpcPutImage ( display
                                 , window
@@ -607,24 +615,24 @@ XcpcMonitor* xcpc_monitor_resize(XcpcMonitor* self, XConfigureEvent* event)
 {
     log_trace("resize");
     /* resize */ {
-        /* compute visible_x */ {
+        /* compute image_x */ {
             const int event_width   = event->width;
             const int visible_width = self->state.visible_w;
             if(event_width >= visible_width) {
-                self->state.visible_x = +((event_width - visible_width) / 2);
+                self->state.image_x = +((event_width - visible_width) / 2);
             }
             else {
-                self->state.visible_x = -((visible_width - event_width) / 2);
+                self->state.image_x = -((visible_width - event_width) / 2);
             }
         }
-        /* compute visible_y */ {
+        /* compute image_y */ {
             const int event_height   = event->height;
             const int visible_height = self->state.visible_h;
             if(event_height >= visible_height) {
-                self->state.visible_y = +((event_height - visible_height) / 2);
+                self->state.image_y = +((event_height - visible_height) / 2);
             }
             else {
-                self->state.visible_y = -((visible_height - event_height) / 2);
+                self->state.image_y = -((visible_height - event_height) / 2);
             }
         }
     }
