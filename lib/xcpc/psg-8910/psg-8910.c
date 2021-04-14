@@ -249,9 +249,6 @@ XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
 
 uint8_t xcpc_psg_8910_illegal(XcpcPsg8910* self, uint8_t data_bus)
 {
-    /* log */ {
-        xcpc_log_debug("psg_8910: illegal access");
-    }
     return data_bus;
 }
 

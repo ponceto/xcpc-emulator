@@ -264,9 +264,6 @@ uint8_t xcpc_fdc_765a_set_motor(XcpcFdc765a* self, uint8_t data)
 
 uint8_t xcpc_fdc_765a_illegal(XcpcFdc765a* self, uint8_t data)
 {
-    /* log */ {
-        xcpc_log_debug("fdc_765a: illegal access");
-    }
     return data;
 }
 

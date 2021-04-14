@@ -24,6 +24,15 @@
 #include <sys/time.h>
 #include "machine-priv.h"
 
+#ifdef XCPC_DEBUG_IORQ
+static void debug_iorq(const char* device, const char* reason, uint16_t port, uint8_t data)
+{
+    xcpc_log_debug("%s %04X : %s 0x%02x", device, port, reason, data);
+}
+#else
+#define debug_iorq(device, reason, port, data) do { (void)(0); } while(0)
+#endif
+
 static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcMachine::%s()", function);
@@ -266,21 +275,25 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* select pen */
                     {
                         data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                        debug_iorq("VGA", "set-pen (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 1: /* select color */
                     {
                         data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                        debug_iorq("VGA", "set-ink (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 2: /* interrupt control, rom configuration and screen mode */
                     {
                         data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                        debug_iorq("VGA", "set-rmr (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 3: /* ram memory management */
                     {
                         data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                        debug_iorq("RAM", "set-ram (illegal read)", port, (data & 0xff));
                     }
                     break;
             }
@@ -293,21 +306,25 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
                     {
                         data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("VDC", "set-addr (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
                     {
                         data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("VDC", "set-data (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
                     {
                         data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("VDC", "get-addr (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
                     {
                         data = xcpc_vdc_6845_rd_data(self->board.vdc_6845, data);
+                        debug_iorq("VDC", "get-data", port, (data & 0xff));
                     }
                     break;
             }
@@ -315,12 +332,12 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
         if((port & 0x2000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd(0x%04x) : rom-conf [---- illegal ----]", port);
+            debug_iorq("ROM", "illegal read", port, (data & 0xff));
         }
     }
     /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
         if((port & 0x1000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd(0x%04x) : prt-port [---- illegal ----]", port);
+            debug_iorq("PRT", "get-data", port, (data & 0xff));
         }
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
@@ -330,21 +347,25 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
+                        debug_iorq("PPI", "get-port-a", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
+                        debug_iorq("PPI", "get-port-b", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
+                        debug_iorq("PPI", "get-port-c", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
                     {
                         data = xcpc_ppi_8255_illegal(self->board.ppi_8255, data);
+                        debug_iorq("PPI", "set-ctrl-p (illegal read)", port, (data & 0xff));
                     }
                     break;
             }
@@ -357,21 +378,25 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
                     {
                         data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
+                        debug_iorq("FDC", "set-motor (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
                     {
                         data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
+                        debug_iorq("FDC", "set-motor (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
                     {
                         data = xcpc_fdc_765a_rd_stat(self->board.fdc_765a, data);
+                        debug_iorq("FDC", "get-stat", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
                     {
                         data = xcpc_fdc_765a_rd_data(self->board.fdc_765a, data);
+                        debug_iorq("FDC", "get-data", port, (data & 0xff));
                     }
                     break;
             }
@@ -391,11 +416,13 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* select pen */
                     {
                         self->board.vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
+                        debug_iorq("VGA", "set-pen", port, (data & 0x1f));
                     }
                     break;
                 case 1: /* select color */
                     {
                         self->board.vga_core->state.ink[self->board.vga_core->state.pen] = data & 0x1f;
+                        debug_iorq("VGA", "set-ink", port, (data & 0x1f));
                     }
                     break;
                 case 2: /* interrupt control, rom configuration and screen mode */
@@ -405,12 +432,14 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                         }
                         self->board.vga_core->state.rmr = data & 0x1f;
                         cpc_mem_select(self);
+                        debug_iorq("VGA", "set-rmr", port, (data & 0x1f));
                     }
                     break;
                 case 3: /* ram memory management */
                     {
                         self->pager.conf.ram = data & 0x3f;
                         cpc_mem_select(self);
+                        debug_iorq("RAM", "set-ram", port, (data & 0x1f));
                     }
                     break;
             }
@@ -423,21 +452,25 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
                     {
                         (void) xcpc_vdc_6845_wr_addr(self->board.vdc_6845, data);
+                        debug_iorq("VDC", "set-addr", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
                     {
                         (void) xcpc_vdc_6845_wr_data(self->board.vdc_6845, data);
+                        debug_iorq("VDC", "set-data", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
                     {
                         (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("VDC", "get-addr (illegal write)", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
                     {
                         (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("VDC", "get-data (illegal write)", port, (data & 0xff));
                     }
                     break;
             }
@@ -447,11 +480,12 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
         if((port & 0x2000) == 0) {
             self->pager.conf.rom = data;
             cpc_mem_select(self);
+            debug_iorq("ROM", "set-rom", port, (data & 0xff));
         }
     }
     /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
         if((port & 0x1000) == 0) {
-            /* xxx */
+            debug_iorq("PRT", "set-data", port, (data & 0xff));
         }
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
@@ -461,21 +495,25 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
                     {
                         (void) xcpc_ppi_8255_wr_port_a(self->board.ppi_8255, data);
+                        debug_iorq("PPI", "set-port-a", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
                     {
                         (void) xcpc_ppi_8255_wr_port_b(self->board.ppi_8255, data);
+                        debug_iorq("PPI", "set-port-b", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
                     {
                         (void) xcpc_ppi_8255_wr_port_c(self->board.ppi_8255, data);
+                        debug_iorq("PPI", "set-port-c", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
                     {
                         (void) xcpc_ppi_8255_wr_ctrl_p(self->board.ppi_8255, data);
+                        debug_iorq("PPI", "set-ctrl-p", port, (data & 0xff));
                     }
                     break;
             }
@@ -488,21 +526,25 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
                     {
                         (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, (((data & 1) << 1) | ((data & 1) << 0)));
+                        debug_iorq("FDC", "set-motor", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
                     {
                         (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, (((data & 1) << 1) | ((data & 1) << 0)));
+                        debug_iorq("FDC", "set-motor", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
                     {
                         (void) xcpc_fdc_765a_wr_stat(self->board.fdc_765a, data);
+                        debug_iorq("FDC", "set-stat", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
                     {
                         (void) xcpc_fdc_765a_wr_data(self->board.fdc_765a, data);
+                        debug_iorq("FDC", "set-DATA", port, (data & 0xff));
                     }
                     break;
             }
@@ -594,18 +636,18 @@ static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
                                    | (self->state.psg_bc2  << 1)
                                    | (self->state.psg_bc1  << 0)
                                    ;
+        data = self->state.psg_data;
         switch(psg_function & 0x07) {
             case 0x03: /* read from psg */
-                data = xcpc_psg_8910_rd_data(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_rd_data(self->board.psg_8910, data);
                 break;
             case 0x06: /* write to psg  */
-                data = xcpc_psg_8910_illegal(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, data);
                 break;
             case 0x07: /* latch address */
-                data = xcpc_psg_8910_illegal(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, data);
                 break;
             default:   /* inactive      */
-                data = xcpc_psg_8910_illegal(self->board.psg_8910, (data = self->state.psg_data));
                 break;
         }
     }
@@ -621,18 +663,18 @@ static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
                                    | (self->state.psg_bc2  << 1)
                                    | (self->state.psg_bc1  << 0)
                                    ;
+        self->state.psg_data = data;
         switch(psg_function & 0x07) {
             case 0x03: /* read from psg */
-                data = xcpc_psg_8910_illegal(self->board.psg_8910, (self->state.psg_data = data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, data);
                 break;
             case 0x06: /* write to psg  */
-                data = xcpc_psg_8910_wr_data(self->board.psg_8910, (self->state.psg_data = data));
+                data = xcpc_psg_8910_wr_data(self->board.psg_8910, data);
                 break;
             case 0x07: /* latch address */
-                data = xcpc_psg_8910_wr_addr(self->board.psg_8910, (self->state.psg_data = data));
+                data = xcpc_psg_8910_wr_addr(self->board.psg_8910, data);
                 break;
             default:   /* inactive      */
-                data = xcpc_psg_8910_illegal(self->board.psg_8910, (self->state.psg_data = data));
                 break;
         }
     }
@@ -706,7 +748,6 @@ static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
                 (void) xcpc_psg_8910_wr_addr(self->board.psg_8910, self->state.psg_data);
                 break;
             default:   /* inactive      */
-                (void) xcpc_psg_8910_illegal(self->board.psg_8910, self->state.psg_data);
                 break;
         }
     }

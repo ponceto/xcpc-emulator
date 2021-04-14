@@ -230,8 +230,5 @@ XcpcVgaCore* xcpc_vga_core_clock(XcpcVgaCore* self)
 
 uint8_t xcpc_vga_core_illegal(XcpcVgaCore* self, uint8_t data_bus)
 {
-    /* log */ {
-        xcpc_log_debug("vga_core: illegal access");
-    }
     return data_bus;
 }
