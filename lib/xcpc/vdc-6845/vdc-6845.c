@@ -235,29 +235,30 @@ XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* 
 
 XcpcVdc6845* xcpc_vdc_6845_debug(XcpcVdc6845* self)
 {
-    const char* format = "  - %-24s : 0x%02x";
+    const char* format1 = "vdc-6845:";
+    const char* format2 = "  - %-24s : 0x%02x";
 
     /* debug state */ {
-        xcpc_log_debug("vdc_6845:");
-        xcpc_log_debug(format, get_register_name(VDC_ADDRESS_REGISTER        ), self->state.regs.named.address_register        );
-        xcpc_log_debug(format, get_register_name(VDC_HORIZONTAL_TOTAL        ), self->state.regs.named.horizontal_total        );
-        xcpc_log_debug(format, get_register_name(VDC_HORIZONTAL_DISPLAYED    ), self->state.regs.named.horizontal_displayed    );
-        xcpc_log_debug(format, get_register_name(VDC_HORIZONTAL_SYNC_POSITION), self->state.regs.named.horizontal_sync_position);
-        xcpc_log_debug(format, get_register_name(VDC_SYNC_WIDTH              ), self->state.regs.named.sync_width              );
-        xcpc_log_debug(format, get_register_name(VDC_VERTICAL_TOTAL          ), self->state.regs.named.vertical_total          );
-        xcpc_log_debug(format, get_register_name(VDC_VERTICAL_TOTAL_ADJUST   ), self->state.regs.named.vertical_total_adjust   );
-        xcpc_log_debug(format, get_register_name(VDC_VERTICAL_DISPLAYED      ), self->state.regs.named.vertical_displayed      );
-        xcpc_log_debug(format, get_register_name(VDC_VERTICAL_SYNC_POSITION  ), self->state.regs.named.vertical_sync_position  );
-        xcpc_log_debug(format, get_register_name(VDC_INTERLACE_MODE_AND_SKEW ), self->state.regs.named.interlace_mode_and_skew );
-        xcpc_log_debug(format, get_register_name(VDC_MAXIMUM_SCANLINE_ADDRESS), self->state.regs.named.maximum_scanline_address);
-        xcpc_log_debug(format, get_register_name(VDC_CURSOR_START            ), self->state.regs.named.cursor_start            );
-        xcpc_log_debug(format, get_register_name(VDC_CURSOR_END              ), self->state.regs.named.cursor_end              );
-        xcpc_log_debug(format, get_register_name(VDC_START_ADDRESS_HIGH      ), self->state.regs.named.start_address_high      );
-        xcpc_log_debug(format, get_register_name(VDC_START_ADDRESS_LOW       ), self->state.regs.named.start_address_low       );
-        xcpc_log_debug(format, get_register_name(VDC_CURSOR_HIGH             ), self->state.regs.named.cursor_high             );
-        xcpc_log_debug(format, get_register_name(VDC_CURSOR_LOW              ), self->state.regs.named.cursor_low              );
-        xcpc_log_debug(format, get_register_name(VDC_LIGHT_PEN_HIGH          ), self->state.regs.named.light_pen_high          );
-        xcpc_log_debug(format, get_register_name(VDC_LIGHT_PEN_LOW           ), self->state.regs.named.light_pen_low           );
+        xcpc_log_debug(format1);
+        xcpc_log_debug(format2, get_register_name(VDC_ADDRESS_REGISTER        ), self->state.regs.named.address_register        );
+        xcpc_log_debug(format2, get_register_name(VDC_HORIZONTAL_TOTAL        ), self->state.regs.named.horizontal_total        );
+        xcpc_log_debug(format2, get_register_name(VDC_HORIZONTAL_DISPLAYED    ), self->state.regs.named.horizontal_displayed    );
+        xcpc_log_debug(format2, get_register_name(VDC_HORIZONTAL_SYNC_POSITION), self->state.regs.named.horizontal_sync_position);
+        xcpc_log_debug(format2, get_register_name(VDC_SYNC_WIDTH              ), self->state.regs.named.sync_width              );
+        xcpc_log_debug(format2, get_register_name(VDC_VERTICAL_TOTAL          ), self->state.regs.named.vertical_total          );
+        xcpc_log_debug(format2, get_register_name(VDC_VERTICAL_TOTAL_ADJUST   ), self->state.regs.named.vertical_total_adjust   );
+        xcpc_log_debug(format2, get_register_name(VDC_VERTICAL_DISPLAYED      ), self->state.regs.named.vertical_displayed      );
+        xcpc_log_debug(format2, get_register_name(VDC_VERTICAL_SYNC_POSITION  ), self->state.regs.named.vertical_sync_position  );
+        xcpc_log_debug(format2, get_register_name(VDC_INTERLACE_MODE_AND_SKEW ), self->state.regs.named.interlace_mode_and_skew );
+        xcpc_log_debug(format2, get_register_name(VDC_MAXIMUM_SCANLINE_ADDRESS), self->state.regs.named.maximum_scanline_address);
+        xcpc_log_debug(format2, get_register_name(VDC_CURSOR_START            ), self->state.regs.named.cursor_start            );
+        xcpc_log_debug(format2, get_register_name(VDC_CURSOR_END              ), self->state.regs.named.cursor_end              );
+        xcpc_log_debug(format2, get_register_name(VDC_START_ADDRESS_HIGH      ), self->state.regs.named.start_address_high      );
+        xcpc_log_debug(format2, get_register_name(VDC_START_ADDRESS_LOW       ), self->state.regs.named.start_address_low       );
+        xcpc_log_debug(format2, get_register_name(VDC_CURSOR_HIGH             ), self->state.regs.named.cursor_high             );
+        xcpc_log_debug(format2, get_register_name(VDC_CURSOR_LOW              ), self->state.regs.named.cursor_low              );
+        xcpc_log_debug(format2, get_register_name(VDC_LIGHT_PEN_HIGH          ), self->state.regs.named.light_pen_high          );
+        xcpc_log_debug(format2, get_register_name(VDC_LIGHT_PEN_LOW           ), self->state.regs.named.light_pen_low           );
     }
     return self;
 }

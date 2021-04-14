@@ -183,29 +183,30 @@ XcpcVgaCore* xcpc_vga_core_set_iface(XcpcVgaCore* self, const XcpcVgaCoreIface* 
 
 XcpcVgaCore* xcpc_vga_core_debug(XcpcVgaCore* self)
 {
-    const char* format = "  - %-24s : 0x%02x";
+    const char* format1 = "vga-core:";
+    const char* format2 = "  - %-24s : 0x%02x";
 
     /* debug state */ {
-        xcpc_log_debug("vga_core:");
-        xcpc_log_debug(format, "pen"   , self->state.pen      );
-        xcpc_log_debug(format, "ink 00", self->state.ink[0x00]);
-        xcpc_log_debug(format, "ink 01", self->state.ink[0x01]);
-        xcpc_log_debug(format, "ink 02", self->state.ink[0x02]);
-        xcpc_log_debug(format, "ink 03", self->state.ink[0x03]);
-        xcpc_log_debug(format, "ink 04", self->state.ink[0x04]);
-        xcpc_log_debug(format, "ink 05", self->state.ink[0x05]);
-        xcpc_log_debug(format, "ink 06", self->state.ink[0x06]);
-        xcpc_log_debug(format, "ink 07", self->state.ink[0x07]);
-        xcpc_log_debug(format, "ink 08", self->state.ink[0x08]);
-        xcpc_log_debug(format, "ink 09", self->state.ink[0x09]);
-        xcpc_log_debug(format, "ink 10", self->state.ink[0x0a]);
-        xcpc_log_debug(format, "ink 11", self->state.ink[0x0b]);
-        xcpc_log_debug(format, "ink 12", self->state.ink[0x0c]);
-        xcpc_log_debug(format, "ink 13", self->state.ink[0x0d]);
-        xcpc_log_debug(format, "ink 14", self->state.ink[0x0e]);
-        xcpc_log_debug(format, "ink 15", self->state.ink[0x0f]);
-        xcpc_log_debug(format, "ink 16", self->state.ink[0x10]);
-        xcpc_log_debug(format, "rmr"   , self->state.rmr      );
+        xcpc_log_debug(format1);
+        xcpc_log_debug(format2, "pen"  , self->state.pen      );
+        xcpc_log_debug(format2, "ink00", self->state.ink[0x00]);
+        xcpc_log_debug(format2, "ink01", self->state.ink[0x01]);
+        xcpc_log_debug(format2, "ink02", self->state.ink[0x02]);
+        xcpc_log_debug(format2, "ink03", self->state.ink[0x03]);
+        xcpc_log_debug(format2, "ink04", self->state.ink[0x04]);
+        xcpc_log_debug(format2, "ink05", self->state.ink[0x05]);
+        xcpc_log_debug(format2, "ink06", self->state.ink[0x06]);
+        xcpc_log_debug(format2, "ink07", self->state.ink[0x07]);
+        xcpc_log_debug(format2, "ink08", self->state.ink[0x08]);
+        xcpc_log_debug(format2, "ink09", self->state.ink[0x09]);
+        xcpc_log_debug(format2, "ink10", self->state.ink[0x0a]);
+        xcpc_log_debug(format2, "ink11", self->state.ink[0x0b]);
+        xcpc_log_debug(format2, "ink12", self->state.ink[0x0c]);
+        xcpc_log_debug(format2, "ink13", self->state.ink[0x0d]);
+        xcpc_log_debug(format2, "ink14", self->state.ink[0x0e]);
+        xcpc_log_debug(format2, "ink15", self->state.ink[0x0f]);
+        xcpc_log_debug(format2, "ink16", self->state.ink[0x10]);
+        xcpc_log_debug(format2, "rmr"  , self->state.rmr      );
     }
     return self;
 }
@@ -230,5 +231,34 @@ XcpcVgaCore* xcpc_vga_core_clock(XcpcVgaCore* self)
 
 uint8_t xcpc_vga_core_illegal(XcpcVgaCore* self, uint8_t data_bus)
 {
+    return data_bus;
+}
+
+uint8_t xcpc_vga_core_set_pen(XcpcVgaCore* self, uint8_t data_bus)
+{
+    /* set pen */ {
+        self->state.pen = ((data_bus & 0x10) != 0 ? (data_bus & 0x10) : (data_bus & 0x0f));
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_vga_core_set_ink(XcpcVgaCore* self, uint8_t data_bus)
+{
+    /* set ink */ {
+        self->state.ink[self->state.pen] = (data_bus & 0x1f);
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_vga_core_set_rmr(XcpcVgaCore* self, uint8_t data_bus)
+{
+    /* set rmr */ {
+        self->state.rmr = (data_bus & 0x1f);
+    }
+    /* clear scanline counter */ {
+        if((data_bus & 0x10) != 0) {
+            self->state.counter = 0;
+        }
+    }
     return data_bus;
 }

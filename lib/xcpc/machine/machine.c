@@ -24,13 +24,20 @@
 #include <sys/time.h>
 #include "machine-priv.h"
 
+#if 0
+#define XCPC_DEBUG_IORQ
+#define XCPC_DEBUG_VGA_CORE
+#define XCPC_DEBUG_VDC_6845
+#define XCPC_DEBUG_PSG_8910
+#endif
+
 #ifdef XCPC_DEBUG_IORQ
 static void debug_iorq(const char* device, const char* reason, uint16_t port, uint8_t data)
 {
     xcpc_log_debug("%s %04X : %s 0x%02x", device, port, reason, data);
 }
 #else
-#define debug_iorq(device, reason, port, data) do { (void)(0); } while(0)
+#define debug_iorq(device, reason, port, data) do { (void)(port); (void)(data); } while(0)
 #endif
 
 static void log_trace(const char* function)
@@ -102,11 +109,6 @@ static void compute_stats(XcpcMachine* self)
     /* print the statistics */ {
         if(self->setup.fps != 0) {
             xcpc_log_print(self->stats.buffer);
-#if 0
-            (void) xcpc_vga_core_debug(self->board.vga_core);
-            (void) xcpc_vdc_6845_debug(self->board.vdc_6845);
-            (void) xcpc_psg_8910_debug(self->board.psg_8910);
-#endif
         }
     }
     /* set the new reference */ {
@@ -116,10 +118,21 @@ static void compute_stats(XcpcMachine* self)
         self->stats.hsync    = 0;
         self->stats.vsync    = 0;
     }
+#ifdef XCPC_DEBUG_VGA_CORE
+    (void) xcpc_vga_core_debug(self->board.vga_core);
+#endif
+#ifdef XCPC_DEBUG_VDC_6845
+    (void) xcpc_vdc_6845_debug(self->board.vdc_6845);
+#endif
+#ifdef XCPC_DEBUG_PSG_8910
+    (void) xcpc_psg_8910_debug(self->board.psg_8910);
+#endif
 }
 
-static void cpc_mem_select(XcpcMachine* self)
+static void cpc_mem_select(XcpcMachine* self, uint8_t ram_conf, uint8_t rom_conf)
 {
+    self->pager.conf.ram = ram_conf;
+    self->pager.conf.rom = rom_conf;
     if(self->setup.memory_size >= XCPC_MEMORY_SIZE_128K) {
         switch(self->pager.conf.ram) {
             case 0x00:
@@ -275,25 +288,25 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* select pen */
                     {
                         data = xcpc_vga_core_illegal(self->board.vga_core, data);
-                        debug_iorq("VGA", "set-pen (illegal read)", port, (data & 0xff));
+                        debug_iorq("vga-core", "set-pen (illegal read)", port, (data & 0xff));
                     }
                     break;
-                case 1: /* select color */
+                case 1: /* select ink */
                     {
                         data = xcpc_vga_core_illegal(self->board.vga_core, data);
-                        debug_iorq("VGA", "set-ink (illegal read)", port, (data & 0xff));
+                        debug_iorq("vga-core", "set-ink (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 2: /* interrupt control, rom configuration and screen mode */
                     {
                         data = xcpc_vga_core_illegal(self->board.vga_core, data);
-                        debug_iorq("VGA", "set-rmr (illegal read)", port, (data & 0xff));
+                        debug_iorq("vga-core", "set-rmr (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 3: /* ram memory management */
                     {
                         data = xcpc_vga_core_illegal(self->board.vga_core, data);
-                        debug_iorq("RAM", "set-ram (illegal read)", port, (data & 0xff));
+                        debug_iorq("ram-conf", "set-ram (illegal read)", port, (data & 0xff));
                     }
                     break;
             }
@@ -306,25 +319,25 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
                     {
                         data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
-                        debug_iorq("VDC", "set-addr (illegal read)", port, (data & 0xff));
+                        debug_iorq("vdc-6845", "set-addr (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
                     {
                         data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
-                        debug_iorq("VDC", "set-data (illegal read)", port, (data & 0xff));
+                        debug_iorq("vdc-6845", "set-data (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
                     {
                         data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
-                        debug_iorq("VDC", "get-addr (illegal read)", port, (data & 0xff));
+                        debug_iorq("vdc-6845", "get-addr (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
                     {
                         data = xcpc_vdc_6845_rd_data(self->board.vdc_6845, data);
-                        debug_iorq("VDC", "get-data", port, (data & 0xff));
+                        debug_iorq("vdc-6845", "get-data", port, (data & 0xff));
                     }
                     break;
             }
@@ -332,12 +345,12 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
         if((port & 0x2000) == 0) {
-            debug_iorq("ROM", "illegal read", port, (data & 0xff));
+            debug_iorq("rom-conf", "illegal read", port, (data & 0xff));
         }
     }
     /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
         if((port & 0x1000) == 0) {
-            debug_iorq("PRT", "get-data", port, (data & 0xff));
+            debug_iorq("prt-port", "get-data", port, (data & 0xff));
         }
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
@@ -347,25 +360,25 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
-                        debug_iorq("PPI", "get-port-a", port, (data & 0xff));
+                        debug_iorq("ppi-8255", "get-port-a", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
-                        debug_iorq("PPI", "get-port-b", port, (data & 0xff));
+                        debug_iorq("ppi-8255", "get-port-b", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
-                        debug_iorq("PPI", "get-port-c", port, (data & 0xff));
+                        debug_iorq("ppi-8255", "get-port-c", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
                     {
                         data = xcpc_ppi_8255_illegal(self->board.ppi_8255, data);
-                        debug_iorq("PPI", "set-ctrl-p (illegal read)", port, (data & 0xff));
+                        debug_iorq("ppi-8255", "set-ctrl-p (illegal read)", port, (data & 0xff));
                     }
                     break;
             }
@@ -378,25 +391,25 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
                     {
                         data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
-                        debug_iorq("FDC", "set-motor (illegal read)", port, (data & 0xff));
+                        debug_iorq("fdc-765a", "set-motor (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
                     {
                         data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
-                        debug_iorq("FDC", "set-motor (illegal read)", port, (data & 0xff));
+                        debug_iorq("fdc-765a", "set-motor (illegal read)", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
                     {
                         data = xcpc_fdc_765a_rd_stat(self->board.fdc_765a, data);
-                        debug_iorq("FDC", "get-stat", port, (data & 0xff));
+                        debug_iorq("fdc-765a", "get-stat", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
                     {
                         data = xcpc_fdc_765a_rd_data(self->board.fdc_765a, data);
-                        debug_iorq("FDC", "get-data", port, (data & 0xff));
+                        debug_iorq("fdc-765a", "get-data", port, (data & 0xff));
                     }
                     break;
             }
@@ -415,31 +428,27 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
             switch(function) {
                 case 0: /* select pen */
                     {
-                        self->board.vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
-                        debug_iorq("VGA", "set-pen", port, (data & 0x1f));
+                        (void) xcpc_vga_core_set_pen(self->board.vga_core, data);
+                        debug_iorq("vga-core", "set-pen", port, (data & 0x1f));
                     }
                     break;
-                case 1: /* select color */
+                case 1: /* select ink */
                     {
-                        self->board.vga_core->state.ink[self->board.vga_core->state.pen] = data & 0x1f;
-                        debug_iorq("VGA", "set-ink", port, (data & 0x1f));
+                        (void) xcpc_vga_core_set_ink(self->board.vga_core, data);
+                        debug_iorq("vga-core", "set-ink", port, (data & 0x1f));
                     }
                     break;
                 case 2: /* interrupt control, rom configuration and screen mode */
                     {
-                        if((data & 0x10) != 0) {
-                            self->board.vga_core->state.counter = 0;
-                        }
-                        self->board.vga_core->state.rmr = data & 0x1f;
-                        cpc_mem_select(self);
-                        debug_iorq("VGA", "set-rmr", port, (data & 0x1f));
+                        (void) xcpc_vga_core_set_rmr(self->board.vga_core, data);
+                        cpc_mem_select(self, self->pager.conf.ram, self->pager.conf.rom);
+                        debug_iorq("vga-core", "set-rmr", port, (data & 0x1f));
                     }
                     break;
                 case 3: /* ram memory management */
                     {
-                        self->pager.conf.ram = data & 0x3f;
-                        cpc_mem_select(self);
-                        debug_iorq("RAM", "set-ram", port, (data & 0x1f));
+                        cpc_mem_select(self, (data & 0x3f), self->pager.conf.rom);
+                        debug_iorq("ram-conf", "set-ram", port, (data & 0x1f));
                     }
                     break;
             }
@@ -452,25 +461,25 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
                     {
                         (void) xcpc_vdc_6845_wr_addr(self->board.vdc_6845, data);
-                        debug_iorq("VDC", "set-addr", port, (data & 0xff));
+                        debug_iorq("vdc-6845", "set-addr", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
                     {
                         (void) xcpc_vdc_6845_wr_data(self->board.vdc_6845, data);
-                        debug_iorq("VDC", "set-data", port, (data & 0xff));
+                        debug_iorq("vdc-6845", "set-data", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
                     {
                         (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
-                        debug_iorq("VDC", "get-addr (illegal write)", port, (data & 0xff));
+                        debug_iorq("vdc-6845", "get-addr (illegal write)", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
                     {
                         (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
-                        debug_iorq("VDC", "get-data (illegal write)", port, (data & 0xff));
+                        debug_iorq("vdc-6845", "get-data (illegal write)", port, (data & 0xff));
                     }
                     break;
             }
@@ -478,14 +487,13 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
         if((port & 0x2000) == 0) {
-            self->pager.conf.rom = data;
-            cpc_mem_select(self);
-            debug_iorq("ROM", "set-rom", port, (data & 0xff));
+            cpc_mem_select(self, self->pager.conf.ram, (data & 0xff));
+            debug_iorq("rom-conf", "set-rom", port, (data & 0xff));
         }
     }
     /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
         if((port & 0x1000) == 0) {
-            debug_iorq("PRT", "set-data", port, (data & 0xff));
+            debug_iorq("prt-port", "set-data", port, (data & 0xff));
         }
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
@@ -495,25 +503,25 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
                     {
                         (void) xcpc_ppi_8255_wr_port_a(self->board.ppi_8255, data);
-                        debug_iorq("PPI", "set-port-a", port, (data & 0xff));
+                        debug_iorq("ppi-8255", "set-port-a", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
                     {
                         (void) xcpc_ppi_8255_wr_port_b(self->board.ppi_8255, data);
-                        debug_iorq("PPI", "set-port-b", port, (data & 0xff));
+                        debug_iorq("ppi-8255", "set-port-b", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
                     {
                         (void) xcpc_ppi_8255_wr_port_c(self->board.ppi_8255, data);
-                        debug_iorq("PPI", "set-port-c", port, (data & 0xff));
+                        debug_iorq("ppi-8255", "set-port-c", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
                     {
                         (void) xcpc_ppi_8255_wr_ctrl_p(self->board.ppi_8255, data);
-                        debug_iorq("PPI", "set-ctrl-p", port, (data & 0xff));
+                        debug_iorq("ppi-8255", "set-ctrl-p", port, (data & 0xff));
                     }
                     break;
             }
@@ -526,25 +534,25 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
                     {
                         (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, (((data & 1) << 1) | ((data & 1) << 0)));
-                        debug_iorq("FDC", "set-motor", port, (data & 0xff));
+                        debug_iorq("fdc-765a", "set-motor", port, (data & 0xff));
                     }
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
                     {
                         (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, (((data & 1) << 1) | ((data & 1) << 0)));
-                        debug_iorq("FDC", "set-motor", port, (data & 0xff));
+                        debug_iorq("fdc-765a", "set-motor", port, (data & 0xff));
                     }
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
                     {
                         (void) xcpc_fdc_765a_wr_stat(self->board.fdc_765a, data);
-                        debug_iorq("FDC", "set-stat", port, (data & 0xff));
+                        debug_iorq("fdc-765a", "set-stat", port, (data & 0xff));
                     }
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
                     {
                         (void) xcpc_fdc_765a_wr_data(self->board.fdc_765a, data);
-                        debug_iorq("FDC", "set-DATA", port, (data & 0xff));
+                        debug_iorq("fdc-765a", "set-DATA", port, (data & 0xff));
                     }
                     break;
             }
@@ -2348,7 +2356,7 @@ static void reset_pager(XcpcMachine* self)
     self->pager.bank.rd[3] = self->pager.bank.wr[3] = NULL;
     self->pager.conf.ram = 0x00;
     self->pager.conf.rom = 0x00;
-    cpc_mem_select(self);
+    cpc_mem_select(self, self->pager.conf.ram, self->pager.conf.rom);
 }
 
 static void construct_frame(XcpcMachine* self)
@@ -2914,7 +2922,7 @@ XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
     }
     /* perform memory mapping or reset */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            cpc_mem_select(self);
+            cpc_mem_select(self, self->pager.conf.ram, self->pager.conf.rom);
         }
         else {
             (void) xcpc_machine_reset(self);

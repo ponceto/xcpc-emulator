@@ -218,14 +218,14 @@ uint8_t xcpc_ppi_8255_wr_ctrl_p(XcpcPpi8255* self, uint8_t data_bus)
             /* process group a */ {
                 if(ga != self->ports.ga) {
                     if((self->ports.ga = ga) != 0) {
-                        xcpc_log_debug("ppi_8255: mode %d is not supported for group a", ga);
+                        xcpc_log_debug("ppi-8255: mode %d is not supported for group a", ga);
                     }
                 }
             }
             /* process group b */ {
                 if(gb != self->ports.gb) {
                     if((self->ports.gb = gb) != 0) {
-                        xcpc_log_debug("ppi_8255: mode %d is not supported for group b", gb);
+                        xcpc_log_debug("ppi-8255: mode %d is not supported for group b", gb);
                     }
                 }
             }
