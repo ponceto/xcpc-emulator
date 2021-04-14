@@ -30,6 +30,7 @@ extern "C" {
 typedef struct _XcpcPpi8255Iface XcpcPpi8255Iface;
 typedef struct _XcpcPpi8255Setup XcpcPpi8255Setup;
 typedef struct _XcpcPpi8255State XcpcPpi8255State;
+typedef struct _XcpcPpi8255Ports XcpcPpi8255Ports;
 typedef struct _XcpcPpi8255      XcpcPpi8255;
 
 struct _XcpcPpi8255Iface
@@ -56,11 +57,21 @@ struct _XcpcPpi8255State
     uint8_t ctrl_p;
 };
 
+struct _XcpcPpi8255Ports
+{
+    uint8_t ga;
+    uint8_t gb;
+    uint8_t pa;
+    uint8_t pb;
+    uint8_t pc;
+};
+
 struct _XcpcPpi8255
 {
     XcpcPpi8255Iface iface;
     XcpcPpi8255Setup setup;
     XcpcPpi8255State state;
+    XcpcPpi8255Ports ports;
 };
 
 #ifdef __cplusplus

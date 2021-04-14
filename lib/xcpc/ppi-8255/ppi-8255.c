@@ -63,6 +63,7 @@ XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
         (void) memset(&self->iface, 0, sizeof(XcpcPpi8255Iface));
         (void) memset(&self->setup, 0, sizeof(XcpcPpi8255Setup));
         (void) memset(&self->state, 0, sizeof(XcpcPpi8255State));
+        (void) memset(&self->ports, 0, sizeof(XcpcPpi8255Ports));
     }
     /* initialize iface */ {
         (void) xcpc_ppi_8255_set_iface(self, NULL);
@@ -123,6 +124,13 @@ XcpcPpi8255* xcpc_ppi_8255_reset(XcpcPpi8255* self)
         self->state.port_c = DEFAULT_VALUE_OF_PORT_C;
         self->state.ctrl_p = DEFAULT_VALUE_OF_CTRL_P;
     }
+    /* reset ports */ {
+        self->ports.ga = 0x00;
+        self->ports.gb = 0x00;
+        self->ports.pa = 0x00;
+        self->ports.pb = 0x00;
+        self->ports.pc = 0x00;
+    }
     return self;
 }
 
@@ -133,91 +141,140 @@ XcpcPpi8255* xcpc_ppi_8255_clock(XcpcPpi8255* self)
 
 uint8_t xcpc_ppi_8255_illegal(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* log */ {
-        xcpc_log_debug("ppi_8255: illegal access");
-    }
     return data_bus;
 }
 
 uint8_t xcpc_ppi_8255_rd_port_a(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* read port a */ {
-        data_bus = (*self->iface.rd_port_a)(self, data_bus);
+    if(self->ports.pa != 0) {
+        self->state.port_a = (*self->iface.rd_port_a)(self, data_bus);
     }
-    /* update latch */ {
-        self->state.port_a = data_bus;
-    }
-    return data_bus;
+    return self->state.port_a;
 }
 
 uint8_t xcpc_ppi_8255_wr_port_a(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* update latch */ {
-        self->state.port_a = data_bus;
-    }
-    /* write port a */ {
+    self->state.port_a = data_bus;
+
+    if(self->ports.pa == 0) {
         data_bus = (*self->iface.wr_port_a)(self, data_bus);
     }
-    return data_bus;
+    return self->state.port_a;
 }
 
 uint8_t xcpc_ppi_8255_rd_port_b(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* read port b */ {
-        data_bus = (*self->iface.rd_port_b)(self, data_bus);
+    if(self->ports.pb != 0) {
+        self->state.port_b = (*self->iface.rd_port_b)(self, data_bus);
     }
-    /* update latch */ {
-        self->state.port_b = data_bus;
-    }
-    return data_bus;
+    return self->state.port_b;
 }
 
 uint8_t xcpc_ppi_8255_wr_port_b(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* update latch */ {
-        self->state.port_b = data_bus;
-    }
-    /* write port b */ {
+    self->state.port_b = data_bus;
+
+    if(self->ports.pb == 0) {
         data_bus = (*self->iface.wr_port_b)(self, data_bus);
     }
-    return data_bus;
+    return self->state.port_b;
 }
 
 uint8_t xcpc_ppi_8255_rd_port_c(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* read port c */ {
-        data_bus = (*self->iface.rd_port_c)(self, data_bus);
+    if(self->ports.pc != 0) {
+        self->state.port_c = (*self->iface.rd_port_c)(self, data_bus);
     }
-    /* update latch */ {
-        self->state.port_c = data_bus;
-    }
-    return data_bus;
+    return self->state.port_c;
 }
 
 uint8_t xcpc_ppi_8255_wr_port_c(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* update latch */ {
-        self->state.port_c = data_bus;
-    }
-    /* write port c */ {
+    self->state.port_c = data_bus;
+
+    if(self->ports.pc == 0) {
         data_bus = (*self->iface.wr_port_c)(self, data_bus);
     }
-    return data_bus;
+    return self->state.port_c;
 }
-
 
 uint8_t xcpc_ppi_8255_rd_ctrl_p(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* read control register */ {
-        data_bus = self->state.ctrl_p;
-    }
+    data_bus = self->state.ctrl_p;
+
     return data_bus;
 }
 
 uint8_t xcpc_ppi_8255_wr_ctrl_p(XcpcPpi8255* self, uint8_t data_bus)
 {
-    /* write control register */ {
-        self->state.ctrl_p = data_bus;
+    if(((self->state.ctrl_p = data_bus) & 0x80) != 0) {
+        /* I/O mode */ {
+            const uint8_t ga = ((self->state.ctrl_p >> 5) & 0x03);
+            const uint8_t gb = ((self->state.ctrl_p >> 2) & 0x01);
+            const uint8_t pa = ((self->state.ctrl_p >> 4) & 0x01);
+            const uint8_t pb = ((self->state.ctrl_p >> 1) & 0x01);
+            const uint8_t pc = ((self->state.ctrl_p >> 2) & 0x02)
+                             | ((self->state.ctrl_p >> 0) & 0x01);
+            /* process group a */ {
+                if(ga != self->ports.ga) {
+                    if((self->ports.ga = ga) != 0) {
+                        xcpc_log_debug("ppi_8255: mode %d is not supported for group a", ga);
+                    }
+                }
+            }
+            /* process group b */ {
+                if(gb != self->ports.gb) {
+                    if((self->ports.gb = gb) != 0) {
+                        xcpc_log_debug("ppi_8255: mode %d is not supported for group b", gb);
+                    }
+                }
+            }
+            /* process port a */ {
+                if(pa != self->ports.pa) {
+                    if((self->ports.pa = pa) != 0) {
+                        data_bus = (*self->iface.rd_port_a)(self, self->state.port_a);
+                        self->state.port_a = data_bus;
+                    }
+                    else {
+                        data_bus = (*self->iface.wr_port_a)(self, self->state.port_a);
+                    }
+                }
+            }
+            /* process port b */ {
+                if(pb != self->ports.pb) {
+                    if((self->ports.pb = pb) != 0) {
+                        data_bus = (*self->iface.rd_port_b)(self, self->state.port_b);
+                        self->state.port_b = data_bus;
+                    }
+                    else {
+                        data_bus = (*self->iface.wr_port_b)(self, self->state.port_b);
+                    }
+                }
+            }
+            /* process port c */ {
+                if(pc != self->ports.pc) {
+                    if((self->ports.pc = pc) != 0) {
+                        data_bus = (*self->iface.rd_port_c)(self, self->state.port_c);
+                        self->state.port_c = data_bus;
+                    }
+                    else {
+                        data_bus = (*self->iface.wr_port_c)(self, self->state.port_c);
+                    }
+                }
+            }
+        }
+    }
+    else {
+        /* BSR mode */ {
+            const uint8_t bit = ((self->state.ctrl_p >> 1) & 0x07);
+            const uint8_t val = ((self->state.ctrl_p >> 0) & 0x01);
+            /* process port c */ {
+                if(self->ports.pc == 0) {
+                    self->state.port_c = ((self->state.port_c & ~(0x1 << bit)) | (val << bit));
+                    data_bus = (*self->iface.wr_port_c)(self, self->state.port_c);
+                }
+            }
+        }
     }
     return data_bus;
 }
