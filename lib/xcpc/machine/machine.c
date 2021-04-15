@@ -893,9 +893,9 @@ static void paint_08bpp(XcpcMachine* self)
                         case 0x00: /* mode 0 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -936,9 +936,9 @@ static void paint_08bpp(XcpcMachine* self)
                         case 0x01: /* mode 1 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1007,9 +1007,9 @@ static void paint_08bpp(XcpcMachine* self)
                         case 0x02: /* mode 2 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1279,9 +1279,9 @@ static void paint_16bpp(XcpcMachine* self)
                         case 0x00: /* mode 0 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1322,9 +1322,9 @@ static void paint_16bpp(XcpcMachine* self)
                         case 0x01: /* mode 1 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1393,9 +1393,9 @@ static void paint_16bpp(XcpcMachine* self)
                         case 0x02: /* mode 2 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1665,9 +1665,9 @@ static void paint_32bpp(XcpcMachine* self)
                         case 0x00: /* mode 0 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1708,9 +1708,9 @@ static void paint_32bpp(XcpcMachine* self)
                         case 0x01: /* mode 1 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1779,9 +1779,9 @@ static void paint_32bpp(XcpcMachine* self)
                         case 0x02: /* mode 2 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
