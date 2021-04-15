@@ -39,14 +39,14 @@ struct _XcpcVgaCoreIface
 
 struct _XcpcVgaCoreSetup
 {
-    int reserved;
+    uint8_t mode0[256];
+    uint8_t mode1[256];
+    uint8_t mode2[256];
+    uint8_t mode3[256];
 };
 
 struct _XcpcVgaCoreState
 {
-    uint8_t mode0[256];
-    uint8_t mode1[256];
-    uint8_t mode2[256];
     uint8_t pen;
     uint8_t ink[17];
     uint8_t rmr;

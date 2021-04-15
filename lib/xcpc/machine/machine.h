@@ -36,14 +36,16 @@ extern XcpcMachine* xcpc_machine_parse     (XcpcMachine* machine, int* argc, cha
 extern XcpcMachine* xcpc_machine_start     (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_close     (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_insert_drive0 (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_remove_drive0 (XcpcMachine* machine);
+extern XcpcMachine* xcpc_machine_insert_drive0   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_remove_drive0   (XcpcMachine* machine);
+extern const char*  xcpc_machine_filename_drive0 (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_insert_drive1 (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_remove_drive1 (XcpcMachine* machine);
+extern XcpcMachine* xcpc_machine_insert_drive1   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_remove_drive1   (XcpcMachine* machine);
+extern const char*  xcpc_machine_filename_drive1 (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_load_snapshot (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_save_snapshot (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_load_snapshot   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_save_snapshot   (XcpcMachine* machine, const char* filename);
 
 extern unsigned long xcpc_machine_create_proc  (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_destroy_proc (XcpcMachine* machine, XEvent* event);
@@ -52,6 +54,13 @@ extern unsigned long xcpc_machine_resize_proc  (XcpcMachine* machine, XEvent* ev
 extern unsigned long xcpc_machine_expose_proc  (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_timer_proc   (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_input_proc   (XcpcMachine* machine, XEvent* event);
+
+extern XcpcCompanyName  xcpc_machine_company_name  (XcpcMachine* machine);
+extern XcpcMachineType  xcpc_machine_machine_type  (XcpcMachine* machine);
+extern XcpcMonitorType  xcpc_machine_monitor_type  (XcpcMachine* machine);
+extern XcpcRefreshRate  xcpc_machine_refresh_rate  (XcpcMachine* machine);
+extern XcpcKeyboardType xcpc_machine_keyboard_type (XcpcMachine* machine);
+extern XcpcMemorySize   xcpc_machine_memory_size   (XcpcMachine* machine);
 
 #ifdef __cplusplus
 }

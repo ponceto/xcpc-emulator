@@ -20,14 +20,16 @@
 #include <X11/Intrinsic.h>
 #include <X11/Xaw/XawInit.h>
 #include <X11/Xaw/Box.h>
+#include <X11/Xaw/Command.h>
+#include <X11/Xaw/Dialog.h>
 #include <X11/Xaw/Form.h>
-#include <X11/Xaw/Paned.h>
-#include <X11/Xaw/Viewport.h>
+#include <X11/Xaw/Label.h>
 #include <X11/Xaw/MenuButton.h>
+#include <X11/Xaw/Paned.h>
 #include <X11/Xaw/SimpleMenu.h>
 #include <X11/Xaw/SmeBSB.h>
 #include <X11/Xaw/SmeLine.h>
-#include <X11/Xaw/Dialog.h>
+#include <X11/Xaw/Viewport.h>
 #include <Xem/StringDefs.h>
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
@@ -40,6 +42,7 @@ extern "C" {
 #endif
 
 typedef struct _XcpcResourcesRec   XcpcResourcesRec;
+typedef struct _XcpcBitmapsRec     XcpcBitmapsRec;
 typedef struct _XcpcFileMenuRec    XcpcFileMenuRec;
 typedef struct _XcpcDrv0MenuRec    XcpcDrv0MenuRec;
 typedef struct _XcpcDrv1MenuRec    XcpcDrv1MenuRec;
@@ -47,6 +50,8 @@ typedef struct _XcpcCtrlMenuRec    XcpcCtrlMenuRec;
 typedef struct _XcpcHelpMenuRec    XcpcHelpMenuRec;
 typedef struct _XcpcLayoutRec      XcpcLayoutRec;
 typedef struct _XcpcMenuBarRec     XcpcMenuBarRec;
+typedef struct _XcpcToolBarRec     XcpcToolBarRec;
+typedef struct _XcpcInfoBarRec     XcpcInfoBarRec;
 typedef struct _XcpcApplicationRec XcpcApplicationRec;
 
 struct _XcpcResourcesRec
@@ -56,6 +61,25 @@ struct _XcpcResourcesRec
     Boolean quiet_flag;
     Boolean trace_flag;
     Boolean debug_flag;
+};
+
+struct _XcpcBitmapsRec
+{
+    Pixel  foreground;
+    Pixel  background;
+    Pixmap null_icon;
+    Pixmap xcpc_icon;
+    Pixmap xcpc_mask;
+    Pixmap file_load;
+    Pixmap file_save;
+    Pixmap file_exit;
+    Pixmap ctrl_play;
+    Pixmap ctrl_pause;
+    Pixmap ctrl_reset;
+    Pixmap disk_insert;
+    Pixmap disk_remove;
+    Pixmap help_legal;
+    Pixmap help_about;
 };
 
 struct _XcpcFileMenuRec
@@ -119,13 +143,35 @@ struct _XcpcMenuBarRec
     XcpcHelpMenuRec help;
 };
 
+struct _XcpcToolBarRec
+{
+    Widget widget;
+    Widget load_snapshot;
+    Widget save_snapshot;
+    Widget play_emulator;
+    Widget pause_emulator;
+    Widget reset_emulator;
+};
+
+struct _XcpcInfoBarRec
+{
+    Widget widget;
+    Widget status;
+    Widget drive0;
+    Widget drive1;
+    Widget system;
+};
+
 struct _XcpcApplicationRec
 {
     XcpcMachine*     machine;
     XtAppContext     appcontext;
     XcpcResourcesRec resources;
+    XcpcBitmapsRec   bitmaps;
     XcpcLayoutRec    layout;
     XcpcMenuBarRec   menubar;
+    XcpcToolBarRec   toolbar;
+    XcpcInfoBarRec   infobar;
 };
 
 #ifdef __cplusplus

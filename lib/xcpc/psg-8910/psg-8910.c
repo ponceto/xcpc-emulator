@@ -41,6 +41,34 @@ static uint8_t default_wr_handler(XcpcPsg8910* self, uint8_t data)
     return data;
 }
 
+static const char* get_register_name(unsigned int address_register)
+{
+    static const char* const register_name[] = {
+        "address_register",
+        "channel_a_fine_tune",
+        "channel_a_coarse_tune",
+        "channel_b_fine_tune",
+        "channel_b_coarse_tune",
+        "channel_c_fine_tune",
+        "channel_c_coarse_tune",
+        "noise_period",
+        "mixer_and_io_control",
+        "channel_a_volume",
+        "channel_b_volume",
+        "channel_c_volume",
+        "envelope_fine_tune",
+        "envelope_coarse_tune",
+        "envelope_shape",
+        "io_port_a",
+        "io_port_b",
+    };
+
+    if(++address_register < countof(register_name)) {
+        return register_name[address_register];
+    }
+    return "invalid-register";
+}
+
 static void reset_setup(XcpcPsg8910* self)
 {
     /* reset caps_of */ {
@@ -178,27 +206,28 @@ XcpcPsg8910* xcpc_psg_8910_set_iface(XcpcPsg8910* self, const XcpcPsg8910Iface* 
 
 XcpcPsg8910* xcpc_psg_8910_debug(XcpcPsg8910* self)
 {
-    const char* format = "  - %-24s : 0x%02x";
+    const char* format1 = "psg-8910:";
+    const char* format2 = "  - %-24s : 0x%02x";
 
     /* debug state */ {
-        xcpc_log_debug("psg_8910:");
-        xcpc_log_debug(format, "address_register"     , self->state.regs.named.address_register     );
-        xcpc_log_debug(format, "channel_a_fine_tune"  , self->state.regs.named.channel_a_fine_tune  );
-        xcpc_log_debug(format, "channel_a_coarse_tune", self->state.regs.named.channel_a_coarse_tune);
-        xcpc_log_debug(format, "channel_b_fine_tune"  , self->state.regs.named.channel_b_fine_tune  );
-        xcpc_log_debug(format, "channel_b_coarse_tune", self->state.regs.named.channel_b_coarse_tune);
-        xcpc_log_debug(format, "channel_c_fine_tune"  , self->state.regs.named.channel_c_fine_tune  );
-        xcpc_log_debug(format, "channel_c_coarse_tune", self->state.regs.named.channel_c_coarse_tune);
-        xcpc_log_debug(format, "noise_period"         , self->state.regs.named.noise_period         );
-        xcpc_log_debug(format, "mixer_and_io_control" , self->state.regs.named.mixer_and_io_control );
-        xcpc_log_debug(format, "channel_a_volume"     , self->state.regs.named.channel_a_volume     );
-        xcpc_log_debug(format, "channel_b_volume"     , self->state.regs.named.channel_b_volume     );
-        xcpc_log_debug(format, "channel_c_volume"     , self->state.regs.named.channel_c_volume     );
-        xcpc_log_debug(format, "envelope_fine_tune"   , self->state.regs.named.envelope_fine_tune   );
-        xcpc_log_debug(format, "envelope_coarse_tune" , self->state.regs.named.envelope_coarse_tune );
-        xcpc_log_debug(format, "envelope_shape"       , self->state.regs.named.envelope_shape       );
-        xcpc_log_debug(format, "io_port_a"            , self->state.regs.named.io_port_a            );
-        xcpc_log_debug(format, "io_port_b"            , self->state.regs.named.io_port_b            );
+        xcpc_log_debug(format1);
+        xcpc_log_debug(format2, get_register_name(PSG_ADDRESS_REGISTER     ), self->state.regs.named.address_register     );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_A_FINE_TUNE  ), self->state.regs.named.channel_a_fine_tune  );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_A_COARSE_TUNE), self->state.regs.named.channel_a_coarse_tune);
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_B_FINE_TUNE  ), self->state.regs.named.channel_b_fine_tune  );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_B_COARSE_TUNE), self->state.regs.named.channel_b_coarse_tune);
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_C_FINE_TUNE  ), self->state.regs.named.channel_c_fine_tune  );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_C_COARSE_TUNE), self->state.regs.named.channel_c_coarse_tune);
+        xcpc_log_debug(format2, get_register_name(PSG_NOISE_PERIOD         ), self->state.regs.named.noise_period         );
+        xcpc_log_debug(format2, get_register_name(PSG_MIXER_AND_IO_CONTROL ), self->state.regs.named.mixer_and_io_control );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_A_VOLUME     ), self->state.regs.named.channel_a_volume     );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_B_VOLUME     ), self->state.regs.named.channel_b_volume     );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_C_VOLUME     ), self->state.regs.named.channel_c_volume     );
+        xcpc_log_debug(format2, get_register_name(PSG_ENVELOPE_FINE_TUNE   ), self->state.regs.named.envelope_fine_tune   );
+        xcpc_log_debug(format2, get_register_name(PSG_ENVELOPE_COARSE_TUNE ), self->state.regs.named.envelope_coarse_tune );
+        xcpc_log_debug(format2, get_register_name(PSG_ENVELOPE_SHAPE       ), self->state.regs.named.envelope_shape       );
+        xcpc_log_debug(format2, get_register_name(PSG_IO_PORT_A            ), self->state.regs.named.io_port_a            );
+        xcpc_log_debug(format2, get_register_name(PSG_IO_PORT_B            ), self->state.regs.named.io_port_b            );
     }
     return self;
 }
@@ -219,7 +248,7 @@ XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
     return self;
 }
 
-uint8_t xcpc_psg_8910_no_func(XcpcPsg8910* self, uint8_t data_bus)
+uint8_t xcpc_psg_8910_illegal(XcpcPsg8910* self, uint8_t data_bus)
 {
     return data_bus;
 }

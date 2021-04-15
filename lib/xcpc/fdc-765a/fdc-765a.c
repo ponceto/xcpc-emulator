@@ -133,21 +133,23 @@ XcpcFdc765a* xcpc_fdc_765a_attach(XcpcFdc765a* self, int drive)
 {
     log_trace("attach");
 
-    switch(drive) {
-        case XCPC_FDC_765A_DRIVE0:
-            (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd0_impl, drive);
-            break;
-        case XCPC_FDC_765A_DRIVE1:
-            (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd1_impl, drive);
-            break;
-        case XCPC_FDC_765A_DRIVE2:
-            (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd2_impl, drive);
-            break;
-        case XCPC_FDC_765A_DRIVE3:
-            (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd3_impl, drive);
-            break;
-        default:
-            break;
+    /* attach */ {
+        switch(drive) {
+            case XCPC_FDC_765A_DRIVE0:
+                (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd0_impl, drive);
+                break;
+            case XCPC_FDC_765A_DRIVE1:
+                (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd1_impl, drive);
+                break;
+            case XCPC_FDC_765A_DRIVE2:
+                (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd2_impl, drive);
+                break;
+            case XCPC_FDC_765A_DRIVE3:
+                (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, self->state.fd3_impl, drive);
+                break;
+            default:
+                break;
+        }
     }
     return self;
 }
@@ -156,21 +158,23 @@ XcpcFdc765a* xcpc_fdc_765a_detach(XcpcFdc765a* self, int drive)
 {
     log_trace("detach");
 
-    switch(drive) {
-        case XCPC_FDC_765A_DRIVE0:
-            (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
-            break;
-        case XCPC_FDC_765A_DRIVE1:
-            (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
-            break;
-        case XCPC_FDC_765A_DRIVE2:
-            (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
-            break;
-        case XCPC_FDC_765A_DRIVE3:
-            (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
-            break;
-        default:
-            break;
+    /* detach */ {
+        switch(drive) {
+            case XCPC_FDC_765A_DRIVE0:
+                (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
+                break;
+            case XCPC_FDC_765A_DRIVE1:
+                (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
+                break;
+            case XCPC_FDC_765A_DRIVE2:
+                (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
+                break;
+            case XCPC_FDC_765A_DRIVE3:
+                (void) xcpc_fdc_impl_set_drive(self->state.fdc_impl, NULL, drive);
+                break;
+            default:
+                break;
+        }
     }
     return self;
 }
@@ -179,21 +183,23 @@ XcpcFdc765a* xcpc_fdc_765a_insert(XcpcFdc765a* self, int drive, const char* file
 {
     log_trace("insert");
 
-    switch(drive) {
-        case XCPC_FDC_765A_DRIVE0:
-            (void) xcpc_fdd_impl_insert(self->state.fd0_impl, filename);
-            break;
-        case XCPC_FDC_765A_DRIVE1:
-            (void) xcpc_fdd_impl_insert(self->state.fd1_impl, filename);
-            break;
-        case XCPC_FDC_765A_DRIVE2:
-            (void) xcpc_fdd_impl_insert(self->state.fd2_impl, filename);
-            break;
-        case XCPC_FDC_765A_DRIVE3:
-            (void) xcpc_fdd_impl_insert(self->state.fd3_impl, filename);
-            break;
-        default:
-            break;
+    /* insert */ {
+        switch(drive) {
+            case XCPC_FDC_765A_DRIVE0:
+                (void) xcpc_fdd_impl_insert(self->state.fd0_impl, filename);
+                break;
+            case XCPC_FDC_765A_DRIVE1:
+                (void) xcpc_fdd_impl_insert(self->state.fd1_impl, filename);
+                break;
+            case XCPC_FDC_765A_DRIVE2:
+                (void) xcpc_fdd_impl_insert(self->state.fd2_impl, filename);
+                break;
+            case XCPC_FDC_765A_DRIVE3:
+                (void) xcpc_fdd_impl_insert(self->state.fd3_impl, filename);
+                break;
+            default:
+                break;
+        }
     }
     return self;
 }
@@ -202,48 +208,95 @@ XcpcFdc765a* xcpc_fdc_765a_remove(XcpcFdc765a* self, int drive)
 {
     log_trace("remove");
 
-    switch(drive) {
-        case XCPC_FDC_765A_DRIVE0:
-            (void) xcpc_fdd_impl_remove(self->state.fd0_impl);
-            break;
-        case XCPC_FDC_765A_DRIVE1:
-            (void) xcpc_fdd_impl_remove(self->state.fd1_impl);
-            break;
-        case XCPC_FDC_765A_DRIVE2:
-            (void) xcpc_fdd_impl_remove(self->state.fd2_impl);
-            break;
-        case XCPC_FDC_765A_DRIVE3:
-            (void) xcpc_fdd_impl_remove(self->state.fd3_impl);
-            break;
-        default:
-            break;
+    /* remove */ {
+        switch(drive) {
+            case XCPC_FDC_765A_DRIVE0:
+                (void) xcpc_fdd_impl_remove(self->state.fd0_impl);
+                break;
+            case XCPC_FDC_765A_DRIVE1:
+                (void) xcpc_fdd_impl_remove(self->state.fd1_impl);
+                break;
+            case XCPC_FDC_765A_DRIVE2:
+                (void) xcpc_fdd_impl_remove(self->state.fd2_impl);
+                break;
+            case XCPC_FDC_765A_DRIVE3:
+                (void) xcpc_fdd_impl_remove(self->state.fd3_impl);
+                break;
+            default:
+                break;
+        }
     }
     return self;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_set_motor(XcpcFdc765a* self, uint8_t motor)
+const char* xcpc_fdc_765a_filename(XcpcFdc765a* self, int drive, const char* filename)
 {
-    return ((void) xcpc_fdc_impl_set_motor(self->state.fdc_impl, motor), self);
+    log_trace("filename");
+
+    /* filename */ {
+        switch(drive) {
+            case XCPC_FDC_765A_DRIVE0:
+                (void) xcpc_fdd_impl_filename(self->state.fd0_impl, &filename);
+                break;
+            case XCPC_FDC_765A_DRIVE1:
+                (void) xcpc_fdd_impl_filename(self->state.fd1_impl, &filename);
+                break;
+            case XCPC_FDC_765A_DRIVE2:
+                (void) xcpc_fdd_impl_filename(self->state.fd2_impl, &filename);
+                break;
+            case XCPC_FDC_765A_DRIVE3:
+                (void) xcpc_fdd_impl_filename(self->state.fd3_impl, &filename);
+                break;
+            default:
+                break;
+        }
+    }
+    return filename;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_rd_stat(XcpcFdc765a* self, uint8_t* data)
+uint8_t xcpc_fdc_765a_set_motor(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_rd_stat(self->state.fdc_impl, data), self);
+    /* set motor */ {
+        (void) xcpc_fdc_impl_set_motor(self->state.fdc_impl, data);
+    }
+    return data;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_wr_stat(XcpcFdc765a* self, uint8_t* data)
+uint8_t xcpc_fdc_765a_illegal(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_wr_stat(self->state.fdc_impl, data), self);
+    return data;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_rd_data(XcpcFdc765a* self, uint8_t* data)
+uint8_t xcpc_fdc_765a_rd_stat(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_rd_data(self->state.fdc_impl, data), self);
+    /* read stat */ {
+        (void) xcpc_fdc_impl_rd_stat(self->state.fdc_impl, &data);
+    }
+    return data;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_wr_data(XcpcFdc765a* self, uint8_t* data)
+uint8_t xcpc_fdc_765a_wr_stat(XcpcFdc765a* self, uint8_t data)
 {
-    return ((void) xcpc_fdc_impl_wr_data(self->state.fdc_impl, data), self);
+    /* write stat */ {
+        (void) xcpc_fdc_impl_wr_stat(self->state.fdc_impl, &data);
+    }
+    return data;
+}
+
+uint8_t xcpc_fdc_765a_rd_data(XcpcFdc765a* self, uint8_t data)
+{
+    /* read data */ {
+        (void) xcpc_fdc_impl_rd_data(self->state.fdc_impl, &data);
+    }
+    return data;
+}
+
+uint8_t xcpc_fdc_765a_wr_data(XcpcFdc765a* self, uint8_t data)
+{
+    /* write data */ {
+        (void) xcpc_fdc_impl_wr_data(self->state.fdc_impl, &data);
+    }
+    return data;
 }
 
 XcpcFdcImpl* xcpc_fdc_impl_new(void)
@@ -347,6 +400,7 @@ XcpcFddImpl* xcpc_fdd_impl_delete(XcpcFddImpl* fdd_impl)
 XcpcFddImpl* xcpc_fdd_impl_reset(XcpcFddImpl* fdd_impl)
 {
     if(fdd_impl != NULL) {
+        fd_eject(fdd_impl);
         fd_reset(fdd_impl);
     }
     return fdd_impl;
@@ -369,6 +423,16 @@ XcpcFddImpl* xcpc_fdd_impl_remove(XcpcFddImpl* fdd_impl)
 {
     if(fdd_impl != NULL) {
         fd_eject(fdd_impl);
+    }
+    return fdd_impl;
+}
+
+XcpcFddImpl* xcpc_fdd_impl_filename(XcpcFddImpl* fdd_impl, const char** filename)
+{
+    if(fdd_impl != NULL) {
+        if(filename != NULL) {
+            *filename = fdl_getfilename(fdd_impl);
+        }
     }
     return fdd_impl;
 }

@@ -24,6 +24,22 @@
 #include <sys/time.h>
 #include "machine-priv.h"
 
+#if 0
+#define XCPC_DEBUG_IORQ
+#define XCPC_DEBUG_VGA_CORE
+#define XCPC_DEBUG_VDC_6845
+#define XCPC_DEBUG_PSG_8910
+#endif
+
+#ifdef XCPC_DEBUG_IORQ
+static void debug_iorq(const char* device, const char* reason, uint16_t port, uint8_t data)
+{
+    xcpc_log_debug("%s %04X : %s 0x%02x", device, port, reason, data);
+}
+#else
+#define debug_iorq(device, reason, port, data) do { (void)(port); (void)(data); } while(0)
+#endif
+
 static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcMachine::%s()", function);
@@ -102,10 +118,21 @@ static void compute_stats(XcpcMachine* self)
         self->stats.hsync    = 0;
         self->stats.vsync    = 0;
     }
+#ifdef XCPC_DEBUG_VGA_CORE
+    (void) xcpc_vga_core_debug(self->board.vga_core);
+#endif
+#ifdef XCPC_DEBUG_VDC_6845
+    (void) xcpc_vdc_6845_debug(self->board.vdc_6845);
+#endif
+#ifdef XCPC_DEBUG_PSG_8910
+    (void) xcpc_psg_8910_debug(self->board.psg_8910);
+#endif
 }
 
-static void cpc_mem_select(XcpcMachine* self)
+static void cpc_mem_select(XcpcMachine* self, uint8_t ram_conf, uint8_t rom_conf)
 {
+    self->pager.conf.ram = ram_conf;
+    self->pager.conf.rom = rom_conf;
     if(self->setup.memory_size >= XCPC_MEMORY_SIZE_128K) {
         switch(self->pager.conf.ram) {
             case 0x00:
@@ -256,69 +283,134 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     }
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd(0x%04x) : vga-core [---- illegal ----]", port);
+            const uint8_t function = ((data >> 6) & 3);
+            switch(function) {
+                case 0: /* select pen */
+                    {
+                        data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                        debug_iorq("vga-core", "set-pen (illegal read)", port, (data & 0xff));
+                    }
+                    break;
+                case 1: /* select ink */
+                    {
+                        data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                        debug_iorq("vga-core", "set-ink (illegal read)", port, (data & 0xff));
+                    }
+                    break;
+                case 2: /* interrupt control, rom configuration and screen mode */
+                    {
+                        data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                        debug_iorq("vga-core", "set-rmr (illegal read)", port, (data & 0xff));
+                    }
+                    break;
+                case 3: /* ram memory management */
+                    {
+                        data = xcpc_vga_core_illegal(self->board.vga_core, data);
+                        debug_iorq("ram-conf", "set-ram (illegal read)", port, (data & 0xff));
+                    }
+                    break;
+            }
         }
     }
     /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
         if((port & 0x4000) == 0) {
-            switch((port >> 8) & 3) {
+            const uint8_t function = ((port >> 8) & 3);
+            switch(function) {
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    {
+                        data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("vdc-6845", "set-addr (illegal read)", port, (data & 0xff));
+                    }
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    {
+                        data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("vdc-6845", "set-data (illegal read)", port, (data & 0xff));
+                    }
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : vdc-6845 [- not supported -]", port);
+                    {
+                        data = xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("vdc-6845", "get-addr (illegal read)", port, (data & 0xff));
+                    }
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
-                    data = xcpc_vdc_6845_rd(self->board.vdc_6845, 0xff);
+                    {
+                        data = xcpc_vdc_6845_rd_data(self->board.vdc_6845, data);
+                        debug_iorq("vdc-6845", "get-data", port, (data & 0xff));
+                    }
                     break;
             }
         }
     }
     /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
         if((port & 0x2000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd(0x%04x) : rom-conf [---- illegal ----]", port);
+            debug_iorq("rom-conf", "illegal read", port, (data & 0xff));
         }
     }
     /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
         if((port & 0x1000) == 0) {
-            xcpc_log_alert("cpu_iorq_rd(0x%04x) : prt-port [---- illegal ----]", port);
+            debug_iorq("prt-port", "get-data", port, (data & 0xff));
         }
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
         if((port & 0x0800) == 0) {
-            switch((port >> 8) & 3) {
+            const uint8_t function = ((port >> 8) & 3);
+            switch(function) {
                 case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
-                    data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
+                    {
+                        data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
+                        debug_iorq("ppi-8255", "get-port-a", port, (data & 0xff));
+                    }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
-                    data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
+                    {
+                        data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
+                        debug_iorq("ppi-8255", "get-port-b", port, (data & 0xff));
+                    }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
-                    data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
+                    {
+                        data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
+                        debug_iorq("ppi-8255", "get-port-c", port, (data & 0xff));
+                    }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : ppi-8255 [---- illegal ----]", port);
+                    {
+                        data = xcpc_ppi_8255_illegal(self->board.ppi_8255, data);
+                        debug_iorq("ppi-8255", "set-ctrl-p (illegal read)", port, (data & 0xff));
+                    }
                     break;
             }
         }
     }
     /* fdc-765a [-----0--0xxxxxxx] [0xfb7f] */ {
         if((port & 0x0480) == 0) {
-            switch(((port >> 7) & 2) | (port & 1)) {
+            const uint8_t function = (((port >> 7) & 2) | (port & 1));
+            switch(function) {
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
+                    {
+                        data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
+                        debug_iorq("fdc-765a", "set-motor (illegal read)", port, (data & 0xff));
+                    }
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
-                    xcpc_log_alert("cpu_iorq_rd(0x%04x) : fdc-765a [---- illegal ----]", port);
+                    {
+                        data = xcpc_fdc_765a_illegal(self->board.fdc_765a, data);
+                        debug_iorq("fdc-765a", "set-motor (illegal read)", port, (data & 0xff));
+                    }
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
-                    xcpc_fdc_765a_rd_stat(self->board.fdc_765a, &data);
+                    {
+                        data = xcpc_fdc_765a_rd_stat(self->board.fdc_765a, data);
+                        debug_iorq("fdc-765a", "get-stat", port, (data & 0xff));
+                    }
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
-                    xcpc_fdc_765a_rd_data(self->board.fdc_765a, &data);
+                    {
+                        data = xcpc_fdc_765a_rd_data(self->board.fdc_765a, data);
+                        debug_iorq("fdc-765a", "get-data", port, (data & 0xff));
+                    }
                     break;
             }
         }
@@ -332,88 +424,136 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
 
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
-            switch((data >> 6) & 3) {
-                case 0: /* Select pen */
-                    self->board.vga_core->state.pen = (data & 0x10 ? 0x10 : data & 0x0f);
-                    break;
-                case 1: /* Select color */
-                    self->board.vga_core->state.ink[self->board.vga_core->state.pen] = data & 0x1f;
-                    break;
-                case 2: /* Interrupt control, ROM configuration and screen mode */
-                    if((data & 0x10) != 0) {
-                        self->board.vga_core->state.counter = 0;
+            const uint8_t function = ((data >> 6) & 3);
+            switch(function) {
+                case 0: /* select pen */
+                    {
+                        (void) xcpc_vga_core_set_pen(self->board.vga_core, data);
+                        debug_iorq("vga-core", "set-pen", port, (data & 0x1f));
                     }
-                    self->board.vga_core->state.rmr = data & 0x1f;
-                    cpc_mem_select(self);
                     break;
-                case 3: /* RAM memory management */
-                    self->pager.conf.ram = data & 0x3f;
-                    cpc_mem_select(self);
+                case 1: /* select ink */
+                    {
+                        (void) xcpc_vga_core_set_ink(self->board.vga_core, data);
+                        debug_iorq("vga-core", "set-ink", port, (data & 0x1f));
+                    }
+                    break;
+                case 2: /* interrupt control, rom configuration and screen mode */
+                    {
+                        (void) xcpc_vga_core_set_rmr(self->board.vga_core, data);
+                        cpc_mem_select(self, self->pager.conf.ram, self->pager.conf.rom);
+                        debug_iorq("vga-core", "set-rmr", port, (data & 0x1f));
+                    }
+                    break;
+                case 3: /* ram memory management */
+                    {
+                        cpc_mem_select(self, (data & 0x3f), self->pager.conf.rom);
+                        debug_iorq("ram-conf", "set-ram", port, (data & 0x1f));
+                    }
                     break;
             }
         }
     }
     /* vdc-6845 [-0------xxxxxxxx] [0xbfxx] */ {
         if((port & 0x4000) == 0) {
-            switch((port >> 8) & 3) {
+            const uint8_t function = ((port >> 8) & 3);
+            switch(function) {
                 case 0: /* [-0----00xxxxxxxx] [0xbcxx] */
-                    xcpc_vdc_6845_rs(self->board.vdc_6845, data);
+                    {
+                        (void) xcpc_vdc_6845_wr_addr(self->board.vdc_6845, data);
+                        debug_iorq("vdc-6845", "set-addr", port, (data & 0xff));
+                    }
                     break;
                 case 1: /* [-0----01xxxxxxxx] [0xbdxx] */
-                    xcpc_vdc_6845_wr(self->board.vdc_6845, data);
+                    {
+                        (void) xcpc_vdc_6845_wr_data(self->board.vdc_6845, data);
+                        debug_iorq("vdc-6845", "set-data", port, (data & 0xff));
+                    }
                     break;
                 case 2: /* [-0----10xxxxxxxx] [0xbexx] */
-                    xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [- not supported -]", port);
+                    {
+                        (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("vdc-6845", "get-addr (illegal write)", port, (data & 0xff));
+                    }
                     break;
                 case 3: /* [-0----11xxxxxxxx] [0xbfxx] */
-                    xcpc_log_alert("cpu_iorq_wr(0x%04x) : vdc-6845 [---- illegal ----]", port);
+                    {
+                        (void) xcpc_vdc_6845_illegal(self->board.vdc_6845, data);
+                        debug_iorq("vdc-6845", "get-data (illegal write)", port, (data & 0xff));
+                    }
                     break;
             }
         }
     }
     /* rom-conf [--0-----xxxxxxxx] [0xdfxx] */ {
         if((port & 0x2000) == 0) {
-            self->pager.conf.rom = data;
-            cpc_mem_select(self);
+            cpc_mem_select(self, self->pager.conf.ram, (data & 0xff));
+            debug_iorq("rom-conf", "set-rom", port, (data & 0xff));
         }
     }
     /* prt-port [---0----xxxxxxxx] [0xefxx] */ {
         if((port & 0x1000) == 0) {
-            /* xxx */
+            debug_iorq("prt-port", "set-data", port, (data & 0xff));
         }
     }
     /* ppi-8255 [----0---xxxxxxxx] [0xf7xx] */ {
         if((port & 0x0800) == 0) {
-            switch((port >> 8) & 3) {
+            const uint8_t function = ((port >> 8) & 3);
+            switch(function) {
                 case 0: /* [----0-00xxxxxxxx] [0xf4xx] */
-                    (void) xcpc_ppi_8255_wr_port_a(self->board.ppi_8255, data);
+                    {
+                        (void) xcpc_ppi_8255_wr_port_a(self->board.ppi_8255, data);
+                        debug_iorq("ppi-8255", "set-port-a", port, (data & 0xff));
+                    }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
-                    (void) xcpc_ppi_8255_wr_port_b(self->board.ppi_8255, data);
+                    {
+                        (void) xcpc_ppi_8255_wr_port_b(self->board.ppi_8255, data);
+                        debug_iorq("ppi-8255", "set-port-b", port, (data & 0xff));
+                    }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
-                    (void) xcpc_ppi_8255_wr_port_c(self->board.ppi_8255, data);
+                    {
+                        (void) xcpc_ppi_8255_wr_port_c(self->board.ppi_8255, data);
+                        debug_iorq("ppi-8255", "set-port-c", port, (data & 0xff));
+                    }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
-                    (void) xcpc_ppi_8255_wr_ctrl_p(self->board.ppi_8255, data);
+                    {
+                        (void) xcpc_ppi_8255_wr_ctrl_p(self->board.ppi_8255, data);
+                        debug_iorq("ppi-8255", "set-ctrl-p", port, (data & 0xff));
+                    }
                     break;
             }
         }
     }
     /* fdc-765a [-----0--0xxxxxxx] [0xfb7f] */ {
         if((port & 0x0480) == 0) {
-            switch(((port >> 7) & 2) | ((port >> 0) & 1)) {
+            const uint8_t function = (((port >> 7) & 2) | ((port >> 0) & 1));
+            switch(function) {
                 case 0: /* [-----0-00xxxxxx0] [0xfa7e] */
-                    xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    {
+                        (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, (((data & 1) << 1) | ((data & 1) << 0)));
+                        debug_iorq("fdc-765a", "set-motor", port, (data & 0xff));
+                    }
                     break;
                 case 1: /* [-----0-00xxxxxx1] [0xfa7f] */
-                    xcpc_fdc_765a_set_motor(self->board.fdc_765a, ((data & 1) << 1) | ((data & 1) << 0));
+                    {
+                        (void) xcpc_fdc_765a_set_motor(self->board.fdc_765a, (((data & 1) << 1) | ((data & 1) << 0)));
+                        debug_iorq("fdc-765a", "set-motor", port, (data & 0xff));
+                    }
                     break;
                 case 2: /* [-----0-10xxxxxx0] [0xfb7e] */
-                    xcpc_fdc_765a_wr_stat(self->board.fdc_765a, &data);
+                    {
+                        (void) xcpc_fdc_765a_wr_stat(self->board.fdc_765a, data);
+                        debug_iorq("fdc-765a", "set-stat", port, (data & 0xff));
+                    }
                     break;
                 case 3: /* [-----0-10xxxxxx1] [0xfb7f] */
-                    xcpc_fdc_765a_wr_data(self->board.fdc_765a, &data);
+                    {
+                        (void) xcpc_fdc_765a_wr_data(self->board.fdc_765a, data);
+                        debug_iorq("fdc-765a", "set-DATA", port, (data & 0xff));
+                    }
                     break;
             }
         }
@@ -436,24 +576,9 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     if((self->state.hsync = hsync) != 0) {
         const unsigned int last_scanline = countof(self->frame.scanline_array) - 1;
         /* rising edge */ {
+            ++self->stats.hsync;
             if(++self->frame.beam_y > last_scanline) {
                 self->frame.beam_y = last_scanline;
-            }
-        }
-    }
-    else {
-        /* falling edge */ {
-            if(++vga_core->state.counter == 52) {
-                xcpc_cpu_z80a_pulse_int(cpu_z80a);
-                vga_core->state.counter = 0;
-            }
-            if(vga_core->state.delayed > 0) {
-                if(--vga_core->state.delayed == 0) {
-                    if(vga_core->state.counter >= 32) {
-                        xcpc_cpu_z80a_pulse_int(cpu_z80a);
-                    }
-                    vga_core->state.counter = 0;
-                }
             }
             /* update scanline */ {
                 XcpcScanline* scanline = &self->frame.scanline_array[self->frame.beam_y];
@@ -470,7 +595,23 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
                     } while(++index < 17);
                 }
             }
-            ++self->stats.hsync;
+        }
+    }
+    else {
+        /* falling edge */ {
+            ++vga_core->state.counter;
+            if(vga_core->state.delayed == 0) {
+                if(vga_core->state.counter == 52) {
+                    xcpc_cpu_z80a_pulse_int(cpu_z80a);
+                    vga_core->state.counter = 0;
+                }
+            }
+            else if(--vga_core->state.delayed == 0) {
+                if(vga_core->state.counter >= 32) {
+                    xcpc_cpu_z80a_pulse_int(cpu_z80a);
+                }
+                vga_core->state.counter = 0;
+            }
         }
     }
     return 0x00;
@@ -482,13 +623,13 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 
     if((self->state.vsync = vsync) != 0) {
         /* rising edge */ {
+            ++self->stats.vsync;
             self->board.vga_core->state.delayed = 2;
         }
     }
     else {
         /* falling edge */ {
-            self->frame.beam_y &= 0;
-            ++self->stats.vsync;
+            self->frame.beam_y = 0;
         }
     }
     return 0x00;
@@ -503,18 +644,18 @@ static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
                                    | (self->state.psg_bc2  << 1)
                                    | (self->state.psg_bc1  << 0)
                                    ;
+        data = self->state.psg_data;
         switch(psg_function & 0x07) {
             case 0x03: /* read from psg */
-                data = xcpc_psg_8910_rd_data(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_rd_data(self->board.psg_8910, data);
                 break;
             case 0x06: /* write to psg  */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, data);
                 break;
             case 0x07: /* latch address */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, data);
                 break;
             default:   /* inactive      */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (data = self->state.psg_data));
                 break;
         }
     }
@@ -530,18 +671,18 @@ static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
                                    | (self->state.psg_bc2  << 1)
                                    | (self->state.psg_bc1  << 0)
                                    ;
+        self->state.psg_data = data;
         switch(psg_function & 0x07) {
             case 0x03: /* read from psg */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (self->state.psg_data = data));
+                data = xcpc_psg_8910_illegal(self->board.psg_8910, data);
                 break;
             case 0x06: /* write to psg  */
-                data = xcpc_psg_8910_wr_data(self->board.psg_8910, (self->state.psg_data = data));
+                data = xcpc_psg_8910_wr_data(self->board.psg_8910, data);
                 break;
             case 0x07: /* latch address */
-                data = xcpc_psg_8910_wr_addr(self->board.psg_8910, (self->state.psg_data = data));
+                data = xcpc_psg_8910_wr_addr(self->board.psg_8910, data);
                 break;
             default:   /* inactive      */
-                data = xcpc_psg_8910_no_func(self->board.psg_8910, (self->state.psg_data = data));
                 break;
         }
     }
@@ -615,7 +756,6 @@ static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
                 (void) xcpc_psg_8910_wr_addr(self->board.psg_8910, self->state.psg_data);
                 break;
             default:   /* inactive      */
-                (void) xcpc_psg_8910_no_func(self->board.psg_8910, self->state.psg_data);
                 break;
         }
     }
@@ -657,379 +797,379 @@ static void paint_08bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd = (vdc_6845->state.regs.named.horizontal_displayed <= 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int const hs = (((ht - hd) * 16) / 2);
-    unsigned int const mr = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd = (vdc_6845->state.regs.named.vertical_displayed <= 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int const vs = (((vt - vd) * mr) / 2);
-    unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
-    uint8_t* image = (uint8_t*) monitor->state.image->data;
-    uint8_t* curr_line;
-    uint8_t* next_line;
-    uint8_t pixel1;
-    uint8_t pixel2;
-    unsigned int row;
-    unsigned int col;
-    unsigned int ras;
-    unsigned int remain = monitor->state.image->height;
+    XImage*       ximage   = monitor->state.image;
+    const uint8_t* const mode0 = vga_core->setup.mode0;
+    const uint8_t* const mode1 = vga_core->setup.mode1;
+    const uint8_t* const mode2 = vga_core->setup.mode2;
+    const uint8_t* const ram[4] = {
+        self->board.ram_bank[0]->state.data,
+        self->board.ram_bank[1]->state.data,
+        self->board.ram_bank[2]->state.data,
+        self->board.ram_bank[3]->state.data,
+    };
+    const XcpcHorzProps h = {
+        /* cw  : pixels */ (16),
+        /* ht  : chars  */ (1 + (vdc_6845->state.regs.named.horizontal_total     < 63 ? vdc_6845->state.regs.named.horizontal_total     : 63)),
+        /* hd  : chars  */ (0 + (vdc_6845->state.regs.named.horizontal_displayed < 52 ? vdc_6845->state.regs.named.horizontal_displayed : 52)),
+        /* hsp : chars  */ (0 + (vdc_6845->state.regs.named.horizontal_sync_position)),
+        /* hsw : pixels */ (0 + (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f) << 4)),
+    };
+    const XcpcVertProps v = {
+        /* ch  : pixels */ (1 + (vdc_6845->state.regs.named.maximum_scanline_address)),
+        /* vt  : chars  */ (1 + (vdc_6845->state.regs.named.vertical_total     < 40 ? vdc_6845->state.regs.named.vertical_total     : 40)),
+        /* vd  : chars  */ (0 + (vdc_6845->state.regs.named.vertical_displayed < 40 ? vdc_6845->state.regs.named.vertical_displayed : 40)),
+        /* vsp : chars  */ (0 + (vdc_6845->state.regs.named.vertical_sync_position)),
+        /* vsw : pixels */ (0 + (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f) << 0)),
+    };
+    const XcpcBorders b = {
+        /* top : pixels */ ((v.ch * (v.vt - v.vsp)) - (v.vsw != 0 ? v.vsw :  16)),
+        /* bot : pixels */ ((v.ch * (v.vsp - v.vd)) + (v.vsw != 0 ? v.vsw :  16)),
+        /* lft : pixels */ ((h.cw * (h.ht - h.hsp)) - (h.hsw != 0 ? h.hsw : 256)),
+        /* rgt : pixels */ ((h.cw * (h.hsp - h.hd)) + (h.hsw != 0 ? h.hsw : 256)),
+    };
+    unsigned int address = ((vdc_6845->state.regs.named.start_address_high << 8) | (vdc_6845->state.regs.named.start_address_low  << 0));
+    const unsigned int rowstride  = ximage->bytes_per_line;
+    int                remaining_lines = ximage->height;
+    uint8_t* data_iter = XCPC_BYTE_PTR(ximage->data);
+    uint8_t* this_line = NULL;
+    uint8_t* next_line = NULL;
+    uint8_t  pixel1    = 0;
+    uint8_t  pixel2    = 0;
+    int      row       = 0;
+    int      col       = 0;
+    int      ras       = 0;
 
-    /* top border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
-            if(remain < 2) {
+    /* vertical top border */ {
+        const int rows = b.top;
+        const int cols = h.ht * h.cw;
+        for(row = 0; row < rows; ++row) {
+            if(remaining_lines >= 2) {
+                this_line = data_iter;
+                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                next_line = data_iter;
+                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                pixel1 = scanline->color[16].pixel1;
+                pixel2 = scanline->color[16].pixel2;
+                remaining_lines -= 2;
+            }
+            else {
                 break;
             }
-            curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
-            next_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
-            pixel1 = scanline->color[16].pixel1;
-            pixel2 = scanline->color[16].pixel2;
             for(col = 0; col < cols; ++col) {
-                *curr_line++ = pixel1;
+                *this_line++ = pixel1;
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
         }
     }
-    /* active display */ {
-        for(row = 0; row < vd; ++row) {
-            for(ras = 0; ras < mr; ++ras) {
-                if(remain < 2) {
+    /* vertical active display */ {
+        const int rows = v.vd;
+        const int cols = h.hd;
+        const int rass = v.ch;
+        const int lfts = b.lft;
+        const int rgts = b.rgt;
+        for(row = 0; row < rows; ++row) {
+            for(ras = 0; ras < rass; ++ras) {
+                if(remaining_lines >= 2) {
+                    this_line = data_iter;
+                    data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    next_line = data_iter;
+                    data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    remaining_lines -= 2;
+                }
+                else {
                     break;
                 }
-                curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
-                next_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
-                switch(scanline->mode) {
-                    case 0x00: /* mode 0 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                /* horizontal left border */ {
+                    pixel1 = scanline->color[16].pixel1;
+                    pixel2 = scanline->color[16].pixel2;
+                    for(col = 0; col < lfts; ++col) {
+                        *this_line++ = pixel1;
+                        *next_line++ = pixel2;
+                    }
+                }
+                /* horizontal active display */ {
+                    switch(scanline->mode) {
+                        case 0x00: /* mode 0 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode0[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode0[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode0[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode0[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
-                    case 0x01: /* mode 1 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                            break;
+                        case 0x01: /* mode 1 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode1[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode1[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode1[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode1[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
-                    case 0x02: /* mode 2 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                            break;
+                        case 0x02: /* mode 2 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode2[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode2[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 4 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 5 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 6 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 7 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 4 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 5 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 6 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 7 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode2[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 4 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 5 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 6 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 7 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode2[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 4 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 5 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 6 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 7 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
+                            break;
+                        default:
+                            xcpc_log_alert("mode %d is not supported", scanline->mode);
+                            break;
+                    }
+                }
+                /* horizontal right border */ {
+                    pixel1 = scanline->color[16].pixel1;
+                    pixel2 = scanline->color[16].pixel2;
+                    for(col = 0; col < rgts; ++col) {
+                        *this_line++ = pixel1;
+                        *next_line++ = pixel2;
+                    }
                 }
                 ++scanline;
-                remain -= 2;
             }
-            sa += hd;
+            address += h.hd;
         }
     }
-    /* bottom border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
-            if(remain < 2) {
+    /* vertical bottom border */ {
+        const int rows = b.bot;
+        const int cols = h.ht * h.cw;
+        for(row = 0; row < rows; ++row) {
+            if(remaining_lines >= 2) {
+                this_line = data_iter;
+                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                next_line = data_iter;
+                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                pixel1 = scanline->color[16].pixel1;
+                pixel2 = scanline->color[16].pixel2;
+                remaining_lines -= 2;
+            }
+            else {
                 break;
             }
-            curr_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
-            next_line = image; image = ((uint8_t*)(((uint8_t*)(image)) + bytes_per_line));
-            pixel1 = scanline->color[16].pixel1;
-            pixel2 = scanline->color[16].pixel2;
             for(col = 0; col < cols; ++col) {
-                *curr_line++ = pixel1;
+                *this_line++ = pixel1;
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
         }
     }
     /* put image */ {
@@ -1043,379 +1183,379 @@ static void paint_16bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd = (vdc_6845->state.regs.named.horizontal_displayed <= 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int const hs = (((ht - hd) * 16) / 2);
-    unsigned int const mr = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd = (vdc_6845->state.regs.named.vertical_displayed <= 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int const vs = (((vt - vd) * mr) / 2);
-    unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
-    uint16_t* image = (uint16_t*) monitor->state.image->data;
-    uint16_t* curr_line;
-    uint16_t* next_line;
-    uint16_t pixel1;
-    uint16_t pixel2;
-    unsigned int row;
-    unsigned int col;
-    unsigned int ras;
-    unsigned int remain = monitor->state.image->height;
+    XImage*       ximage   = monitor->state.image;
+    const uint8_t* const mode0 = vga_core->setup.mode0;
+    const uint8_t* const mode1 = vga_core->setup.mode1;
+    const uint8_t* const mode2 = vga_core->setup.mode2;
+    const uint8_t* const ram[4] = {
+        self->board.ram_bank[0]->state.data,
+        self->board.ram_bank[1]->state.data,
+        self->board.ram_bank[2]->state.data,
+        self->board.ram_bank[3]->state.data,
+    };
+    const XcpcHorzProps h = {
+        /* cw  : pixels */ (16),
+        /* ht  : chars  */ (1 + (vdc_6845->state.regs.named.horizontal_total     < 63 ? vdc_6845->state.regs.named.horizontal_total     : 63)),
+        /* hd  : chars  */ (0 + (vdc_6845->state.regs.named.horizontal_displayed < 52 ? vdc_6845->state.regs.named.horizontal_displayed : 52)),
+        /* hsp : chars  */ (0 + (vdc_6845->state.regs.named.horizontal_sync_position)),
+        /* hsw : pixels */ (0 + (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f) << 4)),
+    };
+    const XcpcVertProps v = {
+        /* ch  : pixels */ (1 + (vdc_6845->state.regs.named.maximum_scanline_address)),
+        /* vt  : chars  */ (1 + (vdc_6845->state.regs.named.vertical_total     < 40 ? vdc_6845->state.regs.named.vertical_total     : 40)),
+        /* vd  : chars  */ (0 + (vdc_6845->state.regs.named.vertical_displayed < 40 ? vdc_6845->state.regs.named.vertical_displayed : 40)),
+        /* vsp : chars  */ (0 + (vdc_6845->state.regs.named.vertical_sync_position)),
+        /* vsw : pixels */ (0 + (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f) << 0)),
+    };
+    const XcpcBorders b = {
+        /* top : pixels */ ((v.ch * (v.vt - v.vsp)) - (v.vsw != 0 ? v.vsw :  16)),
+        /* bot : pixels */ ((v.ch * (v.vsp - v.vd)) + (v.vsw != 0 ? v.vsw :  16)),
+        /* lft : pixels */ ((h.cw * (h.ht - h.hsp)) - (h.hsw != 0 ? h.hsw : 256)),
+        /* rgt : pixels */ ((h.cw * (h.hsp - h.hd)) + (h.hsw != 0 ? h.hsw : 256)),
+    };
+    unsigned int address = ((vdc_6845->state.regs.named.start_address_high << 8) | (vdc_6845->state.regs.named.start_address_low  << 0));
+    const unsigned int rowstride  = ximage->bytes_per_line;
+    int                remaining_lines = ximage->height;
+    uint16_t* data_iter = XCPC_WORD_PTR(ximage->data);
+    uint16_t* this_line = NULL;
+    uint16_t* next_line = NULL;
+    uint16_t  pixel1    = 0;
+    uint16_t  pixel2    = 0;
+    int       row       = 0;
+    int       col       = 0;
+    int       ras       = 0;
 
-    /* top border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
-            if(remain < 2) {
+    /* vertical top border */ {
+        const int rows = b.top;
+        const int cols = h.ht * h.cw;
+        for(row = 0; row < rows; ++row) {
+            if(remaining_lines >= 2) {
+                this_line = data_iter;
+                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                next_line = data_iter;
+                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                pixel1 = scanline->color[16].pixel1;
+                pixel2 = scanline->color[16].pixel2;
+                remaining_lines -= 2;
+            }
+            else {
                 break;
             }
-            curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
-            next_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
-            pixel1 = scanline->color[16].pixel1;
-            pixel2 = scanline->color[16].pixel2;
             for(col = 0; col < cols; ++col) {
-                *curr_line++ = pixel1;
+                *this_line++ = pixel1;
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
         }
     }
-    /* active display */ {
-        for(row = 0; row < vd; ++row) {
-            for(ras = 0; ras < mr; ++ras) {
-                if(remain < 2) {
+    /* vertical active display */ {
+        const int rows = v.vd;
+        const int cols = h.hd;
+        const int rass = v.ch;
+        const int lfts = b.lft;
+        const int rgts = b.rgt;
+        for(row = 0; row < rows; ++row) {
+            for(ras = 0; ras < rass; ++ras) {
+                if(remaining_lines >= 2) {
+                    this_line = data_iter;
+                    data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    next_line = data_iter;
+                    data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    remaining_lines -= 2;
+                }
+                else {
                     break;
                 }
-                curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
-                next_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
-                switch(scanline->mode) {
-                    case 0x00: /* mode 0 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                /* horizontal left border */ {
+                    pixel1 = scanline->color[16].pixel1;
+                    pixel2 = scanline->color[16].pixel2;
+                    for(col = 0; col < lfts; ++col) {
+                        *this_line++ = pixel1;
+                        *next_line++ = pixel2;
+                    }
+                }
+                /* horizontal active display */ {
+                    switch(scanline->mode) {
+                        case 0x00: /* mode 0 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode0[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode0[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode0[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode0[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
-                    case 0x01: /* mode 1 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                            break;
+                        case 0x01: /* mode 1 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode1[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode1[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode1[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode1[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
-                    case 0x02: /* mode 2 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                            break;
+                        case 0x02: /* mode 2 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode2[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode2[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 4 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 5 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 6 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 7 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 4 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 5 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 6 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 7 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode2[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 4 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 5 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 6 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 7 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode2[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 4 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 5 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 6 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 7 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
+                            break;
+                        default:
+                            xcpc_log_alert("mode %d is not supported", scanline->mode);
+                            break;
+                    }
+                }
+                /* horizontal right border */ {
+                    pixel1 = scanline->color[16].pixel1;
+                    pixel2 = scanline->color[16].pixel2;
+                    for(col = 0; col < rgts; ++col) {
+                        *this_line++ = pixel1;
+                        *next_line++ = pixel2;
+                    }
                 }
                 ++scanline;
-                remain -= 2;
             }
-            sa += hd;
+            address += h.hd;
         }
     }
-    /* bottom border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
-            if(remain < 2) {
+    /* vertical bottom border */ {
+        const int rows = b.bot;
+        const int cols = h.ht * h.cw;
+        for(row = 0; row < rows; ++row) {
+            if(remaining_lines >= 2) {
+                this_line = data_iter;
+                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                next_line = data_iter;
+                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                pixel1 = scanline->color[16].pixel1;
+                pixel2 = scanline->color[16].pixel2;
+                remaining_lines -= 2;
+            }
+            else {
                 break;
             }
-            curr_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
-            next_line = image; image = ((uint16_t*)(((uint8_t*)(image)) + bytes_per_line));
-            pixel1 = scanline->color[16].pixel1;
-            pixel2 = scanline->color[16].pixel2;
             for(col = 0; col < cols; ++col) {
-                *curr_line++ = pixel1;
+                *this_line++ = pixel1;
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
         }
     }
     /* put image */ {
@@ -1429,379 +1569,379 @@ static void paint_32bpp(XcpcMachine* self)
     XcpcVdc6845*  vdc_6845 = self->board.vdc_6845;
     XcpcVgaCore*  vga_core = self->board.vga_core;
     XcpcScanline* scanline = self->frame.scanline_array;
-    unsigned int       sa = ((vdc_6845->state.regs.named.start_address_high << 8) | vdc_6845->state.regs.named.start_address_low);
-    unsigned int const ht = (vdc_6845->state.regs.named.horizontal_total + 1);
-    unsigned int const hd = (vdc_6845->state.regs.named.horizontal_displayed <= 48 ? vdc_6845->state.regs.named.horizontal_displayed : 48);
-    unsigned int const hs = (((ht - hd) * 16) / 2);
-    unsigned int const mr = (vdc_6845->state.regs.named.maximum_scanline_address + 1);
-    unsigned int const vt = (vdc_6845->state.regs.named.vertical_total + 1);
-    unsigned int const vd = (vdc_6845->state.regs.named.vertical_displayed <= 39 ? vdc_6845->state.regs.named.vertical_displayed : 39);
-    unsigned int const vs = (((vt - vd) * mr) / 2);
-    unsigned int const bytes_per_line = monitor->state.image->bytes_per_line;
-    uint32_t* image = (uint32_t*) monitor->state.image->data;
-    uint32_t* curr_line;
-    uint32_t* next_line;
-    uint32_t pixel1;
-    uint32_t pixel2;
-    unsigned int row;
-    unsigned int col;
-    unsigned int ras;
-    unsigned int remain = monitor->state.image->height;
+    XImage*       ximage   = monitor->state.image;
+    const uint8_t* const mode0 = vga_core->setup.mode0;
+    const uint8_t* const mode1 = vga_core->setup.mode1;
+    const uint8_t* const mode2 = vga_core->setup.mode2;
+    const uint8_t* const ram[4] = {
+        self->board.ram_bank[0]->state.data,
+        self->board.ram_bank[1]->state.data,
+        self->board.ram_bank[2]->state.data,
+        self->board.ram_bank[3]->state.data,
+    };
+    const XcpcHorzProps h = {
+        /* cw  : pixels */ (16),
+        /* ht  : chars  */ (1 + (vdc_6845->state.regs.named.horizontal_total     < 63 ? vdc_6845->state.regs.named.horizontal_total     : 63)),
+        /* hd  : chars  */ (0 + (vdc_6845->state.regs.named.horizontal_displayed < 52 ? vdc_6845->state.regs.named.horizontal_displayed : 52)),
+        /* hsp : chars  */ (0 + (vdc_6845->state.regs.named.horizontal_sync_position)),
+        /* hsw : pixels */ (0 + (((vdc_6845->state.regs.named.sync_width >> 0) & 0x0f) << 4)),
+    };
+    const XcpcVertProps v = {
+        /* ch  : pixels */ (1 + (vdc_6845->state.regs.named.maximum_scanline_address)),
+        /* vt  : chars  */ (1 + (vdc_6845->state.regs.named.vertical_total     < 40 ? vdc_6845->state.regs.named.vertical_total     : 40)),
+        /* vd  : chars  */ (0 + (vdc_6845->state.regs.named.vertical_displayed < 40 ? vdc_6845->state.regs.named.vertical_displayed : 40)),
+        /* vsp : chars  */ (0 + (vdc_6845->state.regs.named.vertical_sync_position)),
+        /* vsw : pixels */ (0 + (((vdc_6845->state.regs.named.sync_width >> 4) & 0x0f) << 0)),
+    };
+    const XcpcBorders b = {
+        /* top : pixels */ ((v.ch * (v.vt - v.vsp)) - (v.vsw != 0 ? v.vsw :  16)),
+        /* bot : pixels */ ((v.ch * (v.vsp - v.vd)) + (v.vsw != 0 ? v.vsw :  16)),
+        /* lft : pixels */ ((h.cw * (h.ht - h.hsp)) - (h.hsw != 0 ? h.hsw : 256)),
+        /* rgt : pixels */ ((h.cw * (h.hsp - h.hd)) + (h.hsw != 0 ? h.hsw : 256)),
+    };
+    unsigned int address = ((vdc_6845->state.regs.named.start_address_high << 8) | (vdc_6845->state.regs.named.start_address_low  << 0));
+    const unsigned int rowstride  = ximage->bytes_per_line;
+    int                remaining_lines = ximage->height;
+    uint32_t* data_iter = XCPC_LONG_PTR(ximage->data);
+    uint32_t* this_line = NULL;
+    uint32_t* next_line = NULL;
+    uint32_t  pixel1    = 0;
+    uint32_t  pixel2    = 0;
+    int       row       = 0;
+    int       col       = 0;
+    int       ras       = 0;
 
-    /* top border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
-            if(remain < 2) {
+    /* vertical top border */ {
+        const int rows = b.top;
+        const int cols = h.ht * h.cw;
+        for(row = 0; row < rows; ++row) {
+            if(remaining_lines >= 2) {
+                this_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                next_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                pixel1 = scanline->color[16].pixel1;
+                pixel2 = scanline->color[16].pixel2;
+                remaining_lines -= 2;
+            }
+            else {
                 break;
             }
-            curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
-            next_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
-            pixel1 = scanline->color[16].pixel1;
-            pixel2 = scanline->color[16].pixel2;
             for(col = 0; col < cols; ++col) {
-                *curr_line++ = pixel1;
+                *this_line++ = pixel1;
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
         }
     }
-    /* active display */ {
-        for(row = 0; row < vd; ++row) {
-            for(ras = 0; ras < mr; ++ras) {
-                if(remain < 2) {
+    /* vertical active display */ {
+        const int rows = v.vd;
+        const int cols = h.hd;
+        const int rass = v.ch;
+        const int lfts = b.lft;
+        const int rgts = b.rgt;
+        for(row = 0; row < rows; ++row) {
+            for(ras = 0; ras < rass; ++ras) {
+                if(remaining_lines >= 2) {
+                    this_line = data_iter;
+                    data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    next_line = data_iter;
+                    data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    remaining_lines -= 2;
+                }
+                else {
                     break;
                 }
-                curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
-                next_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
-                switch(scanline->mode) {
-                    case 0x00: /* mode 0 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                /* horizontal left border */ {
+                    pixel1 = scanline->color[16].pixel1;
+                    pixel2 = scanline->color[16].pixel2;
+                    for(col = 0; col < lfts; ++col) {
+                        *this_line++ = pixel1;
+                        *next_line++ = pixel2;
+                    }
+                }
+                /* horizontal active display */ {
+                    switch(scanline->mode) {
+                        case 0x00: /* mode 0 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode0[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode0[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode0[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x0f].pixel1;
-                                        pixel2 = scanline->color[data & 0x0f].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 4;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode0[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x0f].pixel1;
+                                            pixel2 = scanline->color[byte & 0x0f].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 4;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
-                    case 0x01: /* mode 1 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                            break;
+                        case 0x01: /* mode 1 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode1[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode1[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode1[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x03].pixel1;
-                                        pixel2 = scanline->color[data & 0x03].pixel2;
-                                        *curr_line++ = pixel1; *curr_line++ = pixel1;
-                                        *next_line++ = pixel2; *next_line++ = pixel2;
-                                        data >>= 2;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode1[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x03].pixel1;
+                                            pixel2 = scanline->color[byte & 0x03].pixel2;
+                                            *this_line++ = pixel1; *this_line++ = pixel1;
+                                            *next_line++ = pixel2; *next_line++ = pixel2;
+                                            byte >>= 2;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
-                    case 0x02: /* mode 2 */
-                        {
-                            /* left border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                            /* active display */ {
-                                for(col = 0; col < hd; ++col) {
-                                    uint16_t const addr = ((sa & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((sa + col) & 0x03ff) << 1);
+                            break;
+                        case 0x02: /* mode 2 */
+                            {
+                                for(col = 0; col < cols; ++col) {
+                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     uint16_t const bank = ((addr >> 14) & 0x0003);
                                     uint16_t const disp = ((addr >>  0) & 0x3fff);
-                                    uint8_t        data;
-                                    /* fetch 1st byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 0];
-                                        data = vga_core->state.mode2[data];
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode2[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 4 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 5 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 6 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 7 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
                                     }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 4 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 5 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 6 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 7 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* fetch 2nd byte */ {
-                                        data = self->board.ram_bank[bank]->state.data[disp | 1];
-                                        data = vga_core->state.mode2[data];
-                                    }
-                                    /* pixel 0 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 1 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 2 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 3 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 4 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 5 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 6 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
-                                    }
-                                    /* pixel 7 */ {
-                                        pixel1 = scanline->color[data & 0x01].pixel1;
-                                        pixel2 = scanline->color[data & 0x01].pixel2;
-                                        *curr_line++ = pixel1;
-                                        *next_line++ = pixel2;
-                                        data >>= 1;
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode2[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 4 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 5 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 6 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 7 */ {
+                                            pixel1 = scanline->color[byte & 0x01].pixel1;
+                                            pixel2 = scanline->color[byte & 0x01].pixel2;
+                                            *this_line++ = pixel1;
+                                            *next_line++ = pixel2;
+                                            byte >>= 1;
+                                        }
                                     }
                                 }
                             }
-                            /* right border */ {
-                                pixel1 = scanline->color[16].pixel1;
-                                pixel2 = scanline->color[16].pixel2;
-                                for(col = 0; col < hs; ++col) {
-                                    *curr_line++ = pixel1;
-                                    *next_line++ = pixel2;
-                                }
-                            }
-                        }
-                        break;
+                            break;
+                        default:
+                            xcpc_log_alert("mode %d is not supported", scanline->mode);
+                            break;
+                    }
+                }
+                /* horizontal right border */ {
+                    pixel1 = scanline->color[16].pixel1;
+                    pixel2 = scanline->color[16].pixel2;
+                    for(col = 0; col < rgts; ++col) {
+                        *this_line++ = pixel1;
+                        *next_line++ = pixel2;
+                    }
                 }
                 ++scanline;
-                remain -= 2;
             }
-            sa += hd;
+            address += h.hd;
         }
     }
-    /* bottom border */ {
-        const int cols = ((hs << 1) + (hd << 4));
-        for(row = 0; row < vs; ++row) {
-            if(remain < 2) {
+    /* vertical bottom border */ {
+        const int rows = b.bot;
+        const int cols = h.ht * h.cw;
+        for(row = 0; row < rows; ++row) {
+            if(remaining_lines >= 2) {
+                this_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                next_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                pixel1 = scanline->color[16].pixel1;
+                pixel2 = scanline->color[16].pixel2;
+                remaining_lines -= 2;
+            }
+            else {
                 break;
             }
-            curr_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
-            next_line = image; image = ((uint32_t*)(((uint8_t*)(image)) + bytes_per_line));
-            pixel1 = scanline->color[16].pixel1;
-            pixel2 = scanline->color[16].pixel2;
             for(col = 0; col < cols; ++col) {
-                *curr_line++ = pixel1;
+                *this_line++ = pixel1;
                 *next_line++ = pixel2;
             }
             ++scanline;
-            remain -= 2;
         }
     }
     /* put image */ {
@@ -2216,7 +2356,7 @@ static void reset_pager(XcpcMachine* self)
     self->pager.bank.rd[3] = self->pager.bank.wr[3] = NULL;
     self->pager.conf.ram = 0x00;
     self->pager.conf.rom = 0x00;
-    cpc_mem_select(self);
+    cpc_mem_select(self, self->pager.conf.ram, self->pager.conf.rom);
 }
 
 static void construct_frame(XcpcMachine* self)
@@ -2689,6 +2829,16 @@ XcpcMachine* xcpc_machine_remove_drive0(XcpcMachine* self)
     return self;
 }
 
+const char* xcpc_machine_filename_drive0(XcpcMachine* self)
+{
+    log_trace("xcpc_machine_filename_drive0");
+
+    if(self->board.fdc_765a != NULL) {
+        return xcpc_fdc_765a_filename(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0, NULL);
+    }
+    return NULL;
+}
+
 XcpcMachine* xcpc_machine_insert_drive1(XcpcMachine* self, const char* filename)
 {
     log_trace("xcpc_machine_insert_drive1");
@@ -2707,6 +2857,16 @@ XcpcMachine* xcpc_machine_remove_drive1(XcpcMachine* self)
         (void) xcpc_fdc_765a_remove(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1);
     }
     return self;
+}
+
+const char* xcpc_machine_filename_drive1(XcpcMachine* self)
+{
+    log_trace("xcpc_machine_filename_drive1");
+
+    if(self->board.fdc_765a != NULL) {
+        return xcpc_fdc_765a_filename(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1, NULL);
+    }
+    return NULL;
 }
 
 XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
@@ -2762,7 +2922,7 @@ XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
     }
     /* perform memory mapping or reset */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
-            cpc_mem_select(self);
+            cpc_mem_select(self, self->pager.conf.ram, self->pager.conf.rom);
         }
         else {
             (void) xcpc_machine_reset(self);
@@ -2986,4 +3146,34 @@ unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event)
             break;
     }
     return 0UL;
+}
+
+XcpcCompanyName xcpc_machine_company_name(XcpcMachine* self)
+{
+    return self->setup.company_name;
+}
+
+XcpcMachineType xcpc_machine_machine_type(XcpcMachine* self)
+{
+    return self->setup.machine_type;
+}
+
+XcpcMonitorType xcpc_machine_monitor_type(XcpcMachine* self)
+{
+    return self->setup.monitor_type;
+}
+
+XcpcRefreshRate xcpc_machine_refresh_rate(XcpcMachine* self)
+{
+    return self->setup.refresh_rate;
+}
+
+XcpcKeyboardType xcpc_machine_keyboard_type(XcpcMachine* self)
+{
+    return self->setup.keyboard_type;
+}
+
+XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
+{
+    return self->setup.memory_size;
 }

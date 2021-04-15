@@ -30,8 +30,14 @@ extern XcpcVgaCore* xcpc_vga_core_destruct  (XcpcVgaCore* vga_core);
 extern XcpcVgaCore* xcpc_vga_core_new       (void);
 extern XcpcVgaCore* xcpc_vga_core_delete    (XcpcVgaCore* vga_core);
 extern XcpcVgaCore* xcpc_vga_core_set_iface (XcpcVgaCore* vga_core, const XcpcVgaCoreIface* vga_core_iface);
+extern XcpcVgaCore* xcpc_vga_core_debug     (XcpcVgaCore* vga_core);
 extern XcpcVgaCore* xcpc_vga_core_reset     (XcpcVgaCore* vga_core);
 extern XcpcVgaCore* xcpc_vga_core_clock     (XcpcVgaCore* vga_core);
+
+extern uint8_t      xcpc_vga_core_illegal   (XcpcVgaCore* vga_core, uint8_t data_bus);
+extern uint8_t      xcpc_vga_core_set_pen   (XcpcVgaCore* vga_core, uint8_t data_bus);
+extern uint8_t      xcpc_vga_core_set_ink   (XcpcVgaCore* vga_core, uint8_t data_bus);
+extern uint8_t      xcpc_vga_core_set_rmr   (XcpcVgaCore* vga_core, uint8_t data_bus);
 
 #ifdef __cplusplus
 }

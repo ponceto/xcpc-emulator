@@ -41,6 +41,7 @@ extern XcpcFddImpl* xcpc_fdd_impl_delete    (XcpcFddImpl* fdd_impl);
 extern XcpcFddImpl* xcpc_fdd_impl_reset     (XcpcFddImpl* fdd_impl);
 extern XcpcFddImpl* xcpc_fdd_impl_insert    (XcpcFddImpl* fdd_impl, const char* filename);
 extern XcpcFddImpl* xcpc_fdd_impl_remove    (XcpcFddImpl* fdd_impl);
+extern XcpcFddImpl* xcpc_fdd_impl_filename  (XcpcFddImpl* fdd_impl, const char**);
 
 #ifdef __cplusplus
 }

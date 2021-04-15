@@ -18,7 +18,7 @@ xorg-dev
 libmotif-dev
 ```
 
-Optionnal dependencies :
+Optional dependencies :
 
 ```
 zlib1g-dev
@@ -46,7 +46,7 @@ Run the `configure` script
 Build the emulator
 
 ```
-make -j4
+make -j5
 ```
 
 ### Install the emulator
@@ -88,7 +88,7 @@ Quick installation instructions
 ```
 autoreconf -v -i -f
 ./configure --prefix=${HOME}/Apps/xcpc
-make -j4
+make -j5
 make install
 ln -sf {HOME}/Apps/xcpc/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
 ```

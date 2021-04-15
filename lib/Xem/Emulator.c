@@ -24,30 +24,51 @@
 #include <Xem/StringDefs.h>
 #include <Xem/EmulatorP.h>
 
+#ifndef countof
+#define countof(array) (sizeof(array) / sizeof(array[0]))
+#endif
+
+#ifndef DEFAULT_WIDTH
+#define DEFAULT_WIDTH 640
+#endif
+
+#ifndef DEFAULT_HEIGHT
+#define DEFAULT_HEIGHT 480
+#endif
+
+#ifndef DEFAULT_TIMEOUT
+#define DEFAULT_TIMEOUT 100UL
+#endif
+
+#ifndef AUTO_KEY_THRESHOLD
+#define AUTO_KEY_THRESHOLD 10
+#endif
+
 #ifndef WIDGET_CLASS
 #define WIDGET_CLASS(widget_class) ((WidgetClass)(widget_class))
 #endif
 
-#ifndef XT_POINTER
-#define XT_POINTER(pointer) ((XtPointer)(pointer))
+#ifndef POINTER
+#define POINTER(pointer) ((XtPointer)(pointer))
 #endif
 
-#ifndef XT_EVENT_HANDLER
-#define XT_EVENT_HANDLER(handler) ((XtEventHandler)(handler))
+#ifndef EVENT_HANDLER
+#define EVENT_HANDLER(handler) ((XtEventHandler)(handler))
 #endif
 
-#ifndef XT_TIMER_CALLBACK_PROC
-#define XT_TIMER_CALLBACK_PROC(proc) ((XtTimerCallbackProc)(proc))
+#ifndef TIMER_CALLBACK_PROC
+#define TIMER_CALLBACK_PROC(proc) ((XtTimerCallbackProc)(proc))
 #endif
 
-#ifndef XT_INTERVAL_ID
-#define XT_INTERVAL_ID(timer) ((XtIntervalId)(timer))
+#ifndef INTERVAL_ID
+#define INTERVAL_ID(timer) ((XtIntervalId)(timer))
 #endif
 
-#ifndef XEM_EMULATOR_WIDGET
-#define XEM_EMULATOR_WIDGET(widget) ((XemEmulatorWidget)(widget))
+#ifndef EMULATOR_WIDGET
+#define EMULATOR_WIDGET(widget) ((XemEmulatorWidget)(widget))
 #endif
 
+static void ClassInitialize(void);
 static void ClassInitialize(void);
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* num_args);
 static void Realize(Widget widget, XtValueMask* mask, XSetWindowAttributes* attributes);
@@ -55,17 +76,19 @@ static void Destroy(Widget widget);
 static void Resize(Widget widget);
 static void Redraw(Widget widget, XEvent* event, Region region);
 static Boolean SetValues(Widget cur_w, Widget req_w, Widget new_w, ArgList args, Cardinal* num_args);
-static void OnKeyPress(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
-static void OnKeyRelease(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
-static void OnButtonPress(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
-static void OnButtonRelease(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
-static void OnConfigureNotify(Widget widget, XEvent* xevent, String* params, Cardinal* num_params);
-static void TimerHnd(Widget widget, XtIntervalId* timer);
+static void SetFocus(Widget widget, XEvent* event, String* params, Cardinal* num_params);
+static void OnKeyPress(Widget widget, XEvent* event, String* params, Cardinal* num_params);
+static void OnKeyRelease(Widget widget, XEvent* event, String* params, Cardinal* num_params);
+static void OnButtonPress(Widget widget, XEvent* event, String* params, Cardinal* num_params);
+static void OnButtonRelease(Widget widget, XEvent* event, String* params, Cardinal* num_params);
+static void OnConfigureNotify(Widget widget, XEvent* event, String* params, Cardinal* num_params);
+static void TimeOutHandler(Widget widget, XtIntervalId* timer);
 
 /**
  * XemEmulatorWidget::actions[]
  */
 static XtActionsRec actions[] = {
+    { "SetFocus"         , SetFocus          },
     { "OnKeyPress"       , OnKeyPress        },
     { "OnKeyRelease"     , OnKeyRelease      },
     { "OnButtonPress"    , OnButtonPress     },
@@ -79,7 +102,7 @@ static XtActionsRec actions[] = {
 static char translations[] = "\
 <KeyPress>:        OnKeyPress()\n\
 <KeyRelease>:      OnKeyRelease()\n\
-<ButtonPress>:     OnButtonPress()\n\
+<ButtonPress>:     OnButtonPress() SetFocus()\n\
 <ButtonRelease>:   OnButtonRelease()\n\
 <ConfigureNotify>: OnConfigureNotify()\n\
 ";
@@ -91,42 +114,42 @@ static XtResource resources[] = {
     /* XtNemuContext */ {
         XtNemuContext, XtCPointer, XtRPointer,
         sizeof(XtPointer), XtOffsetOf(XemEmulatorRec, emulator.context),
-        XtRImmediate, XT_POINTER(NULL)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNemuCreateProc */ {
         XtNemuCreateProc, XtCFunction, XtRFunction,
         sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.create_proc),
-        XtRImmediate, XT_POINTER(NULL)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNemuDestroyProc */ {
         XtNemuDestroyProc, XtCFunction, XtRFunction,
         sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.destroy_proc),
-        XtRImmediate, XT_POINTER(NULL)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNemuRealizeProc */ {
         XtNemuRealizeProc, XtCFunction, XtRFunction,
         sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.realize_proc),
-        XtRImmediate, XT_POINTER(NULL)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNemuResizeProc */ {
         XtNemuResizeProc, XtCFunction, XtRFunction,
         sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.resize_proc),
-        XtRImmediate, XT_POINTER(NULL)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNemuExposeProc */ {
         XtNemuExposeProc, XtCFunction, XtRFunction,
         sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.expose_proc),
-        XtRImmediate, XT_POINTER(NULL)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNemuInputProc */ {
         XtNemuInputProc, XtCFunction, XtRFunction,
         sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.input_proc),
-        XtRImmediate, XT_POINTER(NULL)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNemuTimerProc */ {
         XtNemuTimerProc, XtCFunction, XtRFunction,
         sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.timer_proc),
-        XtRImmediate, XT_POINTER(NULL)
+        XtRImmediate, POINTER(NULL)
     },
 };
 
@@ -191,6 +214,138 @@ static Widget FindShell(Widget widget)
     return widget;
 }
 
+/*
+ * XemEmulatorWidget::DefaultEmulatorProc()
+ */
+static unsigned long DefaultEmulatorProc(XtPointer data, XEvent* event)
+{
+    return DEFAULT_TIMEOUT;
+}
+
+/*
+ * XemEmulatorWidget::SanitizeProperties()
+ */
+static void SanitizeProperties(Widget widget)
+{
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+
+    if(self->emulator.create_proc == NULL) {
+        self->emulator.create_proc = &DefaultEmulatorProc;
+    }
+    if(self->emulator.destroy_proc == NULL) {
+        self->emulator.destroy_proc = &DefaultEmulatorProc;
+    }
+    if(self->emulator.realize_proc == NULL) {
+        self->emulator.realize_proc = &DefaultEmulatorProc;
+    }
+    if(self->emulator.resize_proc == NULL) {
+        self->emulator.resize_proc = &DefaultEmulatorProc;
+    }
+    if(self->emulator.expose_proc == NULL) {
+        self->emulator.expose_proc = &DefaultEmulatorProc;
+    }
+    if(self->emulator.input_proc == NULL) {
+        self->emulator.input_proc = &DefaultEmulatorProc;
+    }
+    if(self->emulator.timer_proc == NULL) {
+        self->emulator.timer_proc = &DefaultEmulatorProc;
+    }
+}
+
+/*
+ * XemEmulatorWidget::CopyOrFillEvent()
+ */
+static XEvent* CopyOrFillEvent(Widget widget, XEvent* event)
+{
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+
+    if(event != NULL) {
+        self->emulator.event = *event;
+    }
+    else {
+        self->emulator.event.xany.type       = GenericEvent;
+        self->emulator.event.xany.serial     = 0UL;
+        self->emulator.event.xany.send_event = True;
+        self->emulator.event.xany.display    = XtDisplay(widget);
+        self->emulator.event.xany.window     = XtWindow(widget);
+    }
+    return &self->emulator.event;
+}
+
+/*
+ * XemEmulatorWidget::ThrottleInputEvent()
+ */
+static void ThrottleInputEvent(Widget widget, XEvent* event)
+{
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+    unsigned int head = ((self->emulator.throttled_head + 0) % countof(self->emulator.throttled_data));
+    unsigned int tail = ((self->emulator.throttled_tail + 1) % countof(self->emulator.throttled_data));
+
+    /* auto-repeat detection */ {
+        XEvent* next = &self->emulator.event;
+        if(XPending(event->xany.display) > 0) {
+            (void) XPeekEvent(event->xany.display, next);
+            if((next->type         == KeyPress           )
+            && (next->xkey.display == event->xkey.display)
+            && (next->xkey.window  == event->xkey.window )
+            && (next->xkey.keycode == event->xkey.keycode)
+            && ((next->xkey.time - event->xkey.time) < AUTO_KEY_THRESHOLD)) {
+                (void) XNextEvent(event->xany.display, next);
+                return;
+            }
+        }
+    }
+    if(tail != head) {
+        self->emulator.event = *event;
+        self->emulator.throttled_data[self->emulator.throttled_tail] = *event;
+        self->emulator.throttled_head = head;
+        self->emulator.throttled_tail = tail;
+    }
+}
+
+/*
+ * XemEmulatorWidget::ProcessThrottledInputEvent()
+ */
+static void ProcessThrottledInputEvent(Widget widget)
+{
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+
+    if(self->emulator.throttled_head != self->emulator.throttled_tail) {
+        XEvent* event = &self->emulator.throttled_data[self->emulator.throttled_head];
+        (void) (*self->emulator.input_proc)(self->emulator.context, CopyOrFillEvent(widget, event));
+        self->emulator.throttled_head = ((self->emulator.throttled_head + 1) % countof(self->emulator.throttled_data));
+        self->emulator.throttled_tail = ((self->emulator.throttled_tail + 0) % countof(self->emulator.throttled_data));
+    }
+}
+
+/*
+ * XemEmulatorWidget::Schedule()
+ */
+static void Schedule(Widget widget, unsigned long timeout)
+{
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+
+    if(timeout == 0UL) {
+        timeout = DEFAULT_TIMEOUT;
+    }
+    if(self->emulator.timer == INTERVAL_ID(0)) {
+        self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), timeout, TIMER_CALLBACK_PROC(&TimeOutHandler), POINTER(widget));
+    }
+}
+
+/*
+ * XemEmulatorWidget::Unschedule()
+ */
+static void Unschedule(Widget widget)
+{
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+
+    if(self->emulator.timer != INTERVAL_ID(0)) {
+        XtRemoveTimeOut(self->emulator.timer);
+        self->emulator.timer = INTERVAL_ID(0);
+    }
+}
+
 /**
  * XemEmulatorWidget::ClassInitialize()
  */
@@ -209,29 +364,32 @@ static void ClassInitialize(void)
  */
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* num_args)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
-    self->emulator.timer = XT_INTERVAL_ID(0);
-    self->emulator.delay = 100UL;
-
-    if(request->core.width == 0) {
-        self->core.width = 640;
+    /* sanitize properties */ {
+        SanitizeProperties(widget);
     }
-    if(request->core.height == 0) {
-        self->core.height = 480;
-    }
-    if(self->emulator.create_proc != NULL) {
-        XEvent xevent;
-        /* populate xevent */ {
-            xevent.xany.type       = GenericEvent;
-            xevent.xany.serial     = 0UL;
-            xevent.xany.send_event = True;
-            xevent.xany.display    = XtDisplay(widget);
-            xevent.xany.window     = XtWindow(widget);
+    /* initialize geometry */ {
+        if(request->core.width == 0) {
+            self->core.width = DEFAULT_WIDTH;
         }
-        (void) (*self->emulator.create_proc)(self->emulator.context, &xevent);
+        if(request->core.height == 0) {
+            self->core.height = DEFAULT_HEIGHT;
+        }
     }
-    self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), self->emulator.delay, XT_TIMER_CALLBACK_PROC(TimerHnd), XT_POINTER(widget));
+    /* initialize timer */ {
+        self->emulator.timer = INTERVAL_ID(0);
+    }
+    /* throttled events */ {
+        self->emulator.throttled_head = 0;
+        self->emulator.throttled_tail = 0;
+    }
+    /* call create-proc */ {
+        (void) (*self->emulator.create_proc)(self->emulator.context, CopyOrFillEvent(widget, NULL));
+    }
+    /* schedule timer */ {
+        Schedule(widget, 0UL);
+    }
 }
 
 /**
@@ -243,23 +401,16 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* nu
  */
 static void Realize(Widget widget, XtValueMask* mask, XSetWindowAttributes* attributes)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
-    if(XemEmulatorSuperClass->core_class.realize != NULL) {
-        (*XemEmulatorSuperClass->core_class.realize)(widget, mask, attributes);
-    }
-    if(self->emulator.realize_proc != NULL) {
-        XEvent xevent;
-        /* populate xevent */ {
-            xevent.xany.type       = GenericEvent;
-            xevent.xany.serial     = 0UL;
-            xevent.xany.send_event = True;
-            xevent.xany.display    = XtDisplay(widget);
-            xevent.xany.window     = XtWindow(widget);
+    /* call superclass method */ {
+        if(XemEmulatorSuperClass->core_class.realize != NULL) {
+            (*XemEmulatorSuperClass->core_class.realize)(widget, mask, attributes);
         }
-        (void) (*self->emulator.realize_proc)(self->emulator.context, &xevent);
     }
-    XtSetKeyboardFocus(FindShell(widget), widget);
+    /* call realize-proc */ {
+        (void) (*self->emulator.realize_proc)(self->emulator.context, CopyOrFillEvent(widget, NULL));
+    }
 }
 
 /**
@@ -269,23 +420,13 @@ static void Realize(Widget widget, XtValueMask* mask, XSetWindowAttributes* attr
  */
 static void Destroy(Widget widget)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
-    if(self->emulator.timer != XT_INTERVAL_ID(0)) {
-        XtRemoveTimeOut(self->emulator.timer);
-        self->emulator.timer = XT_INTERVAL_ID(0);
-        self->emulator.delay = 0UL;
+    /* unschedule timer */ {
+        Unschedule(widget);
     }
-    if(self->emulator.destroy_proc != NULL) {
-        XEvent xevent;
-        /* populate xevent */ {
-            xevent.xany.type       = GenericEvent;
-            xevent.xany.serial     = 0UL;
-            xevent.xany.send_event = True;
-            xevent.xany.display    = XtDisplay(widget);
-            xevent.xany.window     = XtWindow(widget);
-        }
-        (void) (*self->emulator.destroy_proc)(self->emulator.context, &xevent);
+    /* call destroy-proc */ {
+        (void) (*self->emulator.destroy_proc)(self->emulator.context, CopyOrFillEvent(widget, NULL));
     }
 }
 
@@ -296,18 +437,10 @@ static void Destroy(Widget widget)
  */
 static void Resize(Widget widget)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
-    if(self->emulator.resize_proc != NULL) {
-        XEvent xevent;
-        /* populate xevent */ {
-            xevent.xany.type       = GenericEvent;
-            xevent.xany.serial     = 0UL;
-            xevent.xany.send_event = True;
-            xevent.xany.display    = XtDisplay(widget);
-            xevent.xany.window     = XtWindow(widget);
-        }
-        (void) (*self->emulator.resize_proc)(self->emulator.context, &xevent);
+    /* call resize-proc */ {
+        (void) (*self->emulator.resize_proc)(self->emulator.context, CopyOrFillEvent(widget, NULL));
     }
 }
 
@@ -315,47 +448,68 @@ static void Resize(Widget widget)
  * XemEmulatorWidget::Redraw()
  *
  * @param widget specifies the XemEmulatorWidget instance
- * @param xevent specifies the XEvent structure
+ * @param event specifies the XEvent structure
  * @param region specifies the Region information
  */
-static void Redraw(Widget widget, XEvent* xevent, Region region)
+static void Redraw(Widget widget, XEvent* event, Region region)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
-    if(self->emulator.expose_proc != NULL) {
-        (void) (*self->emulator.expose_proc)(self->emulator.context, xevent);
+    /* ensure event-type */ {
+        if(event->type != Expose) {
+            return;
+        }
+    }
+    /* call expose-proc */ {
+        (void) (*self->emulator.expose_proc)(self->emulator.context, CopyOrFillEvent(widget, event));
     }
 }
 
 /**
  * XemEmulatorWidget::SetValues()
  *
- * @param cur_w specifies the current XemEmulatorWidget instance
- * @param req_w specifies the requested XemEmulatorWidget instance
- * @param new_w specifies the new XemEmulatorWidget instance
+ * @param current specifies the current XemEmulatorWidget instance
+ * @param request specifies the requested XemEmulatorWidget instance
+ * @param widget specifies the new XemEmulatorWidget instance
  */
-static Boolean SetValues(Widget ow, Widget rw, Widget nw, ArgList args, Cardinal* num_args)
+static Boolean SetValues(Widget current, Widget request, Widget widget, ArgList args, Cardinal* num_args)
 {
+    /* sanitize properties */ {
+        SanitizeProperties(widget);
+    }
     return FALSE;
+}
+
+/**
+ * XemEmulatorWidget::SetFocus()
+ *
+ * @param widget specifies the XemEmulatorWidget instance
+ * @param event specifies the XEvent structure
+ * @param params specifies the parameters
+ * @param num_params specifies the number of parameters
+ */
+static void SetFocus(Widget widget, XEvent* event, String* params, Cardinal* num_params)
+{
+    XtSetKeyboardFocus(FindShell(widget), widget);
 }
 
 /**
  * XemEmulatorWidget::OnKeyPress()
  *
  * @param widget specifies the XemEmulatorWidget instance
- * @param xevent specifies the XEvent structure
+ * @param event specifies the XEvent structure
  * @param params specifies the parameters
  * @param num_params specifies the number of parameters
  */
-static void OnKeyPress(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
+static void OnKeyPress(Widget widget, XEvent* event, String* params, Cardinal* num_params)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
-
-    if(xevent->type != KeyPress) {
-        return;
+    /* ensure event-type */ {
+        if(event->type != KeyPress) {
+            return;
+        }
     }
-    if(self->emulator.input_proc != NULL) {
-        (void) (*self->emulator.input_proc)(self->emulator.context, xevent);
+    /* throttle event */ {
+        ThrottleInputEvent(widget, event);
     }
 }
 
@@ -363,33 +517,19 @@ static void OnKeyPress(Widget widget, XEvent* xevent, String* params, Cardinal* 
  * XemEmulatorWidget::OnKeyRelease()
  *
  * @param widget specifies the XemEmulatorWidget instance
- * @param xevent specifies the XEvent structure
+ * @param event specifies the XEvent structure
  * @param params specifies the parameters
  * @param num_params specifies the number of parameters
  */
-static void OnKeyRelease(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
+static void OnKeyRelease(Widget widget, XEvent* event, String* params, Cardinal* num_params)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
-
-    if(xevent->type != KeyRelease) {
-        return;
-    }
-    else {
-        XEvent pending;
-        if(XPending(xevent->xany.display) > 0) {
-            (void) XPeekEvent(xevent->xany.display, &pending);
-            if((pending.type         == KeyPress            )
-            && (pending.xkey.display == xevent->xkey.display)
-            && (pending.xkey.window  == xevent->xkey.window )
-            && (pending.xkey.keycode == xevent->xkey.keycode)
-            && ((pending.xkey.time - xevent->xkey.time) < 5)) {
-                (void) XNextEvent(xevent->xany.display, &pending);
-                return;
-            }
+    /* ensure event-type */ {
+        if(event->type != KeyRelease) {
+            return;
         }
     }
-    if(self->emulator.input_proc != NULL) {
-        (void) (*self->emulator.input_proc)(self->emulator.context, xevent);
+    /* throttle event */ {
+        ThrottleInputEvent(widget, event);
     }
 }
 
@@ -397,40 +537,39 @@ static void OnKeyRelease(Widget widget, XEvent* xevent, String* params, Cardinal
  * XemEmulatorWidget::OnButtonPress()
  *
  * @param widget specifies the XemEmulatorWidget instance
- * @param xevent specifies the XEvent structure
+ * @param event specifies the XEvent structure
  * @param params specifies the parameters
  * @param num_params specifies the number of parameters
  */
-static void OnButtonPress(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
+static void OnButtonPress(Widget widget, XEvent* event, String* params, Cardinal* num_params)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
-
-    if(xevent->type != ButtonPress) {
-        return;
+    /* ensure event-type */ {
+        if(event->type != ButtonPress) {
+            return;
+        }
     }
-    if(self->emulator.input_proc != NULL) {
-        (void) (*self->emulator.input_proc)(self->emulator.context, xevent);
+    /* throttle event */ {
+        ThrottleInputEvent(widget, event);
     }
-    XtSetKeyboardFocus(FindShell(widget), widget);
 }
 
 /**
  * XemEmulatorWidget::OnButtonRelease()
  *
  * @param widget specifies the XemEmulatorWidget instance
- * @param xevent specifies the XEvent structure
+ * @param event specifies the XEvent structure
  * @param params specifies the parameters
  * @param num_params specifies the number of parameters
  */
-static void OnButtonRelease(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
+static void OnButtonRelease(Widget widget, XEvent* event, String* params, Cardinal* num_params)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
-
-    if(xevent->type != ButtonRelease) {
-        return;
+    /* ensure event-type */ {
+        if(event->type != ButtonRelease) {
+            return;
+        }
     }
-    if(self->emulator.input_proc != NULL) {
-        (void) (*self->emulator.input_proc)(self->emulator.context, xevent);
+    /* throttle event */ {
+        ThrottleInputEvent(widget, event);
     }
 }
 
@@ -438,60 +577,64 @@ static void OnButtonRelease(Widget widget, XEvent* xevent, String* params, Cardi
  * XemEmulatorWidget::OnConfigureNotify()
  *
  * @param widget specifies the XemEmulatorWidget instance
- * @param xevent specifies the XEvent structure
+ * @param event specifies the XEvent structure
  * @param params specifies the parameters
  * @param num_params specifies the number of parameters
  */
-static void OnConfigureNotify(Widget widget, XEvent* xevent, String* params, Cardinal* num_params)
+static void OnConfigureNotify(Widget widget, XEvent* event, String* params, Cardinal* num_params)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
-    if(xevent->type != ConfigureNotify) {
-        return;
+    /* ensure event-type */ {
+        if(event->type != ConfigureNotify) {
+            return;
+        }
     }
-    else {
+    /* configure widget */ {
         Arg      arglist[2];
         Cardinal argcount = 0;
-        if(xevent->xconfigure.width != self->core.width) {
-            XtSetArg(arglist[argcount], XtNwidth, xevent->xconfigure.width); argcount++;
+        if(event->xconfigure.width != self->core.width) {
+            XtSetArg(arglist[argcount], XtNwidth, event->xconfigure.width); ++argcount;
         }
-        if(xevent->xconfigure.height != self->core.height) {
-            XtSetArg(arglist[argcount], XtNheight, xevent->xconfigure.height); argcount++;
+        if(event->xconfigure.height != self->core.height) {
+            XtSetArg(arglist[argcount], XtNheight, event->xconfigure.height); ++argcount;
         }
         if(argcount > 0) {
             XtSetValues(widget, arglist, argcount);
         }
     }
-    if(self->emulator.resize_proc != NULL) {
-        (void) (*self->emulator.resize_proc)(self->emulator.context, xevent);
+    /* call resize-proc */ {
+        (void) (*self->emulator.resize_proc)(self->emulator.context, CopyOrFillEvent(widget, event));
     }
 }
 
 /**
- * XemEmulatorWidget::TimerHnd()
+ * XemEmulatorWidget::TimeOutHandler()
  *
  * @param widget specifies the XemEmulatorWidget instance
  * @param timer specifies the XtIntervalId timer instance
  */
-static void TimerHnd(Widget widget, XtIntervalId* timer)
+static void TimeOutHandler(Widget widget, XtIntervalId* timer)
 {
-    XemEmulatorWidget self = XEM_EMULATOR_WIDGET(widget);
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+    unsigned long     timeout = 0UL;
 
-    if((self->emulator.timer_proc != NULL) && (self->core.sensitive != FALSE) && (self->core.ancestor_sensitive != FALSE)) {
-        XEvent xevent;
-        /* populate xevent */ {
-            xevent.xany.type       = GenericEvent;
-            xevent.xany.serial     = 0UL;
-            xevent.xany.send_event = True;
-            xevent.xany.display    = XtDisplay(widget);
-            xevent.xany.window     = XtWindow(widget);
+    /* acknowledge timer */ {
+        if(*timer == self->emulator.timer) {
+            self->emulator.timer = INTERVAL_ID(0);
         }
-        self->emulator.delay = (*self->emulator.timer_proc)(self->emulator.context, &xevent);
     }
-    else {
-        self->emulator.delay = 100UL;
+    /* call timer-proc */ {
+        if((self->core.sensitive != FALSE) && (self->core.ancestor_sensitive != FALSE)) {
+            timeout = (*self->emulator.timer_proc)(self->emulator.context, CopyOrFillEvent(widget, NULL));
+        }
     }
-    self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), self->emulator.delay, XT_TIMER_CALLBACK_PROC(TimerHnd), XT_POINTER(widget));
+    /* schedule timer */ {
+        Schedule(widget, timeout);
+    }
+    /* process throttled input event */ {
+        ProcessThrottledInputEvent(widget);
+    }
 }
 
 /**

@@ -34,6 +34,100 @@ static XcpcLibrary libxcpc = {
     NULL,                  /* error_stream  */
 };
 
+static const XcpcCompanyNameEntry xcpc_company_name_table[] = {
+    { "default"  , XCPC_COMPANY_NAME_DEFAULT   },
+    { "Isp"      , XCPC_COMPANY_NAME_ISP       },
+    { "Triumph"  , XCPC_COMPANY_NAME_TRIUMPH   },
+    { "Saisho"   , XCPC_COMPANY_NAME_SAISHO    },
+    { "Solavox"  , XCPC_COMPANY_NAME_SOLAVOX   },
+    { "Awa"      , XCPC_COMPANY_NAME_AWA       },
+    { "Schneider", XCPC_COMPANY_NAME_SCHNEIDER },
+    { "Orion"    , XCPC_COMPANY_NAME_ORION     },
+    { "Amstrad"  , XCPC_COMPANY_NAME_AMSTRAD   },
+};
+
+static const XcpcMachineTypeEntry xcpc_machine_type_table[] = {
+    { "default" , XCPC_MACHINE_TYPE_DEFAULT },
+    { "CPC 464" , XCPC_MACHINE_TYPE_CPC464  },
+    { "CPC 664" , XCPC_MACHINE_TYPE_CPC664  },
+    { "CPC 6128", XCPC_MACHINE_TYPE_CPC6128 },
+    { "CPC464"  , XCPC_MACHINE_TYPE_CPC464  },
+    { "CPC664"  , XCPC_MACHINE_TYPE_CPC664  },
+    { "CPC6128" , XCPC_MACHINE_TYPE_CPC6128 },
+};
+
+static const XcpcMonitorTypeEntry xcpc_monitor_type_table[] = {
+    { "default"   , XCPC_MONITOR_TYPE_DEFAULT    },
+    { "color"     , XCPC_MONITOR_TYPE_COLOR      },
+    { "green"     , XCPC_MONITOR_TYPE_GREEN      },
+    { "monochrome", XCPC_MONITOR_TYPE_MONOCHROME },
+    { "CTM640"    , XCPC_MONITOR_TYPE_CTM640     },
+    { "CTM644"    , XCPC_MONITOR_TYPE_CTM644     },
+    { "GT64"      , XCPC_MONITOR_TYPE_GT64       },
+    { "GT65"      , XCPC_MONITOR_TYPE_GT65       },
+    { "CM14"      , XCPC_MONITOR_TYPE_CM14       },
+    { "MM12"      , XCPC_MONITOR_TYPE_MM12       },
+};
+
+static const XcpcRefreshRateEntry xcpc_refresh_rate_table[] = {
+    { "default", XCPC_REFRESH_RATE_DEFAULT },
+    { "50Hz"   , XCPC_REFRESH_RATE_50HZ    },
+    { "60Hz"   , XCPC_REFRESH_RATE_60HZ    },
+};
+
+static const XcpcKeyboardTypeEntry xcpc_keyboard_type_table[] = {
+    { "default", XCPC_KEYBOARD_TYPE_DEFAULT },
+    { "QWERTY" , XCPC_KEYBOARD_TYPE_QWERTY  },
+    { "AZERTY" , XCPC_KEYBOARD_TYPE_AZERTY  },
+};
+
+static const XcpcMemorySizeEntry xcpc_memory_size_table[] = {
+    { "default", XCPC_MEMORY_SIZE_DEFAULT },
+    { "64Kb"   , XCPC_MEMORY_SIZE_64K     },
+    { "128Kb"  , XCPC_MEMORY_SIZE_128K    },
+    { "192Kb"  , XCPC_MEMORY_SIZE_192K    },
+    { "256Kb"  , XCPC_MEMORY_SIZE_256K    },
+    { "320Kb"  , XCPC_MEMORY_SIZE_320K    },
+    { "384Kb"  , XCPC_MEMORY_SIZE_384K    },
+    { "448Kb"  , XCPC_MEMORY_SIZE_448K    },
+    { "512Kb"  , XCPC_MEMORY_SIZE_512K    },
+};
+
+static const XcpcColorEntry xcpc_color_table[] = {
+    { "white"                       , XCPC_COLOR_WHITE                     , 0x8000, 0x8000, 0x8000, 0x8000 },
+    { "white (not official)"        , XCPC_COLOR_WHITE_NOT_OFFICIAL        , 0x8000, 0x8000, 0x8000, 0x8000 },
+    { "sea green"                   , XCPC_COLOR_SEA_GREEN                 , 0x0000, 0xffff, 0x8000, 0xa4dd },
+    { "pastel yellow"               , XCPC_COLOR_PASTEL_YELLOW             , 0xffff, 0xffff, 0x8000, 0xf168 },
+    { "blue"                        , XCPC_COLOR_BLUE                      , 0x0000, 0x0000, 0x8000, 0x0e97 },
+    { "purple"                      , XCPC_COLOR_PURPLE                    , 0xffff, 0x0000, 0x8000, 0x5b22 },
+    { "cyan"                        , XCPC_COLOR_CYAN                      , 0x0000, 0x8000, 0x8000, 0x59ba },
+    { "pink"                        , XCPC_COLOR_PINK                      , 0xffff, 0x8000, 0x8000, 0xa645 },
+    { "purple (not official)"       , XCPC_COLOR_PURPLE_NOT_OFFICIAL       , 0xffff, 0x0000, 0x8000, 0x5b22 },
+    { "pastel yellow (not official)", XCPC_COLOR_PASTEL_YELLOW_NOT_OFFICIAL, 0xffff, 0xffff, 0x8000, 0xf168 },
+    { "bright yellow"               , XCPC_COLOR_BRIGHT_YELLOW             , 0xffff, 0xffff, 0x0000, 0xe2d0 },
+    { "bright white"                , XCPC_COLOR_BRIGHT_WHITE              , 0xffff, 0xffff, 0xffff, 0xffff },
+    { "bright red"                  , XCPC_COLOR_BRIGHT_RED                , 0xffff, 0x0000, 0x0000, 0x4c8b },
+    { "bright magenta"              , XCPC_COLOR_BRIGHT_MAGENTA            , 0xffff, 0x0000, 0xffff, 0x69ba },
+    { "orange"                      , XCPC_COLOR_ORANGE                    , 0xffff, 0x8000, 0x0000, 0x97ad },
+    { "pastel magenta"              , XCPC_COLOR_PASTEL_MAGENTA            , 0xffff, 0x8000, 0xffff, 0xb4dc },
+    { "blue (not official)"         , XCPC_COLOR_BLUE_NOT_OFFICIAL         , 0x0000, 0x0000, 0x8000, 0x0e97 },
+    { "sea green (not official)"    , XCPC_COLOR_SEA_GREEN_NOT_OFFICIAL    , 0x0000, 0xffff, 0x8000, 0xa4dd },
+    { "bright green"                , XCPC_COLOR_BRIGHT_GREEN              , 0x0000, 0xffff, 0x0000, 0x9645 },
+    { "bright cyan"                 , XCPC_COLOR_BRIGHT_CYAN               , 0x0000, 0xffff, 0xffff, 0xb374 },
+    { "black"                       , XCPC_COLOR_BLACK                     , 0x0000, 0x0000, 0x0000, 0x0000 },
+    { "bright blue"                 , XCPC_COLOR_BRIGHT_BLUE               , 0x0000, 0x0000, 0xffff, 0x1d2f },
+    { "green"                       , XCPC_COLOR_GREEN                     , 0x0000, 0x8000, 0x0000, 0x4b23 },
+    { "sky blue"                    , XCPC_COLOR_SKY_BLUE                  , 0x0000, 0x8000, 0xffff, 0x6852 },
+    { "magenta"                     , XCPC_COLOR_MAGENTA                   , 0x8000, 0x0000, 0x8000, 0x34dd },
+    { "pastel green"                , XCPC_COLOR_PASTEL_GREEN              , 0x8000, 0xffff, 0x8000, 0xcb22 },
+    { "lime"                        , XCPC_COLOR_LIME                      , 0x8000, 0xffff, 0x0000, 0xbc8b },
+    { "pastel cyan"                 , XCPC_COLOR_PASTEL_CYAN               , 0x8000, 0xffff, 0xffff, 0xd9ba },
+    { "red"                         , XCPC_COLOR_RED                       , 0x8000, 0x0000, 0x0000, 0x2645 },
+    { "mauve"                       , XCPC_COLOR_MAUVE                     , 0x8000, 0x0000, 0xffff, 0x4374 },
+    { "yellow"                      , XCPC_COLOR_YELLOW                    , 0x8000, 0x8000, 0x0000, 0x7168 },
+    { "pastel blue"                 , XCPC_COLOR_PASTEL_BLUE               , 0x8000, 0x8000, 0xffff, 0x8e97 } 
+};
+
 static void init_loglevel(void)
 {
     if(libxcpc.loglevel <= XCPC_LOGLEVEL_UNKNOWN) {
@@ -357,194 +451,137 @@ extern void* xcpc_free(const char* type, void* pointer)
     return new_pointer;
 }
 
+const char* xcpc_legal_text(void)
+{
+    static const char text[] = ""
+        "Amstrad has kindly given it's permission for it's copyrighted\n"
+        "material to be redistributed but Amstrad retains it's copyright.\n\n"
+        "Some of the Amstrad CPC ROM code is copyright Locomotive Software.\n\n"
+        "ROM and DISK images are protected under the copyrights of their authors,\n"
+        "and cannot be distributed in this package. You can download and/or use\n"
+        "ROM and DISK images at your own risk and responsibility."
+        ;
+    return text;
+}
+
+const char* xcpc_about_text(void)
+{
+    static const char text[] = PACKAGE_STRING " - "
+        "Amstrad CPC emulator - Copyright (c) 2001-2021 - Olivier Poncet\n\n"
+        "This program is free software: you can redistribute it and/or modify\n"
+        "it under the terms of the GNU General Public License as published by\n"
+        "the Free Software Foundation, either version 2 of the License, or\n"
+        "(at your option) any later version.\n\n"
+        "This program is distributed in the hope that it will be useful,\n"
+        "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+        "GNU General Public License for more details.\n\n"
+        "You should have received a copy of the GNU General Public License\n"
+        "along with this program.  If not, see <http://www.gnu.org/licenses/>"
+        ;
+    return text;
+}
+
 XcpcCompanyName xcpc_company_name(const char* label, XcpcCompanyName value)
 {
-    static struct {
-        const char* label;
-        int         value;
-    } list[] = {
-        { "default"  , XCPC_COMPANY_NAME_DEFAULT   },
-        { "isp"      , XCPC_COMPANY_NAME_ISP       },
-        { "triumph"  , XCPC_COMPANY_NAME_TRIUMPH   },
-        { "saisho"   , XCPC_COMPANY_NAME_SAISHO    },
-        { "solavox"  , XCPC_COMPANY_NAME_SOLAVOX   },
-        { "awa"      , XCPC_COMPANY_NAME_AWA       },
-        { "schneider", XCPC_COMPANY_NAME_SCHNEIDER },
-        { "orion"    , XCPC_COMPANY_NAME_ORION     },
-        { "amstrad"  , XCPC_COMPANY_NAME_AMSTRAD   },
-    };
-
     if((label != NULL) && (*label != '\0')) {
-        unsigned int index = 0;
-        unsigned int count = countof(list);
-        for(index = 0; index < count; ++index) {
-            if(strcasecmp(list[index].label, label) == 0) {
-                value = list[index].value;
+        unsigned int       index = 0;
+        const unsigned int count = countof(xcpc_company_name_table);
+        do {
+            const XcpcCompanyNameEntry* entry = &xcpc_company_name_table[index];
+            if(strcasecmp(entry->label, label) == 0) {
+                value = entry->value;
                 break;
             }
-        }
+        } while(++index < count);
     }
     return value;
 }
 
 XcpcMachineType xcpc_machine_type(const char* label, XcpcMachineType value)
 {
-    static struct {
-        const char* label;
-        int         value;
-    } list[] = {
-        { "default", XCPC_MACHINE_TYPE_DEFAULT },
-        { "cpc464" , XCPC_MACHINE_TYPE_CPC464  },
-        { "cpc664" , XCPC_MACHINE_TYPE_CPC664  },
-        { "cpc6128", XCPC_MACHINE_TYPE_CPC6128 },
-    };
-
     if((label != NULL) && (*label != '\0')) {
-        unsigned int index = 0;
-        unsigned int count = countof(list);
-        for(index = 0; index < count; ++index) {
-            if(strcasecmp(list[index].label, label) == 0) {
-                value = list[index].value;
+        unsigned int       index = 0;
+        const unsigned int count = countof(xcpc_machine_type_table);
+        do {
+            const XcpcMachineTypeEntry* entry = &xcpc_machine_type_table[index];
+            if(strcasecmp(entry->label, label) == 0) {
+                value = entry->value;
                 break;
             }
-        }
+        } while(++index < count);
     }
     return value;
 }
 
 XcpcMonitorType xcpc_monitor_type(const char* label, XcpcMonitorType value)
 {
-    static struct {
-        const char* label;
-        int         value;
-    } list[] = {
-        { "default"   ,  XCPC_MONITOR_TYPE_DEFAULT    },
-        { "color"     ,  XCPC_MONITOR_TYPE_COLOR      },
-        { "green"     ,  XCPC_MONITOR_TYPE_GREEN      },
-        { "monochrome",  XCPC_MONITOR_TYPE_MONOCHROME },
-        { "ctm640"    ,  XCPC_MONITOR_TYPE_CTM640     },
-        { "ctm644"    ,  XCPC_MONITOR_TYPE_CTM644     },
-        { "gt64"      ,  XCPC_MONITOR_TYPE_GT64       },
-        { "gt65"      ,  XCPC_MONITOR_TYPE_GT65       },
-        { "cm14"      ,  XCPC_MONITOR_TYPE_CM14       },
-        { "mm12"      ,  XCPC_MONITOR_TYPE_MM12       },
-    };
-
     if((label != NULL) && (*label != '\0')) {
-        unsigned int index = 0;
-        unsigned int count = countof(list);
-        for(index = 0; index < count; ++index) {
-            if(strcasecmp(list[index].label, label) == 0) {
-                value = list[index].value;
+        unsigned int       index = 0;
+        const unsigned int count = countof(xcpc_monitor_type_table);
+        do {
+            const XcpcMonitorTypeEntry* entry = &xcpc_monitor_type_table[index];
+            if(strcasecmp(entry->label, label) == 0) {
+                value = entry->value;
                 break;
             }
-        }
+        } while(++index < count);
     }
     return value;
 }
 
 XcpcRefreshRate xcpc_refresh_rate(const char* label, XcpcRefreshRate value)
 {
-    static struct {
-        const char* label;
-        int         value;
-    } list[] = {
-        { "default", XCPC_REFRESH_RATE_DEFAULT },
-        { "50hz"   , XCPC_REFRESH_RATE_50HZ    },
-        { "60hz"   , XCPC_REFRESH_RATE_60HZ    },
-    };
-
     if((label != NULL) && (*label != '\0')) {
-        unsigned int index = 0;
-        unsigned int count = countof(list);
-        for(index = 0; index < count; ++index) {
-            if(strcasecmp(list[index].label, label) == 0) {
-                value = list[index].value;
+        unsigned int       index = 0;
+        const unsigned int count = countof(xcpc_refresh_rate_table);
+        do {
+            const XcpcRefreshRateEntry* entry = &xcpc_refresh_rate_table[index];
+            if(strcasecmp(entry->label, label) == 0) {
+                value = entry->value;
                 break;
             }
-        }
+        } while(++index < count);
     }
     return value;
 }
 
 XcpcKeyboardType xcpc_keyboard_type(const char* label, XcpcKeyboardType value)
 {
-    static struct {
-        const char* label;
-        int         value;
-    } list[] = {
-        { "default", XCPC_KEYBOARD_TYPE_DEFAULT },
-        { "qwerty" , XCPC_KEYBOARD_TYPE_QWERTY  },
-        { "azerty" , XCPC_KEYBOARD_TYPE_AZERTY  },
-    };
-
     if((label != NULL) && (*label != '\0')) {
-        unsigned int index = 0;
-        unsigned int count = countof(list);
-        for(index = 0; index < count; ++index) {
-            if(strcasecmp(list[index].label, label) == 0) {
-                value = list[index].value;
+        unsigned int       index = 0;
+        const unsigned int count = countof(xcpc_keyboard_type_table);
+        do {
+            const XcpcKeyboardTypeEntry* entry = &xcpc_keyboard_type_table[index];
+            if(strcasecmp(entry->label, label) == 0) {
+                value = entry->value;
                 break;
             }
-        }
+        } while(++index < count);
     }
     return value;
 }
 
-static const XcpcColorEntry monitor_color_array[] = {
-    { XCPC_COLOR_WHITE                     , "white"                       , 0x8000, 0x8000, 0x8000, 0x8000 },
-    { XCPC_COLOR_WHITE_NOT_OFFICIAL        , "white (not official)"        , 0x8000, 0x8000, 0x8000, 0x8000 },
-    { XCPC_COLOR_SEA_GREEN                 , "sea green"                   , 0x0000, 0xffff, 0x8000, 0xa4dd },
-    { XCPC_COLOR_PASTEL_YELLOW             , "pastel yellow"               , 0xffff, 0xffff, 0x8000, 0xf168 },
-    { XCPC_COLOR_BLUE                      , "blue"                        , 0x0000, 0x0000, 0x8000, 0x0e97 },
-    { XCPC_COLOR_PURPLE                    , "purple"                      , 0xffff, 0x0000, 0x8000, 0x5b22 },
-    { XCPC_COLOR_CYAN                      , "cyan"                        , 0x0000, 0x8000, 0x8000, 0x59ba },
-    { XCPC_COLOR_PINK                      , "pink"                        , 0xffff, 0x8000, 0x8000, 0xa645 },
-    { XCPC_COLOR_PURPLE_NOT_OFFICIAL       , "purple (not official)"       , 0xffff, 0x0000, 0x8000, 0x5b22 },
-    { XCPC_COLOR_PASTEL_YELLOW_NOT_OFFICIAL, "pastel yellow (not official)", 0xffff, 0xffff, 0x8000, 0xf168 },
-    { XCPC_COLOR_BRIGHT_YELLOW             , "bright yellow"               , 0xffff, 0xffff, 0x0000, 0xe2d0 },
-    { XCPC_COLOR_BRIGHT_WHITE              , "bright white"                , 0xffff, 0xffff, 0xffff, 0xffff },
-    { XCPC_COLOR_BRIGHT_RED                , "bright red"                  , 0xffff, 0x0000, 0x0000, 0x4c8b },
-    { XCPC_COLOR_BRIGHT_MAGENTA            , "bright magenta"              , 0xffff, 0x0000, 0xffff, 0x69ba },
-    { XCPC_COLOR_ORANGE                    , "orange"                      , 0xffff, 0x8000, 0x0000, 0x97ad },
-    { XCPC_COLOR_PASTEL_MAGENTA            , "pastel magenta"              , 0xffff, 0x8000, 0xffff, 0xb4dc },
-    { XCPC_COLOR_BLUE_NOT_OFFICIAL         , "blue (not official)"         , 0x0000, 0x0000, 0x8000, 0x0e97 },
-    { XCPC_COLOR_SEA_GREEN_NOT_OFFICIAL    , "sea green (not official)"    , 0x0000, 0xffff, 0x8000, 0xa4dd },
-    { XCPC_COLOR_BRIGHT_GREEN              , "bright green"                , 0x0000, 0xffff, 0x0000, 0x9645 },
-    { XCPC_COLOR_BRIGHT_CYAN               , "bright cyan"                 , 0x0000, 0xffff, 0xffff, 0xb374 },
-    { XCPC_COLOR_BLACK                     , "black"                       , 0x0000, 0x0000, 0x0000, 0x0000 },
-    { XCPC_COLOR_BRIGHT_BLUE               , "bright blue"                 , 0x0000, 0x0000, 0xffff, 0x1d2f },
-    { XCPC_COLOR_GREEN                     , "green"                       , 0x0000, 0x8000, 0x0000, 0x4b23 },
-    { XCPC_COLOR_SKY_BLUE                  , "sky blue"                    , 0x0000, 0x8000, 0xffff, 0x6852 },
-    { XCPC_COLOR_MAGENTA                   , "magenta"                     , 0x8000, 0x0000, 0x8000, 0x34dd },
-    { XCPC_COLOR_PASTEL_GREEN              , "pastel green"                , 0x8000, 0xffff, 0x8000, 0xcb22 },
-    { XCPC_COLOR_LIME                      , "lime"                        , 0x8000, 0xffff, 0x0000, 0xbc8b },
-    { XCPC_COLOR_PASTEL_CYAN               , "pastel cyan"                 , 0x8000, 0xffff, 0xffff, 0xd9ba },
-    { XCPC_COLOR_RED                       , "red"                         , 0x8000, 0x0000, 0x0000, 0x2645 },
-    { XCPC_COLOR_MAUVE                     , "mauve"                       , 0x8000, 0x0000, 0xffff, 0x4374 },
-    { XCPC_COLOR_YELLOW                    , "yellow"                      , 0x8000, 0x8000, 0x0000, 0x7168 },
-    { XCPC_COLOR_PASTEL_BLUE               , "pastel blue"                 , 0x8000, 0x8000, 0xffff, 0x8e97 } 
-};
-
-XcpcColor xcpc_monitor_color_get(const char* label)
+XcpcMemorySize xcpc_memory_size(const char* label, XcpcMemorySize value)
 {
-    if(label != NULL) {
-        unsigned int monitor_index = 0;
-        unsigned int monitor_count = countof(monitor_color_array);
-        for(monitor_index = 0; monitor_index < monitor_count; ++monitor_index) {
-            const XcpcColorEntry* monitor_entry = &monitor_color_array[monitor_index];
-            if(strcasecmp(monitor_entry->label, label) == 0) {
-                return monitor_entry->color;
+    if((label != NULL) && (*label != '\0')) {
+        unsigned int       index = 0;
+        const unsigned int count = countof(xcpc_memory_size_table);
+        do {
+            const XcpcMemorySizeEntry* entry = &xcpc_memory_size_table[index];
+            if(strcasecmp(entry->label, label) == 0) {
+                value = entry->value;
+                break;
             }
-        }
+        } while(++index < count);
     }
-    return XCPC_COLOR_UNKNOWN;
+    return value;
 }
 
 XcpcColor xcpc_color_get_values(XcpcMonitorType monitor_type, XcpcColor color, unsigned short* r_out, unsigned short* g_out, unsigned short* b_out)
 {
     if((color >= 0) && (color <= 31)) {
-        const XcpcColorEntry* color_entry = &monitor_color_array[color];
+        const XcpcColorEntry* color_entry = &xcpc_color_table[color];
         unsigned short r_value = color_entry->red;
         unsigned short g_value = color_entry->green;
         unsigned short b_value = color_entry->blue;
@@ -589,4 +626,94 @@ XcpcColor xcpc_color_get_values(XcpcMonitorType monitor_type, XcpcColor color, u
         return color;
     }
     return XCPC_COLOR_UNKNOWN;
+}
+
+const char* xcpc_company_name_to_string(XcpcCompanyName value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_company_name_table);
+
+    do {
+        const XcpcCompanyNameEntry* entry = &xcpc_company_name_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_machine_type_to_string(XcpcMachineType value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_machine_type_table);
+
+    do {
+        const XcpcMachineTypeEntry* entry = &xcpc_machine_type_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_monitor_type_to_string(XcpcMonitorType value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_monitor_type_table);
+
+    do {
+        const XcpcMonitorTypeEntry* entry = &xcpc_monitor_type_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_refresh_rate_to_string(XcpcRefreshRate value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_refresh_rate_table);
+
+    do {
+        const XcpcRefreshRateEntry* entry = &xcpc_refresh_rate_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_keyboard_type_to_string(XcpcKeyboardType value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_keyboard_type_table);
+
+    do {
+        const XcpcKeyboardTypeEntry* entry = &xcpc_keyboard_type_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
+}
+
+const char* xcpc_memory_size_to_string(XcpcMemorySize value)
+{
+    unsigned int       index = 0;
+    const unsigned int count = countof(xcpc_memory_size_table);
+
+    do {
+        const XcpcMemorySizeEntry* entry = &xcpc_memory_size_table[index];
+        if(entry->value == value) {
+            return entry->label;
+        }
+    } while(++index < count);
+
+    return "unknown";
 }

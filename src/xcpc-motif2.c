@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "xcpc-motif2-priv.h"
 
 #ifndef _
@@ -46,13 +47,25 @@ static XrmOptionDescRec options[] = {
 
 static String fallback_resources[] = {
     "Xcpc*title: Xcpc - Amstrad CPC emulator",
+    "Xcpc*shadowThickness: 1",
     "Xcpc*main-window.shadowThickness: 0",
     "Xcpc*main-window.menubar.shadowThickness: 0",
     "Xcpc*main-window.menubar*pixmapTextPadding: 8",
     "Xcpc*main-window.toolbar.shadowThickness: 0",
     "Xcpc*main-window.toolbar.marginWidth: 4",
     "Xcpc*main-window.toolbar.marginHeight: 4",
-    "Xcpc*shadowThickness: 1",
+    "Xcpc*main-window.infobar.marginWidth: 4",
+    "Xcpc*main-window.infobar.marginHeight: 4",
+    "Xcpc*main-window.infobar.spacing: 4",
+    "Xcpc*main-window.infobar*info-status.borderColor: black",
+    "Xcpc*main-window.infobar*info-status.background: darkgreen",
+    "Xcpc*main-window.infobar*info-status.foreground: grey90",
+    "Xcpc*main-window.infobar*info-drive0.borderColor: black",
+    "Xcpc*main-window.infobar*info-drive0.background: darkblue",
+    "Xcpc*main-window.infobar*info-drive0.foreground: yellow",
+    "Xcpc*main-window.infobar*info-drive1.borderColor: black",
+    "Xcpc*main-window.infobar*info-drive1.background: darkblue",
+    "Xcpc*main-window.infobar*info-drive1.foreground: yellow",
     NULL
 };
 
@@ -66,17 +79,17 @@ static XtResource application_resources[] = {
     /* xcpcQuietFlag */ {
         "xcpcQuietFlag", "XcpcQuietFlag", XmRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, quiet_flag),
-        XmRImmediate, (XtPointer) FALSE
+        XmRImmediate, (XtPointer) False
     },
     /* xcpcTraceFlag */ {
         "xcpcTraceFlag", "XcpcTraceFlag", XmRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, trace_flag),
-        XmRImmediate, (XtPointer) FALSE
+        XmRImmediate, (XtPointer) False
     },
     /* xcpcDebugFlag */ {
         "xcpcDebugFlag", "XcpcDebugFlag", XmRBoolean,
         sizeof(Boolean), XtOffsetOf(XcpcResourcesRec, debug_flag),
-        XmRImmediate, (XtPointer) FALSE
+        XmRImmediate, (XtPointer) False
     },
 };
 
@@ -102,7 +115,7 @@ static void HideWidget(Widget widget)
 
 static Widget FindShell(Widget widget)
 {
-    while((widget != NULL) && (XtIsShell(widget) == FALSE)) {
+    while((widget != NULL) && (XtIsShell(widget) == False)) {
         widget = XtParent(widget);
     }
     return widget;
@@ -110,7 +123,7 @@ static Widget FindShell(Widget widget)
 
 static Widget FindTopLevelShell(Widget widget)
 {
-    while((widget != NULL) && (XtIsTopLevelShell(widget) == FALSE)) {
+    while((widget != NULL) && (XtIsTopLevelShell(widget) == False)) {
         widget = XtParent(widget);
     }
     return widget;
@@ -165,17 +178,130 @@ static void GetPixmaps(Widget widget, XcpcPixmapsRec* pixmaps)
  * ---------------------------------------------------------------------------
  */
 
-static XcpcApplication* SetTitle(XcpcApplication* self, const char* title)
+static XcpcApplication* SetMachine(XcpcApplication* self)
 {
     Arg      arglist[4];
     Cardinal argcount = 0;
+    char     buffer[256];
 
+    /* build string */ {
+        (void) snprintf ( buffer, sizeof(buffer)
+                        , "%s %s %s, %s @ %s, %s"
+                        , xcpc_company_name_to_string(xcpc_machine_company_name(self->machine))
+                        , xcpc_machine_type_to_string(xcpc_machine_machine_type(self->machine))
+                        , xcpc_memory_size_to_string(xcpc_machine_memory_size(self->machine))
+                        , xcpc_monitor_type_to_string(xcpc_machine_monitor_type(self->machine))
+                        , xcpc_refresh_rate_to_string(xcpc_machine_refresh_rate(self->machine))
+                        , xcpc_keyboard_type_to_string(xcpc_machine_keyboard_type(self->machine)) );
+    }
+    if(self->infobar.system != NULL) {
+        XmString string = XmStringCreateLocalized(buffer);
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
+        XtSetValues(self->infobar.system, arglist, argcount);
+        string = (XmStringFree(string), NULL);
+    }
+    return self;
+}
+
+static XcpcApplication* SetTitle(XcpcApplication* self, const char* string)
+{
+    Arg      arglist[4];
+    Cardinal argcount = 0;
+    char     buffer[256];
+
+    /* inititialize buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "Xcpc - Amstrad CPC emulator - %s", string);
+    }
     if(self->layout.toplevel != NULL) {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNtitle     , title                  ); ++argcount;
+        XtSetArg(arglist[argcount], XmNtitle     , buffer                 ); ++argcount;
         XtSetArg(arglist[argcount], XmNiconPixmap, self->pixmaps.xcpc_icon); ++argcount;
         XtSetArg(arglist[argcount], XmNiconMask  , self->pixmaps.xcpc_mask); ++argcount;
         XtSetValues(self->layout.toplevel, arglist, argcount);
+    }
+    return self;
+}
+
+static XcpcApplication* SetStatus(XcpcApplication* self, const char* string)
+{
+    Arg      arglist[4];
+    Cardinal argcount = 0;
+    char     buffer[256];
+
+    /* inititialize buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s", string);
+    }
+    if(self->infobar.status != NULL) {
+        XmString string = XmStringCreateLocalized(buffer);
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
+        XtSetValues(self->infobar.status, arglist, argcount);
+        string = (XmStringFree(string), NULL);
+    }
+    return SetTitle(SetMachine(self), string);
+}
+
+static XcpcApplication* SetDrive0(XcpcApplication* self)
+{
+    Arg      arglist[4];
+    Cardinal argcount = 0;
+    const char* filename = NULL;
+    char        buffer[256];
+
+    /* fetch filename */ {
+        filename = xcpc_machine_filename_drive0(self->machine);
+        if((filename != NULL) && (*filename != '\0')) {
+            const char* slash = strrchr(filename, '/');
+            if(slash != NULL) {
+                filename = (slash + 1);
+            }
+        }
+        else {
+            filename = _("{empty}");
+        }
+    }
+    /* init buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s %s", _("A:"), filename);
+    }
+    if(self->infobar.drive0 != NULL) {
+        XmString string = XmStringCreateLocalized(buffer);
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
+        XtSetValues(self->infobar.drive0, arglist, argcount);
+        string = (XmStringFree(string), NULL);
+    }
+    return self;
+}
+
+static XcpcApplication* SetDrive1(XcpcApplication* self)
+{
+    Arg      arglist[4];
+    Cardinal argcount = 0;
+    const char* filename = NULL;
+    char        buffer[256];
+
+    /* fetch filename */ {
+        filename = xcpc_machine_filename_drive1(self->machine);
+        if((filename != NULL) && (*filename != '\0')) {
+            const char* slash = strrchr(filename, '/');
+            if(slash != NULL) {
+                filename = (slash + 1);
+            }
+        }
+        else {
+            filename = _("{empty}");
+        }
+    }
+    /* init buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s %s", _("B:"), filename);
+    }
+    if(self->infobar.drive1 != NULL) {
+        XmString string = XmStringCreateLocalized(buffer);
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
+        XtSetValues(self->infobar.drive1, arglist, argcount);
+        string = (XmStringFree(string), NULL);
     }
     return self;
 }
@@ -197,10 +323,15 @@ static XcpcApplication* Play(XcpcApplication* self)
         ShowWidget(self->toolbar.pause_emulator);
     }
     if(self->layout.emulator != NULL) {
-        XtSetSensitive(self->layout.emulator, TRUE);
+        XtSetSensitive(self->layout.emulator, True);
         XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
     }
-    return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Playing"));
+    /* set status */ {
+        (void) SetStatus(self, _("Playing"));
+        (void) SetDrive0(self);
+        (void) SetDrive1(self);
+    }
+    return self;
 }
 
 static XcpcApplication* Pause(XcpcApplication* self)
@@ -212,10 +343,15 @@ static XcpcApplication* Pause(XcpcApplication* self)
         HideWidget(self->toolbar.pause_emulator);
     }
     if(self->layout.emulator != NULL) {
-        XtSetSensitive(self->layout.emulator, FALSE);
+        XtSetSensitive(self->layout.emulator, False);
         XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
     }
-    return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Paused"));
+    /* set status */ {
+        (void) SetStatus(self, _("Paused"));
+        (void) SetDrive0(self);
+        (void) SetDrive1(self);
+    }
+    return self;
 }
 
 static XcpcApplication* Reset(XcpcApplication* self)
@@ -223,7 +359,12 @@ static XcpcApplication* Reset(XcpcApplication* self)
     if(self->layout.emulator != NULL) {
         (void) xcpc_machine_reset(self->machine);
     }
-    return SetTitle(self, _("Xcpc - Amstrad CPC emulator - Reset"));
+    /* set status */ {
+        (void) SetStatus(self, _("Reset"));
+        (void) SetDrive0(self);
+        (void) SetDrive1(self);
+    }
+    return self;
 }
 
 /*
@@ -259,14 +400,14 @@ static XcpcApplication* InsertDiskIntoDrive0(XcpcApplication* self, const char* 
     if((filename != NULL) && (*filename != '\0')) {
         xcpc_machine_insert_drive0(self->machine, filename);
     }
-    return self;
+    return SetDrive0(self);
 }
 
 static XcpcApplication* RemoveDiskFromDrive0(XcpcApplication* self)
 {
     xcpc_machine_remove_drive0(self->machine);
 
-    return self;
+    return SetDrive0(self);
 }
 
 /*
@@ -280,14 +421,14 @@ static XcpcApplication* InsertDiskIntoDrive1(XcpcApplication* self, const char* 
     if((filename != NULL) && (*filename != '\0')) {
         xcpc_machine_insert_drive1(self->machine, filename);
     }
-    return self;
+    return SetDrive1(self);
 }
 
 static XcpcApplication* RemoveDiskFromDrive1(XcpcApplication* self)
 {
     xcpc_machine_remove_drive1(self->machine);
 
-    return self;
+    return SetDrive1(self);
 }
 
 /*
@@ -315,7 +456,7 @@ static XcpcApplication* InsertOrRemoveDisk(XcpcApplication* self, const char* fi
 
 static void DestroyCallback(Widget widget, Widget* reference, XtPointer pointer)
 {
-    if(XtIsApplicationShell(widget) != FALSE) {
+    if(XtIsApplicationShell(widget) != False) {
         XtAppSetExitFlag(XtWidgetToApplicationContext(widget));
     }
     if((widget != NULL) && (reference != NULL) && (widget == *reference)) {
@@ -323,10 +464,12 @@ static void DestroyCallback(Widget widget, Widget* reference, XtPointer pointer)
     }
 }
 
-static void DismissCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void DismissCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
+    Widget shell = FindShell(widget);
+
     if(info != NULL) {
-        XtDestroyWidget(FindShell(widget));
+        XtDestroyWidget(shell);
     }
     else {
         (void) Play(self);
@@ -339,25 +482,128 @@ static void DismissCallback(Widget widget, XcpcApplication* self, XmAnyCallbackS
  * ---------------------------------------------------------------------------
  */
 
-static void DropUriCallback(Widget widget, XcpcApplication* self, char* uri)
+static int ConvertHexChar(const char* string)
 {
-    int length = 0;
+    int  value     = 0;
+    char character = *string++;
+
+    /* check character */ {
+        if(character != '%') {
+            return -1;
+        }
+    }
+    /* convert 1st digit */ {
+        switch(character = *string++) {
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+                value = ((value << 4) | (0x0 + (character - '0')));
+                break;
+            case 'a': case 'b': case 'c':
+            case 'd': case 'e': case 'f':
+                value = ((value << 4) | (0xa + (character - 'a')));
+                break;
+            case 'A': case 'B': case 'C':
+            case 'D': case 'E': case 'F':
+                value = ((value << 4) | (0xa + (character - 'A')));
+                break;
+            default:
+                return -1;
+        }
+    }
+    /* convert 2nd digit */ {
+        switch(character = *string++) {
+            case '0': case '1': case '2': case '3': case '4':
+            case '5': case '6': case '7': case '8': case '9':
+                value = ((value << 4) | (0x0 + (character - '0')));
+                break;
+            case 'a': case 'b': case 'c':
+            case 'd': case 'e': case 'f':
+                value = ((value << 4) | (0xa + (character - 'a')));
+                break;
+            case 'A': case 'B': case 'C':
+            case 'D': case 'E': case 'F':
+                value = ((value << 4) | (0xa + (character - 'A')));
+                break;
+            default:
+                return -1;
+        }
+    }
+    return value;
+}
+
+static void DeserializeURI(char* buffer, size_t buflen, const char* uri)
+{
+    const char nul = '\0';
+    const char cr  = '\r';
+    const char lf  = '\n';
+    char character = *uri;
+
+    /* deserialize */ {
+        if(character != nul) {
+            do {
+                if(buflen <= 1) {
+                    break;
+                }
+                if((character == cr) || (character == lf)) {
+                    break;
+                }
+                else if(character == '%') {
+                    const int hexval = ConvertHexChar(uri);
+                    if(hexval != -1) {
+                        *buffer = ((char)(hexval & 0xff));
+                        uri += 2;
+                    }
+                    else {
+                        *buffer = character;
+                    }
+                }
+                else {
+                    *buffer = character;
+                }
+                ++buffer;
+                --buflen;
+            } while((character = *++uri) != nul);
+        }
+    }
+    /* terminate buffer */ {
+        *buffer = nul;
+    }
+}
+
+static int CheckExtension(const char* filename, const char* extension)
+{
+    const int filename_length  = strlen(filename);
+    const int extension_length = strlen(extension);
+
+    if(filename_length >= extension_length) {
+        if(strcasecmp(&filename[filename_length - extension_length], extension) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void DropUriCallback(Widget widget, XcpcApplication* self, const char* uri)
+{
+    char filename[PATH_MAX + 1];
 
     if((uri != NULL) && (strncmp(uri, "file://", 7) == 0)) {
-        char* str = &uri[7];
-        char* eol = strstr(str, "\r\n");
-        if(eol != NULL) {
-            *eol = '\0';
+        DeserializeURI(filename, sizeof(filename), &uri[7]);
+        if(CheckExtension(filename, ".sna") != 0) {
+            (void) LoadSnapshot(self, filename);
+            (void) Play(self);
         }
-        if((length = strlen(str)) >= 4) {
-            if(strcasecmp(&str[length - 4], ".sna") == 0) {
-                (void) LoadSnapshot(self, str);
-                (void) Play(self);
-            }
-            if(strcasecmp(&str[length - 4], ".dsk") == 0) {
-                (void) InsertOrRemoveDisk(self, str);
-                (void) Play(self);
-            }
+        else if(CheckExtension(filename, ".dsk") != 0) {
+            (void) InsertOrRemoveDisk(self, filename);
+            (void) Play(self);
+        }
+        else if(CheckExtension(filename, ".dsk.gz") != 0) {
+            (void) InsertOrRemoveDisk(self, filename);
+            (void) Play(self);
+        }
+        else if(CheckExtension(filename, ".dsk.bz2") != 0) {
+            (void) InsertOrRemoveDisk(self, filename);
+            (void) Play(self);
         }
     }
 }
@@ -368,7 +614,7 @@ static void DropUriCallback(Widget widget, XcpcApplication* self, char* uri)
  * ---------------------------------------------------------------------------
  */
 
-static void ExitCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void ExitCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     (void) Exit(self);
 }
@@ -383,16 +629,16 @@ static void LoadSnapshotOkCallback(Widget widget, XcpcApplication* self, XmFileS
 {
     char* filename = NULL;
 
-    if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
+    if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != False) {
         (void) LoadSnapshot(self, filename);
     }
     if(filename != NULL) {
         filename = (XtFree(filename), NULL);
     }
-    DismissCallback(widget, self, (XmAnyCallbackStruct *) info);
+    DismissCallback(widget, self, (XtPointer) info);
 }
 
-static void LoadSnapshotCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void LoadSnapshotCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
@@ -427,16 +673,16 @@ static void SaveSnapshotOkCallback(Widget widget, XcpcApplication* self, XmFileS
 {
     char* filename = NULL;
 
-    if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
+    if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != False) {
         (void) SaveSnapshot(self, filename);
     }
     if(filename != NULL) {
         filename = (XtFree(filename), NULL);
     }
-    DismissCallback(widget, self, (XmAnyCallbackStruct *) info);
+    DismissCallback(widget, self, (XtPointer) info);
 }
 
-static void SaveSnapshotCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void SaveSnapshotCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
@@ -471,16 +717,16 @@ static void InsertDrive0OkCallback(Widget widget, XcpcApplication* self, XmFileS
 {
     char* filename = NULL;
 
-    if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
+    if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != False) {
         (void) InsertDiskIntoDrive0(self, filename);
     }
     if(filename != NULL) {
         filename = (XtFree(filename), NULL);
     }
-    DismissCallback(widget, self, (XmAnyCallbackStruct *) info);
+    DismissCallback(widget, self, (XtPointer) info);
 }
 
-static void InsertDrive0Callback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void InsertDrive0Callback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
@@ -505,7 +751,7 @@ static void InsertDrive0Callback(Widget widget, XcpcApplication* self, XmAnyCall
     }
 }
 
-static void RemoveDrive0Callback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void RemoveDrive0Callback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     (void) RemoveDiskFromDrive0(self);
 }
@@ -520,16 +766,16 @@ static void InsertDrive1OkCallback(Widget widget, XcpcApplication* self, XmFileS
 {
     char* filename = NULL;
 
-    if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != FALSE) {
+    if(XmStringGetLtoR(info->value, XmFONTLIST_DEFAULT_TAG, &filename) != False) {
         (void) InsertDiskIntoDrive1(self, filename);
     }
     if(filename != NULL) {
         filename = (XtFree(filename), NULL);
     }
-    DismissCallback(widget, self, (XmAnyCallbackStruct *) info);
+    DismissCallback(widget, self, (XtPointer) info);
 }
 
-static void InsertDrive1Callback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void InsertDrive1Callback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
@@ -554,7 +800,7 @@ static void InsertDrive1Callback(Widget widget, XcpcApplication* self, XmAnyCall
     }
 }
 
-static void RemoveDrive1Callback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void RemoveDrive1Callback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     (void) RemoveDiskFromDrive1(self);
 }
@@ -565,17 +811,17 @@ static void RemoveDrive1Callback(Widget widget, XcpcApplication* self, XmAnyCall
  * ---------------------------------------------------------------------------
  */
 
-static void PlayCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void PlayCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     (void) Play(self);
 }
 
-static void PauseCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void PauseCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     (void) Pause(self);
 }
 
-static void ResetCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void ResetCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     (void) Reset(self);
     (void) Play(self);
@@ -587,21 +833,12 @@ static void ResetCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStr
  * ---------------------------------------------------------------------------
  */
 
-static void LegalCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void LegalCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
-    XmString title = XmStringCreateLocalized(_(
-        "Legal Info ..."
-    ));
-    XmString message = XmStringCreateLocalized(_(
-        "Amstrad has kindly given it's permission for it's copyrighted\n"
-        "material to be redistributed but Amstrad retains it's copyright.\n\n"
-        "Some of the Amstrad CPC ROM code is copyright Locomotive Software.\n\n"
-        "ROM and DISK images are protected under the copyrights of their authors,\n"
-        "and cannot be distributed in this package. You can download and/or use\n"
-        "ROM and DISK images at your own risk and responsibility."
-    ));
+    XmString title = XmStringCreateLocalized(_("Legal Info ..."));
+    XmString message = XmStringCreateLocalized(_(((char*)(xcpc_legal_text()))));
 
     /* legal dialog */ {
         Widget dialog = NULL;
@@ -634,26 +871,12 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStr
  * ---------------------------------------------------------------------------
  */
 
-static void AboutCallback(Widget widget, XcpcApplication* self, XmAnyCallbackStruct* info)
+static void AboutCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
-    XmString title = XmStringCreateLocalized(_(
-        "About Xcpc ..."
-    ));
-    XmString message = XmStringCreateLocalized(_(
-        PACKAGE_STRING " - Amstrad CPC emulator - Copyright (c) 2001-2021 - Olivier Poncet\n\n"
-        "This program is free software: you can redistribute it and/or modify\n"
-        "it under the terms of the GNU General Public License as published by\n"
-        "the Free Software Foundation, either version 2 of the License, or\n"
-        "(at your option) any later version.\n\n"
-        "This program is distributed in the hope that it will be useful,\n"
-        "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-        "GNU General Public License for more details.\n\n"
-        "You should have received a copy of the GNU General Public License\n"
-        "along with this program.  If not, see <http://www.gnu.org/licenses/>"
-    ));
+    XmString title = XmStringCreateLocalized(_("About Xcpc ..."));
+    XmString message = XmStringCreateLocalized(_(((char*)(xcpc_about_text()))));
 
     /* about dialog */ {
         Widget dialog = NULL;
@@ -969,14 +1192,15 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
 
 static XcpcApplication* BuildMenuBar(XcpcApplication* self)
 {
+    XcpcMenuBarRec* menubar = &self->menubar;
     Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* menubar */ {
         argcount = 0;
-        self->menubar.widget = XmCreateMenuBar(self->layout.window, "menubar", arglist, argcount);
-        XtAddCallback(self->menubar.widget, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->menubar.widget);
-        XtManageChild(self->menubar.widget);
+        menubar->widget = XmCreateMenuBar(self->layout.window, "menubar", arglist, argcount);
+        XtAddCallback(menubar->widget, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menubar->widget);
+        XtManageChild(menubar->widget);
     }
     /* build all menus */ {
         (void) BuildFileMenu(self);
@@ -1048,6 +1272,75 @@ static XcpcApplication* BuildToolBar(XcpcApplication* self)
     return self;
 }
 
+static XcpcApplication* BuildInfoBar(XcpcApplication* self)
+{
+    XcpcInfoBarRec* infobar = &self->infobar;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+
+    /* infobar */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNorientation, XmHORIZONTAL); ++argcount;
+        infobar->widget = XmCreateRowColumn(self->layout.window, "infobar", arglist, argcount);
+        XtAddCallback(infobar->widget, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->widget);
+        XtManageChild(infobar->widget);
+    }
+    /* info-status */ {
+        argcount = 0;
+        infobar->status = XmCreateLabel(infobar->widget, "info-status", arglist, argcount);
+        XtAddCallback(infobar->status, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->status);
+        XtManageChild(infobar->status);
+    }
+    /* info-drive0 */ {
+        argcount = 0;
+        infobar->drive0 = XmCreateLabel(infobar->widget, "info-drive0", arglist, argcount);
+        XtAddCallback(infobar->drive0, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->drive0);
+        XtManageChild(infobar->drive0);
+    }
+    /* info-drive1 */ {
+        argcount = 0;
+        infobar->drive1 = XmCreateLabel(infobar->widget, "info-drive1", arglist, argcount);
+        XtAddCallback(infobar->drive1, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->drive1);
+        XtManageChild(infobar->drive1);
+    }
+    /* info-system */ {
+        argcount = 0;
+        infobar->system = XmCreateLabel(infobar->widget, "info-system", arglist, argcount);
+        XtAddCallback(infobar->system, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &infobar->system);
+        XtManageChild(infobar->system);
+    }
+    /* initialize */ {
+        (void) SetStatus(self, "-");
+        (void) SetDrive0(self);
+        (void) SetDrive1(self);
+    }
+    return self;
+}
+
+static XcpcApplication* BuildEmulator(XcpcApplication* self)
+{
+    XcpcLayoutRec* layout = &self->layout;
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+
+    /* emulator */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNborderWidth   , 0                         ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuContext    , self->machine             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuCreateProc , &xcpc_machine_create_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuRealizeProc, &xcpc_machine_realize_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuResizeProc , &xcpc_machine_resize_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuExposeProc , &xcpc_machine_expose_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNemuInputProc  , &xcpc_machine_input_proc  ); ++argcount;
+        layout->emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
+        XtAddCallback(layout->emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);
+        XtManageChild(layout->emulator);
+    }
+    return self;
+}
+
 static XcpcApplication* BuildLayout(XcpcApplication* self)
 {
     Arg      arglist[16];
@@ -1069,27 +1362,18 @@ static XcpcApplication* BuildLayout(XcpcApplication* self)
         (void) BuildToolBar(self);
     }
     /* emulator */ {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNborderWidth   , 0                         ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuContext    , self->machine             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuCreateProc , &xcpc_machine_create_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuRealizeProc, &xcpc_machine_realize_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuResizeProc , &xcpc_machine_resize_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuExposeProc , &xcpc_machine_expose_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuInputProc  , &xcpc_machine_input_proc  ); ++argcount;
-        self->layout.emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
-        XtAddCallback(self->layout.emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.emulator);
-        XtManageChild(self->layout.emulator);
+        (void) BuildEmulator(self);
+    }
+    /* infobar */ {
+        (void) BuildInfoBar(self);
     }
     /* set main-window areas */ {
-        XmMainWindowSetAreas ( self->layout.window
-                             , self->menubar.widget
-                             , self->toolbar.widget
-                             , NULL
-                             , NULL
-                             , self->layout.emulator );
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNmenuBar      , self->menubar.widget ); ++argcount;
+        XtSetArg(arglist[argcount], XmNcommandWindow, self->toolbar.widget ); ++argcount;
+        XtSetArg(arglist[argcount], XmNworkWindow   , self->layout.emulator); ++argcount;
+        XtSetArg(arglist[argcount], XmNmessageWindow, self->infobar.widget ); ++argcount;
+        XtSetValues(self->layout.window, arglist, argcount);
     }
     /* get pixmaps */ {
         GetPixmaps(self->menubar.widget, &self->pixmaps);
@@ -1116,8 +1400,8 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
     }
     /* create application context and toplevel shell */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XmNmappedWhenManaged, TRUE        ); ++argcount;
-        XtSetArg(arglist[argcount], XmNallowShellResize , TRUE        ); ++argcount;
+        XtSetArg(arglist[argcount], XmNmappedWhenManaged, True        ); ++argcount;
+        XtSetArg(arglist[argcount], XmNallowShellResize , True        ); ++argcount;
         XtSetArg(arglist[argcount], XmNdeleteResponse   , XmDO_NOTHING); ++argcount;
         self->layout.toplevel = XtOpenApplication(&self->appcontext, "Xcpc", options, XtNumber(options), argc, *argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
         XtAddCallback(self->layout.toplevel, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.toplevel);
@@ -1159,11 +1443,14 @@ static XcpcApplication* Destruct(XcpcApplication* self)
 
 static XcpcApplication* MainLoop(XcpcApplication* self)
 {
-    if(XtAppGetExitFlag(self->appcontext) == FALSE) {
+    if(XtAppGetExitFlag(self->appcontext) == False) {
         /* realize toplevel shell */ {
             if((self->layout.toplevel != NULL)) {
                 XtRealizeWidget(self->layout.toplevel);
             }
+        }
+        /* set initial keyboard focus */ {
+            XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
         }
         /* run application loop  */ {
             if((self->appcontext != NULL)) {

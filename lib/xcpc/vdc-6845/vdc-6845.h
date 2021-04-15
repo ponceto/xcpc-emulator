@@ -34,10 +34,11 @@ extern XcpcVdc6845* xcpc_vdc_6845_debug     (XcpcVdc6845* vdc_6845);
 extern XcpcVdc6845* xcpc_vdc_6845_reset     (XcpcVdc6845* vdc_6845);
 extern XcpcVdc6845* xcpc_vdc_6845_clock     (XcpcVdc6845* vdc_6845);
 
-extern uint8_t      xcpc_vdc_6845_rg        (XcpcVdc6845* vdc_6845, uint8_t data_bus);
-extern uint8_t      xcpc_vdc_6845_rs        (XcpcVdc6845* vdc_6845, uint8_t data_bus);
-extern uint8_t      xcpc_vdc_6845_rd        (XcpcVdc6845* vdc_6845, uint8_t data_bus);
-extern uint8_t      xcpc_vdc_6845_wr        (XcpcVdc6845* vdc_6845, uint8_t data_bus);
+extern uint8_t      xcpc_vdc_6845_illegal   (XcpcVdc6845* vdc_6845, uint8_t data_bus);
+extern uint8_t      xcpc_vdc_6845_rd_addr   (XcpcVdc6845* vdc_6845, uint8_t data_bus);
+extern uint8_t      xcpc_vdc_6845_wr_addr   (XcpcVdc6845* vdc_6845, uint8_t data_bus);
+extern uint8_t      xcpc_vdc_6845_rd_data   (XcpcVdc6845* vdc_6845, uint8_t data_bus);
+extern uint8_t      xcpc_vdc_6845_wr_data   (XcpcVdc6845* vdc_6845, uint8_t data_bus);
 
 #ifdef __cplusplus
 }

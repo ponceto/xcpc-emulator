@@ -24,13 +24,7 @@
 extern "C" {
 #endif
 
-typedef unsigned long (*XemEmulatorCreateProc)  (XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorDestroyProc) (XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorRealizeProc) (XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorResizeProc)  (XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorExposeProc)  (XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorInputProc)   (XtPointer data, XEvent* event);
-typedef unsigned long (*XemEmulatorTimerProc)   (XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event);
 
 typedef struct _XemEmulatorClassPart
 {
@@ -47,16 +41,19 @@ externalref XemEmulatorClassRec xemEmulatorClassRec;
 
 typedef struct _XemEmulatorPart
 {
-    XtPointer              context;
-    XemEmulatorCreateProc  create_proc;
-    XemEmulatorDestroyProc destroy_proc;
-    XemEmulatorRealizeProc realize_proc;
-    XemEmulatorResizeProc  resize_proc;
-    XemEmulatorExposeProc  expose_proc;
-    XemEmulatorInputProc   input_proc;
-    XemEmulatorTimerProc   timer_proc;
-    XtIntervalId           timer;
-    unsigned long          delay;
+    XtPointer       context;
+    XemEmulatorProc create_proc;
+    XemEmulatorProc destroy_proc;
+    XemEmulatorProc realize_proc;
+    XemEmulatorProc resize_proc;
+    XemEmulatorProc expose_proc;
+    XemEmulatorProc input_proc;
+    XemEmulatorProc timer_proc;
+    XtIntervalId    timer;
+    XEvent          event;
+    XEvent          throttled_data[64];
+    unsigned int    throttled_head;
+    unsigned int    throttled_tail;
 } XemEmulatorPart;
 
 typedef struct _XemEmulatorRec

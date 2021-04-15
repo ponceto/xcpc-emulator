@@ -27,13 +27,13 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcVgaCore::%s()", function);
 }
 
-static void reset_mode0_lut(XcpcVgaCore* self)
+static void build_mode0_lookup_table(XcpcVgaCore* self)
 {
     unsigned int index = 0;
-    unsigned int count = countof(self->state.mode0);
+    unsigned int count = countof(self->setup.mode0);
 
     do {
-        self->state.mode0[index] = ((index & BIT7) >> 7) | ((index & BIT3) >> 2)
+        self->setup.mode0[index] = ((index & BIT7) >> 7) | ((index & BIT3) >> 2)
                                  | ((index & BIT5) >> 3) | ((index & BIT1) << 2)
                                  | ((index & BIT6) >> 2) | ((index & BIT2) << 3)
                                  | ((index & BIT4) << 2) | ((index & BIT0) << 7)
@@ -41,13 +41,13 @@ static void reset_mode0_lut(XcpcVgaCore* self)
     } while(++index < count);
 }
 
-static void reset_mode1_lut(XcpcVgaCore* self)
+static void build_mode1_lookup_table(XcpcVgaCore* self)
 {
     unsigned int index = 0;
-    unsigned int count = countof(self->state.mode1);
+    unsigned int count = countof(self->setup.mode1);
 
     do {
-        self->state.mode1[index] = ((index & BIT7) >> 7) | ((index & BIT3) >> 2)
+        self->setup.mode1[index] = ((index & BIT7) >> 7) | ((index & BIT3) >> 2)
                                  | ((index & BIT6) >> 4) | ((index & BIT2) << 1)
                                  | ((index & BIT5) >> 1) | ((index & BIT1) << 4)
                                  | ((index & BIT4) << 2) | ((index & BIT0) << 7)
@@ -55,16 +55,30 @@ static void reset_mode1_lut(XcpcVgaCore* self)
     } while(++index < count);
 }
 
-static void reset_mode2_lut(XcpcVgaCore* self)
+static void build_mode2_lookup_table(XcpcVgaCore* self)
 {
     unsigned int index = 0;
-    unsigned int count = countof(self->state.mode2);
+    unsigned int count = countof(self->setup.mode2);
 
     do {
-        self->state.mode2[index] = ((index & BIT7) >> 7) | ((index & BIT6) >> 5)
+        self->setup.mode2[index] = ((index & BIT7) >> 7) | ((index & BIT6) >> 5)
                                  | ((index & BIT5) >> 3) | ((index & BIT4) >> 1)
                                  | ((index & BIT3) << 1) | ((index & BIT2) << 3)
                                  | ((index & BIT1) << 5) | ((index & BIT0) << 7)
+                                 ;
+    } while(++index < count);
+}
+
+static void build_mode3_lookup_table(XcpcVgaCore* self)
+{
+    unsigned int index = 0;
+    unsigned int count = countof(self->setup.mode3);
+
+    do {
+        self->setup.mode3[index] = ((index & BIT7) >> 7) | ((index & BIT3) >> 2)
+                                 | ((index & BIT6) >> 4) | ((index & BIT2) << 1)
+                                 | ((index & BIT5) >> 1) | ((index & BIT1) << 4)
+                                 | ((index & BIT4) << 2) | ((index & BIT0) << 7)
                                  ;
     } while(++index < count);
 }
@@ -121,6 +135,12 @@ XcpcVgaCore* xcpc_vga_core_construct(XcpcVgaCore* self)
     /* initialize iface */ {
         (void) xcpc_vga_core_set_iface(self, NULL);
     }
+    /* initialize setup */ {
+        build_mode0_lookup_table(self);
+        build_mode1_lookup_table(self);
+        build_mode2_lookup_table(self);
+        build_mode3_lookup_table(self);
+    }
     /* reset */ {
         (void) xcpc_vga_core_reset(self);
     }
@@ -161,14 +181,41 @@ XcpcVgaCore* xcpc_vga_core_set_iface(XcpcVgaCore* self, const XcpcVgaCoreIface* 
     return self;
 }
 
+XcpcVgaCore* xcpc_vga_core_debug(XcpcVgaCore* self)
+{
+    const char* format1 = "vga-core:";
+    const char* format2 = "  - %-24s : 0x%02x";
+
+    /* debug state */ {
+        xcpc_log_debug(format1);
+        xcpc_log_debug(format2, "pen"  , self->state.pen      );
+        xcpc_log_debug(format2, "ink00", self->state.ink[0x00]);
+        xcpc_log_debug(format2, "ink01", self->state.ink[0x01]);
+        xcpc_log_debug(format2, "ink02", self->state.ink[0x02]);
+        xcpc_log_debug(format2, "ink03", self->state.ink[0x03]);
+        xcpc_log_debug(format2, "ink04", self->state.ink[0x04]);
+        xcpc_log_debug(format2, "ink05", self->state.ink[0x05]);
+        xcpc_log_debug(format2, "ink06", self->state.ink[0x06]);
+        xcpc_log_debug(format2, "ink07", self->state.ink[0x07]);
+        xcpc_log_debug(format2, "ink08", self->state.ink[0x08]);
+        xcpc_log_debug(format2, "ink09", self->state.ink[0x09]);
+        xcpc_log_debug(format2, "ink10", self->state.ink[0x0a]);
+        xcpc_log_debug(format2, "ink11", self->state.ink[0x0b]);
+        xcpc_log_debug(format2, "ink12", self->state.ink[0x0c]);
+        xcpc_log_debug(format2, "ink13", self->state.ink[0x0d]);
+        xcpc_log_debug(format2, "ink14", self->state.ink[0x0e]);
+        xcpc_log_debug(format2, "ink15", self->state.ink[0x0f]);
+        xcpc_log_debug(format2, "ink16", self->state.ink[0x10]);
+        xcpc_log_debug(format2, "rmr"  , self->state.rmr      );
+    }
+    return self;
+}
+
 XcpcVgaCore* xcpc_vga_core_reset(XcpcVgaCore* self)
 {
     log_trace("reset");
 
     /* reset state */ {
-        reset_mode0_lut(self);
-        reset_mode1_lut(self);
-        reset_mode2_lut(self);
         reset_pen(self);
         reset_ink(self);
         reset_rmr(self);
@@ -180,4 +227,38 @@ XcpcVgaCore* xcpc_vga_core_reset(XcpcVgaCore* self)
 XcpcVgaCore* xcpc_vga_core_clock(XcpcVgaCore* self)
 {
     return self;
+}
+
+uint8_t xcpc_vga_core_illegal(XcpcVgaCore* self, uint8_t data_bus)
+{
+    return data_bus;
+}
+
+uint8_t xcpc_vga_core_set_pen(XcpcVgaCore* self, uint8_t data_bus)
+{
+    /* set pen */ {
+        self->state.pen = ((data_bus & 0x10) != 0 ? (data_bus & 0x10) : (data_bus & 0x0f));
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_vga_core_set_ink(XcpcVgaCore* self, uint8_t data_bus)
+{
+    /* set ink */ {
+        self->state.ink[self->state.pen] = (data_bus & 0x1f);
+    }
+    return data_bus;
+}
+
+uint8_t xcpc_vga_core_set_rmr(XcpcVgaCore* self, uint8_t data_bus)
+{
+    /* set rmr */ {
+        self->state.rmr = (data_bus & 0x1f);
+    }
+    /* clear scanline counter */ {
+        if((data_bus & 0x10) != 0) {
+            self->state.counter = 0;
+        }
+    }
+    return data_bus;
 }

@@ -47,13 +47,23 @@ extern void* xcpc_calloc        (const char* type, size_t count, size_t size);
 extern void* xcpc_realloc       (const char* type, void* pointer, size_t size);
 extern void* xcpc_free          (const char* type, void* pointer);
 
+extern const char*      xcpc_legal_text       (void);
+extern const char*      xcpc_about_text       (void);
 extern XcpcCompanyName  xcpc_company_name     (const char* label, XcpcCompanyName  value);
 extern XcpcMachineType  xcpc_machine_type     (const char* label, XcpcMachineType  value);
 extern XcpcMonitorType  xcpc_monitor_type     (const char* label, XcpcMonitorType  value);
 extern XcpcRefreshRate  xcpc_refresh_rate     (const char* label, XcpcRefreshRate  value);
 extern XcpcKeyboardType xcpc_keyboard_type    (const char* label, XcpcKeyboardType value);
+extern XcpcMemorySize   xcpc_memory_size      (const char* label, XcpcMemorySize   value);
 extern XcpcColor        xcpc_color            (const char* label);
 extern XcpcColor        xcpc_color_get_values (XcpcMonitorType monitor_type, XcpcColor color, unsigned short* r, unsigned short* g, unsigned short* b);
+
+extern const char* xcpc_company_name_to_string  (XcpcCompanyName  value);
+extern const char* xcpc_machine_type_to_string  (XcpcMachineType  value);
+extern const char* xcpc_monitor_type_to_string  (XcpcMonitorType  value);
+extern const char* xcpc_refresh_rate_to_string  (XcpcRefreshRate  value);
+extern const char* xcpc_keyboard_type_to_string (XcpcKeyboardType value);
+extern const char* xcpc_memory_size_to_string   (XcpcMemorySize   value);
 
 #ifdef __cplusplus
 }

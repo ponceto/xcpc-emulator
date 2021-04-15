@@ -3797,7 +3797,7 @@ execute_dd_opcode:
   goto epilog;
 
 fetch_fd_opcode:
-  m_fetch_ed_opcode();
+  m_fetch_fd_opcode();
   m_refresh_dram();
   goto execute_fd_opcode;
 
