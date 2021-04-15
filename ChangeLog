@@ -1,11 +1,12 @@
-xxxx-xx-xx	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+2021-04-15	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Athena and Motif2 user interfaces improved.
 	* Athena and Motif2 Drag'n Drop URI deserialization.
 	* CRTC-6845 emulation updated.
 	* AY-3-8912 emulation updated.
-	* Interrupt generation.
+	* Interrupt generation improved.
 	* Rendering fixed and more accurate.
+	* Emulator widget improved with input events throttling.
 	* Some refactoring and minor improvements.
 
 2021-04-09	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
