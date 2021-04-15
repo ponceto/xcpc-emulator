@@ -2555,6 +2555,7 @@ XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
 {
     XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
     XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcPsg8910* psg_8910 = self->board.psg_8910;
     XcpcFdc765a* fdc_765a = self->board.fdc_765a;
 
     /* process each scanline */ {
@@ -2564,18 +2565,19 @@ XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
             int32_t new_i_period;
             int cpu_ticks = self->frame.cpu_ticks;
             do {
-                xcpc_vdc_6845_clock(vdc_6845);
+                (void) xcpc_vdc_6845_clock(vdc_6845);
                 if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
                     old_i_period = cpu_z80a->state.ctrs.i_period;
-                    xcpc_cpu_z80a_clock(self->board.cpu_z80a);
+                    (void) xcpc_cpu_z80a_clock(self->board.cpu_z80a);
                     new_i_period = cpu_z80a->state.ctrs.i_period;
                     cpu_z80a->state.ctrs.i_period = old_i_period - (((old_i_period - new_i_period) + 3) & (~3));
                 }
+                (void) xcpc_psg_8910_clock(psg_8910);
             } while((cpu_ticks -= 4) > 0);
         } while(--scanlines > 0);
     }
     /* clock the fdc */ {
-        xcpc_fdc_765a_clock(fdc_765a);
+        (void) xcpc_fdc_765a_clock(fdc_765a);
     }
     return self;
 }
