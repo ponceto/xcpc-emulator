@@ -1546,6 +1546,9 @@ static XcpcApplication* MainLoop(XcpcApplication* self)
                 XtRealizeWidget(self->layout.toplevel);
             }
         }
+        /* set initial keyboard focus */ {
+            XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
+        }
         /* run application loop  */ {
             if((self->appcontext != NULL)) {
                 XtAppMainLoop(self->appcontext);

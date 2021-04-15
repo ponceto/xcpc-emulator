@@ -50,8 +50,10 @@ typedef struct _XemEmulatorPart
     XemEmulatorProc input_proc;
     XemEmulatorProc timer_proc;
     XtIntervalId    timer;
-    unsigned long   delay;
     XEvent          event;
+    XEvent          throttled_data[64];
+    unsigned int    throttled_head;
+    unsigned int    throttled_tail;
 } XemEmulatorPart;
 
 typedef struct _XemEmulatorRec
