@@ -54,6 +54,7 @@ typedef struct _XemEmulatorPart
     XEvent          throttled_data[64];
     unsigned int    throttled_head;
     unsigned int    throttled_tail;
+    XtCallbackList  hotkey_callback;
 } XemEmulatorPart;
 
 typedef struct _XemEmulatorRec

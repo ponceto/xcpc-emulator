@@ -151,6 +151,11 @@ static XtResource resources[] = {
         sizeof(XtWidgetProc), XtOffsetOf(XemEmulatorRec, emulator.timer_proc),
         XtRImmediate, POINTER(NULL)
     },
+    /* XtNhotkeyCallback */ {
+        XtNhotkeyCallback, XtCCallback, XtRCallback,
+        sizeof(XtCallbackList), XtOffsetOf(XemEmulatorRec, emulator.hotkey_callback),
+        XtRImmediate, (XtPointer) NULL
+    }
 };
 
 /*
@@ -282,16 +287,24 @@ static void ThrottleInputEvent(Widget widget, XEvent* event)
     unsigned int tail = ((self->emulator.throttled_tail + 1) % countof(self->emulator.throttled_data));
 
     /* auto-repeat detection */ {
-        XEvent* next = &self->emulator.event;
-        if(XPending(event->xany.display) > 0) {
-            (void) XPeekEvent(event->xany.display, next);
-            if((next->type         == KeyPress           )
-            && (next->xkey.display == event->xkey.display)
-            && (next->xkey.window  == event->xkey.window )
-            && (next->xkey.keycode == event->xkey.keycode)
-            && ((next->xkey.time - event->xkey.time) < AUTO_KEY_THRESHOLD)) {
-                (void) XNextEvent(event->xany.display, next);
-                return;
+        if(event->type == KeyPress) {
+            XEvent* next = &self->emulator.event;
+            if(XPending(event->xany.display) > 0) {
+                (void) XPeekEvent(event->xany.display, next);
+                if((next->type         == KeyPress           )
+                && (next->xkey.display == event->xkey.display)
+                && (next->xkey.window  == event->xkey.window )
+                && (next->xkey.keycode == event->xkey.keycode)
+                && ((next->xkey.time - event->xkey.time) < AUTO_KEY_THRESHOLD)) {
+                    (void) XNextEvent(event->xany.display, next);
+                    return;
+                }
+            }
+            /* check some hotkeys */ {
+                KeySym keysym = XLookupKeysym(&event->xkey, 0);
+                if((keysym >= XK_F1) && (keysym <= XK_F35)) {
+                    XtCallCallbackList(widget, self->emulator.hotkey_callback, &keysym);
+                }
             }
         }
     }
@@ -325,11 +338,8 @@ static void Schedule(Widget widget, unsigned long timeout)
 {
     XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
-    if(timeout == 0UL) {
-        timeout = DEFAULT_TIMEOUT;
-    }
     if(self->emulator.timer == INTERVAL_ID(0)) {
-        self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), timeout, TIMER_CALLBACK_PROC(&TimeOutHandler), POINTER(widget));
+        self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), (timeout != 0UL ? timeout : 1UL), TIMER_CALLBACK_PROC(&TimeOutHandler), POINTER(widget));
     }
 }
 

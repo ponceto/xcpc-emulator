@@ -31,6 +31,10 @@ extern "C" {
 #define XtNdropURICallback "dropURICallback"
 #endif
 
+#ifndef XtNhotkeyCallback
+#define XtNhotkeyCallback "hotkeyCallback"
+#endif
+
 #ifndef XtNemuContext
 #define XtNemuContext "emuContext"
 #endif
