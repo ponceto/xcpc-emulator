@@ -41,6 +41,30 @@ Run the `configure` script
 ./configure --prefix={destination-path}
 ```
 
+Xcpc supports 3 differents user interface types:
+
+  - Motif2
+  - Athena
+  - Intrinsic
+
+The user interface toolkit is detected automagically when running the `configure` script.
+
+You can disable the support of a specific toolkit:
+
+```
+--disable-motif2
+--disable-athena
+--disable-intrinsic
+```
+
+You can also force the user interface toolkit with the `--with-x11-toolkit` option:
+
+```
+--with-x11-toolkit=motif2
+--with-x11-toolkit=athena
+--with-x11-toolkit=intrinsic
+```
+
 ### Build the emulator
 
 Build the emulator
