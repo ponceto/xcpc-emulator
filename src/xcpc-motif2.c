@@ -1034,26 +1034,32 @@ static XcpcApplication* BuildFileMenu(XcpcApplication* self)
     }
     /* file-load-snapshot */ {
         XmString string = XmStringCreateLocalized(_("Load snapshot..."));
+        XmString accelerator = XmStringCreateLocalized(_("F2"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.file_load); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->load_snapshot = XmCreatePushButtonGadget(menu->pulldown, "file-load-snapshot", arglist, argcount);
         XtAddCallback(menu->load_snapshot, XmNactivateCallback, (XtCallbackProc) &LoadSnapshotCallback, (XtPointer) self);
         XtAddCallback(menu->load_snapshot, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->load_snapshot);
         XtManageChild(menu->load_snapshot);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* file-save-snapshot */ {
         XmString string = XmStringCreateLocalized(_("Save snapshot as..."));
+        XmString accelerator = XmStringCreateLocalized(_("F3"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.file_save); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->save_snapshot = XmCreatePushButtonGadget(menu->pulldown, "file-save-snapshot", arglist, argcount);
         XtAddCallback(menu->save_snapshot, XmNactivateCallback, (XtCallbackProc) &SaveSnapshotCallback, (XtPointer) self);
         XtAddCallback(menu->save_snapshot, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->save_snapshot);
         XtManageChild(menu->save_snapshot);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* file-separator1 */ {
@@ -1160,26 +1166,32 @@ static XcpcApplication* BuildDrv0Menu(XcpcApplication* self)
     }
     /* drv0-drive0-insert */ {
         XmString string = XmStringCreateLocalized(_("Insert disk..."));
+        XmString accelerator = XmStringCreateLocalized(_("F4"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_insert); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->drive0_insert = XmCreatePushButtonGadget(menu->pulldown, "drv0-drive0-insert", arglist, argcount);
         XtAddCallback(menu->drive0_insert, XmNactivateCallback, (XtCallbackProc) &InsertDrive0Callback, (XtPointer) self);
         XtAddCallback(menu->drive0_insert, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive0_insert);
         XtManageChild(menu->drive0_insert);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* drv0-drive0-remove */ {
         XmString string = XmStringCreateLocalized(_("Remove disk"));
+        XmString accelerator = XmStringCreateLocalized(_("F5"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_remove); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->drive0_remove = XmCreatePushButtonGadget(menu->pulldown, "drv0-drive0-remove", arglist, argcount);
         XtAddCallback(menu->drive0_remove, XmNactivateCallback, (XtCallbackProc) &RemoveDrive0Callback, (XtPointer) self);
         XtAddCallback(menu->drive0_remove, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive0_remove);
         XtManageChild(menu->drive0_remove);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* drv0-menu */ {
@@ -1208,26 +1220,32 @@ static XcpcApplication* BuildDrv1Menu(XcpcApplication* self)
     }
     /* drv1-drive1-insert */ {
         XmString string = XmStringCreateLocalized(_("Insert disk..."));
+        XmString accelerator = XmStringCreateLocalized(_("F6"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_insert); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->drive1_insert = XmCreatePushButtonGadget(menu->pulldown, "drv1-drive1-insert", arglist, argcount);
         XtAddCallback(menu->drive1_insert, XmNactivateCallback, (XtCallbackProc) &InsertDrive1Callback, (XtPointer) self);
         XtAddCallback(menu->drive1_insert, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive1_insert);
         XtManageChild(menu->drive1_insert);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* drv1-drive1-remove */ {
         XmString string = XmStringCreateLocalized(_("Remove disk"));
+        XmString accelerator = XmStringCreateLocalized(_("F7"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_remove); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->drive1_remove = XmCreatePushButtonGadget(menu->pulldown, "drv1-drive1-remove", arglist, argcount);
         XtAddCallback(menu->drive1_remove, XmNactivateCallback, (XtCallbackProc) &RemoveDrive1Callback, (XtPointer) self);
         XtAddCallback(menu->drive1_remove, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->drive1_remove);
         XtManageChild(menu->drive1_remove);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* drv1-menu */ {
@@ -1256,26 +1274,32 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
     }
     /* help-legal */ {
         XmString string = XmStringCreateLocalized(_("Legal Info"));
+        XmString accelerator = XmStringCreateLocalized(_("F11"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_legal); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->legal = XmCreatePushButtonGadget(menu->pulldown, "help-legal", arglist, argcount);
         XtAddCallback(menu->legal, XmNactivateCallback, (XtCallbackProc) &LegalCallback, (XtPointer) self);
         XtAddCallback(menu->legal, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->legal);
         XtManageChild(menu->legal);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* help-about */ {
         XmString string = XmStringCreateLocalized(_("About Xcpc"));
+        XmString accelerator = XmStringCreateLocalized(_("F12"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_about); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->about = XmCreatePushButtonGadget(menu->pulldown, "help-about", arglist, argcount);
         XtAddCallback(menu->about, XmNactivateCallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
         XtAddCallback(menu->about, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->about);
         XtManageChild(menu->about);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* help-separator1 */ {
@@ -1286,14 +1310,17 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
     }
     /* help-help */ {
         XmString string = XmStringCreateLocalized(_("Help"));
+        XmString accelerator = XmStringCreateLocalized(_("F1"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_help); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->help = XmCreatePushButtonGadget(menu->pulldown, "help-help", arglist, argcount);
         XtAddCallback(menu->help, XmNactivateCallback, (XtCallbackProc) &HelpCallback, (XtPointer) self);
         XtAddCallback(menu->help, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->help);
         XtManageChild(menu->help);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* help-menu */ {
