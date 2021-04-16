@@ -1,3 +1,11 @@
+2021-xx-xx	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* Autotoolization updated.
+	* Basic intrinsic based gui added.
+	* Hotkeys support added.
+	* Better Scheduling.
+	* Sound support preparation.
+
 2021-04-15	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Athena and Motif2 user interfaces improved.
