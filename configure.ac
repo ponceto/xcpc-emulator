@@ -66,16 +66,17 @@ AX_CHECK_BYTE_ORDER
 # Dependencies
 # ----------------------------------------------------------------------------
 
-AX_CHECK_X11
-AX_CHECK_XMU
-AX_CHECK_XAW
-AX_CHECK_XM2
-AX_CHECK_XSHM
-AX_CHECK_GUI
 AX_CHECK_HEADERS
 AX_CHECK_FUNCTIONS
 AX_CHECK_ZLIB
 AX_CHECK_BZLIB
+AX_CHECK_X11
+AX_CHECK_XSHM
+AX_CHECK_INTRINSIC
+AX_CHECK_ATHENA
+AX_CHECK_MOTIF2
+AX_CHECK_X11_TOOLKIT
+AX_CHECK_PORTAUDIO
 
 # ----------------------------------------------------------------------------
 # Defines
@@ -131,10 +132,13 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([Configured to build Xcpc:
 
-  Athena sdk .... ${have_athena}
-  Motif2 sdk .... ${have_motif2}
-  X11 toolkit ... ${x11_toolkit}
-  X11-SHM ....... ${enable_xshm}
+  X11 ........... ${have_x}
+  X11 XShm ...... ${have_xshm}
+  Intrinsic ..... ${have_intrinsic}
+  Athena ........ ${have_athena}
+  Motif2 ........ ${have_motif2}
+  PortAudio ..... ${have_portaudio}
+  X11 toolkit ... ${with_x11_toolkit}
 
 Have fun with Xcpc ;-)
 ])

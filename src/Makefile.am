@@ -78,6 +78,21 @@ xcpc_LDADD += \
 	$(NULL)
 endif
 
+if INTRINSIC
+xcpc_SOURCES += \
+	xcpc-intrinsic.c \
+	xcpc-intrinsic.h \
+	xcpc-intrinsic-priv.h \
+	$(NULL)
+
+xcpc_LDADD += \
+	$(top_builddir)/lib/Xem/libXem.la \
+	$(X_LIBS) -lXt \
+	$(X_PRE_LIBS) -lXext -lX11 \
+	$(X_EXTRA_LIBS) -lm \
+	$(NULL)
+endif
+
 # ----------------------------------------------------------------------------
 # End-Of-File
 # ----------------------------------------------------------------------------

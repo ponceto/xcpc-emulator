@@ -100,118 +100,6 @@ AC_MSG_ERROR([unable to determine byte-order])
 ])dnl AX_CHECK_BYTE_ORDER
 
 # ----------------------------------------------------------------------------
-# AX_CHECK_X11
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_CHECK_X11], [
-AC_PATH_X
-AC_PATH_XTRA
-])dnl AX_CHECK_X11
-
-# ----------------------------------------------------------------------------
-# AX_CHECK_XMU
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_CHECK_XMU], [
-AC_CHECK_HEADER([X11/Xmu/Xmu.h], [have_x11xmu="yes"], [have_x11xmu="no"], [
-#include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-])
-])dnl AX_CHECK_XMU
-
-# ----------------------------------------------------------------------------
-# AX_CHECK_XAW
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_CHECK_XAW], [
-AC_ARG_WITH([athena], [AC_HELP_STRING([--with-athena], [build the Athena version])])
-AC_CHECK_HEADER([X11/Xaw/XawInit.h], [have_athena="yes"], [have_athena="no"], [
-#include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-])
-])dnl AX_CHECK_XAW
-
-# ----------------------------------------------------------------------------
-# AX_CHECK_XM2
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_CHECK_XM2], [
-AC_ARG_WITH([motif2], [AC_HELP_STRING([--with-motif2], [build the Motif2 version])])
-AC_CHECK_HEADER([Xm/Xm.h], [have_motif2="yes"], [have_motif2="no"], [
-#include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-])
-])dnl AX_CHECK_XM2
-
-# ----------------------------------------------------------------------------
-# AX_CHECK_XSHM
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_CHECK_XSHM], [
-AC_ARG_ENABLE([xshm], [AC_HELP_STRING([--enable-xshm], [add the support of XShm if available [default=yes]])], [], [enable_xshm="yes"])
-AC_CHECK_HEADER([sys/ipc.h], [], [enable_xshm="no"])
-if test "x${ac_cv_header_sys_ipc_h}" = "xyes"; then
-    AC_DEFINE([HAVE_SYS_IPC_H], [1], [Define to 1 if you have the <sys/ipc.h> header file.])
-fi
-AC_CHECK_HEADER([sys/shm.h], [], [enable_xshm="no"])
-if test "x${ac_cv_header_sys_shm_h}" = "xyes"; then
-    AC_DEFINE([HAVE_SYS_SHM_H], [1], [Define to 1 if you have the <sys/shm.h> header file.])
-fi
-AC_CHECK_HEADER([X11/extensions/XShm.h], [], [enable_xshm="no"], [
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-]
-)
-if test "x${enable_xshm}" = "xyes"; then
-    AC_DEFINE([HAVE_XSHM], [1], [Define to 1 if you have the X11-SHM extension.])
-fi
-])
-])dnl AX_CHECK_XSHM
-
-# ----------------------------------------------------------------------------
-# AX_CHECK_GUI
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_CHECK_GUI], [
-if test "x${x11_toolkit}${with_motif2}" = "xyes"; then
-    if test "x${have_motif2}" = "xyes"; then
-        AM_CONDITIONAL([ATHENA], false)
-        AM_CONDITIONAL([MOTIF2], true )
-        x11_toolkit="Motif2"
-    else
-        AC_MSG_ERROR([Motif2 toolkit was not found])
-    fi
-fi
-if test "x${x11_toolkit}${with_athena}" = "xyes"; then
-    if test "x${have_athena}" = "xyes"; then
-        AM_CONDITIONAL([ATHENA], true )
-        AM_CONDITIONAL([MOTIF2], false)
-        x11_toolkit="Athena"
-    else
-        AC_MSG_ERROR([Athena toolkit was not found])
-    fi
-fi
-if test "x${x11_toolkit}${have_motif2}" = "xyes"; then
-    AM_CONDITIONAL([ATHENA], false)
-    AM_CONDITIONAL([MOTIF2], true )
-    x11_toolkit="Motif2"
-fi
-if test "x${x11_toolkit}${have_athena}" = "xyes"; then
-    AM_CONDITIONAL([ATHENA], true )
-    AM_CONDITIONAL([MOTIF2], false)
-    x11_toolkit="Athena"
-fi
-if test "no${x11_toolkit}ne" = "none"; then
-    AC_MSG_ERROR([Graphical toolkit was not found])
-fi
-])dnl AX_CHECK_GUI
-
-# ----------------------------------------------------------------------------
 # AX_CHECK_HEADERS
 # ----------------------------------------------------------------------------
 
@@ -246,6 +134,8 @@ AC_CHECK_HEADERS([unistd.h])
 AC_CHECK_HEADERS([utime.h])
 AC_CHECK_HEADERS([windows.h])
 AC_CHECK_HEADERS([winioctl.h])
+AC_CHECK_HEADERS([sys/ipc.h])
+AC_CHECK_HEADERS([sys/shm.h])
 ])dnl AX_CHECK_HEADERS
 
 # ----------------------------------------------------------------------------
@@ -276,6 +166,157 @@ AC_DEFUN([AX_CHECK_BZLIB], [
 AC_CHECK_HEADERS(bzlib.h)
 AC_CHECK_LIB(bz2, BZ2_bzlibVersion)
 ])dnl AX_CHECK_BZLIB
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_X11
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_X11], [
+AC_PATH_X
+AC_PATH_XTRA
+])dnl AX_CHECK_X11
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_XSHM
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_XSHM], [
+AC_ARG_ENABLE([xshm], [AC_HELP_STRING([--enable-xshm], [add the support of XShm if available [default=yes]])], [], [enable_xshm="yes"])
+if test "x${enable_xshm}" = "xyes"; then
+AC_CHECK_HEADERS([X11/extensions/XShm.h], [have_xshm="yes"], [have_xshm="no"], [
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+]
+)
+fi
+if test "x${have_xshm}" = "xyes"; then
+    AC_DEFINE([HAVE_XSHM], [1], [Define to 1 if you have the X11-SHM extension.])
+else
+    have_xshm="no"
+fi
+])
+])dnl AX_CHECK_XSHM
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_INTRINSIC
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_INTRINSIC], [
+AC_CHECK_HEADERS([X11/Intrinsic.h], [have_intrinsic="yes"], [have_intrinsic="no"], [
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+])
+if test "x${have_intrinsic}" = "xyes"; then
+    AM_CONDITIONAL([INTRINSIC], true)
+else
+    have_intrinsic="no"
+fi
+])dnl AX_CHECK_INTRINSIC
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_ATHENA
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_ATHENA], [
+AC_ARG_ENABLE([athena], [AC_HELP_STRING([--enable-athena], [add the support of Athena if available [default=yes]])], [], [enable_athena="yes"])
+if test "x${enable_athena}" = "xyes"; then
+AC_CHECK_HEADERS([X11/Xaw/XawInit.h], [have_athena="yes"], [have_athena="no"], [
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+])
+else
+    have_athena="no"
+fi
+])dnl AX_CHECK_ATHENA
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_MOTIF2
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_MOTIF2], [
+AC_ARG_ENABLE([motif2], [AC_HELP_STRING([--enable-motif2], [add the support of Motif2 if available [default=yes]])], [], [enable_motif2="yes"])
+if test "x${enable_motif2}" = "xyes"; then
+AC_CHECK_HEADERS([Xm/Xm.h], [have_motif2="yes"], [have_motif2="no"], [
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+])
+else
+    have_motif2="no"
+fi
+])dnl AX_CHECK_MOTIF2
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_X11_TOOLKIT
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_X11_TOOLKIT], [
+AC_ARG_WITH([x11-toolkit], [AC_HELP_STRING([--with-x11-toolkit], [select the graphical toolkit (motif2, athena, intrinsic)])])
+if test "x${with_x11_toolkit}${have_motif2}" = "xyes"; then
+    with_x11_toolkit="motif2"
+fi
+if test "x${with_x11_toolkit}${have_athena}" = "xyes"; then
+    with_x11_toolkit="athena"
+fi
+if test "x${with_x11_toolkit}${have_intrinsic}" = "xyes"; then
+    with_x11_toolkit="intrinsic"
+fi
+if test "x${with_x11_toolkit}" = "xmotif2"; then
+    if test "x${have_motif2}" != "xyes"; then
+        AC_MSG_ERROR([motif2 toolkit was not found])
+    fi
+fi
+if test "x${with_x11_toolkit}" = "xathena"; then
+    if test "x${have_athena}" != "xyes"; then
+        AC_MSG_ERROR([athena toolkit was not found])
+    fi
+fi
+if test "x${with_x11_toolkit}" = "xintrinsic"; then
+    if test "x${have_intrinsic}" != "xyes"; then
+        AC_MSG_ERROR([intrinsic toolkit was not found])
+    fi
+fi
+case "${with_x11_toolkit}" in
+    motif2)
+        AM_CONDITIONAL([MOTIF2],    true )
+        AM_CONDITIONAL([ATHENA],    false)
+        AM_CONDITIONAL([INTRINSIC], false)
+        ;;
+    athena)
+        AM_CONDITIONAL([MOTIF2],    false)
+        AM_CONDITIONAL([ATHENA],    true )
+        AM_CONDITIONAL([INTRINSIC], false)
+        ;;
+    intrinsic)
+        AM_CONDITIONAL([MOTIF2],    false)
+        AM_CONDITIONAL([ATHENA],    false)
+        AM_CONDITIONAL([INTRINSIC], true )
+        ;;
+    *)
+        AC_MSG_ERROR([no usable X11 toolkit was found])
+        ;;
+esac
+])dnl AX_CHECK_X11_TOOLKIT
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_PORTAUDIO
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_PORTAUDIO], [
+AC_ARG_ENABLE([portaudio], [AC_HELP_STRING([--enable-portaudio], [add the support of PortAudio if available [default=yes]])], [], [enable_portaudio="yes"])
+if test "x${enable_portaudio}" = "xyes"; then
+    PKG_CHECK_MODULES(portaudio, portaudio-2.0 >= 19, [have_portaudio="yes"], [have_portaudio="no"])
+fi
+if test "x${have_portaudio}" = "xyes"; then
+    AM_CONDITIONAL([PORTAUDIO], true)
+else
+    have_portaudio="no"
+fi
+])dnl AX_CHECK_PORTAUDIO
 
 # ----------------------------------------------------------------------------
 # End-Of-File
