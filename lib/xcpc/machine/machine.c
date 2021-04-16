@@ -3065,8 +3065,8 @@ unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
 
 unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
 {
-    unsigned long elapsed = 0;
-    unsigned long timeout = 0;
+    unsigned long elapsed = 0UL;
+    unsigned long timeout = 0UL;
 
     /* clock the machine */ {
         xcpc_machine_clock(self);
@@ -3079,9 +3079,6 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
             const long long t2 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
             if(t2 >= t1) {
                 elapsed = ((unsigned long)(t2 - t1));
-            }
-            else {
-                elapsed = 0UL;
             }
             if(elapsed >= 1000000UL) {
                 self->timer.deadline = curr_time;
@@ -3113,15 +3110,10 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
             if(t2 >= t1) {
                 timeout = ((unsigned long)(t2 - t1));
             }
-            else {
-                timeout = 0UL;
-            }
         }
     }
     /* schedule the next frame in ms */ {
-        if((timeout /= 1000UL) == 0UL) {
-            timeout = 1UL;
-        }
+        timeout = (timeout + 1000UL) / 1000UL;
     }
     return timeout;
 }
