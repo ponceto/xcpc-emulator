@@ -27,6 +27,36 @@
 #define _(string) (string)
 #endif
 
+static const char help_text[] = "\
+Hotkeys:\n\
+\n\
+    - F1                Help\n\
+    - F2                Load snapshot\n\
+    - F3                Save snapshot\n\
+    - F4                Insert disk into drive A\n\
+    - F5                Remove disk from drive A\n\
+    - F6                Insert disk into drive B\n\
+    - F7                Remove disk from drive B\n\
+    - F8                {not mapped}\n\
+    - F9                {not mapped}\n\
+    - F10               {not mapped}\n\
+    - F11               Legal Info\n\
+    - F12               About Xcpc\n\
+\n\
+Keyboard emulation:\n\
+\n\
+The left shift and control keys are forwarded to the simulation.\n\
+You have use to the right shift and control keys to compose characters.\n\
+\n\
+Joystick emulation:\n\
+\n\
+    - End               enable/disable\n\
+    - Arrows            up/down/left/right\n\
+    - Left Ctrl         fire1\n\
+    - Left Alt          fire2\n\
+\n\
+";
+
 /*
  * ---------------------------------------------------------------------------
  * options
@@ -165,6 +195,11 @@ static XtResource icons_resources[] = {
         "xcpcHelpAboutBitmap", "XcpcBitmap", XtRBitmap,
         sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, help_about),
         XtRString, (XtPointer) "question-circle.xbm"
+    },
+    /* xcpcHelpHelpBitmap */ {
+        "xcpcHelpHelpBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, help_help),
+        XtRString, (XtPointer) "question.xbm"
     },
 };
 
@@ -940,7 +975,7 @@ static void ResetCallback(Widget widget, XcpcApplication* self, XtPointer info)
 
 /*
  * ---------------------------------------------------------------------------
- * Legal callbacks
+ * Help callbacks
  * ---------------------------------------------------------------------------
  */
 
@@ -984,12 +1019,6 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XtPointer info)
     }
 }
 
-/*
- * ---------------------------------------------------------------------------
- * About callbacks
- * ---------------------------------------------------------------------------
- */
-
 static void AboutCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
@@ -1027,6 +1056,95 @@ static void AboutCallback(Widget widget, XcpcApplication* self, XtPointer info)
     }
     /* pause */ {
         (void) Pause(self);
+    }
+}
+
+static void HelpCallback(Widget widget, XcpcApplication* self, XtPointer info)
+{
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+    String title = _("Help ...");
+    String message = _(((char*)(help_text)));
+    Widget parent = FindTopLevelShell(widget);
+    Widget shell  = NULL;
+    Widget dialog = NULL;
+    Widget button = NULL;
+
+    /* xcpc-help-shell */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNtitle, title); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransient, True); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransientFor, parent); ++argcount;
+        shell = XtCreatePopupShell("xcpc-help-shell", xemDlgShellWidgetClass, parent, arglist, argcount);
+        XtAddCallback(shell, XtNdestroyCallback, (XtCallbackProc) &DismissCallback, (XtPointer) self);
+    }
+    /* xcpc-help-dialog */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, message); ++argcount;
+        dialog = XtCreateWidget("xcpc-help-dialog", dialogWidgetClass, shell, arglist, argcount);
+        XtManageChild(dialog);
+    }
+    /* xcpc-help-close */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Close")); ++argcount;
+        button = XtCreateManagedWidget("xcpc-help-close", commandWidgetClass, dialog, arglist, argcount);
+        XtAddCallback(button, XtNcallback, (XtCallbackProc) &DismissCallback, (XtPointer) self);
+        XtManageChild(button);
+    }
+    /* popup shell */ {
+        XtPopup(shell, XtGrabExclusive);
+    }
+    /* pause */ {
+        (void) Pause(self);
+    }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Hotkey callbacks
+ * ---------------------------------------------------------------------------
+ */
+
+static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
+{
+    if(keysym != NULL) {
+        switch(*keysym) {
+            case XK_F1:
+                HelpCallback(widget, self, NULL);
+                break;
+            case XK_F2:
+                LoadSnapshotCallback(widget, self, NULL);
+                break;
+            case XK_F3:
+                SaveSnapshotCallback(widget, self, NULL);
+                break;
+            case XK_F4:
+                InsertDrive0Callback(widget, self, NULL);
+                break;
+            case XK_F5:
+                RemoveDrive0Callback(widget, self, NULL);
+                break;
+            case XK_F6:
+                InsertDrive1Callback(widget, self, NULL);
+                break;
+            case XK_F7:
+                RemoveDrive1Callback(widget, self, NULL);
+                break;
+            case XK_F8:
+                break;
+            case XK_F9:
+                break;
+            case XK_F10:
+                break;
+            case XK_F11:
+                LegalCallback(widget, self, NULL);
+                break;
+            case XK_F12:
+                AboutCallback(widget, self, NULL);
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -1248,12 +1366,6 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         XtAddCallback(menu->legal, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->legal);
         XtManageChild(menu->legal);
     }
-    /* help-separator1 */ {
-        argcount = 0;
-        menu->separator1 = XtCreateWidget("help-separator1", smeLineObjectClass, menu->pulldown, arglist, argcount);
-        XtAddCallback(menu->separator1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
-        XtManageChild(menu->separator1);
-    }
     /* help-about */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("About Xcpc")); ++argcount;
@@ -1262,6 +1374,21 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         XtAddCallback(menu->about, XtNcallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
         XtAddCallback(menu->about, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->about);
         XtManageChild(menu->about);
+    }
+    /* help-separator1 */ {
+        argcount = 0;
+        menu->separator1 = XtCreateWidget("help-separator1", smeLineObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->separator1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
+        XtManageChild(menu->separator1);
+    }
+    /* help-help */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Help")); ++argcount;
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.help_help); ++argcount;
+        menu->help = XtCreateWidget("help-help", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->help, XtNcallback, (XtCallbackProc) &HelpCallback, (XtPointer) self);
+        XtAddCallback(menu->help, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->help);
+        XtManageChild(menu->help);
     }
     return self;
 }
@@ -1439,6 +1566,7 @@ static XcpcApplication* BuildEmulator(XcpcApplication* self)
         XtSetArg(arglist[argcount], XtNleft          , XtChainLeft               ); ++argcount;
         XtSetArg(arglist[argcount], XtNright         , XtChainRight              ); ++argcount;
         layout->emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
+        XtAddCallback(layout->emulator, XtNhotkeyCallback , (XtCallbackProc) &HotkeyCallback , (XtPointer) self);
         XtAddCallback(layout->emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);
         XtManageChild(layout->emulator);
     }

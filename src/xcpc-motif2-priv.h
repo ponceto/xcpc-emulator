@@ -68,6 +68,7 @@ struct _XcpcPixmapsRec
     Pixmap disk_remove;
     Pixmap help_legal;
     Pixmap help_about;
+    Pixmap help_help;
 };
 
 struct _XcpcFileMenuRec
@@ -110,8 +111,9 @@ struct _XcpcHelpMenuRec
     Widget menu;
     Widget pulldown;
     Widget legal;
-    Widget separator1;
     Widget about;
+    Widget separator1;
+    Widget help;
 };
 
 struct _XcpcLayoutRec
