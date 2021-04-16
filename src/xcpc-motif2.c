@@ -40,8 +40,8 @@ Hotkeys:\n\
     - F8                {not mapped}\n\
     - F9                {not mapped}\n\
     - F10               {not mapped}\n\
-    - F11               Legal Info\n\
-    - F12               About Xcpc\n\
+    - F11               {not mapped}\n\
+    - F12               {not mapped}\n\
 \n\
 Keyboard emulation:\n\
 \n\
@@ -1004,10 +1004,8 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
             case XK_F10:
                 break;
             case XK_F11:
-                LegalCallback(widget, self, NULL);
                 break;
             case XK_F12:
-                AboutCallback(widget, self, NULL);
                 break;
             default:
                 break;
@@ -1272,42 +1270,6 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         menu->pulldown = XmCreatePulldownMenu(self->menubar.widget, "help-pulldown", arglist, argcount);
         XtAddCallback(menu->pulldown, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
-    /* help-legal */ {
-        XmString string = XmStringCreateLocalized(_("Legal Info"));
-        XmString accelerator = XmStringCreateLocalized(_("F11"));
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_legal); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
-        menu->legal = XmCreatePushButtonGadget(menu->pulldown, "help-legal", arglist, argcount);
-        XtAddCallback(menu->legal, XmNactivateCallback, (XtCallbackProc) &LegalCallback, (XtPointer) self);
-        XtAddCallback(menu->legal, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->legal);
-        XtManageChild(menu->legal);
-        accelerator = (XmStringFree(accelerator), NULL);
-        string = (XmStringFree(string), NULL);
-    }
-    /* help-about */ {
-        XmString string = XmStringCreateLocalized(_("About Xcpc"));
-        XmString accelerator = XmStringCreateLocalized(_("F12"));
-        argcount = 0;
-        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_about); ++argcount;
-        XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
-        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
-        menu->about = XmCreatePushButtonGadget(menu->pulldown, "help-about", arglist, argcount);
-        XtAddCallback(menu->about, XmNactivateCallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
-        XtAddCallback(menu->about, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->about);
-        XtManageChild(menu->about);
-        accelerator = (XmStringFree(accelerator), NULL);
-        string = (XmStringFree(string), NULL);
-    }
-    /* help-separator1 */ {
-        argcount = 0;
-        menu->separator1 = XmCreateSeparatorGadget(menu->pulldown, "help-separator1", arglist, argcount);
-        XtAddCallback(menu->separator1, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
-        XtManageChild(menu->separator1);
-    }
     /* help-help */ {
         XmString string = XmStringCreateLocalized(_("Help"));
         XmString accelerator = XmStringCreateLocalized(_("F1"));
@@ -1321,6 +1283,36 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         XtAddCallback(menu->help, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->help);
         XtManageChild(menu->help);
         accelerator = (XmStringFree(accelerator), NULL);
+        string = (XmStringFree(string), NULL);
+    }
+    /* help-legal */ {
+        XmString string = XmStringCreateLocalized(_("Legal Info"));
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_legal); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        menu->legal = XmCreatePushButtonGadget(menu->pulldown, "help-legal", arglist, argcount);
+        XtAddCallback(menu->legal, XmNactivateCallback, (XtCallbackProc) &LegalCallback, (XtPointer) self);
+        XtAddCallback(menu->legal, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->legal);
+        XtManageChild(menu->legal);
+        string = (XmStringFree(string), NULL);
+    }
+    /* help-separator1 */ {
+        argcount = 0;
+        menu->separator1 = XmCreateSeparatorGadget(menu->pulldown, "help-separator1", arglist, argcount);
+        XtAddCallback(menu->separator1, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
+        XtManageChild(menu->separator1);
+    }
+    /* help-about */ {
+        XmString string = XmStringCreateLocalized(_("About Xcpc"));
+        argcount = 0;
+        XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_about); ++argcount;
+        XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        menu->about = XmCreatePushButtonGadget(menu->pulldown, "help-about", arglist, argcount);
+        XtAddCallback(menu->about, XmNactivateCallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
+        XtAddCallback(menu->about, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->about);
+        XtManageChild(menu->about);
         string = (XmStringFree(string), NULL);
     }
     /* help-menu */ {

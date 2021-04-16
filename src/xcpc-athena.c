@@ -40,8 +40,8 @@ Hotkeys:\n\
     - F8                {not mapped}\n\
     - F9                {not mapped}\n\
     - F10               {not mapped}\n\
-    - F11               Legal Info\n\
-    - F12               About Xcpc\n\
+    - F11               {not mapped}\n\
+    - F12               {not mapped}\n\
 \n\
 Keyboard emulation:\n\
 \n\
@@ -1143,10 +1143,8 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
             case XK_F10:
                 break;
             case XK_F11:
-                LegalCallback(widget, self, NULL);
                 break;
             case XK_F12:
-                AboutCallback(widget, self, NULL);
                 break;
             default:
                 break;
@@ -1363,6 +1361,15 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         menu->pulldown = XtCreatePopupShell("help-pulldown", simpleMenuWidgetClass, menu->menu, arglist, argcount);
         XtAddCallback(menu->pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
+    /* help-help */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Help")); ++argcount;
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.help_help); ++argcount;
+        menu->help = XtCreateWidget("help-help", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->help, XtNcallback, (XtCallbackProc) &HelpCallback, (XtPointer) self);
+        XtAddCallback(menu->help, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->help);
+        XtManageChild(menu->help);
+    }
     /* help-legal */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Legal Info")); ++argcount;
@@ -1372,6 +1379,12 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         XtAddCallback(menu->legal, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->legal);
         XtManageChild(menu->legal);
     }
+    /* help-separator1 */ {
+        argcount = 0;
+        menu->separator1 = XtCreateWidget("help-separator1", smeLineObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->separator1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
+        XtManageChild(menu->separator1);
+    }
     /* help-about */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("About Xcpc")); ++argcount;
@@ -1380,21 +1393,6 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         XtAddCallback(menu->about, XtNcallback, (XtCallbackProc) &AboutCallback, (XtPointer) self);
         XtAddCallback(menu->about, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->about);
         XtManageChild(menu->about);
-    }
-    /* help-separator1 */ {
-        argcount = 0;
-        menu->separator1 = XtCreateWidget("help-separator1", smeLineObjectClass, menu->pulldown, arglist, argcount);
-        XtAddCallback(menu->separator1, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->separator1);
-        XtManageChild(menu->separator1);
-    }
-    /* help-help */ {
-        argcount = 0;
-        XtSetArg(arglist[argcount], XtNlabel, _("Help")); ++argcount;
-        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.help_help); ++argcount;
-        menu->help = XtCreateWidget("help-help", smeBSBObjectClass, menu->pulldown, arglist, argcount);
-        XtAddCallback(menu->help, XtNcallback, (XtCallbackProc) &HelpCallback, (XtPointer) self);
-        XtAddCallback(menu->help, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->help);
-        XtManageChild(menu->help);
     }
     return self;
 }
