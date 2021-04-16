@@ -55,6 +55,12 @@ Joystick emulation:\n\
     - Left Ctrl         fire1\n\
     - Left Alt          fire2\n\
 \n\
+Drag'n Drop:\n\
+\n\
+You can use your file manager to drag'n drop a supported file directly to the emulator.\n\
+\n\
+The supported file extensions are: '.dsk', 'dsk.gz', 'dsk.bz2', '.sna'\n\
+\n\
 ";
 
 /*
