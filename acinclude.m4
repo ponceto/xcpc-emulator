@@ -211,11 +211,6 @@ AC_CHECK_HEADERS([X11/Intrinsic.h], [have_intrinsic="yes"], [have_intrinsic="no"
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 ])
-if test "x${have_intrinsic}" = "xyes"; then
-    AM_CONDITIONAL([INTRINSIC], true)
-else
-    have_intrinsic="no"
-fi
 ])dnl AX_CHECK_INTRINSIC
 
 # ----------------------------------------------------------------------------
@@ -310,13 +305,33 @@ AC_DEFUN([AX_CHECK_PORTAUDIO], [
 AC_ARG_ENABLE([portaudio], [AC_HELP_STRING([--enable-portaudio], [add the support of PortAudio if available [default=yes]])], [], [enable_portaudio="yes"])
 if test "x${enable_portaudio}" = "xyes"; then
     PKG_CHECK_MODULES(portaudio, portaudio-2.0 >= 19, [have_portaudio="yes"], [have_portaudio="no"])
+else
+    have_portaudio="no"
 fi
 if test "x${have_portaudio}" = "xyes"; then
     AM_CONDITIONAL([PORTAUDIO], true)
 else
-    have_portaudio="no"
+    AM_CONDITIONAL([PORTAUDIO], false)
 fi
 ])dnl AX_CHECK_PORTAUDIO
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_LINUX_JOYSTICK_API
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_LINUX_JOYSTICK_API], [
+AC_ARG_ENABLE([linux-joystick-api], [AC_HELP_STRING([--enable-linux-joystick-api], [add the support of Linux Joystick API if available [default=yes]])], [], [enable_linux_joystick_api="yes"])
+if test "x${enable_linux_joystick_api}" = "xyes"; then
+    AC_CHECK_HEADERS([linux/joystick.h], [have_linux_joystick_api="yes"], [have_linux_joystick_api="no"])
+else
+    have_linux_joystick_api="no"
+fi
+if test "x${have_linux_joystick_api}" = "xyes"; then
+    AM_CONDITIONAL([LINUX_JOYSTICK_API], true)
+else
+    AM_CONDITIONAL([LINUX_JOYSTICK_API], false)
+fi
+])dnl AX_CHECK_LINUX_JOYSTICK_API
 
 # ----------------------------------------------------------------------------
 # End-Of-File

@@ -77,6 +77,7 @@ AX_CHECK_ATHENA
 AX_CHECK_MOTIF2
 AX_CHECK_X11_TOOLKIT
 AX_CHECK_PORTAUDIO
+AX_CHECK_LINUX_JOYSTICK_API
 
 # ----------------------------------------------------------------------------
 # Defines
@@ -132,13 +133,14 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([Configured to build Xcpc:
 
-  X11 ........... ${have_x}
-  X11 XShm ...... ${have_xshm}
-  Intrinsic ..... ${have_intrinsic}
-  Athena ........ ${have_athena}
-  Motif2 ........ ${have_motif2}
-  PortAudio ..... ${have_portaudio}
-  X11 toolkit ... ${with_x11_toolkit}
+  X11 .................. ${have_x}
+  X11 XShm ............. ${have_xshm}
+  Intrinsic ............ ${have_intrinsic}
+  Athena ............... ${have_athena}
+  Motif2 ............... ${have_motif2}
+  PortAudio ............ ${have_portaudio}
+  Linux Joystick API ... ${have_linux_joystick_api}
+  X11 toolkit .......... ${with_x11_toolkit}
 
 Have fun with Xcpc ;-)
 ])
