@@ -1074,6 +1074,91 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
     return self;
 }
 
+XcpcKeyboard* xcpc_keyboard_joystick(XcpcKeyboard* self, XEvent* event)
+{
+    switch(event->type) {
+        case ButtonPress:
+            {
+                uint8_t line = 0xff;
+                uint8_t bits = 0x00;
+                if((event->xbutton.button & 0x01) == 0) {
+                    line = ROW9;
+                    bits = BIT4;
+                }
+                else {
+                    line = ROW9;
+                    bits = BIT5;
+                }
+                if((line <= 0x0f) && (bits != 0x00)) {
+                    self->state.keys[line] &= ~bits;
+                }
+            }
+            break;
+        case ButtonRelease:
+            {
+                uint8_t line = 0xff;
+                uint8_t bits = 0x00;
+                if((event->xbutton.button & 0x01) == 0) {
+                    line = ROW9;
+                    bits = BIT4;
+                }
+                else {
+                    line = ROW9;
+                    bits = BIT5;
+                }
+                if((line <= 0x0f) && (bits != 0x00)) {
+                    self->state.keys[line] |=  bits;
+                }
+            }
+            break;
+        case MotionNotify:
+            /* up */ {
+                const uint8_t line = ROW9;
+                const uint8_t bits = BIT0;
+                if(event->xmotion.y <= -16384) {
+                    self->state.keys[line] &= ~bits;
+                }
+                else {
+                    self->state.keys[line] |=  bits;
+                }
+            }
+            /* down */ {
+                const uint8_t line = ROW9;
+                const uint8_t bits = BIT1;
+                if(event->xmotion.y >= +16384) {
+                    self->state.keys[line] &= ~bits;
+                }
+                else {
+                    self->state.keys[line] |=  bits;
+                }
+            }
+            /* left */ {
+                const uint8_t line = ROW9;
+                const uint8_t bits = BIT2;
+                if(event->xmotion.x <= -16384) {
+                    self->state.keys[line] &= ~bits;
+                }
+                else {
+                    self->state.keys[line] |=  bits;
+                }
+            }
+            /* right */ {
+                const uint8_t line = ROW9;
+                const uint8_t bits = BIT3;
+                if(event->xmotion.x >= +16384) {
+                    self->state.keys[line] &= ~bits;
+                }
+                else {
+                    self->state.keys[line] |=  bits;
+                }
+            }
+            break;
+        default:
+            break;
+    }
+    return self;
+}
+
 uint8_t xcpc_keyboard_set_line(XcpcKeyboard* self, uint8_t line)
 {
     return self->state.line = line;

@@ -24,7 +24,29 @@
 extern "C" {
 #endif
 
+typedef XtPointer XemEmulatorData;
 typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event);
+
+typedef struct _XemMachine
+{
+    XemEmulatorData instance;
+    XemEmulatorProc create_proc;
+    XemEmulatorProc destroy_proc;
+    XemEmulatorProc realize_proc;
+    XemEmulatorProc resize_proc;
+    XemEmulatorProc expose_proc;
+    XemEmulatorProc input_proc;
+    XemEmulatorProc timer_proc;
+} XemMachine;
+
+typedef struct _XemJoystick
+{
+    String    device;
+    int       fd;
+    XtInputId input_id;
+    int       x;
+    int       y;
+} XemJoystick;
 
 typedef struct _XemEmulatorClassPart
 {
@@ -41,20 +63,15 @@ externalref XemEmulatorClassRec xemEmulatorClassRec;
 
 typedef struct _XemEmulatorPart
 {
-    XtPointer       context;
-    XemEmulatorProc create_proc;
-    XemEmulatorProc destroy_proc;
-    XemEmulatorProc realize_proc;
-    XemEmulatorProc resize_proc;
-    XemEmulatorProc expose_proc;
-    XemEmulatorProc input_proc;
-    XemEmulatorProc timer_proc;
-    XtIntervalId    timer;
-    XEvent          event;
-    XEvent          throttled_data[64];
-    unsigned int    throttled_head;
-    unsigned int    throttled_tail;
-    XtCallbackList  hotkey_callback;
+    XemMachine     machine;
+    XemJoystick    joystick0;
+    XemJoystick    joystick1;
+    XtCallbackList hotkey_callback;
+    XtIntervalId   timer;
+    XEvent         event;
+    XEvent         throttled_list[64];
+    unsigned int   throttled_head;
+    unsigned int   throttled_tail;
 } XemEmulatorPart;
 
 typedef struct _XemEmulatorRec

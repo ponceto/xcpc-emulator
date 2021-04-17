@@ -1965,6 +1965,7 @@ static void keybd_azerty(XcpcMachine* self, XEvent* event)
 
 static void mouse_default(XcpcMachine* self, XEvent* event)
 {
+    (void) xcpc_keyboard_joystick(self->board.keyboard, event);
 }
 
 static void construct_iface(XcpcMachine* self)

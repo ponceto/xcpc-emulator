@@ -1554,21 +1554,21 @@ static XcpcApplication* BuildEmulator(XcpcApplication* self)
 
     /* emulator */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNemuContext    , self->machine             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuCreateProc , &xcpc_machine_create_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuRealizeProc, &xcpc_machine_realize_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuResizeProc , &xcpc_machine_resize_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuExposeProc , &xcpc_machine_expose_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuInputProc  , &xcpc_machine_input_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNresizable     , True                      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNfromHoriz     , NULL                      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNfromVert      , self->toolbar.widget      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNtop           , XtChainTop                ); ++argcount;
-        XtSetArg(arglist[argcount], XtNbottom        , XtChainBottom             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNleft          , XtChainLeft               ); ++argcount;
-        XtSetArg(arglist[argcount], XtNright         , XtChainRight              ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineInstance   , self->machine             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineCreateProc , &xcpc_machine_create_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineRealizeProc, &xcpc_machine_realize_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineResizeProc , &xcpc_machine_resize_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineExposeProc , &xcpc_machine_expose_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineInputProc  , &xcpc_machine_input_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNresizable         , True                      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromHoriz         , NULL                      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromVert          , self->toolbar.widget      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNtop               , XtChainTop                ); ++argcount;
+        XtSetArg(arglist[argcount], XtNbottom            , XtChainBottom             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNleft              , XtChainLeft               ); ++argcount;
+        XtSetArg(arglist[argcount], XtNright             , XtChainRight              ); ++argcount;
         layout->emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
         XtAddCallback(layout->emulator, XtNhotkeyCallback , (XtCallbackProc) &HotkeyCallback , (XtPointer) self);
         XtAddCallback(layout->emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);
