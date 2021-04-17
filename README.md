@@ -67,6 +67,20 @@ Debug options:
 
 ```
 
+### Environment variables
+
+You can adjust some environment variables if needed.
+
+  - `XCPC_JOYSTICK0`: the path to the joystick0 device (defaults to `/dev/input/js0` on Linux)
+  - `XCPC_JOYSTICK1`: the path to the joystick1 device (defaults to `/dev/input/js1` on Linux)
+
+Example:
+
+```
+export XCPC_JOYSTICK0={path-to-joystick0}
+export XCPC_JOYSTICK1={path-to-joystick1}
+```
+
 ### Release notes
 
 Here is a non-exhaustive list of supported features :
