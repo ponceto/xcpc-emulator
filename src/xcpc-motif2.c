@@ -622,7 +622,7 @@ static int CheckExtension(const char* filename, const char* extension)
 
 static void DropUriCallback(Widget widget, XcpcApplication* self, const char* uri)
 {
-    char filename[PATH_MAX + 1];
+    char filename[PATH_MAX];
 
     if((uri != NULL) && (strncmp(uri, "file://", 7) == 0)) {
         DeserializeURI(filename, sizeof(filename), &uri[7]);
@@ -1463,7 +1463,7 @@ static XcpcApplication* BuildInfoBar(XcpcApplication* self)
 static XcpcApplication* BuildEmulator(XcpcApplication* self)
 {
     XcpcLayoutRec* layout = &self->layout;
-    Arg      arglist[16];
+    Arg      arglist[24];
     Cardinal argcount = 0;
 
     /* emulator */ {
@@ -1477,6 +1477,8 @@ static XcpcApplication* BuildEmulator(XcpcApplication* self)
         XtSetArg(arglist[argcount], XtNmachineExposeProc , &xcpc_machine_expose_proc ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineInputProc  , &xcpc_machine_input_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNjoystick0         , xcpc_get_joystick0()      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNjoystick1         , xcpc_get_joystick1()      ); ++argcount;
         layout->emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
         XtAddCallback(layout->emulator, XtNhotkeyCallback , (XtCallbackProc) &HotkeyCallback , (XtPointer) self);
         XtAddCallback(layout->emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);

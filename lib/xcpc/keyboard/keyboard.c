@@ -1076,80 +1076,73 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
 
 XcpcKeyboard* xcpc_keyboard_joystick(XcpcKeyboard* self, XEvent* event)
 {
+    const unsigned int Joystick0Modifier = (AnyModifier << 1);
+    const unsigned int Joystick1Modifier = (AnyModifier << 2);
+    uint8_t line = 0xff;
+
+    /* check joystick */ {
+        if(event->xbutton.state == Joystick0Modifier) {
+            line = ROW9;
+        }
+        if(event->xbutton.state == Joystick1Modifier) {
+            line = ROW6;
+        }
+        if(line >= 10) {
+            return self;
+        }
+    }
     switch(event->type) {
         case ButtonPress:
             {
-                uint8_t line = 0xff;
-                uint8_t bits = 0x00;
                 if((event->xbutton.button & 0x01) == 0) {
-                    line = ROW9;
-                    bits = BIT4;
+                    self->state.keys[line] &= ~BIT4;
                 }
                 else {
-                    line = ROW9;
-                    bits = BIT5;
-                }
-                if((line <= 0x0f) && (bits != 0x00)) {
-                    self->state.keys[line] &= ~bits;
+                    self->state.keys[line] &= ~BIT5;
                 }
             }
             break;
         case ButtonRelease:
             {
-                uint8_t line = 0xff;
-                uint8_t bits = 0x00;
                 if((event->xbutton.button & 0x01) == 0) {
-                    line = ROW9;
-                    bits = BIT4;
+                    self->state.keys[line] |=  BIT4;
                 }
                 else {
-                    line = ROW9;
-                    bits = BIT5;
-                }
-                if((line <= 0x0f) && (bits != 0x00)) {
-                    self->state.keys[line] |=  bits;
+                    self->state.keys[line] |=  BIT5;
                 }
             }
             break;
         case MotionNotify:
             /* up */ {
-                const uint8_t line = ROW9;
-                const uint8_t bits = BIT0;
                 if(event->xmotion.y <= -16384) {
-                    self->state.keys[line] &= ~bits;
+                    self->state.keys[line] &= ~BIT0;
                 }
                 else {
-                    self->state.keys[line] |=  bits;
+                    self->state.keys[line] |=  BIT0;
                 }
             }
             /* down */ {
-                const uint8_t line = ROW9;
-                const uint8_t bits = BIT1;
                 if(event->xmotion.y >= +16384) {
-                    self->state.keys[line] &= ~bits;
+                    self->state.keys[line] &= ~BIT1;
                 }
                 else {
-                    self->state.keys[line] |=  bits;
+                    self->state.keys[line] |=  BIT1;
                 }
             }
             /* left */ {
-                const uint8_t line = ROW9;
-                const uint8_t bits = BIT2;
                 if(event->xmotion.x <= -16384) {
-                    self->state.keys[line] &= ~bits;
+                    self->state.keys[line] &= ~BIT2;
                 }
                 else {
-                    self->state.keys[line] |=  bits;
+                    self->state.keys[line] |=  BIT2;
                 }
             }
             /* right */ {
-                const uint8_t line = ROW9;
-                const uint8_t bits = BIT3;
                 if(event->xmotion.x >= +16384) {
-                    self->state.keys[line] &= ~bits;
+                    self->state.keys[line] &= ~BIT3;
                 }
                 else {
-                    self->state.keys[line] |=  bits;
+                    self->state.keys[line] |=  BIT3;
                 }
             }
             break;

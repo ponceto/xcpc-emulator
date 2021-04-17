@@ -47,6 +47,8 @@ extern void* xcpc_calloc        (const char* type, size_t count, size_t size);
 extern void* xcpc_realloc       (const char* type, void* pointer, size_t size);
 extern void* xcpc_free          (const char* type, void* pointer);
 
+extern const char*      xcpc_get_joystick0    (void);
+extern const char*      xcpc_get_joystick1    (void);
 extern const char*      xcpc_legal_text       (void);
 extern const char*      xcpc_about_text       (void);
 extern XcpcCompanyName  xcpc_company_name     (const char* label, XcpcCompanyName  value);

@@ -42,6 +42,7 @@ typedef struct _XemMachine
 typedef struct _XemJoystick
 {
     String    device;
+    int       id;
     int       fd;
     XtInputId input_id;
     int       x;

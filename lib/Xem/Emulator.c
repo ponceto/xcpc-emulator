@@ -46,14 +46,6 @@
 #define DEFAULT_TIMEOUT 100UL
 #endif
 
-#ifndef DEFAULT_JOYSTICK0
-#define DEFAULT_JOYSTICK0 "/dev/input/js0"
-#endif
-
-#ifndef DEFAULT_JOYSTICK1
-#define DEFAULT_JOYSTICK1 "/dev/input/js1"
-#endif
-
 #ifndef AUTO_KEY_THRESHOLD
 #define AUTO_KEY_THRESHOLD 10
 #endif
@@ -177,12 +169,12 @@ static XtResource resources[] = {
     /* XtNjoystick0 */ {
         XtNjoystick0, XtCJoystick, XtRString,
         sizeof(String), XtOffsetOf(XemEmulatorRec, emulator.joystick0.device),
-        XtRImmediate, POINTER(DEFAULT_JOYSTICK0)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNjoystick1 */ {
         XtNjoystick1, XtCJoystick, XtRString,
         sizeof(String), XtOffsetOf(XemEmulatorRec, emulator.joystick1.device),
-        XtRImmediate, POINTER(DEFAULT_JOYSTICK1)
+        XtRImmediate, POINTER(NULL)
     },
     /* XtNhotkeyCallback */ {
         XtNhotkeyCallback, XtCCallback, XtRCallback,
@@ -401,11 +393,12 @@ static void ClassInitialize(void)
 /**
  * XemEmulatorWidget::InitializeJoystick()
  */
-static void InitializeJoystick(Widget widget, XemJoystick* joystick)
+static void InitializeJoystick(Widget widget, XemJoystick* joystick, const char* device, int id)
 {
     /* initialize structure */ {
-        if(joystick->device != NULL) {
-            joystick->device   = XtNewString(joystick->device);
+        if((device != NULL) && (*device != '\0')) {
+            joystick->device   = XtNewString(device);
+            joystick->id       = id;
             joystick->fd       = -1;
             joystick->input_id = INPUT_ID(0);
             joystick->x        = 0;
@@ -413,6 +406,7 @@ static void InitializeJoystick(Widget widget, XemJoystick* joystick)
         }
         else {
             joystick->device   = NULL;
+            joystick->id       = id;
             joystick->fd       = -1;
             joystick->input_id = INPUT_ID(0);
             joystick->x        = 0;
@@ -422,8 +416,8 @@ static void InitializeJoystick(Widget widget, XemJoystick* joystick)
     /* open joystick */ {
         if(joystick->device != NULL) {
             joystick->fd = open(joystick->device, O_RDONLY);
-            if((joystick->fd == -1) && (errno != ENOENT)) {
-                XtWarning("an unexpected error occured while opening a joystick");
+            if(joystick->fd == -1) {
+                joystick->device = (XtFree(joystick->device), NULL);
             }
         }
     }
@@ -439,6 +433,10 @@ static void InitializeJoystick(Widget widget, XemJoystick* joystick)
  */
 static void DestroyJoystick(Widget widget, XemJoystick* joystick)
 {
+    /* clear coordinates */ {
+        joystick->x = 0;
+        joystick->y = 0;
+    }
     /* destroy input_id */ {
         if(joystick->input_id != INPUT_ID(0)) {
             joystick->input_id = (XtRemoveInput(joystick->input_id), INPUT_ID(0));
@@ -457,7 +455,7 @@ static void DestroyJoystick(Widget widget, XemJoystick* joystick)
 }
 
 /**
- * XemEmulatorWidget::DestroyJoystick()
+ * XemEmulatorWidget::GetJoystickFromFileDescriptor()
  */
 static XemJoystick* GetJoystickFromFileDescriptor(Widget widget, int fd)
 {
@@ -488,8 +486,8 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* nu
         SanitizeMachine(widget);
     }
     /* joysticks */ {
-        InitializeJoystick(widget, &self->emulator.joystick0);
-        InitializeJoystick(widget, &self->emulator.joystick1);
+        InitializeJoystick(widget, &self->emulator.joystick0, self->emulator.joystick0.device, 0);
+        InitializeJoystick(widget, &self->emulator.joystick1, self->emulator.joystick1.device, 1);
     }
     /* initialize geometry */ {
         if(request->core.width == 0) {
@@ -589,12 +587,30 @@ static void Redraw(Widget widget, XEvent* event, Region region)
 /**
  * XemEmulatorWidget::SetValues()
  *
- * @param current specifies the current XemEmulatorWidget instance
- * @param request specifies the requested XemEmulatorWidget instance
+ * @param prev_widget specifies the prev_widget XemEmulatorWidget instance
+ * @param next_widget specifies the requested XemEmulatorWidget instance
  * @param widget specifies the new XemEmulatorWidget instance
  */
-static Boolean SetValues(Widget current, Widget request, Widget widget, ArgList args, Cardinal* num_args)
+static Boolean SetValues(Widget prev_widget, Widget next_widget, Widget widget, ArgList args, Cardinal* num_args)
 {
+    XemEmulatorWidget prev = EMULATOR_WIDGET(prev_widget);
+    XemEmulatorWidget next = EMULATOR_WIDGET(next_widget);
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+
+    /* joystick0 */ {
+        if(prev->emulator.joystick0.device != next->emulator.joystick0.device) {
+            DestroyJoystick(prev_widget, &prev->emulator.joystick0);
+            self->emulator.joystick0 = prev->emulator.joystick0;
+            InitializeJoystick(widget, &self->emulator.joystick0, next->emulator.joystick0.device, 0);
+        }
+    }
+    /* joystick1 */ {
+        if(prev->emulator.joystick1.device != next->emulator.joystick1.device) {
+            DestroyJoystick(prev_widget, &prev->emulator.joystick1);
+            self->emulator.joystick1 = prev->emulator.joystick1;
+            InitializeJoystick(widget, &self->emulator.joystick1, next->emulator.joystick1.device, 1);
+        }
+    }
     /* sanitize machine */ {
         SanitizeMachine(widget);
     }
@@ -791,8 +807,16 @@ static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xmotion.x_root      = 0;
                             xevent.xmotion.y_root      = 0;
                             xevent.xmotion.state       = AnyModifier;
-                            xevent.xmotion.is_hint     = 'J';
+                            xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
+                        }
+                        /* adjust mask */ {
+                            if(joystick->id >= 0) {
+                                xevent.xmotion.state <<= 1;
+                            }
+                            if(joystick->id >= 1) {
+                                xevent.xmotion.state <<= 1;
+                            }
                         }
                         /* call input-proc */ {
                             (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, &xevent));
@@ -818,6 +842,14 @@ static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xbutton.state       = AnyModifier;
                             xevent.xbutton.button      = event.number;
                             xevent.xbutton.same_screen = True;
+                        }
+                        /* adjust mask */ {
+                            if(joystick->id >= 0) {
+                                xevent.xmotion.state <<= 1;
+                            }
+                            if(joystick->id >= 1) {
+                                xevent.xmotion.state <<= 1;
+                            }
                         }
                         /* call input-proc */ {
                             (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, &xevent));

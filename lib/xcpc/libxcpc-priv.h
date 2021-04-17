@@ -26,6 +26,8 @@ extern "C" {
 #define XCPC_DEFAULT_INPUT_STREAM stdin
 #define XCPC_DEFAULT_PRINT_STREAM stdout
 #define XCPC_DEFAULT_ERROR_STREAM stderr
+#define XCPC_DEFAULT_JOYSTICK0 "/dev/input/js0"
+#define XCPC_DEFAULT_JOYSTICK1 "/dev/input/js1"
 
 typedef struct _XcpcLibrary           XcpcLibrary;
 typedef struct _XcpcCompanyNameEntry  XcpcCompanyNameEntry;
@@ -38,14 +40,16 @@ typedef struct _XcpcColorEntry        XcpcColorEntry;
 
 struct _XcpcLibrary
 {
-    int   initialized;
-    int   major_version;
-    int   minor_version;
-    int   micro_version;
-    int   loglevel;
-    FILE* input_stream;
-    FILE* print_stream;
-    FILE* error_stream;
+    int         initialized;
+    int         major_version;
+    int         minor_version;
+    int         micro_version;
+    int         loglevel;
+    FILE*       input_stream;
+    FILE*       print_stream;
+    FILE*       error_stream;
+    const char* joystick0;
+    const char* joystick1;
 };
 
 struct _XcpcCompanyNameEntry

@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <limits.h>
 #include "libxcpc-priv.h"
 
 static XcpcLibrary libxcpc = {
@@ -32,6 +33,8 @@ static XcpcLibrary libxcpc = {
     NULL,                  /* input_stream  */
     NULL,                  /* print_stream  */
     NULL,                  /* error_stream  */
+    NULL,                  /* joystick0     */
+    NULL,                  /* joystick1     */
 };
 
 static const XcpcCompanyNameEntry xcpc_company_name_table[] = {
@@ -190,6 +193,40 @@ static void fini_error_stream(void)
     }
 }
 
+static void init_joystick0(void)
+{
+    if(libxcpc.joystick0 == NULL) {
+        libxcpc.joystick0 = getenv("XCPC_JOYSTICK0");
+    }
+    if(libxcpc.joystick0 == NULL) {
+        libxcpc.joystick0 = XCPC_DEFAULT_JOYSTICK0;
+    }
+}
+
+static void fini_joystick0(void)
+{
+    if(libxcpc.joystick0 != NULL) {
+        libxcpc.joystick0 = NULL;
+    }
+}
+
+static void init_joystick1(void)
+{
+    if(libxcpc.joystick1 == NULL) {
+        libxcpc.joystick1 = getenv("XCPC_JOYSTICK1");
+    }
+    if(libxcpc.joystick1 == NULL) {
+        libxcpc.joystick1 = XCPC_DEFAULT_JOYSTICK1;
+    }
+}
+
+static void fini_joystick1(void)
+{
+    if(libxcpc.joystick1 != NULL) {
+        libxcpc.joystick1 = NULL;
+    }
+}
+
 void xcpc_begin(void)
 {
     if(libxcpc.initialized++ == 0) {
@@ -197,6 +234,8 @@ void xcpc_begin(void)
         init_input_stream();
         init_print_stream();
         init_error_stream();
+        init_joystick0();
+        init_joystick1();
     }
     /* log */ {
         xcpc_log_trace ( "xcpc %d.%d.%d - begin"
@@ -217,6 +256,8 @@ void xcpc_end(void)
                        , "end" );
     }
     if(--libxcpc.initialized == 0) {
+        fini_joystick1();
+        fini_joystick0();
         fini_error_stream();
         fini_print_stream();
         fini_input_stream();
@@ -449,6 +490,16 @@ extern void* xcpc_free(const char* type, void* pointer)
                        , old_pointer );
     }
     return new_pointer;
+}
+
+extern const char* xcpc_get_joystick0(void)
+{
+    return libxcpc.joystick0;
+}
+
+extern const char* xcpc_get_joystick1(void)
+{
+    return libxcpc.joystick1;
 }
 
 const char* xcpc_legal_text(void)
