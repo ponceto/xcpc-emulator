@@ -859,7 +859,6 @@ static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
                 default:
                     break;
             }
-            (void) fflush(stderr);
         }
         return;
     }
