@@ -36,6 +36,7 @@ libXem_la_SOURCES = \
 	DlgShellP.h \
 	Emulator.c \
 	Emulator.h \
+	EmulatorI.h \
 	EmulatorP.h \
 	StringDefs.h \
 	$(NULL)

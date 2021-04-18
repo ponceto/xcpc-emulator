@@ -321,13 +321,13 @@ static XEvent* CopyOrFillEvent(Widget widget, XEvent* event)
 static void ThrottleInputEvent(Widget widget, XEvent* event)
 {
     XemEmulatorWidget self = EMULATOR_WIDGET(widget);
-    unsigned int      head = ((self->emulator.throttled_head + 0) % countof(self->emulator.throttled_list));
-    unsigned int      tail = ((self->emulator.throttled_tail + 1) % countof(self->emulator.throttled_list));
+    unsigned int      head = ((self->emulator.throttled.head + 0) % countof(self->emulator.throttled.list));
+    unsigned int      tail = ((self->emulator.throttled.tail + 1) % countof(self->emulator.throttled.list));
 
     if(tail != head) {
-        self->emulator.throttled_list[self->emulator.throttled_tail] = *event;
-        self->emulator.throttled_head = head;
-        self->emulator.throttled_tail = tail;
+        self->emulator.throttled.list[self->emulator.throttled.tail] = *event;
+        self->emulator.throttled.head = head;
+        self->emulator.throttled.tail = tail;
     }
 }
 
@@ -337,12 +337,21 @@ static void ThrottleInputEvent(Widget widget, XEvent* event)
 static void ProcessThrottledInputEvent(Widget widget)
 {
     XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+    int event_type = 0;
 
-    if(self->emulator.throttled_head != self->emulator.throttled_tail) {
-        XEvent* event = &self->emulator.throttled_list[self->emulator.throttled_head];
-        (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, event));
-        self->emulator.throttled_head = ((self->emulator.throttled_head + 1) % countof(self->emulator.throttled_list));
-        self->emulator.throttled_tail = ((self->emulator.throttled_tail + 0) % countof(self->emulator.throttled_list));
+    while(self->emulator.throttled.head != self->emulator.throttled.tail) {
+        XEvent* event = &self->emulator.throttled.list[self->emulator.throttled.head];
+        if(event_type == 0) {
+            event_type = event->type;
+        }
+        if(event->type == event_type) {
+            (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, event));
+            self->emulator.throttled.head = ((self->emulator.throttled.head + 1) % countof(self->emulator.throttled.list));
+            self->emulator.throttled.tail = ((self->emulator.throttled.tail + 0) % countof(self->emulator.throttled.list));
+        }
+        else {
+            break;
+        }
     }
 }
 
@@ -684,8 +693,8 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* nu
         self->emulator.timer = INTERVAL_ID(0);
     }
     /* throttled events */ {
-        self->emulator.throttled_head = 0;
-        self->emulator.throttled_tail = 0;
+        self->emulator.throttled.head = 0;
+        self->emulator.throttled.tail = 0;
     }
     /* call create-proc */ {
         (void) (*self->emulator.machine.create_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, NULL));

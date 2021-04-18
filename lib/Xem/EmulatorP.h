@@ -18,48 +18,11 @@
 #define __XemEmulatorP_h__
 
 #include <X11/CoreP.h>
-#include <Xem/Emulator.h>
+#include <Xem/EmulatorI.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef XtPointer XemEmulatorData;
-typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event);
-
-typedef struct _XemMachine
-{
-    XemEmulatorData instance;
-    XemEmulatorProc create_proc;
-    XemEmulatorProc destroy_proc;
-    XemEmulatorProc realize_proc;
-    XemEmulatorProc resize_proc;
-    XemEmulatorProc expose_proc;
-    XemEmulatorProc input_proc;
-    XemEmulatorProc timer_proc;
-} XemMachine;
-
-typedef struct _XemKeyboard
-{
-    Boolean js_enabled;
-    int     js_id;
-    int     js_axis_x;
-    int     js_axis_y;
-    int     js_button0;
-    int     js_button1;
-} XemKeyboard;
-
-typedef struct _XemJoystick
-{
-    String    device;
-    int       fd;
-    XtInputId input_id;
-    int       js_id;
-    int       js_axis_x;
-    int       js_axis_y;
-    int       js_button0;
-    int       js_button1;
-} XemJoystick;
 
 typedef struct _XemEmulatorClassPart
 {
@@ -76,16 +39,14 @@ externalref XemEmulatorClassRec xemEmulatorClassRec;
 
 typedef struct _XemEmulatorPart
 {
-    XemMachine     machine;
-    XemKeyboard    keyboard;
-    XemJoystick    joystick0;
-    XemJoystick    joystick1;
-    XtCallbackList hotkey_callback;
-    XtIntervalId   timer;
-    XEvent         event;
-    XEvent         throttled_list[64];
-    unsigned int   throttled_head;
-    unsigned int   throttled_tail;
+    XemMachine         machine;
+    XemKeyboard        keyboard;
+    XemJoystick        joystick0;
+    XemJoystick        joystick1;
+    XtCallbackList     hotkey_callback;
+    XtIntervalId       timer;
+    XEvent             event;
+    XemThrottledEvents throttled;
 } XemEmulatorPart;
 
 typedef struct _XemEmulatorRec
