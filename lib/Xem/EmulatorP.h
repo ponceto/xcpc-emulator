@@ -41,23 +41,24 @@ typedef struct _XemMachine
 
 typedef struct _XemKeyboard
 {
-    Boolean jsmode;
-    int     axis_x;
-    int     axis_y;
-    int     button0;
-    int     button1;
+    Boolean js_enabled;
+    int     js_id;
+    int     js_axis_x;
+    int     js_axis_y;
+    int     js_button0;
+    int     js_button1;
 } XemKeyboard;
 
 typedef struct _XemJoystick
 {
     String    device;
-    int       id;
     int       fd;
     XtInputId input_id;
-    int       axis_x;
-    int       axis_y;
-    int       button0;
-    int       button1;
+    int       js_id;
+    int       js_axis_x;
+    int       js_axis_y;
+    int       js_button0;
+    int       js_button1;
 } XemJoystick;
 
 typedef struct _XemEmulatorClassPart
