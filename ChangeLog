@@ -5,7 +5,8 @@
 	* Hotkeys support added.
 	* Better Scheduling.
 	* Sound support preparation.
-	* Joystick support added.
+	* Physical Joystick support added.
+	* Joystick emulation with keyboard rewritten.
 
 2021-04-15	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
