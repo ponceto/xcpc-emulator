@@ -39,14 +39,25 @@ typedef struct _XemMachine
     XemEmulatorProc timer_proc;
 } XemMachine;
 
+typedef struct _XemKeyboard
+{
+    Boolean jsmode;
+    int     axis_x;
+    int     axis_y;
+    int     button0;
+    int     button1;
+} XemKeyboard;
+
 typedef struct _XemJoystick
 {
     String    device;
     int       id;
     int       fd;
     XtInputId input_id;
-    int       x;
-    int       y;
+    int       axis_x;
+    int       axis_y;
+    int       button0;
+    int       button1;
 } XemJoystick;
 
 typedef struct _XemEmulatorClassPart
@@ -65,6 +76,7 @@ externalref XemEmulatorClassRec xemEmulatorClassRec;
 typedef struct _XemEmulatorPart
 {
     XemMachine     machine;
+    XemKeyboard    keyboard;
     XemJoystick    joystick0;
     XemJoystick    joystick1;
     XtCallbackList hotkey_callback;

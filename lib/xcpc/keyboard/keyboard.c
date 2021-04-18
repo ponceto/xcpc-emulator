@@ -423,16 +423,6 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
         }
         else if(keypag == 0xff) {
             switch(keysym) {
-                case XK_End:
-                    if(event->type == KeyPress) {
-                        if(self->state.mode == MODE_STANDARD) {
-                            self->state.mode = MODE_JOYSTICK;
-                        }
-                        else {
-                            self->state.mode = MODE_STANDARD;
-                        }
-                    }
-                    break;
                 case XK_BackSpace:
                     SET_KEY(ROW9, BIT7);
                     break;
@@ -449,36 +439,16 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
                     SET_KEY(ROW2, BIT0);
                     break;
                 case XK_Left:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT2);
-                    }
-                    else {
-                        SET_KEY(ROW1, BIT0);
-                    }
+                    SET_KEY(ROW1, BIT0);
                     break;
                 case XK_Up:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT0);
-                    }
-                    else {
-                        SET_KEY(ROW0, BIT0);
-                    }
+                    SET_KEY(ROW0, BIT0);
                     break;
                 case XK_Right:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT3);
-                    }
-                    else {
-                        SET_KEY(ROW0, BIT1);
-                    }
+                    SET_KEY(ROW0, BIT1);
                     break;
                 case XK_Down:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT1);
-                    }
-                    else {
-                        SET_KEY(ROW0, BIT2);
-                    }
+                    SET_KEY(ROW0, BIT2);
                     break;
                 case XK_KP_Space:
                     SET_KEY(ROW5, BIT7);
@@ -544,20 +514,10 @@ XcpcKeyboard* xcpc_keyboard_qwerty(XcpcKeyboard* self, XKeyEvent* event)
                     SET_KEY(ROW2, BIT5);
                     break;
                 case XK_Control_L:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT4);
-                    }
-                    else {
-                        SET_KEY(ROW2, BIT7);
-                    }
+                    SET_KEY(ROW2, BIT7);
                     break;
                 case XK_Alt_L:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT5);
-                    }
-                    else {
-                        SET_KEY(ROW1, BIT1);
-                    }
+                    SET_KEY(ROW1, BIT1);
                     break;
                 case XK_Caps_Lock:
                     SET_KEY(ROW8, BIT6);
@@ -903,16 +863,6 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
         }
         else if(keypag == 0xff) {
             switch(keysym) {
-                case XK_End:
-                    if(event->type == KeyPress) {
-                        if(self->state.mode == MODE_STANDARD) {
-                            self->state.mode = MODE_JOYSTICK;
-                        }
-                        else {
-                            self->state.mode = MODE_STANDARD;
-                        }
-                    }
-                    break;
                 case XK_BackSpace:
                     SET_KEY(ROW9, BIT7);
                     break;
@@ -929,36 +879,16 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
                     SET_KEY(ROW2, BIT0);
                     break;
                 case XK_Left:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT2);
-                    }
-                    else {
-                        SET_KEY(ROW1, BIT0);
-                    }
+                    SET_KEY(ROW1, BIT0);
                     break;
                 case XK_Up:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT0);
-                    }
-                    else {
-                        SET_KEY(ROW0, BIT0);
-                    }
+                    SET_KEY(ROW0, BIT0);
                     break;
                 case XK_Right:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT3);
-                    }
-                    else {
-                        SET_KEY(ROW0, BIT1);
-                    }
+                    SET_KEY(ROW0, BIT1);
                     break;
                 case XK_Down:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT1);
-                    }
-                    else {
-                        SET_KEY(ROW0, BIT2);
-                    }
+                    SET_KEY(ROW0, BIT2);
                     break;
                 case XK_KP_Space:
                     SET_KEY(ROW5, BIT7);
@@ -1024,20 +954,10 @@ XcpcKeyboard* xcpc_keyboard_azerty(XcpcKeyboard* self, XKeyEvent* event)
                     SET_KEY(ROW2, BIT5);
                     break;
                 case XK_Control_L:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT4);
-                    }
-                    else {
-                        SET_KEY(ROW2, BIT7);
-                    }
+                    SET_KEY(ROW2, BIT7);
                     break;
                 case XK_Alt_L:
-                    if(self->state.mode == MODE_JOYSTICK) {
-                        SET_KEY(ROW9, BIT5);
-                    }
-                    else {
-                        SET_KEY(ROW1, BIT1);
-                    }
+                    SET_KEY(ROW1, BIT1);
                     break;
                 case XK_Caps_Lock:
                     SET_KEY(ROW8, BIT6);

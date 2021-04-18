@@ -34,6 +34,18 @@
 #define countof(array) (sizeof(array) / sizeof(array[0]))
 #endif
 
+#ifndef JS_EVENT_BUTTON
+#define JS_EVENT_BUTTON 0x01
+#endif
+
+#ifndef JS_EVENT_AXIS
+#define JS_EVENT_AXIS 0x02
+#endif
+
+#ifndef JS_EVENT_INIT
+#define JS_EVENT_INIT 0x80
+#endif
+
 #ifndef DEFAULT_WIDTH
 #define DEFAULT_WIDTH 640
 #endif
@@ -46,8 +58,8 @@
 #define DEFAULT_TIMEOUT 100UL
 #endif
 
-#ifndef AUTO_KEY_THRESHOLD
-#define AUTO_KEY_THRESHOLD 10
+#ifndef AUTO_REPEAT_THRESHOLD
+#define AUTO_REPEAT_THRESHOLD 10
 #endif
 
 #ifndef WIDGET_CLASS
@@ -309,33 +321,10 @@ static XEvent* CopyOrFillEvent(Widget widget, XEvent* event)
 static void ThrottleInputEvent(Widget widget, XEvent* event)
 {
     XemEmulatorWidget self = EMULATOR_WIDGET(widget);
-    unsigned int head = ((self->emulator.throttled_head + 0) % countof(self->emulator.throttled_list));
-    unsigned int tail = ((self->emulator.throttled_tail + 1) % countof(self->emulator.throttled_list));
+    unsigned int      head = ((self->emulator.throttled_head + 0) % countof(self->emulator.throttled_list));
+    unsigned int      tail = ((self->emulator.throttled_tail + 1) % countof(self->emulator.throttled_list));
 
-    /* auto-repeat detection */ {
-        if(event->type == KeyPress) {
-            XEvent* next = &self->emulator.event;
-            if(XPending(event->xany.display) > 0) {
-                (void) XPeekEvent(event->xany.display, next);
-                if((next->type         == KeyPress           )
-                && (next->xkey.display == event->xkey.display)
-                && (next->xkey.window  == event->xkey.window )
-                && (next->xkey.keycode == event->xkey.keycode)
-                && ((next->xkey.time - event->xkey.time) < AUTO_KEY_THRESHOLD)) {
-                    (void) XNextEvent(event->xany.display, next);
-                    return;
-                }
-            }
-            /* check some hotkeys */ {
-                KeySym keysym = XLookupKeysym(&event->xkey, 0);
-                if((keysym >= XK_F1) && (keysym <= XK_F35)) {
-                    XtCallCallbackList(widget, self->emulator.hotkey_callback, &keysym);
-                }
-            }
-        }
-    }
     if(tail != head) {
-        self->emulator.event = *event;
         self->emulator.throttled_list[self->emulator.throttled_tail] = *event;
         self->emulator.throttled_head = head;
         self->emulator.throttled_tail = tail;
@@ -382,60 +371,218 @@ static void Unschedule(Widget widget)
     }
 }
 
-/**
- * XemEmulatorWidget::ClassInitialize()
+/*
+ * XemEmulatorWidget::KeyboardCreate()
  */
-static void ClassInitialize(void)
+static void KeyboardCreate(Widget widget, XemKeyboard* keyboard)
 {
-    XemEmulatorSuperClass = xemEmulatorClassRec.core_class.superclass;
+    keyboard->jsmode  = FALSE;
+    keyboard->axis_x  = 0;
+    keyboard->axis_y  = 0;
+    keyboard->button0 = 0;
+    keyboard->button1 = 0;
 }
 
-/**
- * XemEmulatorWidget::InitializeJoystick()
+/*
+ * XemEmulatorWidget::KeyboardDestroy()
  */
-static void InitializeJoystick(Widget widget, XemJoystick* joystick, const char* device, int id)
+static void KeyboardDestroy(Widget widget, XemKeyboard* keyboard)
+{
+    keyboard->jsmode  = FALSE;
+    keyboard->axis_x  = 0;
+    keyboard->axis_y  = 0;
+    keyboard->button0 = 0;
+    keyboard->button1 = 0;
+}
+
+/*
+ * XemEmulatorWidget::KeyboardPreprocessEvent()
+ */
+static Boolean KeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, XEvent* event)
+{
+    XemEmulatorWidget self   = EMULATOR_WIDGET(widget);
+    KeySym            keysym = XLookupKeysym(&event->xkey, 0);
+
+    if(event->type == KeyPress) {
+        if(keysym == XK_End) {
+            if(keyboard->jsmode == FALSE) {
+                keyboard->jsmode  = TRUE;
+                keyboard->axis_x  = 0;
+                keyboard->axis_y  = 0;
+                keyboard->button0 = 0;
+                keyboard->button1 = 0;
+            }
+            else {
+                keyboard->jsmode  = FALSE;
+                keyboard->axis_x  = 0;
+                keyboard->axis_y  = 0;
+                keyboard->button0 = 0;
+                keyboard->button1 = 0;
+            }
+            return TRUE;
+        }
+        if((keysym >= XK_F1) && (keysym <= XK_F35)) {
+            XtCallCallbackList(widget, self->emulator.hotkey_callback, &keysym);
+            return TRUE;
+        }
+    }
+    if(keyboard->jsmode != FALSE) {
+        unsigned char event_type   = 0;
+        unsigned char event_number = 0;
+        short         event_value  = 0;
+        switch(keysym) {
+            case XK_Up:
+                event_type   = JS_EVENT_AXIS;
+                event_number = 1;
+                event_value  = (event->type == KeyPress ? -32767 : 0);
+                break;
+            case XK_Down:
+                event_type   = JS_EVENT_AXIS;
+                event_number = 1;
+                event_value  = (event->type == KeyPress ? +32767 : 0);
+                break;
+            case XK_Left:
+                event_type   = JS_EVENT_AXIS;
+                event_number = 0;
+                event_value  = (event->type == KeyPress ? -32767 : 0);
+                break;
+            case XK_Right:
+                event_type   = JS_EVENT_AXIS;
+                event_number = 0;
+                event_value  = (event->type == KeyPress ? +32767 : 0);
+                break;
+            case XK_Control_L:
+                event_type   = JS_EVENT_BUTTON;
+                event_number = 0;
+                event_value  = (event->type == KeyPress ? 1 : 0);
+                break;
+            case XK_Alt_L:
+                event_type   = JS_EVENT_BUTTON;
+                event_number = 1;
+                event_value  = (event->type == KeyPress ? 1 : 0);
+                break;
+            default:
+                break;
+        }
+        /* decode joystick event */ {
+            switch(event_type) {
+                case JS_EVENT_AXIS:
+                    {
+                        XEvent xevent;
+                        /* update keyboard */ {
+                            if((event_number %= 2) == 0) {
+                                keyboard->axis_x = event_value;
+                            }
+                            else {
+                                keyboard->axis_y = event_value;
+                            }
+                        }
+                        /* initialize motion event */ {
+                            xevent.xmotion.type        = MotionNotify;
+                            xevent.xmotion.serial      = 0UL;
+                            xevent.xmotion.send_event  = True;
+                            xevent.xmotion.display     = XtDisplay(widget);
+                            xevent.xmotion.window      = XtWindow(widget);
+                            xevent.xmotion.root        = None;
+                            xevent.xmotion.subwindow   = None;
+                            xevent.xmotion.time        = 0UL;
+                            xevent.xmotion.x           = keyboard->axis_x;
+                            xevent.xmotion.y           = keyboard->axis_y;
+                            xevent.xmotion.x_root      = 0;
+                            xevent.xmotion.y_root      = 0;
+                            xevent.xmotion.state       = AnyModifier << 1;
+                            xevent.xmotion.is_hint     = 0;
+                            xevent.xmotion.same_screen = True;
+                        }
+                        /* call input-proc */ {
+                            (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, &xevent));
+                        }
+                    }
+                    return TRUE;
+                case JS_EVENT_BUTTON:
+                    {
+                        XEvent xevent;
+                        /* update keyboard */ {
+                            if((event_number %= 2) == 0) {
+                                keyboard->button0 = event_value;
+                            }
+                            else {
+                                keyboard->button1 = event_value;
+                            }
+                        }
+                        /* initialize button event */ {
+                            xevent.xbutton.type        = (event_value != 0 ? ButtonPress : ButtonRelease);
+                            xevent.xbutton.serial      = 0UL;
+                            xevent.xbutton.send_event  = True;
+                            xevent.xbutton.display     = XtDisplay(widget);
+                            xevent.xbutton.window      = XtWindow(widget);
+                            xevent.xbutton.root        = None;
+                            xevent.xbutton.subwindow   = None;
+                            xevent.xbutton.time        = 0UL;
+                            xevent.xbutton.x           = keyboard->axis_x;
+                            xevent.xbutton.y           = keyboard->axis_y;
+                            xevent.xbutton.x_root      = 0;
+                            xevent.xbutton.y_root      = 0;
+                            xevent.xbutton.state       = AnyModifier << 1;
+                            xevent.xbutton.button      = event_number;
+                            xevent.xbutton.same_screen = True;
+                        }
+                        /* call input-proc */ {
+                            (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, &xevent));
+                        }
+                    }
+                    return TRUE;
+                default:
+                    break;
+            }
+        }
+    }
+    return FALSE;
+}
+
+/*
+ * XemEmulatorWidget::JoystickCreate()
+ */
+static void JoystickCreate(Widget widget, XemJoystick* joystick, const char* device, int id)
 {
     /* initialize structure */ {
+        joystick->device   = NULL;
+        joystick->id       = id;
+        joystick->fd       = -1;
+        joystick->input_id = INPUT_ID(0);
+        joystick->axis_x   = 0;
+        joystick->axis_y   = 0;
+        joystick->button0  = 0;
+        joystick->button1  = 0;
+    }
+    /* check device name */ {
         if((device != NULL) && (*device != '\0')) {
-            joystick->device   = XtNewString(device);
-            joystick->id       = id;
-            joystick->fd       = -1;
-            joystick->input_id = INPUT_ID(0);
-            joystick->x        = 0;
-            joystick->y        = 0;
-        }
-        else {
-            joystick->device   = NULL;
-            joystick->id       = id;
-            joystick->fd       = -1;
-            joystick->input_id = INPUT_ID(0);
-            joystick->x        = 0;
-            joystick->y        = 0;
+            joystick->device = XtNewString(device);
         }
     }
     /* open joystick */ {
         if(joystick->device != NULL) {
             joystick->fd = open(joystick->device, O_RDONLY);
-            if(joystick->fd == -1) {
+            if(joystick->fd != -1) {
+                joystick->input_id = XtAppAddInput(XtWidgetToApplicationContext(widget), joystick->fd, POINTER(XtInputReadMask | XtInputExceptMask), INPUT_CALLBACK_PROC(&JoystickHandler), POINTER(widget));
+            }
+            else {
                 joystick->device = (XtFree(joystick->device), NULL);
             }
         }
     }
-    /* add handler */ {
-        if(joystick->fd != -1) {
-            joystick->input_id = XtAppAddInput(XtWidgetToApplicationContext(widget), joystick->fd, POINTER(XtInputReadMask | XtInputExceptMask), INPUT_CALLBACK_PROC(&JoystickHandler), POINTER(widget));
-        }
-    }
 }
 
-/**
- * XemEmulatorWidget::DestroyJoystick()
+/*
+ * XemEmulatorWidget::JoystickDestroy()
  */
-static void DestroyJoystick(Widget widget, XemJoystick* joystick)
+static void JoystickDestroy(Widget widget, XemJoystick* joystick)
 {
-    /* clear coordinates */ {
-        joystick->x = 0;
-        joystick->y = 0;
+    /* clear properties */ {
+        joystick->axis_x  = 0;
+        joystick->axis_y  = 0;
+        joystick->button0 = 0;
+        joystick->button1 = 0;
     }
     /* destroy input_id */ {
         if(joystick->input_id != INPUT_ID(0)) {
@@ -454,10 +601,10 @@ static void DestroyJoystick(Widget widget, XemJoystick* joystick)
     }
 }
 
-/**
- * XemEmulatorWidget::GetJoystickFromFileDescriptor()
+/*
+ * XemEmulatorWidget::JoystickLookup()
  */
-static XemJoystick* GetJoystickFromFileDescriptor(Widget widget, int fd)
+static XemJoystick* JoystickLookup(Widget widget, int fd)
 {
     XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
@@ -468,6 +615,22 @@ static XemJoystick* GetJoystickFromFileDescriptor(Widget widget, int fd)
         return &self->emulator.joystick1;
     }
     return NULL;
+}
+
+/*
+ * XemEmulatorWidget::JoystickCopy()
+ */
+static void JoystickCopy(XemJoystick* destination, XemJoystick* source)
+{
+    *destination = *source;
+}
+
+/**
+ * XemEmulatorWidget::ClassInitialize()
+ */
+static void ClassInitialize(void)
+{
+    XemEmulatorSuperClass = xemEmulatorClassRec.core_class.superclass;
 }
 
 /**
@@ -485,9 +648,12 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* nu
     /* sanitize machine */ {
         SanitizeMachine(widget);
     }
+    /* keyboard */ {
+        KeyboardCreate(widget, &self->emulator.keyboard);
+    }
     /* joysticks */ {
-        InitializeJoystick(widget, &self->emulator.joystick0, self->emulator.joystick0.device, 0);
-        InitializeJoystick(widget, &self->emulator.joystick1, self->emulator.joystick1.device, 1);
+        JoystickCreate(widget, &self->emulator.joystick0, self->emulator.joystick0.device, 0);
+        JoystickCreate(widget, &self->emulator.joystick1, self->emulator.joystick1.device, 1);
     }
     /* initialize geometry */ {
         if(request->core.width == 0) {
@@ -549,8 +715,11 @@ static void Destroy(Widget widget)
         (void) (*self->emulator.machine.destroy_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, NULL));
     }
     /* joysticks */ {
-        DestroyJoystick(widget, &self->emulator.joystick0);
-        DestroyJoystick(widget, &self->emulator.joystick1);
+        JoystickDestroy(widget, &self->emulator.joystick0);
+        JoystickDestroy(widget, &self->emulator.joystick1);
+    }
+    /* keyboard */ {
+        KeyboardDestroy(widget, &self->emulator.keyboard);
     }
 }
 
@@ -599,16 +768,16 @@ static Boolean SetValues(Widget prev_widget, Widget next_widget, Widget widget, 
 
     /* joystick0 */ {
         if(prev->emulator.joystick0.device != next->emulator.joystick0.device) {
-            DestroyJoystick(prev_widget, &prev->emulator.joystick0);
-            self->emulator.joystick0 = prev->emulator.joystick0;
-            InitializeJoystick(widget, &self->emulator.joystick0, next->emulator.joystick0.device, 0);
+            JoystickDestroy(prev_widget, &prev->emulator.joystick0);
+            JoystickCopy(&self->emulator.joystick0, &prev->emulator.joystick0);
+            JoystickCreate(widget, &self->emulator.joystick0, next->emulator.joystick0.device, 0);
         }
     }
     /* joystick1 */ {
         if(prev->emulator.joystick1.device != next->emulator.joystick1.device) {
-            DestroyJoystick(prev_widget, &prev->emulator.joystick1);
-            self->emulator.joystick1 = prev->emulator.joystick1;
-            InitializeJoystick(widget, &self->emulator.joystick1, next->emulator.joystick1.device, 1);
+            JoystickDestroy(prev_widget, &prev->emulator.joystick1);
+            JoystickCopy(&self->emulator.joystick1, &prev->emulator.joystick1);
+            JoystickCreate(widget, &self->emulator.joystick1, next->emulator.joystick1.device, 1);
         }
     }
     /* sanitize machine */ {
@@ -640,7 +809,14 @@ static void SetFocus(Widget widget, XEvent* event, String* params, Cardinal* num
  */
 static void OnKeyPress(Widget widget, XEvent* event, String* params, Cardinal* num_params)
 {
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+
     if(event->type == KeyPress) {
+        /* preprocess keyboard event */ {
+            if(KeyboardPreprocessEvent(widget, &self->emulator.keyboard, event) != FALSE) {
+                return;
+            }
+        }
         ThrottleInputEvent(widget, event);
     }
 }
@@ -655,7 +831,28 @@ static void OnKeyPress(Widget widget, XEvent* event, String* params, Cardinal* n
  */
 static void OnKeyRelease(Widget widget, XEvent* event, String* params, Cardinal* num_params)
 {
+    XemEmulatorWidget self = EMULATOR_WIDGET(widget);
+
     if(event->type == KeyRelease) {
+        /* check for auto-repeat */ {
+            if(XPending(event->xany.display) > 0) {
+                XEvent next;
+                (void) XPeekEvent(event->xany.display, &next);
+                if((next.type         == KeyPress           )
+                && (next.xkey.display == event->xkey.display)
+                && (next.xkey.window  == event->xkey.window )
+                && (next.xkey.keycode == event->xkey.keycode)
+                && ((next.xkey.time - event->xkey.time) < AUTO_REPEAT_THRESHOLD)) {
+                    (void) XNextEvent(event->xany.display, &next);
+                    return;
+                }
+            }
+        }
+        /* preprocess keyboard event */ {
+            if(KeyboardPreprocessEvent(widget, &self->emulator.keyboard, event) != FALSE) {
+                return;
+            }
+        }
         ThrottleInputEvent(widget, event);
     }
 }
@@ -752,7 +949,7 @@ static void TimeOutHandler(Widget widget, XtIntervalId* timer)
 }
 
 /**
- * XemEmulatorWidget::TimeOutHandler()
+ * XemEmulatorWidget::JoystickHandler()
  *
  * @param widget specifies the XemEmulatorWidget instance
  * @param source specifies the source
@@ -761,7 +958,7 @@ static void TimeOutHandler(Widget widget, XtIntervalId* timer)
 static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
 {
     XemEmulatorWidget self     = EMULATOR_WIDGET(widget);
-    XemJoystick*      joystick = GetJoystickFromFileDescriptor(widget, *source);
+    XemJoystick*      joystick = JoystickLookup(widget, *source);
 
     /* joystick was not found */ {
         if(joystick == NULL) {
@@ -786,11 +983,11 @@ static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
                     {
                         XEvent xevent;
                         /* update joystick */ {
-                            if((event.number % 2) == 0) {
-                                joystick->x = event.value;
+                            if((event.number %= 2) == 0) {
+                                joystick->axis_x = event.value;
                             }
                             else {
-                                joystick->y = event.value;
+                                joystick->axis_y = event.value;
                             }
                         }
                         /* initialize motion event */ {
@@ -801,16 +998,16 @@ static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xmotion.window      = XtWindow(widget);
                             xevent.xmotion.root        = None;
                             xevent.xmotion.subwindow   = None;
-                            xevent.xmotion.time        = event.time;
-                            xevent.xmotion.x           = joystick->x;
-                            xevent.xmotion.y           = joystick->y;
+                            xevent.xmotion.time        = 0UL;
+                            xevent.xmotion.x           = joystick->axis_x;
+                            xevent.xmotion.y           = joystick->axis_y;
                             xevent.xmotion.x_root      = 0;
                             xevent.xmotion.y_root      = 0;
                             xevent.xmotion.state       = AnyModifier;
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* adjust mask */ {
+                        /* adjust state mask */ {
                             if(joystick->id >= 0) {
                                 xevent.xmotion.state <<= 1;
                             }
@@ -826,6 +1023,14 @@ static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
                 case JS_EVENT_BUTTON:
                     {
                         XEvent xevent;
+                        /* update joystick */ {
+                            if((event.number %= 2) == 0) {
+                                joystick->button0 = event.value;
+                            }
+                            else {
+                                joystick->button1 = event.value;
+                            }
+                        }
                         /* initialize button event */ {
                             xevent.xbutton.type        = (event.value != 0 ? ButtonPress : ButtonRelease);
                             xevent.xbutton.serial      = 0UL;
@@ -834,16 +1039,16 @@ static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xbutton.window      = XtWindow(widget);
                             xevent.xbutton.root        = None;
                             xevent.xbutton.subwindow   = None;
-                            xevent.xbutton.time        = event.time;
-                            xevent.xbutton.x           = 0;
-                            xevent.xbutton.y           = 0;
+                            xevent.xbutton.time        = 0UL;
+                            xevent.xbutton.x           = joystick->axis_x;
+                            xevent.xbutton.y           = joystick->axis_y;
                             xevent.xbutton.x_root      = 0;
                             xevent.xbutton.y_root      = 0;
                             xevent.xbutton.state       = AnyModifier;
                             xevent.xbutton.button      = event.number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* adjust mask */ {
+                        /* adjust state mask */ {
                             if(joystick->id >= 0) {
                                 xevent.xmotion.state <<= 1;
                             }
@@ -864,7 +1069,7 @@ static void JoystickHandler(Widget widget, int* source, XtInputId* input_id)
     }
 #endif
     /* unknown joystick support */ {
-        DestroyJoystick(widget, joystick);
+        JoystickDestroy(widget, joystick);
     }
 }
 

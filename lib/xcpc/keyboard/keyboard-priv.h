@@ -23,9 +23,6 @@
 extern "C" {
 #endif
 
-#define MODE_STANDARD 0x00
-#define MODE_JOYSTICK 0x01
-
 #define SET_KEY(kl, kd) do { line = kl; bits = kd; mods = ((mods & ~0x03) | 0x00); } while(0)
 #define SFT_KEY(kl, kd) do { line = kl; bits = kd; mods = ((mods & ~0x03) | 0x01); } while(0)
 #define CTL_KEY(kl, kd) do { line = kl; bits = kd; mods = ((mods & ~0x03) | 0x02); } while(0)
@@ -41,7 +38,6 @@ extern "C" {
 #define ROW7 0x07
 #define ROW8 0x08
 #define ROW9 0x09
-#define ROWF 0x0f
 
 #define BIT0 0x01
 #define BIT1 0x02
