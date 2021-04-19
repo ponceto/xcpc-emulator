@@ -57,6 +57,7 @@ struct _XemKeyboard
 struct _XemJoystick
 {
     String    device;
+    String    identifier;
     int       fd;
     XtInputId input_id;
     int       js_id;
@@ -64,6 +65,8 @@ struct _XemJoystick
     int       js_axis_y;
     int       js_button0;
     int       js_button1;
+    int       js_btn_select;
+    int       js_btn_start;
 };
 
 struct _XemThrottledEvents

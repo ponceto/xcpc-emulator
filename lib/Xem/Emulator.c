@@ -25,6 +25,7 @@
 #include <errno.h>
 #ifdef HAVE_LINUX_JOYSTICK_H
 #include <linux/joystick.h>
+#include <sys/ioctl.h>
 #endif
 #include <X11/IntrinsicP.h>
 #include <Xem/StringDefs.h>
@@ -925,14 +926,17 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
 void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* device, int id)
 {
     /* initialize structure */ {
-        joystick->device     = NULL;
-        joystick->fd         = -1;
-        joystick->input_id   = INPUT_ID(0);
-        joystick->js_id      = id;
-        joystick->js_axis_x  = 0;
-        joystick->js_axis_y  = 0;
-        joystick->js_button0 = 0;
-        joystick->js_button1 = 0;
+        joystick->device        = NULL;
+        joystick->identifier    = NULL;
+        joystick->fd            = -1;
+        joystick->input_id      = INPUT_ID(0);
+        joystick->js_id         = id;
+        joystick->js_axis_x     = 0;
+        joystick->js_axis_y     = 0;
+        joystick->js_button0    = 0;
+        joystick->js_button1    = 0;
+        joystick->js_btn_select = -1;
+        joystick->js_btn_start  = -1;
     }
     /* check device name */ {
         if((device != NULL) && (*device != '\0')) {
@@ -950,6 +954,45 @@ void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* devi
             }
         }
     }
+#ifdef HAVE_LINUX_JOYSTICK_H
+    /* get the joystick name */ {
+        if(joystick->fd != -1) {
+            char buffer[256];
+            if(ioctl(joystick->fd, JSIOCGNAME(sizeof(buffer)), buffer) != -1) {
+                joystick->identifier = XtNewString(buffer);
+            }
+        }
+    }
+#endif
+#ifdef HAVE_LINUX_JOYSTICK_H
+    /* get the joystick mapping */ {
+        if(joystick->fd != -1) {
+            unsigned int   index = 0;
+            unsigned char  count = 0;
+            unsigned short mapping[KEY_MAX - BTN_MISC + 1];
+            if(ioctl(joystick->fd, JSIOCGBUTTONS, &count) == -1) {
+                count = 0;
+            }
+            if(ioctl(joystick->fd, JSIOCGBTNMAP, mapping) == -1) {
+                count = 0;
+            }
+            if(count > 0) {
+                for(index = 0; index < count; ++index) {
+                    switch(mapping[index]) {
+                        case BTN_SELECT:
+                            joystick->js_btn_select = index;
+                            break;
+                        case BTN_START:
+                            joystick->js_btn_start = index;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+#endif
 }
 
 /**
@@ -958,11 +1001,13 @@ void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* devi
 void XemJoystickDestruct(Widget widget, XemJoystick* joystick)
 {
     /* clear properties */ {
-        joystick->js_id      = 0;
-        joystick->js_axis_x  = 0;
-        joystick->js_axis_y  = 0;
-        joystick->js_button0 = 0;
-        joystick->js_button1 = 0;
+        joystick->js_id         = 0;
+        joystick->js_axis_x     = 0;
+        joystick->js_axis_y     = 0;
+        joystick->js_button0    = 0;
+        joystick->js_button1    = 0;
+        joystick->js_btn_select = -1;
+        joystick->js_btn_start  = -1;
     }
     /* destroy input_id */ {
         if(joystick->input_id != INPUT_ID(0)) {
@@ -975,6 +1020,9 @@ void XemJoystickDestruct(Widget widget, XemJoystick* joystick)
         }
     }
     /* finalize structure */ {
+        if(joystick->identifier != NULL) {
+            joystick->identifier = (XtFree(joystick->identifier), NULL);
+        }
         if(joystick->device != NULL) {
             joystick->device = (XtFree(joystick->device), NULL);
         }
@@ -1017,7 +1065,12 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
         /* read joystick event */ {
             const ssize_t bytes = read(joystick->fd, &event, sizeof(event));
             if(bytes != sizeof(event)) {
-                XtWarning("an unexpected error occured while reading a joystick");
+                char buffer[256];
+                (void) snprintf ( buffer, sizeof(buffer)
+                                , "an unexpected error occured while reading joystick #%d (%s)"
+                                , joystick->js_id
+                                , (joystick->identifier != NULL ? joystick->identifier : "unknown joystick") );
+                XtWarning(buffer);
                 joystick->input_id = (XtRemoveInput(joystick->input_id), INPUT_ID(0));
                 return;
             }
@@ -1027,6 +1080,16 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                 case JS_EVENT_BUTTON:
                     {
                         XEvent xevent;
+                        /* select button ? */ {
+                            if(event.number == joystick->js_btn_select) {
+                                break;
+                            }
+                        }
+                        /* start button ? */ {
+                            if(event.number == joystick->js_btn_start) {
+                                break;
+                            }
+                        }
                         /* update joystick */ {
                             if((event.number &= 1) == 0) {
                                 joystick->js_button0 = event.value;
