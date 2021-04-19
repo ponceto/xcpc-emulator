@@ -45,7 +45,8 @@ typedef struct _XemEmulatorPart
     XemJoystick        joystick1;
     XtCallbackList     hotkey_callback;
     XtIntervalId       timer;
-    XEvent             event;
+    XEvent             last_rcv_event;
+    XEvent             last_key_event;
     XemThrottledEvents throttled;
 } XemEmulatorPart;
 

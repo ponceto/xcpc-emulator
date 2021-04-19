@@ -59,7 +59,11 @@
 #endif
 
 #ifndef KEY_DELAY_THRESHOLD
-#define KEY_DELAY_THRESHOLD 10
+#define KEY_DELAY_THRESHOLD 20
+#endif
+
+#ifndef KEY_REPEAT_THRESHOLD
+#define KEY_REPEAT_THRESHOLD 10
 #endif
 
 #ifndef WIDGET_CLASS
@@ -302,16 +306,20 @@ static XEvent* CopyOrFillEvent(Widget widget, XEvent* event)
     XemEmulatorWidget self = EMULATOR_WIDGET(widget);
 
     if(event != NULL) {
-        self->emulator.event = *event;
+        self->emulator.last_rcv_event = *event;
+        if((event->type == KeyPress)
+        || (event->type == KeyRelease)) {
+            self->emulator.last_key_event = *event;
+        }
     }
     else {
-        self->emulator.event.xany.type       = GenericEvent;
-        self->emulator.event.xany.serial     = 0UL;
-        self->emulator.event.xany.send_event = True;
-        self->emulator.event.xany.display    = XtDisplay(widget);
-        self->emulator.event.xany.window     = XtWindow(widget);
+        self->emulator.last_rcv_event.xany.type       = GenericEvent;
+        self->emulator.last_rcv_event.xany.serial     = 0UL;
+        self->emulator.last_rcv_event.xany.send_event = True;
+        self->emulator.last_rcv_event.xany.display    = XtDisplay(widget);
+        self->emulator.last_rcv_event.xany.window     = XtWindow(widget);
     }
-    return &self->emulator.event;
+    return &self->emulator.last_rcv_event;
 }
 
 /*
@@ -570,13 +578,14 @@ static void OnKeyPress(Widget widget, XEvent* event, String* params, Cardinal* n
             }
         }
         /* check for same successive keypress/keyrelease */ {
-            XEvent* prev = &self->emulator.event;
-            if((prev->type         == KeyRelease         )
-            && (prev->xkey.display == event->xkey.display)
-            && (prev->xkey.window  == event->xkey.window )
-            && (prev->xkey.keycode == event->xkey.keycode)
-            && ((event->xkey.time - prev->xkey.time) < KEY_DELAY_THRESHOLD)) {
-                ThrottleInputEvent(widget, CopyOrFillEvent(widget, NULL));
+            XEvent* prev = &self->emulator.last_key_event;
+            if((prev->type == KeyPress) || (prev->type == KeyRelease)) {
+                if((prev->xkey.display == event->xkey.display)
+                && (prev->xkey.window  == event->xkey.window )
+                && (prev->xkey.keycode == event->xkey.keycode)
+                && ((event->xkey.time - prev->xkey.time) < KEY_DELAY_THRESHOLD)) {
+                    ThrottleInputEvent(widget, CopyOrFillEvent(widget, NULL));
+                }
             }
         }
         ThrottleInputEvent(widget, CopyOrFillEvent(widget, event));
@@ -604,7 +613,7 @@ static void OnKeyRelease(Widget widget, XEvent* event, String* params, Cardinal*
                 && (next.xkey.display == event->xkey.display)
                 && (next.xkey.window  == event->xkey.window )
                 && (next.xkey.keycode == event->xkey.keycode)
-                && ((next.xkey.time - event->xkey.time) < KEY_DELAY_THRESHOLD)) {
+                && ((next.xkey.time - event->xkey.time) < KEY_REPEAT_THRESHOLD)) {
                     (void) XNextEvent(event->xany.display, &next);
                     return;
                 }
