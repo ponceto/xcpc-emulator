@@ -966,29 +966,13 @@ void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* devi
 #endif
 #ifdef HAVE_LINUX_JOYSTICK_H
     /* get the joystick mapping */ {
+        unsigned char count = 0;
         if(joystick->fd != -1) {
-            unsigned int   index = 0;
-            unsigned char  count = 0;
-            unsigned short mapping[KEY_MAX - BTN_MISC + 1];
             if(ioctl(joystick->fd, JSIOCGBUTTONS, &count) == -1) {
-                count = 0;
+                (void) memset(joystick->js_mapping, 0, sizeof(joystick->js_mapping));
             }
-            if(ioctl(joystick->fd, JSIOCGBTNMAP, mapping) == -1) {
-                count = 0;
-            }
-            if(count > 0) {
-                for(index = 0; index < count; ++index) {
-                    switch(mapping[index]) {
-                        case BTN_SELECT:
-                            joystick->js_btn_select = index;
-                            break;
-                        case BTN_START:
-                            joystick->js_btn_start = index;
-                            break;
-                        default:
-                            break;
-                    }
-                }
+            if(ioctl(joystick->fd, JSIOCGBTNMAP, joystick->js_mapping) == -1) {
+                (void) memset(joystick->js_mapping, 0, sizeof(joystick->js_mapping));
             }
         }
     }
@@ -1080,14 +1064,14 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                 case JS_EVENT_BUTTON:
                     {
                         XEvent xevent;
-                        /* select button ? */ {
-                            if(event.number == joystick->js_btn_select) {
-                                break;
-                            }
-                        }
-                        /* start button ? */ {
-                            if(event.number == joystick->js_btn_start) {
-                                break;
+                        /* check for special button */ {
+                            if(event.value != 0) {
+                                unsigned short code = joystick->js_mapping[event.number];
+                                if((code == BTN_SELECT) || (code == BTN_START)) {
+                                    KeySym keysym = XK_Pause;
+                                    XtCallCallbackList(widget, self->emulator.hotkey_callback, &keysym);
+                                    return;
+                                }
                             }
                         }
                         /* update joystick */ {
