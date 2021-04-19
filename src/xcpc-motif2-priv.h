@@ -156,6 +156,7 @@ struct _XcpcApplicationRec
 {
     XcpcMachine*     machine;
     XtAppContext     appcontext;
+    XtIntervalId     intervalId;
     XcpcResourcesRec resources;
     XcpcPixmapsRec   pixmaps;
     XcpcLayoutRec    layout;

@@ -52,6 +52,7 @@ struct _XcpcApplicationRec
 {
     XcpcMachine*     machine;
     XtAppContext     appcontext;
+    XtIntervalId     intervalId;
     XcpcResourcesRec resources;
     XcpcLayoutRec    layout;
 };
