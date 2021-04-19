@@ -73,6 +73,14 @@ struct _XemThrottledEvents
     unsigned int tail;
 };
 
+extern void         XemKeyboardConstruct       (Widget widget, XemKeyboard* keyboard, int id);
+extern void         XemKeyboardDestruct        (Widget widget, XemKeyboard* keyboard);
+static Boolean      XemKeyboardPreprocessEvent (Widget widget, XemKeyboard* keyboard, XEvent* event);
+extern void         XemJoystickConstruct       (Widget widget, XemJoystick* joystick, const char* device, int id);
+extern void         XemJoystickDestruct        (Widget widget, XemJoystick* joystick);
+extern XemJoystick* XemJoystickLookupByFd      (Widget widget, int fd);
+extern void         XemJoystickHandler         (Widget widget, int* source, XtInputId* input_id);
+
 #ifdef __cplusplus
 }
 #endif
