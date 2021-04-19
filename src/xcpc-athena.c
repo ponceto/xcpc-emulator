@@ -1554,6 +1554,7 @@ static XcpcApplication* BuildEmulator(XcpcApplication* self)
 
     /* emulator */ {
         argcount = 0;
+        XtSetArg(arglist[argcount], XtNsensitive         , False                     ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineInstance   , self->machine             ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineCreateProc , &xcpc_machine_create_proc ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
@@ -1648,9 +1649,6 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
     /* build user interface */ {
         (void) BuildLayout(self);
     }
-    /* play */ {
-        (void) Play(self);
-    }
     return self;
 }
 
@@ -1682,6 +1680,9 @@ static XcpcApplication* MainLoop(XcpcApplication* self)
         }
         /* set initial keyboard focus */ {
             XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
+        }
+        /* play */ {
+            (void) Play(self);
         }
         /* run application loop  */ {
             if((self->appcontext != NULL)) {
