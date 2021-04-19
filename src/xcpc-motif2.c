@@ -50,7 +50,7 @@ You have use to the right shift and control keys to compose characters.\n\
 \n\
 Joystick emulation:\n\
 \n\
-    - End               enable/disable\n\
+    - Home/End          enable/disable\n\
     - Arrows            up/down/left/right\n\
     - Left Ctrl         fire1\n\
     - Left Alt          fire2\n\
