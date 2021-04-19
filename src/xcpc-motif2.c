@@ -976,6 +976,16 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
 {
     if(keysym != NULL) {
         switch(*keysym) {
+            case XK_Pause:
+                if(self->layout.emulator != NULL) {
+                    if(XtIsSensitive(self->layout.emulator) == False) {
+                        Play(self);
+                    }
+                    else {
+                        Pause(self);
+                    }
+                }
+                break;
             case XK_F1:
                 HelpCallback(widget, self, NULL);
                 break;
@@ -1585,6 +1595,11 @@ static XcpcApplication* Destruct(XcpcApplication* self)
     return self;
 }
 
+static void StartHandler(XcpcApplication* self, XtIntervalId* timer)
+{
+    (void) Play(self);
+}
+
 static XcpcApplication* MainLoop(XcpcApplication* self)
 {
     if(XtAppGetExitFlag(self->appcontext) == False) {
@@ -1596,8 +1611,8 @@ static XcpcApplication* MainLoop(XcpcApplication* self)
         /* set initial keyboard focus */ {
             XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
         }
-        /* play */ {
-            (void) Play(self);
+        /* deferred start */ {
+            (void) XtAppAddTimeOut(self->appcontext, 100UL, ((XtTimerCallbackProc)(&StartHandler)), self);
         }
         /* run application loop  */ {
             if((self->appcontext != NULL)) {

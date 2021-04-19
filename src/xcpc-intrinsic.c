@@ -180,11 +180,9 @@ static XcpcApplication* SetStatus(XcpcApplication* self, const char* string)
         (void) snprintf(buffer, sizeof(buffer), "%s", string);
     }
     if(self->infobar.status != NULL) {
-        XtUnmanageChild(self->infobar.status);
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, buffer); ++argcount;
         XtSetValues(self->infobar.status, arglist, argcount);
-        XtManageChild(self->infobar.status);
     }
 #endif
     return SetTitle(SetMachine(self), string);
@@ -290,15 +288,16 @@ static XcpcApplication* Play(XcpcApplication* self)
     return self;
 }
 
-#if 0
 static XcpcApplication* Pause(XcpcApplication* self)
 {
+#if 0
     /* show/hide controls */ {
         ShowWidget(self->menubar.ctrl.play_emulator);
         HideWidget(self->menubar.ctrl.pause_emulator);
         ShowWidget(self->toolbar.play_emulator);
         HideWidget(self->toolbar.pause_emulator);
     }
+#endif
     if(self->layout.emulator != NULL) {
         XtSetSensitive(self->layout.emulator, False);
         XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
@@ -310,7 +309,6 @@ static XcpcApplication* Pause(XcpcApplication* self)
     }
     return self;
 }
-#endif
 
 #if 0
 static XcpcApplication* Reset(XcpcApplication* self)
@@ -583,6 +581,56 @@ static void DropUriCallback(Widget widget, XcpcApplication* self, const char* ur
 
 /*
  * ---------------------------------------------------------------------------
+ * Hotkey callbacks
+ * ---------------------------------------------------------------------------
+ */
+
+static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
+{
+    if(keysym != NULL) {
+        switch(*keysym) {
+            case XK_Pause:
+                if(self->layout.emulator != NULL) {
+                    if(XtIsSensitive(self->layout.emulator) == False) {
+                        Play(self);
+                    }
+                    else {
+                        Pause(self);
+                    }
+                }
+                break;
+            case XK_F1:
+                break;
+            case XK_F2:
+                break;
+            case XK_F3:
+                break;
+            case XK_F4:
+                break;
+            case XK_F5:
+                break;
+            case XK_F6:
+                break;
+            case XK_F7:
+                break;
+            case XK_F8:
+                break;
+            case XK_F9:
+                break;
+            case XK_F10:
+                break;
+            case XK_F11:
+                break;
+            case XK_F12:
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+/*
+ * ---------------------------------------------------------------------------
  * XcpcApplication private methods
  * ---------------------------------------------------------------------------
  */
@@ -596,6 +644,7 @@ static XcpcApplication* BuildEmulator(XcpcApplication* self)
     /* emulator */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNsensitive         , False                     ); ++argcount;
+        XtSetArg(arglist[argcount], XtNborderWidth       , 0                         ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineInstance   , self->machine             ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineCreateProc , &xcpc_machine_create_proc ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
@@ -607,6 +656,7 @@ static XcpcApplication* BuildEmulator(XcpcApplication* self)
         XtSetArg(arglist[argcount], XtNjoystick0         , xcpc_get_joystick0()      ); ++argcount;
         XtSetArg(arglist[argcount], XtNjoystick1         , xcpc_get_joystick1()      ); ++argcount;
         layout->emulator = XemCreateEmulator(self->layout.toplevel, "emulator", arglist, argcount);
+        XtAddCallback(layout->emulator, XtNhotkeyCallback , (XtCallbackProc) &HotkeyCallback , (XtPointer) self);
         XtAddCallback(layout->emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);
         XtManageChild(layout->emulator);
     }
@@ -677,6 +727,11 @@ static XcpcApplication* Destruct(XcpcApplication* self)
     return self;
 }
 
+static void StartHandler(XcpcApplication* self, XtIntervalId* timer)
+{
+    (void) Play(self);
+}
+
 static XcpcApplication* MainLoop(XcpcApplication* self)
 {
     if(XtAppGetExitFlag(self->appcontext) == False) {
@@ -688,8 +743,8 @@ static XcpcApplication* MainLoop(XcpcApplication* self)
         /* set initial keyboard focus */ {
             XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
         }
-        /* play */ {
-            (void) Play(self);
+        /* deferred start */ {
+            (void) XtAppAddTimeOut(self->appcontext, 100UL, ((XtTimerCallbackProc)(&StartHandler)), self);
         }
         /* run application loop  */ {
             if((self->appcontext != NULL)) {

@@ -314,11 +314,9 @@ static XcpcApplication* SetStatus(XcpcApplication* self, const char* string)
         (void) snprintf(buffer, sizeof(buffer), "%s", string);
     }
     if(self->infobar.status != NULL) {
-        XtUnmanageChild(self->infobar.status);
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, buffer); ++argcount;
         XtSetValues(self->infobar.status, arglist, argcount);
-        XtManageChild(self->infobar.status);
     }
     return SetTitle(SetMachine(self), string);
 }
@@ -1115,6 +1113,16 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
 {
     if(keysym != NULL) {
         switch(*keysym) {
+            case XK_Pause:
+                if(self->layout.emulator != NULL) {
+                    if(XtIsSensitive(self->layout.emulator) == False) {
+                        Play(self);
+                    }
+                    else {
+                        Pause(self);
+                    }
+                }
+                break;
             case XK_F1:
                 HelpCallback(widget, self, NULL);
                 break;
@@ -1555,6 +1563,7 @@ static XcpcApplication* BuildEmulator(XcpcApplication* self)
     /* emulator */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNsensitive         , False                     ); ++argcount;
+        XtSetArg(arglist[argcount], XtNborderWidth       , 0                         ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineInstance   , self->machine             ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineCreateProc , &xcpc_machine_create_proc ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
@@ -1670,6 +1679,11 @@ static XcpcApplication* Destruct(XcpcApplication* self)
     return self;
 }
 
+static void StartHandler(XcpcApplication* self, XtIntervalId* timer)
+{
+    (void) Play(self);
+}
+
 static XcpcApplication* MainLoop(XcpcApplication* self)
 {
     if(XtAppGetExitFlag(self->appcontext) == False) {
@@ -1681,8 +1695,8 @@ static XcpcApplication* MainLoop(XcpcApplication* self)
         /* set initial keyboard focus */ {
             XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
         }
-        /* play */ {
-            (void) Play(self);
+        /* deferred start */ {
+            (void) XtAppAddTimeOut(self->appcontext, 100UL, ((XtTimerCallbackProc)(&StartHandler)), self);
         }
         /* run application loop  */ {
             if((self->appcontext != NULL)) {
