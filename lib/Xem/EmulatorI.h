@@ -65,8 +65,7 @@ struct _XemJoystick
     int            js_axis_y;
     int            js_button0;
     int            js_button1;
-    int            js_btn_select;
-    int            js_btn_start;
+    int            js_buttons;
     unsigned short js_mapping[1024];
 };
 
@@ -84,6 +83,7 @@ extern void         XemJoystickConstruct       (Widget widget, XemJoystick* joys
 extern void         XemJoystickDestruct        (Widget widget, XemJoystick* joystick);
 extern XemJoystick* XemJoystickLookupByFd      (Widget widget, int fd);
 extern void         XemJoystickHandler         (Widget widget, int* source, XtInputId* input_id);
+extern void         XemJoystickDump            (Widget widget, XemJoystick* joystick, unsigned char button);
 
 #ifdef __cplusplus
 }

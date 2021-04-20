@@ -921,22 +921,69 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
 }
 
 /**
+ * XemJoystick::ButtonName()
+ */
+const char* XemJoystickButtonName(unsigned short code)
+{
+#ifdef HAVE_LINUX_JOYSTICK_H
+    switch(code) {
+        case BTN_A      : return "BTN_A";
+        case BTN_B      : return "BTN_B";
+        case BTN_C      : return "BTN_C";
+        case BTN_X      : return "BTN_X";
+        case BTN_Y      : return "BTN_Y";
+        case BTN_Z      : return "BTN_Z";
+        case BTN_TL     : return "BTN_TL";
+        case BTN_TR     : return "BTN_TR";
+        case BTN_TL2    : return "BTN_TL2";
+        case BTN_TR2    : return "BTN_TR2";
+        case BTN_SELECT : return "BTN_SELECT";
+        case BTN_START  : return "BTN_START";
+        case BTN_MODE   : return "BTN_MODE";
+        case BTN_THUMBL : return "BTN_THUMBL";
+        case BTN_THUMBR : return "BTN_THUMBR";
+        default:
+            break;
+    }
+#endif
+    return "*** unknown ***";
+}
+
+/**
+ * XemJoystick::Dump()
+ */
+void XemJoystickDump(Widget widget, XemJoystick* joystick, unsigned char button)
+{
+    int index = 0;
+    int count = joystick->js_buttons;
+
+    (void) fprintf(stderr, "%s\n", joystick->identifier);
+    if(button != -1) {
+        (void) fprintf(stderr, "Button %d [%s]\n", button, XemJoystickButtonName(joystick->js_mapping[button]));
+    }
+    for(index = 0; index < count; ++index) {
+        (void) fprintf(stderr, "%3d --> %3x : %s\n", index, joystick->js_mapping[index], XemJoystickButtonName(joystick->js_mapping[index]));
+    }
+    (void) fprintf(stderr, "\n");
+    (void) fflush(stderr);
+}
+
+/**
  * XemJoystick::Construct()
  */
 void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* device, int id)
 {
     /* initialize structure */ {
-        joystick->device        = NULL;
-        joystick->identifier    = NULL;
-        joystick->fd            = -1;
-        joystick->input_id      = INPUT_ID(0);
-        joystick->js_id         = id;
-        joystick->js_axis_x     = 0;
-        joystick->js_axis_y     = 0;
-        joystick->js_button0    = 0;
-        joystick->js_button1    = 0;
-        joystick->js_btn_select = -1;
-        joystick->js_btn_start  = -1;
+        joystick->device     = NULL;
+        joystick->identifier = NULL;
+        joystick->fd         = -1;
+        joystick->input_id   = INPUT_ID(0);
+        joystick->js_id      = id;
+        joystick->js_axis_x  = 0;
+        joystick->js_axis_y  = 0;
+        joystick->js_button0 = 0;
+        joystick->js_button1 = 0;
+        joystick->js_buttons = 0;
     }
     /* check device name */ {
         if((device != NULL) && (*device != '\0')) {
@@ -974,6 +1021,9 @@ void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* devi
             if(ioctl(joystick->fd, JSIOCGBTNMAP, joystick->js_mapping) == -1) {
                 (void) memset(joystick->js_mapping, 0, sizeof(joystick->js_mapping));
             }
+            if(count != 0) {
+                joystick->js_buttons = count;
+            }
         }
     }
 #endif
@@ -985,13 +1035,12 @@ void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* devi
 void XemJoystickDestruct(Widget widget, XemJoystick* joystick)
 {
     /* clear properties */ {
-        joystick->js_id         = 0;
-        joystick->js_axis_x     = 0;
-        joystick->js_axis_y     = 0;
-        joystick->js_button0    = 0;
-        joystick->js_button1    = 0;
-        joystick->js_btn_select = -1;
-        joystick->js_btn_start  = -1;
+        joystick->js_id      = 0;
+        joystick->js_axis_x  = 0;
+        joystick->js_axis_y  = 0;
+        joystick->js_button0 = 0;
+        joystick->js_button1 = 0;
+        joystick->js_buttons = 0;
     }
     /* destroy input_id */ {
         if(joystick->input_id != INPUT_ID(0)) {
@@ -1067,7 +1116,10 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                         /* check for special button */ {
                             if(event.value != 0) {
                                 unsigned short code = joystick->js_mapping[event.number];
-                                if((code == BTN_SELECT) || (code == BTN_START)) {
+                                if(code == BTN_MODE) {
+                                    return;
+                                }
+                                else if((code == BTN_SELECT) || (code == BTN_START)) {
                                     KeySym keysym = XK_Pause;
                                     XtCallCallbackList(widget, self->emulator.hotkey_callback, &keysym);
                                     return;
