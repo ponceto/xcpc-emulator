@@ -68,14 +68,14 @@ libxcpc_la_SOURCES = \
 	cpu-z80a/cpu-z80a.h \
 	cpu-z80a/cpu-z80a-impl.h \
 	cpu-z80a/cpu-z80a-priv.h \
-	cpu-z80a/cpu-z80a-opcodes.inc \
-	cpu-z80a/cpu-z80a-opcodes-dd.inc \
-	cpu-z80a/cpu-z80a-opcodes-ed.inc \
-	cpu-z80a/cpu-z80a-opcodes-fd.inc \
-	cpu-z80a/cpu-z80a-opcodes-xx.inc \
 	cpu-z80a/cpu-z80a-opcodes-cb.inc \
+	cpu-z80a/cpu-z80a-opcodes-ed.inc \
+	cpu-z80a/cpu-z80a-opcodes-dd.inc \
+	cpu-z80a/cpu-z80a-opcodes-fd.inc \
 	cpu-z80a/cpu-z80a-opcodes-ddcb.inc \
 	cpu-z80a/cpu-z80a-opcodes-fdcb.inc \
+	cpu-z80a/cpu-z80a-opcodes-op.inc \
+	cpu-z80a/cpu-z80a-opcodes-xy.inc \
 	vga-core/vga-core.c \
 	vga-core/vga-core.h \
 	vga-core/vga-core-impl.h \

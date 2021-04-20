@@ -367,7 +367,7 @@ extern "C" {
 
 #define m_illegal_fdcb() \
     do { \
-        xcpc_log_debug("illegal FDCBxx%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal FDCByy%02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
 
 /*
