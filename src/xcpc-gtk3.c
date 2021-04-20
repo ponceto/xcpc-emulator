@@ -38,13 +38,23 @@ static const gchar* const sig_activate = "activate";
  * ---------------------------------------------------------------------------
  */
 
-gboolean destroy_callback(GtkWidget* widget, GtkWidget** widget_reference)
+static gboolean destroy_callback(GtkWidget* widget, GtkWidget** widget_reference)
 {
     if((widget_reference != NULL) && (*widget_reference == widget)) {
-        xcpc_log_print("destroy_callback <%s>", gtk_widget_get_name(widget));
+        xcpc_log_print("destroy %s", gtk_widget_get_name(widget));
         *widget_reference = NULL;
     }
     return FALSE;
+}
+
+static void widget_signal_connect_destroy(GtkWidget* widget, GtkWidget** widget_reference)
+{
+    (void) g_signal_connect(widget, sig_destroy, G_CALLBACK(&destroy_callback), widget_reference);
+}
+
+static void toolitem_signal_connect_destroy(GtkToolItem* widget, GtkToolItem** widget_reference)
+{
+    (void) g_signal_connect(GTK_WIDGET(widget), sig_destroy, G_CALLBACK(&destroy_callback), widget_reference);
 }
 
 /*
@@ -53,14 +63,211 @@ gboolean destroy_callback(GtkWidget* widget, GtkWidget** widget_reference)
  * ---------------------------------------------------------------------------
  */
 
+static void build_file_menu(XcpcApplication* self)
+{
+    XcpcFileMenuRec* menu = &self->menubar.file;
+
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+    }
+    /* item */ {
+        menu->item = gtk_menu_item_new_with_label("File");;
+        widget_signal_connect_destroy(menu->item, &menu->item);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
+        gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+    /* load-snapshot */ {
+        menu->load_snapshot = gtk_menu_item_new_with_label("Load snapshot...");;
+        widget_signal_connect_destroy(menu->load_snapshot, &menu->load_snapshot);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->load_snapshot);
+    }
+    /* save-snapshot */ {
+        menu->save_snapshot = gtk_menu_item_new_with_label("Save snapshot...");;
+        widget_signal_connect_destroy(menu->save_snapshot, &menu->save_snapshot);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->save_snapshot);
+    }
+    /* separator1 */ {
+        menu->separator1 = gtk_separator_menu_item_new();;
+        widget_signal_connect_destroy(menu->separator1, &menu->separator1);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->separator1);
+    }
+    /* exit */ {
+        menu->exit = gtk_menu_item_new_with_label("Exit");;
+        widget_signal_connect_destroy(menu->exit, &menu->exit);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->exit);
+    }
+}
+
+static void build_ctrl_menu(XcpcApplication* self)
+{
+    XcpcCtrlMenuRec* menu = &self->menubar.ctrl;
+
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+    }
+    /* item */ {
+        menu->item = gtk_menu_item_new_with_label("Controls");;
+        widget_signal_connect_destroy(menu->item, &menu->item);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
+        gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+}
+
+static void build_drv0_menu(XcpcApplication* self)
+{
+    XcpcDrv0MenuRec* menu = &self->menubar.drv0;
+
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+    }
+    /* item */ {
+        menu->item = gtk_menu_item_new_with_label("Drive A");;
+        widget_signal_connect_destroy(menu->item, &menu->item);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
+        gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+}
+
+static void build_drv1_menu(XcpcApplication* self)
+{
+    XcpcDrv1MenuRec* menu = &self->menubar.drv1;
+
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+    }
+    /* item */ {
+        menu->item = gtk_menu_item_new_with_label("Drive B");;
+        widget_signal_connect_destroy(menu->item, &menu->item);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
+        gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+}
+
+static void build_help_menu(XcpcApplication* self)
+{
+    XcpcHelpMenuRec* menu = &self->menubar.help;
+
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+    }
+    /* item */ {
+        menu->item = gtk_menu_item_new_with_label("Help");;
+        widget_signal_connect_destroy(menu->item, &menu->item);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
+        gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+}
+
+static void build_menubar(XcpcApplication* self)
+{
+    XcpcMenuBarRec* menubar = &self->menubar;
+
+    /* create menubar */ {
+        menubar->widget = gtk_menu_bar_new();
+        widget_signal_connect_destroy(menubar->widget, &menubar->widget);
+        gtk_box_pack_start(GTK_BOX(self->layout.vbox), menubar->widget, FALSE, TRUE, 0);
+    }
+    /* build menus */ {
+        build_file_menu(self);
+        build_ctrl_menu(self);
+        build_drv0_menu(self);
+        build_drv1_menu(self);
+        build_help_menu(self);
+    }
+}
+
+static void build_toolbar(XcpcApplication* self)
+{
+    XcpcToolBarRec* toolbar = &self->toolbar;
+
+    /* create toolbar */ {
+        toolbar->widget = gtk_toolbar_new();
+        widget_signal_connect_destroy(toolbar->widget, &toolbar->widget);
+        gtk_box_pack_start(GTK_BOX(self->layout.vbox), toolbar->widget, FALSE, TRUE, 0);
+    }
+    /* create load-snapshot */ {
+        toolbar->load_snapshot = gtk_tool_button_new(NULL, NULL);
+        toolitem_signal_connect_destroy(toolbar->load_snapshot, &toolbar->load_snapshot);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->load_snapshot), "document-open-symbolic");
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->load_snapshot, 0);
+    }
+    /* create save-snapshot */ {
+        toolbar->save_snapshot = gtk_tool_button_new(NULL, NULL);
+        toolitem_signal_connect_destroy(toolbar->save_snapshot, &toolbar->save_snapshot);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->save_snapshot), "document-save-symbolic");
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->save_snapshot, 1);
+    }
+    /* create play-emulator */ {
+        toolbar->play_emulator = gtk_tool_button_new(NULL, NULL);
+        toolitem_signal_connect_destroy(toolbar->play_emulator, &toolbar->play_emulator);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->play_emulator), "media-playback-start-symbolic");
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->play_emulator, 2);
+    }
+    /* create pause-emulator */ {
+        toolbar->pause_emulator = gtk_tool_button_new(NULL, NULL);
+        toolitem_signal_connect_destroy(toolbar->pause_emulator, &toolbar->pause_emulator);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->pause_emulator), "media-playback-pause-symbolic");
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->pause_emulator, 3);
+    }
+    /* create reset-emulator */ {
+        toolbar->reset_emulator = gtk_tool_button_new(NULL, NULL);
+        toolitem_signal_connect_destroy(toolbar->reset_emulator, &toolbar->reset_emulator);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->reset_emulator), "media-playlist-repeat-symbolic");
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->reset_emulator, 4);
+    }
+}
+
+static void build_emulator(XcpcApplication* self)
+{
+    XcpcLayoutRec* layout = &self->layout;
+
+    /* create emulator */ {
+        layout->emulator = gtk_drawing_area_new();
+        widget_signal_connect_destroy(layout->emulator, &layout->emulator);
+        gtk_box_pack_start(GTK_BOX(self->layout.vbox), layout->emulator, TRUE, TRUE, 0);
+    }
+}
+
+static void build_infobar(XcpcApplication* self)
+{
+    XcpcInfoBarRec* infobar = &self->infobar;
+
+    /* create infobar */ {
+        infobar->widget = gtk_button_new_with_label("infobar");
+        widget_signal_connect_destroy(infobar->widget, &infobar->widget);
+        gtk_box_pack_start(GTK_BOX(self->layout.vbox), infobar->widget, FALSE, TRUE, 0);
+    }
+}
+
 static void build_layout(GtkApplication* application, XcpcApplication* self)
 {
     /* create window */ {
         self->layout.window = gtk_application_window_new(application);
-        gtk_widget_set_name(GTK_WIDGET(self->layout.window), "main-window");
+        widget_signal_connect_destroy(self->layout.window, &self->layout.window);
         gtk_window_set_title(GTK_WINDOW(self->layout.window), "Xcpc - Amstrad CPC emulator");
         gtk_window_set_default_size(GTK_WINDOW(self->layout.window), 640, 480);
-        (void) g_signal_connect(self->layout.window, sig_destroy, G_CALLBACK(&destroy_callback), &self->layout.window);
+    }
+    /* create vbox */ {
+        self->layout.vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+        widget_signal_connect_destroy(self->layout.vbox, &self->layout.vbox);
+        gtk_container_add(GTK_CONTAINER(self->layout.window), self->layout.vbox);
+    }
+    /* menubar */ {
+        (void) build_menubar(self);
+    }
+    /* toolbar */ {
+        (void) build_toolbar(self);
+    }
+    /* emulator */ {
+        (void) build_emulator(self);
+    }
+    /* infobar */ {
+        (void) build_infobar(self);
     }
     /* show all */ {
         gtk_widget_show_all(self->layout.window);
