@@ -246,11 +246,27 @@ fi
 ])dnl AX_CHECK_MOTIF2
 
 # ----------------------------------------------------------------------------
+# AX_CHECK_GTK3
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_GTK3], [
+AC_ARG_ENABLE([gtk3], [AC_HELP_STRING([--enable-gtk3], [add the support of Gtk3 if available [default=yes]])], [], [enable_gtk3="no"])
+if test "x${enable_gtk3}" = "xyes"; then
+    PKG_CHECK_MODULES([gtk3], [gtk+-3.0], [have_gtk3="yes"], [have_gtk3="no"])
+else
+    have_gtk3="no"
+fi
+])dnl AX_CHECK_GTK3
+
+# ----------------------------------------------------------------------------
 # AX_CHECK_X11_TOOLKIT
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_X11_TOOLKIT], [
-AC_ARG_WITH([x11-toolkit], [AC_HELP_STRING([--with-x11-toolkit], [select the graphical toolkit (motif2, athena, intrinsic)])])
+AC_ARG_WITH([x11-toolkit], [AC_HELP_STRING([--with-x11-toolkit], [select the graphical toolkit (gtk3, motif2, athena, intrinsic)])])
+if test "x${with_x11_toolkit}${have_gtk3}" = "xyes"; then
+    with_x11_toolkit="gtk3"
+fi
 if test "x${with_x11_toolkit}${have_motif2}" = "xyes"; then
     with_x11_toolkit="motif2"
 fi
@@ -259,6 +275,11 @@ if test "x${with_x11_toolkit}${have_athena}" = "xyes"; then
 fi
 if test "x${with_x11_toolkit}${have_intrinsic}" = "xyes"; then
     with_x11_toolkit="intrinsic"
+fi
+if test "x${with_x11_toolkit}" = "xgtk3"; then
+    if test "x${have_gtk3}" != "xyes"; then
+        AC_MSG_ERROR([gtk3 toolkit was not found])
+    fi
 fi
 if test "x${with_x11_toolkit}" = "xmotif2"; then
     if test "x${have_motif2}" != "xyes"; then
@@ -276,20 +297,37 @@ if test "x${with_x11_toolkit}" = "xintrinsic"; then
     fi
 fi
 case "${with_x11_toolkit}" in
+    gtk3)
+        AM_CONDITIONAL([GTK3],      true )
+        AM_CONDITIONAL([MOTIF2],    false)
+        AM_CONDITIONAL([ATHENA],    false)
+        AM_CONDITIONAL([INTRINSIC], false)
+        AM_CONDITIONAL([LIBGEM],    true )
+        AM_CONDITIONAL([LIBXEM],    false)
+        ;;
     motif2)
+        AM_CONDITIONAL([GTK3],      false)
         AM_CONDITIONAL([MOTIF2],    true )
         AM_CONDITIONAL([ATHENA],    false)
         AM_CONDITIONAL([INTRINSIC], false)
+        AM_CONDITIONAL([LIBGEM],    false)
+        AM_CONDITIONAL([LIBXEM],    true )
         ;;
     athena)
+        AM_CONDITIONAL([GTK3],      false)
         AM_CONDITIONAL([MOTIF2],    false)
         AM_CONDITIONAL([ATHENA],    true )
         AM_CONDITIONAL([INTRINSIC], false)
+        AM_CONDITIONAL([LIBGEM],    false)
+        AM_CONDITIONAL([LIBXEM],    true )
         ;;
     intrinsic)
+        AM_CONDITIONAL([GTK3],      false)
         AM_CONDITIONAL([MOTIF2],    false)
         AM_CONDITIONAL([ATHENA],    false)
         AM_CONDITIONAL([INTRINSIC], true )
+        AM_CONDITIONAL([LIBGEM],    false)
+        AM_CONDITIONAL([LIBXEM],    true )
         ;;
     *)
         AC_MSG_ERROR([no usable X11 toolkit was found])
@@ -304,7 +342,7 @@ esac
 AC_DEFUN([AX_CHECK_PORTAUDIO], [
 AC_ARG_ENABLE([portaudio], [AC_HELP_STRING([--enable-portaudio], [add the support of PortAudio if available [default=yes]])], [], [enable_portaudio="yes"])
 if test "x${enable_portaudio}" = "xyes"; then
-    PKG_CHECK_MODULES(portaudio, portaudio-2.0 >= 19, [have_portaudio="yes"], [have_portaudio="no"])
+    PKG_CHECK_MODULES([portaudio], portaudio-2.0 >= 19, [have_portaudio="yes"], [have_portaudio="no"])
 else
     have_portaudio="no"
 fi

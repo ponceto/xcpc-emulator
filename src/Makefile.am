@@ -28,25 +28,45 @@ bin_PROGRAMS = \
 # ----------------------------------------------------------------------------
 
 xcpc_SOURCES = \
-	xcpc.c \
-	xcpc.h \
+	xcpc-main.c \
+	xcpc-main.h \
+	xcpc-main-priv.h \
 	$(NULL)
 
 xcpc_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src \
-	$(X_CFLAGS) \
 	$(NULL)
 
 xcpc_LDFLAGS = \
 	-L$(top_builddir)/lib \
 	-L$(top_builddir)/src \
-	$(X_LDFLAGS) \
 	$(NULL)
 
 xcpc_LDADD = \
 	$(top_builddir)/lib/xcpc/libxcpc.la \
 	$(NULL)
+
+if GTK3
+xcpc_SOURCES += \
+	xcpc-gtk3.c \
+	xcpc-gtk3.h \
+	xcpc-gtk3-priv.h \
+	$(NULL)
+
+xcpc_CPPFLAGS += \
+	$(gtk3_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(gtk3_LDFLAGS) \
+	$(NULL)
+
+xcpc_LDADD += \
+	$(top_builddir)/lib/Gem/libGem.la \
+	$(gtk3_LIBS) \
+	$(NULL)
+endif
 
 if MOTIF2
 xcpc_SOURCES += \
@@ -55,10 +75,18 @@ xcpc_SOURCES += \
 	xcpc-motif2-priv.h \
 	$(NULL)
 
+xcpc_CPPFLAGS += \
+	$(X_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(X_LDFLAGS) \
+	$(NULL)
+
 xcpc_LDADD += \
+	-lXm -lXmu -lXt \
 	$(top_builddir)/lib/Xem/libXem.la \
-	$(X_LIBS) -lXm -lXmu -lXt \
-	$(X_PRE_LIBS) -lXext -lX11 \
+	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 endif
@@ -70,10 +98,18 @@ xcpc_SOURCES += \
 	xcpc-athena-priv.h \
 	$(NULL)
 
+xcpc_CPPFLAGS += \
+	$(X_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(X_LDFLAGS) \
+	$(NULL)
+
 xcpc_LDADD += \
+	-lXaw -lXmu -lXt \
 	$(top_builddir)/lib/Xem/libXem.la \
-	$(X_LIBS) -lXaw -lXmu -lXt \
-	$(X_PRE_LIBS) -lXext -lX11 \
+	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 endif
@@ -85,10 +121,18 @@ xcpc_SOURCES += \
 	xcpc-intrinsic-priv.h \
 	$(NULL)
 
+xcpc_CPPFLAGS += \
+	$(X_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(X_LDFLAGS) \
+	$(NULL)
+
 xcpc_LDADD += \
+	-lXt \
 	$(top_builddir)/lib/Xem/libXem.la \
-	$(X_LIBS) -lXt \
-	$(X_PRE_LIBS) -lXext -lX11 \
+	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 endif

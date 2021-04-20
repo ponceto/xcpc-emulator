@@ -20,41 +20,28 @@
 # ----------------------------------------------------------------------------
 
 noinst_LTLIBRARIES = \
-	libXem.la \
+	libGem.la \
 	$(NULL)
 
 # ----------------------------------------------------------------------------
-# libXem
+# libGem
 # ----------------------------------------------------------------------------
 
-libXem_la_SOURCES = \
-	AppShell.c \
-	AppShell.h \
-	AppShellP.h \
-	DlgShell.c \
-	DlgShell.h \
-	DlgShellP.h \
-	Emulator.c \
-	Emulator.h \
-	EmulatorI.h \
-	EmulatorP.h \
-	StringDefs.h \
+libGem_la_SOURCES = \
 	$(NULL)
 
-libXem_la_CPPFLAGS = \
+libGem_la_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
-	$(X_CFLAGS) \
+	$(gtk3_CFLAGS) \
 	$(NULL)
 
-libXem_la_LDFLAGS = \
+libGem_la_LDFLAGS = \
 	-L$(top_builddir)/lib \
-	$(X_LDFLAGS) \
+	$(gtk3_LDFLAGS) \
 	$(NULL)
 
-libXem_la_LIBADD = \
-	-lXt \
-	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
-	$(X_EXTRA_LIBS) -lm \
+libGem_la_LIBADD = \
+	$(gtk3_LIBS) \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

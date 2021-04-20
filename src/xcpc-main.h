@@ -1,5 +1,5 @@
 /*
- * xcpc-motif2.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-main.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,23 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_MOTIF2_H__
-#define __XCPC_MOTIF2_H__
+#ifndef __XCPC_MAIN_H__
+#define __XCPC_MAIN_H__
 
-#include "xcpc-main.h"
+#include <xcpc/libxcpc.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _XcpcApplicationRec XcpcApplication;
-
-extern XcpcApplication* XcpcApplicationNew    (int* argc, char*** argv);
-extern XcpcApplication* XcpcApplicationLoop   (XcpcApplication* application);
-extern XcpcApplication* XcpcApplicationDelete (XcpcApplication* application);
+extern int main(int argc, char* argv[]);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __XCPC_MOTIF2_H__ */
+#endif /* __XCPC_MAIN_H__ */

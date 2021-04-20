@@ -23,8 +23,15 @@ SUBDIRS = \
 	libdsk \
 	lib765 \
 	xcpc \
-	Xem \
 	$(NULL)
+
+if LIBXEM
+SUBDIRS += Xem
+endif
+
+if LIBGEM
+SUBDIRS += Gem
+endif
 
 # ----------------------------------------------------------------------------
 # End-Of-File

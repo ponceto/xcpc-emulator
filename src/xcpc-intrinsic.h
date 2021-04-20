@@ -17,7 +17,7 @@
 #ifndef __XCPC_INTRINSIC_H__
 #define __XCPC_INTRINSIC_H__
 
-#include "xcpc.h"
+#include "xcpc-main.h"
 
 #ifdef __cplusplus
 extern "C" {

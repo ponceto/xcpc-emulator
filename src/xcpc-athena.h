@@ -17,7 +17,7 @@
 #ifndef __XCPC_ATHENA_H__
 #define __XCPC_ATHENA_H__
 
-#include "xcpc.h"
+#include "xcpc-main.h"
 
 #ifdef __cplusplus
 extern "C" {

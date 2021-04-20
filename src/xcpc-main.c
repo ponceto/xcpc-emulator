@@ -1,5 +1,5 @@
 /*
- * xcpc.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-main.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include "xcpc.h"
+#include "xcpc-main-priv.h"
 
 static char XAPPLRESDIR[PATH_MAX + 1] = "{not-set}";
 
