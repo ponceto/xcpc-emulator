@@ -67,15 +67,15 @@ static void build_file_menu(XcpcApplication* self)
 {
     XcpcFileMenuRec* menu = &self->menubar.file;
 
-    /* menu */ {
-        menu->menu = gtk_menu_new();
-        widget_signal_connect_destroy(menu->menu, &menu->menu);
-    }
     /* item */ {
         menu->item = gtk_menu_item_new_with_label("File");;
         widget_signal_connect_destroy(menu->item, &menu->item);
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
         gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
     }
     /* load-snapshot */ {
         menu->load_snapshot = gtk_menu_item_new_with_label("Load snapshot...");;
@@ -103,15 +103,15 @@ static void build_ctrl_menu(XcpcApplication* self)
 {
     XcpcCtrlMenuRec* menu = &self->menubar.ctrl;
 
-    /* menu */ {
-        menu->menu = gtk_menu_new();
-        widget_signal_connect_destroy(menu->menu, &menu->menu);
-    }
     /* item */ {
         menu->item = gtk_menu_item_new_with_label("Controls");;
         widget_signal_connect_destroy(menu->item, &menu->item);
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
         gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
     }
     /* play-emulator */ {
         menu->play_emulator = gtk_menu_item_new_with_label("Play");;
@@ -134,15 +134,15 @@ static void build_drv0_menu(XcpcApplication* self)
 {
     XcpcDrv0MenuRec* menu = &self->menubar.drv0;
 
-    /* menu */ {
-        menu->menu = gtk_menu_new();
-        widget_signal_connect_destroy(menu->menu, &menu->menu);
-    }
     /* item */ {
         menu->item = gtk_menu_item_new_with_label("Drive A");;
         widget_signal_connect_destroy(menu->item, &menu->item);
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
         gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
     }
     /* drive0-insert */ {
         menu->drive0_insert = gtk_menu_item_new_with_label("Insert disk...");;
@@ -160,15 +160,15 @@ static void build_drv1_menu(XcpcApplication* self)
 {
     XcpcDrv1MenuRec* menu = &self->menubar.drv1;
 
-    /* menu */ {
-        menu->menu = gtk_menu_new();
-        widget_signal_connect_destroy(menu->menu, &menu->menu);
-    }
     /* item */ {
         menu->item = gtk_menu_item_new_with_label("Drive B");;
         widget_signal_connect_destroy(menu->item, &menu->item);
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
         gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
     }
     /* drive1-insert */ {
         menu->drive1_insert = gtk_menu_item_new_with_label("Insert disk...");;
@@ -186,15 +186,15 @@ static void build_help_menu(XcpcApplication* self)
 {
     XcpcHelpMenuRec* menu = &self->menubar.help;
 
-    /* menu */ {
-        menu->menu = gtk_menu_new();
-        widget_signal_connect_destroy(menu->menu, &menu->menu);
-    }
     /* item */ {
         menu->item = gtk_menu_item_new_with_label("Help");;
         widget_signal_connect_destroy(menu->item, &menu->item);
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
         gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+    /* menu */ {
+        menu->menu = gtk_menu_new();
+        widget_signal_connect_destroy(menu->menu, &menu->menu);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
     }
 }
 
