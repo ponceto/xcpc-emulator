@@ -113,6 +113,21 @@ static void build_ctrl_menu(XcpcApplication* self)
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
         gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
     }
+    /* play-emulator */ {
+        menu->play_emulator = gtk_menu_item_new_with_label("Play");;
+        widget_signal_connect_destroy(menu->play_emulator, &menu->play_emulator);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->play_emulator);
+    }
+    /* pause-emulator */ {
+        menu->pause_emulator = gtk_menu_item_new_with_label("Pause");;
+        widget_signal_connect_destroy(menu->pause_emulator, &menu->pause_emulator);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->pause_emulator);
+    }
+    /* reset-emulator */ {
+        menu->reset_emulator = gtk_menu_item_new_with_label("Reset");;
+        widget_signal_connect_destroy(menu->reset_emulator, &menu->reset_emulator);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->reset_emulator);
+    }
 }
 
 static void build_drv0_menu(XcpcApplication* self)
@@ -129,6 +144,16 @@ static void build_drv0_menu(XcpcApplication* self)
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
         gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
     }
+    /* drive0-insert */ {
+        menu->drive0_insert = gtk_menu_item_new_with_label("Insert disk...");;
+        widget_signal_connect_destroy(menu->drive0_insert, &menu->drive0_insert);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->drive0_insert);
+    }
+    /* drive0-remove */ {
+        menu->drive0_remove = gtk_menu_item_new_with_label("Remove disk");;
+        widget_signal_connect_destroy(menu->drive0_remove, &menu->drive0_remove);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->drive0_remove);
+    }
 }
 
 static void build_drv1_menu(XcpcApplication* self)
@@ -144,6 +169,16 @@ static void build_drv1_menu(XcpcApplication* self)
         widget_signal_connect_destroy(menu->item, &menu->item);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
         gtk_menu_shell_append(GTK_MENU_SHELL(self->menubar.widget), menu->item);
+    }
+    /* drive1-insert */ {
+        menu->drive1_insert = gtk_menu_item_new_with_label("Insert disk...");;
+        widget_signal_connect_destroy(menu->drive1_insert, &menu->drive1_insert);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->drive1_insert);
+    }
+    /* drive1-remove */ {
+        menu->drive1_remove = gtk_menu_item_new_with_label("Remove disk");;
+        widget_signal_connect_destroy(menu->drive1_remove, &menu->drive1_remove);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->drive1_remove);
     }
 }
 

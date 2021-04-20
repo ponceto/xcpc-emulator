@@ -58,18 +58,25 @@ struct _XcpcCtrlMenuRec
 {
     GtkWidget* menu;
     GtkWidget* item;
+    GtkWidget* play_emulator;
+    GtkWidget* pause_emulator;
+    GtkWidget* reset_emulator;
 };
 
 struct _XcpcDrv0MenuRec
 {
     GtkWidget* menu;
     GtkWidget* item;
+    GtkWidget* drive0_insert;
+    GtkWidget* drive0_remove;
 };
 
 struct _XcpcDrv1MenuRec
 {
     GtkWidget* menu;
     GtkWidget* item;
+    GtkWidget* drive1_insert;
+    GtkWidget* drive1_remove;
 };
 
 struct _XcpcHelpMenuRec
