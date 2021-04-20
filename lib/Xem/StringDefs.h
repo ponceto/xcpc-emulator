@@ -31,36 +31,48 @@ extern "C" {
 #define XtNdropURICallback "dropURICallback"
 #endif
 
-#ifndef XtNemuContext
-#define XtNemuContext "emuContext"
+#ifndef XtNmachineInstance
+#define XtNmachineInstance "emuInstance"
 #endif
 
-#ifndef XtNemuCreateProc
-#define XtNemuCreateProc "emuCreateProc"
+#ifndef XtNmachineCreateProc
+#define XtNmachineCreateProc "emuCreateProc"
 #endif
 
-#ifndef XtNemuDestroyProc
-#define XtNemuDestroyProc "emuDestroyProc"
+#ifndef XtNmachineDestroyProc
+#define XtNmachineDestroyProc "emuDestroyProc"
 #endif
 
-#ifndef XtNemuRealizeProc
-#define XtNemuRealizeProc "emuRealizeProc"
+#ifndef XtNmachineRealizeProc
+#define XtNmachineRealizeProc "emuRealizeProc"
 #endif
 
-#ifndef XtNemuResizeProc
-#define XtNemuResizeProc "emuResizeProc"
+#ifndef XtNmachineResizeProc
+#define XtNmachineResizeProc "emuResizeProc"
 #endif
 
-#ifndef XtNemuExposeProc
-#define XtNemuExposeProc "emuExposeProc"
+#ifndef XtNmachineExposeProc
+#define XtNmachineExposeProc "emuExposeProc"
 #endif
 
-#ifndef XtNemuTimerProc
-#define XtNemuTimerProc "emuTimerProc"
+#ifndef XtNmachineTimerProc
+#define XtNmachineTimerProc "emuTimerProc"
 #endif
 
-#ifndef XtNemuInputProc
-#define XtNemuInputProc "emuInputProc"
+#ifndef XtNmachineInputProc
+#define XtNmachineInputProc "emuInputProc"
+#endif
+
+#ifndef XtNhotkeyCallback
+#define XtNhotkeyCallback "hotkeyCallback"
+#endif
+
+#ifndef XtNjoystick0
+#define XtNjoystick0 "joystick0"
+#endif
+
+#ifndef XtNjoystick1
+#define XtNjoystick1 "joystick1"
 #endif
 
 #ifndef XtCPointer
@@ -69,6 +81,10 @@ extern "C" {
 
 #ifndef XtCFunction
 #define XtCFunction "Function"
+#endif
+
+#ifndef XtCJoystick
+#define XtCJoystick "Joystick"
 #endif
 
 #ifdef __cplusplus

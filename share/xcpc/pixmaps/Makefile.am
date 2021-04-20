@@ -31,6 +31,7 @@ dist_pixmaps_DATA = \
 	pause.xpm \
 	play.xpm \
 	power-off.xpm \
+	question.xpm \
 	question-circle.xpm \
 	save.xpm \
 	sync.xpm \

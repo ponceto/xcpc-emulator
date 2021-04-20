@@ -1,5 +1,5 @@
 /*
- * xlib-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-intrinsic.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,26 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_XLIB_IMPL_H__
-#define __XCPC_XLIB_IMPL_H__
+#ifndef __XCPC_INTRINSIC_H__
+#define __XCPC_INTRINSIC_H__
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#include <X11/keysym.h>
-#ifdef HAVE_XSHM
-#ifdef HAVE_X11_EXTENSIONS_XSHM_H
-#include <X11/extensions/XShm.h>
-#endif
-#endif
-#include <xcpc/libxcpc.h>
+#include "xcpc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef struct _XcpcApplicationRec XcpcApplication;
+
+extern XcpcApplication* XcpcApplicationNew    (int* argc, char*** argv);
+extern XcpcApplication* XcpcApplicationLoop   (XcpcApplication* application);
+extern XcpcApplication* XcpcApplicationDelete (XcpcApplication* application);
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __XCPC_XLIB_IMPL_H__ */
+#endif /* __XCPC_INTRINSIC_H__ */

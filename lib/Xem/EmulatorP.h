@@ -18,13 +18,11 @@
 #define __XemEmulatorP_h__
 
 #include <X11/CoreP.h>
-#include <Xem/Emulator.h>
+#include <Xem/EmulatorI.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event);
 
 typedef struct _XemEmulatorClassPart
 {
@@ -41,19 +39,15 @@ externalref XemEmulatorClassRec xemEmulatorClassRec;
 
 typedef struct _XemEmulatorPart
 {
-    XtPointer       context;
-    XemEmulatorProc create_proc;
-    XemEmulatorProc destroy_proc;
-    XemEmulatorProc realize_proc;
-    XemEmulatorProc resize_proc;
-    XemEmulatorProc expose_proc;
-    XemEmulatorProc input_proc;
-    XemEmulatorProc timer_proc;
-    XtIntervalId    timer;
-    XEvent          event;
-    XEvent          throttled_data[64];
-    unsigned int    throttled_head;
-    unsigned int    throttled_tail;
+    XemMachine         machine;
+    XemKeyboard        keyboard;
+    XemJoystick        joystick0;
+    XemJoystick        joystick1;
+    XtCallbackList     hotkey_callback;
+    XtIntervalId       timer;
+    XEvent             last_rcv_event;
+    XEvent             last_key_event;
+    XemThrottledEvents throttled;
 } XemEmulatorPart;
 
 typedef struct _XemEmulatorRec

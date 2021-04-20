@@ -38,6 +38,8 @@ dist_bitmaps_DATA = \
 	play.xbm \
 	power-off.png \
 	power-off.xbm \
+	question.png \
+	question.xbm \
 	question-circle.png \
 	question-circle.xbm \
 	save.png \

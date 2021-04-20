@@ -893,9 +893,9 @@ static void paint_08bpp(XcpcMachine* self)
                         case 0x00: /* mode 0 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -936,9 +936,9 @@ static void paint_08bpp(XcpcMachine* self)
                         case 0x01: /* mode 1 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1007,9 +1007,9 @@ static void paint_08bpp(XcpcMachine* self)
                         case 0x02: /* mode 2 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1279,9 +1279,9 @@ static void paint_16bpp(XcpcMachine* self)
                         case 0x00: /* mode 0 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1322,9 +1322,9 @@ static void paint_16bpp(XcpcMachine* self)
                         case 0x01: /* mode 1 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1393,9 +1393,9 @@ static void paint_16bpp(XcpcMachine* self)
                         case 0x02: /* mode 2 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1665,9 +1665,9 @@ static void paint_32bpp(XcpcMachine* self)
                         case 0x00: /* mode 0 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1708,9 +1708,9 @@ static void paint_32bpp(XcpcMachine* self)
                         case 0x01: /* mode 1 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1779,9 +1779,9 @@ static void paint_32bpp(XcpcMachine* self)
                         case 0x02: /* mode 2 */
                             {
                                 for(col = 0; col < cols; ++col) {
-                                    uint16_t const addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
-                                    uint16_t const bank = ((addr >> 14) & 0x0003);
-                                    uint16_t const disp = ((addr >>  0) & 0x3fff);
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -1965,6 +1965,7 @@ static void keybd_azerty(XcpcMachine* self, XEvent* event)
 
 static void mouse_default(XcpcMachine* self, XEvent* event)
 {
+    (void) xcpc_keyboard_joystick(self->board.keyboard, event);
 }
 
 static void construct_iface(XcpcMachine* self)
@@ -2555,6 +2556,7 @@ XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
 {
     XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
     XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcPsg8910* psg_8910 = self->board.psg_8910;
     XcpcFdc765a* fdc_765a = self->board.fdc_765a;
 
     /* process each scanline */ {
@@ -2564,18 +2566,19 @@ XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
             int32_t new_i_period;
             int cpu_ticks = self->frame.cpu_ticks;
             do {
-                xcpc_vdc_6845_clock(vdc_6845);
+                (void) xcpc_vdc_6845_clock(vdc_6845);
                 if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
                     old_i_period = cpu_z80a->state.ctrs.i_period;
-                    xcpc_cpu_z80a_clock(self->board.cpu_z80a);
+                    (void) xcpc_cpu_z80a_clock(self->board.cpu_z80a);
                     new_i_period = cpu_z80a->state.ctrs.i_period;
                     cpu_z80a->state.ctrs.i_period = old_i_period - (((old_i_period - new_i_period) + 3) & (~3));
                 }
+                (void) xcpc_psg_8910_clock(psg_8910);
             } while((cpu_ticks -= 4) > 0);
         } while(--scanlines > 0);
     }
     /* clock the fdc */ {
-        xcpc_fdc_765a_clock(fdc_765a);
+        (void) xcpc_fdc_765a_clock(fdc_765a);
     }
     return self;
 }
@@ -3063,8 +3066,8 @@ unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
 
 unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
 {
-    unsigned long elapsed = 0;
-    unsigned long timeout = 0;
+    unsigned long elapsed = 0UL;
+    unsigned long timeout = 0UL;
 
     /* clock the machine */ {
         xcpc_machine_clock(self);
@@ -3077,9 +3080,6 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
             const long long t2 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
             if(t2 >= t1) {
                 elapsed = ((unsigned long)(t2 - t1));
-            }
-            else {
-                elapsed = 0UL;
             }
             if(elapsed >= 1000000UL) {
                 self->timer.deadline = curr_time;
@@ -3111,15 +3111,10 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
             if(t2 >= t1) {
                 timeout = ((unsigned long)(t2 - t1));
             }
-            else {
-                timeout = 0UL;
-            }
         }
     }
     /* schedule the next frame in ms */ {
-        if((timeout /= 1000UL) == 0UL) {
-            timeout = 1UL;
-        }
+        timeout = (timeout + 1000UL) / 1000UL;
     }
     return timeout;
 }

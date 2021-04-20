@@ -27,6 +27,42 @@
 #define _(string) (string)
 #endif
 
+static const char help_text[] = "\
+Hotkeys:\n\
+\n\
+    - F1                Help\n\
+    - F2                Load snapshot\n\
+    - F3                Save snapshot\n\
+    - F4                Insert disk into drive A\n\
+    - F5                Remove disk from drive A\n\
+    - F6                Insert disk into drive B\n\
+    - F7                Remove disk from drive B\n\
+    - F8                {not mapped}\n\
+    - F9                {not mapped}\n\
+    - F10               {not mapped}\n\
+    - F11               {not mapped}\n\
+    - F12               {not mapped}\n\
+\n\
+Keyboard emulation:\n\
+\n\
+The left shift and control keys are forwarded to the simulation.\n\
+You have use to the right shift and control keys to compose characters.\n\
+\n\
+Joystick emulation:\n\
+\n\
+    - Home/End          enable/disable\n\
+    - Arrows            up/down/left/right\n\
+    - Left Ctrl         fire1\n\
+    - Left Alt          fire2\n\
+\n\
+Drag'n Drop:\n\
+\n\
+You can use your file manager to drag'n drop a supported file directly to the emulator.\n\
+\n\
+The supported file extensions are: '.dsk', 'dsk.gz', 'dsk.bz2', '.sna'\n\
+\n\
+";
+
 /*
  * ---------------------------------------------------------------------------
  * options
@@ -166,6 +202,11 @@ static XtResource icons_resources[] = {
         sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, help_about),
         XtRString, (XtPointer) "question-circle.xbm"
     },
+    /* xcpcHelpHelpBitmap */ {
+        "xcpcHelpHelpBitmap", "XcpcBitmap", XtRBitmap,
+        sizeof(Pixmap), XtOffsetOf(XcpcBitmapsRec, help_help),
+        XtRString, (XtPointer) "question.xbm"
+    },
 };
 
 /*
@@ -273,11 +314,9 @@ static XcpcApplication* SetStatus(XcpcApplication* self, const char* string)
         (void) snprintf(buffer, sizeof(buffer), "%s", string);
     }
     if(self->infobar.status != NULL) {
-        XtUnmanageChild(self->infobar.status);
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, buffer); ++argcount;
         XtSetValues(self->infobar.status, arglist, argcount);
-        XtManageChild(self->infobar.status);
     }
     return SetTitle(SetMachine(self), string);
 }
@@ -628,7 +667,7 @@ static int CheckExtension(const char* filename, const char* extension)
 
 static void DropUriCallback(Widget widget, XcpcApplication* self, const char* uri)
 {
-    char filename[PATH_MAX + 1];
+    char filename[PATH_MAX];
 
     if((uri != NULL) && (strncmp(uri, "file://", 7) == 0)) {
         DeserializeURI(filename, sizeof(filename), &uri[7]);
@@ -940,7 +979,7 @@ static void ResetCallback(Widget widget, XcpcApplication* self, XtPointer info)
 
 /*
  * ---------------------------------------------------------------------------
- * Legal callbacks
+ * Help callbacks
  * ---------------------------------------------------------------------------
  */
 
@@ -984,12 +1023,6 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XtPointer info)
     }
 }
 
-/*
- * ---------------------------------------------------------------------------
- * About callbacks
- * ---------------------------------------------------------------------------
- */
-
 static void AboutCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
@@ -1027,6 +1060,103 @@ static void AboutCallback(Widget widget, XcpcApplication* self, XtPointer info)
     }
     /* pause */ {
         (void) Pause(self);
+    }
+}
+
+static void HelpCallback(Widget widget, XcpcApplication* self, XtPointer info)
+{
+    Arg      arglist[16];
+    Cardinal argcount = 0;
+    String title = _("Help ...");
+    String message = _(((char*)(help_text)));
+    Widget parent = FindTopLevelShell(widget);
+    Widget shell  = NULL;
+    Widget dialog = NULL;
+    Widget button = NULL;
+
+    /* xcpc-help-shell */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNtitle, title); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransient, True); ++argcount;
+        XtSetArg(arglist[argcount], XtNtransientFor, parent); ++argcount;
+        shell = XtCreatePopupShell("xcpc-help-shell", xemDlgShellWidgetClass, parent, arglist, argcount);
+        XtAddCallback(shell, XtNdestroyCallback, (XtCallbackProc) &DismissCallback, (XtPointer) self);
+    }
+    /* xcpc-help-dialog */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, message); ++argcount;
+        dialog = XtCreateWidget("xcpc-help-dialog", dialogWidgetClass, shell, arglist, argcount);
+        XtManageChild(dialog);
+    }
+    /* xcpc-help-close */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Close")); ++argcount;
+        button = XtCreateManagedWidget("xcpc-help-close", commandWidgetClass, dialog, arglist, argcount);
+        XtAddCallback(button, XtNcallback, (XtCallbackProc) &DismissCallback, (XtPointer) self);
+        XtManageChild(button);
+    }
+    /* popup shell */ {
+        XtPopup(shell, XtGrabExclusive);
+    }
+    /* pause */ {
+        (void) Pause(self);
+    }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Hotkey callbacks
+ * ---------------------------------------------------------------------------
+ */
+
+static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
+{
+    if(keysym != NULL) {
+        switch(*keysym) {
+            case XK_Pause:
+                if(self->layout.emulator != NULL) {
+                    if(XtIsSensitive(self->layout.emulator) == False) {
+                        Play(self);
+                    }
+                    else {
+                        Pause(self);
+                    }
+                }
+                break;
+            case XK_F1:
+                HelpCallback(widget, self, NULL);
+                break;
+            case XK_F2:
+                LoadSnapshotCallback(widget, self, NULL);
+                break;
+            case XK_F3:
+                SaveSnapshotCallback(widget, self, NULL);
+                break;
+            case XK_F4:
+                InsertDrive0Callback(widget, self, NULL);
+                break;
+            case XK_F5:
+                RemoveDrive0Callback(widget, self, NULL);
+                break;
+            case XK_F6:
+                InsertDrive1Callback(widget, self, NULL);
+                break;
+            case XK_F7:
+                RemoveDrive1Callback(widget, self, NULL);
+                break;
+            case XK_F8:
+                break;
+            case XK_F9:
+                break;
+            case XK_F10:
+                break;
+            case XK_F11:
+                break;
+            case XK_F12:
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -1239,6 +1369,15 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         menu->pulldown = XtCreatePopupShell("help-pulldown", simpleMenuWidgetClass, menu->menu, arglist, argcount);
         XtAddCallback(menu->pulldown, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->pulldown);
     }
+    /* help-help */ {
+        argcount = 0;
+        XtSetArg(arglist[argcount], XtNlabel, _("Help")); ++argcount;
+        XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.help_help); ++argcount;
+        menu->help = XtCreateWidget("help-help", smeBSBObjectClass, menu->pulldown, arglist, argcount);
+        XtAddCallback(menu->help, XtNcallback, (XtCallbackProc) &HelpCallback, (XtPointer) self);
+        XtAddCallback(menu->help, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->help);
+        XtManageChild(menu->help);
+    }
     /* help-legal */ {
         argcount = 0;
         XtSetArg(arglist[argcount], XtNlabel, _("Legal Info")); ++argcount;
@@ -1418,27 +1557,32 @@ static XcpcApplication* BuildInfoBar(XcpcApplication* self)
 static XcpcApplication* BuildEmulator(XcpcApplication* self)
 {
     XcpcLayoutRec* layout = &self->layout;
-    Arg      arglist[16];
+    Arg      arglist[24];
     Cardinal argcount = 0;
 
     /* emulator */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNemuContext    , self->machine             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuCreateProc , &xcpc_machine_create_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuRealizeProc, &xcpc_machine_realize_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuResizeProc , &xcpc_machine_resize_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuExposeProc , &xcpc_machine_expose_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNemuInputProc  , &xcpc_machine_input_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNresizable     , True                      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNfromHoriz     , NULL                      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNfromVert      , self->toolbar.widget      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNtop           , XtChainTop                ); ++argcount;
-        XtSetArg(arglist[argcount], XtNbottom        , XtChainBottom             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNleft          , XtChainLeft               ); ++argcount;
-        XtSetArg(arglist[argcount], XtNright         , XtChainRight              ); ++argcount;
+        XtSetArg(arglist[argcount], XtNborderWidth       , 0                         ); ++argcount;
+        XtSetArg(arglist[argcount], XtNsensitive         , False                     ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineInstance   , self->machine             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineCreateProc , &xcpc_machine_create_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineRealizeProc, &xcpc_machine_realize_proc); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineResizeProc , &xcpc_machine_resize_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineExposeProc , &xcpc_machine_expose_proc ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineInputProc  , &xcpc_machine_input_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNjoystick0         , xcpc_get_joystick0()      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNjoystick1         , xcpc_get_joystick1()      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNresizable         , True                      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromHoriz         , NULL                      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromVert          , self->toolbar.widget      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNtop               , XtChainTop                ); ++argcount;
+        XtSetArg(arglist[argcount], XtNbottom            , XtChainBottom             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNleft              , XtChainLeft               ); ++argcount;
+        XtSetArg(arglist[argcount], XtNright             , XtChainRight              ); ++argcount;
         layout->emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
+        XtAddCallback(layout->emulator, XtNhotkeyCallback , (XtCallbackProc) &HotkeyCallback , (XtPointer) self);
         XtAddCallback(layout->emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);
         XtManageChild(layout->emulator);
     }
@@ -1473,6 +1617,19 @@ static XcpcApplication* BuildLayout(XcpcApplication* self)
         (void) BuildInfoBar(self);
     }
     return self;
+}
+
+static void DeferredStartHandler(XcpcApplication* self, XtIntervalId* intervalId)
+{
+    if(*intervalId == self->intervalId) {
+        self->intervalId = ((XtIntervalId)(0));
+    }
+    /* set initial keyboard focus */ {
+        XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
+    }
+    /* play */ {
+        (void) Play(self);
+    }
 }
 
 static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv)
@@ -1514,8 +1671,8 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
     /* build user interface */ {
         (void) BuildLayout(self);
     }
-    /* play */ {
-        (void) Play(self);
+    /* deferred start */ {
+        self->intervalId = XtAppAddTimeOut(self->appcontext, 25UL, (XtTimerCallbackProc) &DeferredStartHandler, self);
     }
     return self;
 }
@@ -1545,9 +1702,6 @@ static XcpcApplication* MainLoop(XcpcApplication* self)
             if((self->layout.toplevel != NULL)) {
                 XtRealizeWidget(self->layout.toplevel);
             }
-        }
-        /* set initial keyboard focus */ {
-            XtSetKeyboardFocus(FindShell(self->layout.emulator), self->layout.emulator);
         }
         /* run application loop  */ {
             if((self->appcontext != NULL)) {
