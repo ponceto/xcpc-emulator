@@ -921,54 +921,6 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
 }
 
 /**
- * XemJoystick::ButtonName()
- */
-const char* XemJoystickButtonName(unsigned short code)
-{
-#ifdef HAVE_LINUX_JOYSTICK_H
-    switch(code) {
-        case BTN_A      : return "BTN_A";
-        case BTN_B      : return "BTN_B";
-        case BTN_C      : return "BTN_C";
-        case BTN_X      : return "BTN_X";
-        case BTN_Y      : return "BTN_Y";
-        case BTN_Z      : return "BTN_Z";
-        case BTN_TL     : return "BTN_TL";
-        case BTN_TR     : return "BTN_TR";
-        case BTN_TL2    : return "BTN_TL2";
-        case BTN_TR2    : return "BTN_TR2";
-        case BTN_SELECT : return "BTN_SELECT";
-        case BTN_START  : return "BTN_START";
-        case BTN_MODE   : return "BTN_MODE";
-        case BTN_THUMBL : return "BTN_THUMBL";
-        case BTN_THUMBR : return "BTN_THUMBR";
-        default:
-            break;
-    }
-#endif
-    return "*** unknown ***";
-}
-
-/**
- * XemJoystick::Dump()
- */
-void XemJoystickDump(Widget widget, XemJoystick* joystick, unsigned char button)
-{
-    int index = 0;
-    int count = joystick->js_buttons;
-
-    (void) fprintf(stderr, "%s\n", joystick->identifier);
-    if(button != -1) {
-        (void) fprintf(stderr, "Button %d [%s]\n", button, XemJoystickButtonName(joystick->js_mapping[button]));
-    }
-    for(index = 0; index < count; ++index) {
-        (void) fprintf(stderr, "%3d --> %3x : %s\n", index, joystick->js_mapping[index], XemJoystickButtonName(joystick->js_mapping[index]));
-    }
-    (void) fprintf(stderr, "\n");
-    (void) fflush(stderr);
-}
-
-/**
  * XemJoystick::Construct()
  */
 void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* device, int id)
@@ -1199,4 +1151,54 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
     /* unknown joystick support */ {
         XemJoystickDestruct(widget, joystick);
     }
+}
+
+/**
+ * XemJoystick::ButtonName()
+ */
+const char* XemJoystickButtonName(unsigned short code)
+{
+#ifdef HAVE_LINUX_JOYSTICK_H
+    switch(code) {
+        case BTN_A      : return "BTN_A";
+        case BTN_B      : return "BTN_B";
+        case BTN_C      : return "BTN_C";
+        case BTN_X      : return "BTN_X";
+        case BTN_Y      : return "BTN_Y";
+        case BTN_Z      : return "BTN_Z";
+        case BTN_TL     : return "BTN_TL";
+        case BTN_TR     : return "BTN_TR";
+        case BTN_TL2    : return "BTN_TL2";
+        case BTN_TR2    : return "BTN_TR2";
+        case BTN_SELECT : return "BTN_SELECT";
+        case BTN_START  : return "BTN_START";
+        case BTN_MODE   : return "BTN_MODE";
+        case BTN_THUMBL : return "BTN_THUMBL";
+        case BTN_THUMBR : return "BTN_THUMBR";
+        default:
+            break;
+    }
+#endif
+    return "BTN_UNKNOWN";
+}
+
+/**
+ * XemJoystick::Dump()
+ */
+void XemJoystickDump(Widget widget, XemJoystick* joystick, unsigned char button)
+{
+    int index = 0;
+    int count = joystick->js_buttons;
+
+    (void) fprintf(stderr, "%s\n", joystick->identifier);
+    if(button != -1) {
+        unsigned short code = joystick->js_mapping[button];
+        (void) fprintf(stderr, "  - Button %2d event   = 0x%3x (%s)\n", button, code, XemJoystickButtonName(code));
+    }
+    for(index = 0; index < count; ++index) {
+        unsigned short code = joystick->js_mapping[index];
+        (void) fprintf(stderr, "  - Button %2d mapping = 0x%3x (%s)\n", index, code, XemJoystickButtonName(code));
+    }
+    (void) fprintf(stderr, "\n");
+    (void) fflush(stderr);
 }
