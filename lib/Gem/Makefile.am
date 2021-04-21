@@ -28,6 +28,10 @@ noinst_LTLIBRARIES = \
 # ----------------------------------------------------------------------------
 
 libGem_la_SOURCES = \
+	gememulator.c \
+	gememulator.h \
+	gememulator-impl.h \
+	gememulator-priv.h \
 	$(NULL)
 
 libGem_la_CPPFLAGS = \

@@ -417,7 +417,7 @@ static void build_workwnd(XcpcApplication* self)
         gtk_box_pack_start(GTK_BOX(parent->vbox), current->widget, TRUE, TRUE, 0);
     }
     /* emulator */ {
-        current->emulator = gtk_drawing_area_new();
+        current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");
         gtk_box_pack_start(GTK_BOX(current->widget), current->emulator, TRUE, TRUE, 0);
     }
@@ -484,6 +484,7 @@ static void build_layout(GtkApplication* application, XcpcApplication* self)
     }
     /* show all */ {
         gtk_widget_show_all(self->layout.window);
+        gtk_widget_grab_focus(self->layout.workwnd.emulator);
     }
 }
 
