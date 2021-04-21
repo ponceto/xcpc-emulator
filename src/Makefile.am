@@ -16,6 +16,14 @@
 #
 
 # ----------------------------------------------------------------------------
+# AUTOMAKE_OPTIONS
+# ----------------------------------------------------------------------------
+
+AUTOMAKE_OPTIONS = \
+	subdir-objects \
+	$(NULL)
+
+# ----------------------------------------------------------------------------
 # bin_PROGRAMS
 # ----------------------------------------------------------------------------
 
@@ -49,9 +57,9 @@ xcpc_LDADD = \
 
 if GTK3
 xcpc_SOURCES += \
-	xcpc-gtk3.c \
-	xcpc-gtk3.h \
-	xcpc-gtk3-priv.h \
+	gtk3/xcpc-gtk3.c \
+	gtk3/xcpc-gtk3.h \
+	gtk3/xcpc-gtk3-priv.h \
 	$(NULL)
 
 xcpc_CPPFLAGS += \
@@ -70,9 +78,9 @@ endif
 
 if MOTIF2
 xcpc_SOURCES += \
-	xcpc-motif2.c \
-	xcpc-motif2.h \
-	xcpc-motif2-priv.h \
+	motif2/xcpc-motif2.c \
+	motif2/xcpc-motif2.h \
+	motif2/xcpc-motif2-priv.h \
 	$(NULL)
 
 xcpc_CPPFLAGS += \
@@ -93,9 +101,9 @@ endif
 
 if ATHENA
 xcpc_SOURCES += \
-	xcpc-athena.c \
-	xcpc-athena.h \
-	xcpc-athena-priv.h \
+	athena/xcpc-athena.c \
+	athena/xcpc-athena.h \
+	athena/xcpc-athena-priv.h \
 	$(NULL)
 
 xcpc_CPPFLAGS += \
@@ -116,9 +124,9 @@ endif
 
 if INTRINSIC
 xcpc_SOURCES += \
-	xcpc-intrinsic.c \
-	xcpc-intrinsic.h \
-	xcpc-intrinsic-priv.h \
+	intrinsic/xcpc-intrinsic.c \
+	intrinsic/xcpc-intrinsic.h \
+	intrinsic/xcpc-intrinsic-priv.h \
 	$(NULL)
 
 xcpc_CPPFLAGS += \
