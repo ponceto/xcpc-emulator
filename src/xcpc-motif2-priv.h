@@ -110,10 +110,10 @@ struct _XcpcHelpMenuRec
 {
     Widget menu;
     Widget pulldown;
-    Widget legal;
-    Widget about;
-    Widget separator1;
     Widget help;
+    Widget legal;
+    Widget separator1;
+    Widget about;
 };
 
 struct _XcpcLayoutRec
