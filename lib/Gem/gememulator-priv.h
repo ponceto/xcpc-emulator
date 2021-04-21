@@ -21,6 +21,10 @@
 
 G_BEGIN_DECLS
 
+#ifndef CAST_EMULATOR
+#define CAST_EMULATOR(widget) ((GemEmulator*)(widget))
+#endif
+
 extern void gem_emulator_machine_construct  (GemEmulator* emulator, GemMachine* machine);
 extern void gem_emulator_machine_destruct   (GemEmulator* emulator, GemMachine* machine);
 

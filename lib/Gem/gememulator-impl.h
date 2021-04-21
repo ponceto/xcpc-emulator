@@ -25,10 +25,18 @@ typedef gpointer GemEmulatorData;
 
 typedef unsigned long (*GemEmulatorProc)(gpointer data, XEvent* event);
 
+typedef struct _GemX11             GemX11;
 typedef struct _GemMachine         GemMachine;
 typedef struct _GemKeyboard        GemKeyboard;
 typedef struct _GemJoystick        GemJoystick;
 typedef struct _GemThrottledEvents GemThrottledEvents;
+
+struct _GemX11
+{
+    Display* display;
+    Screen*  screen;
+    Window   window;
+};
 
 struct _GemMachine
 {

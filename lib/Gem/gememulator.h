@@ -34,6 +34,7 @@ typedef struct _GemEmulatorClass GemEmulatorClass;
 struct _GemEmulator
 {
     GtkWidget   widget;
+    GemX11      x11;
     GemMachine  machine;
     GemKeyboard keyboard;
     GemJoystick joystick0;
