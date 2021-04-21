@@ -33,10 +33,15 @@
  * ---------------------------------------------------------------------------
  */
 
-static const gchar application_id[] = "org.gtk.xcpc";
-static const gchar sig_activate[]   = "activate";
-static const gchar sig_destroy[]    = "destroy";
-static const gchar sig_clicked[]    = "clicked";
+static const gchar app_id[]             = "org.gtk.xcpc";
+static const gchar sig_activate[]       = "activate";
+static const gchar sig_destroy[]        = "destroy";
+static const gchar sig_clicked[]        = "clicked";
+static const gchar ico_load_snapshot[]  = "document-open-symbolic";
+static const gchar ico_save_snapshot[]  = "document-save-symbolic";
+static const gchar ico_play_emulator[]  = "media-playback-start-symbolic";
+static const gchar ico_pause_emulator[] = "media-playback-pause-symbolic";
+static const gchar ico_reset_emulator[] = "media-playlist-repeat-symbolic";
 
 /*
  * ---------------------------------------------------------------------------
@@ -53,12 +58,17 @@ static gboolean destroy_callback(GtkWidget* widget, GtkWidget** reference)
     return FALSE;
 }
 
-static void activate_callback(GtkWidget* widget, XcpcApplication* self)
+static void object_activate_callback(GObject* object, XcpcApplication* self)
+{
+    xcpc_log_debug("%s::%s()", "object", sig_activate);
+}
+
+static void widget_activate_callback(GtkWidget* widget, XcpcApplication* self)
 {
     xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), sig_activate);
 }
 
-static void clicked_callback(GtkWidget* widget, XcpcApplication* self)
+static void widget_clicked_callback(GtkWidget* widget, XcpcApplication* self)
 {
     xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), sig_clicked);
 }
@@ -78,34 +88,72 @@ static const char* translate_string(const char* string)
 
 static void widget_add_destroy_callback(GtkWidget** reference, const gchar* name)
 {
-    if((reference != NULL) && (*reference != NULL)) {
+    /* check reference */ {
+        if((reference == NULL) || (*reference == NULL)) {
+            return;
+        }
+    }
+    /* set widget name */ {
         if(name != NULL) {
             gtk_widget_set_name(GTK_WIDGET(*reference), name);
         }
-        (void) g_signal_connect(G_OBJECT(*reference), sig_destroy, G_CALLBACK(&destroy_callback), reference);
-        xcpc_log_debug("%s::registered()", gtk_widget_get_name(GTK_WIDGET(*reference)));
     }
-}
-
-static void widget_add_activate_callback(GtkWidget* widget, XcpcApplication* self)
-{
-    (void) g_signal_connect(G_OBJECT(widget), sig_activate, G_CALLBACK(&activate_callback), self);
+    /* connect signal */ {
+        (void) g_signal_connect(G_OBJECT(*reference), sig_destroy, G_CALLBACK(&destroy_callback), reference);
+    }
 }
 
 static void toolitem_add_destroy_callback(GtkToolItem** reference, const gchar* name)
 {
-    if((reference != NULL) && (*reference != NULL)) {
+    /* check reference */ {
+        if((reference == NULL) || (*reference == NULL)) {
+            return;
+        }
+    }
+    /* set widget name */ {
         if(name != NULL) {
             gtk_widget_set_name(GTK_WIDGET(*reference), name);
         }
+    }
+    /* connect signal */ {
         (void) g_signal_connect(G_OBJECT(*reference), sig_destroy, G_CALLBACK(&destroy_callback), reference);
-        xcpc_log_debug("%s::registered()", gtk_widget_get_name(GTK_WIDGET(*reference)));
     }
 }
 
-static void toolitem_add_clicked_callback(GtkToolItem* widget, XcpcApplication* self)
+static void object_add_activate_callback(GObject* object, XcpcApplication* self, GCallback callback)
 {
-    (void) g_signal_connect(G_OBJECT(widget), sig_clicked, G_CALLBACK(&clicked_callback), self);
+    /* check and adjust callback */ {
+        if(callback == NULL) {
+            callback = G_CALLBACK(&object_activate_callback);
+        }
+    }
+    /* connect signal */ {
+        (void) g_signal_connect(G_OBJECT(object), sig_activate, callback, self);
+    }
+}
+
+static void widget_add_activate_callback(GtkWidget* widget, XcpcApplication* self, GCallback callback)
+{
+    /* check and adjust callback */ {
+        if(callback == NULL) {
+            callback = G_CALLBACK(&widget_activate_callback);
+        }
+    }
+    /* connect signal */ {
+        (void) g_signal_connect(G_OBJECT(widget), sig_activate, callback, self);
+    }
+}
+
+static void toolitem_add_clicked_callback(GtkToolItem* widget, XcpcApplication* self, GCallback callback)
+{
+    /* check and adjust callback */ {
+        if(callback == NULL) {
+            callback = G_CALLBACK(&widget_clicked_callback);
+        }
+    }
+    /* connect signal */ {
+        (void) g_signal_connect(G_OBJECT(widget), sig_clicked, callback, self);
+    }
 }
 
 /*
@@ -133,13 +181,13 @@ static void build_file_menu(XcpcApplication* self)
     /* file-load-snapshot */ {
         current->load_snapshot = gtk_menu_item_new_with_label(_("Load snapshot..."));
         widget_add_destroy_callback(&current->load_snapshot, "file-load-snapshot");
-        widget_add_activate_callback(current->load_snapshot, self);
+        widget_add_activate_callback(current->load_snapshot, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->load_snapshot);
     }
     /* file-save-snapshot */ {
         current->save_snapshot = gtk_menu_item_new_with_label(_("Save snapshot..."));
         widget_add_destroy_callback(&current->save_snapshot, "file-save-snapshot");
-        widget_add_activate_callback(current->save_snapshot, self);
+        widget_add_activate_callback(current->save_snapshot, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->save_snapshot);
     }
     /* file-separator1 */ {
@@ -150,7 +198,7 @@ static void build_file_menu(XcpcApplication* self)
     /* file-exit */ {
         current->exit = gtk_menu_item_new_with_label(_("Exit"));
         widget_add_destroy_callback(&current->exit, "file-exit");
-        widget_add_activate_callback(current->exit, self);
+        widget_add_activate_callback(current->exit, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->exit);
     }
 }
@@ -174,19 +222,19 @@ static void build_ctrl_menu(XcpcApplication* self)
     /* ctrl-play-emulator */ {
         current->play_emulator = gtk_menu_item_new_with_label(_("Play"));
         widget_add_destroy_callback(&current->play_emulator, "ctrl-play");
-        widget_add_activate_callback(current->play_emulator, self);
+        widget_add_activate_callback(current->play_emulator, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->play_emulator);
     }
     /* ctrl-pause-emulator */ {
         current->pause_emulator = gtk_menu_item_new_with_label(_("Pause"));
         widget_add_destroy_callback(&current->pause_emulator, "ctrl-pause");
-        widget_add_activate_callback(current->pause_emulator, self);
+        widget_add_activate_callback(current->pause_emulator, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->pause_emulator);
     }
     /* ctrl-reset-emulator */ {
         current->reset_emulator = gtk_menu_item_new_with_label(_("Reset"));
         widget_add_destroy_callback(&current->reset_emulator, "ctrl-reset");
-        widget_add_activate_callback(current->reset_emulator, self);
+        widget_add_activate_callback(current->reset_emulator, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->reset_emulator);
     }
 }
@@ -210,13 +258,13 @@ static void build_drv0_menu(XcpcApplication* self)
     /* drv0-drive0-insert */ {
         current->drive0_insert = gtk_menu_item_new_with_label(_("Insert disk..."));
         widget_add_destroy_callback(&current->drive0_insert, "drv0-insert");
-        widget_add_activate_callback(current->drive0_insert, self);
+        widget_add_activate_callback(current->drive0_insert, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive0_insert);
     }
     /* drv0-drive0-remove */ {
         current->drive0_remove = gtk_menu_item_new_with_label(_("Remove disk"));
         widget_add_destroy_callback(&current->drive0_remove, "drv0-remove");
-        widget_add_activate_callback(current->drive0_remove, self);
+        widget_add_activate_callback(current->drive0_remove, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive0_remove);
     }
 }
@@ -240,13 +288,13 @@ static void build_drv1_menu(XcpcApplication* self)
     /* drv1-drive1-insert */ {
         current->drive1_insert = gtk_menu_item_new_with_label(_("Insert disk..."));
         widget_add_destroy_callback(&current->drive1_insert, "drv1-insert");
-        widget_add_activate_callback(current->drive1_insert, self);
+        widget_add_activate_callback(current->drive1_insert, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive1_insert);
     }
     /* drv1-drive1-remove */ {
         current->drive1_remove = gtk_menu_item_new_with_label(_("Remove disk"));
         widget_add_destroy_callback(&current->drive1_remove, "drv1-remove");
-        widget_add_activate_callback(current->drive1_remove, self);
+        widget_add_activate_callback(current->drive1_remove, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive1_remove);
     }
 }
@@ -270,13 +318,13 @@ static void build_help_menu(XcpcApplication* self)
     /* help-help */ {
         current->help = gtk_menu_item_new_with_label(_("Help"));
         widget_add_destroy_callback(&current->help, "help-help");
-        widget_add_activate_callback(current->help, self);
+        widget_add_activate_callback(current->help, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->help);
     }
     /* help-legal */ {
         current->legal = gtk_menu_item_new_with_label(_("Legal info"));
         widget_add_destroy_callback(&current->legal, "help-legal");
-        widget_add_activate_callback(current->legal, self);
+        widget_add_activate_callback(current->legal, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->legal);
     }
     /* help-separator1 */ {
@@ -287,7 +335,7 @@ static void build_help_menu(XcpcApplication* self)
     /* help-about */ {
         current->about = gtk_menu_item_new_with_label(_("About Xcpc"));
         widget_add_destroy_callback(&current->about, "help-about");
-        widget_add_activate_callback(current->about, self);
+        widget_add_activate_callback(current->about, self, NULL);
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->about);
     }
 }
@@ -324,36 +372,36 @@ static void build_toolbar(XcpcApplication* self)
     /* tool-load-snapshot */ {
         current->load_snapshot = gtk_tool_button_new(NULL, NULL);
         toolitem_add_destroy_callback(&current->load_snapshot, "tool-load-snapshot");
-        toolitem_add_clicked_callback(current->load_snapshot, self);
-        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->load_snapshot), "document-open-symbolic");
+        toolitem_add_clicked_callback(current->load_snapshot, self, NULL);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->load_snapshot), ico_load_snapshot);
         gtk_toolbar_insert(GTK_TOOLBAR(current->widget), current->load_snapshot, -1);
     }
     /* tool-save-snapshot */ {
         current->save_snapshot = gtk_tool_button_new(NULL, NULL);
         toolitem_add_destroy_callback(&current->save_snapshot, "tool-save-snapshot");
-        toolitem_add_clicked_callback(current->save_snapshot, self);
-        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->save_snapshot), "document-save-symbolic");
+        toolitem_add_clicked_callback(current->save_snapshot, self, NULL);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->save_snapshot), ico_save_snapshot);
         gtk_toolbar_insert(GTK_TOOLBAR(current->widget), current->save_snapshot, -1);
     }
     /* tool-play-emulator */ {
         current->play_emulator = gtk_tool_button_new(NULL, NULL);
         toolitem_add_destroy_callback(&current->play_emulator, "tool-play-emulator");
-        toolitem_add_clicked_callback(current->play_emulator, self);
-        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->play_emulator), "media-playback-start-symbolic");
+        toolitem_add_clicked_callback(current->play_emulator, self, NULL);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->play_emulator), ico_play_emulator);
         gtk_toolbar_insert(GTK_TOOLBAR(current->widget), current->play_emulator, -1);
     }
     /* tool-pause-emulator */ {
         current->pause_emulator = gtk_tool_button_new(NULL, NULL);
         toolitem_add_destroy_callback(&current->pause_emulator, "tool-pause-emulator");
-        toolitem_add_clicked_callback(current->pause_emulator, self);
-        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->pause_emulator), "media-playback-pause-symbolic");
+        toolitem_add_clicked_callback(current->pause_emulator, self, NULL);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->pause_emulator), ico_pause_emulator);
         gtk_toolbar_insert(GTK_TOOLBAR(current->widget), current->pause_emulator, -1);
     }
     /* tool-reset-emulator */ {
         current->reset_emulator = gtk_tool_button_new(NULL, NULL);
         toolitem_add_destroy_callback(&current->reset_emulator, "tool-reset-emulator");
-        toolitem_add_clicked_callback(current->reset_emulator, self);
-        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->reset_emulator), "media-playlist-repeat-symbolic");
+        toolitem_add_clicked_callback(current->reset_emulator, self, NULL);
+        gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(current->reset_emulator), ico_reset_emulator);
         gtk_toolbar_insert(GTK_TOOLBAR(current->widget), current->reset_emulator, -1);
     }
 }
@@ -381,9 +429,29 @@ static void build_infobar(XcpcApplication* self)
     XcpcInfoBarRec* current = &parent->infobar;
 
     /* infobar */ {
-        current->widget = gtk_button_new_with_label("infobar");
+        current->widget = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         widget_add_destroy_callback(&current->widget, "infobar");
-        gtk_box_pack_start(GTK_BOX(parent->vbox), current->widget, FALSE, TRUE, 0);
+        gtk_box_pack_start(GTK_BOX(parent->vbox), current->widget, FALSE, TRUE, 8);
+    }
+    /* info-status */ {
+        current->status = gtk_label_new(_("Status"));
+        widget_add_destroy_callback(&current->status, "info-status");
+        gtk_box_pack_start(GTK_BOX(current->widget), current->status, FALSE, TRUE, 8);
+    }
+    /* info-drive0 */ {
+        current->drive0 = gtk_label_new(_("Drive A"));
+        widget_add_destroy_callback(&current->drive0, "info-drive0");
+        gtk_box_pack_start(GTK_BOX(current->widget), current->drive0, FALSE, TRUE, 8);
+    }
+    /* info-drive1 */ {
+        current->drive1 = gtk_label_new(_("Drive B"));
+        widget_add_destroy_callback(&current->drive1, "info-drive1");
+        gtk_box_pack_start(GTK_BOX(current->widget), current->drive1, FALSE, TRUE, 8);
+    }
+    /* info-system */ {
+        current->system = gtk_label_new(_("System"));
+        widget_add_destroy_callback(&current->system, "info-system");
+        gtk_box_pack_start(GTK_BOX(current->widget), current->system, TRUE, TRUE, 8);
     }
 }
 
@@ -455,8 +523,8 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** 
         (void) xcpc_machine_parse(self->machine, argc, argv);
     }
     /* create application */ {
-        self->layout.application = gtk_application_new(application_id, G_APPLICATION_FLAGS_NONE);
-        (void) g_signal_connect(self->layout.application, sig_activate, G_CALLBACK(&build_layout), self);
+        self->layout.application = gtk_application_new(app_id, G_APPLICATION_FLAGS_NONE);
+        object_add_activate_callback(G_OBJECT(self->layout.application), self, G_CALLBACK(build_layout));
     }
     /* loop */ {
         (void) g_application_run(G_APPLICATION(self->layout.application), *argc, *argv);

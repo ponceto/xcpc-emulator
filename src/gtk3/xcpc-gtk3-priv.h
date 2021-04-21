@@ -105,6 +105,10 @@ struct _XcpcToolBarRec
 struct _XcpcInfoBarRec
 {
     GtkWidget* widget;
+    GtkWidget* status;
+    GtkWidget* drive0;
+    GtkWidget* drive1;
+    GtkWidget* system;
 };
 
 struct _XcpcWorkWndRec
