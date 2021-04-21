@@ -874,7 +874,7 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
-    XmString title = XmStringCreateLocalized(_("Legal Info ..."));
+    XmString title = XmStringCreateLocalized(_("Legal info ..."));
     XmString message = XmStringCreateLocalized(_(((char*)(xcpc_legal_text()))));
 
     /* legal dialog */ {
@@ -1296,7 +1296,7 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
         string = (XmStringFree(string), NULL);
     }
     /* help-legal */ {
-        XmString string = XmStringCreateLocalized(_("Legal Info"));
+        XmString string = XmStringCreateLocalized(_("Legal info"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.help_legal); ++argcount;

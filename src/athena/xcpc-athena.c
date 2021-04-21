@@ -987,7 +987,7 @@ static void LegalCallback(Widget widget, XcpcApplication* self, XtPointer info)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
-    String title = _("Legal Info ...");
+    String title = _("Legal info ...");
     String message = _(((char*)(xcpc_legal_text())));
     Widget parent = FindTopLevelShell(widget);
     Widget shell  = NULL;
@@ -1380,7 +1380,7 @@ static XcpcApplication* BuildHelpMenu(XcpcApplication* self)
     }
     /* help-legal */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNlabel, _("Legal Info")); ++argcount;
+        XtSetArg(arglist[argcount], XtNlabel, _("Legal info")); ++argcount;
         XtSetArg(arglist[argcount], XtNleftBitmap, self->bitmaps.help_legal); ++argcount;
         menu->legal = XtCreateWidget("help-legal", smeBSBObjectClass, menu->pulldown, arglist, argcount);
         XtAddCallback(menu->legal, XtNcallback, (XtCallbackProc) &LegalCallback, (XtPointer) self);
