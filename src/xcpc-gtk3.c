@@ -196,6 +196,26 @@ static void build_help_menu(XcpcApplication* self)
         widget_signal_connect_destroy(menu->menu, &menu->menu);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu->item), menu->menu);
     }
+    /* help */ {
+        menu->help = gtk_menu_item_new_with_label("Help");;
+        widget_signal_connect_destroy(menu->help, &menu->help);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->help);
+    }
+    /* legal */ {
+        menu->legal = gtk_menu_item_new_with_label("Legal");;
+        widget_signal_connect_destroy(menu->legal, &menu->legal);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->legal);
+    }
+    /* separator1 */ {
+        menu->separator1 = gtk_separator_menu_item_new();;
+        widget_signal_connect_destroy(menu->separator1, &menu->separator1);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->separator1);
+    }
+    /* about */ {
+        menu->about = gtk_menu_item_new_with_label("About");;
+        widget_signal_connect_destroy(menu->about, &menu->about);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu->menu), menu->about);
+    }
 }
 
 static void build_menubar(XcpcApplication* self)
@@ -229,31 +249,31 @@ static void build_toolbar(XcpcApplication* self)
         toolbar->load_snapshot = gtk_tool_button_new(NULL, NULL);
         toolitem_signal_connect_destroy(toolbar->load_snapshot, &toolbar->load_snapshot);
         gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->load_snapshot), "document-open-symbolic");
-        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->load_snapshot, 0);
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->load_snapshot, -1);
     }
     /* create save-snapshot */ {
         toolbar->save_snapshot = gtk_tool_button_new(NULL, NULL);
         toolitem_signal_connect_destroy(toolbar->save_snapshot, &toolbar->save_snapshot);
         gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->save_snapshot), "document-save-symbolic");
-        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->save_snapshot, 1);
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->save_snapshot, -1);
     }
     /* create play-emulator */ {
         toolbar->play_emulator = gtk_tool_button_new(NULL, NULL);
         toolitem_signal_connect_destroy(toolbar->play_emulator, &toolbar->play_emulator);
         gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->play_emulator), "media-playback-start-symbolic");
-        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->play_emulator, 2);
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->play_emulator, -1);
     }
     /* create pause-emulator */ {
         toolbar->pause_emulator = gtk_tool_button_new(NULL, NULL);
         toolitem_signal_connect_destroy(toolbar->pause_emulator, &toolbar->pause_emulator);
         gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->pause_emulator), "media-playback-pause-symbolic");
-        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->pause_emulator, 3);
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->pause_emulator, -1);
     }
     /* create reset-emulator */ {
         toolbar->reset_emulator = gtk_tool_button_new(NULL, NULL);
         toolitem_signal_connect_destroy(toolbar->reset_emulator, &toolbar->reset_emulator);
         gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(toolbar->reset_emulator), "media-playlist-repeat-symbolic");
-        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->reset_emulator, 4);
+        gtk_toolbar_insert(GTK_TOOLBAR(toolbar->widget), toolbar->reset_emulator, -1);
     }
 }
 

@@ -83,6 +83,10 @@ struct _XcpcHelpMenuRec
 {
     GtkWidget* menu;
     GtkWidget* item;
+    GtkWidget* legal;
+    GtkWidget* about;
+    GtkWidget* separator1;
+    GtkWidget* help;
 };
 
 struct _XcpcMenuBarRec
