@@ -25,29 +25,22 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcLayoutRec      XcpcLayoutRec;
-typedef struct _XcpcMenuBarRec     XcpcMenuBarRec;
-typedef struct _XcpcToolBarRec     XcpcToolBarRec;
-typedef struct _XcpcInfoBarRec     XcpcInfoBarRec;
 typedef struct _XcpcFileMenuRec    XcpcFileMenuRec;
 typedef struct _XcpcCtrlMenuRec    XcpcCtrlMenuRec;
 typedef struct _XcpcDrv0MenuRec    XcpcDrv0MenuRec;
 typedef struct _XcpcDrv1MenuRec    XcpcDrv1MenuRec;
 typedef struct _XcpcHelpMenuRec    XcpcHelpMenuRec;
+typedef struct _XcpcMenuBarRec     XcpcMenuBarRec;
+typedef struct _XcpcToolBarRec     XcpcToolBarRec;
+typedef struct _XcpcInfoBarRec     XcpcInfoBarRec;
+typedef struct _XcpcWorkWndRec     XcpcWorkWndRec;
+typedef struct _XcpcLayoutRec      XcpcLayoutRec;
 typedef struct _XcpcApplicationRec XcpcApplicationRec;
-
-struct _XcpcLayoutRec
-{
-    GtkApplication* application;
-    GtkWidget*      window;
-    GtkWidget*      vbox;
-    GtkWidget*      emulator;
-};
 
 struct _XcpcFileMenuRec
 {
+    GtkWidget* widget;
     GtkWidget* menu;
-    GtkWidget* item;
     GtkWidget* load_snapshot;
     GtkWidget* save_snapshot;
     GtkWidget* separator1;
@@ -56,8 +49,8 @@ struct _XcpcFileMenuRec
 
 struct _XcpcCtrlMenuRec
 {
+    GtkWidget* widget;
     GtkWidget* menu;
-    GtkWidget* item;
     GtkWidget* play_emulator;
     GtkWidget* pause_emulator;
     GtkWidget* reset_emulator;
@@ -65,24 +58,24 @@ struct _XcpcCtrlMenuRec
 
 struct _XcpcDrv0MenuRec
 {
+    GtkWidget* widget;
     GtkWidget* menu;
-    GtkWidget* item;
     GtkWidget* drive0_insert;
     GtkWidget* drive0_remove;
 };
 
 struct _XcpcDrv1MenuRec
 {
+    GtkWidget* widget;
     GtkWidget* menu;
-    GtkWidget* item;
     GtkWidget* drive1_insert;
     GtkWidget* drive1_remove;
 };
 
 struct _XcpcHelpMenuRec
 {
+    GtkWidget* widget;
     GtkWidget* menu;
-    GtkWidget* item;
     GtkWidget* legal;
     GtkWidget* about;
     GtkWidget* separator1;
@@ -114,13 +107,27 @@ struct _XcpcInfoBarRec
     GtkWidget* widget;
 };
 
+struct _XcpcWorkWndRec
+{
+    GtkWidget* widget;
+    GtkWidget* emulator;
+};
+
+struct _XcpcLayoutRec
+{
+    GtkApplication* application;
+    GtkWidget*      window;
+    GtkWidget*      vbox;
+    XcpcMenuBarRec  menubar;
+    XcpcToolBarRec  toolbar;
+    XcpcWorkWndRec  workwnd;
+    XcpcInfoBarRec  infobar;
+};
+
 struct _XcpcApplicationRec
 {
-    XcpcMachine*   machine;
-    XcpcLayoutRec  layout;
-    XcpcMenuBarRec menubar;
-    XcpcToolBarRec toolbar;
-    XcpcInfoBarRec infobar;
+    XcpcMachine*  machine;
+    XcpcLayoutRec layout;
 };
 
 #ifdef __cplusplus
