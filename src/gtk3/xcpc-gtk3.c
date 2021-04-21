@@ -417,8 +417,19 @@ static void build_workwnd(XcpcApplication* self)
         gtk_box_pack_start(GTK_BOX(parent->vbox), current->widget, TRUE, TRUE, 0);
     }
     /* emulator */ {
+        const GemMachine machine = {
+            GEM_EMULATOR_DATA(self->machine),
+            GEM_EMULATOR_PROC(&xcpc_machine_create_proc),
+            GEM_EMULATOR_PROC(&xcpc_machine_destroy_proc),
+            GEM_EMULATOR_PROC(&xcpc_machine_realize_proc),
+            GEM_EMULATOR_PROC(&xcpc_machine_resize_proc),
+            GEM_EMULATOR_PROC(&xcpc_machine_expose_proc),
+            GEM_EMULATOR_PROC(&xcpc_machine_input_proc),
+            GEM_EMULATOR_PROC(&xcpc_machine_timer_proc),
+        };
         current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");
+        gem_emulator_set_machine(current->emulator, &machine);
         gtk_box_pack_start(GTK_BOX(current->widget), current->emulator, TRUE, TRUE, 0);
     }
 }
@@ -463,7 +474,6 @@ static void build_layout(GtkApplication* application, XcpcApplication* self)
         current->window = gtk_application_window_new(application);
         widget_add_destroy_callback(&current->window, "window");
         gtk_window_set_title(GTK_WINDOW(current->window), _("Xcpc - Amstrad CPC emulator"));
-        gtk_window_set_default_size(GTK_WINDOW(current->window), 640, 480);
     }
     /* vbox */ {
         current->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);

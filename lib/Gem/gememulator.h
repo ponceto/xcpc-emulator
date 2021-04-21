@@ -39,19 +39,23 @@ struct _GemEmulator
     GemKeyboard keyboard;
     GemJoystick joystick0;
     GemJoystick joystick1;
+    XEvent      last_rcv_event;
+    XEvent      last_key_event;
+    guint       timeout;
 };
 
 struct _GemEmulatorClass
 {
     GtkWidgetClass parent_class;
-    void (*_gem_reserved0) (void);
-    void (*_gem_reserved1) (void);
-    void (*_gem_reserved2) (void);
-    void (*_gem_reserved3) (void);
+    void (*_gem_reserved0)(void);
+    void (*_gem_reserved1)(void);
+    void (*_gem_reserved2)(void);
+    void (*_gem_reserved3)(void);
 };
 
-extern GType      gem_emulator_get_type (void) G_GNUC_CONST;
-extern GtkWidget* gem_emulator_new      (void);
+extern GType      gem_emulator_get_type    (void) G_GNUC_CONST;
+extern GtkWidget* gem_emulator_new         (void);
+extern void       gem_emulator_set_machine (GtkWidget* widget, const GemMachine* machine);
 
 G_END_DECLS
 

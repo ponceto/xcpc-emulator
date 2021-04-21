@@ -21,9 +21,12 @@
 
 G_BEGIN_DECLS
 
+#define GEM_EMULATOR_DATA(data) ((GemEmulatorData)(data))
+#define GEM_EMULATOR_PROC(proc) ((GemEmulatorProc)(proc))
+
 typedef gpointer GemEmulatorData;
 
-typedef unsigned long (*GemEmulatorProc)(gpointer data, XEvent* event);
+typedef unsigned long (*GemEmulatorProc)(GemEmulatorData data, XEvent* event);
 
 typedef struct _GemX11             GemX11;
 typedef struct _GemMachine         GemMachine;
