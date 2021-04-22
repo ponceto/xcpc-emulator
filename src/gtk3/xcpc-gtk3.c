@@ -33,15 +33,289 @@
  * ---------------------------------------------------------------------------
  */
 
-static const gchar app_id[]             = "org.gtk.xcpc";
-static const gchar sig_activate[]       = "activate";
-static const gchar sig_destroy[]        = "destroy";
-static const gchar sig_clicked[]        = "clicked";
-static const gchar ico_load_snapshot[]  = "document-open-symbolic";
-static const gchar ico_save_snapshot[]  = "document-save-symbolic";
-static const gchar ico_play_emulator[]  = "media-playback-start-symbolic";
-static const gchar ico_pause_emulator[] = "media-playback-pause-symbolic";
-static const gchar ico_reset_emulator[] = "media-playlist-repeat-symbolic";
+static const gchar app_id[]                 = "org.gtk.xcpc";
+static const gchar sig_activate[]           = "activate";
+static const gchar sig_destroy[]            = "destroy";
+static const gchar sig_clicked[]            = "clicked";
+static const gchar sig_drag_data_received[] = "drag-data-received";
+static const gchar ico_load_snapshot[]      = "document-open-symbolic";
+static const gchar ico_save_snapshot[]      = "document-save-symbolic";
+static const gchar ico_play_emulator[]      = "media-playback-start-symbolic";
+static const gchar ico_pause_emulator[]     = "media-playback-pause-symbolic";
+static const gchar ico_reset_emulator[]     = "media-playlist-repeat-symbolic";
+
+/*
+ * ---------------------------------------------------------------------------
+ * some useful functions
+ * ---------------------------------------------------------------------------
+ */
+
+static const char* translate_string(const char* string)
+{
+    xcpc_log_debug("translate '%s'", string);
+
+    return string;
+}
+
+static void show_widget(GtkWidget* widget)
+{
+    if(widget != NULL) {
+        gtk_widget_show(widget);
+    }
+}
+
+static void hide_widget(GtkWidget* widget)
+{
+    if(widget != NULL) {
+        gtk_widget_hide(widget);
+    }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Controls
+ * ---------------------------------------------------------------------------
+ */
+
+static XcpcApplication* set_machine(XcpcApplication* self)
+{
+    char buffer[256];
+
+    /* build string */ {
+        (void) snprintf ( buffer, sizeof(buffer)
+                        , "%s %s %s, %s @ %s, %s"
+                        , xcpc_company_name_to_string(xcpc_machine_company_name(self->machine))
+                        , xcpc_machine_type_to_string(xcpc_machine_machine_type(self->machine))
+                        , xcpc_memory_size_to_string(xcpc_machine_memory_size(self->machine))
+                        , xcpc_monitor_type_to_string(xcpc_machine_monitor_type(self->machine))
+                        , xcpc_refresh_rate_to_string(xcpc_machine_refresh_rate(self->machine))
+                        , xcpc_keyboard_type_to_string(xcpc_machine_keyboard_type(self->machine)) );
+    }
+    if(self->layout.infobar.system != NULL) {
+        gtk_label_set_text(GTK_LABEL(self->layout.infobar.system), buffer);
+    }
+    return self;
+}
+
+static XcpcApplication* set_title(XcpcApplication* self, const char* string)
+{
+    char buffer[256];
+
+    /* inititialize buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "Xcpc - Amstrad CPC emulator - %s", string);
+    }
+    if(self->layout.window != NULL) {
+        gtk_window_set_title(GTK_WINDOW(self->layout.window), buffer);
+    }
+    return self;
+}
+
+static XcpcApplication* set_status(XcpcApplication* self, const char* string)
+{
+    char buffer[256];
+
+    /* inititialize buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s", string);
+    }
+    if(self->layout.infobar.status != NULL) {
+        gtk_label_set_text(GTK_LABEL(self->layout.infobar.status), buffer);
+    }
+    return set_title(set_machine(self), string);
+}
+
+static XcpcApplication* set_drive0(XcpcApplication* self)
+{
+    const char* filename = NULL;
+    char        buffer[256];
+
+    /* fetch filename */ {
+        filename = xcpc_machine_filename_drive0(self->machine);
+        if((filename != NULL) && (*filename != '\0')) {
+            const char* slash = strrchr(filename, '/');
+            if(slash != NULL) {
+                filename = (slash + 1);
+            }
+        }
+        else {
+            filename = _("{empty}");
+        }
+    }
+    /* init buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s %s", _("A:"), filename);
+    }
+    if(self->layout.infobar.drive0 != NULL) {
+        gtk_label_set_text(GTK_LABEL(self->layout.infobar.drive0), buffer);
+    }
+    return self;
+}
+
+static XcpcApplication* set_drive1(XcpcApplication* self)
+{
+    const char* filename = NULL;
+    char        buffer[256];
+
+    /* fetch filename */ {
+        filename = xcpc_machine_filename_drive1(self->machine);
+        if((filename != NULL) && (*filename != '\0')) {
+            const char* slash = strrchr(filename, '/');
+            if(slash != NULL) {
+                filename = (slash + 1);
+            }
+        }
+        else {
+            filename = _("{empty}");
+        }
+    }
+    /* init buffer */ {
+        (void) snprintf(buffer, sizeof(buffer), "%s %s", _("B:"), filename);
+    }
+    if(self->layout.infobar.drive1 != NULL) {
+        gtk_label_set_text(GTK_LABEL(self->layout.infobar.drive1), buffer);
+    }
+    return self;
+}
+
+static XcpcApplication* emu_exit(XcpcApplication* self)
+{
+    if(self->layout.window != NULL) {
+        gtk_widget_destroy(self->layout.window);
+    }
+    return self;
+}
+
+static XcpcApplication* emu_play(XcpcApplication* self)
+{
+    /* show/hide controls */ {
+        hide_widget(GTK_WIDGET(self->layout.menubar.ctrl.play_emulator));
+        show_widget(GTK_WIDGET(self->layout.menubar.ctrl.pause_emulator));
+        hide_widget(GTK_WIDGET(self->layout.toolbar.play_emulator));
+        show_widget(GTK_WIDGET(self->layout.toolbar.pause_emulator));
+    }
+    if(self->layout.workwnd.emulator != NULL) {
+        gtk_widget_set_sensitive(self->layout.workwnd.emulator, TRUE);
+        gtk_widget_grab_focus(self->layout.workwnd.emulator);
+    }
+    /* set status */ {
+        (void) set_status(self, _("Playing"));
+        (void) set_drive0(self);
+        (void) set_drive1(self);
+    }
+    return self;
+}
+
+static XcpcApplication* emu_pause(XcpcApplication* self)
+{
+    /* show/hide controls */ {
+        show_widget(GTK_WIDGET(self->layout.menubar.ctrl.play_emulator));
+        hide_widget(GTK_WIDGET(self->layout.menubar.ctrl.pause_emulator));
+        show_widget(GTK_WIDGET(self->layout.toolbar.play_emulator));
+        hide_widget(GTK_WIDGET(self->layout.toolbar.pause_emulator));
+    }
+    if(self->layout.workwnd.emulator != NULL) {
+        gtk_widget_set_sensitive(self->layout.workwnd.emulator, FALSE);
+        gtk_widget_grab_focus(self->layout.workwnd.emulator);
+    }
+    /* set status */ {
+        (void) set_status(self, _("Paused"));
+        (void) set_drive0(self);
+        (void) set_drive1(self);
+    }
+    return self;
+}
+
+static XcpcApplication* emu_reset(XcpcApplication* self)
+{
+    if(self->layout.workwnd.emulator != NULL) {
+        (void) xcpc_machine_reset(self->machine);
+    }
+    /* set status */ {
+        (void) set_status(self, _("Reset"));
+        (void) set_drive0(self);
+        (void) set_drive1(self);
+    }
+    return self;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * snapshots
+ * ---------------------------------------------------------------------------
+ */
+
+static XcpcApplication* load_snapshot(XcpcApplication* self, const char* filename)
+{
+    if((filename != NULL) && (*filename != '\0')) {
+        xcpc_machine_load_snapshot(self->machine, filename);
+    }
+    return self;
+}
+
+static XcpcApplication* save_snapshot(XcpcApplication* self, const char* filename)
+{
+    if((filename != NULL) && (*filename != '\0')) {
+        xcpc_machine_save_snapshot(self->machine, filename);
+    }
+    return self;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * drive0
+ * ---------------------------------------------------------------------------
+ */
+
+static XcpcApplication* insert_disk_into_drive0(XcpcApplication* self, const char* filename)
+{
+    if((filename != NULL) && (*filename != '\0')) {
+        xcpc_machine_insert_drive0(self->machine, filename);
+    }
+    return set_drive0(self);
+}
+
+static XcpcApplication* remove_disk_from_drive0(XcpcApplication* self)
+{
+    xcpc_machine_remove_drive0(self->machine);
+
+    return set_drive0(self);
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * drive1
+ * ---------------------------------------------------------------------------
+ */
+
+static XcpcApplication* insert_disk_into_drive1(XcpcApplication* self, const char* filename)
+{
+    if((filename != NULL) && (*filename != '\0')) {
+        xcpc_machine_insert_drive1(self->machine, filename);
+    }
+    return set_drive1(self);
+}
+
+static XcpcApplication* remove_disk_from_drive1(XcpcApplication* self)
+{
+    xcpc_machine_remove_drive1(self->machine);
+
+    return set_drive1(self);
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * drive by default
+ * ---------------------------------------------------------------------------
+ */
+
+static XcpcApplication* insert_or_remove_disk(XcpcApplication* self, const char* filename)
+{
+    if((filename != NULL) && (*filename != '\0')) {
+        (void) insert_disk_into_drive0(self, filename);
+    }
+    else {
+        (void) remove_disk_from_drive0(self);
+    }
+    return self;
+}
 
 /*
  * ---------------------------------------------------------------------------
@@ -75,16 +349,40 @@ static void widget_clicked_callback(GtkWidget* widget, XcpcApplication* self)
 
 /*
  * ---------------------------------------------------------------------------
- * some useful wrappers
+ * drag'n drop callbacks
  * ---------------------------------------------------------------------------
  */
 
-static const char* translate_string(const char* string)
+static void drag_data_received ( GtkWidget*        widget
+                               , GdkDragContext*   context
+                               , int               x
+                               , int               y
+                               , GtkSelectionData* data
+                               , guint             info
+                               , guint             time
+                               , XcpcApplication*  self )
 {
-    xcpc_log_debug("translate '%s'", string);
+    gchar** uris = gtk_selection_data_get_uris(data);
 
-    return string;
+    if(uris != NULL) {
+        const char* prefix_str = "file://";
+        const int   prefix_len = strlen(prefix_str);
+        const char* filename = uris[0];
+        if(strncmp(prefix_str, filename, prefix_len) == 0) {
+            filename += prefix_len;
+        }
+        (void) load_snapshot(self, filename);
+    }
+    if(uris != NULL) {
+        uris = (g_strfreev(uris), NULL);
+    }
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ * some useful wrappers
+ * ---------------------------------------------------------------------------
+ */
 
 static void widget_add_destroy_callback(GtkWidget** reference, const gchar* name)
 {
@@ -417,6 +715,9 @@ static void build_workwnd(XcpcApplication* self)
         gtk_box_pack_start(GTK_BOX(parent->vbox), current->widget, TRUE, TRUE, 0);
     }
     /* emulator */ {
+        static const GtkTargetEntry target_entries[] = {
+            { "text/uri-list", 0, 1 },
+        };
         const GemMachine machine = {
             GEM_EMULATOR_DATA(self->machine),
             GEM_EMULATOR_PROC(&xcpc_machine_create_proc),
@@ -431,6 +732,8 @@ static void build_workwnd(XcpcApplication* self)
         widget_add_destroy_callback(&current->emulator, "emulator");
         gem_emulator_set_machine(current->emulator, &machine);
         gtk_box_pack_start(GTK_BOX(current->widget), current->emulator, TRUE, TRUE, 0);
+        gtk_drag_dest_set(current->emulator, GTK_DEST_DEFAULT_ALL, target_entries, 1, (GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
+        (void) g_signal_connect(G_OBJECT(current->emulator), sig_drag_data_received, G_CALLBACK(&drag_data_received), self);
     }
 }
 
@@ -495,6 +798,9 @@ static void build_layout(GtkApplication* application, XcpcApplication* self)
     /* show all */ {
         gtk_widget_show_all(self->layout.window);
         gtk_widget_grab_focus(self->layout.workwnd.emulator);
+    }
+    /* play */ {
+        (void) emu_play(self);
     }
 }
 
