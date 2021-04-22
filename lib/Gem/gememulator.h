@@ -33,15 +33,20 @@ typedef struct _GemEmulatorClass GemEmulatorClass;
 
 struct _GemEmulator
 {
-    GtkWidget   widget;
-    GemX11      x11;
-    GemMachine  machine;
-    GemKeyboard keyboard;
-    GemJoystick joystick0;
-    GemJoystick joystick1;
-    XEvent      last_rcv_event;
-    XEvent      last_key_event;
-    guint       timeout;
+    GtkWidget          widget;
+    GemX11             x11;
+    GemMachine         machine;
+    GemKeyboard        keyboard;
+    GemJoystick        joystick0;
+    GemJoystick        joystick1;
+    XEvent             last_rcv_event;
+    XEvent             last_key_event;
+    GemThrottledEvents throttled;
+    guint              minimum_width;
+    guint              minimum_height;
+    guint              natural_width;
+    guint              natural_height;
+    guint              timer;
 };
 
 struct _GemEmulatorClass
