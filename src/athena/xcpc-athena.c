@@ -46,7 +46,7 @@ Hotkeys:\n\
 Keyboard emulation:\n\
 \n\
 The left shift and control keys are forwarded to the simulation.\n\
-You have use to the right shift and control keys to compose characters.\n\
+You must use the right shift and control keys to compose characters.\n\
 \n\
 Joystick emulation:\n\
 \n\
