@@ -851,7 +851,7 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** 
 
 /*
  * ---------------------------------------------------------------------------
- * XcpcApplication
+ * xcpc_main
  * ---------------------------------------------------------------------------
  */
 
