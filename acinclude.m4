@@ -250,7 +250,7 @@ fi
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_GTK3], [
-AC_ARG_ENABLE([gtk3], [AC_HELP_STRING([--enable-gtk3], [add the support of Gtk3 if available [default=yes]])], [], [enable_gtk3="no"])
+AC_ARG_ENABLE([gtk3], [AC_HELP_STRING([--enable-gtk3], [add the support of Gtk3 if available [default=yes]])], [], [enable_gtk3="yes"])
 if test "x${enable_gtk3}" = "xyes"; then
     PKG_CHECK_MODULES([gtk3], [gtk+-3.0], [have_gtk3="yes"], [have_gtk3="no"])
 else

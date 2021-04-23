@@ -15,6 +15,17 @@ automake
 libtool
 git
 xorg-dev
+```
+
+If you want to build the Gtk+-3.x user interface, you must install this package:
+
+```
+libgtk-3-dev
+```
+
+If you want to build the Motif2.x user interface, you must install this package:
+
+```
 libmotif-dev
 ```
 

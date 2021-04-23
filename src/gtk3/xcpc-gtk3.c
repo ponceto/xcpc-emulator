@@ -153,7 +153,7 @@ static XcpcApplication* set_title(XcpcApplication* self, const char* string)
 
 static XcpcApplication* set_status(XcpcApplication* self, const char* status)
 {
-    const char* format   = "<span background='green'><big> </big>%s<big> </big></span>";
+    const char* format   = "<span foreground='grey90' background='darkgreen'><big> </big>%s<big> </big></span>";
     char*       string   = NULL;
 
     /* inititialize buffer */ {
@@ -172,7 +172,7 @@ static XcpcApplication* set_status(XcpcApplication* self, const char* status)
 
 static XcpcApplication* set_drive0(XcpcApplication* self)
 {
-    const char* format   = "<span background='darkblue'><big> </big>%s %s<big> </big></span>";
+    const char* format   = "<span foreground='yellow' background='darkblue'><big> </big>%s %s<big> </big></span>";
     const char* filename = NULL;
     char*       string   = NULL;
 
@@ -204,7 +204,7 @@ static XcpcApplication* set_drive0(XcpcApplication* self)
 
 static XcpcApplication* set_drive1(XcpcApplication* self)
 {
-    const char* format   = "<span background='darkblue'><big> </big>%s %s<big> </big></span>";
+    const char* format   = "<span foreground='yellow' background='darkblue'><big> </big>%s %s<big> </big></span>";
     const char* filename = NULL;
     char*       string   = NULL;
 
