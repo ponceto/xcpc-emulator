@@ -711,6 +711,9 @@ static void TimeOutHandler(Widget widget, XtIntervalId* timer)
         if((self->core.sensitive != FALSE) && (self->core.ancestor_sensitive != FALSE)) {
             timeout = (*self->emulator.machine.timer_proc)(self->emulator.machine.instance, CopyOrFillEvent(widget, NULL));
         }
+        else {
+            timeout = DefaultMachineProc(NULL, NULL);
+        }
     }
     /* schedule timer */ {
         Schedule(widget, timeout);
