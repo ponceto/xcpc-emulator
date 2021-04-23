@@ -740,12 +740,14 @@ Widget XemCreateEmulator(Widget parent, String name, ArgList args, Cardinal num_
  */
 void XemKeyboardConstruct(Widget widget, XemKeyboard* keyboard, int id)
 {
-    keyboard->js_enabled = FALSE;
-    keyboard->js_id      = id;
-    keyboard->js_axis_x  = 0;
-    keyboard->js_axis_y  = 0;
-    keyboard->js_button0 = 0;
-    keyboard->js_button1 = 0;
+    /* initialize */ {
+        keyboard->js_enabled = FALSE;
+        keyboard->js_id      = id;
+        keyboard->js_axis_x  = 0;
+        keyboard->js_axis_y  = 0;
+        keyboard->js_button0 = 0;
+        keyboard->js_button1 = 0;
+    }
 }
 
 /**
@@ -753,12 +755,14 @@ void XemKeyboardConstruct(Widget widget, XemKeyboard* keyboard, int id)
  */
 void XemKeyboardDestruct(Widget widget, XemKeyboard* keyboard)
 {
-    keyboard->js_enabled = FALSE;
-    keyboard->js_id      = 0;
-    keyboard->js_axis_x  = 0;
-    keyboard->js_axis_y  = 0;
-    keyboard->js_button0 = 0;
-    keyboard->js_button1 = 0;
+    /* finalize */ {
+        keyboard->js_enabled = FALSE;
+        keyboard->js_id      = -1;
+        keyboard->js_axis_x  = 0;
+        keyboard->js_axis_y  = 0;
+        keyboard->js_button0 = 0;
+        keyboard->js_button1 = 0;
+    }
 }
 
 /**
@@ -925,7 +929,7 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
  */
 void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* device, int id)
 {
-    /* initialize structure */ {
+    /* initialize */ {
         joystick->device     = NULL;
         joystick->identifier = NULL;
         joystick->fd         = -1;
@@ -986,7 +990,7 @@ void XemJoystickConstruct(Widget widget, XemJoystick* joystick, const char* devi
  */
 void XemJoystickDestruct(Widget widget, XemJoystick* joystick)
 {
-    /* clear properties */ {
+    /* finalize */ {
         joystick->js_id      = 0;
         joystick->js_axis_x  = 0;
         joystick->js_axis_y  = 0;
