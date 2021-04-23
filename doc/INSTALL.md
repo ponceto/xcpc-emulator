@@ -23,7 +23,7 @@ If you want to build the Gtk+-3.x user interface, you must install this package:
 libgtk-3-dev
 ```
 
-If you want to build the Motif2.x user interface, you must install this package:
+If you want to build the Motif-2.x user interface, you must install this package:
 
 ```
 libmotif-dev
@@ -52,9 +52,10 @@ Run the `configure` script
 ./configure --prefix={destination-path}
 ```
 
-Xcpc supports 3 differents user interface types:
+Xcpc supports 4 differents user interface types:
 
-  - Motif2
+  - Gtk+-3.x
+  - Motif-2.x
   - Athena
   - Intrinsic
 
@@ -63,6 +64,7 @@ The user interface toolkit is detected automagically when running the `configure
 You can disable the support of a specific toolkit:
 
 ```
+--disable-gtk3
 --disable-motif2
 --disable-athena
 --disable-intrinsic
@@ -71,6 +73,7 @@ You can disable the support of a specific toolkit:
 You can also force the user interface toolkit with the `--with-x11-toolkit` option:
 
 ```
+--with-x11-toolkit=gtk3
 --with-x11-toolkit=motif2
 --with-x11-toolkit=athena
 --with-x11-toolkit=intrinsic
