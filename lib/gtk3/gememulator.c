@@ -33,7 +33,7 @@ G_DEFINE_TYPE(GemEmulator, gem_emulator, GTK_TYPE_WIDGET)
 
 static unsigned long default_machine_proc(GemEmulatorData data, XEvent* event)
 {
-    return 0UL;
+    return EMULATOR_DEFAULT_TIMEOUT;
 }
 
 static gboolean timer_handler(GtkWidget* widget)
@@ -45,7 +45,12 @@ static gboolean timer_handler(GtkWidget* widget)
         self->timer = 0;
     }
     /* call timer-proc */ {
-        timeout = (*self->machine.timer_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
+        if(gtk_widget_is_sensitive(widget) != FALSE) {
+            timeout = (*self->machine.timer_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
+        }
+        else {
+            timeout = default_machine_proc(NULL, NULL);
+        }
     }
     /* restart timer */ {
         self->timer = g_timeout_add(timeout, G_SOURCE_FUNC(&timer_handler), self);
@@ -460,7 +465,8 @@ static gboolean impl_widget_configure_event(GtkWidget* widget, GdkEventConfigure
 
 static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
 {
-    GemEmulator* self = CAST_EMULATOR(widget);
+    GemEmulator* self  = CAST_EMULATOR(widget);
+    XEvent       xevent;
 
     /* initialize X11 handles if needed */ {
         if(self->x11.display == NULL) {
@@ -468,7 +474,29 @@ static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
         }
     }
     /* clear surface */ {
+        GdkRGBA color = {
+            0.20, /* red   */
+            0.20, /* green */
+            0.20, /* blue  */
+            1.00, /* alpha */
+        };
+        gdk_cairo_set_source_rgba(cr, &color);
         cairo_paint(cr);
+    }
+    /* forge expose event */ {
+        xevent.xexpose.type       = Expose;
+        xevent.xexpose.serial     = 0UL;
+        xevent.xexpose.send_event = True;
+        xevent.xexpose.display    = self->x11.display;
+        xevent.xexpose.window     = self->x11.window;
+        xevent.xexpose.x          = 0;
+        xevent.xexpose.y          = 0;
+        xevent.xexpose.width      = self->natural_width;
+        xevent.xexpose.height     = self->natural_height;
+        xevent.xexpose.count      = 0;
+    }
+    /* call expose-proc */ {
+        (void) (*self->machine.expose_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, &xevent));
     }
     return FALSE;
 }
@@ -527,10 +555,10 @@ static void gem_emulator_init(GemEmulator* self)
         gem_joystick_construct(widget, &self->joystick1, NULL, 1);
     }
     /* initialize minimum/natural dimensions */ {
-        self->minimum_width  = EMULATOR_DFL_WIDTH;
-        self->minimum_height = EMULATOR_DFL_HEIGHT;
-        self->natural_width  = EMULATOR_DFL_WIDTH;
-        self->natural_height = EMULATOR_DFL_HEIGHT;
+        self->minimum_width  = EMULATOR_DEFAULT_WIDTH;
+        self->minimum_height = EMULATOR_DEFAULT_HEIGHT;
+        self->natural_width  = EMULATOR_DEFAULT_WIDTH;
+        self->natural_height = EMULATOR_DEFAULT_HEIGHT;
     }
     /* initialize timer */ {
         self->timer = 0;
