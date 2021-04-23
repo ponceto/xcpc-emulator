@@ -349,8 +349,34 @@ static void widget_clicked_callback(GtkWidget* widget, XcpcApplication* self)
 
 static void file_load_snapshot_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "file_load_snapshot_callback");
-    (void)(load_snapshot);
+    GtkWidget* dialog = NULL;
+    gint       status = -1;
+
+    /* pause emulator */ {
+        pause_emulator(self);
+    }
+    /* create dialog */ {
+        dialog = gtk_file_chooser_dialog_new ( _("Load snapshot ...")
+                                             , GTK_WINDOW(self->layout.window)
+                                             , GTK_FILE_CHOOSER_ACTION_OPEN
+                                             , _("_Cancel"), GTK_RESPONSE_CANCEL
+                                             , _("_Open")  , GTK_RESPONSE_ACCEPT
+                                             , NULL);
+    }
+    /* run dialog */ {
+        status = gtk_dialog_run(GTK_DIALOG(dialog));
+        if(status == GTK_RESPONSE_ACCEPT) {
+            gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+            (void) load_snapshot(self, filename);
+            filename = (g_free(filename), NULL);
+        }
+    }
+    /* destroy dialog */ {
+        dialog = (gtk_widget_destroy(dialog), NULL);
+    }
+    /* play emulator */ {
+        play_emulator(self);
+    }
 }
 
 static void file_save_snapshot_callback(GtkWidget* widget, XcpcApplication* self)
@@ -381,26 +407,76 @@ static void ctrl_reset_emulator_callback(GtkWidget* widget, XcpcApplication* sel
 
 static void drv0_insert_disk_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "drv0_insert_disk_callback");
-    (void)(insert_disk_into_drive0);
+    GtkWidget* dialog = NULL;
+    gint       status = -1;
+
+    /* pause emulator */ {
+        pause_emulator(self);
+    }
+    /* create dialog */ {
+        dialog = gtk_file_chooser_dialog_new ( _("Insert disk into drive A ...")
+                                             , GTK_WINDOW(self->layout.window)
+                                             , GTK_FILE_CHOOSER_ACTION_OPEN
+                                             , _("_Cancel"), GTK_RESPONSE_CANCEL
+                                             , _("_Open")  , GTK_RESPONSE_ACCEPT
+                                             , NULL);
+    }
+    /* run dialog */ {
+        status = gtk_dialog_run(GTK_DIALOG(dialog));
+        if(status == GTK_RESPONSE_ACCEPT) {
+            gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+            (void) insert_disk_into_drive0(self, filename);
+            filename = (g_free(filename), NULL);
+        }
+    }
+    /* destroy dialog */ {
+        dialog = (gtk_widget_destroy(dialog), NULL);
+    }
+    /* play emulator */ {
+        play_emulator(self);
+    }
 }
 
 static void drv0_remove_disk_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "drv0_remove_disk_callback");
-    (void)(remove_disk_from_drive0);
+    (void) remove_disk_from_drive0(self);
 }
 
 static void drv1_insert_disk_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "drv1_insert_disk_callback");
-    (void)(insert_disk_into_drive1);
+    GtkWidget* dialog = NULL;
+    gint       status = -1;
+
+    /* pause emulator */ {
+        pause_emulator(self);
+    }
+    /* create dialog */ {
+        dialog = gtk_file_chooser_dialog_new ( _("Insert disk into drive B ...")
+                                             , GTK_WINDOW(self->layout.window)
+                                             , GTK_FILE_CHOOSER_ACTION_OPEN
+                                             , _("_Cancel"), GTK_RESPONSE_CANCEL
+                                             , _("_Open")  , GTK_RESPONSE_ACCEPT
+                                             , NULL);
+    }
+    /* run dialog */ {
+        status = gtk_dialog_run(GTK_DIALOG(dialog));
+        if(status == GTK_RESPONSE_ACCEPT) {
+            gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+            (void) insert_disk_into_drive1(self, filename);
+            filename = (g_free(filename), NULL);
+        }
+    }
+    /* destroy dialog */ {
+        dialog = (gtk_widget_destroy(dialog), NULL);
+    }
+    /* play emulator */ {
+        play_emulator(self);
+    }
 }
 
 static void drv1_remove_disk_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "drv1_remove_disk_callback");
-    (void)(remove_disk_from_drive1);
+    (void) remove_disk_from_drive1(self);
 }
 
 static void help_help_callback(GtkWidget* widget, XcpcApplication* self)
