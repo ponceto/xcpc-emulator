@@ -18,7 +18,7 @@
 #define __XCPC_GTK3_PRIV_H__
 
 #include <gtk/gtk.h>
-#include <Gem/gememulator.h>
+#include <gtk3/gememulator.h>
 #include <xcpc/machine/machine.h>
 #include "xcpc-gtk3.h"
 

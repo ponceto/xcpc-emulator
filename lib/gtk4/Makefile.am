@@ -20,31 +20,27 @@
 # ----------------------------------------------------------------------------
 
 noinst_LTLIBRARIES = \
-	libGem.la \
+	libgem4.la \
 	$(NULL)
 
 # ----------------------------------------------------------------------------
-# libGem
+# libgem4
 # ----------------------------------------------------------------------------
 
-libGem_la_SOURCES = \
-	gememulator.c \
-	gememulator.h \
-	gememulator-impl.h \
-	gememulator-priv.h \
+libgem4_la_SOURCES = \
 	$(NULL)
 
-libGem_la_CPPFLAGS = \
+libgem4_la_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	$(gtk3_CFLAGS) \
 	$(NULL)
 
-libGem_la_LDFLAGS = \
+libgem4_la_LDFLAGS = \
 	-L$(top_builddir)/lib \
 	$(gtk3_LDFLAGS) \
 	$(NULL)
 
-libGem_la_LIBADD = \
+libgem4_la_LIBADD = \
 	$(gtk3_LIBS) \
 	$(NULL)
 

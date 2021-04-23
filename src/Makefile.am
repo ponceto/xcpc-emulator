@@ -71,7 +71,7 @@ xcpc_LDFLAGS += \
 	$(NULL)
 
 xcpc_LDADD += \
-	$(top_builddir)/lib/Gem/libGem.la \
+	$(top_builddir)/lib/gtk3/libgem3.la \
 	$(gtk3_LIBS) \
 	$(NULL)
 endif

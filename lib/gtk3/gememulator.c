@@ -27,7 +27,7 @@
 #include <linux/joystick.h>
 #include <sys/ioctl.h>
 #endif
-#include <Gem/gememulator-priv.h>
+#include <gtk3/gememulator-priv.h>
 
 G_DEFINE_TYPE(GemEmulator, gem_emulator, GTK_TYPE_WIDGET)
 

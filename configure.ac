@@ -76,6 +76,7 @@ AX_CHECK_INTRINSIC
 AX_CHECK_ATHENA
 AX_CHECK_MOTIF2
 AX_CHECK_GTK3
+AX_CHECK_GTK4
 AX_CHECK_X11_TOOLKIT
 AX_CHECK_PORTAUDIO
 AX_CHECK_LINUX_JOYSTICK_API
@@ -114,7 +115,8 @@ AC_CONFIG_FILES([
 	lib/lib765/Makefile
 	lib/xcpc/Makefile
 	lib/Xem/Makefile
-	lib/Gem/Makefile
+	lib/gtk3/Makefile
+	lib/gtk4/Makefile
 	src/Makefile
 	share/Makefile
 	share/applications/Makefile
@@ -135,15 +137,16 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([Configured to build Xcpc:
 
-  X11 .................. ${have_x}
-  X11 XShm ............. ${have_xshm}
-  Intrinsic ............ ${have_intrinsic}
-  Athena ............... ${have_athena}
-  Motif2 ............... ${have_motif2}
-  Gtk3 ................. ${have_gtk3}
-  PortAudio ............ ${have_portaudio}
-  Linux Joystick API ... ${have_linux_joystick_api}
-  X11 toolkit .......... ${with_x11_toolkit}
+  X11 .................... ${have_x}
+  X11 XShm ............... ${have_xshm}
+  Intrinsic .............. ${have_intrinsic}
+  Athena ................. ${have_athena}
+  Motif2 ................. ${have_motif2}
+  Gtk3 (experimental) .... ${have_gtk3}
+  Gtk4 (not supported) ... ${have_gtk4}
+  PortAudio .............. ${have_portaudio}
+  Linux Joystick API ..... ${have_linux_joystick_api}
+  X11 toolkit ............ ${with_x11_toolkit}
 
 Have fun with Xcpc ;-)
 ])

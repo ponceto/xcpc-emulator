@@ -17,7 +17,7 @@
 #ifndef __GEM_EMULATOR_PRIV_H__
 #define __GEM_EMULATOR_PRIV_H__
 
-#include <Gem/gememulator.h>
+#include <gtk3/gememulator.h>
 
 G_BEGIN_DECLS
 
