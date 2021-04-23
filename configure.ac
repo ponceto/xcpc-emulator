@@ -135,7 +135,7 @@ AC_OUTPUT
 # Notice
 # ----------------------------------------------------------------------------
 
-AC_MSG_NOTICE([Configured to build Xcpc:
+AC_MSG_NOTICE([configured to build Xcpc:
 
   X11 .................... ${have_x}
   X11 XShm ............... ${have_xshm}
