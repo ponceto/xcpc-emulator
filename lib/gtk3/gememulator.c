@@ -95,12 +95,12 @@ static GdkFilterReturn impl_filter_func(GdkXEvent* native_event, GdkEvent* event
                     }
                     else {
                         self->minimum_width = EMULATOR_MIN_WIDTH;
+                        self->natural_width = xevent->xconfigure.width;
                     }
                 }
                 /* process height */ {
                     if(gtk_widget_get_allocated_height(widget) != xevent->xconfigure.height) {
                         self->minimum_height = xevent->xconfigure.height;
-                        self->natural_height = xevent->xconfigure.height;
                     }
                     else {
                         self->minimum_height = EMULATOR_MIN_HEIGHT;
@@ -491,8 +491,8 @@ static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
         xevent.xexpose.window     = self->x11.window;
         xevent.xexpose.x          = 0;
         xevent.xexpose.y          = 0;
-        xevent.xexpose.width      = self->natural_width;
-        xevent.xexpose.height     = self->natural_height;
+        xevent.xexpose.width      = gtk_widget_get_allocated_width(widget);
+        xevent.xexpose.height     = gtk_widget_get_allocated_height(widget);
         xevent.xexpose.count      = 0;
     }
     /* call expose-proc */ {

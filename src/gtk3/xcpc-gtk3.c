@@ -27,6 +27,45 @@
 #define _(string) translate_string(string)
 #endif
 
+static const char help_text2[] = "\
+<u>Hotkeys:</u>\n\
+\n\
+<small><tt>\
+    - F1                {not mapped}\n\
+    - F2                {not mapped}\n\
+    - F3                {not mapped}\n\
+    - F4                {not mapped}\n\
+    - F5                {not mapped}\n\
+    - F6                {not mapped}\n\
+    - F7                {not mapped}\n\
+    - F8                {not mapped}\n\
+    - F9                {not mapped}\n\
+    - F10               {not mapped}\n\
+    - F11               {not mapped}\n\
+    - F12               {not mapped}\n\
+</tt></small>\
+\n\
+<u>Keyboard emulation:</u>\n\
+\n\
+The left shift and control keys are forwarded to the simulation.\n\
+You must use the right shift and control keys to compose characters.\n\
+\n\
+<u>Joystick emulation:</u>\n\
+\n\
+<small><tt>\
+    - Home/End          enable/disable\n\
+    - Arrows            up/down/left/right\n\
+    - Left Ctrl         fire1\n\
+    - Left Alt          fire2\n\
+</tt></small>\
+\n\
+<u>Drag'n Drop:</u>\n\
+\n\
+You can use your file manager to drag'n drop a supported file directly to the emulator.\n\
+\n\
+The supported file extensions are: '.dsk', 'dsk.gz', 'dsk.bz2', '.sna'\n\
+";
+
 /*
  * ---------------------------------------------------------------------------
  * some useful constants
@@ -104,29 +143,38 @@ static XcpcApplication* set_title(XcpcApplication* self, const char* string)
     /* inititialize buffer */ {
         (void) snprintf(buffer, sizeof(buffer), "Xcpc - Amstrad CPC emulator - %s", string);
     }
-    if(self->layout.window != NULL) {
-        gtk_window_set_title(GTK_WINDOW(self->layout.window), buffer);
+    /* set title */ {
+        if(self->layout.window != NULL) {
+            gtk_window_set_title(GTK_WINDOW(self->layout.window), buffer);
+        }
     }
     return self;
 }
 
-static XcpcApplication* set_status(XcpcApplication* self, const char* string)
+static XcpcApplication* set_status(XcpcApplication* self, const char* status)
 {
-    char buffer[256];
+    const char* format   = "<span background='green'><big> </big>%s<big> </big></span>";
+    char*       string   = NULL;
 
     /* inititialize buffer */ {
-        (void) snprintf(buffer, sizeof(buffer), "%s", string);
+        string = g_markup_printf_escaped(format, status);
     }
-    if(self->layout.infobar.status != NULL) {
-        gtk_label_set_text(GTK_LABEL(self->layout.infobar.status), buffer);
+    /* set label */ {
+        if(self->layout.infobar.status != NULL) {
+            gtk_label_set_markup(GTK_LABEL(self->layout.infobar.status), string);
+        }
     }
-    return set_title(set_machine(self), string);
+    /* free string */ {
+        string = (g_free(string), NULL);
+    }
+    return set_title(set_machine(self), status);
 }
 
 static XcpcApplication* set_drive0(XcpcApplication* self)
 {
+    const char* format   = "<span background='darkblue'><big> </big>%s %s<big> </big></span>";
     const char* filename = NULL;
-    char        buffer[256];
+    char*       string   = NULL;
 
     /* fetch filename */ {
         filename = xcpc_machine_filename_drive0(self->machine);
@@ -140,19 +188,25 @@ static XcpcApplication* set_drive0(XcpcApplication* self)
             filename = _("{empty}");
         }
     }
-    /* init buffer */ {
-        (void) snprintf(buffer, sizeof(buffer), "%s %s", _("A:"), filename);
+    /* init string */ {
+        string = g_markup_printf_escaped(format, _("A:"), filename);
     }
-    if(self->layout.infobar.drive0 != NULL) {
-        gtk_label_set_text(GTK_LABEL(self->layout.infobar.drive0), buffer);
+    /* set label */ {
+        if(self->layout.infobar.drive0 != NULL) {
+            gtk_label_set_markup(GTK_LABEL(self->layout.infobar.drive0), string);
+        }
+    }
+    /* free string */ {
+        string = (g_free(string), NULL);
     }
     return self;
 }
 
 static XcpcApplication* set_drive1(XcpcApplication* self)
 {
+    const char* format   = "<span background='darkblue'><big> </big>%s %s<big> </big></span>";
     const char* filename = NULL;
-    char        buffer[256];
+    char*       string   = NULL;
 
     /* fetch filename */ {
         filename = xcpc_machine_filename_drive1(self->machine);
@@ -166,11 +220,16 @@ static XcpcApplication* set_drive1(XcpcApplication* self)
             filename = _("{empty}");
         }
     }
-    /* init buffer */ {
-        (void) snprintf(buffer, sizeof(buffer), "%s %s", _("B:"), filename);
+    /* init string */ {
+        string = g_markup_printf_escaped(format, _("B:"), filename);
     }
-    if(self->layout.infobar.drive1 != NULL) {
-        gtk_label_set_text(GTK_LABEL(self->layout.infobar.drive1), buffer);
+    /* set label */ {
+        if(self->layout.infobar.drive1 != NULL) {
+            gtk_label_set_markup(GTK_LABEL(self->layout.infobar.drive1), string);
+        }
+    }
+    /* free string */ {
+        string = (g_free(string), NULL);
     }
     return self;
 }
@@ -360,7 +419,7 @@ static void file_load_snapshot_callback(GtkWidget* widget, XcpcApplication* self
                                              , GTK_WINDOW(self->layout.window)
                                              , GTK_FILE_CHOOSER_ACTION_OPEN
                                              , _("_Cancel"), GTK_RESPONSE_CANCEL
-                                             , _("_Open")  , GTK_RESPONSE_ACCEPT
+                                             , _("_Load")  , GTK_RESPONSE_ACCEPT
                                              , NULL);
     }
     /* run dialog */ {
@@ -381,8 +440,34 @@ static void file_load_snapshot_callback(GtkWidget* widget, XcpcApplication* self
 
 static void file_save_snapshot_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "file_save_snapshot_callback");
-    (void)(save_snapshot);
+    GtkWidget* dialog = NULL;
+    gint       status = -1;
+
+    /* pause emulator */ {
+        pause_emulator(self);
+    }
+    /* create dialog */ {
+        dialog = gtk_file_chooser_dialog_new ( _("Save snapshot ...")
+                                             , GTK_WINDOW(self->layout.window)
+                                             , GTK_FILE_CHOOSER_ACTION_SAVE
+                                             , _("_Cancel"), GTK_RESPONSE_CANCEL
+                                             , _("_Save")  , GTK_RESPONSE_ACCEPT
+                                             , NULL);
+    }
+    /* run dialog */ {
+        status = gtk_dialog_run(GTK_DIALOG(dialog));
+        if(status == GTK_RESPONSE_ACCEPT) {
+            gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+            (void) save_snapshot(self, filename);
+            filename = (g_free(filename), NULL);
+        }
+    }
+    /* destroy dialog */ {
+        dialog = (gtk_widget_destroy(dialog), NULL);
+    }
+    /* play emulator */ {
+        play_emulator(self);
+    }
 }
 
 static void file_exit_callback(GtkWidget* widget, XcpcApplication* self)
@@ -402,7 +487,9 @@ static void ctrl_pause_emulator_callback(GtkWidget* widget, XcpcApplication* sel
 
 static void ctrl_reset_emulator_callback(GtkWidget* widget, XcpcApplication* self)
 {
+    pause_emulator(self);
     reset_emulator(self);
+    play_emulator(self);
 }
 
 static void drv0_insert_disk_callback(GtkWidget* widget, XcpcApplication* self)
@@ -456,7 +543,7 @@ static void drv1_insert_disk_callback(GtkWidget* widget, XcpcApplication* self)
                                              , GTK_FILE_CHOOSER_ACTION_OPEN
                                              , _("_Cancel"), GTK_RESPONSE_CANCEL
                                              , _("_Open")  , GTK_RESPONSE_ACCEPT
-                                             , NULL);
+                                             , NULL );
     }
     /* run dialog */ {
         status = gtk_dialog_run(GTK_DIALOG(dialog));
@@ -481,17 +568,75 @@ static void drv1_remove_disk_callback(GtkWidget* widget, XcpcApplication* self)
 
 static void help_help_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "help_help_callback");
+    GtkWidget* dialog = NULL;
+
+    /* pause emulator */ {
+        pause_emulator(self);
+    }
+    /* create dialog */ {
+        dialog = gtk_message_dialog_new_with_markup ( GTK_WINDOW(self->layout.window)
+                                                    , GTK_DIALOG_MODAL
+                                                    , GTK_MESSAGE_OTHER
+                                                    , GTK_BUTTONS_CLOSE
+                                                    , NULL );
+        gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dialog), help_text2);
+        gtk_window_set_title(GTK_WINDOW(dialog), _("Xcpc - Amstrad CPC emulator"));
+    }
+    /* run dialog */ {
+        (void) gtk_dialog_run(GTK_DIALOG(dialog));
+    }
+    /* destroy dialog */ {
+        dialog = (gtk_widget_destroy(dialog), NULL);
+    }
+    /* play emulator */ {
+        play_emulator(self);
+    }
 }
 
 static void help_legal_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "help_legal_callback");
+    GtkWidget* dialog = NULL;
+
+    /* pause emulator */ {
+        pause_emulator(self);
+    }
+    /* create dialog */ {
+        dialog = gtk_about_dialog_new();
+        gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc - Amstrad CPC emulator"));
+        gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), xcpc_legal_text());
+    }
+    /* run dialog */ {
+        (void) gtk_dialog_run(GTK_DIALOG(dialog));
+    }
+    /* destroy dialog */ {
+        dialog = (gtk_widget_destroy(dialog), NULL);
+    }
+    /* play emulator */ {
+        play_emulator(self);
+    }
 }
 
 static void help_about_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), "help_about_callback");
+    GtkWidget* dialog = NULL;
+
+    /* pause emulator */ {
+        pause_emulator(self);
+    }
+    /* create dialog */ {
+        dialog = gtk_about_dialog_new();
+        gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc - Amstrad CPC emulator"));
+        gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), xcpc_about_text());
+    }
+    /* run dialog */ {
+        (void) gtk_dialog_run(GTK_DIALOG(dialog));
+    }
+    /* destroy dialog */ {
+        dialog = (gtk_widget_destroy(dialog), NULL);
+    }
+    /* play emulator */ {
+        play_emulator(self);
+    }
 }
 
 /*
@@ -925,27 +1070,27 @@ static void build_infobar(XcpcApplication* self)
     /* infobar */ {
         current->widget = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         widget_add_destroy_callback(&current->widget, "infobar");
-        gtk_box_pack_start(GTK_BOX(parent->vbox), current->widget, FALSE, TRUE, 8);
+        gtk_box_pack_start(GTK_BOX(parent->vbox), current->widget, FALSE, TRUE, 4);
     }
     /* info-status */ {
         current->status = gtk_label_new(_("Status"));
         widget_add_destroy_callback(&current->status, "info-status");
-        gtk_box_pack_start(GTK_BOX(current->widget), current->status, FALSE, TRUE, 8);
+        gtk_box_pack_start(GTK_BOX(current->widget), current->status, FALSE, TRUE, 2);
     }
     /* info-drive0 */ {
         current->drive0 = gtk_label_new(_("Drive A"));
         widget_add_destroy_callback(&current->drive0, "info-drive0");
-        gtk_box_pack_start(GTK_BOX(current->widget), current->drive0, FALSE, TRUE, 8);
+        gtk_box_pack_start(GTK_BOX(current->widget), current->drive0, FALSE, TRUE, 2);
     }
     /* info-drive1 */ {
         current->drive1 = gtk_label_new(_("Drive B"));
         widget_add_destroy_callback(&current->drive1, "info-drive1");
-        gtk_box_pack_start(GTK_BOX(current->widget), current->drive1, FALSE, TRUE, 8);
+        gtk_box_pack_start(GTK_BOX(current->widget), current->drive1, FALSE, TRUE, 2);
     }
     /* info-system */ {
         current->system = gtk_label_new(_("System"));
         widget_add_destroy_callback(&current->system, "info-system");
-        gtk_box_pack_start(GTK_BOX(current->widget), current->system, TRUE, TRUE, 8);
+        gtk_box_pack_start(GTK_BOX(current->widget), current->system, TRUE, TRUE, 2);
     }
 }
 
