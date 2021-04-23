@@ -61,12 +61,6 @@ G_BEGIN_DECLS
 #define KEY_REPEAT_THRESHOLD 50
 #endif
 
-extern void gem_emulator_keyboard_construct (GemEmulator* emulator, GemKeyboard* keyboard);
-extern void gem_emulator_keyboard_destruct  (GemEmulator* emulator, GemKeyboard* keyboard);
-
-extern void gem_emulator_joystick_construct (GemEmulator* emulator, GemJoystick* joystick);
-extern void gem_emulator_joystick_destruct  (GemEmulator* emulator, GemJoystick* joystick);
-
 G_END_DECLS
 
 #endif /* __GEM_EMULATOR_PRIV_H__ */

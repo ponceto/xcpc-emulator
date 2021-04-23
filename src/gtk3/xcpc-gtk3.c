@@ -731,6 +731,8 @@ static void build_workwnd(XcpcApplication* self)
         current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");
         gem_emulator_set_machine(current->emulator, &machine);
+        gem_emulator_set_joystick(current->emulator, 0, xcpc_get_joystick0());
+        gem_emulator_set_joystick(current->emulator, 1, xcpc_get_joystick1());
         gtk_box_pack_start(GTK_BOX(current->widget), current->emulator, TRUE, TRUE, 0);
         gtk_drag_dest_set(current->emulator, GTK_DEST_DEFAULT_ALL, target_entries, 1, (GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
         (void) g_signal_connect(G_OBJECT(current->emulator), sig_drag_data_received, G_CALLBACK(&drag_data_received), self);

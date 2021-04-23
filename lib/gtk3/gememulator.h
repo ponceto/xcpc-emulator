@@ -33,20 +33,18 @@ typedef struct _GemEmulatorClass GemEmulatorClass;
 
 struct _GemEmulator
 {
-    GtkWidget          widget;
-    GemX11             x11;
-    GemMachine         machine;
-    GemKeyboard        keyboard;
-    GemJoystick        joystick0;
-    GemJoystick        joystick1;
-    XEvent             last_rcv_event;
-    XEvent             last_key_event;
-    GemThrottledEvents throttled;
-    guint              minimum_width;
-    guint              minimum_height;
-    guint              natural_width;
-    guint              natural_height;
-    guint              timer;
+    GtkWidget   widget;
+    GemX11      x11;
+    GemEvents   events;
+    GemMachine  machine;
+    GemKeyboard keyboard;
+    GemJoystick joystick0;
+    GemJoystick joystick1;
+    guint       minimum_width;
+    guint       minimum_height;
+    guint       natural_width;
+    guint       natural_height;
+    guint       timer;
 };
 
 struct _GemEmulatorClass
@@ -58,9 +56,10 @@ struct _GemEmulatorClass
     void (*_gem_reserved3)(void);
 };
 
-extern GType      gem_emulator_get_type    (void) G_GNUC_CONST;
-extern GtkWidget* gem_emulator_new         (void);
-extern void       gem_emulator_set_machine (GtkWidget* widget, const GemMachine* machine);
+extern GType      gem_emulator_get_type     (void) G_GNUC_CONST;
+extern GtkWidget* gem_emulator_new          (void);
+extern void       gem_emulator_set_machine  (GtkWidget* widget, const GemMachine* machine);
+extern void       gem_emulator_set_joystick (GtkWidget* widget, int id, const char* device);
 
 G_END_DECLS
 
