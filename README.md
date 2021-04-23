@@ -105,9 +105,7 @@ Here is a non-exhaustive list of supported features :
 The emulator lacks some features. Here is a list of the most wanted features :
 
   - Sound support.
-  - A Gtk+ user interface.
   - A Qt user interface.
-  - Host Joystick support.
   - A built-in assembler.
   - A built-in debugger.
 
