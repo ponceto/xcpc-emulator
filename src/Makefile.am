@@ -55,6 +55,27 @@ xcpc_LDADD = \
 	$(top_builddir)/lib/xcpc/libxcpc.la \
 	$(NULL)
 
+if GTK4
+xcpc_SOURCES += \
+	gtk4/xcpc-gtk4.c \
+	gtk4/xcpc-gtk4.h \
+	gtk4/xcpc-gtk4-priv.h \
+	$(NULL)
+
+xcpc_CPPFLAGS += \
+	$(gtk4_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(gtk4_LDFLAGS) \
+	$(NULL)
+
+xcpc_LDADD += \
+	$(top_builddir)/lib/gtk4/libgem4.la \
+	$(gtk4_LIBS) \
+	$(NULL)
+endif
+
 if GTK3
 xcpc_SOURCES += \
 	gtk3/xcpc-gtk3.c \
