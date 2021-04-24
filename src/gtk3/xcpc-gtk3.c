@@ -1036,6 +1036,10 @@ static void build_help_menu(XcpcApplication* self)
         current->help = gtk_menu_item_new_with_label(_("Help"));
         widget_add_destroy_callback(&current->help, "help-help");
         widget_add_activate_callback(current->help, self, G_CALLBACK(&help_help_callback));
+        /* accelerator */ {
+            GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->help));
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F1, 0);
+        }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->help);
     }
     /* help-legal */ {
