@@ -31,6 +31,16 @@
 
 G_DEFINE_TYPE(GemEmulator, gem_emulator, GTK_TYPE_WIDGET)
 
+enum GemEmulatorSignal
+{
+    SIG_HOTKEY  = 0,
+    LAST_SIGNAL = 1,
+};
+
+static guint emulator_signals[LAST_SIGNAL] = {
+    0, /* SIG_HOTKEY */
+};
+
 static unsigned long default_machine_proc(GemEmulatorData data, XEvent* event)
 {
     return EMULATOR_DEFAULT_TIMEOUT;
@@ -223,6 +233,44 @@ static void impl_widget_unrealize(GtkWidget* widget)
     /* call superclass method */ {
         (*super->unrealize)(widget);
     }
+}
+
+static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
+{
+    GemEmulator* self  = CAST_EMULATOR(widget);
+    XEvent       xevent;
+
+    /* initialize X11 handles if needed */ {
+        if(self->x11.display == NULL) {
+            (void) gem_x11_realize(widget, &self->x11);
+        }
+    }
+    /* clear surface */ {
+        GdkRGBA color = {
+            0.20, /* red   */
+            0.20, /* green */
+            0.20, /* blue  */
+            1.00, /* alpha */
+        };
+        gdk_cairo_set_source_rgba(cr, &color);
+        cairo_paint(cr);
+    }
+    /* forge expose event */ {
+        xevent.xexpose.type       = Expose;
+        xevent.xexpose.serial     = 0UL;
+        xevent.xexpose.send_event = True;
+        xevent.xexpose.display    = self->x11.display;
+        xevent.xexpose.window     = self->x11.window;
+        xevent.xexpose.x          = 0;
+        xevent.xexpose.y          = 0;
+        xevent.xexpose.width      = gtk_widget_get_allocated_width(widget);
+        xevent.xexpose.height     = gtk_widget_get_allocated_height(widget);
+        xevent.xexpose.count      = 0;
+    }
+    /* call expose-proc */ {
+        (void) (*self->machine.expose_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, &xevent));
+    }
+    return FALSE;
 }
 
 static void impl_widget_size_allocate(GtkWidget* widget, GtkAllocation* allocation)
@@ -463,48 +511,14 @@ static gboolean impl_widget_configure_event(GtkWidget* widget, GdkEventConfigure
     return TRUE;
 }
 
-static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
+static void impl_emulator_hotkey(GemEmulator* emulator, KeySym keysym)
 {
-    GemEmulator* self  = CAST_EMULATOR(widget);
-    XEvent       xevent;
-
-    /* initialize X11 handles if needed */ {
-        if(self->x11.display == NULL) {
-            (void) gem_x11_realize(widget, &self->x11);
-        }
-    }
-    /* clear surface */ {
-        GdkRGBA color = {
-            0.20, /* red   */
-            0.20, /* green */
-            0.20, /* blue  */
-            1.00, /* alpha */
-        };
-        gdk_cairo_set_source_rgba(cr, &color);
-        cairo_paint(cr);
-    }
-    /* forge expose event */ {
-        xevent.xexpose.type       = Expose;
-        xevent.xexpose.serial     = 0UL;
-        xevent.xexpose.send_event = True;
-        xevent.xexpose.display    = self->x11.display;
-        xevent.xexpose.window     = self->x11.window;
-        xevent.xexpose.x          = 0;
-        xevent.xexpose.y          = 0;
-        xevent.xexpose.width      = gtk_widget_get_allocated_width(widget);
-        xevent.xexpose.height     = gtk_widget_get_allocated_height(widget);
-        xevent.xexpose.count      = 0;
-    }
-    /* call expose-proc */ {
-        (void) (*self->machine.expose_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, &xevent));
-    }
-    return FALSE;
 }
 
-static void gem_emulator_class_init(GemEmulatorClass* class)
+static void gem_emulator_class_init(GemEmulatorClass* emulator_class)
 {
-    GObjectClass*   object_class = G_OBJECT_CLASS(class);
-    GtkWidgetClass* widget_class = GTK_WIDGET_CLASS(class);
+    GObjectClass*   object_class = G_OBJECT_CLASS(emulator_class);
+    GtkWidgetClass* widget_class = GTK_WIDGET_CLASS(emulator_class);
 
     /* initialize object_class */ {
         object_class->dispose                = &impl_object_dispose;
@@ -525,6 +539,22 @@ static void gem_emulator_class_init(GemEmulatorClass* class)
         widget_class->button_press_event     = &impl_widget_button_press_event;
         widget_class->button_release_event   = &impl_widget_button_release_event;
         widget_class->configure_event        = &impl_widget_configure_event;
+    }
+    /* initialize emulator_class */ {
+        emulator_class->sig_hotkey           = &impl_emulator_hotkey;
+    }
+    /* initialize hotkey signal */ {
+        emulator_signals[SIG_HOTKEY] = g_signal_new ( "hotkey"
+                                                    , G_TYPE_FROM_CLASS(object_class)
+                                                    , G_SIGNAL_RUN_FIRST
+                                                    , G_STRUCT_OFFSET(GemEmulatorClass, sig_hotkey)
+                                                    , NULL
+                                                    , NULL
+                                                    , NULL
+                                                    , G_TYPE_NONE
+                                                    , 1
+                                                    , G_TYPE_UINT );
+
     }
 }
 
@@ -856,9 +886,7 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
             return TRUE;
         }
         if((keysym >= XK_F1) && (keysym <= XK_F35)) {
-#if 0
-            XtCallCallbackList(widget, self->hotkey_callback, &keysym);
-#endif
+            g_signal_emit(G_OBJECT(widget), emulator_signals[SIG_HOTKEY], 0, ((unsigned int)(keysym)));
             return TRUE;
         }
     }

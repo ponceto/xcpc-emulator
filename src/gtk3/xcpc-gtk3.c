@@ -31,13 +31,13 @@ static const char help_text2[] = "\
 <u>Hotkeys:</u>\n\
 \n\
 <small><tt>\
-    - F1                {not mapped}\n\
-    - F2                {not mapped}\n\
-    - F3                {not mapped}\n\
-    - F4                {not mapped}\n\
-    - F5                {not mapped}\n\
-    - F6                {not mapped}\n\
-    - F7                {not mapped}\n\
+    - F1                Help\n\
+    - F2                Load snapshot\n\
+    - F3                Save snapshot\n\
+    - F4                Insert disk into drive A\n\
+    - F5                Remove disk from drive A\n\
+    - F6                Insert disk into drive B\n\
+    - F7                Remove disk from drive B\n\
     - F8                {not mapped}\n\
     - F9                {not mapped}\n\
     - F10               {not mapped}\n\
@@ -77,6 +77,7 @@ static const gchar sig_activate[]           = "activate";
 static const gchar sig_destroy[]            = "destroy";
 static const gchar sig_clicked[]            = "clicked";
 static const gchar sig_drag_data_received[] = "drag-data-received";
+static const gchar sig_hotkey[]             = "hotkey";
 static const gchar ico_load_snapshot[]      = "document-open-symbolic";
 static const gchar ico_save_snapshot[]      = "document-save-symbolic";
 static const gchar ico_play_emulator[]      = "media-playback-start-symbolic";
@@ -385,7 +386,7 @@ static XcpcApplication* insert_or_remove_disk(XcpcApplication* self, const char*
 static gboolean widget_destroy_callback(GtkWidget* widget, GtkWidget** reference)
 {
     if((reference != NULL) && (*reference == widget)) {
-        xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), sig_destroy);
+        xcpc_log_debug("%s::%s()", gtk_widget_get_name(widget), sig_destroy);
         *reference = NULL;
     }
     return FALSE;
@@ -398,12 +399,12 @@ static void object_activate_callback(GObject* object, XcpcApplication* self)
 
 static void widget_activate_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), sig_activate);
+    xcpc_log_debug("%s::%s()", gtk_widget_get_name(widget), sig_activate);
 }
 
 static void widget_clicked_callback(GtkWidget* widget, XcpcApplication* self)
 {
-    xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), sig_clicked);
+    xcpc_log_debug("%s::%s()", gtk_widget_get_name(widget), sig_clicked);
 }
 
 static void file_load_snapshot_callback(GtkWidget* widget, XcpcApplication* self)
@@ -649,6 +650,55 @@ static void help_about_callback(GtkWidget* widget, XcpcApplication* self)
     }
 }
 
+static void emulator_hotkey_callback(GtkWidget* widget, KeySym keysym, XcpcApplication* self)
+{
+    switch(keysym) {
+        case XK_Pause:
+            if(self->layout.workwnd.emulator != NULL) {
+                if(gtk_widget_is_sensitive(self->layout.workwnd.emulator) == FALSE) {
+                    play_emulator(self);
+                }
+                else {
+                    pause_emulator(self);
+                }
+            }
+            break;
+        case XK_F1:
+            help_help_callback(widget, self);
+            break;
+        case XK_F2:
+            file_load_snapshot_callback(widget, self);
+            break;
+        case XK_F3:
+            file_save_snapshot_callback(widget, self);
+            break;
+        case XK_F4:
+            drv0_insert_disk_callback(widget, self);
+            break;
+        case XK_F5:
+            drv0_remove_disk_callback(widget, self);
+            break;
+        case XK_F6:
+            drv1_insert_disk_callback(widget, self);
+            break;
+        case XK_F7:
+            drv1_remove_disk_callback(widget, self);
+            break;
+        case XK_F8:
+            break;
+        case XK_F9:
+            break;
+        case XK_F10:
+            break;
+        case XK_F11:
+            break;
+        case XK_F12:
+            break;
+        default:
+            break;
+    }
+}
+
 /*
  * ---------------------------------------------------------------------------
  * drag'n drop callbacks
@@ -784,6 +834,18 @@ static void toolitem_add_clicked_callback(GtkToolItem* widget, XcpcApplication* 
     }
     /* connect signal */ {
         (void) g_signal_connect(G_OBJECT(widget), sig_clicked, callback, self);
+    }
+}
+
+static void emulator_add_hotkey_callback(GtkWidget* widget, XcpcApplication* self, GCallback callback)
+{
+    /* check and adjust callback */ {
+        if(callback == NULL) {
+            callback = G_CALLBACK(&emulator_hotkey_callback);
+        }
+    }
+    /* connect signal */ {
+        (void) g_signal_connect(G_OBJECT(widget), sig_hotkey, callback, self);
     }
 }
 
@@ -1063,6 +1125,7 @@ static void build_workwnd(XcpcApplication* self)
         };
         current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");
+        emulator_add_hotkey_callback(current->emulator, self, NULL);
         gem_emulator_set_machine(current->emulator, &machine);
         gem_emulator_set_joystick(current->emulator, 0, xcpc_get_joystick0());
         gem_emulator_set_joystick(current->emulator, 1, xcpc_get_joystick1());
