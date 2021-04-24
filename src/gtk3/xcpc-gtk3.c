@@ -875,12 +875,20 @@ static void build_file_menu(XcpcApplication* self)
         current->load_snapshot = gtk_menu_item_new_with_label(_("Load snapshot..."));
         widget_add_destroy_callback(&current->load_snapshot, "file-load-snapshot");
         widget_add_activate_callback(current->load_snapshot, self, G_CALLBACK(&file_load_snapshot_callback));
+        /* accelerator */ {
+            GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->load_snapshot));
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F2, 0);
+        }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->load_snapshot);
     }
     /* file-save-snapshot */ {
         current->save_snapshot = gtk_menu_item_new_with_label(_("Save snapshot..."));
         widget_add_destroy_callback(&current->save_snapshot, "file-save-snapshot");
         widget_add_activate_callback(current->save_snapshot, self, G_CALLBACK(&file_save_snapshot_callback));
+        /* accelerator */ {
+            GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->save_snapshot));
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F3, 0);
+        }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->save_snapshot);
     }
     /* file-separator1 */ {
@@ -952,12 +960,20 @@ static void build_drv0_menu(XcpcApplication* self)
         current->drive0_insert = gtk_menu_item_new_with_label(_("Insert disk..."));
         widget_add_destroy_callback(&current->drive0_insert, "drv0-insert");
         widget_add_activate_callback(current->drive0_insert, self, G_CALLBACK(&drv0_insert_disk_callback));
+        /* accelerator */ {
+            GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->drive0_insert));
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F4, 0);
+        }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive0_insert);
     }
     /* drv0-drive0-remove */ {
         current->drive0_remove = gtk_menu_item_new_with_label(_("Remove disk"));
         widget_add_destroy_callback(&current->drive0_remove, "drv0-remove");
         widget_add_activate_callback(current->drive0_remove, self, G_CALLBACK(&drv0_remove_disk_callback));
+        /* accelerator */ {
+            GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->drive0_remove));
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F5, 0);
+        }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive0_remove);
     }
 }
@@ -982,12 +998,20 @@ static void build_drv1_menu(XcpcApplication* self)
         current->drive1_insert = gtk_menu_item_new_with_label(_("Insert disk..."));
         widget_add_destroy_callback(&current->drive1_insert, "drv1-insert");
         widget_add_activate_callback(current->drive1_insert, self, G_CALLBACK(&drv1_insert_disk_callback));
+        /* accelerator */ {
+            GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->drive1_insert));
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F6, 0);
+        }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive1_insert);
     }
     /* drv1-drive1-remove */ {
         current->drive1_remove = gtk_menu_item_new_with_label(_("Remove disk"));
         widget_add_destroy_callback(&current->drive1_remove, "drv1-remove");
         widget_add_activate_callback(current->drive1_remove, self, G_CALLBACK(&drv1_remove_disk_callback));
+        /* accelerator */ {
+            GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->drive1_remove));
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F7, 0);
+        }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive1_remove);
     }
 }
