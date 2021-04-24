@@ -382,7 +382,7 @@ static XcpcApplication* insert_or_remove_disk(XcpcApplication* self, const char*
  * ---------------------------------------------------------------------------
  */
 
-static gboolean destroy_callback(GtkWidget* widget, GtkWidget** reference)
+static gboolean widget_destroy_callback(GtkWidget* widget, GtkWidget** reference)
 {
     if((reference != NULL) && (*reference == widget)) {
         xcpc_log_debug("%s::%s()", gtk_widget_get_name(GTK_WIDGET(widget)), sig_destroy);
@@ -602,8 +602,13 @@ static void help_legal_callback(GtkWidget* widget, XcpcApplication* self)
     }
     /* create dialog */ {
         dialog = gtk_about_dialog_new();
-        gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc - Amstrad CPC emulator"));
+        gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), self->layout.logo);
+        gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc"));
+        gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _("Legal informations"));
+        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2021 - Olivier Poncet"));
         gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), xcpc_legal_text());
+        gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), _("https://www.xcpc-emulator.net/"));
+        gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(dialog), xcpc_about_text());
     }
     /* run dialog */ {
         (void) gtk_dialog_run(GTK_DIALOG(dialog));
@@ -625,8 +630,13 @@ static void help_about_callback(GtkWidget* widget, XcpcApplication* self)
     }
     /* create dialog */ {
         dialog = gtk_about_dialog_new();
-        gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc - Amstrad CPC emulator"));
-        gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), xcpc_about_text());
+        gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), self->layout.logo);
+        gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc"));
+        gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), PACKAGE_STRING);
+        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2021 - Olivier Poncet"));
+        gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("Xcpc is an Amstrad CPC emulator for Linux, BSD and Unix"));
+        gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), _("https://www.xcpc-emulator.net/"));
+        gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(dialog), xcpc_about_text());
     }
     /* run dialog */ {
         (void) gtk_dialog_run(GTK_DIALOG(dialog));
@@ -720,7 +730,7 @@ static void widget_add_destroy_callback(GtkWidget** reference, const gchar* name
         }
     }
     /* connect signal */ {
-        (void) g_signal_connect(G_OBJECT(*reference), sig_destroy, G_CALLBACK(&destroy_callback), reference);
+        (void) g_signal_connect(G_OBJECT(*reference), sig_destroy, G_CALLBACK(&widget_destroy_callback), reference);
     }
 }
 
@@ -737,7 +747,7 @@ static void toolitem_add_destroy_callback(GtkToolItem** reference, const gchar* 
         }
     }
     /* connect signal */ {
-        (void) g_signal_connect(G_OBJECT(*reference), sig_destroy, G_CALLBACK(&destroy_callback), reference);
+        (void) g_signal_connect(G_OBJECT(*reference), sig_destroy, G_CALLBACK(&widget_destroy_callback), reference);
     }
 }
 
@@ -943,7 +953,7 @@ static void build_help_menu(XcpcApplication* self)
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->help);
     }
     /* help-legal */ {
-        current->legal = gtk_menu_item_new_with_label(_("Legal info"));
+        current->legal = gtk_menu_item_new_with_label(_("Legal informations"));
         widget_add_destroy_callback(&current->legal, "help-legal");
         widget_add_activate_callback(current->legal, self, G_CALLBACK(&help_legal_callback));
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->legal);
@@ -1101,10 +1111,14 @@ static void build_layout(GtkApplication* application, XcpcApplication* self)
 {
     XcpcLayoutRec* current = &self->layout;
 
+    /* logo */ {
+        current->logo = gdk_pixbuf_new_from_file(XCPC_RESDIR "/bitmaps/xcpc-icon.png", NULL);
+    }
     /* window */ {
         current->window = gtk_application_window_new(application);
         widget_add_destroy_callback(&current->window, "window");
         gtk_window_set_title(GTK_WINDOW(current->window), _("Xcpc - Amstrad CPC emulator"));
+        gtk_window_set_icon(GTK_WINDOW(current->window), current->logo);
     }
     /* vbox */ {
         current->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -1150,6 +1164,9 @@ XcpcApplication* xcpc_application_new(void)
 
 XcpcApplication* xcpc_application_delete(XcpcApplication* self)
 {
+    /* destroy logo */ {
+        self->layout.logo = (g_object_unref(G_OBJECT(self->layout.logo)), NULL);
+    }
     /* finalize */ {
         self->layout.application = (g_object_unref(self->layout.application), NULL);
     }
