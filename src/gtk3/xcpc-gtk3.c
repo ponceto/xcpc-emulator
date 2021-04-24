@@ -1079,17 +1079,20 @@ static void build_infobar(XcpcApplication* self)
     }
     /* info-drive0 */ {
         current->drive0 = gtk_label_new(_("Drive A"));
+        gtk_label_set_ellipsize(GTK_LABEL(current->drive0), PANGO_ELLIPSIZE_MIDDLE);
         widget_add_destroy_callback(&current->drive0, "info-drive0");
         gtk_box_pack_start(GTK_BOX(current->widget), current->drive0, FALSE, TRUE, 2);
     }
     /* info-drive1 */ {
         current->drive1 = gtk_label_new(_("Drive B"));
+        gtk_label_set_ellipsize(GTK_LABEL(current->drive1), PANGO_ELLIPSIZE_MIDDLE);
         widget_add_destroy_callback(&current->drive1, "info-drive1");
         gtk_box_pack_start(GTK_BOX(current->widget), current->drive1, FALSE, TRUE, 2);
     }
     /* info-system */ {
         current->system = gtk_label_new(_("System"));
         widget_add_destroy_callback(&current->system, "info-system");
+        gtk_label_set_ellipsize(GTK_LABEL(current->system), PANGO_ELLIPSIZE_MIDDLE);
         gtk_box_pack_start(GTK_BOX(current->widget), current->system, TRUE, TRUE, 2);
     }
 }
