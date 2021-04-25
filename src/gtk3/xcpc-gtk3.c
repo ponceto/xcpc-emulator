@@ -27,19 +27,19 @@
 #define _(string) translate_string(string)
 #endif
 
-static const char help_text2[] = "\
+static const char help_text[] = "\
 <u>Hotkeys:</u>\n\
 \n\
 <small><tt>\
-    - F1                Help\n\
-    - F2                Load snapshot\n\
-    - F3                Save snapshot\n\
-    - F4                Insert disk into drive A\n\
-    - F5                Remove disk from drive A\n\
-    - F6                Insert disk into drive B\n\
-    - F7                Remove disk from drive B\n\
-    - F8                {not mapped}\n\
-    - F9                {not mapped}\n\
+    - F1                help\n\
+    - F2                load snapshot\n\
+    - F3                save snapshot\n\
+    - F4                {not mapped}\n\
+    - F5                reset emulator\n\
+    - F6                insert disk into drive A\n\
+    - F7                remove disk from drive A\n\
+    - F8                insert disk into drive B\n\
+    - F9                remove disk from drive B\n\
     - F10               {not mapped}\n\
     - F11               {not mapped}\n\
     - F12               {not mapped}\n\
@@ -580,7 +580,7 @@ static void help_help_callback(GtkWidget* widget, XcpcApplication* self)
                                                     , GTK_MESSAGE_OTHER
                                                     , GTK_BUTTONS_CLOSE
                                                     , NULL );
-        gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dialog), help_text2);
+        gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dialog), help_text);
         gtk_window_set_title(GTK_WINDOW(dialog), _("Xcpc - Amstrad CPC emulator"));
     }
     /* run dialog */ {
@@ -650,52 +650,53 @@ static void help_about_callback(GtkWidget* widget, XcpcApplication* self)
     }
 }
 
-static void emulator_hotkey_callback(GtkWidget* widget, KeySym keysym, XcpcApplication* self)
+static void emulator_hotkey_callback(GtkWidget* widget, KeySym* keysym, XcpcApplication* self)
 {
-    switch(keysym) {
-        case XK_Pause:
-            if(self->layout.workwnd.emulator != NULL) {
+    if(keysym != NULL) {
+        switch(*keysym) {
+            case XK_Pause:
                 if(gtk_widget_is_sensitive(self->layout.workwnd.emulator) == FALSE) {
                     play_emulator(self);
                 }
                 else {
                     pause_emulator(self);
                 }
-            }
-            break;
-        case XK_F1:
-            help_help_callback(widget, self);
-            break;
-        case XK_F2:
-            file_load_snapshot_callback(widget, self);
-            break;
-        case XK_F3:
-            file_save_snapshot_callback(widget, self);
-            break;
-        case XK_F4:
-            drv0_insert_disk_callback(widget, self);
-            break;
-        case XK_F5:
-            drv0_remove_disk_callback(widget, self);
-            break;
-        case XK_F6:
-            drv1_insert_disk_callback(widget, self);
-            break;
-        case XK_F7:
-            drv1_remove_disk_callback(widget, self);
-            break;
-        case XK_F8:
-            break;
-        case XK_F9:
-            break;
-        case XK_F10:
-            break;
-        case XK_F11:
-            break;
-        case XK_F12:
-            break;
-        default:
-            break;
+                break;
+            case XK_F1:
+                help_help_callback(widget, self);
+                break;
+            case XK_F2:
+                file_load_snapshot_callback(widget, self);
+                break;
+            case XK_F3:
+                file_save_snapshot_callback(widget, self);
+                break;
+            case XK_F4:
+                break;
+            case XK_F5:
+                ctrl_reset_emulator_callback(widget, self);
+                break;
+            case XK_F6:
+                drv0_insert_disk_callback(widget, self);
+                break;
+            case XK_F7:
+                drv0_remove_disk_callback(widget, self);
+                break;
+            case XK_F8:
+                drv1_insert_disk_callback(widget, self);
+                break;
+            case XK_F9:
+                drv1_remove_disk_callback(widget, self);
+                break;
+            case XK_F10:
+                break;
+            case XK_F11:
+                break;
+            case XK_F12:
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -936,6 +937,10 @@ static void build_ctrl_menu(XcpcApplication* self)
         current->reset_emulator = gtk_menu_item_new_with_label(_("Reset"));
         widget_add_destroy_callback(&current->reset_emulator, "ctrl-reset");
         widget_add_activate_callback(current->reset_emulator, self, G_CALLBACK(&ctrl_reset_emulator_callback));
+        /* accelerator */ {
+            GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->reset_emulator));
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F5, 0);
+        }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->reset_emulator);
     }
 }
@@ -962,7 +967,7 @@ static void build_drv0_menu(XcpcApplication* self)
         widget_add_activate_callback(current->drive0_insert, self, G_CALLBACK(&drv0_insert_disk_callback));
         /* accelerator */ {
             GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->drive0_insert));
-            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F4, 0);
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F6, 0);
         }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive0_insert);
     }
@@ -972,7 +977,7 @@ static void build_drv0_menu(XcpcApplication* self)
         widget_add_activate_callback(current->drive0_remove, self, G_CALLBACK(&drv0_remove_disk_callback));
         /* accelerator */ {
             GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->drive0_remove));
-            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F5, 0);
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F7, 0);
         }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive0_remove);
     }
@@ -1000,7 +1005,7 @@ static void build_drv1_menu(XcpcApplication* self)
         widget_add_activate_callback(current->drive1_insert, self, G_CALLBACK(&drv1_insert_disk_callback));
         /* accelerator */ {
             GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->drive1_insert));
-            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F6, 0);
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F8, 0);
         }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive1_insert);
     }
@@ -1010,7 +1015,7 @@ static void build_drv1_menu(XcpcApplication* self)
         widget_add_activate_callback(current->drive1_remove, self, G_CALLBACK(&drv1_remove_disk_callback));
         /* accelerator */ {
             GtkWidget* child = gtk_bin_get_child(GTK_BIN(current->drive1_remove));
-            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F7, 0);
+            gtk_accel_label_set_accel(GTK_ACCEL_LABEL(child), GDK_KEY_F9, 0);
         }
         gtk_menu_shell_append(GTK_MENU_SHELL(current->menu), current->drive1_remove);
     }

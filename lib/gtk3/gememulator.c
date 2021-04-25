@@ -553,7 +553,7 @@ static void gem_emulator_class_init(GemEmulatorClass* emulator_class)
                                                     , NULL
                                                     , G_TYPE_NONE
                                                     , 1
-                                                    , G_TYPE_UINT );
+                                                    , G_TYPE_POINTER );
 
     }
 }
@@ -886,7 +886,7 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
             return TRUE;
         }
         if((keysym >= XK_F1) && (keysym <= XK_F35)) {
-            g_signal_emit(G_OBJECT(widget), emulator_signals[SIG_HOTKEY], 0, ((unsigned int)(keysym)));
+            g_signal_emit(G_OBJECT(widget), emulator_signals[SIG_HOTKEY], 0, &keysym);
             return TRUE;
         }
     }
@@ -1160,10 +1160,8 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                                     return TRUE;
                                 }
                                 else if((code == BTN_SELECT) || (code == BTN_START)) {
-#if 0
                                     KeySym keysym = XK_Pause;
-                                    XtCallCallbackList(widget, self->hotkey_callback, &keysym);
-#endif
+                                    g_signal_emit(G_OBJECT(widget), emulator_signals[SIG_HOTKEY], 0, &keysym);
                                     return TRUE;
                                 }
                             }

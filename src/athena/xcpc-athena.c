@@ -30,15 +30,15 @@
 static const char help_text[] = "\
 Hotkeys:\n\
 \n\
-    - F1                Help\n\
-    - F2                Load snapshot\n\
-    - F3                Save snapshot\n\
-    - F4                Insert disk into drive A\n\
-    - F5                Remove disk from drive A\n\
-    - F6                Insert disk into drive B\n\
-    - F7                Remove disk from drive B\n\
-    - F8                {not mapped}\n\
-    - F9                {not mapped}\n\
+    - F1                help\n\
+    - F2                load snapshot\n\
+    - F3                save snapshot\n\
+    - F4                {not mapped}\n\
+    - F5                reset emulator\n\
+    - F6                insert disk into drive A\n\
+    - F7                remove disk from drive A\n\
+    - F8                insert disk into drive B\n\
+    - F9                remove disk from drive B\n\
     - F10               {not mapped}\n\
     - F11               {not mapped}\n\
     - F12               {not mapped}\n\
@@ -1114,13 +1114,11 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
     if(keysym != NULL) {
         switch(*keysym) {
             case XK_Pause:
-                if(self->layout.emulator != NULL) {
-                    if(XtIsSensitive(self->layout.emulator) == False) {
-                        Play(self);
-                    }
-                    else {
-                        Pause(self);
-                    }
+                if(XtIsSensitive(self->layout.emulator) == False) {
+                    Play(self);
+                }
+                else {
+                    Pause(self);
                 }
                 break;
             case XK_F1:
@@ -1133,20 +1131,21 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
                 SaveSnapshotCallback(widget, self, NULL);
                 break;
             case XK_F4:
-                InsertDrive0Callback(widget, self, NULL);
                 break;
             case XK_F5:
-                RemoveDrive0Callback(widget, self, NULL);
+                ResetCallback(widget, self, NULL);
                 break;
             case XK_F6:
-                InsertDrive1Callback(widget, self, NULL);
+                InsertDrive0Callback(widget, self, NULL);
                 break;
             case XK_F7:
-                RemoveDrive1Callback(widget, self, NULL);
+                RemoveDrive0Callback(widget, self, NULL);
                 break;
             case XK_F8:
+                InsertDrive1Callback(widget, self, NULL);
                 break;
             case XK_F9:
+                RemoveDrive1Callback(widget, self, NULL);
                 break;
             case XK_F10:
                 break;

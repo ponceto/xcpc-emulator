@@ -30,15 +30,15 @@
 static const char help_text[] = "\
 Hotkeys:\n\
 \n\
-    - F1                Help\n\
-    - F2                Load snapshot\n\
-    - F3                Save snapshot\n\
-    - F4                Insert disk into drive A\n\
-    - F5                Remove disk from drive A\n\
-    - F6                Insert disk into drive B\n\
-    - F7                Remove disk from drive B\n\
-    - F8                {not mapped}\n\
-    - F9                {not mapped}\n\
+    - F1                help\n\
+    - F2                load snapshot\n\
+    - F3                save snapshot\n\
+    - F4                {not mapped}\n\
+    - F5                reset emulator\n\
+    - F6                insert disk into drive A\n\
+    - F7                remove disk from drive A\n\
+    - F8                insert disk into drive B\n\
+    - F9                remove disk from drive B\n\
     - F10               {not mapped}\n\
     - F11               {not mapped}\n\
     - F12               {not mapped}\n\
@@ -977,13 +977,11 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
     if(keysym != NULL) {
         switch(*keysym) {
             case XK_Pause:
-                if(self->layout.emulator != NULL) {
-                    if(XtIsSensitive(self->layout.emulator) == False) {
-                        Play(self);
-                    }
-                    else {
-                        Pause(self);
-                    }
+                if(XtIsSensitive(self->layout.emulator) == False) {
+                    Play(self);
+                }
+                else {
+                    Pause(self);
                 }
                 break;
             case XK_F1:
@@ -996,20 +994,21 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
                 SaveSnapshotCallback(widget, self, NULL);
                 break;
             case XK_F4:
-                InsertDrive0Callback(widget, self, NULL);
                 break;
             case XK_F5:
-                RemoveDrive0Callback(widget, self, NULL);
+                ResetCallback(widget, self, NULL);
                 break;
             case XK_F6:
-                InsertDrive1Callback(widget, self, NULL);
+                InsertDrive0Callback(widget, self, NULL);
                 break;
             case XK_F7:
-                RemoveDrive1Callback(widget, self, NULL);
+                RemoveDrive0Callback(widget, self, NULL);
                 break;
             case XK_F8:
+                InsertDrive1Callback(widget, self, NULL);
                 break;
             case XK_F9:
+                RemoveDrive1Callback(widget, self, NULL);
                 break;
             case XK_F10:
                 break;
@@ -1138,14 +1137,17 @@ static XcpcApplication* BuildCtrlMenu(XcpcApplication* self)
     }
     /* ctrl-reset-emu */ {
         XmString string = XmStringCreateLocalized(_("Reset"));
+        XmString accelerator = XmStringCreateLocalized(_("F5"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.ctrl_reset); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelType, XmPIXMAP_AND_STRING); ++argcount;
+        XtSetArg(arglist[argcount], XmNacceleratorText, accelerator); ++argcount;
         menu->reset_emulator = XmCreatePushButtonGadget(menu->pulldown, "ctrl-reset-emu", arglist, argcount);
         XtAddCallback(menu->reset_emulator, XmNactivateCallback, (XtCallbackProc) &ResetCallback, (XtPointer) self);
         XtAddCallback(menu->reset_emulator, XmNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &menu->reset_emulator);
         XtManageChild(menu->reset_emulator);
+        accelerator = (XmStringFree(accelerator), NULL);
         string = (XmStringFree(string), NULL);
     }
     /* ctrl-menu */ {
@@ -1174,7 +1176,7 @@ static XcpcApplication* BuildDrv0Menu(XcpcApplication* self)
     }
     /* drv0-drive0-insert */ {
         XmString string = XmStringCreateLocalized(_("Insert disk..."));
-        XmString accelerator = XmStringCreateLocalized(_("F4"));
+        XmString accelerator = XmStringCreateLocalized(_("F6"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_insert); ++argcount;
@@ -1189,7 +1191,7 @@ static XcpcApplication* BuildDrv0Menu(XcpcApplication* self)
     }
     /* drv0-drive0-remove */ {
         XmString string = XmStringCreateLocalized(_("Remove disk"));
-        XmString accelerator = XmStringCreateLocalized(_("F5"));
+        XmString accelerator = XmStringCreateLocalized(_("F7"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_remove); ++argcount;
@@ -1228,7 +1230,7 @@ static XcpcApplication* BuildDrv1Menu(XcpcApplication* self)
     }
     /* drv1-drive1-insert */ {
         XmString string = XmStringCreateLocalized(_("Insert disk..."));
-        XmString accelerator = XmStringCreateLocalized(_("F6"));
+        XmString accelerator = XmStringCreateLocalized(_("F8"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_insert); ++argcount;
@@ -1243,7 +1245,7 @@ static XcpcApplication* BuildDrv1Menu(XcpcApplication* self)
     }
     /* drv1-drive1-remove */ {
         XmString string = XmStringCreateLocalized(_("Remove disk"));
-        XmString accelerator = XmStringCreateLocalized(_("F7"));
+        XmString accelerator = XmStringCreateLocalized(_("F9"));
         argcount = 0;
         XtSetArg(arglist[argcount], XmNlabelString, string); ++argcount;
         XtSetArg(arglist[argcount], XmNlabelPixmap, self->pixmaps.disk_remove); ++argcount;

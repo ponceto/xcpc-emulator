@@ -590,13 +590,11 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
     if(keysym != NULL) {
         switch(*keysym) {
             case XK_Pause:
-                if(self->layout.emulator != NULL) {
-                    if(XtIsSensitive(self->layout.emulator) == False) {
-                        Play(self);
-                    }
-                    else {
-                        Pause(self);
-                    }
+                if(XtIsSensitive(self->layout.emulator) == False) {
+                    Play(self);
+                }
+                else {
+                    Pause(self);
                 }
                 break;
             case XK_F1:
@@ -608,6 +606,7 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
             case XK_F4:
                 break;
             case XK_F5:
+                ResetCallback(widget, self, NULL);
                 break;
             case XK_F6:
                 break;
