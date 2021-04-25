@@ -1,5 +1,5 @@
 /*
- * xcpc.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-gtk4.c - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,49 +21,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include "xcpc.h"
-
-static char XAPPLRESDIR[PATH_MAX + 1] = "{not-set}";
+#include "xcpc-gtk4-priv.h"
 
 /*
  * ---------------------------------------------------------------------------
- * setup
+ * xcpc_main
  * ---------------------------------------------------------------------------
  */
 
-static int setup(void)
+int xcpc_main(int* argc, char*** argv)
 {
-    /* XAPPLRESDIR */ {
-        const char* var_name = "XAPPLRESDIR";
-        const char* var_value = getenv(var_name);
-        const char* var_default = XCPC_RESDIR;
-        if((var_value == NULL) || (*var_value == '\0')) {
-            (void) snprintf(XAPPLRESDIR, sizeof(XAPPLRESDIR), "%s=%s", var_name, var_default);
-        }
-        else {
-            (void) snprintf(XAPPLRESDIR, sizeof(XAPPLRESDIR), "%s=%s", var_name, var_value);
-        }
-        (void) putenv(XAPPLRESDIR);
-    }
     return EXIT_SUCCESS;
-}
-
-/*
- * ---------------------------------------------------------------------------
- * main
- * ---------------------------------------------------------------------------
- */
-
-int main(int argc, char* argv[])
-{
-    int status = setup();
-
-    if(status == EXIT_SUCCESS) {
-        xcpc_begin();
-        status = xcpc_main(&argc, &argv);
-        xcpc_end();
-    }
-    return status;
 }
 
 /*

@@ -4,18 +4,13 @@ The xcpc emulator is fully autotoolized.
 
 ### Dependencies
 
-Under Debian or derivatives (Ubuntu, Mint, ...), please install first these dependencies
+Under Debian or derivatives (Ubuntu, Mint, ...), please install first these dependencies. On the other distros, please install equivalent packages.
 
 Mandatory dependencies :
 
 ```
 build-essential
-autoconf
-automake
-libtool
-git
 xorg-dev
-libmotif-dev
 ```
 
 Optional dependencies :
@@ -25,9 +20,32 @@ zlib1g-dev
 libbz2-dev
 ```
 
+If you want to build the Gtk+-3.x user interface, you must install this package:
+
+```
+libgtk-3-dev
+```
+
+If you want to build the Motif-2.x user interface, you must install this package:
+
+```
+libmotif-dev
+```
+
 ### Generate the configure script
 
-Generate the `configure` script if it does not exists (i.e in case you just have cloned the repository)
+Generate the `configure` script if it does not exists. This step is mandatory in case you just have cloned the git repository.
+
+First, please ensure you have the following packages installed on your system:
+
+```
+autoconf
+automake
+libtool
+autoconf-archive
+```
+
+Then you just have to run this command:
 
 ```
 autoreconf -v -i -f
@@ -41,9 +59,10 @@ Run the `configure` script
 ./configure --prefix={destination-path}
 ```
 
-Xcpc supports 3 differents user interface types:
+Xcpc supports 4 differents user interface types:
 
-  - Motif2
+  - Gtk+-3.x
+  - Motif-2.x
   - Athena
   - Intrinsic
 
@@ -52,6 +71,7 @@ The user interface toolkit is detected automagically when running the `configure
 You can disable the support of a specific toolkit:
 
 ```
+--disable-gtk3
 --disable-motif2
 --disable-athena
 --disable-intrinsic
@@ -60,6 +80,7 @@ You can disable the support of a specific toolkit:
 You can also force the user interface toolkit with the `--with-x11-toolkit` option:
 
 ```
+--with-x11-toolkit=gtk3
 --with-x11-toolkit=motif2
 --with-x11-toolkit=athena
 --with-x11-toolkit=intrinsic

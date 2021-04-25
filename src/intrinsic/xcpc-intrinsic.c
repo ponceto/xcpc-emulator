@@ -310,7 +310,6 @@ static XcpcApplication* Pause(XcpcApplication* self)
     return self;
 }
 
-#if 0
 static XcpcApplication* Reset(XcpcApplication* self)
 {
     if(self->layout.emulator != NULL) {
@@ -323,7 +322,6 @@ static XcpcApplication* Reset(XcpcApplication* self)
     }
     return self;
 }
-#endif
 
 /*
  * ---------------------------------------------------------------------------
@@ -446,6 +444,18 @@ static void DismissCallback(Widget widget, XcpcApplication* self, XtPointer info
     }
 }
 #endif
+
+/*
+ * ---------------------------------------------------------------------------
+ * Controls callbacks
+ * ---------------------------------------------------------------------------
+ */
+
+static void ResetCallback(Widget widget, XcpcApplication* self, XtPointer info)
+{
+    (void) Reset(self);
+    (void) Play(self);
+}
 
 /*
  * ---------------------------------------------------------------------------
@@ -590,13 +600,11 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
     if(keysym != NULL) {
         switch(*keysym) {
             case XK_Pause:
-                if(self->layout.emulator != NULL) {
-                    if(XtIsSensitive(self->layout.emulator) == False) {
-                        Play(self);
-                    }
-                    else {
-                        Pause(self);
-                    }
+                if(XtIsSensitive(self->layout.emulator) == False) {
+                    Play(self);
+                }
+                else {
+                    Pause(self);
                 }
                 break;
             case XK_F1:
@@ -608,6 +616,7 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
             case XK_F4:
                 break;
             case XK_F5:
+                ResetCallback(widget, self, NULL);
                 break;
             case XK_F6:
                 break;
@@ -783,7 +792,7 @@ XcpcApplication* XcpcApplicationLoop(XcpcApplication* self)
 
 /*
  * ---------------------------------------------------------------------------
- * XcpcApplication
+ * xcpc_main
  * ---------------------------------------------------------------------------
  */
 

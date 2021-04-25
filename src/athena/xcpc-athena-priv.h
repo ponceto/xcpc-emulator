@@ -44,9 +44,9 @@ extern "C" {
 typedef struct _XcpcResourcesRec   XcpcResourcesRec;
 typedef struct _XcpcBitmapsRec     XcpcBitmapsRec;
 typedef struct _XcpcFileMenuRec    XcpcFileMenuRec;
+typedef struct _XcpcCtrlMenuRec    XcpcCtrlMenuRec;
 typedef struct _XcpcDrv0MenuRec    XcpcDrv0MenuRec;
 typedef struct _XcpcDrv1MenuRec    XcpcDrv1MenuRec;
-typedef struct _XcpcCtrlMenuRec    XcpcCtrlMenuRec;
 typedef struct _XcpcHelpMenuRec    XcpcHelpMenuRec;
 typedef struct _XcpcLayoutRec      XcpcLayoutRec;
 typedef struct _XcpcMenuBarRec     XcpcMenuBarRec;
@@ -93,6 +93,15 @@ struct _XcpcFileMenuRec
     Widget exit;
 };
 
+struct _XcpcCtrlMenuRec
+{
+    Widget menu;
+    Widget pulldown;
+    Widget play_emulator;
+    Widget pause_emulator;
+    Widget reset_emulator;
+};
+
 struct _XcpcDrv0MenuRec
 {
     Widget menu;
@@ -109,23 +118,14 @@ struct _XcpcDrv1MenuRec
     Widget drive1_remove;
 };
 
-struct _XcpcCtrlMenuRec
-{
-    Widget menu;
-    Widget pulldown;
-    Widget play_emulator;
-    Widget pause_emulator;
-    Widget reset_emulator;
-};
-
 struct _XcpcHelpMenuRec
 {
     Widget menu;
     Widget pulldown;
-    Widget legal;
-    Widget about;
-    Widget separator1;
     Widget help;
+    Widget legal;
+    Widget separator1;
+    Widget about;
 };
 
 struct _XcpcLayoutRec

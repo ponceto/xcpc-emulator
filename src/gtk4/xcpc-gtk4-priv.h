@@ -1,5 +1,5 @@
 /*
- * xcpc-athena.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-gtk4-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,23 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_ATHENA_H__
-#define __XCPC_ATHENA_H__
+#ifndef __XCPC_GTK4_PRIV_H__
+#define __XCPC_GTK4_PRIV_H__
 
-#include "xcpc.h"
+#include "xcpc-gtk4.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _XcpcApplicationRec XcpcApplication;
-
-extern XcpcApplication* XcpcApplicationNew    (int* argc, char*** argv);
-extern XcpcApplication* XcpcApplicationLoop   (XcpcApplication* application);
-extern XcpcApplication* XcpcApplicationDelete (XcpcApplication* application);
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __XCPC_ATHENA_H__ */
+#endif /* __XCPC_GTK4_PRIV_H__ */

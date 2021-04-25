@@ -184,9 +184,14 @@ static char* replace_setting(char* actual, const char* string, int flag)
 static int check_arg(const char* expected, const char* argument)
 {
     const char* equals = strchr(expected, '=');
-    const int   length = (equals != NULL ? (equals - expected) : strlen(expected));
-    int result = strncmp(expected, argument, length);
+    int         result = 0;
 
+    if(equals != NULL) {
+        result = strncmp(expected, argument, ((equals - expected) + 1));
+    }
+    else {
+        result = strcmp(expected, argument);
+    }
     return result == 0;
 }
 
@@ -329,10 +334,13 @@ XcpcOptions* xcpc_options_parse(XcpcOptions* self, int* argcp, char*** argvp)
         int    argi = 0;
         int    argc = *argcp;
         char** argv = *argvp;
+        int    arg_count = 0;
+        char** arg_table = *argvp;
         while(argi < argc) {
-            const char* argument = argv[argi];
+            char* argument = argv[argi];
             if(argi == 0) {
                 self->state.program = replace_setting(self->state.program, argument, 0);
+                *arg_table++ = argument; ++arg_count;
             }
             else if(check_arg(arg_company , argument) != 0) { self->state.company  = replace_setting(self->state.company  , argument, 1); }
             else if(check_arg(arg_machine , argument) != 0) { self->state.machine  = replace_setting(self->state.machine  , argument, 1); }
@@ -370,7 +378,14 @@ XcpcOptions* xcpc_options_parse(XcpcOptions* self, int* argcp, char*** argvp)
             else if(check_arg(arg_quiet   , argument) != 0) { self->state.loglevel = XCPC_LOGLEVEL_QUIET;                                 }
             else if(check_arg(arg_trace   , argument) != 0) { self->state.loglevel = XCPC_LOGLEVEL_TRACE;                                 }
             else if(check_arg(arg_debug   , argument) != 0) { self->state.loglevel = XCPC_LOGLEVEL_DEBUG;                                 }
+            else {
+                *arg_table++ = argument; ++arg_count;
+            }
             ++argi;
+        }
+        /* finalize adjusted command-line */ {
+            *arg_table = NULL;
+            *argcp     = arg_count;
         }
     }
     /* set loglevel */ {

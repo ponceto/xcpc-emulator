@@ -16,26 +16,37 @@
 #
 
 # ----------------------------------------------------------------------------
-# SUBDIRS
+# noinst_LTLIBRARIES
 # ----------------------------------------------------------------------------
 
-SUBDIRS = \
-	libdsk \
-	lib765 \
-	xcpc \
+noinst_LTLIBRARIES = \
+	libgem3.la \
 	$(NULL)
 
-if LIBXEM
-SUBDIRS += Xem
-endif
+# ----------------------------------------------------------------------------
+# libgem3
+# ----------------------------------------------------------------------------
 
-if GTK3
-SUBDIRS += gtk3
-endif
+libgem3_la_SOURCES = \
+	gememulator.c \
+	gememulator.h \
+	gememulator-impl.h \
+	gememulator-priv.h \
+	$(NULL)
 
-if GTK4
-SUBDIRS += gtk4
-endif
+libgem3_la_CPPFLAGS = \
+	-I$(top_srcdir)/lib \
+	$(gtk3_CFLAGS) \
+	$(NULL)
+
+libgem3_la_LDFLAGS = \
+	-L$(top_builddir)/lib \
+	$(gtk3_LDFLAGS) \
+	$(NULL)
+
+libgem3_la_LIBADD = \
+	$(gtk3_LIBS) \
+	$(NULL)
 
 # ----------------------------------------------------------------------------
 # End-Of-File

@@ -16,6 +16,14 @@
 #
 
 # ----------------------------------------------------------------------------
+# AUTOMAKE_OPTIONS
+# ----------------------------------------------------------------------------
+
+AUTOMAKE_OPTIONS = \
+	subdir-objects \
+	$(NULL)
+
+# ----------------------------------------------------------------------------
 # bin_PROGRAMS
 # ----------------------------------------------------------------------------
 
@@ -28,67 +36,132 @@ bin_PROGRAMS = \
 # ----------------------------------------------------------------------------
 
 xcpc_SOURCES = \
-	xcpc.c \
-	xcpc.h \
+	xcpc-main.c \
+	xcpc-main.h \
+	xcpc-main-priv.h \
 	$(NULL)
 
 xcpc_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src \
-	$(X_CFLAGS) \
 	$(NULL)
 
 xcpc_LDFLAGS = \
 	-L$(top_builddir)/lib \
 	-L$(top_builddir)/src \
-	$(X_LDFLAGS) \
 	$(NULL)
 
 xcpc_LDADD = \
 	$(top_builddir)/lib/xcpc/libxcpc.la \
 	$(NULL)
 
-if MOTIF2
+if GTK4
 xcpc_SOURCES += \
-	xcpc-motif2.c \
-	xcpc-motif2.h \
-	xcpc-motif2-priv.h \
+	gtk4/xcpc-gtk4.c \
+	gtk4/xcpc-gtk4.h \
+	gtk4/xcpc-gtk4-priv.h \
+	$(NULL)
+
+xcpc_CPPFLAGS += \
+	$(gtk4_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(gtk4_LDFLAGS) \
 	$(NULL)
 
 xcpc_LDADD += \
+	$(top_builddir)/lib/gtk4/libgem4.la \
+	$(gtk4_LIBS) \
+	$(NULL)
+endif
+
+if GTK3
+xcpc_SOURCES += \
+	gtk3/xcpc-gtk3.c \
+	gtk3/xcpc-gtk3.h \
+	gtk3/xcpc-gtk3-priv.h \
+	$(NULL)
+
+xcpc_CPPFLAGS += \
+	$(gtk3_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(gtk3_LDFLAGS) \
+	$(NULL)
+
+xcpc_LDADD += \
+	$(top_builddir)/lib/gtk3/libgem3.la \
+	$(gtk3_LIBS) \
+	$(NULL)
+endif
+
+if MOTIF2
+xcpc_SOURCES += \
+	motif2/xcpc-motif2.c \
+	motif2/xcpc-motif2.h \
+	motif2/xcpc-motif2-priv.h \
+	$(NULL)
+
+xcpc_CPPFLAGS += \
+	$(X_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(X_LDFLAGS) \
+	$(NULL)
+
+xcpc_LDADD += \
+	-lXm -lXmu -lXt \
 	$(top_builddir)/lib/Xem/libXem.la \
-	$(X_LIBS) -lXm -lXmu -lXt \
-	$(X_PRE_LIBS) -lXext -lX11 \
+	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 endif
 
 if ATHENA
 xcpc_SOURCES += \
-	xcpc-athena.c \
-	xcpc-athena.h \
-	xcpc-athena-priv.h \
+	athena/xcpc-athena.c \
+	athena/xcpc-athena.h \
+	athena/xcpc-athena-priv.h \
+	$(NULL)
+
+xcpc_CPPFLAGS += \
+	$(X_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(X_LDFLAGS) \
 	$(NULL)
 
 xcpc_LDADD += \
+	-lXaw -lXmu -lXt \
 	$(top_builddir)/lib/Xem/libXem.la \
-	$(X_LIBS) -lXaw -lXmu -lXt \
-	$(X_PRE_LIBS) -lXext -lX11 \
+	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 endif
 
 if INTRINSIC
 xcpc_SOURCES += \
-	xcpc-intrinsic.c \
-	xcpc-intrinsic.h \
-	xcpc-intrinsic-priv.h \
+	intrinsic/xcpc-intrinsic.c \
+	intrinsic/xcpc-intrinsic.h \
+	intrinsic/xcpc-intrinsic-priv.h \
+	$(NULL)
+
+xcpc_CPPFLAGS += \
+	$(X_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(X_LDFLAGS) \
 	$(NULL)
 
 xcpc_LDADD += \
+	-lXt \
 	$(top_builddir)/lib/Xem/libXem.la \
-	$(X_LIBS) -lXt \
-	$(X_PRE_LIBS) -lXext -lX11 \
+	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 endif

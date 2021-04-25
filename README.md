@@ -85,8 +85,10 @@ export XCPC_JOYSTICK1={path-to-joystick1}
 
 Here is a non-exhaustive list of supported features :
 
-  - A simple Athena user interface.
-  - A complete Motif2 user interface.
+  - A simple X11 Intrinsic user interface.
+  - A complete Athena user interface.
+  - A complete Motif-2x user interface.
+  - A complete Gtk+-3.x user interface.
   - Full X11 with XShm extension.
   - Adaptative frame-rate.
   - Full Floppy disk images support (.dsk).
@@ -94,7 +96,8 @@ Here is a non-exhaustive list of supported features :
   - Drag and Drop support (.dsk, .sna).
   - Keyboard emulation (qwerty, azerty).
   - Joystick emulation with the numeric keypad when numlock is disabled.
-  - Joystick emulation by pressing the « End » key (the use arrows + ctrl + alt).
+  - Joystick emulation by pressing the « Home » or « End » key (then use arrows + left-ctrl + left-alt).
+  - Joystick support under Linux (up to two hardware joysticks).
   - CPU: Z80 with full documented instructions and most undocumented instructions.
   - VGA: Video Gate Array 40007/40008/40010, complete support.
   - VDC: CRTC 6845, almost complete full support.
@@ -105,9 +108,7 @@ Here is a non-exhaustive list of supported features :
 The emulator lacks some features. Here is a list of the most wanted features :
 
   - Sound support.
-  - A Gtk+ user interface.
   - A Qt user interface.
-  - Host Joystick support.
   - A built-in assembler.
   - A built-in debugger.
 

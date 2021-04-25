@@ -1,3 +1,9 @@
+2021-04-25	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* Gtk+-3.x user interface added.
+	* Some refactoring minor improvements.
+	* Some minor fixes.
+
 2021-04-20	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Autotoolization updated.

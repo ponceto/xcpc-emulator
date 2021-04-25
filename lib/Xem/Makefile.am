@@ -52,8 +52,8 @@ libXem_la_LDFLAGS = \
 	$(NULL)
 
 libXem_la_LIBADD = \
-	$(X_LIBS) -lXmu -lXt \
-	$(X_PRE_LIBS) -lXext -lX11 \
+	-lXt \
+	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 

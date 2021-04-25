@@ -16,26 +16,33 @@
 #
 
 # ----------------------------------------------------------------------------
-# SUBDIRS
+# noinst_LTLIBRARIES
 # ----------------------------------------------------------------------------
 
-SUBDIRS = \
-	libdsk \
-	lib765 \
-	xcpc \
+noinst_LTLIBRARIES = \
+	libgem4.la \
 	$(NULL)
 
-if LIBXEM
-SUBDIRS += Xem
-endif
+# ----------------------------------------------------------------------------
+# libgem4
+# ----------------------------------------------------------------------------
 
-if GTK3
-SUBDIRS += gtk3
-endif
+libgem4_la_SOURCES = \
+	$(NULL)
 
-if GTK4
-SUBDIRS += gtk4
-endif
+libgem4_la_CPPFLAGS = \
+	-I$(top_srcdir)/lib \
+	$(gtk4_CFLAGS) \
+	$(NULL)
+
+libgem4_la_LDFLAGS = \
+	-L$(top_builddir)/lib \
+	$(gtk4_LDFLAGS) \
+	$(NULL)
+
+libgem4_la_LIBADD = \
+	$(gtk4_LIBS) \
+	$(NULL)
 
 # ----------------------------------------------------------------------------
 # End-Of-File
