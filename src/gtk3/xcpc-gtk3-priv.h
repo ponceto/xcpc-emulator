@@ -121,6 +121,7 @@ struct _XcpcWorkWndRec
 struct _XcpcLayoutRec
 {
     GtkApplication* application;
+    GdkPixbuf*      logo;
     GtkWidget*      window;
     GtkWidget*      vbox;
     XcpcMenuBarRec  menubar;

@@ -23,14 +23,34 @@
 extern "C" {
 #endif
 
+#define XEM_EMULATOR_DATA(data) ((XemEmulatorData)(data))
+#define XEM_EMULATOR_PROC(proc) ((XemEmulatorProc)(proc))
+
 typedef XtPointer XemEmulatorData;
 
 typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event);
 
-typedef struct _XemMachine         XemMachine;
-typedef struct _XemKeyboard        XemKeyboard;
-typedef struct _XemJoystick        XemJoystick;
-typedef struct _XemThrottledEvents XemThrottledEvents;
+typedef struct _XemX11      XemX11;
+typedef struct _XemEvents   XemEvents;
+typedef struct _XemMachine  XemMachine;
+typedef struct _XemKeyboard XemKeyboard;
+typedef struct _XemJoystick XemJoystick;
+
+struct _XemX11
+{
+    Display* display;
+    Screen*  screen;
+    Window   window;
+};
+
+struct _XemEvents
+{
+    XEvent       last_rcv_event;
+    XEvent       last_key_event;
+    XEvent       list[256];
+    unsigned int head;
+    unsigned int tail;
+};
 
 struct _XemMachine
 {
@@ -69,21 +89,30 @@ struct _XemJoystick
     unsigned short js_mapping[1024];
 };
 
-struct _XemThrottledEvents
-{
-    XEvent       list[256];
-    unsigned int head;
-    unsigned int tail;
-};
+extern XemX11*      XemX11Construct            (Widget widget, XemX11* x11);
+extern XemX11*      XemX11Destruct             (Widget widget, XemX11* x11);
+extern XemX11*      XemX11Realize              (Widget widget, XemX11* x11);
+extern XemX11*      XemX11Unrealize            (Widget widget, XemX11* x11);
 
-extern void         XemKeyboardConstruct       (Widget widget, XemKeyboard* keyboard, int id);
-extern void         XemKeyboardDestruct        (Widget widget, XemKeyboard* keyboard);
+extern XemEvents*   XemEventsConstruct         (Widget widget, XemEvents* events);
+extern XemEvents*   XemEventsDestruct          (Widget widget, XemEvents* events);
+extern XemEvents*   XemEventsThrottle          (Widget widget, XemEvents* events, XEvent* event);
+extern XemEvents*   XemEventsProcess           (Widget widget, XemEvents* events);
+extern XEvent*      XemEventsCopyOrFill        (Widget widget, XemEvents* events, XEvent* event);
+
+extern XemMachine*  XemMachineConstruct        (Widget widget, XemMachine* machine);
+extern XemMachine*  XemMachineDestruct         (Widget widget, XemMachine* machine);
+extern XemMachine*  XemMachineSanitize         (Widget widget, XemMachine* machine);
+
+extern XemKeyboard* XemKeyboardConstruct       (Widget widget, XemKeyboard* keyboard, int id);
+extern XemKeyboard* XemKeyboardDestruct        (Widget widget, XemKeyboard* keyboard);
 static Boolean      XemKeyboardPreprocessEvent (Widget widget, XemKeyboard* keyboard, XEvent* event);
-extern void         XemJoystickConstruct       (Widget widget, XemJoystick* joystick, const char* device, int id);
-extern void         XemJoystickDestruct        (Widget widget, XemJoystick* joystick);
+
+extern XemJoystick* XemJoystickConstruct       (Widget widget, XemJoystick* joystick, const char* device, int id);
+extern XemJoystick* XemJoystickDestruct        (Widget widget, XemJoystick* joystick);
 extern XemJoystick* XemJoystickLookupByFd      (Widget widget, int fd);
 extern void         XemJoystickHandler         (Widget widget, int* source, XtInputId* input_id);
-extern void         XemJoystickDump            (Widget widget, XemJoystick* joystick, unsigned char button);
+extern XemJoystick* XemJoystickDump            (Widget widget, XemJoystick* joystick, unsigned char button);
 
 #ifdef __cplusplus
 }

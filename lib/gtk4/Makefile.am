@@ -32,16 +32,16 @@ libgem4_la_SOURCES = \
 
 libgem4_la_CPPFLAGS = \
 	-I$(top_srcdir)/lib \
-	$(gtk3_CFLAGS) \
+	$(gtk4_CFLAGS) \
 	$(NULL)
 
 libgem4_la_LDFLAGS = \
 	-L$(top_builddir)/lib \
-	$(gtk3_LDFLAGS) \
+	$(gtk4_LDFLAGS) \
 	$(NULL)
 
 libgem4_la_LIBADD = \
-	$(gtk3_LIBS) \
+	$(gtk4_LIBS) \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

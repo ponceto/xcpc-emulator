@@ -65,6 +65,18 @@ G_BEGIN_DECLS
 #define KEY_REPEAT_THRESHOLD 50
 #endif
 
+#ifndef JS_EVENT_BUTTON
+#define JS_EVENT_BUTTON 0x01
+#endif
+
+#ifndef JS_EVENT_AXIS
+#define JS_EVENT_AXIS 0x02
+#endif
+
+#ifndef JS_EVENT_INIT
+#define JS_EVENT_INIT 0x80
+#endif
+
 G_END_DECLS
 
 #endif /* __GEM_EMULATOR_PRIV_H__ */

@@ -50,10 +50,7 @@ struct _GemEmulator
 struct _GemEmulatorClass
 {
     GtkWidgetClass parent_class;
-    void (*_gem_reserved0)(void);
-    void (*_gem_reserved1)(void);
-    void (*_gem_reserved2)(void);
-    void (*_gem_reserved3)(void);
+    void (*sig_hotkey)(GemEmulator*, KeySym keysym);
 };
 
 extern GType      gem_emulator_get_type     (void) G_GNUC_CONST;
