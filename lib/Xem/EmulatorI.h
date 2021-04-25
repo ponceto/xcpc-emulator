@@ -39,7 +39,6 @@ typedef struct _XemJoystick XemJoystick;
 struct _XemX11
 {
     Display* display;
-    Screen*  screen;
     Window   window;
 };
 

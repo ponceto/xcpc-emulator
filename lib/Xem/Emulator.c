@@ -671,7 +671,6 @@ XemX11* XemX11Construct(Widget widget, XemX11* x11)
 {
     /* initialize */ {
         x11->display = NULL;
-        x11->screen  = NULL;
         x11->window  = None;
     }
     return x11;
@@ -681,7 +680,6 @@ XemX11* XemX11Destruct(Widget widget, XemX11* x11)
 {
     /* finalize */ {
         x11->display = NULL;
-        x11->screen  = NULL;
         x11->window  = None;
     }
     return x11;
@@ -692,7 +690,6 @@ XemX11* XemX11Realize(Widget widget, XemX11* x11)
     /* realize X11 handles */ {
         if(x11->display == NULL) {
             x11->display = XtDisplay(widget);
-            x11->screen  = XtScreen(widget);
             x11->window  = XtWindow(widget);
         }
     }
@@ -704,7 +701,6 @@ XemX11* XemX11Unrealize(Widget widget, XemX11* x11)
     /* unrealize X11 handles */ {
         if(x11->display != NULL) {
             x11->display = NULL;
-            x11->screen  = NULL;
             x11->window  = None;
         }
     }

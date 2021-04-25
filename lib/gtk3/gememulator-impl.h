@@ -38,7 +38,6 @@ typedef struct _GemJoystick GemJoystick;
 struct _GemX11
 {
     Display* display;
-    Screen*  screen;
     Window   window;
 };
 
