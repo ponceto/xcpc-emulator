@@ -2879,6 +2879,10 @@ XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
     uint32_t           ram_size = self->setup.memory_size;
 
     log_trace("xcpc_machine_load_snapshot");
+    /* reset and clock just one frame to avoid a strange bug (eg. gryzor) */ {
+        (void) xcpc_machine_reset(self);
+        (void) xcpc_machine_clock(self);
+    }
     /* load snapshot */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             status = xcpc_snapshot_load(snapshot, filename);
@@ -2926,6 +2930,7 @@ XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
     /* perform memory mapping or reset */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             cpc_mem_select(self, self->pager.conf.ram, self->pager.conf.rom);
+            self->board.vga_core->state.counter = 32;
         }
         else {
             (void) xcpc_machine_reset(self);
@@ -3070,7 +3075,7 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
     unsigned long timeout = 0UL;
 
     /* clock the machine */ {
-        xcpc_machine_clock(self);
+        (void) xcpc_machine_clock(self);
     }
     /* compute the elapsed time in us */ {
         struct timeval prev_time = self->timer.deadline;
