@@ -310,7 +310,6 @@ static XcpcApplication* Pause(XcpcApplication* self)
     return self;
 }
 
-#if 0
 static XcpcApplication* Reset(XcpcApplication* self)
 {
     if(self->layout.emulator != NULL) {
@@ -323,7 +322,6 @@ static XcpcApplication* Reset(XcpcApplication* self)
     }
     return self;
 }
-#endif
 
 /*
  * ---------------------------------------------------------------------------
@@ -446,6 +444,18 @@ static void DismissCallback(Widget widget, XcpcApplication* self, XtPointer info
     }
 }
 #endif
+
+/*
+ * ---------------------------------------------------------------------------
+ * Controls callbacks
+ * ---------------------------------------------------------------------------
+ */
+
+static void ResetCallback(Widget widget, XcpcApplication* self, XtPointer info)
+{
+    (void) Reset(self);
+    (void) Play(self);
+}
 
 /*
  * ---------------------------------------------------------------------------
