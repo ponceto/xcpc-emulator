@@ -4,17 +4,20 @@ The xcpc emulator is fully autotoolized.
 
 ### Dependencies
 
-Under Debian or derivatives (Ubuntu, Mint, ...), please install first these dependencies
+Under Debian or derivatives (Ubuntu, Mint, ...), please install first these dependencies. On the other distros, please install equivalent packages.
 
 Mandatory dependencies :
 
 ```
 build-essential
-autoconf
-automake
-libtool
-git
 xorg-dev
+```
+
+Optional dependencies :
+
+```
+zlib1g-dev
+libbz2-dev
 ```
 
 If you want to build the Gtk+-3.x user interface, you must install this package:
@@ -29,16 +32,20 @@ If you want to build the Motif-2.x user interface, you must install this package
 libmotif-dev
 ```
 
-Optional dependencies :
-
-```
-zlib1g-dev
-libbz2-dev
-```
-
 ### Generate the configure script
 
-Generate the `configure` script if it does not exists (i.e in case you just have cloned the repository)
+Generate the `configure` script if it does not exists. This step is mandatory in case you just have cloned the git repository.
+
+First, please ensure you have the following packages installed on your system:
+
+```
+autoconf
+automake
+libtool
+autoconf-archive
+```
+
+Then you just have to run this command:
 
 ```
 autoreconf -v -i -f
