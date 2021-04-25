@@ -142,7 +142,7 @@ AC_MSG_NOTICE([configured to build Xcpc:
   Intrinsic .............. ${have_intrinsic}
   Athena ................. ${have_athena}
   Motif2 ................. ${have_motif2}
-  Gtk3 (experimental) .... ${have_gtk3}
+  Gtk3 ................... ${have_gtk3}
   Gtk4 (not supported) ... ${have_gtk4}
   PortAudio .............. ${have_portaudio}
   Linux Joystick API ..... ${have_linux_joystick_api}
