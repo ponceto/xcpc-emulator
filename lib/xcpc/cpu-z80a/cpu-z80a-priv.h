@@ -441,12 +441,91 @@ extern "C" {
     } while(0)
 
 /*
- * ld r08,r08
+ * halt
  */
 
-#define m_ld_r08_r08(reg1, reg2) \
+#define m_halt() \
     do { \
-        reg1 = reg2; \
+        ST_L |= ST_HLT; \
+    } while(0)
+
+/*
+ * daa
+ */
+
+#define m_daa() \
+    do { \
+        T0_W = AF_H; \
+        if(AF_L & CF) T0_W |= 0x100; \
+        if(AF_L & HF) T0_W |= 0x200; \
+        if(AF_L & NF) T0_W |= 0x400; \
+        AF_W = DAATable[T0_W]; \
+    } while(0)
+
+/*
+ * rlca
+ */
+
+#define m_rlca() \
+    do { \
+        T1_L = AF_H; \
+        T2_L = (T1_L << 1) | (T1_L >> 7); \
+        AF_L &= (SF | ZF | YF | XF | PF); \
+        if(T1_L & 0x80) { \
+            AF_L |= CF; \
+        } \
+        AF_H = T2_L; \
+    } while(0)
+
+/*
+ * rrca
+ */
+
+#define m_rrca() \
+    do { \
+        T1_L = AF_H; \
+        T2_L = (T1_L >> 1) | (T1_L << 7); \
+        AF_L &= (SF | ZF | YF | XF | PF); \
+        if(T1_L & 0x01) { \
+            AF_L |= CF; \
+        } \
+        AF_H = T2_L; \
+    } while(0)
+
+/*
+ * rla
+ */
+
+#define m_rla() \
+    do { \
+        T1_L = AF_H; \
+        T2_L = T1_L << 1; \
+        if(AF_L & CF) { \
+            T2_L |= 0x01; \
+        } \
+        AF_L &= (SF | ZF | YF | XF | PF); \
+        if(T1_L & 0x80) { \
+            AF_L |= CF; \
+        } \
+        AF_H = T2_L; \
+    } while(0)
+
+/*
+ * rra
+ */
+
+#define m_rra() \
+    do { \
+        T1_L = AF_H; \
+        T2_L = T1_L >> 1; \
+        if(AF_L & CF) { \
+            T2_L |= 0x80; \
+        } \
+        AF_L &= (SF | ZF | YF | XF | PF); \
+        if(T1_L & 0x01) { \
+            AF_L |= CF; \
+        } \
+        AF_H = T2_L; \
     } while(0)
 
 /*
@@ -465,6 +544,42 @@ extern "C" {
 #define m_dec_r16(reg1) \
     do { \
         --reg1; \
+    } while(0)
+
+/*
+ * ld r08,r08
+ */
+
+#define m_ld_r08_r08(reg1, reg2) \
+    do { \
+        reg1 = reg2; \
+    } while(0)
+
+/*
+ * ld r08,(r16)
+ */
+
+#define m_ld_r08_ind_r16(reg1, reg2) \
+    do { \
+        MREQ_RD(reg2, reg1); \
+    } while(0)
+
+/*
+ * ld (r16),r08
+ */
+
+#define m_ld_ind_r16_r08(reg1, reg2) \
+    do { \
+        MREQ_WR(reg1, reg2); \
+    } while(0)
+
+/*
+ * ld r08,i08
+ */
+
+#define m_ld_r08_i08(reg1) \
+    do { \
+        MREQ_RD(PC_W++, reg1); \
     } while(0)
 
 /*
@@ -2136,14 +2251,6 @@ extern "C" {
  * xxx
  */
 
-#define m_daa() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
 #define m_dec_ind_r16(reg1) \
     do { \
     } while(0)
@@ -2201,14 +2308,6 @@ extern "C" {
  */
 
 #define m_exx() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_halt() \
     do { \
     } while(0)
 
@@ -2376,31 +2475,7 @@ extern "C" {
  * xxx
  */
 
-#define m_ld_ind_r16_r08(reg1, reg2) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_ld_r08_i08(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
 #define m_ld_r08_ind_i16(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_ld_r08_ind_r16(reg1, reg2) \
     do { \
     } while(0)
 
@@ -2513,38 +2588,6 @@ extern "C" {
  */
 
 #define m_ret_z() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_rla() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_rlca() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_rra() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_rrca() \
     do { \
     } while(0)
 

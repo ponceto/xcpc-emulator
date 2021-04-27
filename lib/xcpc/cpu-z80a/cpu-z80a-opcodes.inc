@@ -2050,6 +2050,7 @@
 #else
 #include "cpu-z80a-opcodes-op.inc"
     case 0x00: /* NOP               */
+      m_nop();
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2061,19 +2062,13 @@
       I_PERIOD -= 6;
       goto epilog;
     case 0x06: /* LD B,n            */
-      BC_H = (*IFACE.mreq_rd)(self, PC_W++, 0x00);
+      m_ld_r08_i08(BC_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x07: /* RLCA              */
-      T1_L = AF_H;
-      T2_L = (T1_L << 1) | (T1_L >> 7);
-      AF_L &= (SF | ZF | YF | XF | PF);
-      if(T1_L & 0x80) {
-        AF_L |= CF;
-      }
-      AF_H = T2_L;
+      m_rlca();
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2085,19 +2080,13 @@
       I_PERIOD -= 6;
       goto epilog;
     case 0x0e: /* LD C,n            */
-      BC_L = (*IFACE.mreq_rd)(self, PC_W++, 0x00);
+      m_ld_r08_i08(BC_L);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x0f: /* RRCA              */
-      T1_L = AF_H;
-      T2_L = (T1_L >> 1) | (T1_L << 7);
-      AF_L &= (SF | ZF | YF | XF | PF);
-      if(T1_L & 0x01) {
-        AF_L |= CF;
-      }
-      AF_H = T2_L;
+      m_rrca();
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2109,22 +2098,13 @@
       I_PERIOD -= 6;
       goto epilog;
     case 0x16: /* LD D,n            */
-      DE_H = (*IFACE.mreq_rd)(self, PC_W++, 0x00);
+      m_ld_r08_i08(DE_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x17: /* RLA               */
-      T1_L = AF_H;
-      T2_L = T1_L << 1;
-      if(AF_L & CF) {
-        T2_L |= 0x01;
-      }
-      AF_L &= (SF | ZF | YF | XF | PF);
-      if(T1_L & 0x80) {
-        AF_L |= CF;
-      }
-      AF_H = T2_L;
+      m_rla();
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2136,22 +2116,13 @@
       I_PERIOD -= 6;
       goto epilog;
     case 0x1e: /* LD E,n            */
-      DE_L = (*IFACE.mreq_rd)(self, PC_W++, 0x00);
+      m_ld_r08_i08(DE_L);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x1f: /* RRA               */
-      T1_L = AF_H;
-      T2_L = T1_L >> 1;
-      if(AF_L & CF) {
-        T2_L |= 0x80;
-      }
-      AF_L &= (SF | ZF | YF | XF | PF);
-      if(T1_L & 0x01) {
-        AF_L |= CF;
-      }
-      AF_H = T2_L;
+      m_rra();
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2163,17 +2134,13 @@
       I_PERIOD -= 6;
       goto epilog;
     case 0x26: /* LD H,n            */
-      HL_H = (*IFACE.mreq_rd)(self, PC_W++, 0x00);
+      m_ld_r08_i08(HL_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x27: /* DAA               */
-      T0_W = AF_H;
-      if(AF_L & CF) T0_W |= 0x100;
-      if(AF_L & HF) T0_W |= 0x200;
-      if(AF_L & NF) T0_W |= 0x400;
-      AF_W = DAATable[T0_W];
+      m_daa();
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2185,7 +2152,7 @@
       I_PERIOD -= 6;
       goto epilog;
     case 0x2e: /* LD L,n            */
-      HL_L = (*IFACE.mreq_rd)(self, PC_W++, 0x00);
+      m_ld_r08_i08(HL_L);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2203,7 +2170,7 @@
       I_PERIOD -= 6;
       goto epilog;
     case 0x3e: /* LD A,n            */
-      AF_H = (*IFACE.mreq_rd)(self, PC_W++, 0x00);
+      m_ld_r08_i08(AF_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2245,7 +2212,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x46: /* LD B,(HL)         */
-      BC_H = (*IFACE.mreq_rd)(self, HL_W, 0x00);
+      m_ld_r08_ind_r16(BC_H, HL_W);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2293,7 +2260,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x4e: /* LD C,(HL)         */
-      BC_L = (*IFACE.mreq_rd)(self, HL_W, 0x00);
+      m_ld_r08_ind_r16(BC_L, HL_W);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2341,7 +2308,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x56: /* LD D,(HL)         */
-      DE_H = (*IFACE.mreq_rd)(self, HL_W, 0x00);
+      m_ld_r08_ind_r16(DE_H, HL_W);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2389,7 +2356,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x5e: /* LD E,(HL)         */
-      DE_L = (*IFACE.mreq_rd)(self, HL_W, 0x00);
+      m_ld_r08_ind_r16(DE_L, HL_W);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2437,7 +2404,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x66: /* LD H,(HL)         */
-      HL_H = (*IFACE.mreq_rd)(self, HL_W, 0x00);
+      m_ld_r08_ind_r16(HL_H, HL_W);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2485,7 +2452,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x6e: /* LD L,(HL)         */
-      HL_L = (*IFACE.mreq_rd)(self, HL_W, 0x00);
+      m_ld_r08_ind_r16(HL_L, HL_W);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2497,49 +2464,49 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x70: /* LD (HL),B         */
-      (*IFACE.mreq_wr)(self, HL_W, BC_H);
+      m_ld_ind_r16_r08(HL_W, BC_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x71: /* LD (HL),C         */
-      (*IFACE.mreq_wr)(self, HL_W, BC_L);
+      m_ld_ind_r16_r08(HL_W, BC_L);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x72: /* LD (HL),D         */
-      (*IFACE.mreq_wr)(self, HL_W, DE_H);
+      m_ld_ind_r16_r08(HL_W, DE_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x73: /* LD (HL),E         */
-      (*IFACE.mreq_wr)(self, HL_W, DE_L);
+      m_ld_ind_r16_r08(HL_W, DE_L);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x74: /* LD (HL),H         */
-      (*IFACE.mreq_wr)(self, HL_W, HL_H);
+      m_ld_ind_r16_r08(HL_W, HL_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x75: /* LD (HL),L         */
-      (*IFACE.mreq_wr)(self, HL_W, HL_L);
+      m_ld_ind_r16_r08(HL_W, HL_L);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
     case 0x76: /* HALT              */
-      ST_L |= ST_HLT;
+      m_halt();
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x77: /* LD (HL),A         */
-      (*IFACE.mreq_wr)(self, HL_W, AF_H);
+      m_ld_ind_r16_r08(HL_W, AF_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2581,7 +2548,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x7e: /* LD A,(HL)         */
-      AF_H = (*IFACE.mreq_rd)(self, HL_W, 0x00);
+      m_ld_r08_ind_r16(AF_H, HL_W);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
@@ -2982,11 +2949,6 @@
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
-    case 0xcb:
-      M_CYCLES += 1;
-      T_STATES += 4;
-      I_PERIOD -= 4;
-      goto fetch_cb_opcode;
     case 0xce: /* ADC A,n           */
       m_adc_r08_i08(AF_H);
       M_CYCLES += 2;
@@ -2999,8 +2961,6 @@
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
-    case 0xdd:
-      goto fetch_dd_opcode;
     case 0xde: /* SBC A,n           */
       m_sbc_r08_i08(AF_H);
       M_CYCLES += 2;
@@ -3013,11 +2973,6 @@
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
-    case 0xed:
-      M_CYCLES += 1;
-      T_STATES += 4;
-      I_PERIOD -= 4;
-      goto fetch_ed_opcode;
     case 0xee: /* XOR A,n           */
       m_xor_r08_i08(AF_H);
       M_CYCLES += 2;
@@ -3030,12 +2985,34 @@
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
-    case 0xfd:
-      goto fetch_fd_opcode;
     case 0xfe: /* CP A,n            */
       m_cp_r08_i08(AF_H);
       M_CYCLES += 2;
       T_STATES += 7;
       I_PERIOD -= 7;
       goto epilog;
+    case 0xcb:
+      m_prefix();
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto fetch_cb_opcode;
+    case 0xed:
+      m_prefix();
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto fetch_ed_opcode;
+    case 0xdd:
+      m_prefix();
+      M_CYCLES += 0;
+      T_STATES += 0;
+      I_PERIOD -= 0;
+      goto fetch_dd_opcode;
+    case 0xfd:
+      m_prefix();
+      M_CYCLES += 0;
+      T_STATES += 0;
+      I_PERIOD -= 0;
+      goto fetch_fd_opcode;
 #endif
