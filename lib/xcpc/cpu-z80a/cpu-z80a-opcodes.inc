@@ -3090,31 +3090,6 @@
       I_PERIOD -= 11;
       goto epilog;
 
-    case JR_NZ:
-      m_jr_nz_i08();
-      M_CYCLES += 2;
-      T_STATES += 7;
-      I_PERIOD -= 7;
-      goto epilog;
-    case JR_Z:
-      m_jr_z_i08();
-      M_CYCLES += 2;
-      T_STATES += 7;
-      I_PERIOD -= 7;
-      goto epilog;
-    case JR_NC:
-      m_jr_nc_i08();
-      M_CYCLES += 2;
-      T_STATES += 7;
-      I_PERIOD -= 7;
-      goto epilog;
-    case JR_C:
-      m_jr_c_i08();
-      M_CYCLES += 2;
-      T_STATES += 7;
-      I_PERIOD -= 7;
-      goto epilog;
-
     case DI:
       m_di();
       M_CYCLES += 1;
@@ -3269,6 +3244,160 @@
       M_CYCLES += 3;
       T_STATES += 10;
       I_PERIOD -= 10;
+      goto epilog;
+
+    case JR:
+      m_jr_i08();
+      M_CYCLES += 3;
+      T_STATES += 12;
+      I_PERIOD -= 12;
+      goto epilog;
+    case JR_NZ:
+      m_jr_nz_i08();
+      M_CYCLES += 2;
+      T_STATES += 7;
+      I_PERIOD -= 7;
+      goto epilog;
+    case JR_Z:
+      m_jr_z_i08();
+      M_CYCLES += 2;
+      T_STATES += 7;
+      I_PERIOD -= 7;
+      goto epilog;
+    case JR_NC:
+      m_jr_nc_i08();
+      M_CYCLES += 2;
+      T_STATES += 7;
+      I_PERIOD -= 7;
+      goto epilog;
+    case JR_C:
+      m_jr_c_i08();
+      M_CYCLES += 2;
+      T_STATES += 7;
+      I_PERIOD -= 7;
+      goto epilog;
+
+    case JP:
+      m_jp_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case JP_NZ:
+      m_jp_nz_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case JP_Z:
+      m_jp_z_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case JP_NC:
+      m_jp_nc_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case JP_C:
+      m_jp_c_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case JP_PO:
+      m_jp_po_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case JP_PE:
+      m_jp_pe_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case JP_P:
+      m_jp_p_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case JP_M:
+      m_jp_m_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+
+    case RET:
+      m_ret();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case RET_NZ:
+      m_ret_nz();
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case RET_Z:
+      m_ret_z();
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case RET_NC:
+      m_ret_nc();
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case RET_C:
+      m_ret_c();
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case RET_PO:
+      m_ret_po();
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case RET_PE:
+      m_ret_pe();
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case RET_P:
+      m_ret_p();
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case RET_M:
+      m_ret_m();
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+
+    case LD_PC_HL:
+      m_jp_r16(HL_W);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case LD_SP_HL:
+      m_ld_r16_r16(SP_W, HL_W);
+      M_CYCLES += 1;
+      T_STATES += 6;
+      I_PERIOD -= 6;
       goto epilog;
 
 #endif

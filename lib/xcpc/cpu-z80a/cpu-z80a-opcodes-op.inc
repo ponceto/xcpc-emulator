@@ -11,23 +11,6 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-case JP_NZ:   if(AF_L&ZF) PC_W+=2; else { M_JP; } break;
-case JP_NC:   if(AF_L&CF) PC_W+=2; else { M_JP; } break;
-case JP_PO:   if(AF_L&PF) PC_W+=2; else { M_JP; } break;
-case JP_P:    if(AF_L&SF) PC_W+=2; else { M_JP; } break;
-case JP_Z:    if(AF_L&ZF) { M_JP; } else PC_W+=2; break;
-case JP_C:    if(AF_L&CF) { M_JP; } else PC_W+=2; break;
-case JP_PE:   if(AF_L&PF) { M_JP; } else PC_W+=2; break;
-case JP_M:    if(AF_L&SF) { M_JP; } else PC_W+=2; break;
-
-case RET_NZ:  if(!(AF_L&ZF)) { I_PERIOD-=6;M_RET; } break;
-case RET_NC:  if(!(AF_L&CF)) { I_PERIOD-=6;M_RET; } break;
-case RET_PO:  if(!(AF_L&PF)) { I_PERIOD-=6;M_RET; } break;
-case RET_P:   if(!(AF_L&SF)) { I_PERIOD-=6;M_RET; } break;
-case RET_Z:   if(AF_L&ZF)    { I_PERIOD-=6;M_RET; } break;
-case RET_C:   if(AF_L&CF)    { I_PERIOD-=6;M_RET; } break;
-case RET_PE:  if(AF_L&PF)    { I_PERIOD-=6;M_RET; } break;
-case RET_M:   if(AF_L&SF)    { I_PERIOD-=6;M_RET; } break;
 
 case CALL_NZ: if(AF_L&ZF) PC_W+=2; else { I_PERIOD-=7;M_CALL; } break;
 case CALL_NC: if(AF_L&CF) PC_W+=2; else { I_PERIOD-=7;M_CALL; } break;
@@ -38,8 +21,6 @@ case CALL_C:  if(AF_L&CF) { I_PERIOD-=7;M_CALL; } else PC_W+=2; break;
 case CALL_PE: if(AF_L&PF) { I_PERIOD-=7;M_CALL; } else PC_W+=2; break;
 case CALL_M:  if(AF_L&SF) { I_PERIOD-=7;M_CALL; } else PC_W+=2; break;
 
-case LD_PC_HL: PC_W=HL_W;break;
-case LD_SP_HL: SP_W=HL_W;break;
 case LD_A_xBC: AF_H=RdZ80(BC_W);break;
 case LD_A_xDE: AF_H=RdZ80(DE_W);break;
 
@@ -53,10 +34,7 @@ case DEC_xHL:  T1_L=RdZ80(HL_W);M_DEC(T1_L);WrZ80(HL_W,T1_L);break;
 case INC_xHL:  T1_L=RdZ80(HL_W);M_INC(T1_L);WrZ80(HL_W,T1_L);break;
 
 case DJNZ: if(--BC_H) { I_PERIOD-=5;M_JR; } else PC_W++;break;
-case JP:   M_JP;break;
-case JR:   M_JR;break;
 case CALL: M_CALL;break;
-case RET:  M_RET;break;
 case SCF:  S(CF);R(NF|HF);break;
 case CPL:  AF_H=~AF_H;S(NF|HF);break;
 case OUTA: T1_L=RdZ80(PC_W++);OutZ80((AF_W & 0xff00) | (T1_L & 0x00ff), AF_H);break;
