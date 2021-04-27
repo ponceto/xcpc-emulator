@@ -441,6 +441,33 @@ extern "C" {
     } while(0)
 
 /*
+ * ld r08,r08
+ */
+
+#define m_ld_r08_r08(reg1, reg2) \
+    do { \
+        reg1 = reg2; \
+    } while(0)
+
+/*
+ * inc r16
+ */
+
+#define m_inc_r16(reg1) \
+    do { \
+        ++reg1; \
+    } while(0)
+
+/*
+ * dec r16
+ */
+
+#define m_dec_r16(reg1) \
+    do { \
+        --reg1; \
+    } while(0)
+
+/*
  * add r08,r08
  */
 
@@ -1031,15 +1058,6 @@ extern "C" {
 #define m_rst_vec16(vector) \
     do { \
         PC_W = vector; \
-    } while(0)
-
-/*
- * ld r,r'
- */
-
-#define m_ld_r08_r08(reg1, reg2) \
-    do { \
-        reg1 = reg2; \
     } while(0)
 
 /*
@@ -2142,14 +2160,6 @@ extern "C" {
  * xxx
  */
 
-#define m_dec_r16(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
 #define m_di() \
     do { \
     } while(0)
@@ -2215,14 +2225,6 @@ extern "C" {
  */
 
 #define m_inc_r08(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_inc_r16(reg1) \
     do { \
     } while(0)
 

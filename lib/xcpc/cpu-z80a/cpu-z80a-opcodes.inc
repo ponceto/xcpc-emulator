@@ -2055,7 +2055,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x03: /* INC BC            */
-      BC_W++;
+      m_inc_r16(BC_W);
       M_CYCLES += 1;
       T_STATES += 6;
       I_PERIOD -= 6;
@@ -2079,7 +2079,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x0b: /* DEC BC            */
-      BC_W--;
+      m_dec_r16(BC_W);
       M_CYCLES += 1;
       T_STATES += 6;
       I_PERIOD -= 6;
@@ -2103,7 +2103,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x13: /* INC DE            */
-      DE_W++;
+      m_inc_r16(DE_W);
       M_CYCLES += 1;
       T_STATES += 6;
       I_PERIOD -= 6;
@@ -2130,7 +2130,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x1b: /* DEC DE            */
-      DE_W--;
+      m_dec_r16(DE_W);
       M_CYCLES += 1;
       T_STATES += 6;
       I_PERIOD -= 6;
@@ -2157,7 +2157,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x23: /* INC HL            */
-      HL_W++;
+      m_inc_r16(HL_W);
       M_CYCLES += 1;
       T_STATES += 6;
       I_PERIOD -= 6;
@@ -2179,7 +2179,7 @@
       I_PERIOD -= 4;
       goto epilog;
     case 0x2b: /* DEC HL            */
-      HL_W--;
+      m_dec_r16(HL_W);
       M_CYCLES += 1;
       T_STATES += 6;
       I_PERIOD -= 6;
@@ -2191,13 +2191,13 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x33: /* INC SP            */
-      SP_W++;
+      m_inc_r16(SP_W);
       M_CYCLES += 1;
       T_STATES += 6;
       I_PERIOD -= 6;
       goto epilog;
     case 0x3b: /* DEC SP            */
-      SP_W--;
+      m_dec_r16(SP_W);
       M_CYCLES += 1;
       T_STATES += 6;
       I_PERIOD -= 6;
@@ -2209,37 +2209,37 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x40: /* LD B,B            */
-      BC_H = BC_H;
+      m_ld_r08_r08(BC_H, BC_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x41: /* LD B,C            */
-      BC_H = BC_L;
+      m_ld_r08_r08(BC_H, BC_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x42: /* LD B,D            */
-      BC_H = DE_H;
+      m_ld_r08_r08(BC_H, DE_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x43: /* LD B,E            */
-      BC_H = DE_L;
+      m_ld_r08_r08(BC_H, DE_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x44: /* LD B,H            */
-      BC_H = HL_H;
+      m_ld_r08_r08(BC_H, HL_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x45: /* LD B,L            */
-      BC_H = HL_L;
+      m_ld_r08_r08(BC_H, HL_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2251,43 +2251,43 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x47: /* LD B,A            */
-      BC_H = AF_H;
+      m_ld_r08_r08(BC_H, AF_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x48: /* LD C,B            */
-      BC_L = BC_H;
+      m_ld_r08_r08(BC_L, BC_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x49: /* LD C,C            */
-      BC_L = BC_L;
+      m_ld_r08_r08(BC_L, BC_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x4a: /* LD C,D            */
-      BC_L = DE_H;
+      m_ld_r08_r08(BC_L, DE_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x4b: /* LD C,E            */
-      BC_L = DE_L;
+      m_ld_r08_r08(BC_L, DE_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x4c: /* LD C,H            */
-      BC_L = HL_H;
+      m_ld_r08_r08(BC_L, HL_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x4d: /* LD C,L            */
-      BC_L = HL_L;
+      m_ld_r08_r08(BC_L, HL_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2299,43 +2299,43 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x4f: /* LD C,A            */
-      BC_L = AF_H;
+      m_ld_r08_r08(BC_L, AF_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x50: /* LD D,B            */
-      DE_H = BC_H;
+      m_ld_r08_r08(DE_H, BC_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x51: /* LD D,C            */
-      DE_H = BC_L;
+      m_ld_r08_r08(DE_H, BC_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x52: /* LD D,D            */
-      DE_H = DE_H;
+      m_ld_r08_r08(DE_H, DE_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x53: /* LD D,E            */
-      DE_H = DE_L;
+      m_ld_r08_r08(DE_H, DE_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x54: /* LD D,H            */
-      DE_H = HL_H;
+      m_ld_r08_r08(DE_H, HL_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x55: /* LD D,L            */
-      DE_H = HL_L;
+      m_ld_r08_r08(DE_H, HL_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2347,43 +2347,43 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x57: /* LD D,A            */
-      DE_H = AF_H;
+      m_ld_r08_r08(DE_H, AF_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x58: /* LD E,B            */
-      DE_L = BC_H;
+      m_ld_r08_r08(DE_L, BC_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x59: /* LD E,C            */
-      DE_L = BC_L;
+      m_ld_r08_r08(DE_L, BC_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x5a: /* LD E,D            */
-      DE_L = DE_H;
+      m_ld_r08_r08(DE_L, DE_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x5b: /* LD E,E            */
-      DE_L = DE_L;
+      m_ld_r08_r08(DE_L, DE_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x5c: /* LD E,H            */
-      DE_L = HL_H;
+      m_ld_r08_r08(DE_L, HL_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x5d: /* LD E,L            */
-      DE_L = HL_L;
+      m_ld_r08_r08(DE_L, HL_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2395,43 +2395,43 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x5f: /* LD E,A            */
-      DE_L = AF_H;
+      m_ld_r08_r08(DE_L, AF_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x60: /* LD H,B            */
-      HL_H = BC_H;
+      m_ld_r08_r08(HL_H, BC_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x61: /* LD H,C            */
-      HL_H = BC_L;
+      m_ld_r08_r08(HL_H, BC_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x62: /* LD H,D            */
-      HL_H = DE_H;
+      m_ld_r08_r08(HL_H, DE_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x63: /* LD H,E            */
-      HL_H = DE_L;
+      m_ld_r08_r08(HL_H, DE_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x64: /* LD H,H            */
-      HL_H = HL_H;
+      m_ld_r08_r08(HL_H, HL_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x65: /* LD H,L            */
-      HL_H = HL_L;
+      m_ld_r08_r08(HL_H, HL_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2443,43 +2443,43 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x67: /* LD H,A            */
-      HL_H = AF_H;
+      m_ld_r08_r08(HL_H, AF_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x68: /* LD L,B            */
-      HL_L = BC_H;
+      m_ld_r08_r08(HL_L, BC_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x69: /* LD L,C            */
-      HL_L = BC_L;
+      m_ld_r08_r08(HL_L, BC_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x6a: /* LD L,D            */
-      HL_L = DE_H;
+      m_ld_r08_r08(HL_L, DE_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x6b: /* LD L,E            */
-      HL_L = DE_L;
+      m_ld_r08_r08(HL_L, DE_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x6c: /* LD L,H            */
-      HL_L = HL_H;
+      m_ld_r08_r08(HL_L, HL_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x6d: /* LD L,L            */
-      HL_L = HL_L;
+      m_ld_r08_r08(HL_L, HL_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2491,7 +2491,7 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x6f: /* LD L,A            */
-      HL_L = AF_H;
+      m_ld_r08_r08(HL_L, AF_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2545,37 +2545,37 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x78: /* LD A,B            */
-      AF_H = BC_H;
+      m_ld_r08_r08(AF_H, BC_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x79: /* LD A,C            */
-      AF_H = BC_L;
+      m_ld_r08_r08(AF_H, BC_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x7a: /* LD A,D            */
-      AF_H = DE_H;
+      m_ld_r08_r08(AF_H, DE_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x7b: /* LD A,E            */
-      AF_H = DE_L;
+      m_ld_r08_r08(AF_H, DE_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x7c: /* LD A,H            */
-      AF_H = HL_H;
+      m_ld_r08_r08(AF_H, HL_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
       goto epilog;
     case 0x7d: /* LD A,L            */
-      AF_H = HL_L;
+      m_ld_r08_r08(AF_H, HL_L);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
@@ -2587,7 +2587,7 @@
       I_PERIOD -= 7;
       goto epilog;
     case 0x7f: /* LD A,A            */
-      AF_H = AF_H;
+      m_ld_r08_r08(AF_H, AF_H);
       M_CYCLES += 1;
       T_STATES += 4;
       I_PERIOD -= 4;
