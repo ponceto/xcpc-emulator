@@ -48,33 +48,9 @@ case ADD_HL_DE:  M_ADDW(HL,DE);break;
 case ADD_HL_HL:  M_ADDW(HL,HL);break;
 case ADD_HL_SP:  M_ADDW(HL,SP);break;
 
-case DEC_B:    M_DEC(BC_H);break;
-case DEC_C:    M_DEC(BC_L);break;
-case DEC_D:    M_DEC(DE_H);break;
-case DEC_E:    M_DEC(DE_L);break;
-case DEC_H:    M_DEC(HL_H);break;
-case DEC_L:    M_DEC(HL_L);break;
-case DEC_A:    M_DEC(AF_H);break;
 case DEC_xHL:  T1_L=RdZ80(HL_W);M_DEC(T1_L);WrZ80(HL_W,T1_L);break;
 
-case INC_B:    M_INC(BC_H);break;
-case INC_C:    M_INC(BC_L);break;
-case INC_D:    M_INC(DE_H);break;
-case INC_E:    M_INC(DE_L);break;
-case INC_H:    M_INC(HL_H);break;
-case INC_L:    M_INC(HL_L);break;
-case INC_A:    M_INC(AF_H);break;
 case INC_xHL:  T1_L=RdZ80(HL_W);M_INC(T1_L);WrZ80(HL_W,T1_L);break;
-
-case PUSH_BC:  M_PUSH(BC);break;
-case PUSH_DE:  M_PUSH(DE);break;
-case PUSH_HL:  M_PUSH(HL);break;
-case PUSH_AF:  M_PUSH(AF);break;
-
-case POP_BC:   M_POP(BC);break;
-case POP_DE:   M_POP(DE);break;
-case POP_HL:   M_POP(HL);break;
-case POP_AF:   M_POP(AF);break;
 
 case DJNZ: if(--BC_H) { I_PERIOD-=5;M_JR; } else PC_W++;break;
 case JP:   M_JP;break;
@@ -91,11 +67,6 @@ case CCF:
   AF_L|=AF_L&CF? 0:HF;
   break;
 
-case EXX:
-  WZ_W=BC_W;BC_W=BC_P;BC_P=WZ_W;
-  WZ_W=DE_W;DE_W=DE_P;DE_P=WZ_W;
-  WZ_W=HL_W;HL_W=HL_P;HL_P=WZ_W;
-  break;
 
 case EX_DE_HL: WZ_W=DE_W;DE_W=HL_W;HL_W=WZ_W;break;
 case EX_AF_AF: WZ_W=AF_W;AF_W=AF_P;AF_P=WZ_W;break;  

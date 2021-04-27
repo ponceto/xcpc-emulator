@@ -3128,7 +3128,147 @@
       I_PERIOD -= 4;
       goto epilog;
 
-#if 0
-#endif
+    case INC_B:
+      m_inc_r08(BC_H);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case INC_C:
+      m_inc_r08(BC_L);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case INC_D:
+      m_inc_r08(DE_H);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case INC_E:
+      m_inc_r08(DE_L);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case INC_H:
+      m_inc_r08(HL_H);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case INC_L:
+      m_inc_r08(HL_L);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case INC_A:
+      m_inc_r08(AF_H);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+
+    case DEC_B:
+      m_dec_r08(BC_H);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case DEC_C:
+      m_dec_r08(BC_L);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case DEC_D:
+      m_dec_r08(DE_H);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case DEC_E:
+      m_dec_r08(DE_L);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case DEC_H:
+      m_dec_r08(HL_H);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case DEC_L:
+      m_dec_r08(HL_L);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case DEC_A:
+      m_dec_r08(AF_H);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+
+    case EXX:
+      m_exx();
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+
+    case PUSH_BC:
+      m_push_r16(BC_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case PUSH_DE:
+      m_push_r16(DE_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case PUSH_HL:
+      m_push_r16(HL_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case PUSH_AF:
+      m_push_r16(AF_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+
+    case POP_BC:
+      m_pop_r16(BC_W);
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case POP_DE:
+      m_pop_r16(DE_W);
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case POP_HL:
+      m_pop_r16(HL_W);
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case POP_AF:
+      m_pop_r16(AF_W);
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
 
 #endif
