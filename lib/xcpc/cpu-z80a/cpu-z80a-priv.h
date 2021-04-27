@@ -583,6 +583,17 @@ extern "C" {
     } while(0)
 
 /*
+ * ld r16,i16
+ */
+
+#define m_ld_r16_i16(reg1) \
+    do { \
+        MREQ_RD(PC_W++, T0_L); \
+        MREQ_RD(PC_W++, T0_H); \
+        reg1 = T0_W; \
+    } while(0)
+
+/*
  * add r08,r08
  */
 
@@ -1155,6 +1166,24 @@ extern "C" {
         ST_L = (ST_L | (ST_IM1 | ST_IM2)); \
     } while(0)
 
+
+/*
+ * di
+ */
+
+#define m_di() \
+    do { \
+        ST_L = (ST_L & ~(ST_IFF1 | ST_IFF2)); \
+    } while(0)
+
+/*
+ * ei
+ */
+
+#define m_ei() \
+    do { \
+        ST_L = (ST_L | (ST_IFF1 | ST_IFF2)); \
+    } while(0)
 /*
  * push r16
  */
@@ -1172,7 +1201,77 @@ extern "C" {
 
 #define m_rst_vec16(vector) \
     do { \
+        MREQ_WR(--SP_W, PC_H); \
+        MREQ_WR(--SP_W, PC_L); \
         PC_W = vector; \
+    } while(0)
+
+/*
+ * jr nz,i08
+ */
+
+#define m_jr_nz_i08() \
+    do { \
+        if((AF_L & ZF) == 0) { \
+            M_CYCLES += 1; \
+            T_STATES += 5; \
+            I_PERIOD -= 5; \
+            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+        } \
+        else { \
+            PC_W++; \
+        } \
+    } while(0)
+
+/*
+ * jr z,i08
+ */
+
+#define m_jr_z_i08() \
+    do { \
+        if((AF_L & ZF) != 0) { \
+            M_CYCLES += 1; \
+            T_STATES += 5; \
+            I_PERIOD -= 5; \
+            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+        } \
+        else { \
+            PC_W++; \
+        } \
+    } while(0)
+
+/*
+ * jr nc,i08
+ */
+
+#define m_jr_nc_i08() \
+    do { \
+        if((AF_L & CF) == 0) { \
+            M_CYCLES += 1; \
+            T_STATES += 5; \
+            I_PERIOD -= 5; \
+            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+        } \
+        else { \
+            PC_W++; \
+        } \
+    } while(0)
+
+/*
+ * jr c,i08
+ */
+
+#define m_jr_c_i08() \
+    do { \
+        if((AF_L & CF) != 0) { \
+            M_CYCLES += 1; \
+            T_STATES += 5; \
+            I_PERIOD -= 5; \
+            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+        } \
+        else { \
+            PC_W++; \
+        } \
     } while(0)
 
 /*
@@ -2267,23 +2366,7 @@ extern "C" {
  * xxx
  */
 
-#define m_di() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
 #define m_djnz_i08() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_ei() \
     do { \
     } while(0)
 
@@ -2419,39 +2502,7 @@ extern "C" {
  * xxx
  */
 
-#define m_jr_c_i08() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
 #define m_jr_i08() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_jr_nc_i08() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_jr_nz_i08() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_jr_z_i08() \
     do { \
     } while(0)
 
@@ -2476,14 +2527,6 @@ extern "C" {
  */
 
 #define m_ld_r08_ind_i16(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_ld_r16_i16(reg1) \
     do { \
     } while(0)
 

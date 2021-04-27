@@ -11,11 +11,6 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-case JR_NZ:   if(AF_L&ZF) PC_W++; else { I_PERIOD-=5;M_JR; } break;
-case JR_NC:   if(AF_L&CF) PC_W++; else { I_PERIOD-=5;M_JR; } break;
-case JR_Z:    if(AF_L&ZF) { I_PERIOD-=5;M_JR; } else PC_W++; break;
-case JR_C:    if(AF_L&CF) { I_PERIOD-=5;M_JR; } else PC_W++; break;
-
 case JP_NZ:   if(AF_L&ZF) PC_W+=2; else { M_JP; } break;
 case JP_NC:   if(AF_L&CF) PC_W+=2; else { M_JP; } break;
 case JP_PO:   if(AF_L&PF) PC_W+=2; else { M_JP; } break;
@@ -42,11 +37,6 @@ case CALL_Z:  if(AF_L&ZF) { I_PERIOD-=7;M_CALL; } else PC_W+=2; break;
 case CALL_C:  if(AF_L&CF) { I_PERIOD-=7;M_CALL; } else PC_W+=2; break;
 case CALL_PE: if(AF_L&PF) { I_PERIOD-=7;M_CALL; } else PC_W+=2; break;
 case CALL_M:  if(AF_L&SF) { I_PERIOD-=7;M_CALL; } else PC_W+=2; break;
-
-case LD_BC_WORD: M_LDWORD(BC);break;
-case LD_DE_WORD: M_LDWORD(DE);break;
-case LD_HL_WORD: M_LDWORD(HL);break;
-case LD_SP_WORD: M_LDWORD(SP);break;
 
 case LD_PC_HL: PC_W=HL_W;break;
 case LD_SP_HL: SP_W=HL_W;break;
@@ -76,15 +66,6 @@ case INC_L:    M_INC(HL_L);break;
 case INC_A:    M_INC(AF_H);break;
 case INC_xHL:  T1_L=RdZ80(HL_W);M_INC(T1_L);WrZ80(HL_W,T1_L);break;
 
-case RST00:    M_RST(0x0000);break;
-case RST08:    M_RST(0x0008);break;
-case RST10:    M_RST(0x0010);break;
-case RST18:    M_RST(0x0018);break;
-case RST20:    M_RST(0x0020);break;
-case RST28:    M_RST(0x0028);break;
-case RST30:    M_RST(0x0030);break;
-case RST38:    M_RST(0x0038);break;
-
 case PUSH_BC:  M_PUSH(BC);break;
 case PUSH_DE:  M_PUSH(DE);break;
 case PUSH_HL:  M_PUSH(HL);break;
@@ -104,14 +85,6 @@ case SCF:  S(CF);R(NF|HF);break;
 case CPL:  AF_H=~AF_H;S(NF|HF);break;
 case OUTA: T1_L=RdZ80(PC_W++);OutZ80((AF_W & 0xff00) | (T1_L & 0x00ff), AF_H);break;
 case INA:  T1_L=RdZ80(PC_W++);AF_H=InZ80((AF_W & 0xff00) | (T1_L & 0x00ff));break;
-
-case DI:
-  ST_L &= ~(ST_IFF1 | ST_IFF2);
-  break;
-
-case EI:
-  ST_L |=  (ST_IFF1 | ST_IFF2);
-  break;
 
 case CCF:
   AF_L^=CF;R(NF|HF);

@@ -543,14 +543,12 @@ prolog:
     prev_pc = PC_W;
     if(m_pending_nmi()) {
         m_acknowledge_nmi();
-        m_push_r16(PC_W);
         m_rst_vec16(VECTOR_66H);
         m_consume(3, 11);
         goto epilog;
     }
     if(m_pending_int()) {
         m_acknowledge_int();
-        m_push_r16(PC_W);
         m_rst_vec16(VECTOR_38H);
         m_consume(3, 13);
         goto epilog;
