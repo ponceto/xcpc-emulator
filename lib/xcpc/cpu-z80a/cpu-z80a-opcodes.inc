@@ -3332,6 +3332,61 @@
       I_PERIOD -= 10;
       goto epilog;
 
+    case CALL:
+      m_call_i16();
+      M_CYCLES += 5;
+      T_STATES += 17;
+      I_PERIOD -= 17;
+      break;
+    case CALL_NZ:
+      m_call_nz_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case CALL_Z:
+      m_call_z_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case CALL_NC:
+      m_call_nc_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case CALL_C:
+      m_call_c_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case CALL_PO:
+      m_call_po_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case CALL_PE:
+      m_call_pe_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case CALL_P:
+      m_call_p_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+    case CALL_M:
+      m_call_m_i16();
+      M_CYCLES += 3;
+      T_STATES += 10;
+      I_PERIOD -= 10;
+      goto epilog;
+
     case RET:
       m_ret();
       M_CYCLES += 3;
