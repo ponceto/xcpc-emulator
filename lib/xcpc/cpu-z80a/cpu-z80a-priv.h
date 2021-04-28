@@ -2947,43 +2947,77 @@ extern "C" {
     } while(0)
 
 /*
- * xxx
- */
-
-#define m_ccf() \
-    do { \
-    } while(0)
-
-/*
- * xxx
+ * cpl
  */
 
 #define m_cpl() \
     do { \
+        AF_H = ~AF_H; \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is set          */ (HF & (0xff)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is not affected */ (PF & (AF_L)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
     } while(0)
 
 /*
- * xxx
+ * ccf
  */
 
-#define m_in_r08_ind_i08(reg1) \
+#define m_ccf() \
     do { \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is affected     */ (HF & ((AF_L & CF) != 0 ? 0xff : 0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is not affected */ (PF & (AF_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is inverted     */ (CF & ((AF_L & CF) != 0 ? 0x00 : 0xff)) \
+             ; \
     } while(0)
 
 /*
- * xxx
- */
-
-#define m_out_ind_i08_r08(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
+ * scf
  */
 
 #define m_scf() \
     do { \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* PF is not affected */ (PF & (AF_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is set          */ (CF & (0xff)) \
+             ; \
+    } while(0)
+
+/*
+ * in r08,(i08)
+ */
+
+#define m_in_r08_ind_i08(reg1) \
+    do { \
+        T0_W = AF_W; \
+        MREQ_RD(PC_W++, T0_L); \
+        IORQ_RD(T0_W  , reg1); \
+    } while(0)
+
+/*
+ * out (i08),r08
+ */
+
+#define m_out_ind_i08_r08(reg1) \
+    do { \
+        T0_W = AF_W; \
+        MREQ_RD(PC_W++, T0_L); \
+        IORQ_WR(T0_W  , reg1); \
     } while(0)
 
 /*
