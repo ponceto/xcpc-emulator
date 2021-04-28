@@ -195,6 +195,10 @@ extern "C" {
 
 #define SIGNED_BYTE(value) ((int8_t)(value))
 #define UNSIGNED_BYTE(value) ((uint8_t)(value))
+#define SIGNED_WORD(value) ((int16_t)(value))
+#define UNSIGNED_WORD(value) ((uint16_t)(value))
+#define SIGNED_LONG(value) ((int32_t)(value))
+#define UNSIGNED_LONG(value) ((uint32_t)(value))
 
 #define LO_NIBBLE(value) ((value) & 0x0f)
 #define HI_NIBBLE(value) ((value) & 0xf0)
@@ -505,6 +509,16 @@ extern "C" {
     } while(0)
 
 /*
+ * ld (r16),i08
+ */
+
+#define m_ld_ind_r16_i08(reg1) \
+    do { \
+        MREQ_RD(PC_W++, T0_L); \
+        MREQ_WR(reg1  , T0_L); \
+    } while(0)
+
+/*
  * halt
  */
 
@@ -616,12 +630,34 @@ extern "C" {
     } while(0)
 
 /*
+ * inc (r16)
+ */
+
+#define m_inc_ind_r16(reg1) \
+    do { \
+        MREQ_RD(reg1, T0_L); \
+        M_INC(T0_L); \
+        MREQ_WR(reg1, T0_L); \
+    } while(0)
+
+/*
  * dec r08
  */
 
 #define m_dec_r08(reg1) \
     do { \
         M_DEC(reg1); \
+    } while(0)
+
+/*
+ * dec (r16)
+ */
+
+#define m_dec_ind_r16(reg1) \
+    do { \
+        MREQ_RD(reg1, T0_L); \
+        M_DEC(T0_L); \
+        MREQ_WR(reg1, T0_L); \
     } while(0)
 
 /*
@@ -1806,24 +1842,6 @@ extern "C" {
     } while(0)
 
 /*
- * adc r16,r16
- */
-
-#define m_adc_r16_r16(reg1, reg2) \
-    do { \
-        M_ADCW(reg1, reg2); \
-    } while(0)
-
-/*
- * sbc r16,r16
- */
-
-#define m_sbc_r16_r16(reg1, reg2) \
-    do { \
-        M_SBCW(reg1, reg2); \
-    } while(0)
-
-/*
  * rlc r08
  */
 
@@ -2247,9 +2265,35 @@ extern "C" {
 
 #define m_exx() \
     do { \
-      T0_W = BC_W; BC_W = BC_P; BC_P = T0_W; \
-      T0_W = DE_W; DE_W = DE_P; DE_P = T0_W; \
-      T0_W = HL_W; HL_W = HL_P; HL_P = T0_W; \
+        T0_W = BC_W; BC_W = BC_P; BC_P = T0_W; \
+        T0_W = DE_W; DE_W = DE_P; DE_P = T0_W; \
+        T0_W = HL_W; HL_W = HL_P; HL_P = T0_W; \
+    } while(0)
+
+/*
+ * ex r16,r16
+ */
+
+#define m_ex_r16_r16(reg1, reg2) \
+    do { \
+        T0_W = reg1; \
+        reg1 = reg2; \
+        reg2 = T0_W; \
+    } while(0)
+
+/*
+ * ex (r16),r16
+ */
+
+#define m_ex_ind_r16_r16(reg1, reg2) \
+    do { \
+        T1_W = reg1; \
+        T2_W = reg2; \
+        MREQ_RD((T1_W + 0), T0_L); \
+        MREQ_RD((T1_W + 1), T0_H); \
+        MREQ_WR((T1_W + 0), T2_L); \
+        MREQ_WR((T1_W + 1), T2_H); \
+        reg2 = T0_W; \
     } while(0)
 
 /*
@@ -2798,11 +2842,68 @@ extern "C" {
     } while(0)
 
 /*
- * xxx
+ * add r16,r16
  */
 
 #define m_add_r16_r16(reg1, reg2) \
     do { \
+        T1_W = reg1; \
+        T2_W = reg2; \
+        T0_W = (T1_W + T2_W); \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* VF is not affected */ (VF & (AF_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) + SIGNED_LONG(T2_W)) & 0x10000 ? 0xff : 0x00)) \
+             ; \
+        reg1 = T0_W; \
+    } while(0)
+
+/*
+ * adc r16,r16
+ */
+
+#define m_adc_r16_r16(reg1, reg2) \
+    do { \
+        T1_W = reg1; \
+        T2_W = reg2; \
+        T3_W = ((AF_L & CF) != 0 ? 1 : 0); \
+        T0_W = (T1_W + T2_W + T3_W); \
+        AF_L = /* SF is affected     */ (SF & (T0_H)) \
+             | /* ZF is affected     */ (ZF & (T0_W == 0 ? 0xff : 0x00)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* VF is affected     */ (VF & (~(T1_W ^ T2_W) & (T2_W ^ T0_W) & 0x8000 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) + SIGNED_LONG(T2_W) + SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
+             ; \
+        reg1 = T0_W; \
+    } while(0)
+
+/*
+ * sbc r16,r16
+ */
+
+#define m_sbc_r16_r16(reg1, reg2) \
+    do { \
+        T1_W = reg1; \
+        T2_W = reg2; \
+        T3_W = ((AF_L & CF) != 0 ? 1 : 0); \
+        T0_W = (T1_W - T2_W - T3_W); \
+        AF_L = /* SF is affected     */ (SF & (T0_H)) \
+             | /* ZF is affected     */ (ZF & (T0_W == 0 ? 0xff : 0x00)) \
+             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
+             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* VF is affected     */ (VF & ((T1_W ^ T2_W) & (T1_W ^ T0_W) & 0x8000 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) - SIGNED_LONG(T2_W) - SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
+             ; \
+        reg1 = T0_W; \
     } while(0)
 
 /*
@@ -2825,39 +2926,7 @@ extern "C" {
  * xxx
  */
 
-#define m_dec_ind_r16(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
 #define m_djnz_i08() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_ex_ind_r16_r16(reg1, reg2) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_ex_r16_r16(reg1, reg2) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_inc_ind_r16(reg1) \
     do { \
     } while(0)
 
@@ -2878,15 +2947,7 @@ extern "C" {
     } while(0)
 
 /*
- * xxx
- */
-
-#define m_ld_ind_r16_i08(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
+ * ld r08,(i16)
  */
 
 #define m_ld_r08_ind_i16(reg1) \

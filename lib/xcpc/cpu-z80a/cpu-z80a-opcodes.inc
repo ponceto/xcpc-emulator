@@ -3455,4 +3455,93 @@
       I_PERIOD -= 6;
       goto epilog;
 
+    case ADD_HL_BC:
+      m_add_r16_r16(HL_W, BC_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case ADD_HL_DE:
+      m_add_r16_r16(HL_W, DE_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case ADD_HL_HL:
+      m_add_r16_r16(HL_W, HL_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case ADD_HL_SP:
+      m_add_r16_r16(HL_W, SP_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+
+    case LD_A_xBC:
+      m_ld_r08_ind_r16(AF_H, BC_W);
+      M_CYCLES += 2;
+      T_STATES += 7;
+      I_PERIOD -= 7;
+      goto epilog;
+    case LD_A_xDE:
+      m_ld_r08_ind_r16(AF_H, DE_W);
+      M_CYCLES += 2;
+      T_STATES += 7;
+      I_PERIOD -= 7;
+      goto epilog;
+    case LD_xBC_A:
+      m_ld_ind_r16_r08(BC_W, AF_H);
+      M_CYCLES += 2;
+      T_STATES += 7;
+      I_PERIOD -= 7;
+      goto epilog;
+    case LD_xDE_A:
+      m_ld_ind_r16_r08(DE_W,AF_H);
+      M_CYCLES += 2;
+      T_STATES += 7;
+      I_PERIOD -= 7;
+      goto epilog;
+
+    case INC_xHL:
+      m_inc_ind_r16(HL_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+    case DEC_xHL:
+      m_dec_ind_r16(HL_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+
+    case EX_DE_HL:
+      m_ex_r16_r16(DE_W, HL_W);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case EX_AF_AF:
+      m_ex_r16_r16(AF_W, AF_P);
+      M_CYCLES += 1;
+      T_STATES += 4;
+      I_PERIOD -= 4;
+      goto epilog;
+    case EX_HL_xSP:
+      m_ex_ind_r16_r16(SP_W, HL_W);
+      M_CYCLES += 5;
+      T_STATES += 19;
+      I_PERIOD -= 19;
+      goto epilog;
+
+    case LD_xHL_BYTE:
+      m_ld_ind_r16_i08(HL_W);
+      M_CYCLES += 3;
+      T_STATES += 11;
+      I_PERIOD -= 11;
+      goto epilog;
+
 #endif
