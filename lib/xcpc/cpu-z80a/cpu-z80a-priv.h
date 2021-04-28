@@ -648,7 +648,20 @@ extern "C" {
 
 #define m_inc_r08(reg1) \
     do { \
-        M_INC(reg1); \
+        T1_L = reg1; \
+        T2_L = 1; \
+        T0_W = T1_L + T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* VF is affected     */ (VF & (T1_L == 0x7f ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        reg1 = T0_L; \
     } while(0)
 
 /*
@@ -657,8 +670,19 @@ extern "C" {
 
 #define m_inc_ind_r16(reg1) \
     do { \
-        MREQ_RD(reg1, T0_L); \
-        M_INC(T0_L); \
+        MREQ_RD(reg1, T1_L); \
+        T2_L = 1; \
+        T0_W = T1_L + T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* VF is affected     */ (VF & (T1_L == 0x7f ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
         MREQ_WR(reg1, T0_L); \
     } while(0)
 
@@ -668,7 +692,20 @@ extern "C" {
 
 #define m_dec_r08(reg1) \
     do { \
-        M_DEC(reg1); \
+        T1_L = reg1; \
+        T2_L = 1; \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* VF is affected     */ (VF & (T1_L == 0x80 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        reg1 = T0_L; \
     } while(0)
 
 /*
@@ -677,8 +714,19 @@ extern "C" {
 
 #define m_dec_ind_r16(reg1) \
     do { \
-        MREQ_RD(reg1, T0_L); \
-        M_DEC(T0_L); \
+        MREQ_RD(reg1, T1_L); \
+        T2_L = 1; \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* VF is affected     */ (VF & (T1_L == 0x80 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
         MREQ_WR(reg1, T0_L); \
     } while(0)
 

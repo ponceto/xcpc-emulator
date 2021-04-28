@@ -111,12 +111,10 @@ case INA:  T1_L=RdZ80(PC_W++);AF_H=InZ80((AF_W & 0xff00) | (T1_L & 0x00ff));brea
 
 case DI:
   ST_L &= ~(ST_IFF1 | ST_IFF2);
-  printf("DI\n");
   break;
 
 case EI:
   ST_L |=  (ST_IFF1 | ST_IFF2);
-  printf("EI\n");
   break;
 
 case CCF:
