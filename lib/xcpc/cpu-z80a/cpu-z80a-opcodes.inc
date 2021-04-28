@@ -3544,4 +3544,11 @@
       I_PERIOD -= 11;
       goto epilog;
 
+    case DJNZ:
+      m_djnz_i08();
+      M_CYCLES += 2;
+      T_STATES += 8;
+      I_PERIOD -= 8;
+      goto epilog;
+
 #endif

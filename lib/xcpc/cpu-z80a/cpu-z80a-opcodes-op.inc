@@ -11,7 +11,6 @@
 /**     changes to this file.                               **/
 /*************************************************************/
 
-case DJNZ: if(--BC_H) { I_PERIOD-=5;M_JR; } else PC_W++;break;
 case SCF:  S(CF);R(NF|HF);break;
 case CPL:  AF_H=~AF_H;S(NF|HF);break;
 case OUTA: T1_L=RdZ80(PC_W++);OutZ80((AF_W & 0xff00) | (T1_L & 0x00ff), AF_H);break;

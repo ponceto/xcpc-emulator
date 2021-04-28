@@ -2907,6 +2907,24 @@ extern "C" {
     } while(0)
 
 /*
+ * djnz i08
+ */
+
+#define m_djnz_i08() \
+    do { \
+        --BC_H; \
+        if(BC_H != 0) { \
+            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            M_CYCLES += 1; \
+            T_STATES += 5; \
+            I_PERIOD -= 5; \
+        } \
+        else { \
+            PC_W++; \
+        } \
+    } while(0)
+
+/*
  * xxx
  */
 
@@ -2919,14 +2937,6 @@ extern "C" {
  */
 
 #define m_cpl() \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_djnz_i08() \
     do { \
     } while(0)
 
