@@ -73,6 +73,9 @@ The supported file extensions are: '.dsk', 'dsk.gz', 'dsk.bz2', '.sna'\n\
  */
 
 static const gchar app_id[]                 = "org.gtk.xcpc";
+static const gchar sig_open[]               = "open";
+static const gchar sig_startup[]            = "startup";
+static const gchar sig_shutdown[]           = "shutdown";
 static const gchar sig_activate[]           = "activate";
 static const gchar sig_destroy[]            = "destroy";
 static const gchar sig_clicked[]            = "clicked";
@@ -390,11 +393,6 @@ static gboolean widget_destroy_callback(GtkWidget* widget, GtkWidget** reference
         *reference = NULL;
     }
     return FALSE;
-}
-
-static void object_activate_callback(GObject* object, XcpcApplication* self)
-{
-    xcpc_log_debug("%s::%s()", "object", sig_activate);
 }
 
 static void widget_activate_callback(GtkWidget* widget, XcpcApplication* self)
@@ -802,18 +800,6 @@ static void toolitem_add_destroy_callback(GtkToolItem** reference, const gchar* 
     }
 }
 
-static void object_add_activate_callback(GObject* object, XcpcApplication* self, GCallback callback)
-{
-    /* check and adjust callback */ {
-        if(callback == NULL) {
-            callback = G_CALLBACK(&object_activate_callback);
-        }
-    }
-    /* connect signal */ {
-        (void) g_signal_connect(G_OBJECT(object), sig_activate, callback, self);
-    }
-}
-
 static void widget_add_activate_callback(GtkWidget* widget, XcpcApplication* self, GCallback callback)
 {
     /* check and adjust callback */ {
@@ -1203,7 +1189,7 @@ static void build_infobar(XcpcApplication* self)
     }
 }
 
-static void build_layout(GtkApplication* application, XcpcApplication* self)
+static void build_layout(XcpcApplication* self)
 {
     XcpcLayoutRec* current = &self->layout;
 
@@ -1211,7 +1197,7 @@ static void build_layout(GtkApplication* application, XcpcApplication* self)
         current->logo = gdk_pixbuf_new_from_file(XCPC_RESDIR "/bitmaps/xcpc-icon.png", NULL);
     }
     /* window */ {
-        current->window = gtk_application_window_new(application);
+        current->window = gtk_application_window_new(self->layout.application);
         widget_add_destroy_callback(&current->window, "window");
         gtk_window_set_title(GTK_WINDOW(current->window), _("Xcpc - Amstrad CPC emulator"));
         gtk_window_set_icon(GTK_WINDOW(current->window), current->logo);
@@ -1242,6 +1228,47 @@ static void build_layout(GtkApplication* application, XcpcApplication* self)
     }
 }
 
+static void application_open_callback(GApplication* application, gpointer files, int num_files, char* hint, XcpcApplication* self)
+{
+    /* log */ {
+        xcpc_log_debug("%s::%s()", "application", sig_open);
+    }
+}
+
+static void application_startup_callback(GApplication* application, XcpcApplication* self)
+{
+    /* log */ {
+        xcpc_log_debug("%s::%s()", "application", sig_startup);
+    }
+    /* build layout */ {
+        build_layout(self);
+    }
+}
+
+static void application_shutdown_callback(GApplication* application, XcpcApplication* self)
+{
+    /* log */ {
+        xcpc_log_debug("%s::%s()", "application", sig_shutdown);
+    }
+    /* destroy logo */ {
+        if(self->layout.logo != NULL) {
+            self->layout.logo = (g_object_unref(G_OBJECT(self->layout.logo)), NULL);
+        }
+    }
+    /* destroy window */ {
+        if(self->layout.window != NULL) {
+            gtk_widget_destroy(self->layout.window);
+        }
+    }
+}
+
+static void application_activate_callback(GApplication* application, XcpcApplication* self)
+{
+    /* log */ {
+        xcpc_log_debug("%s::%s()", "application", sig_activate);
+    }
+}
+
 /*
  * ---------------------------------------------------------------------------
  * XcpcApplication public methods
@@ -1260,9 +1287,6 @@ XcpcApplication* xcpc_application_new(void)
 
 XcpcApplication* xcpc_application_delete(XcpcApplication* self)
 {
-    /* destroy logo */ {
-        self->layout.logo = (g_object_unref(G_OBJECT(self->layout.logo)), NULL);
-    }
     /* finalize */ {
         self->layout.application = (g_object_unref(self->layout.application), NULL);
     }
@@ -1282,7 +1306,10 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** 
     }
     /* create application */ {
         self->layout.application = gtk_application_new(app_id, G_APPLICATION_FLAGS_NONE);
-        object_add_activate_callback(G_OBJECT(self->layout.application), self, G_CALLBACK(build_layout));
+        (void) g_signal_connect(G_OBJECT(self->layout.application), sig_open, G_CALLBACK(application_open_callback), self);
+        (void) g_signal_connect(G_OBJECT(self->layout.application), sig_startup, G_CALLBACK(application_startup_callback), self);
+        (void) g_signal_connect(G_OBJECT(self->layout.application), sig_shutdown, G_CALLBACK(application_shutdown_callback), self);
+        (void) g_signal_connect(G_OBJECT(self->layout.application), sig_activate, G_CALLBACK(application_activate_callback), self);
     }
     /* loop */ {
         (void) g_application_run(G_APPLICATION(self->layout.application), *argc, *argv);

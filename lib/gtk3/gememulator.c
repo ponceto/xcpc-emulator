@@ -646,7 +646,6 @@ GemX11* gem_x11_construct(GtkWidget* widget, GemX11* x11)
 {
     /* initialize */ {
         x11->display = NULL;
-        x11->screen  = NULL;
         x11->window  = None;
     }
     return x11;
@@ -656,7 +655,6 @@ GemX11* gem_x11_destruct(GtkWidget* widget, GemX11* x11)
 {
     /* finalize */ {
         x11->display = NULL;
-        x11->screen  = NULL;
         x11->window  = None;
     }
     return x11;
@@ -666,13 +664,11 @@ GemX11* gem_x11_realize(GtkWidget* widget, GemX11* x11)
 {
     GemEmulator* self        = CAST_EMULATOR(widget);
     GdkWindow*   gdk_window  = gtk_widget_get_window(widget);
-    GdkScreen*   gdk_screen  = gdk_window_get_screen(gdk_window);
     GdkDisplay*  gdk_display = gdk_window_get_display(gdk_window);
 
     /* realize X11 handles */ {
         if(x11->display == NULL) {
             x11->display = GDK_DISPLAY_XDISPLAY(gdk_display);
-            x11->screen  = GDK_SCREEN_XSCREEN(gdk_screen);
             x11->window  = GDK_WINDOW_XID(gdk_window);
         }
         if(x11->display != NULL) {
@@ -687,7 +683,6 @@ GemX11* gem_x11_unrealize(GtkWidget* widget, GemX11* x11)
     /* unrealize X11 handles */ {
         if(x11->display != NULL) {
             x11->display = NULL;
-            x11->screen  = NULL;
             x11->window  = None;
         }
     }
