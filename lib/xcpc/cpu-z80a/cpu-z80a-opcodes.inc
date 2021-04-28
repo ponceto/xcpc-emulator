@@ -3337,7 +3337,7 @@
       M_CYCLES += 5;
       T_STATES += 17;
       I_PERIOD -= 17;
-      break;
+      goto epilog;
     case CALL_NZ:
       m_call_nz_i16();
       M_CYCLES += 3;
@@ -3549,6 +3549,32 @@
       M_CYCLES += 2;
       T_STATES += 8;
       I_PERIOD -= 8;
+      goto epilog;
+
+    case LD_A_xWORD:
+      m_ld_r08_ind_i16(AF_H);
+      M_CYCLES += 4;
+      T_STATES += 13;
+      I_PERIOD -= 13;
+      goto epilog;
+    case LD_xWORD_A:
+      m_ld_ind_i16_r08(AF_H);
+      M_CYCLES += 4;
+      T_STATES += 13;
+      I_PERIOD -= 13;
+      goto epilog;
+
+    case LD_HL_xWORD:
+      m_ld_r16_ind_i16(HL_W);
+      M_CYCLES += 5;
+      T_STATES += 16;
+      I_PERIOD -= 116;
+      goto epilog;
+    case LD_xWORD_HL:
+      m_ld_ind_i16_r16(HL_W);
+      M_CYCLES += 5;
+      T_STATES += 16;
+      I_PERIOD -= 116;
       goto epilog;
 
 #endif

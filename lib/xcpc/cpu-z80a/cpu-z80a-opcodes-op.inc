@@ -21,29 +21,3 @@ case CCF:
   AF_L|=AF_L&CF? 0:HF;
   break;
 
-
-case LD_xWORD_HL:
-  WZ_L=RdZ80(PC_W++);
-  WZ_H=RdZ80(PC_W++);
-  WrZ80(WZ_W++,HL_L);
-  WrZ80(WZ_W,HL_H);
-  break;
-
-case LD_HL_xWORD:
-  WZ_L=RdZ80(PC_W++);
-  WZ_H=RdZ80(PC_W++);
-  HL_L=RdZ80(WZ_W++);
-  HL_H=RdZ80(WZ_W);
-  break;
-
-case LD_A_xWORD:
-  WZ_L=RdZ80(PC_W++);
-  WZ_H=RdZ80(PC_W++); 
-  AF_H=RdZ80(WZ_W);
-  break;
-
-case LD_xWORD_A:
-  WZ_L=RdZ80(PC_W++);
-  WZ_H=RdZ80(PC_W++);
-  WrZ80(WZ_W,AF_H);
-  break;

@@ -489,6 +489,28 @@ extern "C" {
     } while(0)
 
 /*
+ * ld r08,(i16)
+ */
+
+#define m_ld_r08_ind_i16(reg1) \
+    do { \
+        MREQ_RD(PC_W++, T0_L); \
+        MREQ_RD(PC_W++, T0_H); \
+        MREQ_RD(T0_W  , reg1); \
+    } while(0)
+
+/*
+ * ld (r16),r08
+ */
+
+#define m_ld_ind_i16_r08(reg1) \
+    do { \
+        MREQ_RD(PC_W++, T0_L); \
+        MREQ_RD(PC_W++, T0_H); \
+        MREQ_WR(T0_W  , reg1); \
+    } while(0)
+
+/*
  * ld r16,r16
  */
 
@@ -2945,22 +2967,6 @@ extern "C" {
  */
 
 #define m_in_r08_ind_i08(reg1) \
-    do { \
-    } while(0)
-
-/*
- * xxx
- */
-
-#define m_ld_ind_i16_r08(reg1) \
-    do { \
-    } while(0)
-
-/*
- * ld r08,(i16)
- */
-
-#define m_ld_r08_ind_i16(reg1) \
     do { \
     } while(0)
 
