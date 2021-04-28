@@ -1768,8 +1768,8 @@
             break;
         case 0xdd: /* prefix $dd */
             {
-                const uint32_t m_cycles = (0);
-                const uint32_t t_states = (0);
+                const uint32_t m_cycles = (1);
+                const uint32_t t_states = (4);
                 m_prefix();
                 m_consume(m_cycles, t_states);
             }
@@ -2024,8 +2024,8 @@
             break;
         case 0xfd: /* prefix $fd */
             {
-                const uint32_t m_cycles = (0);
-                const uint32_t t_states = (0);
+                const uint32_t m_cycles = (1);
+                const uint32_t t_states = (4);
                 m_prefix();
                 m_consume(m_cycles, t_states);
             }

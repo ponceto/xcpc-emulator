@@ -319,25 +319,6 @@ static const uint8_t PZSTable[256] = {
     0x84, 0x80, 0x80, 0x84, 0x80, 0x84, 0x84, 0x80, 0x80, 0x84, 0x84, 0x80, 0x84, 0x80, 0x80, 0x84
 };
 
-static const uint8_t CyclesXX[256] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0,15, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0,15, 0, 0, 0, 0, 0, 0,
-    0,14,20,10, 9, 9, 9, 0, 0,15,20,10, 9, 9, 9, 0,
-    0, 0, 0, 0,23,23,19, 0, 0,15, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 9, 9,19, 0, 0, 0, 0, 0, 9, 9,19, 0,
-    0, 0, 0, 0, 9, 9,19, 0, 0, 0, 0, 0, 9, 9,19, 0,
-    9, 9, 9, 9, 9, 9,19, 9, 9, 9, 9, 9, 9, 9,19, 9,
-   19,19,19,19,19,19,19,19, 0, 0, 0, 0, 9, 9,19, 0,
-    0, 0, 0, 0, 9, 9,19, 0, 0, 0, 0, 0, 9, 9,19, 0,
-    0, 0, 0, 0, 9, 9,19, 0, 0, 0, 0, 0, 9, 9,19, 0,
-    0, 0, 0, 0, 9, 9,19, 0, 0, 0, 0, 0, 9, 9,19, 0,
-    0, 0, 0, 0, 9, 9,19, 0, 0, 0, 0, 0, 9, 9,19, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0,14, 0,23, 0,15, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0,10, 0, 0, 0, 0, 0, 0
-};
-
 static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcCpuZ80a::%s()", function);
@@ -587,15 +568,13 @@ execute_dd_opcode:
 #include "cpu-z80a-opcodes-dd.inc"
         default:
             {
-                const uint32_t m_cycles = (2 - 1) + 1;
-                const uint32_t t_states = (8 - 4) + 4;
+                const uint32_t m_cycles = (2 - 1);
+                const uint32_t t_states = (8 - 4);
                 m_illegal_dd();
                 m_consume(m_cycles, t_states);
             }
             goto epilog;
     }
-    self->state.ctrs.t_states += CyclesXX[last_op];
-    self->state.ctrs.i_period -= CyclesXX[last_op];
     goto epilog;
 
 fetch_fd_opcode:
@@ -608,18 +587,21 @@ execute_fd_opcode:
 #include "cpu-z80a-opcodes-fd.inc"
         default:
             {
-                const uint32_t m_cycles = (2 - 1) + 1;
-                const uint32_t t_states = (8 - 4) + 4;
+                const uint32_t m_cycles = (2 - 1);
+                const uint32_t t_states = (8 - 4);
                 m_illegal_fd();
                 m_consume(m_cycles, t_states);
             }
             goto epilog;
     }
-    self->state.ctrs.t_states += CyclesXX[last_op];
-    self->state.ctrs.i_period -= CyclesXX[last_op];
     goto epilog;
 
 fetch_ddcb_opcode:
+    /* FIXME */ {
+        M_CYCLES -= 2;
+        T_STATES -= 8;
+        I_PERIOD += 8;
+    }
     m_fetch_ddcb_offset();
     m_fetch_ddcb_opcode();
     goto execute_ddcb_opcode;
@@ -639,6 +621,11 @@ execute_ddcb_opcode:
     goto epilog;
 
 fetch_fdcb_opcode:
+    /* FIXME */ {
+        M_CYCLES -= 2;
+        T_STATES -= 8;
+        I_PERIOD += 8;
+    }
     m_fetch_fdcb_offset();
     m_fetch_fdcb_opcode();
     goto execute_fdcb_opcode;

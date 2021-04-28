@@ -3069,127 +3069,123 @@ extern "C" {
     } while(0)
 
 /*
- * xxx
+ * ld r08,(r16+i08)
  */
 
-enum Codes
-{
-    NOP,LD_BC_WORD,LD_xBC_A,INC_BC,INC_B,DEC_B,LD_B_BYTE,RLCA,
-    EX_AF_AF,ADD_HL_BC,LD_A_xBC,DEC_BC,INC_C,DEC_C,LD_C_BYTE,RRCA,
-    DJNZ,LD_DE_WORD,LD_xDE_A,INC_DE,INC_D,DEC_D,LD_D_BYTE,RLA,
-    JR,ADD_HL_DE,LD_A_xDE,DEC_DE,INC_E,DEC_E,LD_E_BYTE,RRA,
-    JR_NZ,LD_HL_WORD,LD_xWORD_HL,INC_HL,INC_H,DEC_H,LD_H_BYTE,DAA,
-    JR_Z,ADD_HL_HL,LD_HL_xWORD,DEC_HL,INC_L,DEC_L,LD_L_BYTE,CPL,
-    JR_NC,LD_SP_WORD,LD_xWORD_A,INC_SP,INC_xHL,DEC_xHL,LD_xHL_BYTE,SCF,
-    JR_C,ADD_HL_SP,LD_A_xWORD,DEC_SP,INC_A,DEC_A,LD_A_BYTE,CCF,
-    LD_B_B,LD_B_C,LD_B_D,LD_B_E,LD_B_H,LD_B_L,LD_B_xHL,LD_B_A,
-    LD_C_B,LD_C_C,LD_C_D,LD_C_E,LD_C_H,LD_C_L,LD_C_xHL,LD_C_A,
-    LD_D_B,LD_D_C,LD_D_D,LD_D_E,LD_D_H,LD_D_L,LD_D_xHL,LD_D_A,
-    LD_E_B,LD_E_C,LD_E_D,LD_E_E,LD_E_H,LD_E_L,LD_E_xHL,LD_E_A,
-    LD_H_B,LD_H_C,LD_H_D,LD_H_E,LD_H_H,LD_H_L,LD_H_xHL,LD_H_A,
-    LD_L_B,LD_L_C,LD_L_D,LD_L_E,LD_L_H,LD_L_L,LD_L_xHL,LD_L_A,
-    LD_xHL_B,LD_xHL_C,LD_xHL_D,LD_xHL_E,LD_xHL_H,LD_xHL_L,HALT,LD_xHL_A,
-    LD_A_B,LD_A_C,LD_A_D,LD_A_E,LD_A_H,LD_A_L,LD_A_xHL,LD_A_A,
-    ADD_B,ADD_C,ADD_D,ADD_E,ADD_H,ADD_L,ADD_xHL,ADD_A,
-    ADC_B,ADC_C,ADC_D,ADC_E,ADC_H,ADC_L,ADC_xHL,ADC_A,
-    SUB_B,SUB_C,SUB_D,SUB_E,SUB_H,SUB_L,SUB_xHL,SUB_A,
-    SBC_B,SBC_C,SBC_D,SBC_E,SBC_H,SBC_L,SBC_xHL,SBC_A,
-    AND_B,AND_C,AND_D,AND_E,AND_H,AND_L,AND_xHL,AND_A,
-    XOR_B,XOR_C,XOR_D,XOR_E,XOR_H,XOR_L,XOR_xHL,XOR_A,
-    OR_B,OR_C,OR_D,OR_E,OR_H,OR_L,OR_xHL,OR_A,
-    CP_B,CP_C,CP_D,CP_E,CP_H,CP_L,CP_xHL,CP_A,
-    RET_NZ,POP_BC,JP_NZ,JP,CALL_NZ,PUSH_BC,ADD_BYTE,RST00,
-    RET_Z,RET,JP_Z,PFX_CB,CALL_Z,CALL,ADC_BYTE,RST08,
-    RET_NC,POP_DE,JP_NC,OUTA,CALL_NC,PUSH_DE,SUB_BYTE,RST10,
-    RET_C,EXX,JP_C,INA,CALL_C,PFX_DD,SBC_BYTE,RST18,
-    RET_PO,POP_HL,JP_PO,EX_HL_xSP,CALL_PO,PUSH_HL,AND_BYTE,RST20,
-    RET_PE,LD_PC_HL,JP_PE,EX_DE_HL,CALL_PE,PFX_ED,XOR_BYTE,RST28,
-    RET_P,POP_AF,JP_P,DI,CALL_P,PUSH_AF,OR_BYTE,RST30,
-    RET_M,LD_SP_HL,JP_M,EI,CALL_M,PFX_FD,CP_BYTE,RST38
-};
+#define m_ld_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_RD(WZ_W, reg1); \
+    } while(0)
 
-#define WrZ80(addr,data)  ((*IFACE.mreq_wr)((SELF),(addr),(data)))
-#define RdZ80(addr)       ((*IFACE.mreq_rd)((SELF),(addr),(0x00)))
-#define OutZ80(addr,data) ((*IFACE.iorq_wr)((SELF),(addr),(data)))
-#define InZ80(addr)       ((*IFACE.iorq_rd)((SELF),(addr),(0x00)))
+/*
+ * ld (r16+i08),r08
+ */
 
-#define S(Fl)        REGS.AF.b.l|=Fl
-#define R(Fl)        REGS.AF.b.l&=~(Fl)
-#define FLAGS(Rg,Fl) REGS.AF.b.l=Fl|ZSTable[Rg]
+#define m_ld_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_WR(WZ_W, reg2); \
+    } while(0)
 
-#define M_POP(Rg)      \
-  REGS.Rg.b.l=RdZ80(REGS.SP.w.l++);REGS.Rg.b.h=RdZ80(REGS.SP.w.l++)
+/*
+ * ld (r16+i08),i08
+ */
 
-#define M_PUSH(Rg)     \
-  WrZ80(--REGS.SP.w.l,REGS.Rg.b.h);WrZ80(--REGS.SP.w.l,REGS.Rg.b.l)
+#define m_ld_ind_r16_plus_i08_i08(reg1) \
+    do { \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_RD(PC_W++, T0_L); \
+        MREQ_WR(WZ_W  , T0_L); \
+    } while(0)
 
-#define M_CALL         \
-  WZ.b.l=RdZ80(REGS.PC.w.l++);WZ.b.h=RdZ80(REGS.PC.w.l++);         \
-  WrZ80(--REGS.SP.w.l,REGS.PC.b.h);WrZ80(--REGS.SP.w.l,REGS.PC.b.l); \
-  REGS.PC.w.l=WZ.w.l
+/*
+ * inc (r16+i08)
+ */
 
-#define M_JP  WZ.b.l=RdZ80(REGS.PC.w.l++);WZ.b.h=RdZ80(REGS.PC.w.l);REGS.PC.w.l=WZ.w.l
-#define M_JR  REGS.PC.w.l+=(int8_t)RdZ80(REGS.PC.w.l)+1
-#define M_RET REGS.PC.b.l=RdZ80(REGS.SP.w.l++);REGS.PC.b.h=RdZ80(REGS.SP.w.l++)
+#define m_inc_ind_r16_plus_i08(reg1) \
+    do { \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_RD(WZ_W, T1_L); \
+        m_inc_r08(T1_L); \
+        MREQ_WR(WZ_W, T1_L); \
+    } while(0)
 
-#define M_RST(Ad)      \
-  WrZ80(--REGS.SP.w.l,REGS.PC.b.h);WrZ80(--REGS.SP.w.l,REGS.PC.b.l);REGS.PC.w.l=Ad
+/*
+ * dec (r16+i08)
+ */
 
-#define M_LDWORD(Rg)   \
-  REGS.Rg.b.l=RdZ80(REGS.PC.w.l++);REGS.Rg.b.h=RdZ80(REGS.PC.w.l++)
+#define m_dec_ind_r16_plus_i08(reg1) \
+    do { \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_RD(WZ_W, T1_L); \
+        m_dec_r08(T1_L); \
+        MREQ_WR(WZ_W, T1_L); \
+    } while(0)
 
-#define M_SUB(Rg)      \
-  WZ.w.l=REGS.AF.b.h-Rg;    \
-  REGS.AF.b.l=           \
-    ((REGS.AF.b.h^Rg)&(REGS.AF.b.h^WZ.b.l)&0x80? VF:0)| \
-    NF|-WZ.b.h|ZSTable[WZ.b.l]|                      \
-    ((REGS.AF.b.h^Rg^WZ.b.l)&HF);                     \
-  REGS.AF.b.h=WZ.b.l
+#define m_add_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        m_add_r08_r08(T1_L, T2_L); \
+    } while(0)
 
-#define M_IN(Rg)        \
-  Rg=InZ80(REGS.BC.w.l);  \
-  REGS.AF.b.l=PZSTable[Rg]|(REGS.AF.b.l&CF)
+#define m_adc_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        m_adc_r08_r08(T1_L, T2_L); \
+    } while(0)
 
-#define M_INC(Rg)       \
-  Rg++;                 \
-  REGS.AF.b.l=            \
-    (REGS.AF.b.l&CF)|ZSTable[Rg]|           \
-    (Rg==0x80? VF:0)|(Rg&0x0F? 0:HF)
+#define m_sub_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        m_sub_r08_r08(T1_L, T2_L); \
+    } while(0)
 
-#define M_DEC(Rg)       \
-  Rg--;                 \
-  REGS.AF.b.l=            \
-    NF|(REGS.AF.b.l&CF)|ZSTable[Rg]| \
-    (Rg==0x7F? VF:0)|((Rg&0x0F)==0x0F? HF:0)
+#define m_sbc_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        m_sbc_r08_r08(T1_L, T2_L); \
+    } while(0)
 
-#define M_ADDW(Rg1,Rg2) \
-  WZ.w.l=(REGS.Rg1.w.l+REGS.Rg2.w.l)&0xFFFF;                        \
-  REGS.AF.b.l=                                             \
-    (REGS.AF.b.l&~(HF|NF|CF))|                 \
-    ((REGS.Rg1.w.l^REGS.Rg2.w.l^WZ.w.l)&0x1000? HF:0)|          \
-    (((long)REGS.Rg1.w.l+(long)REGS.Rg2.w.l)&0x10000? CF:0); \
-  REGS.Rg1.w.l=WZ.w.l
+#define m_and_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        m_and_r08_r08(T1_L, T2_L); \
+    } while(0)
 
-#define M_ADCW(reg1, reg2) \
-  T2_W = reg2; \
-  T1_L=AF_L&CF;WZ_W=(reg1+T2_W+T1_L)&0xFFFF; \
-  AF_L= \
-    (((long)reg1+(long)T2_W+(long)T1_L)&0x10000? CF:0)| \
-    (~(reg1^T2_W)&(T2_W^WZ_W)&0x8000? VF:0)| \
-    ((reg1^T2_W^WZ_W)&0x1000? HF:0)| \
-    (WZ_W? 0:ZF)|(WZ.b.h&SF); \
-  reg1=WZ_W
+#define m_xor_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        m_xor_r08_r08(T1_L, T2_L); \
+    } while(0)
 
-#define M_SBCW(reg1, reg2) \
-  T2_W = reg2; \
-  T1_L=AF_L&CF;WZ_W=(reg1-T2_W-T1_L)&0xFFFF; \
-  AF_L= \
-    NF| \
-    (((long)reg1-(long)T2_W-(long)T1_L)&0x10000? CF:0)| \
-    ((reg1^T2_W)&(reg1^WZ_W)&0x8000? VF:0)| \
-    ((reg1^T2_W^WZ_W)&0x1000? HF:0)| \
-    (WZ_W? 0:ZF)|(WZ.b.h&SF); \
-  reg1=WZ_W
+#define m_or_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        m_or_r08_r08(T1_L, T2_L); \
+    } while(0)
+
+#define m_cp_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        m_cp_r08_r08(T1_L, T2_L); \
+    } while(0)
 
 #ifdef __cplusplus
 }
