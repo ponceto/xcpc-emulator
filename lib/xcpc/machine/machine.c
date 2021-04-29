@@ -2777,7 +2777,7 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
                 break;
         }
         if(self->setup.turbo != 0) {
-            self->frame.rate     = 500;
+            self->frame.rate     = 1000;
             self->frame.duration = 1UL;
         }
     }
@@ -3126,6 +3126,11 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
     }
     /* schedule the next frame in ms */ {
         timeout = (timeout + 1000UL) / 1000UL;
+    }
+    /* adjust timeout in turbo mode */ {
+        if((self->setup.turbo != 0) && (self->stats.count != 0)) {
+            timeout = 0UL;
+        }
     }
     return timeout;
 }
