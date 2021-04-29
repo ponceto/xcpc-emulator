@@ -103,13 +103,3 @@ You should have received a copy of the GNU Library General Public
 License along with this library; if not, write to the Free
 Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ```
-
-### Third party code
-
-This software is very partly based on the Z80 emulator from Marat Fayzullin.
-
-  - http://www.komkon.org/fms/
-
-A complete rewrite of the Z80 emulator is in progress.
-
-The new core will not contain any source code from the original Marat's implementation and will be available under the GNU General Public License (GPL).

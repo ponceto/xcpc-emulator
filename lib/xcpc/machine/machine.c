@@ -92,18 +92,23 @@ static void compute_stats(XcpcMachine* self)
             const double stats_elapsed = (double) elapsed_us;
             const double stats_fps     = (stats_frames / stats_elapsed);
             (void) snprintf ( self->stats.buffer, sizeof(self->stats.buffer)
-                            , "refresh = %2d Hz, framerate = %.2f fps, total-hsync = %d, total-vsync = %d"
+                            , "refresh=%2d hz, framerate=%.2f fps, total-hsync=%d, total-vsync=%d, frames=%d/%d"
                             , self->frame.rate
                             , stats_fps
                             , self->stats.hsync
-                            , self->stats.vsync );
+                            , self->stats.vsync
+                            , self->stats.drawn
+                            , self->stats.count );
         }
         else {
             (void) snprintf ( self->stats.buffer, sizeof(self->stats.buffer)
-                            , "refresh = %2d Hz, total-hsync = %d, total-vsync = %d"
+                            , "refresh=%2d hz, framerate=%.2f fps, total-hsync=%d, total-vsync=%d, frames=%d/%d"
                             , self->frame.rate
+                            , 0.0f
                             , self->stats.hsync
-                            , self->stats.vsync );
+                            , self->stats.vsync
+                            , self->stats.drawn
+                            , self->stats.count );
         }
     }
     /* print the statistics */ {
@@ -2778,6 +2783,11 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
     /* reset instance */ {
         (void) xcpc_machine_reset(self);
     }
+    /* load initial snapshot */ {
+        if(is_set(opt_snapshot)) {
+            xcpc_machine_load_snapshot(self, opt_snapshot);
+        }
+    }
     /* load initial drive0 */ {
         if(is_set(opt_drive0)) {
             xcpc_machine_insert_drive0(self, opt_drive0);
@@ -2786,11 +2796,6 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
     /* load initial drive1 */ {
         if(is_set(opt_drive1)) {
             xcpc_machine_insert_drive1(self, opt_drive1);
-        }
-    }
-    /* load initial snapshot */ {
-        if(is_set(opt_snapshot)) {
-            xcpc_machine_load_snapshot(self, opt_snapshot);
         }
     }
     /* cleanup */ {
@@ -3093,7 +3098,7 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
         }
     }
     /* draw the frame and compute stats if needed */ {
-        if((self->stats.count == 0) || (elapsed <= self->frame.duration)) {
+        if((self->stats.count == 0) || ((self->setup.turbo == 0) && (elapsed <= self->frame.duration))) {
             (*self->funcs.paint_func)(self);
             ++self->stats.drawn;
         }
