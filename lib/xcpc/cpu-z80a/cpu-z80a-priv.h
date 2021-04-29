@@ -23,10 +23,6 @@
 extern "C" {
 #endif
 
-#ifndef AVOID_UNUSED_WARNING
-#define AVOID_UNUSED_WARNING(symbol) (void)(symbol)
-#endif
-
 #define CF 0x01 /* carry / borrow         */
 #define NF 0x02 /* add / sub              */
 #define VF 0x04 /* overflow               */
@@ -36,15 +32,6 @@ extern "C" {
 #define YF 0x20 /* undocumented           */
 #define ZF 0x40 /* zero                   */
 #define SF 0x80 /* sign                   */
-
-#define OP_ADD 0x00 /* ADD operation */
-#define OP_ADC 0x00 /* ADC operation */
-#define OP_SUB 0x02 /* SUB operation */
-#define OP_SBC 0x02 /* SBC operation */
-#define OP_AND 0x10 /* AND operation */
-#define OP_XOR 0x00 /* XOR operation */
-#define OP_IOR 0x00 /* IOR operation */
-#define OP_CMP 0x02 /* CMP operation */
 
 #define ST_IFF1 0x01 /* interrupt flip-flop #1 */
 #define ST_IFF2 0x02 /* interrupt flip-flop #2 */
@@ -3123,6 +3110,10 @@ extern "C" {
         MREQ_WR(WZ_W, T1_L); \
     } while(0)
 
+/*
+ * add r08,(r16+i08)
+ */
+
 #define m_add_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
         WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
@@ -3130,6 +3121,10 @@ extern "C" {
         T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
         m_add_r08_r08(T1_L, T2_L); \
     } while(0)
+
+/*
+ * adc r08,(r16+i08)
+ */
 
 #define m_adc_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
@@ -3139,6 +3134,10 @@ extern "C" {
         m_adc_r08_r08(T1_L, T2_L); \
     } while(0)
 
+/*
+ * sub r08,(r16+i08)
+ */
+
 #define m_sub_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
         WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
@@ -3146,6 +3145,10 @@ extern "C" {
         T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
         m_sub_r08_r08(T1_L, T2_L); \
     } while(0)
+
+/*
+ * sbc r08,(r16+i08)
+ */
 
 #define m_sbc_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
@@ -3155,6 +3158,10 @@ extern "C" {
         m_sbc_r08_r08(T1_L, T2_L); \
     } while(0)
 
+/*
+ * and r08,(r16+i08)
+ */
+
 #define m_and_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
         WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
@@ -3162,6 +3169,10 @@ extern "C" {
         T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
         m_and_r08_r08(T1_L, T2_L); \
     } while(0)
+
+/*
+ * xor r08,(r16+i08)
+ */
 
 #define m_xor_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
@@ -3171,6 +3182,10 @@ extern "C" {
         m_xor_r08_r08(T1_L, T2_L); \
     } while(0)
 
+/*
+ * or r08,(r16+i08)
+ */
+
 #define m_or_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
         WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
@@ -3179,12 +3194,215 @@ extern "C" {
         m_or_r08_r08(T1_L, T2_L); \
     } while(0)
 
+/*
+ * cp r08,(r16+i08)
+ */
+
 #define m_cp_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
         WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
         T1_L = reg1; \
         T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
         m_cp_r08_r08(T1_L, T2_L); \
+    } while(0)
+
+/*
+ * rlc (r16+i08)
+ */
+
+#define m_rlc_ind_r16_plus_i08(reg1) \
+    do { \
+        m_rlc_ind_r16(WZ_W); \
+    } while(0)
+
+/*
+ * rlc (r16+i08),r08
+ */
+
+#define m_rlc_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        m_rlc_ind_r16(WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * rrc (r16+i08)
+ */
+
+#define m_rrc_ind_r16_plus_i08(reg1) \
+    do { \
+        m_rrc_ind_r16(WZ_W); \
+    } while(0)
+
+/*
+ * rrc (r16+i08),r08
+ */
+
+#define m_rrc_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        m_rrc_ind_r16(WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * rl (r16+i08)
+ */
+
+#define m_rl_ind_r16_plus_i08(reg1) \
+    do { \
+        m_rl_ind_r16(WZ_W); \
+    } while(0)
+
+/*
+ * rl (r16+i08),r08
+ */
+
+#define m_rl_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        m_rl_ind_r16(WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * rr (r16+i08)
+ */
+
+#define m_rr_ind_r16_plus_i08(reg1) \
+    do { \
+        m_rr_ind_r16(WZ_W); \
+    } while(0)
+
+/*
+ * rr (r16+i08),r08
+ */
+
+#define m_rr_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        m_rr_ind_r16(WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * sla (r16+i08)
+ */
+
+#define m_sla_ind_r16_plus_i08(reg1) \
+    do { \
+        m_sla_ind_r16(WZ_W); \
+    } while(0)
+
+/*
+ * sla (r16+i08),r08
+ */
+
+#define m_sla_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        m_sla_ind_r16(WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * sra (r16+i08)
+ */
+
+#define m_sra_ind_r16_plus_i08(reg1) \
+    do { \
+        m_sra_ind_r16(WZ_W); \
+    } while(0)
+
+/*
+ * sra (r16+i08),r08
+ */
+
+#define m_sra_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        m_sra_ind_r16(WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * sll (r16+i08)
+ */
+
+#define m_sll_ind_r16_plus_i08(reg1) \
+    do { \
+        m_sll_ind_r16(WZ_W); \
+    } while(0)
+
+/*
+ * sll (r16+i08),r08
+ */
+
+#define m_sll_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        m_sll_ind_r16(WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * srl (r16+i08)
+ */
+
+#define m_srl_ind_r16_plus_i08(reg1) \
+    do { \
+        m_srl_ind_r16(WZ_W); \
+    } while(0)
+
+/*
+ * srl (r16+i08),r08
+ */
+
+#define m_srl_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        m_srl_ind_r16(WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * bit b,(r16+i08)
+ */
+
+#define m_bit_b_ind_r16_plus_i08(mask, reg1) \
+    do { \
+        m_bit_b_ind_r16(mask, WZ_W); \
+    } while(0)
+
+/*
+ * res b,(r16+i08)
+ */
+
+#define m_res_b_ind_r16_plus_i08(mask, reg1) \
+    do { \
+        m_res_b_ind_r16(mask, WZ_W); \
+    } while(0)
+
+/*
+ * res b,(r16+i08),r08
+ */
+
+#define m_res_b_ind_r16_plus_i08_r08(mask, reg1, reg2) \
+    do { \
+        m_res_b_ind_r16(mask, WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
+    } while(0)
+
+/*
+ * set b,(r16+i08)
+ */
+
+#define m_set_b_ind_r16_plus_i08(mask, reg1) \
+    do { \
+        m_set_b_ind_r16(mask, WZ_W); \
+    } while(0)
+
+/*
+ * set b,(r16+i08),r08
+ */
+
+#define m_set_b_ind_r16_plus_i08_r08(mask, reg1, reg2) \
+    do { \
+        m_set_b_ind_r16(mask, WZ_W); \
+        m_ld_r08_r08(reg2, T0_L); \
     } while(0)
 
 #ifdef __cplusplus

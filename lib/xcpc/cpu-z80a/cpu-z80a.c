@@ -466,16 +466,12 @@ XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
 {
     uint16_t prev_pc;
     uint8_t  last_op;
-    XcpcRegister WZ;
     XcpcRegister T0;
     XcpcRegister T1;
     XcpcRegister T2;
     XcpcRegister T3;
+    XcpcRegister WZ;
 
-    /* avoid unused warning */ {
-        AVOID_UNUSED_WARNING(prev_pc);
-        AVOID_UNUSED_WARNING(last_op);
-    }
     if(I_PERIOD <= 0) {
         return self;
     }
@@ -516,7 +512,7 @@ execute_opcode:
                 m_illegal();
                 m_consume(m_cycles, t_states);
             }
-            goto epilog;
+            break;
     }
     goto epilog;
 
@@ -535,7 +531,7 @@ execute_cb_opcode:
                 m_illegal_cb();
                 m_consume(m_cycles, t_states);
             }
-            goto epilog;
+            break;
     }
     goto epilog;
 
@@ -554,7 +550,7 @@ execute_ed_opcode:
                 m_illegal_ed();
                 m_consume(m_cycles, t_states);
             }
-            goto epilog;
+            break;
     }
     goto epilog;
 
@@ -573,7 +569,7 @@ execute_dd_opcode:
                 m_illegal_dd();
                 m_consume(m_cycles, t_states);
             }
-            goto epilog;
+            break;
     }
     goto epilog;
 
@@ -592,16 +588,11 @@ execute_fd_opcode:
                 m_illegal_fd();
                 m_consume(m_cycles, t_states);
             }
-            goto epilog;
+            break;
     }
     goto epilog;
 
 fetch_ddcb_opcode:
-    /* FIXME */ {
-        M_CYCLES -= 2;
-        T_STATES -= 8;
-        I_PERIOD += 8;
-    }
     m_fetch_ddcb_offset();
     m_fetch_ddcb_opcode();
     goto execute_ddcb_opcode;
@@ -611,21 +602,16 @@ execute_ddcb_opcode:
 #include "cpu-z80a-opcodes-ddcb.inc"
         default:
             {
-                const uint32_t m_cycles = 4;
-                const uint32_t t_states = 16;
+                const uint32_t m_cycles = (4 - 2);
+                const uint32_t t_states = (16 - 8);
                 m_illegal_ddcb();
                 m_consume(m_cycles, t_states);
             }
-            goto epilog;
+            break;
     }
     goto epilog;
 
 fetch_fdcb_opcode:
-    /* FIXME */ {
-        M_CYCLES -= 2;
-        T_STATES -= 8;
-        I_PERIOD += 8;
-    }
     m_fetch_fdcb_offset();
     m_fetch_fdcb_opcode();
     goto execute_fdcb_opcode;
@@ -635,12 +621,12 @@ execute_fdcb_opcode:
 #include "cpu-z80a-opcodes-fdcb.inc"
         default:
             {
-                const uint32_t m_cycles = 4;
-                const uint32_t t_states = 16;
+                const uint32_t m_cycles = (4 - 2);
+                const uint32_t t_states = (16 - 8);
                 m_illegal_fdcb();
                 m_consume(m_cycles, t_states);
             }
-            goto epilog;
+            break;
     }
     goto epilog;
 

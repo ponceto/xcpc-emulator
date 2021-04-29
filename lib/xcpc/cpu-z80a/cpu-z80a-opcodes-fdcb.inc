@@ -1,2520 +1,2048 @@
-        case 0x00: /* LD B,RLC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | (T1_L >> 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x01: /* LD C,RLC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | (T1_L >> 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x02: /* LD D,RLC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | (T1_L >> 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x03: /* LD E,RLC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | (T1_L >> 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x04: /* LD H,RLC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | (T1_L >> 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x05: /* LD L,RLC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | (T1_L >> 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x06: /* RLC (IY+d)        */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | (T1_L >> 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x07: /* LD A,RLC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | (T1_L >> 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x08: /* LD B,RRC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) | (T1_L << 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x09: /* LD C,RRC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) | (T1_L << 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x0a: /* LD D,RRC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) | (T1_L << 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x0b: /* LD E,RRC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) | (T1_L << 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x0c: /* LD H,RRC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) | (T1_L << 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x0d: /* LD L,RRC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) | (T1_L << 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x0e: /* RRC (IY+d)        */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) | (T1_L << 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x0f: /* LD A,RRC (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) | (T1_L << 7);
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x10: /* LD B,RL  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L << 1;
-            if(AF_L & CF) {
-                T2_L |= 0x01;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x11: /* LD C,RL  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L << 1;
-            if(AF_L & CF) {
-                T2_L |= 0x01;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x12: /* LD D,RL  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L << 1;
-            if(AF_L & CF) {
-                T2_L |= 0x01;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x13: /* LD E,RL  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L << 1;
-            if(AF_L & CF) {
-                T2_L |= 0x01;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x14: /* LD H,RL  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L << 1;
-            if(AF_L & CF) {
-                T2_L |= 0x01;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x15: /* LD L,RL  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L << 1;
-            if(AF_L & CF) {
-                T2_L |= 0x01;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x16: /* RL  (IY+d)        */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L << 1;
-            if(AF_L & CF) {
-                T2_L |= 0x01;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x17: /* LD A,RL  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L << 1;
-            if(AF_L & CF) {
-                T2_L |= 0x01;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x18: /* LD B,RR  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L >> 1;
-            if(AF_L & CF) {
-                T2_L |= 0x80;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x19: /* LD C,RR  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L >> 1;
-            if(AF_L & CF) {
-                T2_L |= 0x80;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x1a: /* LD D,RR  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L >> 1;
-            if(AF_L & CF) {
-                T2_L |= 0x80;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x1b: /* LD E,RR  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L >> 1;
-            if(AF_L & CF) {
-                T2_L |= 0x80;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x1c: /* LD H,RR  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L >> 1;
-            if(AF_L & CF) {
-                T2_L |= 0x80;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x1d: /* LD L,RR  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L >> 1;
-            if(AF_L & CF) {
-                T2_L |= 0x80;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x1e: /* RR  (IY+d)        */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L >> 1;
-            if(AF_L & CF) {
-                T2_L |= 0x80;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x1f: /* LD A,RR  (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L >> 1;
-            if(AF_L & CF) {
-                T2_L |= 0x80;
-            }
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x20: /* LD B,SLA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) << 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x21: /* LD C,SLA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) << 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x22: /* LD D,SLA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) << 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x23: /* LD E,SLA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) << 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x24: /* LD H,SLA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) << 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x25: /* LD L,SLA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) << 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x26: /* SLA (IY+d)        */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) << 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x27: /* LD A,SLA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) << 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x28: /* LD B,SRA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) >> 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x29: /* LD C,SRA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) >> 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x2a: /* LD D,SRA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) >> 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x2b: /* LD E,SRA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) >> 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x2c: /* LD H,SRA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) >> 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x2d: /* LD L,SRA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) >> 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x2e: /* SRA (IY+d)        */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) >> 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x2f: /* LD A,SRA (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = ((int8_t) T1_L) >> 1;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x30: /* LD B,SLL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x31: /* LD C,SLL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x32: /* LD D,SLL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x33: /* LD E,SLL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x34: /* LD H,SLL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x35: /* LD L,SLL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x36: /* SLL (IY+d)        */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x37: /* LD A,SLL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L << 1) | 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x80) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x38: /* LD B,SRL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) & 0x7f;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x39: /* LD C,SRL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) & 0x7f;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x3a: /* LD D,SRL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) & 0x7f;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x3b: /* LD E,SRL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) & 0x7f;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x3c: /* LD H,SRL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) & 0x7f;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x3d: /* LD L,SRL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) & 0x7f;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x3e: /* SRL (IY+d)        */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) & 0x7f;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x3f: /* LD A,SRL (IY+d)   */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = (T1_L >> 1) & 0x7f;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L];
-            if(T1_L & 0x01) {
-                AF_L |= CF;
-            }
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x40: /* BIT 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x41: /* BIT 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x42: /* BIT 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x43: /* BIT 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x44: /* BIT 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x45: /* BIT 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x46: /* BIT 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x47: /* BIT 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x01;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x48: /* BIT 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x02;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x49: /* BIT 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x02;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x4a: /* BIT 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x02;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x4b: /* BIT 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x02;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x4c: /* BIT 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x02;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x4d: /* BIT 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x02;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x4e: /* BIT 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x02;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x4f: /* BIT 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x02;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x50: /* BIT 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x04;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x51: /* BIT 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x04;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x52: /* BIT 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x04;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x53: /* BIT 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x04;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x54: /* BIT 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x04;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x55: /* BIT 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x04;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x56: /* BIT 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x04;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x57: /* BIT 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x04;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x58: /* BIT 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x08;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x59: /* BIT 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x08;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x5a: /* BIT 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x08;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x5b: /* BIT 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x08;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x5c: /* BIT 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x08;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x5d: /* BIT 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x08;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x5e: /* BIT 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x08;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x5f: /* BIT 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x08;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x60: /* BIT 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x10;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x61: /* BIT 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x10;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x62: /* BIT 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x10;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x63: /* BIT 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x10;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x64: /* BIT 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x10;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x65: /* BIT 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x10;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x66: /* BIT 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x10;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x67: /* BIT 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x10;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x68: /* BIT 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x20;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x69: /* BIT 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x20;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x6a: /* BIT 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x20;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x6b: /* BIT 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x20;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x6c: /* BIT 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x20;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x6d: /* BIT 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x20;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x6e: /* BIT 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x20;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x6f: /* BIT 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x20;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x70: /* BIT 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x40;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x71: /* BIT 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x40;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x72: /* BIT 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x40;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x73: /* BIT 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x40;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x74: /* BIT 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x40;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x75: /* BIT 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x40;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x76: /* BIT 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x40;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x77: /* BIT 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x40;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x78: /* BIT 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x80;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x79: /* BIT 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x80;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x7a: /* BIT 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x80;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x7b: /* BIT 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x80;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x7c: /* BIT 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x80;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x7d: /* BIT 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x80;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x7e: /* BIT 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x80;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x7f: /* BIT 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x80;
-            AF_L = (T2_L & (SF | YF | XF)) | PZSTable[T2_L] | (AF_L & CF) | HF;
-            M_CYCLES += 5;
-            T_STATES += 20;
-            I_PERIOD -= 20;
-            break;
-        case 0x80: /* LD B,RES 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfe;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x81: /* LD C,RES 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfe;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x82: /* LD D,RES 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfe;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x83: /* LD E,RES 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfe;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x84: /* LD H,RES 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfe;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x85: /* LD L,RES 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfe;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x86: /* RES 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfe;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x87: /* LD A,RES 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfe;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x88: /* LD B,RES 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfd;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x89: /* LD C,RES 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfd;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x8a: /* LD D,RES 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfd;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x8b: /* LD E,RES 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfd;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x8c: /* LD H,RES 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfd;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x8d: /* LD L,RES 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfd;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x8e: /* RES 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfd;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x8f: /* LD A,RES 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfd;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x90: /* LD B,RES 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfb;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x91: /* LD C,RES 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfb;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x92: /* LD D,RES 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfb;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x93: /* LD E,RES 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfb;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x94: /* LD H,RES 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfb;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x95: /* LD L,RES 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfb;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x96: /* RES 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfb;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x97: /* LD A,RES 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xfb;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x98: /* LD B,RES 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xf7;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x99: /* LD C,RES 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xf7;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x9a: /* LD D,RES 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xf7;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x9b: /* LD E,RES 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xf7;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x9c: /* LD H,RES 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xf7;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x9d: /* LD L,RES 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xf7;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x9e: /* RES 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xf7;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0x9f: /* LD A,RES 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xf7;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa0: /* LD B,RES 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xef;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa1: /* LD C,RES 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xef;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa2: /* LD D,RES 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xef;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa3: /* LD E,RES 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xef;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa4: /* LD H,RES 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xef;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa5: /* LD L,RES 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xef;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa6: /* RES 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xef;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa7: /* LD A,RES 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xef;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa8: /* LD B,RES 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xdf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xa9: /* LD C,RES 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xdf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xaa: /* LD D,RES 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xdf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xab: /* LD E,RES 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xdf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xac: /* LD H,RES 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xdf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xad: /* LD L,RES 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xdf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xae: /* RES 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xdf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xaf: /* LD A,RES 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xdf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb0: /* LD B,RES 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xbf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb1: /* LD C,RES 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xbf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb2: /* LD D,RES 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xbf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb3: /* LD E,RES 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xbf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb4: /* LD H,RES 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xbf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb5: /* LD L,RES 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xbf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb6: /* RES 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xbf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb7: /* LD A,RES 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0xbf;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb8: /* LD B,RES 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x7f;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xb9: /* LD C,RES 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x7f;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xba: /* LD D,RES 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x7f;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xbb: /* LD E,RES 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x7f;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xbc: /* LD H,RES 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x7f;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xbd: /* LD L,RES 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x7f;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xbe: /* RES 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x7f;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xbf: /* LD A,RES 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L & 0x7f;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc0: /* LD B,SET 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x01;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc1: /* LD C,SET 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x01;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc2: /* LD D,SET 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x01;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc3: /* LD E,SET 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x01;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc4: /* LD H,SET 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x01;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc5: /* LD L,SET 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x01;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc6: /* SET 0,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x01;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc7: /* LD A,SET 0,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x01;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc8: /* LD B,SET 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x02;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xc9: /* LD C,SET 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x02;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xca: /* LD D,SET 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x02;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xcb: /* LD E,SET 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x02;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xcc: /* LD H,SET 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x02;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xcd: /* LD L,SET 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x02;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xce: /* SET 1,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x02;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xcf: /* LD A,SET 1,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x02;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd0: /* LD B,SET 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x04;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd1: /* LD C,SET 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x04;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd2: /* LD D,SET 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x04;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd3: /* LD E,SET 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x04;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd4: /* LD H,SET 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x04;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd5: /* LD L,SET 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x04;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd6: /* SET 2,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x04;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd7: /* LD A,SET 2,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x04;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd8: /* LD B,SET 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x08;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xd9: /* LD C,SET 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x08;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xda: /* LD D,SET 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x08;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xdb: /* LD E,SET 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x08;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xdc: /* LD H,SET 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x08;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xdd: /* LD L,SET 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x08;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xde: /* SET 3,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x08;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xdf: /* LD A,SET 3,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x08;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe0: /* LD B,SET 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x10;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe1: /* LD C,SET 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x10;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe2: /* LD D,SET 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x10;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe3: /* LD E,SET 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x10;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe4: /* LD H,SET 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x10;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe5: /* LD L,SET 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x10;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe6: /* SET 4,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x10;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe7: /* LD A,SET 4,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x10;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe8: /* LD B,SET 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x20;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xe9: /* LD C,SET 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x20;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xea: /* LD D,SET 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x20;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xeb: /* LD E,SET 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x20;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xec: /* LD H,SET 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x20;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xed: /* LD L,SET 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x20;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xee: /* SET 5,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x20;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xef: /* LD A,SET 5,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x20;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf0: /* LD B,SET 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x40;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf1: /* LD C,SET 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x40;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf2: /* LD D,SET 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x40;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf3: /* LD E,SET 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x40;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf4: /* LD H,SET 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x40;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf5: /* LD L,SET 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x40;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf6: /* SET 6,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x40;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf7: /* LD A,SET 6,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x40;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf8: /* LD B,SET 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x80;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xf9: /* LD C,SET 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x80;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            BC_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xfa: /* LD D,SET 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x80;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xfb: /* LD E,SET 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x80;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            DE_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xfc: /* LD H,SET 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x80;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xfd: /* LD L,SET 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x80;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            HL_L = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xfe: /* SET 7,(IY+d)      */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x80;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
-            break;
-        case 0xff: /* LD A,SET 7,(IY+d) */
-            T1_L = (*IFACE.mreq_rd)(self, WZ_W, 0x00);
-            T2_L = T1_L | 0x80;
-            (*IFACE.mreq_wr)(self, WZ_W, T2_L);
-            AF_H = T2_L;
-            M_CYCLES += 6;
-            T_STATES += 23;
-            I_PERIOD -= 23;
+        case 0x00: /* rlc (iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rlc_ind_r16_plus_i08_r08(IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x01: /* rlc (iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rlc_ind_r16_plus_i08_r08(IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x02: /* rlc (iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rlc_ind_r16_plus_i08_r08(IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x03: /* rlc (iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rlc_ind_r16_plus_i08_r08(IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x04: /* rlc (iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rlc_ind_r16_plus_i08_r08(IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x05: /* rlc (iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rlc_ind_r16_plus_i08_r08(IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x06: /* rlc (iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rlc_ind_r16_plus_i08(IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x07: /* rlc (iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rlc_ind_r16_plus_i08_r08(IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x08: /* rrc (iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rrc_ind_r16_plus_i08_r08(IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x09: /* rrc (iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rrc_ind_r16_plus_i08_r08(IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x0a: /* rrc (iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rrc_ind_r16_plus_i08_r08(IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x0b: /* rrc (iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rrc_ind_r16_plus_i08_r08(IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x0c: /* rrc (iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rrc_ind_r16_plus_i08_r08(IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x0d: /* rrc (iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rrc_ind_r16_plus_i08_r08(IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x0e: /* rrc (iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rrc_ind_r16_plus_i08(IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x0f: /* rrc (iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rrc_ind_r16_plus_i08_r08(IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x10: /* rl (iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rl_ind_r16_plus_i08_r08(IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x11: /* rl (iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rl_ind_r16_plus_i08_r08(IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x12: /* rl (iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rl_ind_r16_plus_i08_r08(IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x13: /* rl (iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rl_ind_r16_plus_i08_r08(IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x14: /* rl (iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rl_ind_r16_plus_i08_r08(IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x15: /* rl (iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rl_ind_r16_plus_i08_r08(IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x16: /* rl (iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rl_ind_r16_plus_i08(IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x17: /* rl (iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rl_ind_r16_plus_i08_r08(IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x18: /* rr (iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rr_ind_r16_plus_i08_r08(IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x19: /* rr (iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rr_ind_r16_plus_i08_r08(IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x1a: /* rr (iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rr_ind_r16_plus_i08_r08(IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x1b: /* rr (iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rr_ind_r16_plus_i08_r08(IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x1c: /* rr (iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rr_ind_r16_plus_i08_r08(IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x1d: /* rr (iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rr_ind_r16_plus_i08_r08(IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x1e: /* rr (iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rr_ind_r16_plus_i08(IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x1f: /* rr (iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_rr_ind_r16_plus_i08_r08(IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x20: /* sla (iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sla_ind_r16_plus_i08_r08(IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x21: /* sla (iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sla_ind_r16_plus_i08_r08(IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x22: /* sla (iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sla_ind_r16_plus_i08_r08(IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x23: /* sla (iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sla_ind_r16_plus_i08_r08(IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x24: /* sla (iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sla_ind_r16_plus_i08_r08(IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x25: /* sla (iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sla_ind_r16_plus_i08_r08(IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x26: /* sla (iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sla_ind_r16_plus_i08(IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x27: /* sla (iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sla_ind_r16_plus_i08_r08(IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x28: /* sra (iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sra_ind_r16_plus_i08_r08(IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x29: /* sra (iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sra_ind_r16_plus_i08_r08(IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x2a: /* sra (iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sra_ind_r16_plus_i08_r08(IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x2b: /* sra (iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sra_ind_r16_plus_i08_r08(IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x2c: /* sra (iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sra_ind_r16_plus_i08_r08(IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x2d: /* sra (iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sra_ind_r16_plus_i08_r08(IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x2e: /* sra (iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sra_ind_r16_plus_i08(IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x2f: /* sra (iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sra_ind_r16_plus_i08_r08(IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x30: /* sll (iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sll_ind_r16_plus_i08_r08(IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x31: /* sll (iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sll_ind_r16_plus_i08_r08(IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x32: /* sll (iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sll_ind_r16_plus_i08_r08(IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x33: /* sll (iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sll_ind_r16_plus_i08_r08(IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x34: /* sll (iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sll_ind_r16_plus_i08_r08(IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x35: /* sll (iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sll_ind_r16_plus_i08_r08(IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x36: /* sll (iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sll_ind_r16_plus_i08(IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x37: /* sll (iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_sll_ind_r16_plus_i08_r08(IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x38: /* srl (iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_srl_ind_r16_plus_i08_r08(IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x39: /* srl (iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_srl_ind_r16_plus_i08_r08(IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x3a: /* srl (iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_srl_ind_r16_plus_i08_r08(IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x3b: /* srl (iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_srl_ind_r16_plus_i08_r08(IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x3c: /* srl (iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_srl_ind_r16_plus_i08_r08(IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x3d: /* srl (iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_srl_ind_r16_plus_i08_r08(IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x3e: /* srl (iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_srl_ind_r16_plus_i08(IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x3f: /* srl (iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_srl_ind_r16_plus_i08_r08(IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x40: /* bit 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x41: /* bit 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x42: /* bit 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x43: /* bit 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x44: /* bit 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x45: /* bit 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x46: /* bit 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x47: /* bit 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x48: /* bit 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x49: /* bit 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x4a: /* bit 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x4b: /* bit 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x4c: /* bit 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x4d: /* bit 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x4e: /* bit 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x4f: /* bit 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x50: /* bit 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x51: /* bit 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x52: /* bit 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x53: /* bit 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x54: /* bit 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x55: /* bit 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x56: /* bit 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x57: /* bit 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x58: /* bit 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x59: /* bit 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x5a: /* bit 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x5b: /* bit 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x5c: /* bit 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x5d: /* bit 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x5e: /* bit 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x5f: /* bit 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x60: /* bit 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x61: /* bit 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x62: /* bit 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x63: /* bit 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x64: /* bit 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x65: /* bit 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x66: /* bit 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x67: /* bit 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x68: /* bit 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x69: /* bit 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x6a: /* bit 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x6b: /* bit 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x6c: /* bit 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x6d: /* bit 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x6e: /* bit 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x6f: /* bit 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x70: /* bit 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x71: /* bit 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x72: /* bit 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x73: /* bit 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x74: /* bit 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x75: /* bit 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x76: /* bit 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x77: /* bit 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x78: /* bit 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x79: /* bit 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x7a: /* bit 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x7b: /* bit 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x7c: /* bit 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x7d: /* bit 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x7e: /* bit 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x7f: /* bit 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (5 - 2);
+                const uint32_t t_states = (20 - 8);
+                m_bit_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x80: /* res 0,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT0, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x81: /* res 0,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT0, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x82: /* res 0,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT0, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x83: /* res 0,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT0, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x84: /* res 0,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT0, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x85: /* res 0,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT0, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x86: /* res 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x87: /* res 0,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT0, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x88: /* res 1,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT1, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x89: /* res 1,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT1, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x8a: /* res 1,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT1, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x8b: /* res 1,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT1, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x8c: /* res 1,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT1, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x8d: /* res 1,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT1, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x8e: /* res 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x8f: /* res 1,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT1, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x90: /* res 2,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT2, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x91: /* res 2,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT2, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x92: /* res 2,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT2, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x93: /* res 2,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT2, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x94: /* res 2,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT2, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x95: /* res 2,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT2, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x96: /* res 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x97: /* res 2,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT2, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x98: /* res 3,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT3, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x99: /* res 3,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT3, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x9a: /* res 3,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT3, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x9b: /* res 3,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT3, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x9c: /* res 3,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT3, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x9d: /* res 3,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT3, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x9e: /* res 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0x9f: /* res 3,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT3, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa0: /* res 4,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT4, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa1: /* res 4,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT4, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa2: /* res 4,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT4, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa3: /* res 4,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT4, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa4: /* res 4,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT4, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa5: /* res 4,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT4, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa6: /* res 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa7: /* res 4,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT4, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa8: /* res 5,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT5, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xa9: /* res 5,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT5, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xaa: /* res 5,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT5, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xab: /* res 5,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT5, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xac: /* res 5,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT5, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xad: /* res 5,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT5, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xae: /* res 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xaf: /* res 5,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT5, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb0: /* res 6,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT6, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb1: /* res 6,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT6, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb2: /* res 6,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT6, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb3: /* res 6,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT6, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb4: /* res 6,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT6, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb5: /* res 6,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT6, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb6: /* res 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb7: /* res 6,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT6, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb8: /* res 7,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT7, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xb9: /* res 7,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT7, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xba: /* res 7,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT7, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xbb: /* res 7,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT7, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xbc: /* res 7,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT7, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xbd: /* res 7,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT7, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xbe: /* res 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xbf: /* res 7,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_res_b_ind_r16_plus_i08_r08(BIT7, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc0: /* set 0,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT0, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc1: /* set 0,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT0, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc2: /* set 0,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT0, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc3: /* set 0,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT0, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc4: /* set 0,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT0, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc5: /* set 0,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT0, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc6: /* set 0,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08(BIT0, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc7: /* set 0,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT0, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc8: /* set 1,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT1, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xc9: /* set 1,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT1, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xca: /* set 1,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT1, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xcb: /* set 1,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT1, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xcc: /* set 1,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT1, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xcd: /* set 1,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT1, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xce: /* set 1,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08(BIT1, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xcf: /* set 1,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT1, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd0: /* set 2,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT2, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd1: /* set 2,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT2, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd2: /* set 2,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT2, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd3: /* set 2,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT2, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd4: /* set 2,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT2, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd5: /* set 2,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT2, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd6: /* set 2,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08(BIT2, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd7: /* set 2,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT2, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd8: /* set 3,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT3, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xd9: /* set 3,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT3, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xda: /* set 3,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT3, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xdb: /* set 3,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT3, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xdc: /* set 3,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT3, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xdd: /* set 3,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT3, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xde: /* set 3,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08(BIT3, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xdf: /* set 3,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT3, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe0: /* set 4,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT4, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe1: /* set 4,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT4, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe2: /* set 4,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT4, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe3: /* set 4,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT4, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe4: /* set 4,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT4, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe5: /* set 4,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT4, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe6: /* set 4,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08(BIT4, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe7: /* set 4,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT4, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe8: /* set 5,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT5, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xe9: /* set 5,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT5, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xea: /* set 5,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT5, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xeb: /* set 5,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT5, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xec: /* set 5,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT5, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xed: /* set 5,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT5, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xee: /* set 5,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08(BIT5, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xef: /* set 5,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT5, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf0: /* set 6,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT6, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf1: /* set 6,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT6, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf2: /* set 6,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT6, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf3: /* set 6,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT6, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf4: /* set 6,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT6, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf5: /* set 6,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT6, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf6: /* set 6,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08(BIT6, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf7: /* set 6,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT6, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf8: /* set 7,(iy+d),b */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT7, IY_W, BC_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xf9: /* set 7,(iy+d),c */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT7, IY_W, BC_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xfa: /* set 7,(iy+d),d */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT7, IY_W, DE_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xfb: /* set 7,(iy+d),e */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT7, IY_W, DE_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xfc: /* set 7,(iy+d),h */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT7, IY_W, HL_H);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xfd: /* set 7,(iy+d),l */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT7, IY_W, HL_L);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xfe: /* set 7,(iy+d) */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08(BIT7, IY_W);
+                m_consume(m_cycles, t_states);
+            }
+            break;
+        case 0xff: /* set 7,(iy+d),a */
+            {
+                const uint32_t m_cycles = (6 - 2);
+                const uint32_t t_states = (23 - 8);
+                m_set_b_ind_r16_plus_i08_r08(BIT7, IY_W, AF_H);
+                m_consume(m_cycles, t_states);
+            }
             break;
