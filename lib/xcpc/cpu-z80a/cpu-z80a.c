@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cpu-z80a-priv.h"
+#include "cpu-z80a-microcode.h"
 
 static const uint16_t DAATable[2048] = {
     0x0044, 0x0100, 0x0200, 0x0304, 0x0400, 0x0504, 0x0604, 0x0700,
