@@ -2990,9 +2990,9 @@ extern "C" {
         AF_H = ~AF_H; \
         AF_L = /* SF is not affected */ (SF & (AF_L)) \
              | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (AF_H)) \
              | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (AF_H)) \
              | /* PF is not affected */ (PF & (AF_L)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is not affected */ (CF & (AF_L)) \
@@ -3007,9 +3007,9 @@ extern "C" {
     do { \
         AF_L = /* SF is not affected */ (SF & (AF_L)) \
              | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (AF_H)) \
              | /* HF is affected     */ (HF & ((AF_L & CF) != 0 ? 0xff : 0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (AF_H)) \
              | /* PF is not affected */ (PF & (AF_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is inverted     */ (CF & ((AF_L & CF) != 0 ? 0x00 : 0xff)) \
@@ -3024,9 +3024,9 @@ extern "C" {
     do { \
         AF_L = /* SF is not affected */ (SF & (AF_L)) \
              | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (AF_H)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (AF_H)) \
              | /* PF is not affected */ (PF & (AF_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is set          */ (CF & (0xff)) \
