@@ -2242,12 +2242,12 @@ extern "C" {
     do { \
         T1_L = data; \
         T0_L = (T1_L & mask); \
-        AF_L = /* SF is undocumented */ (SF & (T0_L & mask)) \
+        AF_L = /* SF is undocumented */ (SF & (T0_L)) \
              | /* ZF is affected     */ (ZF & (T0_L == 0x00 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (T0_L & mask)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (T0_L & mask)) \
-             | /* PF is undocumented */ (PF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* PF is undocumented */ (PF & (T0_L == 0x00 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
              ; \
@@ -2261,12 +2261,12 @@ extern "C" {
     do { \
         MREQ_RD(addr, T1_L); \
         T0_L = (T1_L & mask); \
-        AF_L = /* SF is undocumented */ (SF & (T0_L & mask)) \
+        AF_L = /* SF is undocumented */ (SF & (T0_L)) \
              | /* ZF is affected     */ (ZF & (T0_L == 0x00 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (T0_L & mask)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (T0_L & mask)) \
-             | /* PF is undocumented */ (PF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* PF is undocumented */ (PF & (T0_L == 0x00 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
              ; \
@@ -2909,9 +2909,9 @@ extern "C" {
         T0_W = (T1_W + T2_W); \
         AF_L = /* SF is not affected */ (SF & (AF_L)) \
              | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_H)) \
              | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_H)) \
              | /* VF is not affected */ (VF & (AF_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) + SIGNED_LONG(T2_W)) & 0x10000 ? 0xff : 0x00)) \
@@ -2931,9 +2931,9 @@ extern "C" {
         T0_W = (T1_W + T2_W + T3_W); \
         AF_L = /* SF is affected     */ (SF & (T0_H)) \
              | /* ZF is affected     */ (ZF & (T0_W == 0 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_H)) \
              | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_H)) \
              | /* VF is affected     */ (VF & (~(T1_W ^ T2_W) & (T2_W ^ T0_W) & 0x8000 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) + SIGNED_LONG(T2_W) + SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
@@ -2953,9 +2953,9 @@ extern "C" {
         T0_W = (T1_W - T2_W - T3_W); \
         AF_L = /* SF is affected     */ (SF & (T0_H)) \
              | /* ZF is affected     */ (ZF & (T0_W == 0 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_H)) \
              | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_H)) \
              | /* VF is affected     */ (VF & ((T1_W ^ T2_W) & (T1_W ^ T0_W) & 0x8000 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0xff)) \
              | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) - SIGNED_LONG(T2_W) - SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
