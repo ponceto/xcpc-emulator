@@ -2777,7 +2777,8 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
                 break;
         }
         if(self->setup.turbo != 0) {
-            self->frame.duration = 1000;
+            self->frame.rate     = 500;
+            self->frame.duration = 1UL;
         }
     }
     /* reset instance */ {
@@ -3098,7 +3099,7 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
         }
     }
     /* draw the frame and compute stats if needed */ {
-        if((self->stats.count == 0) || ((self->setup.turbo == 0) && (elapsed <= self->frame.duration))) {
+        if((self->stats.count == 0) || (elapsed <= self->frame.duration)) {
             (*self->funcs.paint_func)(self);
             ++self->stats.drawn;
         }
