@@ -1022,9 +1022,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T2_L)) \
              | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T2_L)) \
              | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is reset        */ (CF & (T0_H & CF)) \
@@ -1043,9 +1043,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T2_L)) \
              | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T2_L)) \
              | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is reset        */ (CF & (T0_H & CF)) \
@@ -1064,9 +1064,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T2_L)) \
              | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T2_L)) \
              | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is reset        */ (CF & (T0_H & CF)) \
