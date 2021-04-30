@@ -67,20 +67,18 @@ static char* build_filename(const char* directory, const char* filename)
 
 static void compute_stats(XcpcMachine* self)
 {
-    struct timeval prev_time = self->timer.profiler;
-    struct timeval curr_time = self->timer.profiler;
     unsigned long elapsed_us = 0;
 
     /* get the current time */ {
-        if(gettimeofday(&curr_time, NULL) != 0) {
+        if(gettimeofday(&self->timer.currtime, NULL) != 0) {
             xcpc_log_error("gettimeofday() has failed");
         }
     }
     /* compute the elapsed time in us */ {
-        const long long t1 = (((long long) prev_time.tv_sec) * 1000000LL) + ((long long) prev_time.tv_usec);
-        const long long t2 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
-        if(t2 >= t1) {
-            elapsed_us = ((unsigned long)(t2 - t1));
+        const long long prevtime = XCPC_TIMESTAMP_OF(&self->timer.profiler);
+        const long long currtime = XCPC_TIMESTAMP_OF(&self->timer.currtime);
+        if(currtime >= prevtime) {
+            elapsed_us = ((unsigned long)(currtime - prevtime));
         }
         else {
             elapsed_us = 0UL;
@@ -88,27 +86,27 @@ static void compute_stats(XcpcMachine* self)
     }
     /* compute and print the statistics */ {
         if(elapsed_us != 0) {
-            const double stats_frames  = (double) (self->stats.drawn * 1000000UL);
-            const double stats_elapsed = (double) elapsed_us;
+            const double stats_frames  = ((double)(self->stats.frame_drawn * 1000000UL));
+            const double stats_elapsed = ((double)(elapsed_us));
             const double stats_fps     = (stats_frames / stats_elapsed);
             (void) snprintf ( self->stats.buffer, sizeof(self->stats.buffer)
                             , "refresh=%2d hz, framerate=%.2f fps, total-hsync=%d, total-vsync=%d, frames=%d/%d"
                             , self->frame.rate
                             , stats_fps
-                            , self->stats.hsync
-                            , self->stats.vsync
-                            , self->stats.drawn
-                            , self->stats.count );
+                            , self->stats.total_hsync
+                            , self->stats.total_vsync
+                            , self->stats.frame_drawn
+                            , self->stats.frame_count );
         }
         else {
             (void) snprintf ( self->stats.buffer, sizeof(self->stats.buffer)
                             , "refresh=%2d hz, framerate=%.2f fps, total-hsync=%d, total-vsync=%d, frames=%d/%d"
                             , self->frame.rate
                             , 0.0f
-                            , self->stats.hsync
-                            , self->stats.vsync
-                            , self->stats.drawn
-                            , self->stats.count );
+                            , self->stats.total_hsync
+                            , self->stats.total_vsync
+                            , self->stats.frame_drawn
+                            , self->stats.frame_count );
         }
     }
     /* print the statistics */ {
@@ -117,11 +115,11 @@ static void compute_stats(XcpcMachine* self)
         }
     }
     /* set the new reference */ {
-        self->timer.profiler = curr_time;
-        self->stats.count    = 0;
-        self->stats.drawn    = 0;
-        self->stats.hsync    = 0;
-        self->stats.vsync    = 0;
+        self->timer.profiler = self->timer.currtime;
+        self->stats.frame_count    = 0;
+        self->stats.frame_drawn    = 0;
+        self->stats.total_hsync    = 0;
+        self->stats.total_vsync    = 0;
     }
 #ifdef XCPC_DEBUG_VGA_CORE
     (void) xcpc_vga_core_debug(self->board.vga_core);
@@ -581,7 +579,7 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     if((self->state.hsync = hsync) != 0) {
         const unsigned int last_scanline = countof(self->frame.scanline_array) - 1;
         /* rising edge */ {
-            ++self->stats.hsync;
+            ++self->stats.total_hsync;
             if(++self->frame.beam_y > last_scanline) {
                 self->frame.beam_y = last_scanline;
             }
@@ -628,7 +626,7 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
 
     if((self->state.vsync = vsync) != 0) {
         /* rising edge */ {
-            ++self->stats.vsync;
+            ++self->stats.total_vsync;
             self->board.vga_core->state.delayed = 2;
         }
     }
@@ -2391,11 +2389,11 @@ static void reset_frame(XcpcMachine* self)
 
 static void construct_stats(XcpcMachine* self)
 {
-    self->stats.count     = 0;
-    self->stats.drawn     = 0;
-    self->stats.hsync     = 0;
-    self->stats.vsync     = 0;
-    self->stats.buffer[0] = '\0';
+    self->stats.frame_count = 0;
+    self->stats.frame_drawn = 0;
+    self->stats.total_hsync = 0;
+    self->stats.total_vsync = 0;
+    self->stats.buffer[0]   = '\0';
 }
 
 static void destruct_stats(XcpcMachine* self)
@@ -2404,15 +2402,17 @@ static void destruct_stats(XcpcMachine* self)
 
 static void reset_stats(XcpcMachine* self)
 {
-    self->stats.count     &= 0; /* clear value  */
-    self->stats.drawn     &= 0; /* clear value  */
-    self->stats.hsync     &= 0; /* clear value  */
-    self->stats.vsync     &= 0; /* clear value  */
-    self->stats.buffer[0] &= 0; /* clear value  */
+    self->stats.frame_count &= 0; /* clear value  */
+    self->stats.frame_drawn &= 0; /* clear value  */
+    self->stats.total_hsync &= 0; /* clear value  */
+    self->stats.total_vsync &= 0; /* clear value  */
+    self->stats.buffer[0]   &= 0; /* clear value  */
 }
 
 static void construct_timer(XcpcMachine* self)
 {
+    self->timer.currtime.tv_sec  = 0;
+    self->timer.currtime.tv_usec = 0;
     self->timer.deadline.tv_sec  = 0;
     self->timer.deadline.tv_usec = 0;
     self->timer.profiler.tv_sec  = 0;
@@ -2425,12 +2425,16 @@ static void destruct_timer(XcpcMachine* self)
 
 static void reset_timer(XcpcMachine* self)
 {
-    if(gettimeofday(&self->timer.deadline, NULL) != 0) {
+    struct timeval now;
+
+    if(gettimeofday(&now, NULL) != 0) {
         xcpc_log_error("gettimeofday() has failed");
+        now.tv_sec  = 0;
+        now.tv_usec = 0;
     }
-    if(gettimeofday(&self->timer.profiler, NULL) != 0) {
-        xcpc_log_error("gettimeofday() has failed");
-    }
+    self->timer.currtime = now;
+    self->timer.deadline = now;
+    self->timer.profiler = now;
 }
 
 static void construct_funcs(XcpcMachine* self)
@@ -2777,8 +2781,8 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
                 break;
         }
         if(self->setup.turbo != 0) {
-            self->frame.rate     = 1000;
-            self->frame.duration = 1UL;
+            self->frame.rate     = 2000;
+            self->frame.duration = 500;
         }
     }
     /* reset instance */ {
@@ -3077,59 +3081,69 @@ unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
 
 unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
 {
-    unsigned long elapsed = 0UL;
-    unsigned long timeout = 0UL;
+    unsigned long timeout    = 0UL;
+    unsigned long timedrift  = 0UL;
+    unsigned int  skip_frame = 0;
 
     /* clock the machine */ {
         (void) xcpc_machine_clock(self);
     }
-    /* compute the elapsed time in us */ {
-        struct timeval prev_time = self->timer.deadline;
-        struct timeval curr_time;
-        if(gettimeofday(&curr_time, NULL) == 0) {
-            const long long t1 = (((long long) prev_time.tv_sec) * 1000000LL) + ((long long) prev_time.tv_usec);
-            const long long t2 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
-            if(t2 >= t1) {
-                elapsed = ((unsigned long)(t2 - t1));
-            }
-            if(elapsed >= 1000000UL) {
-                self->timer.deadline = curr_time;
-                elapsed              = 0UL;
-            }
-        }
-    }
-    /* draw the frame and compute stats if needed */ {
-        if((self->stats.count == 0) || (elapsed <= self->frame.duration)) {
-            (*self->funcs.paint_func)(self);
-            ++self->stats.drawn;
-        }
-        if(++self->stats.count == self->frame.rate) {
-            compute_stats(self);
-        }
-    }
-    /* compute the next frame absolute time */ {
+    /* compute the next deadline */ {
         if((self->timer.deadline.tv_usec += self->frame.duration) >= 1000000) {
             self->timer.deadline.tv_usec -= 1000000;
             self->timer.deadline.tv_sec  += 1;
         }
     }
-    /* compute the deadline timeout in us */ {
-        struct timeval next_time = self->timer.deadline;
-        struct timeval curr_time;
-        if(gettimeofday(&curr_time, NULL) == 0) {
-            const long long t1 = (((long long) curr_time.tv_sec) * 1000000LL) + ((long long) curr_time.tv_usec);
-            const long long t2 = (((long long) next_time.tv_sec) * 1000000LL) + ((long long) next_time.tv_usec);
-            if(t2 >= t1) {
-                timeout = ((unsigned long)(t2 - t1));
+    /* get the current time */ {
+        if(gettimeofday(&self->timer.currtime, NULL) != 0) {
+            xcpc_log_error("gettimeofday() has failed");
+        }
+    }
+    /* compute the next deadline timeout in us */ {
+        const long long currtime = XCPC_TIMESTAMP_OF(&self->timer.currtime);
+        const long long deadline = XCPC_TIMESTAMP_OF(&self->timer.deadline);
+        if(currtime <= deadline) {
+            timeout     = ((unsigned long)(deadline - currtime));
+            skip_frame |= 0;
+        }
+        else {
+            timedrift   = ((unsigned long)(currtime - deadline));
+            skip_frame |= 1;
+        }
+    }
+    /* force always the first frame and skip other in turbo mode */ {
+        if(self->stats.frame_count == 0) {
+            skip_frame = 0;
+        }
+        else if(self->setup.turbo != 0) {
+            skip_frame = 1;
+        }
+    }
+    /* draw the frame and compute stats if needed */ {
+        if(skip_frame == 0) {
+            (*self->funcs.paint_func)(self);
+            ++self->stats.frame_drawn;
+        }
+        if(++self->stats.frame_count == self->frame.rate) {
+            compute_stats(self);
+        }
+    }
+    /* check if the time has drifted for more than a second */ {
+        if(timedrift >= 1000000UL) {
+            timeout = self->frame.duration;
+            self->timer.deadline = self->timer.currtime;
+            if((self->timer.deadline.tv_usec += self->frame.duration) >= 1000000) {
+                self->timer.deadline.tv_usec -= 1000000;
+                self->timer.deadline.tv_sec  += 1;
             }
         }
     }
     /* schedule the next frame in ms */ {
-        timeout = (timeout + 1000UL) / 1000UL;
+        timeout /= 1000UL;
     }
-    /* adjust timeout in turbo mode */ {
-        if((self->setup.turbo != 0) && (self->stats.count != 0)) {
-            timeout = 0UL;
+    /* adjust timeout for the first frame */ {
+        if((timeout == 0UL) && (self->stats.frame_count == 0)) {
+            timeout = 1UL;
         }
     }
     return timeout;
