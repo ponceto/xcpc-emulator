@@ -1220,9 +1220,9 @@ extern "C" {
         T3_L = PZSTable[AF_H]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (AF_H)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (AF_H)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
@@ -1242,9 +1242,9 @@ extern "C" {
         T3_L = PZSTable[AF_H]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (AF_H)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (AF_H)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
@@ -2622,9 +2622,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2643,9 +2643,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2664,9 +2664,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2685,9 +2685,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2706,9 +2706,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2727,9 +2727,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2748,9 +2748,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2769,9 +2769,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2790,9 +2790,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2811,9 +2811,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2832,9 +2832,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2853,9 +2853,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2874,9 +2874,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2895,9 +2895,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2916,9 +2916,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2937,9 +2937,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2972,13 +2972,14 @@ extern "C" {
 
 #define m_bit_b_ind_r16(mask, addr) \
     do { \
-        MREQ_RD(addr, T1_L); \
+        WZ_W = addr; \
+        MREQ_RD(WZ_W, T1_L); \
         T0_L = (T1_L & mask); \
         AF_L = /* SF is undocumented */ (SF & (T0_L)) \
              | /* ZF is affected     */ (ZF & (T0_L == 0x00 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (WZ_H)) \
              | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (WZ_H)) \
              | /* PF is undocumented */ (PF & (T0_L == 0x00 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
