@@ -1,7 +1,9 @@
 2021-xx-xx	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Refactoring of the Z80 core.
+	* Improved scheduling and turbo mode.
 	* Gtk+-3.x user interface fixed for multiple instances.
+	* Some minor fixes.
 
 2021-04-25	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
