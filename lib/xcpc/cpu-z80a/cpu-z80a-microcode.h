@@ -2972,8 +2972,7 @@ extern "C" {
 
 #define m_bit_b_ind_r16(mask, addr) \
     do { \
-        WZ_W = addr; \
-        MREQ_RD(WZ_W, T1_L); \
+        MREQ_RD(addr, T1_L); \
         T0_L = (T1_L & mask); \
         AF_L = /* SF is undocumented */ (SF & (T0_L)) \
              | /* ZF is affected     */ (ZF & (T0_L == 0x00 ? 0xff : 0x00)) \

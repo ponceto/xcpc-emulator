@@ -425,6 +425,7 @@ XcpcCpuZ80a* xcpc_cpu_z80a_reset(XcpcCpuZ80a* self)
     log_trace("reset");
 
     /* reset state.regs */ {
+        WZ_R = 0;
         AF_R = 0;
         BC_R = 0;
         DE_R = 0;
@@ -452,7 +453,6 @@ XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
     XcpcRegister T1;
     XcpcRegister T2;
     XcpcRegister T3;
-    XcpcRegister WZ;
 
     if(I_PERIOD <= 0) {
         return self;

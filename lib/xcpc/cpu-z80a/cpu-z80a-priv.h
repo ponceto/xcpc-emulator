@@ -67,6 +67,12 @@ extern "C" {
 #define REGS STATE.regs
 #define CTRS STATE.ctrs
 
+#define WZ_R REGS.WZ.l.r
+#define WZ_P REGS.WZ.w.h
+#define WZ_W REGS.WZ.w.l
+#define WZ_H REGS.WZ.b.h
+#define WZ_L REGS.WZ.b.l
+
 #define AF_R REGS.AF.l.r
 #define AF_P REGS.AF.w.h
 #define AF_W REGS.AF.w.l
@@ -138,12 +144,6 @@ extern "C" {
 #define M_CYCLES CTRS.m_cycles
 #define T_STATES CTRS.t_states
 #define I_PERIOD CTRS.i_period
-
-#define WZ_R WZ.l.r
-#define WZ_P WZ.w.h
-#define WZ_W WZ.w.l
-#define WZ_H WZ.b.h
-#define WZ_L WZ.b.l
 
 #define T0_R T0.l.r
 #define T0_P T0.w.h
