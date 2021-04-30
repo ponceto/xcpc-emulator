@@ -52,6 +52,7 @@ struct _XcpcCpuZ80aState
 {
     struct /* registers */
     {
+        XcpcRegister WZ; /* WZ & WZ'            */
         XcpcRegister AF; /* AF & AF'            */
         XcpcRegister BC; /* BC & BC'            */
         XcpcRegister DE; /* DE & DE'            */

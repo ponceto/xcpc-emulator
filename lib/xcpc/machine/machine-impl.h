@@ -134,15 +134,16 @@ struct _XcpcMachineFrame
 
 struct _XcpcMachineStats
 {
-    unsigned int count;
-    unsigned int drawn;
-    unsigned int hsync;
-    unsigned int vsync;
+    unsigned int frame_count;
+    unsigned int frame_drawn;
+    unsigned int total_hsync;
+    unsigned int total_vsync;
     char         buffer[256];
 };
 
 struct _XcpcMachineTimer
 {
+    struct timeval currtime;
     struct timeval deadline;
     struct timeval profiler;
 };
