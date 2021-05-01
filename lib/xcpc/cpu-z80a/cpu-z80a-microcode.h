@@ -294,20 +294,20 @@ extern "C" {
 
 #define m_ld_r08_ind_i16(reg1) \
     do { \
-        MREQ_RD(PC_W++, T0_L); \
-        MREQ_RD(PC_W++, T0_H); \
-        MREQ_RD(T0_W  , reg1); \
+        MREQ_RD(PC_W++, WZ_L); \
+        MREQ_RD(PC_W++, WZ_H); \
+        MREQ_RD(WZ_W  , reg1); \
     } while(0)
 
 /*
- * ld (r16),r08
+ * ld (i16),r08
  */
 
 #define m_ld_ind_i16_r08(reg1) \
     do { \
-        MREQ_RD(PC_W++, T0_L); \
-        MREQ_RD(PC_W++, T0_H); \
-        MREQ_WR(T0_W  , reg1); \
+        MREQ_RD(PC_W++, WZ_L); \
+        MREQ_RD(PC_W++, WZ_H); \
+        MREQ_WR(WZ_W  , reg1); \
     } while(0)
 
 /*
@@ -1183,32 +1183,6 @@ extern "C" {
     } while(0)
 
 /*
- * reti
- */
-
-#define m_reti() \
-    do { \
-        MREQ_RD(SP_W++, PC_L); \
-        MREQ_RD(SP_W++, PC_H); \
-    } while(0)
-
-/*
- * retn
- */
-
-#define m_retn() \
-    do { \
-        if(HAS_IFF2) { \
-            SET_IFF1(); \
-        } \
-        else { \
-            CLR_IFF1(); \
-        } \
-        MREQ_RD(SP_W++, PC_L); \
-        MREQ_RD(SP_W++, PC_H); \
-    } while(0)
-
-/*
  * rld
  */
 
@@ -1422,13 +1396,14 @@ extern "C" {
 
 #define m_ld_a_i() \
     do { \
-        AF_H = IR_H; \
-        T3_L = PZSTable[AF_H]; \
+        T0_L = IR_H; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (HAS_IFF2 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
@@ -1441,13 +1416,14 @@ extern "C" {
 
 #define m_ld_a_r() \
     do { \
-        AF_H = IR_L; \
-        T3_L = PZSTable[AF_H]; \
+        T0_L = IR_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
              | /* PF is affected     */ (PF & (HAS_IFF2 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
@@ -1501,11 +1477,11 @@ extern "C" {
 
 #define m_ld_r16_ind_i16(reg1) \
     do { \
-        MREQ_RD(PC_W++, T1_L); \
-        MREQ_RD(PC_W++, T1_H); \
-        MREQ_RD(T1_W++, T2_L); \
-        MREQ_RD(T1_W++, T2_H); \
-        reg1 = T2_W; \
+        MREQ_RD(PC_W++, WZ_L); \
+        MREQ_RD(PC_W++, WZ_H); \
+        MREQ_RD(WZ_W++, T0_L); \
+        MREQ_RD(WZ_W++, T0_H); \
+        reg1 = T0_W; \
     } while(0)
 
 /*
@@ -1514,11 +1490,11 @@ extern "C" {
 
 #define m_ld_ind_i16_r16(reg1) \
     do { \
-        T2_W = reg1; \
-        MREQ_RD(PC_W++, T1_L); \
-        MREQ_RD(PC_W++, T1_H); \
-        MREQ_WR(T1_W++, T2_L); \
-        MREQ_WR(T1_W++, T2_H); \
+        T0_W = reg1; \
+        MREQ_RD(PC_W++, WZ_L); \
+        MREQ_RD(PC_W++, WZ_H); \
+        MREQ_WR(WZ_W++, T0_L); \
+        MREQ_WR(WZ_W++, T0_H); \
     } while(0)
 
 /*
@@ -1556,511 +1532,6 @@ extern "C" {
         MREQ_WR((T1_W + 0), T2_L); \
         MREQ_WR((T1_W + 1), T2_H); \
         reg2 = T0_W; \
-    } while(0)
-
-/*
- * jr i08
- */
-
-#define m_jr_i08() \
-    do { \
-        PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
-    } while(0)
-
-/*
- * jr nz,i08
- */
-
-#define m_jr_nz_i08() \
-    do { \
-        if((AF_L & ZF) == 0) { \
-            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
-            m_consume(1, 5); \
-        } \
-        else { \
-            PC_W += 1; \
-        } \
-    } while(0)
-
-/*
- * jr z,i08
- */
-
-#define m_jr_z_i08() \
-    do { \
-        if((AF_L & ZF) != 0) { \
-            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
-            m_consume(1, 5); \
-        } \
-        else { \
-            PC_W += 1; \
-        } \
-    } while(0)
-
-/*
- * jr nc,i08
- */
-
-#define m_jr_nc_i08() \
-    do { \
-        if((AF_L & CF) == 0) { \
-            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
-            m_consume(1, 5); \
-        } \
-        else { \
-            PC_W += 1; \
-        } \
-    } while(0)
-
-/*
- * jr c,i08
- */
-
-#define m_jr_c_i08() \
-    do { \
-        if((AF_L & CF) != 0) { \
-            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
-            m_consume(1, 5); \
-        } \
-        else { \
-            PC_W += 1; \
-        } \
-    } while(0)
-
-/*
- * jp i16
- */
-
-#define m_jp_i16() \
-    do { \
-        MREQ_RD(PC_W++, T0_L); \
-        MREQ_RD(PC_W++, T0_H); \
-        PC_W = T0_W; \
-    } while(0)
-
-/*
- * jp r16
- */
-
-#define m_jp_r16(reg1) \
-    do { \
-        PC_W = reg1; \
-    } while(0)
-
-/*
- * jp nz,i16
- */
-
-#define m_jp_nz_i16() \
-    do { \
-        if((AF_L & ZF) == 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            PC_W = T0_W; \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * jp z,i16
- */
-
-#define m_jp_z_i16() \
-    do { \
-        if((AF_L & ZF) != 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            PC_W = T0_W; \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * jp nc,i16
- */
-
-#define m_jp_nc_i16() \
-    do { \
-        if((AF_L & CF) == 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            PC_W = T0_W; \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * jp c,i16
- */
-
-#define m_jp_c_i16() \
-    do { \
-        if((AF_L & CF) != 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            PC_W = T0_W; \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * jp po,i16
- */
-
-#define m_jp_po_i16() \
-    do { \
-        if((AF_L & PF) == 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            PC_W = T0_W; \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * jp pe,i16
- */
-
-#define m_jp_pe_i16() \
-    do { \
-        if((AF_L & PF) != 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            PC_W = T0_W; \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * jp p,i16
- */
-
-#define m_jp_p_i16() \
-    do { \
-        if((AF_L & SF) == 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            PC_W = T0_W; \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * jp m,i16
- */
-
-#define m_jp_m_i16() \
-    do { \
-        if((AF_L & SF) != 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            PC_W = T0_W; \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * call i16
- */
-
-#define m_call_i16() \
-    do { \
-        MREQ_RD(PC_W++, T0_L); \
-        MREQ_RD(PC_W++, T0_H); \
-        MREQ_WR(--SP_W, PC_H); \
-        MREQ_WR(--SP_W, PC_L); \
-        PC_W = T0_W; \
-    } while(0)
-
-/*
- * call nz,i16
- */
-
-#define m_call_nz_i16() \
-    do { \
-        if((AF_L & ZF) == 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            MREQ_WR(--SP_W, PC_H); \
-            MREQ_WR(--SP_W, PC_L); \
-            PC_W = T0_W; \
-            m_consume(2, 7); \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * call z,i16
- */
-
-#define m_call_z_i16() \
-    do { \
-        if((AF_L & ZF) != 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            MREQ_WR(--SP_W, PC_H); \
-            MREQ_WR(--SP_W, PC_L); \
-            PC_W = T0_W; \
-            m_consume(2, 7); \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * call nc,i16
- */
-
-#define m_call_nc_i16() \
-    do { \
-        if((AF_L & CF) == 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            MREQ_WR(--SP_W, PC_H); \
-            MREQ_WR(--SP_W, PC_L); \
-            PC_W = T0_W; \
-            m_consume(2, 7); \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * call c,i16
- */
-
-#define m_call_c_i16() \
-    do { \
-        if((AF_L & CF) != 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            MREQ_WR(--SP_W, PC_H); \
-            MREQ_WR(--SP_W, PC_L); \
-            PC_W = T0_W; \
-            m_consume(2, 7); \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * call po,i16
- */
-
-#define m_call_po_i16() \
-    do { \
-        if((AF_L & PF) == 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            MREQ_WR(--SP_W, PC_H); \
-            MREQ_WR(--SP_W, PC_L); \
-            PC_W = T0_W; \
-            m_consume(2, 7); \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * call pe,i16
- */
-
-#define m_call_pe_i16() \
-    do { \
-        if((AF_L & PF) != 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            MREQ_WR(--SP_W, PC_H); \
-            MREQ_WR(--SP_W, PC_L); \
-            PC_W = T0_W; \
-            m_consume(2, 7); \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * call p,i16
- */
-
-#define m_call_p_i16() \
-    do { \
-        if((AF_L & SF) == 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            MREQ_WR(--SP_W, PC_H); \
-            MREQ_WR(--SP_W, PC_L); \
-            PC_W = T0_W; \
-            m_consume(2, 7); \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * call m,i16
- */
-
-#define m_call_m_i16() \
-    do { \
-        if((AF_L & SF) != 0) { \
-            MREQ_RD(PC_W++, T0_L); \
-            MREQ_RD(PC_W++, T0_H); \
-            MREQ_WR(--SP_W, PC_H); \
-            MREQ_WR(--SP_W, PC_L); \
-            PC_W = T0_W; \
-            m_consume(2, 7); \
-        } \
-        else { \
-            PC_W += 2; \
-        } \
-    } while(0)
-
-/*
- * ret
- */
-
-#define m_ret() \
-    do { \
-        MREQ_RD(SP_W++, T0_L); \
-        MREQ_RD(SP_W++, T0_H); \
-        PC_W = T0_W; \
-    } while(0)
-
-/*
- * ret nz
- */
-
-#define m_ret_nz() \
-    do { \
-        if((AF_L & ZF) == 0) { \
-            MREQ_RD(SP_W++, T0_L); \
-            MREQ_RD(SP_W++, T0_H); \
-            PC_W = T0_W; \
-            m_consume(2, 6); \
-        } \
-    } while(0)
-
-/*
- * ret z
- */
-
-#define m_ret_z() \
-    do { \
-        if((AF_L & ZF) != 0) { \
-            MREQ_RD(SP_W++, T0_L); \
-            MREQ_RD(SP_W++, T0_H); \
-            PC_W = T0_W; \
-            m_consume(2, 6); \
-        } \
-    } while(0)
-
-/*
- * ret nc
- */
-
-#define m_ret_nc() \
-    do { \
-        if((AF_L & CF) == 0) { \
-            MREQ_RD(SP_W++, T0_L); \
-            MREQ_RD(SP_W++, T0_H); \
-            PC_W = T0_W; \
-            m_consume(2, 6); \
-        } \
-    } while(0)
-
-/*
- * ret c
- */
-
-#define m_ret_c() \
-    do { \
-        if((AF_L & CF) != 0) { \
-            MREQ_RD(SP_W++, T0_L); \
-            MREQ_RD(SP_W++, T0_H); \
-            PC_W = T0_W; \
-            m_consume(2, 6); \
-        } \
-    } while(0)
-
-/*
- * ret po
- */
-
-#define m_ret_po() \
-    do { \
-        if((AF_L & PF) == 0) { \
-            MREQ_RD(SP_W++, T0_L); \
-            MREQ_RD(SP_W++, T0_H); \
-            PC_W = T0_W; \
-            m_consume(2, 6); \
-        } \
-    } while(0)
-
-/*
- * ret pe
- */
-
-#define m_ret_pe() \
-    do { \
-        if((AF_L & PF) != 0) { \
-            MREQ_RD(SP_W++, T0_L); \
-            MREQ_RD(SP_W++, T0_H); \
-            PC_W = T0_W; \
-            m_consume(2, 6); \
-        } \
-    } while(0)
-
-/*
- * ret p
- */
-
-#define m_ret_p() \
-    do { \
-        if((AF_L & SF) == 0) { \
-            MREQ_RD(SP_W++, T0_L); \
-            MREQ_RD(SP_W++, T0_H); \
-            PC_W = T0_W; \
-            m_consume(2, 6); \
-        } \
-    } while(0)
-
-/*
- * ret m
- */
-
-#define m_ret_m() \
-    do { \
-        if((AF_L & SF) != 0) { \
-            MREQ_RD(SP_W++, T0_L); \
-            MREQ_RD(SP_W++, T0_H); \
-            PC_W = T0_W; \
-            m_consume(2, 6); \
-        } \
     } while(0)
 
 /*
@@ -2126,22 +1597,6 @@ extern "C" {
              | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) - SIGNED_LONG(T2_W) - SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
              ; \
         reg1 = T0_W; \
-    } while(0)
-
-/*
- * djnz i08
- */
-
-#define m_djnz_i08() \
-    do { \
-        --BC_H; \
-        if(BC_H != 0) { \
-            PC_W += SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
-            m_consume(1, 5); \
-        } \
-        else { \
-            PC_W++; \
-        } \
     } while(0)
 
 /*
@@ -2371,7 +1826,590 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
- * memory block instructions ldi/ldir/ldd/lddr
+ * jump group : jp
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * jp i16
+ */
+
+#define m_jp_i16() \
+    do { \
+        MREQ_RD(PC_W++, WZ_L); \
+        MREQ_RD(PC_W++, WZ_H); \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jp r16
+ */
+
+#define m_jp_r16(reg1) \
+    do { \
+        PC_W = reg1; \
+    } while(0)
+
+/*
+ * jp nz,i16
+ */
+
+#define m_jp_nz_i16() \
+    do { \
+        if((AF_L & ZF) == 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jp z,i16
+ */
+
+#define m_jp_z_i16() \
+    do { \
+        if((AF_L & ZF) != 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jp nc,i16
+ */
+
+#define m_jp_nc_i16() \
+    do { \
+        if((AF_L & CF) == 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jp c,i16
+ */
+
+#define m_jp_c_i16() \
+    do { \
+        if((AF_L & CF) != 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jp po,i16
+ */
+
+#define m_jp_po_i16() \
+    do { \
+        if((AF_L & PF) == 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jp pe,i16
+ */
+
+#define m_jp_pe_i16() \
+    do { \
+        if((AF_L & PF) != 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jp p,i16
+ */
+
+#define m_jp_p_i16() \
+    do { \
+        if((AF_L & SF) == 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jp m,i16
+ */
+
+#define m_jp_m_i16() \
+    do { \
+        if((AF_L & SF) != 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * jump group : jr
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * jr i08
+ */
+
+#define m_jr_i08() \
+    do { \
+        WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * jr nz,i08
+ */
+
+#define m_jr_nz_i08() \
+    do { \
+        if((AF_L & ZF) == 0) { \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            PC_W = WZ_W; \
+            m_consume(1, 5); \
+        } \
+        else { \
+            PC_W += 1; \
+        } \
+    } while(0)
+
+/*
+ * jr z,i08
+ */
+
+#define m_jr_z_i08() \
+    do { \
+        if((AF_L & ZF) != 0) { \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            PC_W = WZ_W; \
+            m_consume(1, 5); \
+        } \
+        else { \
+            PC_W += 1; \
+        } \
+    } while(0)
+
+/*
+ * jr nc,i08
+ */
+
+#define m_jr_nc_i08() \
+    do { \
+        if((AF_L & CF) == 0) { \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            PC_W = WZ_W; \
+            m_consume(1, 5); \
+        } \
+        else { \
+            PC_W += 1; \
+        } \
+    } while(0)
+
+/*
+ * jr c,i08
+ */
+
+#define m_jr_c_i08() \
+    do { \
+        if((AF_L & CF) != 0) { \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            PC_W = WZ_W; \
+            m_consume(1, 5); \
+        } \
+        else { \
+            PC_W += 1; \
+        } \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * jump group : djnz
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * djnz i08
+ */
+
+#define m_djnz_i08() \
+    do { \
+        --BC_H; \
+        if(BC_H != 0) { \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            PC_W = WZ_W; \
+            m_consume(1, 5); \
+        } \
+        else { \
+            PC_W += 1; \
+        } \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * call and return group : call
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * call i16
+ */
+
+#define m_call_i16() \
+    do { \
+        MREQ_RD(PC_W++, WZ_L); \
+        MREQ_RD(PC_W++, WZ_H); \
+        MREQ_WR(--SP_W, PC_H); \
+        MREQ_WR(--SP_W, PC_L); \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * call nz,i16
+ */
+
+#define m_call_nz_i16() \
+    do { \
+        if((AF_L & ZF) == 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+            MREQ_WR(--SP_W, PC_H); \
+            MREQ_WR(--SP_W, PC_L); \
+            m_consume(2, 7); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * call z,i16
+ */
+
+#define m_call_z_i16() \
+    do { \
+        if((AF_L & ZF) != 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+            MREQ_WR(--SP_W, PC_H); \
+            MREQ_WR(--SP_W, PC_L); \
+            m_consume(2, 7); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * call nc,i16
+ */
+
+#define m_call_nc_i16() \
+    do { \
+        if((AF_L & CF) == 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+            MREQ_WR(--SP_W, PC_H); \
+            MREQ_WR(--SP_W, PC_L); \
+            m_consume(2, 7); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * call c,i16
+ */
+
+#define m_call_c_i16() \
+    do { \
+        if((AF_L & CF) != 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+            MREQ_WR(--SP_W, PC_H); \
+            MREQ_WR(--SP_W, PC_L); \
+            m_consume(2, 7); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * call po,i16
+ */
+
+#define m_call_po_i16() \
+    do { \
+        if((AF_L & PF) == 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+            MREQ_WR(--SP_W, PC_H); \
+            MREQ_WR(--SP_W, PC_L); \
+            m_consume(2, 7); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * call pe,i16
+ */
+
+#define m_call_pe_i16() \
+    do { \
+        if((AF_L & PF) != 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+            MREQ_WR(--SP_W, PC_H); \
+            MREQ_WR(--SP_W, PC_L); \
+            m_consume(2, 7); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * call p,i16
+ */
+
+#define m_call_p_i16() \
+    do { \
+        if((AF_L & SF) == 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+            MREQ_WR(--SP_W, PC_H); \
+            MREQ_WR(--SP_W, PC_L); \
+            m_consume(2, 7); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * call m,i16
+ */
+
+#define m_call_m_i16() \
+    do { \
+        if((AF_L & SF) != 0) { \
+            MREQ_RD(PC_W++, WZ_L); \
+            MREQ_RD(PC_W++, WZ_H); \
+            MREQ_WR(--SP_W, PC_H); \
+            MREQ_WR(--SP_W, PC_L); \
+            m_consume(2, 7); \
+        } \
+        else { \
+            WZ_W = PC_W + 2; \
+        } \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * call and return group : ret/reti/retn
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * ret
+ */
+
+#define m_ret() \
+    do { \
+        MREQ_RD(SP_W++, WZ_L); \
+        MREQ_RD(SP_W++, WZ_H); \
+        PC_W = WZ_W; \
+    } while(0)
+
+/*
+ * ret nz
+ */
+
+#define m_ret_nz() \
+    do { \
+        if((AF_L & ZF) == 0) { \
+            MREQ_RD(SP_W++, WZ_L); \
+            MREQ_RD(SP_W++, WZ_H); \
+            PC_W = WZ_W; \
+            m_consume(2, 6); \
+        } \
+    } while(0)
+
+/*
+ * ret z
+ */
+
+#define m_ret_z() \
+    do { \
+        if((AF_L & ZF) != 0) { \
+            MREQ_RD(SP_W++, WZ_L); \
+            MREQ_RD(SP_W++, WZ_H); \
+            PC_W = WZ_W; \
+            m_consume(2, 6); \
+        } \
+    } while(0)
+
+/*
+ * ret nc
+ */
+
+#define m_ret_nc() \
+    do { \
+        if((AF_L & CF) == 0) { \
+            MREQ_RD(SP_W++, WZ_L); \
+            MREQ_RD(SP_W++, WZ_H); \
+            PC_W = WZ_W; \
+            m_consume(2, 6); \
+        } \
+    } while(0)
+
+/*
+ * ret c
+ */
+
+#define m_ret_c() \
+    do { \
+        if((AF_L & CF) != 0) { \
+            MREQ_RD(SP_W++, WZ_L); \
+            MREQ_RD(SP_W++, WZ_H); \
+            PC_W = WZ_W; \
+            m_consume(2, 6); \
+        } \
+    } while(0)
+
+/*
+ * ret po
+ */
+
+#define m_ret_po() \
+    do { \
+        if((AF_L & PF) == 0) { \
+            MREQ_RD(SP_W++, WZ_L); \
+            MREQ_RD(SP_W++, WZ_H); \
+            PC_W = WZ_W; \
+            m_consume(2, 6); \
+        } \
+    } while(0)
+
+/*
+ * ret pe
+ */
+
+#define m_ret_pe() \
+    do { \
+        if((AF_L & PF) != 0) { \
+            MREQ_RD(SP_W++, WZ_L); \
+            MREQ_RD(SP_W++, WZ_H); \
+            PC_W = WZ_W; \
+            m_consume(2, 6); \
+        } \
+    } while(0)
+
+/*
+ * ret p
+ */
+
+#define m_ret_p() \
+    do { \
+        if((AF_L & SF) == 0) { \
+            MREQ_RD(SP_W++, WZ_L); \
+            MREQ_RD(SP_W++, WZ_H); \
+            PC_W = WZ_W; \
+            m_consume(2, 6); \
+        } \
+    } while(0)
+
+/*
+ * ret m
+ */
+
+#define m_ret_m() \
+    do { \
+        if((AF_L & SF) != 0) { \
+            MREQ_RD(SP_W++, WZ_L); \
+            MREQ_RD(SP_W++, WZ_H); \
+            PC_W = WZ_W; \
+            m_consume(2, 6); \
+        } \
+    } while(0)
+
+/*
+ * reti
+ */
+
+#define m_reti() \
+    do { \
+        MREQ_RD(SP_W++, PC_L); \
+        MREQ_RD(SP_W++, PC_H); \
+    } while(0)
+
+/*
+ * retn
+ */
+
+#define m_retn() \
+    do { \
+        if(HAS_IFF2) { \
+            SET_IFF1(); \
+        } \
+        else { \
+            CLR_IFF1(); \
+        } \
+        MREQ_RD(SP_W++, PC_L); \
+        MREQ_RD(SP_W++, PC_H); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * memory block instructions : ldi/ldir/ldd/lddr
  * ---------------------------------------------------------------------------
  */
 
@@ -2481,7 +2519,7 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
- * memory block instructions cpi/cpir/cpd/cpdr
+ * memory block instructions : cpi/cpir/cpd/cpdr
  * ---------------------------------------------------------------------------
  */
 
@@ -3233,6 +3271,12 @@ extern "C" {
         m_set_b_ind_r16(mask, WZ_W); \
         m_ld_r08_r08(reg2, T0_L); \
     } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * end-of-microcode
+ * ---------------------------------------------------------------------------
+ */
 
 #ifdef __cplusplus
 }
