@@ -22,85 +22,81 @@ extern "C" {
 #endif
 
 /*
+ * ---------------------------------------------------------------------------
+ * fetch pseudo instructions
+ * ---------------------------------------------------------------------------
+ */
+
+/*
  * fetch opcode
  */
 
 #define m_fetch_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
+        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
     } while(0)
 
 /*
- * fetch CB opcode
+ * fetch cb opcode
  */
 
 #define m_fetch_cb_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
+        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
     } while(0)
 
 /*
- * fetch DD opcode
+ * fetch dd opcode
  */
 
 #define m_fetch_dd_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
+        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
     } while(0)
 
 /*
- * fetch ED opcode
+ * fetch ed opcode
  */
 
 #define m_fetch_ed_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
+        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
     } while(0)
 
 /*
- * fetch FD opcode
+ * fetch fd opcode
  */
 
 #define m_fetch_fd_opcode() \
     do { \
-        last_op = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
+        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
     } while(0)
 
 /*
- * fetch DDCB opcode
+ * fetch ddcb opcode
  */
 
 #define m_fetch_ddcb_opcode() \
     do { \
-        last_op = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        LAST_OP = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
     } while(0)
 
 /*
- * fetch FDCB opcode
+ * fetch fdcb opcode
  */
 
 #define m_fetch_fdcb_opcode() \
     do { \
-        last_op = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-    } while(0)
-
-/*
- * fetch DDCB offset
- */
-
-#define m_fetch_ddcb_offset() \
-    do { \
-        WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
-    } while(0)
-
-/*
- * fetch FDCB offset
- */
-
-#define m_fetch_fdcb_offset() \
-    do { \
         WZ_W = IY_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        LAST_OP = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
     } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * illegal pseudo instructions
+ * ---------------------------------------------------------------------------
+ */
 
 /*
  * illegal opcode
@@ -112,7 +108,7 @@ extern "C" {
     } while(0)
 
 /*
- * illegal CB opcode
+ * illegal cb opcode
  */
 
 #define m_illegal_cb() \
@@ -121,7 +117,7 @@ extern "C" {
     } while(0)
 
 /*
- * illegal DD opcode
+ * illegal dd opcode
  */
 
 #define m_illegal_dd() \
@@ -130,7 +126,7 @@ extern "C" {
     } while(0)
 
 /*
- * illegal ED opcode
+ * illegal ed opcode
  */
 
 #define m_illegal_ed() \
@@ -139,7 +135,7 @@ extern "C" {
     } while(0)
 
 /*
- * illegal FD opcode
+ * illegal fd opcode
  */
 
 #define m_illegal_fd() \
@@ -148,7 +144,7 @@ extern "C" {
     } while(0)
 
 /*
- * illegal DDCB opcode
+ * illegal ddcb opcode
  */
 
 #define m_illegal_ddcb() \
@@ -157,13 +153,19 @@ extern "C" {
     } while(0)
 
 /*
- * illegal FDCB opcode
+ * illegal fdcb opcode
  */
 
 #define m_illegal_fdcb() \
     do { \
         xcpc_log_debug("illegal FDCByy%02X opcode at %04X", LAST_OP, PREV_PC); \
     } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * miscellaneous pseudo instructions
+ * ---------------------------------------------------------------------------
+ */
 
 /*
  * refresh dram
@@ -245,99 +247,17 @@ extern "C" {
     } while(0)
 
 /*
+ * ---------------------------------------------------------------------------
+ * cpu control group
+ * ---------------------------------------------------------------------------
+ */
+
+/*
  * nop
  */
 
 #define m_nop() \
     do { \
-    } while(0)
-
-/*
- * ld r08,r08
- */
-
-#define m_ld_r08_r08(reg1, reg2) \
-    do { \
-        reg1 = reg2; \
-    } while(0)
-
-/*
- * ld r08,(r16)
- */
-
-#define m_ld_r08_ind_r16(reg1, reg2) \
-    do { \
-        MREQ_RD(reg2, reg1); \
-    } while(0)
-
-/*
- * ld (r16),r08
- */
-
-#define m_ld_ind_r16_r08(reg1, reg2) \
-    do { \
-        MREQ_WR(reg1, reg2); \
-    } while(0)
-
-/*
- * ld r08,i08
- */
-
-#define m_ld_r08_i08(reg1) \
-    do { \
-        MREQ_RD(PC_W++, reg1); \
-    } while(0)
-
-/*
- * ld r08,(i16)
- */
-
-#define m_ld_r08_ind_i16(reg1) \
-    do { \
-        MREQ_RD(PC_W++, WZ_L); \
-        MREQ_RD(PC_W++, WZ_H); \
-        MREQ_RD(WZ_W  , reg1); \
-    } while(0)
-
-/*
- * ld (i16),r08
- */
-
-#define m_ld_ind_i16_r08(reg1) \
-    do { \
-        MREQ_RD(PC_W++, WZ_L); \
-        MREQ_RD(PC_W++, WZ_H); \
-        MREQ_WR(WZ_W  , reg1); \
-    } while(0)
-
-/*
- * ld r16,r16
- */
-
-#define m_ld_r16_r16(reg1, reg2) \
-    do { \
-        reg1 = reg2; \
-    } while(0)
-
-/*
- * ld r16,i16
- */
-
-#define m_ld_r16_i16(reg1) \
-    do { \
-        MREQ_RD(PC_W++, T0_L); \
-        MREQ_RD(PC_W++, T0_H); \
-        reg1 = T0_W; \
-    } while(0)
-
-/*
- * ld (r16),i08
- */
-
-#define m_ld_ind_r16_i08(reg1) \
-    do { \
-        MREQ_RD(PC_W++, T0_L); \
-        MREQ_WR(reg1  , T0_L); \
     } while(0)
 
 /*
@@ -350,727 +270,21 @@ extern "C" {
     } while(0)
 
 /*
- * daa
+ * di
  */
 
-#define m_daa() \
+#define m_di() \
     do { \
-        T0_W = AF_H; \
-        if(AF_L & CF) T0_W |= 0x100; \
-        if(AF_L & HF) T0_W |= 0x200; \
-        if(AF_L & NF) T0_W |= 0x400; \
-        AF_W = DAATable[T0_W]; \
+        ST_L = (ST_L & ~(ST_IFF1 | ST_IFF2)); \
     } while(0)
 
 /*
- * rlca
+ * ei
  */
 
-#define m_rlca() \
+#define m_ei() \
     do { \
-        T1_L = AF_H; \
-        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (UNSIGNED_BYTE(T1_L) >> 7); \
-        AF_H = T0_L; \
-        AF_L = /* SF is not affected */ (SF & (AF_L)) \
-             | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is not affected */ (PF & (AF_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
-             ; \
-    } while(0)
-
-/*
- * rrca
- */
-
-#define m_rrca() \
-    do { \
-        T1_L = AF_H; \
-        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) | (UNSIGNED_BYTE(T1_L) << 7); \
-        AF_H = T0_L; \
-        AF_L = /* SF is not affected */ (SF & (AF_L)) \
-             | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is not affected */ (PF & (AF_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
-             ; \
-    } while(0)
-
-/*
- * rla
- */
-
-#define m_rla() \
-    do { \
-        T1_L = AF_H; \
-        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (AF_L & CF ? BIT0 : 0x00); \
-        AF_H = T0_L; \
-        AF_L = /* SF is not affected */ (SF & (AF_L)) \
-             | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is not affected */ (PF & (AF_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
-             ; \
-    } while(0)
-
-/*
- * rra
- */
-
-#define m_rra() \
-    do { \
-        T1_L = AF_H; \
-        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) | (AF_L & CF ? BIT7 : 0x00); \
-        AF_H = T0_L; \
-        AF_L = /* SF is not affected */ (SF & (AF_L)) \
-             | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is not affected */ (PF & (AF_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
-             ; \
-    } while(0)
-
-/*
- * inc r08
- */
-
-#define m_inc_r08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = 1; \
-        T0_W = T1_L + T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & (T1_L == 0x7f ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is not affected */ (CF & (AF_L)) \
-             ; \
-        reg1 = T0_L; \
-    } while(0)
-
-/*
- * inc (r16)
- */
-
-#define m_inc_ind_r16(reg1) \
-    do { \
-        MREQ_RD(reg1, T1_L); \
-        T2_L = 1; \
-        T0_W = T1_L + T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & (T1_L == 0x7f ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is not affected */ (CF & (AF_L)) \
-             ; \
-        MREQ_WR(reg1, T0_L); \
-    } while(0)
-
-/*
- * dec r08
- */
-
-#define m_dec_r08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = 1; \
-        T0_W = T1_L - T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & (T1_L == 0x80 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is not affected */ (CF & (AF_L)) \
-             ; \
-        reg1 = T0_L; \
-    } while(0)
-
-/*
- * dec (r16)
- */
-
-#define m_dec_ind_r16(reg1) \
-    do { \
-        MREQ_RD(reg1, T1_L); \
-        T2_L = 1; \
-        T0_W = T1_L - T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & (T1_L == 0x80 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is not affected */ (CF & (AF_L)) \
-             ; \
-        MREQ_WR(reg1, T0_L); \
-    } while(0)
-
-/*
- * inc r16
- */
-
-#define m_inc_r16(reg1) \
-    do { \
-        ++reg1; \
-    } while(0)
-
-/*
- * dec r16
- */
-
-#define m_dec_r16(reg1) \
-    do { \
-        --reg1; \
-    } while(0)
-
-/*
- * add r08,r08
- */
-
-#define m_add_r08_r08(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = reg2; \
-        T0_W = T1_L + T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * add r08,(r16)
- */
-
-#define m_add_r08_ind_r16(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
-        T0_W = T1_L + T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * add r08,i08
- */
-
-#define m_add_r08_i08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-        T0_W = T1_L + T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * adc r08,r08
- */
-
-#define m_adc_r08_r08(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = reg2; \
-        T0_W = T1_L + T2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * adc reg08,(reg16)
- */
-
-#define m_adc_r08_ind_r16(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
-        T0_W = T1_L + T2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * adc r08,i08
- */
-
-#define m_adc_r08_i08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-        T0_W = T1_L + T2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * sub r08,r08
- */
-
-#define m_sub_r08_r08(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = reg2; \
-        T0_W = T1_L - T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * sub r08,(r16)
- */
-
-#define m_sub_r08_ind_r16(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
-        T0_W = T1_L - T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * sub r08,i08
- */
-
-#define m_sub_r08_i08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-        T0_W = T1_L - T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * sbc r08,r08
- */
-
-#define m_sbc_r08_r08(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = reg2; \
-        T0_W = T1_L - T2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * sbc r08,(r16)
- */
-
-#define m_sbc_r08_ind_r16(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
-        T0_W = T1_L - T2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * sbc r08,i08
- */
-
-#define m_sbc_r08_i08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-        T0_W = T1_L - T2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * and r08,r08
- */
-
-#define m_and_r08_r08(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = reg2; \
-        T0_L = T1_L & T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * and r08,(r16)
- */
-
-#define m_and_r08_ind_r16(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
-        T0_L = T1_L & T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * and r08,i08
- */
-
-#define m_and_r08_i08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-        T0_L = T1_L & T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * xor r08,r08
- */
-
-#define m_xor_r08_r08(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = reg2; \
-        T0_L = T1_L ^ T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * xor r08,(r16)
- */
-
-#define m_xor_r08_ind_r16(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
-        T0_L = T1_L ^ T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * xor r08,i08
- */
-
-#define m_xor_r08_i08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-        T0_L = T1_L ^ T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * or r08,r08
- */
-
-#define m_or_r08_r08(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = reg2; \
-        T0_L = T1_L | T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * or r08,(r16)
- */
-
-#define m_or_r08_ind_r16(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
-        T0_L = T1_L | T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * or r08,i08
- */
-
-#define m_or_r08_i08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-        T0_L = T1_L | T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is reset        */ (CF & (0x00)) \
-             ; \
-    } while(0)
-
-/*
- * cp r08,r08
- */
-
-#define m_cp_r08_r08(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = reg2; \
-        T0_W = T1_L - T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T2_L)) \
-             | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T2_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is reset        */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * cp r08,(r16)
- */
-
-#define m_cp_r08_ind_r16(reg1, reg2) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
-        T0_W = T1_L - T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T2_L)) \
-             | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T2_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is reset        */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * cp r08,i08
- */
-
-#define m_cp_r08_i08(reg1) \
-    do { \
-        T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-        T0_W = T1_L - T2_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T2_L)) \
-             | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T2_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is reset        */ (CF & (T0_H & CF)) \
-             ; \
+        ST_L = (ST_L | (ST_IFF1 | ST_IFF2)); \
     } while(0)
 
 /*
@@ -1109,190 +323,43 @@ extern "C" {
         ST_L = (ST_L | (ST_IM1 | ST_IM2)); \
     } while(0)
 
-
 /*
- * di
+ * ---------------------------------------------------------------------------
+ * input group
+ * ---------------------------------------------------------------------------
  */
 
-#define m_di() \
-    do { \
-        ST_L = (ST_L & ~(ST_IFF1 | ST_IFF2)); \
-    } while(0)
-
 /*
- * ei
+ * in r08,(r08)
  */
 
-#define m_ei() \
+#define m_in_r08_ind_r08(data, port) \
     do { \
-        ST_L = (ST_L | (ST_IFF1 | ST_IFF2)); \
-    } while(0)
-/*
- * push r16
- */
-
-#define m_push_r16(reg1) \
-    do { \
-        T0_W = reg1; \
-        MREQ_WR(--SP_W, T0_H); \
-        MREQ_WR(--SP_W, T0_L); \
-    } while(0)
-
-/*
- * pop r16
- */
-
-#define m_pop_r16(reg1) \
-    do { \
-        MREQ_RD(SP_W++, T0_L); \
-        MREQ_RD(SP_W++, T0_H); \
-        reg1 = T0_W; \
-    } while(0)
-
-/*
- * neg
- */
-
-#define m_neg() \
-    do { \
-        T1_L = 0x00; \
-        T2_L = AF_H; \
-        T0_W = T1_L - T2_L; \
+        T1_H = BC_H; \
+        T1_L = port; \
+        IORQ_RD(T1_W, T0_L); \
         T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
-             | /* NF is set          */ (NF & (0xff)) \
-             | /* CF is affected     */ (CF & (T0_H & CF)) \
-             ; \
-    } while(0)
-
-/*
- * rld
- */
-
-#define m_rld() \
-    do { \
-        MREQ_RD(HL_W, T1_L); \
-        T0_L = ((LO_NIBBLE(T1_L) << 4) | (LO_NIBBLE(AF_H) >> 0)); \
-        AF_H = ((HI_NIBBLE(AF_H) << 0) | (HI_NIBBLE(T1_L) >> 4)); \
-        T3_L = PZSTable[AF_H]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (AF_H)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (AF_H)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
              ; \
-        MREQ_WR(HL_W, T0_L); \
+        data = T0_L; \
     } while(0)
 
 /*
- * rrd
+ * in r08,(i08)
  */
 
-#define m_rrd() \
+#define m_in_r08_ind_i08(reg1) \
     do { \
-        MREQ_RD(HL_W, T1_L); \
-        T0_L = ((LO_NIBBLE(AF_H) << 4) | (HI_NIBBLE(T1_L) >> 4)); \
-        AF_H = ((HI_NIBBLE(AF_H) << 0) | (LO_NIBBLE(T1_L) >> 0)); \
-        T3_L = PZSTable[AF_H]; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (AF_H)) \
-             | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (AF_H)) \
-             | /* PF is affected     */ (PF & (T3_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is not affected */ (CF & (AF_L)) \
-             ; \
-        MREQ_WR(HL_W, T0_L); \
-    } while(0)
-
-/*
- * inir
- */
-
-#define m_inir() \
-    do { \
-        IORQ_RD(BC_W, T1_L); \
-        MREQ_WR(HL_W, T1_L); \
-        ++HL_W; \
-        --BC_H; \
-        if(BC_H != 0) { \
-            AF_L = NF; \
-            m_restore_pc(); \
-            m_consume(1, 5); \
-        } \
-        else { \
-            AF_L = ZF | NF; \
-        } \
-    } while(0)
-
-/*
- * indr
- */
-
-#define m_indr() \
-    do { \
-        IORQ_RD(BC_W, T1_L); \
-        MREQ_WR(HL_W, T1_L); \
-        --HL_W; \
-        --BC_H; \
-        if(BC_H != 0) { \
-            AF_L = NF; \
-            m_restore_pc(); \
-            m_consume(1, 5); \
-        } \
-        else { \
-            AF_L = ZF | NF; \
-        } \
-    } while(0)
-
-/*
- * otir
- */
-
-#define m_otir() \
-    do { \
-        MREQ_RD(HL_W, T1_L); \
-        ++HL_W; \
-        --BC_H; \
-        IORQ_WR(BC_W, T1_L); \
-        if(BC_H != 0) { \
-            AF_L = NF | (HL_L + T1_L > 255 ? (CF | HF) : 0); \
-            m_restore_pc(); \
-            m_consume(1, 5); \
-        } \
-        else { \
-            AF_L = ZF | NF | (HL_L + T1_L > 255 ? (CF | HF) : 0); \
-        } \
-    } while(0)
-
-/*
- * otdr
- */
-
-#define m_otdr() \
-    do { \
-        MREQ_RD(HL_W, T1_L); \
-        --HL_W; \
-        --BC_H; \
-        IORQ_WR(BC_W, T1_L); \
-        if(BC_H != 0) { \
-            AF_L = NF | (HL_L + T1_L > 255 ? (CF | HF) : 0); \
-            m_restore_pc(); \
-            m_consume(1, 5); \
-        } \
-        else { \
-            AF_L = ZF | NF | (HL_L + T1_L > 255 ? (CF | HF) : 0); \
-        } \
+        T0_W = AF_W; \
+        MREQ_RD(PC_W++, T0_L); \
+        IORQ_RD(T0_W  , reg1); \
     } while(0)
 
 /*
@@ -1303,17 +370,46 @@ extern "C" {
     do { \
         IORQ_RD(BC_W, T0_L); \
         MREQ_WR(HL_W, T0_L); \
+        WZ_W = BC_W; \
         --BC_H; \
         ++HL_W; \
-        AF_L = /* SF is unknown      */ (SF & (0x00)) \
-             | /* ZF is affected     */ (ZF & (BC_H == 0 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+        T3_L = PZSTable[BC_H]; \
+        AF_L = /* SF is unknown      */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is unknown      */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is unknown      */ (PF & (0x00)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is not affected */ (CF & (AF_L)) \
              ; \
+    } while(0)
+
+/*
+ * inir
+ */
+
+#define m_inir() \
+    do { \
+        IORQ_RD(BC_W, T1_L); \
+        MREQ_WR(HL_W, T1_L); \
+        WZ_W = BC_W; \
+        ++HL_W; \
+        --BC_H; \
+        T3_L = PZSTable[BC_H]; \
+        AF_L = /* SF is unknown      */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is unknown      */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is unknown      */ (PF & (0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        if(BC_H != 0) { \
+            m_restore_pc(); \
+            m_consume(1, 5); \
+        } \
     } while(0)
 
 /*
@@ -1324,17 +420,74 @@ extern "C" {
     do { \
         IORQ_RD(BC_W, T0_L); \
         MREQ_WR(HL_W, T0_L); \
+        WZ_W = BC_W; \
         --BC_H; \
         --HL_W; \
-        AF_L = /* SF is unknown      */ (SF & (0x00)) \
-             | /* ZF is affected     */ (ZF & (BC_H == 0 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+        T3_L = PZSTable[BC_H]; \
+        AF_L = /* SF is unknown      */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is unknown      */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is unknown      */ (PF & (0x00)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is not affected */ (CF & (AF_L)) \
              ; \
+    } while(0)
+
+/*
+ * indr
+ */
+
+#define m_indr() \
+    do { \
+        IORQ_RD(BC_W, T1_L); \
+        MREQ_WR(HL_W, T1_L); \
+        WZ_W = BC_W; \
+        --HL_W; \
+        --BC_H; \
+        T3_L = PZSTable[BC_H]; \
+        AF_L = /* SF is unknown      */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is unknown      */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is unknown      */ (PF & (0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        if(BC_H != 0) { \
+            m_restore_pc(); \
+            m_consume(1, 5); \
+        } \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * output group
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * out (r08),r08
+ */
+
+#define m_out_ind_r08_r08(port, data) \
+    do { \
+        T1_H = BC_H; \
+        T1_L = port; \
+        IORQ_WR(T1_W, data); \
+    } while(0)
+
+/*
+ * out (i08),r08
+ */
+
+#define m_out_ind_i08_r08(reg1) \
+    do { \
+        T0_W = AF_W; \
+        MREQ_RD(PC_W++, T0_L); \
+        IORQ_WR(T0_W  , reg1); \
     } while(0)
 
 /*
@@ -1346,16 +499,45 @@ extern "C" {
         MREQ_RD(HL_W, T0_L); \
         --BC_H; \
         ++HL_W; \
+        WZ_W = BC_W; \
         IORQ_WR(BC_W, T0_L); \
-        AF_L = /* SF is unknown      */ (SF & (0x00)) \
-             | /* ZF is affected     */ (ZF & (BC_H == 0 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+        T3_L = PZSTable[BC_H]; \
+        AF_L = /* SF is unknown      */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is unknown      */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is unknown      */ (PF & (0x00)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is not affected */ (CF & (AF_L)) \
              ; \
+    } while(0)
+
+/*
+ * otir
+ */
+
+#define m_otir() \
+    do { \
+        MREQ_RD(HL_W, T1_L); \
+        ++HL_W; \
+        --BC_H; \
+        WZ_W = BC_W; \
+        IORQ_WR(BC_W, T1_L); \
+        T3_L = PZSTable[BC_H]; \
+        AF_L = /* SF is unknown      */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is unknown      */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is unknown      */ (PF & (0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        if(BC_H != 0) { \
+            m_restore_pc(); \
+            m_consume(1, 5); \
+        } \
     } while(0)
 
 /*
@@ -1367,16 +549,150 @@ extern "C" {
         MREQ_RD(HL_W, T0_L); \
         --BC_H; \
         --HL_W; \
+        WZ_W = BC_W; \
         IORQ_WR(BC_W, T0_L); \
-        AF_L = /* SF is unknown      */ (SF & (0x00)) \
-             | /* ZF is affected     */ (ZF & (BC_H == 0 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (0x00)) \
+        T3_L = PZSTable[BC_H]; \
+        AF_L = /* SF is unknown      */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is unknown      */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is unknown      */ (PF & (0x00)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is not affected */ (CF & (AF_L)) \
              ; \
+    } while(0)
+
+/*
+ * otdr
+ */
+
+#define m_otdr() \
+    do { \
+        MREQ_RD(HL_W, T1_L); \
+        --HL_W; \
+        --BC_H; \
+        WZ_W = BC_W; \
+        IORQ_WR(BC_W, T1_L); \
+        T3_L = PZSTable[BC_H]; \
+        AF_L = /* SF is unknown      */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is unknown      */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is unknown      */ (PF & (0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        if(BC_H != 0) { \
+            m_restore_pc(); \
+            m_consume(1, 5); \
+        } \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 8-bit load group
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * ld r08,r08
+ */
+
+#define m_ld_r08_r08(reg1, reg2) \
+    do { \
+        reg1 = reg2; \
+    } while(0)
+
+/*
+ * ld r08,i08
+ */
+
+#define m_ld_r08_i08(reg1) \
+    do { \
+        MREQ_RD(PC_W++, reg1); \
+    } while(0)
+
+/*
+ * ld r08,(r16)
+ */
+
+#define m_ld_r08_ind_r16(reg1, reg2) \
+    do { \
+        MREQ_RD(reg2, reg1); \
+    } while(0)
+
+/*
+ * ld (r16),r08
+ */
+
+#define m_ld_ind_r16_r08(reg1, reg2) \
+    do { \
+        MREQ_WR(reg1, reg2); \
+    } while(0)
+
+/*
+ * ld r08,(i16)
+ */
+
+#define m_ld_r08_ind_i16(reg1) \
+    do { \
+        MREQ_RD(PC_W++, WZ_L); \
+        MREQ_RD(PC_W++, WZ_H); \
+        MREQ_RD(WZ_W  , reg1); \
+    } while(0)
+
+/*
+ * ld (i16),r08
+ */
+
+#define m_ld_ind_i16_r08(reg1) \
+    do { \
+        MREQ_RD(PC_W++, WZ_L); \
+        MREQ_RD(PC_W++, WZ_H); \
+        MREQ_WR(WZ_W  , reg1); \
+    } while(0)
+
+/*
+ * ld (r16),i08
+ */
+
+#define m_ld_ind_r16_i08(reg1) \
+    do { \
+        MREQ_RD(PC_W++, T0_L); \
+        MREQ_WR(reg1  , T0_L); \
+    } while(0)
+
+/*
+ * ld r08,(r16+i08)
+ */
+
+#define m_ld_r08_ind_r16_plus_i08(reg1, reg2) \
+    do { \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_RD(WZ_W, reg1); \
+    } while(0)
+
+/*
+ * ld (r16+i08),r08
+ */
+
+#define m_ld_ind_r16_plus_i08_r08(reg1, reg2) \
+    do { \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_WR(WZ_W, reg2); \
+    } while(0)
+
+/*
+ * ld (r16+i08),i08
+ */
+
+#define m_ld_ind_r16_plus_i08_i08(reg1) \
+    do { \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_RD(PC_W++, T0_L); \
+        MREQ_WR(WZ_W  , T0_L); \
     } while(0)
 
 /*
@@ -1390,29 +706,9 @@ extern "C" {
         AF_H = T0_L; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
-             | /* PF is affected     */ (PF & (HAS_IFF2 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is not affected */ (CF & (AF_L)) \
-             ; \
-    } while(0)
-
-/*
- * ld a,r
- */
-
-#define m_ld_a_r() \
-    do { \
-        T0_L = IR_L; \
-        T3_L = PZSTable[T0_L]; \
-        AF_H = T0_L; \
-        AF_L = /* SF is affected     */ (SF & (T3_L)) \
-             | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
-             | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (HAS_IFF2 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
@@ -1429,6 +725,26 @@ extern "C" {
     } while(0)
 
 /*
+ * ld a,r
+ */
+
+#define m_ld_a_r() \
+    do { \
+        T0_L = IR_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (HAS_IFF2 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+    } while(0)
+
+/*
  * ld r,a
  */
 
@@ -1438,26 +754,29 @@ extern "C" {
     } while(0)
 
 /*
- * in r08,(r08)
+ * ---------------------------------------------------------------------------
+ * 16-bit load group : ld/push/pop
+ * ---------------------------------------------------------------------------
  */
 
-#define m_in_r08_ind_r08(data, port) \
+/*
+ * ld r16,r16
+ */
+
+#define m_ld_r16_r16(reg1, reg2) \
     do { \
-        T1_H = BC_H; \
-        T1_L = port; \
-        IORQ_RD(T1_W, data); \
-        AF_L = PZSTable[data] | (AF_L & CF); \
+        reg1 = reg2; \
     } while(0)
 
 /*
- * out (r08),r08
+ * ld r16,i16
  */
 
-#define m_out_ind_r08_r08(port, data) \
+#define m_ld_r16_i16(reg1) \
     do { \
-        T1_H = BC_H; \
-        T1_L = port; \
-        IORQ_WR(T1_W, data); \
+        MREQ_RD(PC_W++, T0_L); \
+        MREQ_RD(PC_W++, T0_H); \
+        reg1 = T0_W; \
     } while(0)
 
 /*
@@ -1487,105 +806,44 @@ extern "C" {
     } while(0)
 
 /*
- * exx
+ * push r16
  */
 
-#define m_exx() \
-    do { \
-        T0_W = BC_W; BC_W = BC_P; BC_P = T0_W; \
-        T0_W = DE_W; DE_W = DE_P; DE_P = T0_W; \
-        T0_W = HL_W; HL_W = HL_P; HL_P = T0_W; \
-    } while(0)
-
-/*
- * ex r16,r16
- */
-
-#define m_ex_r16_r16(reg1, reg2) \
+#define m_push_r16(reg1) \
     do { \
         T0_W = reg1; \
-        reg1 = reg2; \
-        reg2 = T0_W; \
+        MREQ_WR(--SP_W, T0_H); \
+        MREQ_WR(--SP_W, T0_L); \
     } while(0)
 
 /*
- * ex (r16),r16
+ * pop r16
  */
 
-#define m_ex_ind_r16_r16(reg1, reg2) \
+#define m_pop_r16(reg1) \
     do { \
-        T1_W = reg1; \
-        T2_W = reg2; \
-        MREQ_RD((T1_W + 0), T0_L); \
-        MREQ_RD((T1_W + 1), T0_H); \
-        MREQ_WR((T1_W + 0), T2_L); \
-        MREQ_WR((T1_W + 1), T2_H); \
-        reg2 = T0_W; \
-    } while(0)
-
-/*
- * add r16,r16
- */
-
-#define m_add_r16_r16(reg1, reg2) \
-    do { \
-        T1_W = reg1; \
-        T2_W = reg2; \
-        T0_W = (T1_W + T2_W); \
-        AF_L = /* SF is not affected */ (SF & (AF_L)) \
-             | /* ZF is not affected */ (ZF & (AF_L)) \
-             | /* YF is undocumented */ (YF & (T0_H)) \
-             | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
-             | /* XF is undocumented */ (XF & (T0_H)) \
-             | /* VF is not affected */ (VF & (AF_L)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) + SIGNED_LONG(T2_W)) & 0x10000 ? 0xff : 0x00)) \
-             ; \
+        MREQ_RD(SP_W++, T0_L); \
+        MREQ_RD(SP_W++, T0_H); \
         reg1 = T0_W; \
     } while(0)
 
 /*
- * adc r16,r16
+ * ---------------------------------------------------------------------------
+ * general-purpose arithmetic group
+ * ---------------------------------------------------------------------------
  */
-
-#define m_adc_r16_r16(reg1, reg2) \
-    do { \
-        T1_W = reg1; \
-        T2_W = reg2; \
-        T3_W = ((AF_L & CF) != 0 ? 1 : 0); \
-        T0_W = (T1_W + T2_W + T3_W); \
-        AF_L = /* SF is affected     */ (SF & (T0_H)) \
-             | /* ZF is affected     */ (ZF & (T0_W == 0 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (T0_H)) \
-             | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
-             | /* XF is undocumented */ (XF & (T0_H)) \
-             | /* VF is affected     */ (VF & (~(T1_W ^ T2_W) & (T2_W ^ T0_W) & 0x8000 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0x00)) \
-             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) + SIGNED_LONG(T2_W) + SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
-             ; \
-        reg1 = T0_W; \
-    } while(0)
 
 /*
- * sbc r16,r16
+ * daa
  */
 
-#define m_sbc_r16_r16(reg1, reg2) \
+#define m_daa() \
     do { \
-        T1_W = reg1; \
-        T2_W = reg2; \
-        T3_W = ((AF_L & CF) != 0 ? 1 : 0); \
-        T0_W = (T1_W - T2_W - T3_W); \
-        AF_L = /* SF is affected     */ (SF & (T0_H)) \
-             | /* ZF is affected     */ (ZF & (T0_W == 0 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (T0_H)) \
-             | /* HF is affected     */ (HF & ((T1_W ^ T2_W ^ T0_W) & 0x1000 ? 0xff : 0x00)) \
-             | /* XF is undocumented */ (XF & (T0_H)) \
-             | /* VF is affected     */ (VF & ((T1_W ^ T2_W) & (T1_W ^ T0_W) & 0x8000 ? 0xff : 0x00)) \
-             | /* NF is reset        */ (NF & (0xff)) \
-             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) - SIGNED_LONG(T2_W) - SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
-             ; \
-        reg1 = T0_W; \
+        T0_W = AF_H; \
+        if(AF_L & CF) T0_W |= 0x100; \
+        if(AF_L & HF) T0_W |= 0x200; \
+        if(AF_L & NF) T0_W |= 0x400; \
+        AF_W = DAATable[T0_W]; \
     } while(0)
 
 /*
@@ -1603,6 +861,28 @@ extern "C" {
              | /* PF is not affected */ (PF & (AF_L)) \
              | /* NF is set          */ (NF & (0xff)) \
              | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+    } while(0)
+
+/*
+ * neg
+ */
+
+#define m_neg() \
+    do { \
+        T1_L = 0x00; \
+        T2_L = AF_H; \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
              ; \
     } while(0)
 
@@ -1641,80 +921,75 @@ extern "C" {
     } while(0)
 
 /*
- * in r08,(i08)
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : add
+ * ---------------------------------------------------------------------------
  */
 
-#define m_in_r08_ind_i08(reg1) \
+/*
+ * add r08,r08
+ */
+
+#define m_add_r08_r08(reg1, reg2) \
     do { \
-        T0_W = AF_W; \
-        MREQ_RD(PC_W++, T0_L); \
-        IORQ_RD(T0_W  , reg1); \
+        T1_L = reg1; \
+        T2_L = reg2; \
+        T0_W = T1_L + T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
     } while(0)
 
 /*
- * out (i08),r08
+ * add r08,i08
  */
 
-#define m_out_ind_i08_r08(reg1) \
+#define m_add_r08_i08(reg1) \
     do { \
-        T0_W = AF_W; \
-        MREQ_RD(PC_W++, T0_L); \
-        IORQ_WR(T0_W  , reg1); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T0_W = T1_L + T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
     } while(0)
 
 /*
- * ld r08,(r16+i08)
+ * add r08,(r16)
  */
 
-#define m_ld_r08_ind_r16_plus_i08(reg1, reg2) \
+#define m_add_r08_ind_r16(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
-        MREQ_RD(WZ_W, reg1); \
-    } while(0)
-
-/*
- * ld (r16+i08),r08
- */
-
-#define m_ld_ind_r16_plus_i08_r08(reg1, reg2) \
-    do { \
-        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
-        MREQ_WR(WZ_W, reg2); \
-    } while(0)
-
-/*
- * ld (r16+i08),i08
- */
-
-#define m_ld_ind_r16_plus_i08_i08(reg1) \
-    do { \
-        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
-        MREQ_RD(PC_W++, T0_L); \
-        MREQ_WR(WZ_W  , T0_L); \
-    } while(0)
-
-/*
- * inc (r16+i08)
- */
-
-#define m_inc_ind_r16_plus_i08(reg1) \
-    do { \
-        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
-        MREQ_RD(WZ_W, T1_L); \
-        m_inc_r08(T1_L); \
-        MREQ_WR(WZ_W, T1_L); \
-    } while(0)
-
-/*
- * dec (r16+i08)
- */
-
-#define m_dec_ind_r16_plus_i08(reg1) \
-    do { \
-        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
-        MREQ_RD(WZ_W, T1_L); \
-        m_dec_r08(T1_L); \
-        MREQ_WR(WZ_W, T1_L); \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T0_W = T1_L + T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
     } while(0)
 
 /*
@@ -1730,6 +1005,78 @@ extern "C" {
     } while(0)
 
 /*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : adc
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * adc r08,r08
+ */
+
+#define m_adc_r08_r08(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = reg2; \
+        T0_W = T1_L + T2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
+ * adc r08,i08
+ */
+
+#define m_adc_r08_i08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T0_W = T1_L + T2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
+ * adc reg08,(reg16)
+ */
+
+#define m_adc_r08_ind_r16(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T0_W = T1_L + T2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & T2_L & ~T0_L) | (~T1_L & ~T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
  * adc r08,(r16+i08)
  */
 
@@ -1739,6 +1086,78 @@ extern "C" {
         T1_L = reg1; \
         T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
         m_adc_r08_r08(T1_L, T2_L); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : sub
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * sub r08,r08
+ */
+
+#define m_sub_r08_r08(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = reg2; \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
+ * sub r08,i08
+ */
+
+#define m_sub_r08_i08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
+ * sub r08,(r16)
+ */
+
+#define m_sub_r08_ind_r16(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
     } while(0)
 
 /*
@@ -1754,6 +1173,78 @@ extern "C" {
     } while(0)
 
 /*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : sbc
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * sbc r08,r08
+ */
+
+#define m_sbc_r08_r08(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = reg2; \
+        T0_W = T1_L - T2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
+ * sbc r08,i08
+ */
+
+#define m_sbc_r08_i08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T0_W = T1_L - T2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
+ * sbc r08,(r16)
+ */
+
+#define m_sbc_r08_ind_r16(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T0_W = T1_L - T2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
  * sbc r08,(r16+i08)
  */
 
@@ -1763,6 +1254,78 @@ extern "C" {
         T1_L = reg1; \
         T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
         m_sbc_r08_r08(T1_L, T2_L); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : and
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * and r08,r08
+ */
+
+#define m_and_r08_r08(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = reg2; \
+        T0_L = T1_L & T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (0xff)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * and r08,i08
+ */
+
+#define m_and_r08_i08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T0_L = T1_L & T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (0xff)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * and r08,(r16)
+ */
+
+#define m_and_r08_ind_r16(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T0_L = T1_L & T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (0xff)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
     } while(0)
 
 /*
@@ -1778,6 +1341,78 @@ extern "C" {
     } while(0)
 
 /*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : xor
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * xor r08,r08
+ */
+
+#define m_xor_r08_r08(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = reg2; \
+        T0_L = T1_L ^ T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * xor r08,i08
+ */
+
+#define m_xor_r08_i08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T0_L = T1_L ^ T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * xor r08,(r16)
+ */
+
+#define m_xor_r08_ind_r16(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T0_L = T1_L ^ T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
+    } while(0)
+
+/*
  * xor r08,(r16+i08)
  */
 
@@ -1787,6 +1422,78 @@ extern "C" {
         T1_L = reg1; \
         T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
         m_xor_r08_r08(T1_L, T2_L); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : or
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * or r08,r08
+ */
+
+#define m_or_r08_r08(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = reg2; \
+        T0_L = T1_L | T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * or r08,i08
+ */
+
+#define m_or_r08_i08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T0_L = T1_L | T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * or r08,(r16)
+ */
+
+#define m_or_r08_ind_r16(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T0_L = T1_L | T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_H = T0_L; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is reset        */ (CF & (0x00)) \
+             ; \
     } while(0)
 
 /*
@@ -1802,6 +1509,75 @@ extern "C" {
     } while(0)
 
 /*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : cp
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * cp r08,r08
+ */
+
+#define m_cp_r08_r08(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = reg2; \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T2_L)) \
+             | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T2_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is reset        */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
+ * cp r08,i08
+ */
+
+#define m_cp_r08_i08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T2_L)) \
+             | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T2_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is reset        */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
+ * cp r08,(r16)
+ */
+
+#define m_cp_r08_ind_r16(reg1, reg2) \
+    do { \
+        T1_L = reg1; \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T2_L)) \
+             | /* HF is affected     */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T2_L)) \
+             | /* VF is affected     */ (VF & ((((T1_L & ~T2_L & ~T0_L) | (~T1_L & T2_L & T0_L)) & SF) != 0 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is reset        */ (CF & (T0_H & CF)) \
+             ; \
+    } while(0)
+
+/*
  * cp r08,(r16+i08)
  */
 
@@ -1811,6 +1587,243 @@ extern "C" {
         T1_L = reg1; \
         T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
         m_cp_r08_r08(T1_L, T2_L); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : inc
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * inc r08
+ */
+
+#define m_inc_r08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = 1; \
+        T0_W = T1_L + T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & (T1_L == 0x7f ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        reg1 = T0_L; \
+    } while(0)
+
+/*
+ * inc (r16)
+ */
+
+#define m_inc_ind_r16(reg1) \
+    do { \
+        MREQ_RD(reg1, T1_L); \
+        T2_L = 1; \
+        T0_W = T1_L + T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & (T1_L == 0x7f ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        MREQ_WR(reg1, T0_L); \
+    } while(0)
+
+/*
+ * inc (r16+i08)
+ */
+
+#define m_inc_ind_r16_plus_i08(reg1) \
+    do { \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_RD(WZ_W, T1_L); \
+        m_inc_r08(T1_L); \
+        MREQ_WR(WZ_W, T1_L); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 8-bit arithmetic group : dec
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * dec r08
+ */
+
+#define m_dec_r08(reg1) \
+    do { \
+        T1_L = reg1; \
+        T2_L = 1; \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & (T1_L == 0x80 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        reg1 = T0_L; \
+    } while(0)
+
+/*
+ * dec (r16)
+ */
+
+#define m_dec_ind_r16(reg1) \
+    do { \
+        MREQ_RD(reg1, T1_L); \
+        T2_L = 1; \
+        T0_W = T1_L - T2_L; \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
+             | /* HF is set          */ (HF & (T0_L ^ T1_L ^ T2_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
+             | /* VF is affected     */ (VF & (T1_L == 0x80 ? 0xff : 0x00)) \
+             | /* NF is set          */ (NF & (0xff)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        MREQ_WR(reg1, T0_L); \
+    } while(0)
+
+/*
+ * dec (r16+i08)
+ */
+
+#define m_dec_ind_r16_plus_i08(reg1) \
+    do { \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        MREQ_RD(WZ_W, T1_L); \
+        m_dec_r08(T1_L); \
+        MREQ_WR(WZ_W, T1_L); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 16-bit arithmetic group : add
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * add r16,r16
+ */
+
+#define m_add_r16_r16(reg1, reg2) \
+    do { \
+        T1_W = reg1; \
+        T2_W = reg2; \
+        T0_W = (T1_W + T2_W); \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (T0_H)) \
+             | /* HF is affected     */ (HF & ((T0_W ^ T1_W ^ T2_W) & 0x1000 ? 0xff : 0x00)) \
+             | /* XF is undocumented */ (XF & (T0_H)) \
+             | /* VF is not affected */ (VF & (AF_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) + SIGNED_LONG(T2_W)) & 0x10000 ? 0xff : 0x00)) \
+             ; \
+        reg1 = T0_W; \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 16-bit arithmetic group : adc
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * adc r16,r16
+ */
+
+#define m_adc_r16_r16(reg1, reg2) \
+    do { \
+        T1_W = reg1; \
+        T2_W = reg2; \
+        T3_W = ((AF_L & CF) != 0 ? 1 : 0); \
+        T0_W = (T1_W + T2_W + T3_W); \
+        AF_L = /* SF is affected     */ (SF & (T0_H)) \
+             | /* ZF is affected     */ (ZF & (T0_W == 0 ? 0xff : 0x00)) \
+             | /* YF is undocumented */ (YF & (T0_H)) \
+             | /* HF is affected     */ (HF & ((T0_W ^ T1_W ^ T2_W) & 0x1000 ? 0xff : 0x00)) \
+             | /* XF is undocumented */ (XF & (T0_H)) \
+             | /* VF is affected     */ (VF & (~(T1_W ^ T2_W) & (T2_W ^ T0_W) & 0x8000 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) + SIGNED_LONG(T2_W) + SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
+             ; \
+        reg1 = T0_W; \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 16-bit arithmetic group : sbc
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * sbc r16,r16
+ */
+
+#define m_sbc_r16_r16(reg1, reg2) \
+    do { \
+        T1_W = reg1; \
+        T2_W = reg2; \
+        T3_W = ((AF_L & CF) != 0 ? 1 : 0); \
+        T0_W = (T1_W - T2_W - T3_W); \
+        AF_L = /* SF is affected     */ (SF & (T0_H)) \
+             | /* ZF is affected     */ (ZF & (T0_W == 0 ? 0xff : 0x00)) \
+             | /* YF is undocumented */ (YF & (T0_H)) \
+             | /* HF is affected     */ (HF & ((T0_W ^ T1_W ^ T2_W) & 0x1000 ? 0xff : 0x00)) \
+             | /* XF is undocumented */ (XF & (T0_H)) \
+             | /* VF is affected     */ (VF & ((T1_W ^ T2_W) & (T1_W ^ T0_W) & 0x8000 ? 0xff : 0x00)) \
+             | /* NF is reset        */ (NF & (0xff)) \
+             | /* CF is affected     */ (CF & ((SIGNED_LONG(T1_W) - SIGNED_LONG(T2_W) - SIGNED_LONG(T3_W)) & 0x10000 ? 0xff : 0x00)) \
+             ; \
+        reg1 = T0_W; \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 16-bit arithmetic group : inc
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * inc r16
+ */
+
+#define m_inc_r16(reg1) \
+    do { \
+        ++reg1; \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * 16-bit arithmetic group : dec
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * dec r16
+ */
+
+#define m_dec_r16(reg1) \
+    do { \
+        --reg1; \
     } while(0)
 
 /*
@@ -2424,7 +2437,50 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
- * memory block instructions : ldi/ldir/ldd/lddr
+ * exchange group : ex/exx
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * exx
+ */
+
+#define m_exx() \
+    do { \
+        T0_W = BC_W; BC_W = BC_P; BC_P = T0_W; \
+        T0_W = DE_W; DE_W = DE_P; DE_P = T0_W; \
+        T0_W = HL_W; HL_W = HL_P; HL_P = T0_W; \
+    } while(0)
+
+/*
+ * ex r16,r16
+ */
+
+#define m_ex_r16_r16(reg1, reg2) \
+    do { \
+        T0_W = reg1; \
+        reg1 = reg2; \
+        reg2 = T0_W; \
+    } while(0)
+
+/*
+ * ex (r16),r16
+ */
+
+#define m_ex_ind_r16_r16(reg1, reg2) \
+    do { \
+        T1_W = reg1; \
+        T2_W = reg2; \
+        MREQ_RD((T1_W + 0), T0_L); \
+        MREQ_RD((T1_W + 1), T0_H); \
+        MREQ_WR((T1_W + 0), T2_L); \
+        MREQ_WR((T1_W + 1), T2_H); \
+        reg2 = T0_W; \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * block transfer group : ldi/ldir/ldd/lddr
  * ---------------------------------------------------------------------------
  */
 
@@ -2502,6 +2558,9 @@ extern "C" {
             m_restore_pc(); \
             m_consume(1, 5); \
         } \
+        else { \
+            WZ_W = PC_W; \
+        } \
     } while(0)
 
 /*
@@ -2530,11 +2589,14 @@ extern "C" {
             m_restore_pc(); \
             m_consume(1, 5); \
         } \
+        else { \
+            WZ_W = PC_W; \
+        } \
     } while(0)
 
 /*
  * ---------------------------------------------------------------------------
- * memory block instructions : cpi/cpir/cpd/cpdr
+ * search group : cpi/cpir/cpd/cpdr
  * ---------------------------------------------------------------------------
  */
 
@@ -2660,7 +2722,137 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
- * cb instructions : rotate/shift + bit test/reset/set
+ * rotate and shift group
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * rlca
+ */
+
+#define m_rlca() \
+    do { \
+        T1_L = AF_H; \
+        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (UNSIGNED_BYTE(T1_L) >> 7); \
+        AF_H = T0_L; \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* PF is not affected */ (PF & (AF_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * rrca
+ */
+
+#define m_rrca() \
+    do { \
+        T1_L = AF_H; \
+        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) | (UNSIGNED_BYTE(T1_L) << 7); \
+        AF_H = T0_L; \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* PF is not affected */ (PF & (AF_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * rla
+ */
+
+#define m_rla() \
+    do { \
+        T1_L = AF_H; \
+        T0_L = (UNSIGNED_BYTE(T1_L) << 1) | (AF_L & CF ? BIT0 : 0x00); \
+        AF_H = T0_L; \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* PF is not affected */ (PF & (AF_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * rra
+ */
+
+#define m_rra() \
+    do { \
+        T1_L = AF_H; \
+        T0_L = (UNSIGNED_BYTE(T1_L) >> 1) | (AF_L & CF ? BIT7 : 0x00); \
+        AF_H = T0_L; \
+        AF_L = /* SF is not affected */ (SF & (AF_L)) \
+             | /* ZF is not affected */ (ZF & (AF_L)) \
+             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* PF is not affected */ (PF & (AF_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
+             ; \
+    } while(0)
+
+/*
+ * rld
+ */
+
+#define m_rld() \
+    do { \
+        MREQ_RD(HL_W, T1_L); \
+        T0_L = ((LO_NIBBLE(T1_L) << 4) | (LO_NIBBLE(AF_H) >> 0)); \
+        AF_H = ((HI_NIBBLE(AF_H) << 0) | (HI_NIBBLE(T1_L) >> 4)); \
+        T3_L = PZSTable[AF_H]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (AF_H)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (AF_H)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        MREQ_WR(HL_W, T0_L); \
+    } while(0)
+
+/*
+ * rrd
+ */
+
+#define m_rrd() \
+    do { \
+        MREQ_RD(HL_W, T1_L); \
+        T0_L = ((LO_NIBBLE(AF_H) << 4) | (HI_NIBBLE(T1_L) >> 4)); \
+        AF_H = ((HI_NIBBLE(AF_H) << 0) | (LO_NIBBLE(T1_L) >> 0)); \
+        T3_L = PZSTable[AF_H]; \
+        AF_L = /* SF is affected     */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (AF_H)) \
+             | /* HF is reset        */ (HF & (0x00)) \
+             | /* XF is undocumented */ (XF & (AF_H)) \
+             | /* PF is affected     */ (PF & (T3_L)) \
+             | /* NF is reset        */ (NF & (0x00)) \
+             | /* CF is not affected */ (CF & (AF_L)) \
+             ; \
+        MREQ_WR(HL_W, T0_L); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * rotate and shift group
  * ---------------------------------------------------------------------------
  */
 
@@ -2675,9 +2867,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2696,9 +2888,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2717,9 +2909,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2738,9 +2930,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2759,9 +2951,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2780,9 +2972,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2801,9 +2993,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2822,9 +3014,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2843,9 +3035,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2864,9 +3056,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2885,9 +3077,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2906,9 +3098,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2927,9 +3119,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2948,9 +3140,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit7    */ (CF & (T1_L & BIT7 ? 0xff : 0x00)) \
@@ -2969,9 +3161,9 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
@@ -2990,15 +3182,21 @@ extern "C" {
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is reset        */ (HF & (0x00)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is affected     */ (PF & (T3_L)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is data bit0    */ (CF & (T1_L & BIT0 ? 0xff : 0x00)) \
              ; \
         MREQ_WR(addr, T0_L); \
     } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * bit test/reset/set group
+ * ---------------------------------------------------------------------------
+ */
 
 /*
  * bit r08
@@ -3008,11 +3206,12 @@ extern "C" {
     do { \
         T1_L = data; \
         T0_L = (T1_L & mask); \
-        AF_L = /* SF is undocumented */ (SF & (T0_L)) \
-             | /* ZF is affected     */ (ZF & (T0_L == 0x00 ? 0xff : 0x00)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is undocumented */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
+             | /* YF is undocumented */ (YF & (T3_L)) \
              | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T3_L)) \
              | /* PF is undocumented */ (PF & (T0_L == 0x00 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \
@@ -3027,8 +3226,9 @@ extern "C" {
     do { \
         MREQ_RD(addr, T1_L); \
         T0_L = (T1_L & mask); \
-        AF_L = /* SF is undocumented */ (SF & (T0_L)) \
-             | /* ZF is affected     */ (ZF & (T0_L == 0x00 ? 0xff : 0x00)) \
+        T3_L = PZSTable[T0_L]; \
+        AF_L = /* SF is undocumented */ (SF & (T3_L)) \
+             | /* ZF is affected     */ (ZF & (T3_L)) \
              | /* YF is undocumented */ (YF & (WZ_H)) \
              | /* HF is set          */ (HF & (0xff)) \
              | /* XF is undocumented */ (XF & (WZ_H)) \
@@ -3084,7 +3284,7 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
- * ddcb/fdcb instructions : indexed rotate/shift + indexed bit test/reset/set
+ * ddcb/fdcb instructions : indexed rotate/shift
  * ---------------------------------------------------------------------------
  */
 
@@ -3239,6 +3439,12 @@ extern "C" {
         m_srl_ind_r16(WZ_W); \
         m_ld_r08_r08(reg2, T0_L); \
     } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * ddcb/fdcb instructions : indexed bit test/reset/set
+ * ---------------------------------------------------------------------------
+ */
 
 /*
  * bit b,(r16+i08)
