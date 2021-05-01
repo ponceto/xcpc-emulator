@@ -1150,17 +1150,6 @@ extern "C" {
     } while(0)
 
 /*
- * rst p
- */
-
-#define m_rst_vec16(vector) \
-    do { \
-        MREQ_WR(--SP_W, PC_H); \
-        MREQ_WR(--SP_W, PC_L); \
-        PC_W = vector; \
-    } while(0)
-
-/*
  * neg
  */
 
@@ -1826,9 +1815,41 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
+ * jump group : djnz
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * djnz i08
+ */
+
+#define m_djnz_i08() \
+    do { \
+        --BC_H; \
+        if(BC_H != 0) { \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            PC_W = WZ_W; \
+            m_consume(1, 5); \
+        } \
+        else { \
+            PC_W += 1; \
+        } \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
  * jump group : jp
  * ---------------------------------------------------------------------------
  */
+
+/*
+ * jp r16
+ */
+
+#define m_jp_r16(reg1) \
+    do { \
+        PC_W = reg1; \
+    } while(0)
 
 /*
  * jp i16
@@ -1839,15 +1860,6 @@ extern "C" {
         MREQ_RD(PC_W++, WZ_L); \
         MREQ_RD(PC_W++, WZ_H); \
         PC_W = WZ_W; \
-    } while(0)
-
-/*
- * jp r16
- */
-
-#define m_jp_r16(reg1) \
-    do { \
-        PC_W = reg1; \
     } while(0)
 
 /*
@@ -2060,25 +2072,20 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
- * jump group : djnz
+ * call and return group : rst
  * ---------------------------------------------------------------------------
  */
 
 /*
- * djnz i08
+ * rst p
  */
 
-#define m_djnz_i08() \
+#define m_rst_vec16(vector) \
     do { \
-        --BC_H; \
-        if(BC_H != 0) { \
-            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
-            PC_W = WZ_W; \
-            m_consume(1, 5); \
-        } \
-        else { \
-            PC_W += 1; \
-        } \
+        MREQ_WR(--SP_W, PC_H); \
+        MREQ_WR(--SP_W, PC_L); \
+        WZ_W = vector; \
+        PC_W = WZ_W; \
     } while(0)
 
 /*
@@ -2254,7 +2261,7 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
- * call and return group : ret/reti/retn
+ * call and return group : ret
  * ---------------------------------------------------------------------------
  */
 
@@ -2382,13 +2389,20 @@ extern "C" {
     } while(0)
 
 /*
+ * ---------------------------------------------------------------------------
+ * call and return group : reti/retn
+ * ---------------------------------------------------------------------------
+ */
+
+/*
  * reti
  */
 
 #define m_reti() \
     do { \
-        MREQ_RD(SP_W++, PC_L); \
-        MREQ_RD(SP_W++, PC_H); \
+        MREQ_RD(SP_W++, WZ_L); \
+        MREQ_RD(SP_W++, WZ_H); \
+        PC_W = WZ_W; \
     } while(0)
 
 /*
@@ -2403,8 +2417,9 @@ extern "C" {
         else { \
             CLR_IFF1(); \
         } \
-        MREQ_RD(SP_W++, PC_L); \
-        MREQ_RD(SP_W++, PC_H); \
+        MREQ_RD(SP_W++, WZ_L); \
+        MREQ_RD(SP_W++, WZ_H); \
+        PC_W = WZ_W; \
     } while(0)
 
 /*
