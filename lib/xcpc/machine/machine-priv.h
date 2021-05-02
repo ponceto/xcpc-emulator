@@ -23,6 +23,10 @@
 extern "C" {
 #endif
 
+#ifndef XCPC_TIMESTAMP_OF
+#define XCPC_TIMESTAMP_OF(tv) ((((long long)((tv)->tv_sec)) * 1000000LL) + (((long long)((tv)->tv_usec)) * 1LL))
+#endif
+
 typedef struct _XcpcHorzProps XcpcHorzProps;
 typedef struct _XcpcVertProps XcpcVertProps;
 typedef struct _XcpcBorders   XcpcBorders;
