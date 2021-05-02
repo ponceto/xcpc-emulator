@@ -98,7 +98,7 @@ Here is a non-exhaustive list of supported features :
   - Joystick emulation with the numeric keypad when numlock is disabled.
   - Joystick emulation by pressing the « Home » or « End » key (then use arrows + left-ctrl + left-alt).
   - Joystick support under Linux (up to two hardware joysticks).
-  - CPU: Z80 with full documented instructions and most undocumented instructions.
+  - CPU: Z80 with full documented and undocumented instructions.
   - VGA: Video Gate Array 40007/40008/40010, complete support.
   - VDC: CRTC 6845, almost complete full support.
   - PPI: PPI 8255, almost complete full support.
