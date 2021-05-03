@@ -45,6 +45,11 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcMachine::%s()", function);
 }
 
+static void default_handler(XcpcMachine* machine, void* user_data)
+{
+    log_trace("default_handler");
+}
+
 static int is_set(const char* value)
 {
     if(value == NULL) {
@@ -228,9 +233,8 @@ static void cpc_mem_select(XcpcMachine* self, uint8_t ram_conf, uint8_t rom_conf
     }
 }
 
-static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
+static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
     const uint16_t index  = ((addr >> 14) & 0x0003);
     const uint16_t offset = ((addr >>  0) & 0x3fff);
 
@@ -240,9 +244,8 @@ static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
+static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
     const uint16_t index  = ((addr >> 14) & 0x0003);
     const uint16_t offset = ((addr >>  0) & 0x3fff);
 
@@ -252,9 +255,8 @@ static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
+static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
     const uint16_t index  = ((addr >> 14) & 0x0003);
     const uint16_t offset = ((addr >>  0) & 0x3fff);
 
@@ -264,10 +266,8 @@ static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
+static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-
     /* clear data */ {
         data = 0x00;
     }
@@ -277,10 +277,8 @@ static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
+static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-
     /* clear data */ {
         data = 0x00;
     }
@@ -421,10 +419,8 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
+static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
             const uint8_t function = ((data >> 6) & 3);
@@ -1978,7 +1974,23 @@ static void construct_iface(XcpcMachine* self, const XcpcMachineIface* iface)
     }
     else {
         self->iface.user_data = NULL;
+        self->iface.reserved0 = NULL;
+        self->iface.reserved1 = NULL;
+        self->iface.reserved2 = NULL;
+        self->iface.reserved3 = NULL;
+        self->iface.reserved4 = NULL;
+        self->iface.reserved5 = NULL;
+        self->iface.reserved6 = NULL;
+        self->iface.reserved7 = NULL;
     }
+    if(self->iface.reserved0 == NULL) { self->iface.reserved0 = &default_handler; }
+    if(self->iface.reserved1 == NULL) { self->iface.reserved1 = &default_handler; }
+    if(self->iface.reserved2 == NULL) { self->iface.reserved2 = &default_handler; }
+    if(self->iface.reserved3 == NULL) { self->iface.reserved3 = &default_handler; }
+    if(self->iface.reserved4 == NULL) { self->iface.reserved4 = &default_handler; }
+    if(self->iface.reserved5 == NULL) { self->iface.reserved5 = &default_handler; }
+    if(self->iface.reserved6 == NULL) { self->iface.reserved6 = &default_handler; }
+    if(self->iface.reserved7 == NULL) { self->iface.reserved7 = &default_handler; }
 }
 
 static void destruct_iface(XcpcMachine* self)
@@ -2077,13 +2089,13 @@ static void construct_board(XcpcMachine* self)
     }
     /* cpu_z80a */ {
         const XcpcCpuZ80aIface cpu_z80a_iface = {
-            self,         /* user_data */
-            &cpu_mreq_m1, /* mreq_m1   */
-            &cpu_mreq_rd, /* mreq_rd   */
-            &cpu_mreq_wr, /* mreq_wr   */
-            &cpu_iorq_m1, /* iorq_m1   */
-            &cpu_iorq_rd, /* iorq_rd   */
-            &cpu_iorq_wr, /* iorq_wr   */
+            self,                                /* user_data */
+            XCPC_CPU_Z80A_MREQ_M1(&cpu_mreq_m1), /* mreq_m1   */
+            XCPC_CPU_Z80A_MREQ_RD(&cpu_mreq_rd), /* mreq_rd   */
+            XCPC_CPU_Z80A_MREQ_WR(&cpu_mreq_wr), /* mreq_wr   */
+            XCPC_CPU_Z80A_IORQ_M1(&cpu_iorq_m1), /* iorq_m1   */
+            XCPC_CPU_Z80A_IORQ_RD(&cpu_iorq_rd), /* iorq_rd   */
+            XCPC_CPU_Z80A_IORQ_WR(&cpu_iorq_wr), /* iorq_wr   */
         };
         if(self->board.cpu_z80a == NULL) {
             self->board.cpu_z80a = xcpc_cpu_z80a_new(&cpu_z80a_iface);

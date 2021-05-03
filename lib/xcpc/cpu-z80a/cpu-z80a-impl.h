@@ -27,20 +27,34 @@ extern "C" {
 #define XCPC_CPU_Z80A_SETUP(instance) (&(instance)->setup)
 #define XCPC_CPU_Z80A_STATE(instance) (&(instance)->state)
 
+#define XCPC_CPU_Z80A_MREQ_M1(proc) ((XcpcCpuZ80a_MREQ_M1)(proc))
+#define XCPC_CPU_Z80A_MREQ_RD(proc) ((XcpcCpuZ80a_MREQ_RD)(proc))
+#define XCPC_CPU_Z80A_MREQ_WR(proc) ((XcpcCpuZ80a_MREQ_WR)(proc))
+#define XCPC_CPU_Z80A_IORQ_M1(proc) ((XcpcCpuZ80a_IORQ_M1)(proc))
+#define XCPC_CPU_Z80A_IORQ_RD(proc) ((XcpcCpuZ80a_IORQ_RD)(proc))
+#define XCPC_CPU_Z80A_IORQ_WR(proc) ((XcpcCpuZ80a_IORQ_WR)(proc))
+
 typedef struct _XcpcCpuZ80aIface XcpcCpuZ80aIface;
 typedef struct _XcpcCpuZ80aSetup XcpcCpuZ80aSetup;
 typedef struct _XcpcCpuZ80aState XcpcCpuZ80aState;
 typedef struct _XcpcCpuZ80a      XcpcCpuZ80a;
 
+typedef uint8_t (*XcpcCpuZ80a_MREQ_M1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcCpuZ80a_MREQ_RD)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcCpuZ80a_MREQ_WR)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcCpuZ80a_IORQ_M1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcCpuZ80a_IORQ_RD)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcCpuZ80a_IORQ_WR)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+
 struct _XcpcCpuZ80aIface
 {
     void* user_data;
-    uint8_t (*mreq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*mreq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*mreq_wr)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*iorq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*iorq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*iorq_wr)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
+    uint8_t (*mreq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+    uint8_t (*mreq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+    uint8_t (*mreq_wr)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+    uint8_t (*iorq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+    uint8_t (*iorq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+    uint8_t (*iorq_wr)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
 };
 
 struct _XcpcCpuZ80aSetup

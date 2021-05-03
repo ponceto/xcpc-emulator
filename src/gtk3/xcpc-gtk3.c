@@ -1283,7 +1283,18 @@ XcpcApplication* xcpc_application_new(void)
         self->options = xcpc_options_new();
     }
     /* intialize the machine */ {
-        self->machine = xcpc_machine_new(NULL, self->options);
+        const XcpcMachineIface machine_iface = {
+            self, /* user_data */
+            NULL, /* reserved0 */
+            NULL, /* reserved1 */
+            NULL, /* reserved2 */
+            NULL, /* reserved3 */
+            NULL, /* reserved4 */
+            NULL, /* reserved5 */
+            NULL, /* reserved6 */
+            NULL, /* reserved7 */
+        };
+        self->machine = xcpc_machine_new(&machine_iface, self->options);
     }
     return self;
 }

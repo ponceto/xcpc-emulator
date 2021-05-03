@@ -306,42 +306,42 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcCpuZ80a::%s()", function);
 }
 
-static uint8_t default_mreq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_mreq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_mreq_m1_handler");
 
     return 0x00;
 }
 
-static uint8_t default_mreq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_mreq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_mreq_rd_handler");
 
     return 0x00;
 }
 
-static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_mreq_wr_handler");
 
     return 0x00;
 }
 
-static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_iorq_m1_handler");
 
     return 0x00;
 }
 
-static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_iorq_rd_handler");
 
     return 0x00;
 }
 
-static uint8_t default_iorq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_iorq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_iorq_wr_handler");
 

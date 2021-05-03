@@ -1565,7 +1565,18 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
         self->options = xcpc_options_new();
     }
     /* intialize machine */ {
-        self->machine = xcpc_machine_new(NULL, self->options);
+        const XcpcMachineIface machine_iface = {
+            self, /* user_data */
+            NULL, /* reserved0 */
+            NULL, /* reserved1 */
+            NULL, /* reserved2 */
+            NULL, /* reserved3 */
+            NULL, /* reserved4 */
+            NULL, /* reserved5 */
+            NULL, /* reserved6 */
+            NULL, /* reserved7 */
+        };
+        self->machine = xcpc_machine_new(&machine_iface, self->options);
     }
     /* parse the command-line */ {
         (void) xcpc_options_parse(self->options, argc, argv);

@@ -172,13 +172,13 @@ extern "C" {
 #define PREV_PC prev_pc
 #define LAST_OP last_op
 
-#define MREQ_M1(addr, data) (void)(data=(*IFACE.mreq_m1)((self),(addr),(0x00)))
-#define MREQ_RD(addr, data) (void)(data=(*IFACE.mreq_rd)((self),(addr),(0x00)))
-#define MREQ_WR(addr, data) (void)((*IFACE.mreq_wr)((self),(addr),(data)))
+#define MREQ_M1(addr, data) (void)(data=(*IFACE.mreq_m1)((self),(addr),(0x00),(IFACE.user_data)))
+#define MREQ_RD(addr, data) (void)(data=(*IFACE.mreq_rd)((self),(addr),(0x00),(IFACE.user_data)))
+#define MREQ_WR(addr, data) (void)((*IFACE.mreq_wr)((self),(addr),(data),(IFACE.user_data)))
 
-#define IORQ_M1(port, data) (void)(data=(*IFACE.iorq_m1)((self),(port),(0x00)))
-#define IORQ_RD(port, data) (void)(data=(*IFACE.iorq_rd)((self),(port),(0x00)))
-#define IORQ_WR(port, data) (void)((*IFACE.iorq_wr)((self),(port),(data)))
+#define IORQ_M1(port, data) (void)(data=(*IFACE.iorq_m1)((self),(port),(0x00),(IFACE.user_data)))
+#define IORQ_RD(port, data) (void)(data=(*IFACE.iorq_rd)((self),(port),(0x00),(IFACE.user_data)))
+#define IORQ_WR(port, data) (void)((*IFACE.iorq_wr)((self),(port),(data),(IFACE.user_data)))
 
 #define SIGNED_BYTE(value) ((int8_t)(value))
 #define UNSIGNED_BYTE(value) ((uint8_t)(value))

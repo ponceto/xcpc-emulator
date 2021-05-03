@@ -58,6 +58,14 @@ typedef void (*XcpcMouseFunc)(XcpcMachine* machine, XEvent* xevent);
 struct _XcpcMachineIface
 {
     void* user_data;
+    void (*reserved0)(XcpcMachine* machine, void* user_data);
+    void (*reserved1)(XcpcMachine* machine, void* user_data);
+    void (*reserved2)(XcpcMachine* machine, void* user_data);
+    void (*reserved3)(XcpcMachine* machine, void* user_data);
+    void (*reserved4)(XcpcMachine* machine, void* user_data);
+    void (*reserved5)(XcpcMachine* machine, void* user_data);
+    void (*reserved6)(XcpcMachine* machine, void* user_data);
+    void (*reserved7)(XcpcMachine* machine, void* user_data);
 };
 
 struct _XcpcMachineSetup
