@@ -25,14 +25,12 @@ extern "C" {
 
 extern XcpcMachine* xcpc_machine_alloc     (void);
 extern XcpcMachine* xcpc_machine_free      (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_construct (XcpcMachine* machine);
+extern XcpcMachine* xcpc_machine_construct (XcpcMachine* machine, const XcpcMachineIface* iface, XcpcOptions* options);
 extern XcpcMachine* xcpc_machine_destruct  (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_new       (void);
+extern XcpcMachine* xcpc_machine_new       (const XcpcMachineIface* iface, XcpcOptions* options);
 extern XcpcMachine* xcpc_machine_delete    (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_set_iface (XcpcMachine* machine, const XcpcMachineIface* machine_iface);
 extern XcpcMachine* xcpc_machine_reset     (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_clock     (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_parse     (XcpcMachine* machine, int* argc, char*** argv);
 extern XcpcMachine* xcpc_machine_start     (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_close     (XcpcMachine* machine);
 

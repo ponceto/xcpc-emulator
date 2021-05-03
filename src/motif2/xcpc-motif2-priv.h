@@ -22,6 +22,7 @@
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
+#include <xcpc/options/options.h>
 #include <xcpc/machine/machine.h>
 #include "xcpc-motif2.h"
 
@@ -154,6 +155,7 @@ struct _XcpcInfoBarRec
 
 struct _XcpcApplicationRec
 {
+    XcpcOptions*     options;
     XcpcMachine*     machine;
     XtAppContext     appcontext;
     XtIntervalId     intervalId;

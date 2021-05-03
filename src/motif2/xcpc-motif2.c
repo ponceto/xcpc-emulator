@@ -1561,11 +1561,14 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
     /* clear instance */ {
         (void) memset(self, 0, sizeof(XcpcApplication));
     }
-    /* intialize the machine */ {
-        self->machine = xcpc_machine_new();
+    /* intialize options */ {
+        self->options = xcpc_options_new();
+    }
+    /* intialize machine */ {
+        self->machine = xcpc_machine_new(NULL, self->options);
     }
     /* parse the command-line */ {
-        (void) xcpc_machine_parse(self->machine, argc, argv);
+        (void) xcpc_options_parse(self->options, argc, argv);
     }
     /* set language proc */ {
         (void) XtSetLanguageProc(NULL, NULL, NULL);
@@ -1607,8 +1610,11 @@ static XcpcApplication* Destruct(XcpcApplication* self)
             self->appcontext = (XtDestroyApplicationContext(self->appcontext), NULL);
         }
     }
-    /* finalize the emulator */ {
+    /* finalize machine */ {
         self->machine = xcpc_machine_delete(self->machine);
+    }
+    /* finalize options */ {
+        self->options = xcpc_options_delete(self->options);
     }
     return self;
 }
@@ -1646,7 +1652,7 @@ XcpcApplication* XcpcApplicationDelete(XcpcApplication* self)
     return xcpc_delete(XcpcApplication, Destruct(self));
 }
 
-XcpcApplication* XcpcApplicationLoop(XcpcApplication* self)
+XcpcApplication* XcpcApplicationRun(XcpcApplication* self)
 {
     return MainLoop(self);
 }
@@ -1661,10 +1667,8 @@ int xcpc_main(int* argc, char*** argv)
 {
     XcpcApplication* self = XcpcApplicationNew(argc, argv);
 
-    /* main */ {
-        (void) XcpcApplicationLoop(self);
-    }
-    /* delete */ {
+    if(self != NULL) {
+        (void) XcpcApplicationRun(self);
         self = XcpcApplicationDelete(self);
     }
     return EXIT_SUCCESS;

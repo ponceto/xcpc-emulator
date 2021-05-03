@@ -19,6 +19,7 @@
 
 #include <gtk/gtk.h>
 #include <gtk3/gememulator.h>
+#include <xcpc/options/options.h>
 #include <xcpc/machine/machine.h>
 #include "xcpc-gtk3.h"
 
@@ -132,6 +133,7 @@ struct _XcpcLayoutRec
 
 struct _XcpcApplicationRec
 {
+    XcpcOptions*  options;
     XcpcMachine*  machine;
     XcpcLayoutRec layout;
 };

@@ -1279,8 +1279,11 @@ XcpcApplication* xcpc_application_new(void)
 {
     XcpcApplication* self = g_new0(XcpcApplication, 1);
 
+    /* intialize the options */ {
+        self->options = xcpc_options_new();
+    }
     /* intialize the machine */ {
-        self->machine = xcpc_machine_new();
+        self->machine = xcpc_machine_new(NULL, self->options);
     }
     return self;
 }
@@ -1290,8 +1293,11 @@ XcpcApplication* xcpc_application_delete(XcpcApplication* self)
     /* finalize */ {
         self->layout.application = (g_object_unref(self->layout.application), NULL);
     }
-    /* finalize the emulator */ {
+    /* finalize machine */ {
         self->machine = xcpc_machine_delete(self->machine);
+    }
+    /* finalize options */ {
+        self->options = xcpc_options_delete(self->options);
     }
     /* free */ {
         self = (g_free(self), NULL);
@@ -1302,7 +1308,7 @@ XcpcApplication* xcpc_application_delete(XcpcApplication* self)
 XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** argv)
 {
     /* parse the command-line */ {
-        (void) xcpc_machine_parse(self->machine, argc, argv);
+        (void) xcpc_options_parse(self->options, argc, argv);
     }
     /* create application */ {
         self->layout.application = gtk_application_new(app_id, G_APPLICATION_FLAGS_NONE);
@@ -1327,10 +1333,8 @@ int xcpc_main(int* argc, char*** argv)
 {
     XcpcApplication* self = xcpc_application_new();
 
-    /* run */ {
+    if(self != NULL) {
         (void) xcpc_application_run(self, argc, argv);
-    }
-    /* delete */ {
         self = xcpc_application_delete(self);
     }
     return EXIT_SUCCESS;

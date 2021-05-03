@@ -1971,9 +1971,14 @@ static void mouse_default(XcpcMachine* self, XEvent* event)
     (void) xcpc_keyboard_joystick(self->board.keyboard, event);
 }
 
-static void construct_iface(XcpcMachine* self)
+static void construct_iface(XcpcMachine* self, const XcpcMachineIface* iface)
 {
-    (void) xcpc_machine_set_iface(self, NULL);
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = NULL;
+    }
 }
 
 static void destruct_iface(XcpcMachine* self)
@@ -1984,9 +1989,9 @@ static void reset_iface(XcpcMachine* self)
 {
 }
 
-static void construct_setup(XcpcMachine* self)
+static void construct_setup(XcpcMachine* self, XcpcOptions* options)
 {
-    self->setup.options       = xcpc_options_new();
+    self->setup.options       = options;
     self->setup.company_name  = XCPC_COMPANY_NAME_DEFAULT;
     self->setup.machine_type  = XCPC_MACHINE_TYPE_DEFAULT;
     self->setup.monitor_type  = XCPC_MONITOR_TYPE_DEFAULT;
@@ -2000,7 +2005,6 @@ static void construct_setup(XcpcMachine* self)
 
 static void destruct_setup(XcpcMachine* self)
 {
-    self->setup.options = xcpc_options_delete(self->setup.options);
 }
 
 static void reset_setup(XcpcMachine* self)
@@ -2466,7 +2470,7 @@ XcpcMachine* xcpc_machine_free(XcpcMachine* self)
     return xcpc_delete(XcpcMachine, self);
 }
 
-XcpcMachine* xcpc_machine_construct(XcpcMachine* self)
+XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* iface, XcpcOptions* options)
 {
     log_trace("construct");
 
@@ -2482,8 +2486,8 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self)
         (void) memset(&self->funcs, 0, sizeof(XcpcMachineFuncs));
     }
     /* construct all subsystems */ {
-        construct_iface(self);
-        construct_setup(self);
+        construct_iface(self, iface);
+        construct_setup(self, options);
         construct_state(self);
         construct_board(self);
         construct_pager(self);
@@ -2516,11 +2520,11 @@ XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
     return self;
 }
 
-XcpcMachine* xcpc_machine_new(void)
+XcpcMachine* xcpc_machine_new(const XcpcMachineIface* iface, XcpcOptions* options)
 {
     log_trace("new");
 
-    return xcpc_machine_construct(xcpc_machine_alloc());
+    return xcpc_machine_construct(xcpc_machine_alloc(), iface, options);
 }
 
 XcpcMachine* xcpc_machine_delete(XcpcMachine* self)
@@ -2528,19 +2532,6 @@ XcpcMachine* xcpc_machine_delete(XcpcMachine* self)
     log_trace("delete");
 
     return xcpc_machine_free(xcpc_machine_destruct(self));
-}
-
-XcpcMachine* xcpc_machine_set_iface(XcpcMachine* self, const XcpcMachineIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-    }
-    return self;
 }
 
 XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
@@ -2588,14 +2579,6 @@ XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
     }
     /* clock the fdc */ {
         (void) xcpc_fdc_765a_clock(fdc_765a);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_parse(XcpcMachine* self, int* argc, char*** argv)
-{
-    /* parse command-line */ {
-        (void) xcpc_options_parse(self->setup.options, argc, argv);
     }
     return self;
 }
