@@ -32,35 +32,35 @@ extern "C" {
 #endif
 
 #ifndef XtNmachineInstance
-#define XtNmachineInstance "emuInstance"
+#define XtNmachineInstance "machineInstance"
 #endif
 
 #ifndef XtNmachineCreateProc
-#define XtNmachineCreateProc "emuCreateProc"
+#define XtNmachineCreateProc "machineCreateProc"
 #endif
 
 #ifndef XtNmachineDestroyProc
-#define XtNmachineDestroyProc "emuDestroyProc"
+#define XtNmachineDestroyProc "machineDestroyProc"
 #endif
 
 #ifndef XtNmachineRealizeProc
-#define XtNmachineRealizeProc "emuRealizeProc"
+#define XtNmachineRealizeProc "machineRealizeProc"
 #endif
 
 #ifndef XtNmachineResizeProc
-#define XtNmachineResizeProc "emuResizeProc"
+#define XtNmachineResizeProc "machineResizeProc"
 #endif
 
 #ifndef XtNmachineExposeProc
-#define XtNmachineExposeProc "emuExposeProc"
-#endif
-
-#ifndef XtNmachineTimerProc
-#define XtNmachineTimerProc "emuTimerProc"
+#define XtNmachineExposeProc "machineExposeProc"
 #endif
 
 #ifndef XtNmachineInputProc
-#define XtNmachineInputProc "emuInputProc"
+#define XtNmachineInputProc "machineInputProc"
+#endif
+
+#ifndef XtNmachineClockProc
+#define XtNmachineClockProc "machineClockProc"
 #endif
 
 #ifndef XtNhotkeyCallback

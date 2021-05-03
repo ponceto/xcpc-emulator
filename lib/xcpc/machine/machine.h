@@ -31,8 +31,6 @@ extern XcpcMachine* xcpc_machine_new       (const XcpcMachineIface* iface, XcpcO
 extern XcpcMachine* xcpc_machine_delete    (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_reset     (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_clock     (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_start     (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_close     (XcpcMachine* machine);
 
 extern XcpcMachine* xcpc_machine_insert_drive0   (XcpcMachine* machine, const char* filename);
 extern XcpcMachine* xcpc_machine_remove_drive0   (XcpcMachine* machine);
@@ -50,7 +48,7 @@ extern unsigned long xcpc_machine_destroy_proc (XcpcMachine* machine, XEvent* ev
 extern unsigned long xcpc_machine_realize_proc (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_resize_proc  (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_expose_proc  (XcpcMachine* machine, XEvent* event);
-extern unsigned long xcpc_machine_timer_proc   (XcpcMachine* machine, XEvent* event);
+extern unsigned long xcpc_machine_clock_proc   (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_input_proc   (XcpcMachine* machine, XEvent* event);
 
 extern XcpcCompanyName  xcpc_machine_company_name  (XcpcMachine* machine);

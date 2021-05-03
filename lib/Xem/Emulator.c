@@ -176,9 +176,9 @@ static XtResource resources[] = {
         sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.input_proc),
         XtRImmediate, XT_POINTER(NULL)
     },
-    /* XtNmachineTimerProc */ {
-        XtNmachineTimerProc, XtCFunction, XtRFunction,
-        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.timer_proc),
+    /* XtNmachineClockProc */ {
+        XtNmachineClockProc, XtCFunction, XtRFunction,
+        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.clock_proc),
         XtRImmediate, XT_POINTER(NULL)
     },
     /* XtNjoystick0 */ {
@@ -282,7 +282,7 @@ static void TimeOutHandler(Widget widget, XtIntervalId* timer)
     }
     /* call timer-proc */ {
         if((self->core.sensitive != FALSE) && (self->core.ancestor_sensitive != FALSE)) {
-            timeout = (*self->emulator.machine.timer_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL));
+            timeout = (*self->emulator.machine.clock_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL));
         }
         else {
             timeout = DefaultMachineProc(NULL, NULL);
@@ -821,7 +821,7 @@ XemMachine* XemMachineDestruct(Widget widget, XemMachine* machine)
         machine->resize_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc);
         machine->expose_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc);
         machine->input_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc);
-        machine->timer_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc);
+        machine->clock_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc);
     }
     return machine;
 }
@@ -835,7 +835,7 @@ XemMachine* XemMachineSanitize(Widget widget, XemMachine* machine)
         if(machine->resize_proc  == NULL) { machine->resize_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc); }
         if(machine->expose_proc  == NULL) { machine->expose_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc); }
         if(machine->input_proc   == NULL) { machine->input_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc); }
-        if(machine->timer_proc   == NULL) { machine->timer_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc); }
+        if(machine->clock_proc   == NULL) { machine->clock_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc); }
     }
     return machine;
 }

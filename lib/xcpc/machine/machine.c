@@ -2444,134 +2444,7 @@ static void reset_funcs(XcpcMachine* self)
 {
 }
 
-XcpcMachine* xcpc_machine_alloc(void)
-{
-    log_trace("alloc");
-
-    return xcpc_new(XcpcMachine);
-}
-
-XcpcMachine* xcpc_machine_free(XcpcMachine* self)
-{
-    log_trace("free");
-
-    return xcpc_delete(XcpcMachine, self);
-}
-
-XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* iface, XcpcOptions* options)
-{
-    log_trace("construct");
-
-    /* clear all */ {
-        (void) memset(&self->iface, 0, sizeof(XcpcMachineIface));
-        (void) memset(&self->setup, 0, sizeof(XcpcMachineSetup));
-        (void) memset(&self->state, 0, sizeof(XcpcMachineState));
-        (void) memset(&self->board, 0, sizeof(XcpcMachineBoard));
-        (void) memset(&self->pager, 0, sizeof(XcpcMachinePager));
-        (void) memset(&self->frame, 0, sizeof(XcpcMachineFrame));
-        (void) memset(&self->stats, 0, sizeof(XcpcMachineStats));
-        (void) memset(&self->timer, 0, sizeof(XcpcMachineTimer));
-        (void) memset(&self->funcs, 0, sizeof(XcpcMachineFuncs));
-    }
-    /* construct all subsystems */ {
-        construct_iface(self, iface);
-        construct_setup(self, options);
-        construct_state(self);
-        construct_board(self);
-        construct_pager(self);
-        construct_frame(self);
-        construct_stats(self);
-        construct_timer(self);
-        construct_funcs(self);
-    }
-    /* reset */ {
-        (void) xcpc_machine_reset(self);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
-{
-    log_trace("destruct");
-
-    /* destruct all subsystems */ {
-        destruct_funcs(self);
-        destruct_timer(self);
-        destruct_stats(self);
-        destruct_frame(self);
-        destruct_pager(self);
-        destruct_board(self);
-        destruct_state(self);
-        destruct_setup(self);
-        destruct_iface(self);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_new(const XcpcMachineIface* iface, XcpcOptions* options)
-{
-    log_trace("new");
-
-    return xcpc_machine_construct(xcpc_machine_alloc(), iface, options);
-}
-
-XcpcMachine* xcpc_machine_delete(XcpcMachine* self)
-{
-    log_trace("delete");
-
-    return xcpc_machine_free(xcpc_machine_destruct(self));
-}
-
-XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
-{
-    log_trace("reset");
-
-    /* reset all subsystems */ {
-        reset_iface(self);
-        reset_setup(self);
-        reset_state(self);
-        reset_board(self);
-        reset_pager(self);
-        reset_frame(self);
-        reset_stats(self);
-        reset_timer(self);
-        reset_funcs(self);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
-{
-    XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
-    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
-    XcpcPsg8910* psg_8910 = self->board.psg_8910;
-    XcpcFdc765a* fdc_765a = self->board.fdc_765a;
-
-    /* process each scanline */ {
-        int scanlines = self->frame.scanline_count;
-        do {
-            int32_t old_i_period;
-            int32_t new_i_period;
-            int cpu_ticks = self->frame.cpu_ticks;
-            do {
-                (void) xcpc_vdc_6845_clock(vdc_6845);
-                if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
-                    old_i_period = cpu_z80a->state.ctrs.i_period;
-                    (void) xcpc_cpu_z80a_clock(self->board.cpu_z80a);
-                    new_i_period = cpu_z80a->state.ctrs.i_period;
-                    cpu_z80a->state.ctrs.i_period = old_i_period - (((old_i_period - new_i_period) + 3) & (~3));
-                }
-                (void) xcpc_psg_8910_clock(psg_8910);
-            } while((cpu_ticks -= 4) > 0);
-        } while(--scanlines > 0);
-    }
-    /* clock the fdc */ {
-        (void) xcpc_fdc_765a_clock(fdc_765a);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_start(XcpcMachine* self)
+static void initialize(XcpcMachine* self)
 {
     char* system_rom = NULL;
     char* amsdos_rom = NULL;
@@ -2781,13 +2654,134 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
             amsdos_rom = (free(amsdos_rom), NULL);
         }
     }
+}
+
+XcpcMachine* xcpc_machine_alloc(void)
+{
+    log_trace("alloc");
+
+    return xcpc_new(XcpcMachine);
+}
+
+XcpcMachine* xcpc_machine_free(XcpcMachine* self)
+{
+    log_trace("free");
+
+    return xcpc_delete(XcpcMachine, self);
+}
+
+XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* iface, XcpcOptions* options)
+{
+    log_trace("construct");
+
+    /* clear all */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcMachineIface));
+        (void) memset(&self->setup, 0, sizeof(XcpcMachineSetup));
+        (void) memset(&self->state, 0, sizeof(XcpcMachineState));
+        (void) memset(&self->board, 0, sizeof(XcpcMachineBoard));
+        (void) memset(&self->pager, 0, sizeof(XcpcMachinePager));
+        (void) memset(&self->frame, 0, sizeof(XcpcMachineFrame));
+        (void) memset(&self->stats, 0, sizeof(XcpcMachineStats));
+        (void) memset(&self->timer, 0, sizeof(XcpcMachineTimer));
+        (void) memset(&self->funcs, 0, sizeof(XcpcMachineFuncs));
+    }
+    /* construct all subsystems */ {
+        construct_iface(self, iface);
+        construct_setup(self, options);
+        construct_state(self);
+        construct_board(self);
+        construct_pager(self);
+        construct_frame(self);
+        construct_stats(self);
+        construct_timer(self);
+        construct_funcs(self);
+    }
+    /* initialize */ {
+        (void) initialize(self);
+    }
+    /* reset */ {
+        (void) xcpc_machine_reset(self);
+    }
     return self;
 }
 
-XcpcMachine* xcpc_machine_close(XcpcMachine* self)
+XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
 {
-    /* unrealize */ {
-        (void) xcpc_monitor_unrealize(self->board.monitor);
+    log_trace("destruct");
+
+    /* destruct all subsystems */ {
+        destruct_funcs(self);
+        destruct_timer(self);
+        destruct_stats(self);
+        destruct_frame(self);
+        destruct_pager(self);
+        destruct_board(self);
+        destruct_state(self);
+        destruct_setup(self);
+        destruct_iface(self);
+    }
+    return self;
+}
+
+XcpcMachine* xcpc_machine_new(const XcpcMachineIface* iface, XcpcOptions* options)
+{
+    log_trace("new");
+
+    return xcpc_machine_construct(xcpc_machine_alloc(), iface, options);
+}
+
+XcpcMachine* xcpc_machine_delete(XcpcMachine* self)
+{
+    log_trace("delete");
+
+    return xcpc_machine_free(xcpc_machine_destruct(self));
+}
+
+XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
+{
+    log_trace("reset");
+
+    /* reset all subsystems */ {
+        reset_iface(self);
+        reset_setup(self);
+        reset_state(self);
+        reset_board(self);
+        reset_pager(self);
+        reset_frame(self);
+        reset_stats(self);
+        reset_timer(self);
+        reset_funcs(self);
+    }
+    return self;
+}
+
+XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
+{
+    XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
+    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcPsg8910* psg_8910 = self->board.psg_8910;
+    XcpcFdc765a* fdc_765a = self->board.fdc_765a;
+
+    /* process each scanline */ {
+        int scanlines = self->frame.scanline_count;
+        do {
+            int32_t old_i_period;
+            int32_t new_i_period;
+            int cpu_ticks = self->frame.cpu_ticks;
+            do {
+                (void) xcpc_vdc_6845_clock(vdc_6845);
+                if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
+                    old_i_period = cpu_z80a->state.ctrs.i_period;
+                    (void) xcpc_cpu_z80a_clock(self->board.cpu_z80a);
+                    new_i_period = cpu_z80a->state.ctrs.i_period;
+                    cpu_z80a->state.ctrs.i_period = old_i_period - (((old_i_period - new_i_period) + 3) & (~3));
+                }
+                (void) xcpc_psg_8910_clock(psg_8910);
+            } while((cpu_ticks -= 4) > 0);
+        } while(--scanlines > 0);
+    }
+    /* clock the fdc */ {
+        (void) xcpc_fdc_765a_clock(fdc_765a);
     }
     return self;
 }
@@ -2975,16 +2969,13 @@ XcpcMachine* xcpc_machine_save_snapshot(XcpcMachine* self, const char* filename)
 
 unsigned long xcpc_machine_create_proc(XcpcMachine* self, XEvent* event)
 {
-    /* start */ {
-        (void) xcpc_machine_start(self);
-    }
     return 0UL;
 }
 
 unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event)
 {
-    /* close */ {
-        (void) xcpc_machine_close(self);
+    /* unrealize */ {
+        (void) xcpc_monitor_unrealize(self->board.monitor);
     }
     return 0UL;
 }
@@ -3049,7 +3040,7 @@ unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
     return 0UL;
 }
 
-unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_clock_proc(XcpcMachine* self, XEvent* event)
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;

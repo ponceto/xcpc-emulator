@@ -56,7 +56,7 @@ static gboolean timer_handler(GtkWidget* widget)
     }
     /* call timer-proc */ {
         if(gtk_widget_is_sensitive(widget) != FALSE) {
-            timeout = (*self->machine.timer_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
+            timeout = (*self->machine.clock_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
         }
         else {
             timeout = default_machine_proc(NULL, NULL);
@@ -797,7 +797,7 @@ GemMachine* gem_machine_construct(GtkWidget* widget, GemMachine* machine)
         machine->resize_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
         machine->expose_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
         machine->input_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->timer_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
+        machine->clock_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
     }
     return gem_machine_sanitize(widget, machine);
 }
@@ -812,7 +812,7 @@ GemMachine* gem_machine_destruct(GtkWidget* widget, GemMachine* machine)
         machine->resize_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
         machine->expose_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
         machine->input_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->timer_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
+        machine->clock_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
     }
     return machine;
 }
@@ -826,7 +826,7 @@ GemMachine* gem_machine_sanitize(GtkWidget* widget, GemMachine* machine)
         if(machine->resize_proc  == NULL) { machine->resize_proc  = GEM_EMULATOR_PROC(&default_machine_proc); }
         if(machine->expose_proc  == NULL) { machine->expose_proc  = GEM_EMULATOR_PROC(&default_machine_proc); }
         if(machine->input_proc   == NULL) { machine->input_proc   = GEM_EMULATOR_PROC(&default_machine_proc); }
-        if(machine->timer_proc   == NULL) { machine->timer_proc   = GEM_EMULATOR_PROC(&default_machine_proc); }
+        if(machine->clock_proc   == NULL) { machine->clock_proc   = GEM_EMULATOR_PROC(&default_machine_proc); }
     }
     return machine;
 }

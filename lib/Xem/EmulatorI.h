@@ -60,7 +60,7 @@ struct _XemMachine
     XemEmulatorProc resize_proc;
     XemEmulatorProc expose_proc;
     XemEmulatorProc input_proc;
-    XemEmulatorProc timer_proc;
+    XemEmulatorProc clock_proc;
 };
 
 struct _XemKeyboard

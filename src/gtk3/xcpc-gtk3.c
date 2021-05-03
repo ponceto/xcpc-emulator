@@ -1140,7 +1140,7 @@ static void build_workwnd(XcpcApplication* self)
             GEM_EMULATOR_PROC(&xcpc_machine_resize_proc),
             GEM_EMULATOR_PROC(&xcpc_machine_expose_proc),
             GEM_EMULATOR_PROC(&xcpc_machine_input_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_timer_proc),
+            GEM_EMULATOR_PROC(&xcpc_machine_clock_proc),
         };
         current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");

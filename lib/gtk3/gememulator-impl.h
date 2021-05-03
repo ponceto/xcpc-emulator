@@ -59,7 +59,7 @@ struct _GemMachine
     GemEmulatorProc resize_proc;
     GemEmulatorProc expose_proc;
     GemEmulatorProc input_proc;
-    GemEmulatorProc timer_proc;
+    GemEmulatorProc clock_proc;
 };
 
 struct _GemKeyboard

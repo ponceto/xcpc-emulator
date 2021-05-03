@@ -660,8 +660,8 @@ static XcpcApplication* BuildEmulator(XcpcApplication* self)
         XtSetArg(arglist[argcount], XtNmachineRealizeProc, &xcpc_machine_realize_proc); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineResizeProc , &xcpc_machine_resize_proc ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineExposeProc , &xcpc_machine_expose_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
         XtSetArg(arglist[argcount], XtNmachineInputProc  , &xcpc_machine_input_proc  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNmachineClockProc  , &xcpc_machine_clock_proc  ); ++argcount;
         XtSetArg(arglist[argcount], XtNjoystick0         , xcpc_get_joystick0()      ); ++argcount;
         XtSetArg(arglist[argcount], XtNjoystick1         , xcpc_get_joystick1()      ); ++argcount;
         layout->emulator = XemCreateEmulator(self->layout.toplevel, "emulator", arglist, argcount);
