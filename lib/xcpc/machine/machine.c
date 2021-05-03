@@ -560,14 +560,13 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data, X
     return data;
 }
 
-static uint8_t vdc_frame(XcpcVdc6845* vdc_6845)
+static uint8_t vdc_frame(XcpcVdc6845* vdc_6845, int frame, XcpcMachine* self)
 {
     return 0x00;
 }
 
-static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
+static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(vdc_6845->iface.user_data));
     XcpcMonitor* monitor  = self->board.monitor;
     XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
     XcpcVgaCore* vga_core = self->board.vga_core;
@@ -616,10 +615,8 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     return 0x00;
 }
 
-static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
+static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(vdc_6845->iface.user_data));
-
     if((self->state.vsync = vsync) != 0) {
         /* rising edge */ {
             ++self->stats.total_vsync;
@@ -2111,10 +2108,10 @@ static void construct_board(XcpcMachine* self)
     }
     /* vdc_6845 */ {
         const XcpcVdc6845Iface vdc_6845_iface = {
-            self,       /* user_data */
-            &vdc_frame, /* frame     */
-            &vdc_hsync, /* hsync     */
-            &vdc_vsync, /* vsync     */
+            self,                            /* user_data */
+            XCPC_VDC_6856_FRAME(&vdc_frame), /* frame     */
+            XCPC_VDC_6856_HSYNC(&vdc_hsync), /* hsync     */
+            XCPC_VDC_6856_VSYNC(&vdc_vsync), /* vsync     */
         };
         if(self->board.vdc_6845 == NULL) {
             self->board.vdc_6845 = xcpc_vdc_6845_new(&vdc_6845_iface);
