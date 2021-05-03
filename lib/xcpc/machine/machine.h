@@ -48,8 +48,8 @@ extern unsigned long xcpc_machine_destroy_proc (XcpcMachine* machine, XEvent* ev
 extern unsigned long xcpc_machine_realize_proc (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_resize_proc  (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_expose_proc  (XcpcMachine* machine, XEvent* event);
-extern unsigned long xcpc_machine_clock_proc   (XcpcMachine* machine, XEvent* event);
 extern unsigned long xcpc_machine_input_proc   (XcpcMachine* machine, XEvent* event);
+extern unsigned long xcpc_machine_clock_proc   (XcpcMachine* machine, XEvent* event);
 
 extern XcpcCompanyName  xcpc_machine_company_name  (XcpcMachine* machine);
 extern XcpcMachineType  xcpc_machine_machine_type  (XcpcMachine* machine);

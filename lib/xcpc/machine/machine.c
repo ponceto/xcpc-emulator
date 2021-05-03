@@ -2982,43 +2982,41 @@ unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event)
 
 unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event)
 {
-    if(self != NULL) {
-        /* realize */ {
-            (void) xcpc_monitor_realize ( self->board.monitor
-                                        , self->setup.monitor_type
-                                        , self->setup.refresh_rate
-                                        , event->xany.display
-                                        , event->xany.window
-                                        , (self->setup.xshm != 0 ? True : False) );
+    /* realize */ {
+        (void) xcpc_monitor_realize ( self->board.monitor
+                                    , self->setup.monitor_type
+                                    , self->setup.refresh_rate
+                                    , event->xany.display
+                                    , event->xany.window
+                                    , (self->setup.xshm != 0 ? True : False) );
+    }
+    /* init paint handler */ {
+        switch(self->board.monitor->state.image->bits_per_pixel) {
+            case 8:
+                self->funcs.paint_func = &paint_08bpp;
+                break;
+            case 16:
+                self->funcs.paint_func = &paint_16bpp;
+                break;
+            case 32:
+                self->funcs.paint_func = &paint_32bpp;
+                break;
+            default:
+                self->funcs.paint_func = &paint_default;
+                break;
         }
-        /* init paint handler */ {
-            switch(self->board.monitor->state.image->bits_per_pixel) {
-                case 8:
-                    self->funcs.paint_func = &paint_08bpp;
-                    break;
-                case 16:
-                    self->funcs.paint_func = &paint_16bpp;
-                    break;
-                case 32:
-                    self->funcs.paint_func = &paint_32bpp;
-                    break;
-                default:
-                    self->funcs.paint_func = &paint_default;
-                    break;
-            }
-        }
-        /* init keybd handler */ {
-            switch(self->setup.keyboard_type) {
-                case XCPC_KEYBOARD_TYPE_QWERTY:
-                    self->funcs.keybd_func = &keybd_qwerty;
-                    break;
-                case XCPC_KEYBOARD_TYPE_AZERTY:
-                    self->funcs.keybd_func = &keybd_azerty;
-                    break;
-                default:
-                    self->funcs.keybd_func = &keybd_default;
-                    break;
-            }
+    }
+    /* init keybd handler */ {
+        switch(self->setup.keyboard_type) {
+            case XCPC_KEYBOARD_TYPE_QWERTY:
+                self->funcs.keybd_func = &keybd_qwerty;
+                break;
+            case XCPC_KEYBOARD_TYPE_AZERTY:
+                self->funcs.keybd_func = &keybd_azerty;
+                break;
+            default:
+                self->funcs.keybd_func = &keybd_default;
+                break;
         }
     }
     return 0UL;
@@ -3026,7 +3024,7 @@ unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event)
 
 unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event)
 {
-    if((self != NULL) && (event != NULL) && (event->type == ConfigureNotify)) {
+    if(event->type == ConfigureNotify) {
         (void) xcpc_monitor_resize(self->board.monitor, &event->xconfigure);
     }
     return 0UL;
@@ -3034,8 +3032,32 @@ unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event)
 
 unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
 {
-    if((self != NULL) && (event != NULL) && (event->type == Expose)) {
+    if(event->type == Expose) {
         (void) xcpc_monitor_expose(self->board.monitor, &event->xexpose);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event)
+{
+    switch(event->type) {
+        case KeyPress:
+            (*self->funcs.keybd_func)(self, event);
+            break;
+        case KeyRelease:
+            (*self->funcs.keybd_func)(self, event);
+            break;
+        case ButtonPress:
+            (*self->funcs.mouse_func)(self, event);
+            break;
+        case ButtonRelease:
+            (*self->funcs.mouse_func)(self, event);
+            break;
+        case MotionNotify:
+            (*self->funcs.mouse_func)(self, event);
+            break;
+        default:
+            break;
     }
     return 0UL;
 }
@@ -3108,30 +3130,6 @@ unsigned long xcpc_machine_clock_proc(XcpcMachine* self, XEvent* event)
         }
     }
     return timeout;
-}
-
-unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event)
-{
-    switch(event->type) {
-        case KeyPress:
-            (*self->funcs.keybd_func)(self, event);
-            break;
-        case KeyRelease:
-            (*self->funcs.keybd_func)(self, event);
-            break;
-        case ButtonPress:
-            (*self->funcs.mouse_func)(self, event);
-            break;
-        case ButtonRelease:
-            (*self->funcs.mouse_func)(self, event);
-            break;
-        case MotionNotify:
-            (*self->funcs.mouse_func)(self, event);
-            break;
-        default:
-            break;
-    }
-    return 0UL;
 }
 
 XcpcCompanyName xcpc_machine_company_name(XcpcMachine* self)
