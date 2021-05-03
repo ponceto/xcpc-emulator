@@ -177,7 +177,7 @@ XcpcVdc6845* xcpc_vdc_6845_free(XcpcVdc6845* self)
     return xcpc_delete(XcpcVdc6845, self);
 }
 
-XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
+XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self, const XcpcVdc6845Iface* iface)
 {
     log_trace("construct");
 
@@ -188,7 +188,15 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
         (void) memset(&self->count, 0, sizeof(XcpcVdc6845Count));
     }
     /* initialize iface */ {
-        (void) xcpc_vdc_6845_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+            self->iface.frame     = &default_frame_handler;
+            self->iface.hsync     = &default_hsync_handler;
+            self->iface.vsync     = &default_vsync_handler;
+        }
     }
     /* reset */ {
         (void) xcpc_vdc_6845_reset(self);
@@ -203,11 +211,11 @@ XcpcVdc6845* xcpc_vdc_6845_destruct(XcpcVdc6845* self)
     return self;
 }
 
-XcpcVdc6845* xcpc_vdc_6845_new(void)
+XcpcVdc6845* xcpc_vdc_6845_new(const XcpcVdc6845Iface* iface)
 {
     log_trace("new");
 
-    return xcpc_vdc_6845_construct(xcpc_vdc_6845_alloc());
+    return xcpc_vdc_6845_construct(xcpc_vdc_6845_alloc(), iface);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_delete(XcpcVdc6845* self)
@@ -215,22 +223,6 @@ XcpcVdc6845* xcpc_vdc_6845_delete(XcpcVdc6845* self)
     log_trace("delete");
 
     return xcpc_vdc_6845_free(xcpc_vdc_6845_destruct(self));
-}
-
-XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-        self->iface.frame     = &default_frame_handler;
-        self->iface.hsync     = &default_hsync_handler;
-        self->iface.vsync     = &default_vsync_handler;
-    }
-    return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_debug(XcpcVdc6845* self)

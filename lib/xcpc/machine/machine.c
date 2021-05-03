@@ -2056,8 +2056,7 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.monitor == NULL) {
-            self->board.monitor = xcpc_monitor_new();
-            self->board.monitor = xcpc_monitor_set_iface(self->board.monitor, &monitor_iface);
+            self->board.monitor = xcpc_monitor_new(&monitor_iface);
         }
     }
     /* keyboard */ {
@@ -2065,8 +2064,7 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.keyboard == NULL) {
-            self->board.keyboard = xcpc_keyboard_new();
-            self->board.keyboard = xcpc_keyboard_set_iface(self->board.keyboard, &keyboard_iface);
+            self->board.keyboard = xcpc_keyboard_new(&keyboard_iface);
         }
     }
     /* joystick */ {
@@ -2074,8 +2072,7 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.joystick == NULL) {
-            self->board.joystick = xcpc_joystick_new();
-            self->board.joystick = xcpc_joystick_set_iface(self->board.joystick, &joystick_iface);
+            self->board.joystick = xcpc_joystick_new(&joystick_iface);
         }
     }
     /* cpu_z80a */ {
@@ -2089,8 +2086,7 @@ static void construct_board(XcpcMachine* self)
             &cpu_iorq_wr, /* iorq_wr   */
         };
         if(self->board.cpu_z80a == NULL) {
-            self->board.cpu_z80a = xcpc_cpu_z80a_new();
-            self->board.cpu_z80a = xcpc_cpu_z80a_set_iface(self->board.cpu_z80a, &cpu_z80a_iface);
+            self->board.cpu_z80a = xcpc_cpu_z80a_new(&cpu_z80a_iface);
         }
     }
     /* vga_core */ {
@@ -2098,8 +2094,7 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.vga_core == NULL) {
-            self->board.vga_core = xcpc_vga_core_new();
-            self->board.vga_core = xcpc_vga_core_set_iface(self->board.vga_core, &vga_core_iface);
+            self->board.vga_core = xcpc_vga_core_new(&vga_core_iface);
         }
     }
     /* vdc_6845 */ {
@@ -2110,8 +2105,7 @@ static void construct_board(XcpcMachine* self)
             &vdc_vsync, /* vsync     */
         };
         if(self->board.vdc_6845 == NULL) {
-            self->board.vdc_6845 = xcpc_vdc_6845_new();
-            self->board.vdc_6845 = xcpc_vdc_6845_set_iface(self->board.vdc_6845, &vdc_6845_iface);
+            self->board.vdc_6845 = xcpc_vdc_6845_new(&vdc_6845_iface);
         }
     }
     /* ppi_8255 */ {
@@ -2125,8 +2119,7 @@ static void construct_board(XcpcMachine* self)
             &ppi_wr_port_c, /* wr_port_c */
         };
         if(self->board.ppi_8255 == NULL) {
-            self->board.ppi_8255 = xcpc_ppi_8255_new();
-            self->board.ppi_8255 = xcpc_ppi_8255_set_iface(self->board.ppi_8255, &ppi_8255_iface);
+            self->board.ppi_8255 = xcpc_ppi_8255_new(&ppi_8255_iface);
         }
     }
     /* psg_8910 */ {
@@ -2138,8 +2131,7 @@ static void construct_board(XcpcMachine* self)
             &psg_wr_port_b, /* wr_port_b */
         };
         if(self->board.psg_8910 == NULL) {
-            self->board.psg_8910 = xcpc_psg_8910_new();
-            self->board.psg_8910 = xcpc_psg_8910_set_iface(self->board.psg_8910, &psg_8910_iface);
+            self->board.psg_8910 = xcpc_psg_8910_new(&psg_8910_iface);
         }
     }
     /* fdc_765a */ {
@@ -2147,8 +2139,7 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.fdc_765a == NULL) {
-            self->board.fdc_765a = xcpc_fdc_765a_new();
-            self->board.fdc_765a = xcpc_fdc_765a_set_iface(self->board.fdc_765a, &fdc_765a_iface);
+            self->board.fdc_765a = xcpc_fdc_765a_new(&fdc_765a_iface);
             (void) xcpc_fdc_765a_attach(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0);
             (void) xcpc_fdc_765a_attach(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1);
         }
@@ -2161,8 +2152,7 @@ static void construct_board(XcpcMachine* self)
         unsigned int ram_count = countof(self->board.ram_bank);
         do {
             if(self->board.ram_bank[ram_index] == NULL) {
-                self->board.ram_bank[ram_index] = xcpc_ram_bank_new();
-                self->board.ram_bank[ram_index] = xcpc_ram_bank_set_iface(self->board.ram_bank[ram_index], &ram_bank_iface);
+                self->board.ram_bank[ram_index] = xcpc_ram_bank_new(&ram_bank_iface);
             }
         } while(++ram_index < ram_count);
     }
@@ -2174,8 +2164,7 @@ static void construct_board(XcpcMachine* self)
         unsigned int rom_count = countof(self->board.rom_bank);
         do {
             if(self->board.rom_bank[rom_index] == NULL) {
-                self->board.rom_bank[rom_index] = xcpc_rom_bank_new();
-                self->board.rom_bank[rom_index] = xcpc_rom_bank_set_iface(self->board.rom_bank[rom_index], &rom_bank_iface);
+                self->board.rom_bank[rom_index] = xcpc_rom_bank_new(&rom_bank_iface);
             }
         } while(++rom_index < rom_count);
     }
@@ -2188,8 +2177,7 @@ static void construct_board(XcpcMachine* self)
         unsigned int exp_count = countof(self->board.exp_bank);
         do {
             if(self->board.exp_bank[exp_index] == NULL) {
-                self->board.exp_bank[exp_index] = xcpc_rom_bank_new();
-                self->board.exp_bank[exp_index] = xcpc_rom_bank_set_iface(self->board.exp_bank[exp_index], &exp_bank_iface);
+                self->board.exp_bank[exp_index] = xcpc_rom_bank_new(&exp_bank_iface);
             }
         } while(++exp_index < exp_count);
     }
@@ -2719,8 +2707,7 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
                 }
                 if(is_set(filename)) {
                     if(self->board.exp_bank[exp_index] == NULL) {
-                        self->board.exp_bank[exp_index] = xcpc_rom_bank_new();
-                        self->board.exp_bank[exp_index] = xcpc_rom_bank_set_iface(self->board.exp_bank[exp_index], &exp_bank_iface);
+                        self->board.exp_bank[exp_index] = xcpc_rom_bank_new(&exp_bank_iface);
                     }
                 }
                 else {

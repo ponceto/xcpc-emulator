@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcPpi8255* xcpc_ppi_8255_alloc     (void);
 extern XcpcPpi8255* xcpc_ppi_8255_free      (XcpcPpi8255* ppi_8255);
-extern XcpcPpi8255* xcpc_ppi_8255_construct (XcpcPpi8255* ppi_8255);
+extern XcpcPpi8255* xcpc_ppi_8255_construct (XcpcPpi8255* ppi_8255, const XcpcPpi8255Iface* ppi_8255_iface);
 extern XcpcPpi8255* xcpc_ppi_8255_destruct  (XcpcPpi8255* ppi_8255);
-extern XcpcPpi8255* xcpc_ppi_8255_new       (void);
+extern XcpcPpi8255* xcpc_ppi_8255_new       (const XcpcPpi8255Iface* ppi_8255_iface);
 extern XcpcPpi8255* xcpc_ppi_8255_delete    (XcpcPpi8255* ppi_8255);
-extern XcpcPpi8255* xcpc_ppi_8255_set_iface (XcpcPpi8255* ppi_8255, const XcpcPpi8255Iface* ppi_8255_iface);
 extern XcpcPpi8255* xcpc_ppi_8255_reset     (XcpcPpi8255* ppi_8255);
 extern XcpcPpi8255* xcpc_ppi_8255_clock     (XcpcPpi8255* ppi_8255);
 

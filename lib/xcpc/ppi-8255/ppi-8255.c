@@ -55,7 +55,7 @@ XcpcPpi8255* xcpc_ppi_8255_free(XcpcPpi8255* self)
     return xcpc_delete(XcpcPpi8255, self);
 }
 
-XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
+XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self, const XcpcPpi8255Iface* iface)
 {
     log_trace("construct");
 
@@ -66,7 +66,18 @@ XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self)
         (void) memset(&self->ports, 0, sizeof(XcpcPpi8255Ports));
     }
     /* initialize iface */ {
-        (void) xcpc_ppi_8255_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+            self->iface.rd_port_a = &default_rd_handler;
+            self->iface.wr_port_a = &default_wr_handler;
+            self->iface.rd_port_b = &default_rd_handler;
+            self->iface.wr_port_b = &default_wr_handler;
+            self->iface.rd_port_c = &default_rd_handler;
+            self->iface.wr_port_c = &default_wr_handler;
+        }
     }
     /* reset */ {
         (void) xcpc_ppi_8255_reset(self);
@@ -81,11 +92,11 @@ XcpcPpi8255* xcpc_ppi_8255_destruct(XcpcPpi8255* self)
     return self;
 }
 
-XcpcPpi8255* xcpc_ppi_8255_new(void)
+XcpcPpi8255* xcpc_ppi_8255_new(const XcpcPpi8255Iface* iface)
 {
     log_trace("new");
 
-    return xcpc_ppi_8255_construct(xcpc_ppi_8255_alloc());
+    return xcpc_ppi_8255_construct(xcpc_ppi_8255_alloc(), iface);
 }
 
 XcpcPpi8255* xcpc_ppi_8255_delete(XcpcPpi8255* self)
@@ -93,25 +104,6 @@ XcpcPpi8255* xcpc_ppi_8255_delete(XcpcPpi8255* self)
     log_trace("delete");
 
     return xcpc_ppi_8255_free(xcpc_ppi_8255_destruct(self));
-}
-
-XcpcPpi8255* xcpc_ppi_8255_set_iface(XcpcPpi8255* self, const XcpcPpi8255Iface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-        self->iface.rd_port_a = &default_rd_handler;
-        self->iface.wr_port_a = &default_wr_handler;
-        self->iface.rd_port_b = &default_rd_handler;
-        self->iface.wr_port_b = &default_wr_handler;
-        self->iface.rd_port_c = &default_rd_handler;
-        self->iface.wr_port_c = &default_wr_handler;
-    }
-    return self;
 }
 
 XcpcPpi8255* xcpc_ppi_8255_reset(XcpcPpi8255* self)

@@ -41,7 +41,7 @@ XcpcJoystick* xcpc_joystick_free(XcpcJoystick* self)
     return xcpc_delete(XcpcJoystick, self);
 }
 
-XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self)
+XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self, const XcpcJoystickIface* iface)
 {
     log_trace("construct");
 
@@ -51,7 +51,12 @@ XcpcJoystick* xcpc_joystick_construct(XcpcJoystick* self)
         (void) memset(&self->state, 0, sizeof(XcpcJoystickState));
     }
     /* initialize iface */ {
-        (void) xcpc_joystick_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+        }
     }
     /* reset */ {
         (void) xcpc_joystick_reset(self);
@@ -66,11 +71,11 @@ XcpcJoystick* xcpc_joystick_destruct(XcpcJoystick* self)
     return self;
 }
 
-XcpcJoystick* xcpc_joystick_new(void)
+XcpcJoystick* xcpc_joystick_new(const XcpcJoystickIface* iface)
 {
     log_trace("new");
 
-    return xcpc_joystick_construct(xcpc_joystick_alloc());
+    return xcpc_joystick_construct(xcpc_joystick_alloc(), iface);
 }
 
 XcpcJoystick* xcpc_joystick_delete(XcpcJoystick* self)
@@ -78,19 +83,6 @@ XcpcJoystick* xcpc_joystick_delete(XcpcJoystick* self)
     log_trace("delete");
 
     return xcpc_joystick_free(xcpc_joystick_destruct(self));
-}
-
-XcpcJoystick* xcpc_joystick_set_iface(XcpcJoystick* self, const XcpcJoystickIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-    }
-    return self;
 }
 
 XcpcJoystick* xcpc_joystick_reset(XcpcJoystick* self)

@@ -41,7 +41,7 @@ XcpcFdc765a* xcpc_fdc_765a_free(XcpcFdc765a* self)
     return xcpc_delete(XcpcFdc765a, self);
 }
 
-XcpcFdc765a* xcpc_fdc_765a_construct(XcpcFdc765a* self)
+XcpcFdc765a* xcpc_fdc_765a_construct(XcpcFdc765a* self, const XcpcFdc765aIface* iface)
 {
     log_trace("construct");
 
@@ -51,7 +51,12 @@ XcpcFdc765a* xcpc_fdc_765a_construct(XcpcFdc765a* self)
         (void) memset(&self->state, 0, sizeof(XcpcFdc765aState));
     }
     /* initialize iface */ {
-        (void) xcpc_fdc_765a_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+        }
     }
     /* initialize state */ {
         self->state.fdc_impl = xcpc_fdc_impl_new();
@@ -80,11 +85,11 @@ XcpcFdc765a* xcpc_fdc_765a_destruct(XcpcFdc765a* self)
     return self;
 }
 
-XcpcFdc765a* xcpc_fdc_765a_new(void)
+XcpcFdc765a* xcpc_fdc_765a_new(const XcpcFdc765aIface* iface)
 {
     log_trace("new");
 
-    return xcpc_fdc_765a_construct(xcpc_fdc_765a_alloc());
+    return xcpc_fdc_765a_construct(xcpc_fdc_765a_alloc(), iface);
 }
 
 XcpcFdc765a* xcpc_fdc_765a_delete(XcpcFdc765a* self)
@@ -92,19 +97,6 @@ XcpcFdc765a* xcpc_fdc_765a_delete(XcpcFdc765a* self)
     log_trace("delete");
 
     return xcpc_fdc_765a_free(xcpc_fdc_765a_destruct(self));
-}
-
-XcpcFdc765a* xcpc_fdc_765a_set_iface(XcpcFdc765a* self, const XcpcFdc765aIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-    }
-    return self;
 }
 
 XcpcFdc765a* xcpc_fdc_765a_reset(XcpcFdc765a* self)

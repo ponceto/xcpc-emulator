@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcPsg8910* xcpc_psg_8910_alloc     (void);
 extern XcpcPsg8910* xcpc_psg_8910_free      (XcpcPsg8910* psg_8910);
-extern XcpcPsg8910* xcpc_psg_8910_construct (XcpcPsg8910* psg_8910);
+extern XcpcPsg8910* xcpc_psg_8910_construct (XcpcPsg8910* psg_8910, const XcpcPsg8910Iface* psg_8910_iface);
 extern XcpcPsg8910* xcpc_psg_8910_destruct  (XcpcPsg8910* psg_8910);
-extern XcpcPsg8910* xcpc_psg_8910_new       (void);
+extern XcpcPsg8910* xcpc_psg_8910_new       (const XcpcPsg8910Iface* psg_8910_iface);
 extern XcpcPsg8910* xcpc_psg_8910_delete    (XcpcPsg8910* psg_8910);
-extern XcpcPsg8910* xcpc_psg_8910_set_iface (XcpcPsg8910* psg_8910, const XcpcPsg8910Iface* psg_8910_iface);
 extern XcpcPsg8910* xcpc_psg_8910_debug     (XcpcPsg8910* psg_8910);
 extern XcpcPsg8910* xcpc_psg_8910_reset     (XcpcPsg8910* psg_8910);
 extern XcpcPsg8910* xcpc_psg_8910_clock     (XcpcPsg8910* psg_8910);

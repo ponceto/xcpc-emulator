@@ -25,7 +25,7 @@ extern "C" {
 
 extern XcpcMachine* xcpc_machine_alloc     (void);
 extern XcpcMachine* xcpc_machine_free      (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_construct (XcpcMachine* machine, const XcpcMachineIface* iface, XcpcOptions* options);
+extern XcpcMachine* xcpc_machine_construct (XcpcMachine* machine, const XcpcMachineIface* machine_iface, XcpcOptions* options);
 extern XcpcMachine* xcpc_machine_destruct  (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_new       (const XcpcMachineIface* iface, XcpcOptions* options);
 extern XcpcMachine* xcpc_machine_delete    (XcpcMachine* machine);

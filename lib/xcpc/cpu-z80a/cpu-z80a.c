@@ -362,7 +362,7 @@ XcpcCpuZ80a* xcpc_cpu_z80a_free(XcpcCpuZ80a* self)
     return xcpc_delete(XcpcCpuZ80a, self);
 }
 
-XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
+XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self, const XcpcCpuZ80aIface* iface)
 {
     log_trace("construct");
 
@@ -372,7 +372,18 @@ XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
         (void) memset(&self->state, 0, sizeof(XcpcCpuZ80aState));
     }
     /* initialize iface */ {
-        (void) xcpc_cpu_z80a_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+            self->iface.mreq_m1   = &default_mreq_m1_handler;
+            self->iface.mreq_rd   = &default_mreq_rd_handler;
+            self->iface.mreq_wr   = &default_mreq_wr_handler;
+            self->iface.iorq_m1   = &default_iorq_m1_handler;
+            self->iface.iorq_rd   = &default_iorq_rd_handler;
+            self->iface.iorq_wr   = &default_iorq_wr_handler;
+        }
     }
     /* reset */ {
         (void) xcpc_cpu_z80a_reset(self);
@@ -387,11 +398,11 @@ XcpcCpuZ80a* xcpc_cpu_z80a_destruct(XcpcCpuZ80a* self)
     return self;
 }
 
-XcpcCpuZ80a* xcpc_cpu_z80a_new(void)
+XcpcCpuZ80a* xcpc_cpu_z80a_new(const XcpcCpuZ80aIface* iface)
 {
     log_trace("new");
 
-    return xcpc_cpu_z80a_construct(xcpc_cpu_z80a_alloc());
+    return xcpc_cpu_z80a_construct(xcpc_cpu_z80a_alloc(), iface);
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_delete(XcpcCpuZ80a* self)
@@ -399,25 +410,6 @@ XcpcCpuZ80a* xcpc_cpu_z80a_delete(XcpcCpuZ80a* self)
     log_trace("delete");
 
     return xcpc_cpu_z80a_free(xcpc_cpu_z80a_destruct(self));
-}
-
-XcpcCpuZ80a* xcpc_cpu_z80a_set_iface(XcpcCpuZ80a* self, const XcpcCpuZ80aIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-        self->iface.mreq_m1   = &default_mreq_m1_handler;
-        self->iface.mreq_rd   = &default_mreq_rd_handler;
-        self->iface.mreq_wr   = &default_mreq_wr_handler;
-        self->iface.iorq_m1   = &default_iorq_m1_handler;
-        self->iface.iorq_rd   = &default_iorq_rd_handler;
-        self->iface.iorq_wr   = &default_iorq_wr_handler;
-    }
-    return self;
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_reset(XcpcCpuZ80a* self)

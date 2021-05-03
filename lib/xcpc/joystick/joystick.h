@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcJoystick* xcpc_joystick_alloc     (void);
 extern XcpcJoystick* xcpc_joystick_free      (XcpcJoystick* joystick);
-extern XcpcJoystick* xcpc_joystick_construct (XcpcJoystick* joystick);
+extern XcpcJoystick* xcpc_joystick_construct (XcpcJoystick* joystick, const XcpcJoystickIface* joystick_iface);
 extern XcpcJoystick* xcpc_joystick_destruct  (XcpcJoystick* joystick);
-extern XcpcJoystick* xcpc_joystick_new       (void);
+extern XcpcJoystick* xcpc_joystick_new       (const XcpcJoystickIface* joystick_iface);
 extern XcpcJoystick* xcpc_joystick_delete    (XcpcJoystick* joystick);
-extern XcpcJoystick* xcpc_joystick_set_iface (XcpcJoystick* joystick, const XcpcJoystickIface* joystick_iface);
 extern XcpcJoystick* xcpc_joystick_reset     (XcpcJoystick* joystick);
 extern XcpcJoystick* xcpc_joystick_clock     (XcpcJoystick* joystick);
 

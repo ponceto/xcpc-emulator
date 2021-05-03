@@ -361,7 +361,7 @@ XcpcMonitor* xcpc_monitor_free(XcpcMonitor* self)
     return xcpc_delete(XcpcMonitor, self);
 }
 
-XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
+XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self, const XcpcMonitorIface* iface)
 {
     log_trace("construct");
 
@@ -371,7 +371,12 @@ XcpcMonitor* xcpc_monitor_construct(XcpcMonitor* self)
         (void) memset(&self->state, 0, sizeof(XcpcMonitorState));
     }
     /* initialize iface */ {
-        (void) xcpc_monitor_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+        }
     }
     /* init setup */ {
         self->setup.monitor_type = XCPC_MONITOR_TYPE_DEFAULT;
@@ -428,11 +433,11 @@ XcpcMonitor* xcpc_monitor_destruct(XcpcMonitor* self)
     return self;
 }
 
-XcpcMonitor* xcpc_monitor_new(void)
+XcpcMonitor* xcpc_monitor_new(const XcpcMonitorIface* iface)
 {
     log_trace("new");
 
-    return xcpc_monitor_construct(xcpc_monitor_alloc());
+    return xcpc_monitor_construct(xcpc_monitor_alloc(), iface);
 }
 
 XcpcMonitor* xcpc_monitor_delete(XcpcMonitor* self)
@@ -440,19 +445,6 @@ XcpcMonitor* xcpc_monitor_delete(XcpcMonitor* self)
     log_trace("delete");
 
     return xcpc_monitor_free(xcpc_monitor_destruct(self));
-}
-
-XcpcMonitor* xcpc_monitor_set_iface(XcpcMonitor* self, const XcpcMonitorIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-    }
-    return self;
 }
 
 XcpcMonitor* xcpc_monitor_reset(XcpcMonitor* self)

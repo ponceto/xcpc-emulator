@@ -148,7 +148,7 @@ XcpcPsg8910* xcpc_psg_8910_free(XcpcPsg8910* self)
     return xcpc_delete(XcpcPsg8910, self);
 }
 
-XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
+XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self, const XcpcPsg8910Iface* iface)
 {
     log_trace("construct");
 
@@ -158,7 +158,16 @@ XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self)
         (void) memset(&self->state, 0, sizeof(XcpcPsg8910State));
     }
     /* initialize iface */ {
-        (void) xcpc_psg_8910_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+            self->iface.rd_port_a = &default_rd_handler;
+            self->iface.wr_port_a = &default_wr_handler;
+            self->iface.rd_port_b = &default_rd_handler;
+            self->iface.wr_port_b = &default_wr_handler;
+        }
     }
     /* reset */ {
         (void) xcpc_psg_8910_reset(self);
@@ -173,11 +182,11 @@ XcpcPsg8910* xcpc_psg_8910_destruct(XcpcPsg8910* self)
     return self;
 }
 
-XcpcPsg8910* xcpc_psg_8910_new(void)
+XcpcPsg8910* xcpc_psg_8910_new(const XcpcPsg8910Iface* iface)
 {
     log_trace("new");
 
-    return xcpc_psg_8910_construct(xcpc_psg_8910_alloc());
+    return xcpc_psg_8910_construct(xcpc_psg_8910_alloc(), iface);
 }
 
 XcpcPsg8910* xcpc_psg_8910_delete(XcpcPsg8910* self)
@@ -185,23 +194,6 @@ XcpcPsg8910* xcpc_psg_8910_delete(XcpcPsg8910* self)
     log_trace("delete");
 
     return xcpc_psg_8910_free(xcpc_psg_8910_destruct(self));
-}
-
-XcpcPsg8910* xcpc_psg_8910_set_iface(XcpcPsg8910* self, const XcpcPsg8910Iface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-        self->iface.rd_port_a = &default_rd_handler;
-        self->iface.wr_port_a = &default_wr_handler;
-        self->iface.rd_port_b = &default_rd_handler;
-        self->iface.wr_port_b = &default_wr_handler;
-    }
-    return self;
 }
 
 XcpcPsg8910* xcpc_psg_8910_debug(XcpcPsg8910* self)
