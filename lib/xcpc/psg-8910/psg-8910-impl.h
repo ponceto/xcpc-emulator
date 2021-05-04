@@ -23,10 +23,6 @@
 extern "C" {
 #endif
 
-#define XCPC_PSG_8910_IFACE(instance) (&(instance)->iface)
-#define XCPC_PSG_8910_SETUP(instance) (&(instance)->setup)
-#define XCPC_PSG_8910_STATE(instance) (&(instance)->state)
-
 #define XCPC_PSG_8910_RD_FUNC(func) ((XcpcPsg8910RdFunc)(func))
 #define XCPC_PSG_8910_WR_FUNC(func) ((XcpcPsg8910WrFunc)(func))
 

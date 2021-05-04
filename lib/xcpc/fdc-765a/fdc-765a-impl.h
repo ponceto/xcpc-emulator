@@ -23,10 +23,6 @@
 extern "C" {
 #endif
 
-#define XCPC_FDC_765A_IFACE(instance) (&(instance)->iface)
-#define XCPC_FDC_765A_SETUP(instance) (&(instance)->setup)
-#define XCPC_FDC_765A_STATE(instance) (&(instance)->state)
-
 typedef struct fdc_765      XcpcFdcImpl;
 typedef struct floppy_drive XcpcFddImpl;
 

@@ -23,10 +23,6 @@
 extern "C" {
 #endif
 
-#define XCPC_MONITOR_IFACE(instance) (&(instance)->iface)
-#define XCPC_MONITOR_SETUP(instance) (&(instance)->setup)
-#define XCPC_MONITOR_STATE(instance) (&(instance)->state)
-
 typedef struct _XcpcMonitorIface XcpcMonitorIface;
 typedef struct _XcpcMonitorSetup XcpcMonitorSetup;
 typedef struct _XcpcMonitorState XcpcMonitorState;

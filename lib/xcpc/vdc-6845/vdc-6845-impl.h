@@ -23,11 +23,6 @@
 extern "C" {
 #endif
 
-#define XCPC_VDC_6845_IFACE(instance) (&(instance)->iface)
-#define XCPC_VDC_6845_SETUP(instance) (&(instance)->setup)
-#define XCPC_VDC_6845_STATE(instance) (&(instance)->state)
-#define XCPC_VDC_6845_COUNT(instance) (&(instance)->count)
-
 #define XCPC_VDC_6845_FRAME_FUNC(func) ((XcpcVdc6845FrameFunc)(func))
 #define XCPC_VDC_6845_HSYNC_FUNC(func) ((XcpcVdc6845HSyncFunc)(func))
 #define XCPC_VDC_6845_VSYNC_FUNC(func) ((XcpcVdc6845VSyncFunc)(func))

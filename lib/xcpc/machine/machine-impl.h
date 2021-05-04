@@ -36,10 +36,6 @@
 extern "C" {
 #endif
 
-#define XCPC_MACHINE_IFACE(instance) (&(instance)->iface)
-#define XCPC_MACHINE_SETUP(instance) (&(instance)->setup)
-#define XCPC_MACHINE_STATE(instance) (&(instance)->state)
-
 typedef struct _XcpcMachineIface XcpcMachineIface;
 typedef struct _XcpcMachineSetup XcpcMachineSetup;
 typedef struct _XcpcMachineState XcpcMachineState;

@@ -2445,19 +2445,20 @@ static void initialize(XcpcMachine* self)
 {
     char* system_rom = NULL;
     char* amsdos_rom = NULL;
-    const char* opt_company  = XCPC_OPTIONS_STATE(self->setup.options)->company;
-    const char* opt_machine  = XCPC_OPTIONS_STATE(self->setup.options)->machine;
-    const char* opt_monitor  = XCPC_OPTIONS_STATE(self->setup.options)->monitor;
-    const char* opt_refresh  = XCPC_OPTIONS_STATE(self->setup.options)->refresh;
-    const char* opt_keyboard = XCPC_OPTIONS_STATE(self->setup.options)->keyboard;
-    const char* opt_system   = XCPC_OPTIONS_STATE(self->setup.options)->sysrom;
-    const char* opt_amsdos   = XCPC_OPTIONS_STATE(self->setup.options)->rom007;
-    const char* opt_drive0   = XCPC_OPTIONS_STATE(self->setup.options)->drive0;
-    const char* opt_drive1   = XCPC_OPTIONS_STATE(self->setup.options)->drive1;
-    const char* opt_snapshot = XCPC_OPTIONS_STATE(self->setup.options)->snapshot;
-    const int   opt_turbo    = XCPC_OPTIONS_STATE(self->setup.options)->turbo;
-    const int   opt_xshm     = XCPC_OPTIONS_STATE(self->setup.options)->xshm;
-    const int   opt_fps      = XCPC_OPTIONS_STATE(self->setup.options)->fps;
+    XcpcOptions* options     = self->setup.options;
+    const char* opt_company  = options->state.company;
+    const char* opt_machine  = options->state.machine;
+    const char* opt_monitor  = options->state.monitor;
+    const char* opt_refresh  = options->state.refresh;
+    const char* opt_keyboard = options->state.keyboard;
+    const char* opt_system   = options->state.sysrom;
+    const char* opt_amsdos   = options->state.rom007;
+    const char* opt_drive0   = options->state.drive0;
+    const char* opt_drive1   = options->state.drive1;
+    const char* opt_snapshot = options->state.snapshot;
+    const int   opt_turbo    = options->state.turbo;
+    const int   opt_xshm     = options->state.xshm;
+    const int   opt_fps      = options->state.fps;
 
     /* initialize setup */ {
         self->setup.company_name  = xcpc_company_name(opt_company, XCPC_COMPANY_NAME_DEFAULT);
@@ -2544,22 +2545,22 @@ static void initialize(XcpcMachine* self)
     }
     /* load expansion roms */ {
         const char* cpc_expansions[16] = {
-            XCPC_OPTIONS_STATE(self->setup.options)->rom000,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom001,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom002,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom003,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom004,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom005,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom006,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom007,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom008,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom009,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom010,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom011,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom012,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom013,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom014,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom015,
+            options->state.rom000,
+            options->state.rom001,
+            options->state.rom002,
+            options->state.rom003,
+            options->state.rom004,
+            options->state.rom005,
+            options->state.rom006,
+            options->state.rom007,
+            options->state.rom008,
+            options->state.rom009,
+            options->state.rom010,
+            options->state.rom011,
+            options->state.rom012,
+            options->state.rom013,
+            options->state.rom014,
+            options->state.rom015,
         };
         /* create expansion roms banks */ {
             const XcpcRomBankIface exp_bank_iface = {

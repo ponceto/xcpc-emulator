@@ -23,10 +23,6 @@
 extern "C" {
 #endif
 
-#define XCPC_PPI_8255_IFACE(instance) (&(instance)->iface)
-#define XCPC_PPI_8255_SETUP(instance) (&(instance)->setup)
-#define XCPC_PPI_8255_STATE(instance) (&(instance)->state)
-
 #define XCPC_PPI_8255_RD_FUNC(func) ((XcpcPpi8255RdFunc)(func))
 #define XCPC_PPI_8255_WR_FUNC(func) ((XcpcPpi8255WrFunc)(func))
 
