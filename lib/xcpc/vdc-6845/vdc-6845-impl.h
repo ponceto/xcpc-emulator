@@ -28,9 +28,9 @@ extern "C" {
 #define XCPC_VDC_6845_STATE(instance) (&(instance)->state)
 #define XCPC_VDC_6845_COUNT(instance) (&(instance)->count)
 
-#define XCPC_VDC_6856_FRAME(proc) ((xcpc_vdc_6845_frame_proc)(proc))
-#define XCPC_VDC_6856_HSYNC(proc) ((xcpc_vdc_6845_hsync_proc)(proc))
-#define XCPC_VDC_6856_VSYNC(proc) ((xcpc_vdc_6845_vsync_proc)(proc))
+#define XCPC_VDC_6845_FRAME_FUNC(func) ((XcpcVdc6845FrameFunc)(func))
+#define XCPC_VDC_6845_HSYNC_FUNC(func) ((XcpcVdc6845HSyncFunc)(func))
+#define XCPC_VDC_6845_VSYNC_FUNC(func) ((XcpcVdc6845VSyncFunc)(func))
 
 typedef struct _XcpcVdc6845Iface XcpcVdc6845Iface;
 typedef struct _XcpcVdc6845Setup XcpcVdc6845Setup;
@@ -38,16 +38,16 @@ typedef struct _XcpcVdc6845State XcpcVdc6845State;
 typedef struct _XcpcVdc6845Count XcpcVdc6845Count;
 typedef struct _XcpcVdc6845      XcpcVdc6845;
 
-typedef uint8_t (*xcpc_vdc_6845_frame_proc)(XcpcVdc6845* vdc_6845, int frame, void* user_data);
-typedef uint8_t (*xcpc_vdc_6845_hsync_proc)(XcpcVdc6845* vdc_6845, int hsync, void* user_data);
-typedef uint8_t (*xcpc_vdc_6845_vsync_proc)(XcpcVdc6845* vdc_6845, int vsync, void* user_data);
+typedef uint8_t (*XcpcVdc6845FrameFunc)(XcpcVdc6845* vdc_6845, int frame, void* user_data);
+typedef uint8_t (*XcpcVdc6845HSyncFunc)(XcpcVdc6845* vdc_6845, int hsync, void* user_data);
+typedef uint8_t (*XcpcVdc6845VSyncFunc)(XcpcVdc6845* vdc_6845, int vsync, void* user_data);
 
 struct _XcpcVdc6845Iface
 {
     void* user_data;
-    xcpc_vdc_6845_frame_proc frame;
-    xcpc_vdc_6845_hsync_proc hsync;
-    xcpc_vdc_6845_vsync_proc vsync;
+    XcpcVdc6845FrameFunc frame;
+    XcpcVdc6845HSyncFunc hsync;
+    XcpcVdc6845VSyncFunc vsync;
 };
 
 struct _XcpcVdc6845Setup

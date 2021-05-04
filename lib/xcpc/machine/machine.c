@@ -631,10 +631,8 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync, XcpcMachine* self)
     return 0x00;
 }
 
-static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* read from psg */ {
         const uint8_t psg_function = (self->state.psg_bdir << 2)
                                    | (self->state.psg_bc2  << 1)
@@ -658,10 +656,8 @@ static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* write to psg */ {
         const uint8_t psg_function = (self->state.psg_bdir << 2)
                                    | (self->state.psg_bc2  << 1)
@@ -685,10 +681,8 @@ static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* read port b */ {
         data = ((self->state.cas_read  & 0x01) << 7)
              | ((self->state.parallel  & 0x01) << 6)
@@ -700,10 +694,8 @@ static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* write port b - illegal */ {
         data = ((self->state.cas_read  & 0x01) << 7)
              | ((self->state.parallel  & 0x01) << 6)
@@ -715,7 +707,7 @@ static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
     /* read port c */ {
         /* illegal */
@@ -723,10 +715,8 @@ static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* update state */ {
         self->state.psg_bdir  = ((data & 0x80) >> 7);
         self->state.psg_bc1   = ((data & 0x40) >> 6);
@@ -758,27 +748,25 @@ static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data)
+static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(psg_8910->iface.user_data));
-
     /* read keyboard */ {
         data = (self->state.psg_data = xcpc_keyboard_get_data(self->board.keyboard, 0xff));
     }
     return data;
 }
 
-static uint8_t psg_wr_port_a(XcpcPsg8910* psg_8910, uint8_t data)
+static uint8_t psg_wr_port_a(XcpcPsg8910* psg_8910, uint8_t data, XcpcMachine* self)
 {
     return 0xff;
 }
 
-static uint8_t psg_rd_port_b(XcpcPsg8910* psg_8910, uint8_t data)
+static uint8_t psg_rd_port_b(XcpcPsg8910* psg_8910, uint8_t data, XcpcMachine* self)
 {
     return 0xff;
 }
 
-static uint8_t psg_wr_port_b(XcpcPsg8910* psg_8910, uint8_t data)
+static uint8_t psg_wr_port_b(XcpcPsg8910* psg_8910, uint8_t data, XcpcMachine* self)
 {
     return 0xff;
 }
@@ -2086,13 +2074,13 @@ static void construct_board(XcpcMachine* self)
     }
     /* cpu_z80a */ {
         const XcpcCpuZ80aIface cpu_z80a_iface = {
-            self,                                /* user_data */
-            XCPC_CPU_Z80A_MREQ_M1(&cpu_mreq_m1), /* mreq_m1   */
-            XCPC_CPU_Z80A_MREQ_RD(&cpu_mreq_rd), /* mreq_rd   */
-            XCPC_CPU_Z80A_MREQ_WR(&cpu_mreq_wr), /* mreq_wr   */
-            XCPC_CPU_Z80A_IORQ_M1(&cpu_iorq_m1), /* iorq_m1   */
-            XCPC_CPU_Z80A_IORQ_RD(&cpu_iorq_rd), /* iorq_rd   */
-            XCPC_CPU_Z80A_IORQ_WR(&cpu_iorq_wr), /* iorq_wr   */
+            self,                                  /* user_data */
+            XCPC_CPU_Z80A_MREQ_FUNC(&cpu_mreq_m1), /* mreq_m1   */
+            XCPC_CPU_Z80A_MREQ_FUNC(&cpu_mreq_rd), /* mreq_rd   */
+            XCPC_CPU_Z80A_MREQ_FUNC(&cpu_mreq_wr), /* mreq_wr   */
+            XCPC_CPU_Z80A_IORQ_FUNC(&cpu_iorq_m1), /* iorq_m1   */
+            XCPC_CPU_Z80A_IORQ_FUNC(&cpu_iorq_rd), /* iorq_rd   */
+            XCPC_CPU_Z80A_IORQ_FUNC(&cpu_iorq_wr), /* iorq_wr   */
         };
         if(self->board.cpu_z80a == NULL) {
             self->board.cpu_z80a = xcpc_cpu_z80a_new(&cpu_z80a_iface);
@@ -2108,10 +2096,10 @@ static void construct_board(XcpcMachine* self)
     }
     /* vdc_6845 */ {
         const XcpcVdc6845Iface vdc_6845_iface = {
-            self,                            /* user_data */
-            XCPC_VDC_6856_FRAME(&vdc_frame), /* frame     */
-            XCPC_VDC_6856_HSYNC(&vdc_hsync), /* hsync     */
-            XCPC_VDC_6856_VSYNC(&vdc_vsync), /* vsync     */
+            self,                                 /* user_data */
+            XCPC_VDC_6845_FRAME_FUNC(&vdc_frame), /* frame     */
+            XCPC_VDC_6845_HSYNC_FUNC(&vdc_hsync), /* hsync     */
+            XCPC_VDC_6845_VSYNC_FUNC(&vdc_vsync), /* vsync     */
         };
         if(self->board.vdc_6845 == NULL) {
             self->board.vdc_6845 = xcpc_vdc_6845_new(&vdc_6845_iface);
@@ -2119,13 +2107,13 @@ static void construct_board(XcpcMachine* self)
     }
     /* ppi_8255 */ {
         const XcpcPpi8255Iface ppi_8255_iface = {
-            self,           /* user_data */
-            &ppi_rd_port_a, /* rd_port_a */
-            &ppi_wr_port_a, /* wr_port_a */
-            &ppi_rd_port_b, /* rd_port_b */
-            &ppi_wr_port_b, /* wr_port_b */
-            &ppi_rd_port_c, /* rd_port_c */
-            &ppi_wr_port_c, /* wr_port_c */
+            self,                                  /* user_data */
+            XCPC_PPI_8255_RD_FUNC(&ppi_rd_port_a), /* rd_port_a */
+            XCPC_PPI_8255_WR_FUNC(&ppi_wr_port_a), /* wr_port_a */
+            XCPC_PPI_8255_RD_FUNC(&ppi_rd_port_b), /* rd_port_b */
+            XCPC_PPI_8255_WR_FUNC(&ppi_wr_port_b), /* wr_port_b */
+            XCPC_PPI_8255_RD_FUNC(&ppi_rd_port_c), /* rd_port_c */
+            XCPC_PPI_8255_WR_FUNC(&ppi_wr_port_c), /* wr_port_c */
         };
         if(self->board.ppi_8255 == NULL) {
             self->board.ppi_8255 = xcpc_ppi_8255_new(&ppi_8255_iface);
@@ -2133,11 +2121,11 @@ static void construct_board(XcpcMachine* self)
     }
     /* psg_8910 */ {
         const XcpcPsg8910Iface psg_8910_iface = {
-            self,           /* user_data */
-            &psg_rd_port_a, /* rd_port_a */
-            &psg_wr_port_a, /* wr_port_a */
-            &psg_rd_port_b, /* rd_port_b */
-            &psg_wr_port_b, /* wr_port_b */
+            self,                                  /* user_data */
+            XCPC_PSG_8910_RD_FUNC(&psg_rd_port_a), /* rd_port_a */
+            XCPC_PSG_8910_WR_FUNC(&psg_wr_port_a), /* wr_port_a */
+            XCPC_PSG_8910_RD_FUNC(&psg_rd_port_b), /* rd_port_b */
+            XCPC_PSG_8910_WR_FUNC(&psg_wr_port_b), /* wr_port_b */
         };
         if(self->board.psg_8910 == NULL) {
             self->board.psg_8910 = xcpc_psg_8910_new(&psg_8910_iface);

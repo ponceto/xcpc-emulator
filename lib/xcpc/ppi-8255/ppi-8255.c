@@ -27,14 +27,14 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcPpi8255::%s()", function);
 }
 
-static uint8_t default_rd_handler(XcpcPpi8255* self, uint8_t data)
+static uint8_t default_rd_handler(XcpcPpi8255* self, uint8_t data, void* user_data)
 {
     log_trace("default_rd_handler");
 
     return data;
 }
 
-static uint8_t default_wr_handler(XcpcPpi8255* self, uint8_t data)
+static uint8_t default_wr_handler(XcpcPpi8255* self, uint8_t data, void* user_data)
 {
     log_trace("default_wr_handler");
 
@@ -71,13 +71,21 @@ XcpcPpi8255* xcpc_ppi_8255_construct(XcpcPpi8255* self, const XcpcPpi8255Iface* 
         }
         else {
             self->iface.user_data = NULL;
-            self->iface.rd_port_a = &default_rd_handler;
-            self->iface.wr_port_a = &default_wr_handler;
-            self->iface.rd_port_b = &default_rd_handler;
-            self->iface.wr_port_b = &default_wr_handler;
-            self->iface.rd_port_c = &default_rd_handler;
-            self->iface.wr_port_c = &default_wr_handler;
+            self->iface.rd_port_a = NULL;
+            self->iface.wr_port_a = NULL;
+            self->iface.rd_port_b = NULL;
+            self->iface.wr_port_b = NULL;
+            self->iface.rd_port_c = NULL;
+            self->iface.wr_port_c = NULL;
         }
+    }
+    /* adjust iface */ {
+        if(self->iface.rd_port_a == NULL) { self->iface.rd_port_a = &default_rd_handler; }
+        if(self->iface.wr_port_a == NULL) { self->iface.wr_port_a = &default_wr_handler; }
+        if(self->iface.rd_port_b == NULL) { self->iface.rd_port_b = &default_rd_handler; }
+        if(self->iface.wr_port_b == NULL) { self->iface.wr_port_b = &default_wr_handler; }
+        if(self->iface.rd_port_c == NULL) { self->iface.rd_port_c = &default_rd_handler; }
+        if(self->iface.wr_port_c == NULL) { self->iface.wr_port_c = &default_wr_handler; }
     }
     /* reset */ {
         (void) xcpc_ppi_8255_reset(self);
@@ -139,7 +147,7 @@ uint8_t xcpc_ppi_8255_illegal(XcpcPpi8255* self, uint8_t data_bus)
 uint8_t xcpc_ppi_8255_rd_port_a(XcpcPpi8255* self, uint8_t data_bus)
 {
     if(self->ports.pa != 0) {
-        self->state.port_a = (*self->iface.rd_port_a)(self, data_bus);
+        self->state.port_a = (*self->iface.rd_port_a)(self, data_bus, self->iface.user_data);
     }
     return self->state.port_a;
 }
@@ -149,7 +157,7 @@ uint8_t xcpc_ppi_8255_wr_port_a(XcpcPpi8255* self, uint8_t data_bus)
     self->state.port_a = data_bus;
 
     if(self->ports.pa == 0) {
-        data_bus = (*self->iface.wr_port_a)(self, data_bus);
+        data_bus = (*self->iface.wr_port_a)(self, data_bus, self->iface.user_data);
     }
     return self->state.port_a;
 }
@@ -157,7 +165,7 @@ uint8_t xcpc_ppi_8255_wr_port_a(XcpcPpi8255* self, uint8_t data_bus)
 uint8_t xcpc_ppi_8255_rd_port_b(XcpcPpi8255* self, uint8_t data_bus)
 {
     if(self->ports.pb != 0) {
-        self->state.port_b = (*self->iface.rd_port_b)(self, data_bus);
+        self->state.port_b = (*self->iface.rd_port_b)(self, data_bus, self->iface.user_data);
     }
     return self->state.port_b;
 }
@@ -167,7 +175,7 @@ uint8_t xcpc_ppi_8255_wr_port_b(XcpcPpi8255* self, uint8_t data_bus)
     self->state.port_b = data_bus;
 
     if(self->ports.pb == 0) {
-        data_bus = (*self->iface.wr_port_b)(self, data_bus);
+        data_bus = (*self->iface.wr_port_b)(self, data_bus, self->iface.user_data);
     }
     return self->state.port_b;
 }
@@ -175,7 +183,7 @@ uint8_t xcpc_ppi_8255_wr_port_b(XcpcPpi8255* self, uint8_t data_bus)
 uint8_t xcpc_ppi_8255_rd_port_c(XcpcPpi8255* self, uint8_t data_bus)
 {
     if(self->ports.pc != 0) {
-        self->state.port_c = (*self->iface.rd_port_c)(self, data_bus);
+        self->state.port_c = (*self->iface.rd_port_c)(self, data_bus, self->iface.user_data);
     }
     return self->state.port_c;
 }
@@ -185,7 +193,7 @@ uint8_t xcpc_ppi_8255_wr_port_c(XcpcPpi8255* self, uint8_t data_bus)
     self->state.port_c = data_bus;
 
     if(self->ports.pc == 0) {
-        data_bus = (*self->iface.wr_port_c)(self, data_bus);
+        data_bus = (*self->iface.wr_port_c)(self, data_bus, self->iface.user_data);
     }
     return self->state.port_c;
 }
@@ -224,33 +232,33 @@ uint8_t xcpc_ppi_8255_wr_ctrl_p(XcpcPpi8255* self, uint8_t data_bus)
             /* process port a */ {
                 if(pa != self->ports.pa) {
                     if((self->ports.pa = pa) != 0) {
-                        data_bus = (*self->iface.rd_port_a)(self, self->state.port_a);
+                        data_bus = (*self->iface.rd_port_a)(self, self->state.port_a, self->iface.user_data);
                         self->state.port_a = data_bus;
                     }
                     else {
-                        data_bus = (*self->iface.wr_port_a)(self, self->state.port_a);
+                        data_bus = (*self->iface.wr_port_a)(self, self->state.port_a, self->iface.user_data);
                     }
                 }
             }
             /* process port b */ {
                 if(pb != self->ports.pb) {
                     if((self->ports.pb = pb) != 0) {
-                        data_bus = (*self->iface.rd_port_b)(self, self->state.port_b);
+                        data_bus = (*self->iface.rd_port_b)(self, self->state.port_b, self->iface.user_data);
                         self->state.port_b = data_bus;
                     }
                     else {
-                        data_bus = (*self->iface.wr_port_b)(self, self->state.port_b);
+                        data_bus = (*self->iface.wr_port_b)(self, self->state.port_b, self->iface.user_data);
                     }
                 }
             }
             /* process port c */ {
                 if(pc != self->ports.pc) {
                     if((self->ports.pc = pc) != 0) {
-                        data_bus = (*self->iface.rd_port_c)(self, self->state.port_c);
+                        data_bus = (*self->iface.rd_port_c)(self, self->state.port_c, self->iface.user_data);
                         self->state.port_c = data_bus;
                     }
                     else {
-                        data_bus = (*self->iface.wr_port_c)(self, self->state.port_c);
+                        data_bus = (*self->iface.wr_port_c)(self, self->state.port_c, self->iface.user_data);
                     }
                 }
             }
@@ -263,7 +271,7 @@ uint8_t xcpc_ppi_8255_wr_ctrl_p(XcpcPpi8255* self, uint8_t data_bus)
             /* process port c */ {
                 if(self->ports.pc == 0) {
                     self->state.port_c = ((self->state.port_c & ~(0x1 << bit)) | (val << bit));
-                    data_bus = (*self->iface.wr_port_c)(self, self->state.port_c);
+                    data_bus = (*self->iface.wr_port_c)(self, self->state.port_c, self->iface.user_data);
                 }
             }
         }

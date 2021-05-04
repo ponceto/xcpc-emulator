@@ -27,34 +27,26 @@ extern "C" {
 #define XCPC_CPU_Z80A_SETUP(instance) (&(instance)->setup)
 #define XCPC_CPU_Z80A_STATE(instance) (&(instance)->state)
 
-#define XCPC_CPU_Z80A_MREQ_M1(proc) ((xcpc_cpu_z80a_mreq_m1_proc)(proc))
-#define XCPC_CPU_Z80A_MREQ_RD(proc) ((xcpc_cpu_z80a_mreq_rd_proc)(proc))
-#define XCPC_CPU_Z80A_MREQ_WR(proc) ((xcpc_cpu_z80a_mreq_wr_proc)(proc))
-#define XCPC_CPU_Z80A_IORQ_M1(proc) ((xcpc_cpu_z80a_iorq_m1_proc)(proc))
-#define XCPC_CPU_Z80A_IORQ_RD(proc) ((xcpc_cpu_z80a_iorq_rd_proc)(proc))
-#define XCPC_CPU_Z80A_IORQ_WR(proc) ((xcpc_cpu_z80a_iorq_wr_proc)(proc))
+#define XCPC_CPU_Z80A_MREQ_FUNC(func) ((XcpcCpuZ80aMreqFunc)(func))
+#define XCPC_CPU_Z80A_IORQ_FUNC(func) ((XcpcCpuZ80aIorqFunc)(func))
 
 typedef struct _XcpcCpuZ80aIface XcpcCpuZ80aIface;
 typedef struct _XcpcCpuZ80aSetup XcpcCpuZ80aSetup;
 typedef struct _XcpcCpuZ80aState XcpcCpuZ80aState;
 typedef struct _XcpcCpuZ80a      XcpcCpuZ80a;
 
-typedef uint8_t (*xcpc_cpu_z80a_mreq_m1_proc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
-typedef uint8_t (*xcpc_cpu_z80a_mreq_rd_proc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
-typedef uint8_t (*xcpc_cpu_z80a_mreq_wr_proc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
-typedef uint8_t (*xcpc_cpu_z80a_iorq_m1_proc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
-typedef uint8_t (*xcpc_cpu_z80a_iorq_rd_proc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
-typedef uint8_t (*xcpc_cpu_z80a_iorq_wr_proc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcCpuZ80aMreqFunc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcCpuZ80aIorqFunc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
 
 struct _XcpcCpuZ80aIface
 {
     void* user_data;
-    xcpc_cpu_z80a_mreq_m1_proc mreq_m1;
-    xcpc_cpu_z80a_mreq_rd_proc mreq_rd;
-    xcpc_cpu_z80a_mreq_wr_proc mreq_wr;
-    xcpc_cpu_z80a_iorq_m1_proc iorq_m1;
-    xcpc_cpu_z80a_iorq_rd_proc iorq_rd;
-    xcpc_cpu_z80a_iorq_wr_proc iorq_wr;
+    XcpcCpuZ80aMreqFunc mreq_m1;
+    XcpcCpuZ80aMreqFunc mreq_rd;
+    XcpcCpuZ80aMreqFunc mreq_wr;
+    XcpcCpuZ80aIorqFunc iorq_m1;
+    XcpcCpuZ80aIorqFunc iorq_rd;
+    XcpcCpuZ80aIorqFunc iorq_wr;
 };
 
 struct _XcpcCpuZ80aSetup

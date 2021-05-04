@@ -27,21 +27,27 @@ extern "C" {
 #define XCPC_PPI_8255_SETUP(instance) (&(instance)->setup)
 #define XCPC_PPI_8255_STATE(instance) (&(instance)->state)
 
+#define XCPC_PPI_8255_RD_FUNC(func) ((XcpcPpi8255RdFunc)(func))
+#define XCPC_PPI_8255_WR_FUNC(func) ((XcpcPpi8255WrFunc)(func))
+
 typedef struct _XcpcPpi8255Iface XcpcPpi8255Iface;
 typedef struct _XcpcPpi8255Setup XcpcPpi8255Setup;
 typedef struct _XcpcPpi8255State XcpcPpi8255State;
 typedef struct _XcpcPpi8255Ports XcpcPpi8255Ports;
 typedef struct _XcpcPpi8255      XcpcPpi8255;
 
+typedef uint8_t (*XcpcPpi8255RdFunc)(XcpcPpi8255* ppi_8255, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcPpi8255WrFunc)(XcpcPpi8255* ppi_8255, uint8_t data, void* user_data);
+
 struct _XcpcPpi8255Iface
 {
     void* user_data;
-    uint8_t (*rd_port_a)(XcpcPpi8255* ppi_8255, uint8_t data);
-    uint8_t (*wr_port_a)(XcpcPpi8255* ppi_8255, uint8_t data);
-    uint8_t (*rd_port_b)(XcpcPpi8255* ppi_8255, uint8_t data);
-    uint8_t (*wr_port_b)(XcpcPpi8255* ppi_8255, uint8_t data);
-    uint8_t (*rd_port_c)(XcpcPpi8255* ppi_8255, uint8_t data);
-    uint8_t (*wr_port_c)(XcpcPpi8255* ppi_8255, uint8_t data);
+    XcpcPpi8255RdFunc rd_port_a;
+    XcpcPpi8255WrFunc wr_port_a;
+    XcpcPpi8255RdFunc rd_port_b;
+    XcpcPpi8255WrFunc wr_port_b;
+    XcpcPpi8255RdFunc rd_port_c;
+    XcpcPpi8255WrFunc wr_port_c;
 };
 
 struct _XcpcPpi8255Setup

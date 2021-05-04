@@ -27,14 +27,14 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcPsg8910::%s()", function);
 }
 
-static uint8_t default_rd_handler(XcpcPsg8910* self, uint8_t data)
+static uint8_t default_rd_handler(XcpcPsg8910* self, uint8_t data, void* user_data)
 {
     log_trace("default_rd_handler");
 
     return data;
 }
 
-static uint8_t default_wr_handler(XcpcPsg8910* self, uint8_t data)
+static uint8_t default_wr_handler(XcpcPsg8910* self, uint8_t data, void* user_data)
 {
     log_trace("default_wr_handler");
 
@@ -163,11 +163,17 @@ XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self, const XcpcPsg8910Iface* 
         }
         else {
             self->iface.user_data = NULL;
-            self->iface.rd_port_a = &default_rd_handler;
-            self->iface.wr_port_a = &default_wr_handler;
-            self->iface.rd_port_b = &default_rd_handler;
-            self->iface.wr_port_b = &default_wr_handler;
+            self->iface.rd_port_a = NULL;
+            self->iface.wr_port_a = NULL;
+            self->iface.rd_port_b = NULL;
+            self->iface.wr_port_b = NULL;
         }
+    }
+    /* adjust iface */ {
+        if(self->iface.rd_port_a == NULL) { self->iface.rd_port_a = &default_rd_handler; }
+        if(self->iface.wr_port_a == NULL) { self->iface.wr_port_a = &default_wr_handler; }
+        if(self->iface.rd_port_b == NULL) { self->iface.rd_port_b = &default_rd_handler; }
+        if(self->iface.wr_port_b == NULL) { self->iface.wr_port_b = &default_wr_handler; }
     }
     /* reset */ {
         (void) xcpc_psg_8910_reset(self);
@@ -279,10 +285,10 @@ uint8_t xcpc_psg_8910_rd_data(XcpcPsg8910* self, uint8_t data_bus)
         uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
         if(is_readable != 0) {
             if(address_register == PSG_IO_PORT_A) {
-                *register_addr = (*self->iface.rd_port_a)(self, data_bus);
+                *register_addr = (*self->iface.rd_port_a)(self, data_bus, self->iface.user_data);
             }
             if(address_register == PSG_IO_PORT_B) {
-                *register_addr = (*self->iface.rd_port_b)(self, data_bus);
+                *register_addr = (*self->iface.rd_port_b)(self, data_bus, self->iface.user_data);
             }
             data_bus = (*register_addr &= register_mask);
         }
@@ -300,10 +306,10 @@ uint8_t xcpc_psg_8910_wr_data(XcpcPsg8910* self, uint8_t data_bus)
         uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
         if(is_writable != 0) {
             if(address_register == PSG_IO_PORT_A) {
-                *register_addr = (*self->iface.wr_port_a)(self, data_bus);
+                *register_addr = (*self->iface.wr_port_a)(self, data_bus, self->iface.user_data);
             }
             if(address_register == PSG_IO_PORT_B) {
-                *register_addr = (*self->iface.wr_port_b)(self, data_bus);
+                *register_addr = (*self->iface.wr_port_b)(self, data_bus, self->iface.user_data);
             }
             *register_addr = (data_bus &= register_mask);
         }

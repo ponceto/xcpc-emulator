@@ -27,18 +27,24 @@ extern "C" {
 #define XCPC_PSG_8910_SETUP(instance) (&(instance)->setup)
 #define XCPC_PSG_8910_STATE(instance) (&(instance)->state)
 
+#define XCPC_PSG_8910_RD_FUNC(func) ((XcpcPsg8910RdFunc)(func))
+#define XCPC_PSG_8910_WR_FUNC(func) ((XcpcPsg8910WrFunc)(func))
+
 typedef struct _XcpcPsg8910Iface XcpcPsg8910Iface;
 typedef struct _XcpcPsg8910Setup XcpcPsg8910Setup;
 typedef struct _XcpcPsg8910State XcpcPsg8910State;
 typedef struct _XcpcPsg8910      XcpcPsg8910;
 
+typedef uint8_t (*XcpcPsg8910RdFunc)(XcpcPsg8910* psg_8910, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcPsg8910WrFunc)(XcpcPsg8910* psg_8910, uint8_t data, void* user_data);
+
 struct _XcpcPsg8910Iface
 {
     void* user_data;
-    uint8_t (*rd_port_a)(XcpcPsg8910* psg_8910, uint8_t data);
-    uint8_t (*wr_port_a)(XcpcPsg8910* psg_8910, uint8_t data);
-    uint8_t (*rd_port_b)(XcpcPsg8910* psg_8910, uint8_t data);
-    uint8_t (*wr_port_b)(XcpcPsg8910* psg_8910, uint8_t data);
+    XcpcPsg8910RdFunc rd_port_a;
+    XcpcPsg8910WrFunc wr_port_a;
+    XcpcPsg8910RdFunc rd_port_b;
+    XcpcPsg8910WrFunc wr_port_b;
 };
 
 struct _XcpcPsg8910Setup
