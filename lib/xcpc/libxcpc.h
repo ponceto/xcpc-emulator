@@ -47,6 +47,14 @@ extern void* xcpc_calloc        (const char* type, size_t count, size_t size);
 extern void* xcpc_realloc       (const char* type, void* pointer, size_t size);
 extern void* xcpc_free          (const char* type, void* pointer);
 
+extern const char*      xcpc_get_bindir       (void);
+extern const char*      xcpc_get_libdir       (void);
+extern const char*      xcpc_get_datdir       (void);
+extern const char*      xcpc_get_docdir       (void);
+extern const char*      xcpc_get_resdir       (void);
+extern const char*      xcpc_get_romdir       (void);
+extern const char*      xcpc_get_dskdir       (void);
+extern const char*      xcpc_get_snadir       (void);
 extern const char*      xcpc_get_joystick0    (void);
 extern const char*      xcpc_get_joystick1    (void);
 extern const char*      xcpc_legal_text       (void);

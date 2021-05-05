@@ -48,6 +48,14 @@ struct _XcpcLibrary
     FILE*       input_stream;
     FILE*       print_stream;
     FILE*       error_stream;
+    char*       bindir;
+    char*       libdir;
+    char*       datdir;
+    char*       docdir;
+    char*       resdir;
+    char*       romdir;
+    char*       dskdir;
+    char*       snadir;
     const char* joystick0;
     const char* joystick1;
 };

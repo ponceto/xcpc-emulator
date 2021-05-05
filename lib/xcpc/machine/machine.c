@@ -65,7 +65,7 @@ static char* build_filename(const char* directory, const char* filename)
 {
     char buffer[PATH_MAX + 1];
 
-    (void) snprintf(buffer, sizeof(buffer), "%s/%s/%s", XCPC_RESDIR, directory, filename);
+    (void) snprintf(buffer, sizeof(buffer), "%s/%s", directory, filename);
 
     return strdup(buffer);
 }
@@ -2510,20 +2510,20 @@ static void initialize(XcpcMachine* self)
         switch(self->setup.machine_type) {
             case XCPC_MACHINE_TYPE_CPC464:
                 {
-                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc464.rom"));
-                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : NULL                                );
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename(xcpc_get_romdir(), "cpc464.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : NULL                                           );
                 }
                 break;
             case XCPC_MACHINE_TYPE_CPC664:
                 {
-                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc664.rom"));
-                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename("roms", "amsdos.rom"));
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename(xcpc_get_romdir(), "cpc664.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename(xcpc_get_romdir(), "amsdos.rom"));
                 }
                 break;
             case XCPC_MACHINE_TYPE_CPC6128:
                 {
-                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc6128.rom"));
-                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename("roms", "amsdos.rom" ));
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename(xcpc_get_romdir(), "cpc6128.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename(xcpc_get_romdir(), "amsdos.rom" ));
                 }
                 break;
             default:
