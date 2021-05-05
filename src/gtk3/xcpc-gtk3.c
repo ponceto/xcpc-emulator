@@ -1194,7 +1194,9 @@ static void build_layout(XcpcApplication* self)
     XcpcLayoutRec* current = &self->layout;
 
     /* logo */ {
-        current->logo = gdk_pixbuf_new_from_file(XCPC_RESDIR "/bitmaps/xcpc-icon.png", NULL);
+        gchar* filename = g_build_filename(xcpc_get_resdir(), "bitmaps", "xcpc-icon.png", NULL);
+        current->logo = gdk_pixbuf_new_from_file(filename, NULL);
+        filename = (g_free(filename), NULL);
     }
     /* window */ {
         current->window = gtk_application_window_new(self->layout.application);
