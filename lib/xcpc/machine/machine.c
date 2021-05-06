@@ -142,7 +142,7 @@ static void cpc_mem_select(XcpcMachine* self, uint8_t ram_conf, uint8_t rom_conf
     self->pager.conf.ram = ram_conf;
     self->pager.conf.rom = rom_conf;
     if(self->setup.memory_size >= XCPC_MEMORY_SIZE_128K) {
-        switch(self->pager.conf.ram) {
+        switch(self->pager.conf.ram & 0x3f) {
             case 0x00:
                 {
                     self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
