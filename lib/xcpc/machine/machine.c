@@ -362,18 +362,21 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data, X
                     {
                         data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
                         debug_iorq("ppi-8255", "get-port-a", port, (data & 0xff));
+                        data &= 0xff;
                     }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
                         debug_iorq("ppi-8255", "get-port-b", port, (data & 0xff));
+                        data &= 0xff;
                     }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
                         debug_iorq("ppi-8255", "get-port-c", port, (data & 0xff));
+                        data &= 0xf0;
                     }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
