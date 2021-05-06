@@ -1281,23 +1281,6 @@ XcpcApplication* xcpc_application_new(void)
 {
     XcpcApplication* self = g_new0(XcpcApplication, 1);
 
-    /* intialize the options */ {
-        self->options = xcpc_options_new();
-    }
-    /* intialize the machine */ {
-        const XcpcMachineIface machine_iface = {
-            self, /* user_data */
-            NULL, /* reserved0 */
-            NULL, /* reserved1 */
-            NULL, /* reserved2 */
-            NULL, /* reserved3 */
-            NULL, /* reserved4 */
-            NULL, /* reserved5 */
-            NULL, /* reserved6 */
-            NULL, /* reserved7 */
-        };
-        self->machine = xcpc_machine_new(&machine_iface, self->options);
-    }
     return self;
 }
 
@@ -1320,8 +1303,25 @@ XcpcApplication* xcpc_application_delete(XcpcApplication* self)
 
 XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** argv)
 {
+    /* intialize the options */ {
+        self->options = xcpc_options_new();
+    }
     /* parse the command-line */ {
         (void) xcpc_options_parse(self->options, argc, argv);
+    }
+    /* intialize the machine */ {
+        const XcpcMachineIface machine_iface = {
+            self, /* user_data */
+            NULL, /* reserved0 */
+            NULL, /* reserved1 */
+            NULL, /* reserved2 */
+            NULL, /* reserved3 */
+            NULL, /* reserved4 */
+            NULL, /* reserved5 */
+            NULL, /* reserved6 */
+            NULL, /* reserved7 */
+        };
+        self->machine = xcpc_machine_new(&machine_iface, self->options);
     }
     /* create application */ {
         self->layout.application = gtk_application_new(app_id, G_APPLICATION_FLAGS_NONE);

@@ -2697,9 +2697,6 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* i
     /* initialize */ {
         (void) initialize(self);
     }
-    /* reset */ {
-        (void) xcpc_machine_reset(self);
-    }
     return self;
 }
 

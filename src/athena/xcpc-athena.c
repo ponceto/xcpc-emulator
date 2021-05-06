@@ -1642,6 +1642,9 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
     /* intialize options */ {
         self->options = xcpc_options_new();
     }
+    /* parse the command-line */ {
+        (void) xcpc_options_parse(self->options, argc, argv);
+    }
     /* intialize machine */ {
         const XcpcMachineIface machine_iface = {
             self, /* user_data */
@@ -1655,9 +1658,6 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
             NULL, /* reserved7 */
         };
         self->machine = xcpc_machine_new(&machine_iface, self->options);
-    }
-    /* parse the command-line */ {
-        (void) xcpc_options_parse(self->options, argc, argv);
     }
     /* initialize Xaw */ {
         XawInitializeWidgetSet();
