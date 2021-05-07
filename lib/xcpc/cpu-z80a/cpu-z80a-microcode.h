@@ -23,6 +23,111 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
+ * pseudo micro-instructions
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * mreq_m1
+ */
+
+#define m_mreq_m1(addr, data) \
+    do { \
+        MREQ_M1(addr, data); \
+    } while(0)
+
+/*
+ * mreq_rd
+ */
+
+#define m_mreq_rd(addr, data) \
+    do { \
+        MREQ_RD(addr, data); \
+    } while(0)
+
+/*
+ * mreq_wr
+ */
+
+#define m_mreq_wr(addr, data) \
+    do { \
+        MREQ_WR(addr, data); \
+    } while(0)
+
+/*
+ * iorq_m1
+ */
+
+#define m_iorq_m1(port, data) \
+    do { \
+        IORQ_M1(port, data); \
+    } while(0)
+
+/*
+ * iorq_rd
+ */
+
+#define m_iorq_rd(port, data) \
+    do { \
+        IORQ_RD(port, data); \
+    } while(0)
+
+/*
+ * iorq_wr
+ */
+
+#define m_iorq_wr(port, data) \
+    do { \
+        IORQ_WR(port, data); \
+    } while(0)
+
+/*
+ * load_rg
+ */
+
+#define m_load_rg(dst, src) \
+    do { \
+        dst = src; \
+    } while(0)
+
+/*
+ * addu_rg
+ */
+
+#define m_addu_rg(reg, val) \
+    do { \
+        reg += val; \
+    } while(0)
+
+/*
+ * subu_rg
+ */
+
+#define m_subu_rg(reg, val) \
+    do { \
+        reg -= val; \
+    } while(0)
+
+/*
+ * set_bit
+ */
+
+#define m_set_bit(dst, bit) \
+    do { \
+        dst |= (bit); \
+    } while(0)
+
+/*
+ * clr_bit
+ */
+
+#define m_clr_bit(dst, bit) \
+    do { \
+        dst &= ~(bit); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
  * fetch pseudo instructions
  * ---------------------------------------------------------------------------
  */
@@ -168,60 +273,6 @@ extern "C" {
  */
 
 /*
- * mreq_m1
- */
-
-#define m_mreq_m1(addr, data) \
-    do { \
-        MREQ_M1(addr, data); \
-    } while(0)
-
-/*
- * mreq_rd
- */
-
-#define m_mreq_rd(addr, data) \
-    do { \
-        MREQ_RD(addr, data); \
-    } while(0)
-
-/*
- * mreq_wr
- */
-
-#define m_mreq_wr(addr, data) \
-    do { \
-        MREQ_WR(addr, data); \
-    } while(0)
-
-/*
- * iorq_m1
- */
-
-#define m_iorq_m1(port, data) \
-    do { \
-        IORQ_M1(port, data); \
-    } while(0)
-
-/*
- * iorq_rd
- */
-
-#define m_iorq_rd(port, data) \
-    do { \
-        IORQ_RD(port, data); \
-    } while(0)
-
-/*
- * iorq_wr
- */
-
-#define m_iorq_wr(port, data) \
-    do { \
-        IORQ_WR(port, data); \
-    } while(0)
-
-/*
  * refresh dram
  */
 
@@ -290,51 +341,6 @@ extern "C" {
     do { \
         ST_L &= ~(ST_HLT | ST_INT | ST_NMI | ST_IFF2 | ST_IFF1); \
         IORQ_M1(0x0000, T1_L); \
-    } while(0)
-
-/*
- * load_rg
- */
-
-#define m_load_rg(dst, src) \
-    do { \
-        dst = src; \
-    } while(0)
-
-/*
- * incr_rg
- */
-
-#define m_incr_rg(reg, val) \
-    do { \
-        reg += val; \
-    } while(0)
-
-/*
- * decr_rg
- */
-
-#define m_decr_rg(reg, val) \
-    do { \
-        reg -= val; \
-    } while(0)
-
-/*
- * set_bit
- */
-
-#define m_set_bit(dst, bit) \
-    do { \
-        dst |= (bit); \
-    } while(0)
-
-/*
- * clr_bit
- */
-
-#define m_clr_bit(dst, bit) \
-    do { \
-        dst &= ~(bit); \
     } while(0)
 
 /*
@@ -462,7 +468,7 @@ extern "C" {
     do { \
         m_load_rg(T0_W, AF_W); \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_iorq_rd(T0_W, reg1); \
     } while(0)
 
@@ -475,8 +481,8 @@ extern "C" {
         m_iorq_rd(BC_W, T0_L); \
         m_mreq_wr(HL_W, T0_L); \
         m_load_rg(WZ_W, BC_W); \
-        m_decr_rg(BC_H, 0x01); \
-        m_incr_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
+        m_addu_rg(HL_W, 0x01); \
         T3_L = PZSTable[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
@@ -498,8 +504,8 @@ extern "C" {
         m_iorq_rd(BC_W, T1_L); \
         m_mreq_wr(HL_W, T1_L); \
         m_load_rg(WZ_W, BC_W); \
-        m_incr_rg(HL_W, 0x01); \
-        m_decr_rg(BC_H, 0x01); \
+        m_addu_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
         if(BC_H != 0) { \
             m_restore_pc(); \
             m_consume(1, 5); \
@@ -525,8 +531,8 @@ extern "C" {
         m_iorq_rd(BC_W, T0_L); \
         m_mreq_wr(HL_W, T0_L); \
         m_load_rg(WZ_W, BC_W); \
-        m_decr_rg(BC_H, 0x01); \
-        m_decr_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
+        m_subu_rg(HL_W, 0x01); \
         T3_L = PZSTable[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
@@ -548,8 +554,8 @@ extern "C" {
         m_iorq_rd(BC_W, T1_L); \
         m_mreq_wr(HL_W, T1_L); \
         m_load_rg(WZ_W, BC_W); \
-        m_decr_rg(HL_W, 0x01); \
-        m_decr_rg(BC_H, 0x01); \
+        m_subu_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
         if(BC_H != 0) { \
             m_restore_pc(); \
             m_consume(1, 5); \
@@ -591,7 +597,7 @@ extern "C" {
     do { \
         m_load_rg(T0_W, AF_W); \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_iorq_wr(T0_W, reg1); \
     } while(0)
 
@@ -602,8 +608,8 @@ extern "C" {
 #define m_outi() \
     do { \
         m_mreq_rd(HL_W, T0_L); \
-        m_decr_rg(BC_H, 0x01); \
-        m_incr_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
+        m_addu_rg(HL_W, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, T0_L); \
         T3_L = PZSTable[BC_H]; \
@@ -625,8 +631,8 @@ extern "C" {
 #define m_otir() \
     do { \
         m_mreq_rd(HL_W, T1_L); \
-        m_incr_rg(HL_W, 0x01); \
-        m_decr_rg(BC_H, 0x01); \
+        m_addu_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, T1_L); \
         if(BC_H != 0) { \
@@ -652,8 +658,8 @@ extern "C" {
 #define m_outd() \
     do { \
         m_mreq_rd(HL_W, T0_L); \
-        m_decr_rg(BC_H, 0x01); \
-        m_decr_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
+        m_subu_rg(HL_W, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, T0_L); \
         T3_L = PZSTable[BC_H]; \
@@ -675,8 +681,8 @@ extern "C" {
 #define m_otdr() \
     do { \
         m_mreq_rd(HL_W, T1_L); \
-        m_decr_rg(HL_W, 0x01); \
-        m_decr_rg(BC_H, 0x01); \
+        m_subu_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, T1_L); \
         if(BC_H != 0) { \
@@ -717,7 +723,7 @@ extern "C" {
 #define m_ld_r08_i08(reg1) \
     do { \
         m_mreq_rd(PC_W, reg1); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -745,9 +751,9 @@ extern "C" {
 #define m_ld_r08_ind_i16(reg1) \
     do { \
         m_mreq_rd(PC_W, WZ_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, WZ_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(WZ_W, reg1); \
     } while(0)
 
@@ -758,9 +764,9 @@ extern "C" {
 #define m_ld_ind_i16_r08(reg1) \
     do { \
         m_mreq_rd(PC_W, WZ_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, WZ_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(WZ_W, reg1); \
     } while(0)
 
@@ -771,7 +777,7 @@ extern "C" {
 #define m_ld_ind_r16_i08(reg1) \
     do { \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(reg1, T0_L); \
     } while(0)
 
@@ -803,7 +809,7 @@ extern "C" {
     do { \
         WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(WZ_W, T0_L); \
     } while(0)
 
@@ -885,9 +891,9 @@ extern "C" {
 #define m_ld_r16_i16(reg1) \
     do { \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, T0_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_load_rg(reg1, T0_W); \
     } while(0)
 
@@ -898,13 +904,13 @@ extern "C" {
 #define m_ld_r16_ind_i16(reg1) \
     do { \
         m_mreq_rd(PC_W, WZ_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, WZ_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(WZ_W, T0_L); \
-        m_incr_rg(WZ_W, 0x01); \
+        m_addu_rg(WZ_W, 0x01); \
         m_mreq_rd(WZ_W, T0_H); \
-        m_incr_rg(WZ_W, 0x01); \
+        m_addu_rg(WZ_W, 0x01); \
         m_load_rg(reg1, T0_W); \
     } while(0)
 
@@ -916,13 +922,13 @@ extern "C" {
     do { \
         m_load_rg(T0_W, reg1); \
         m_mreq_rd(PC_W, WZ_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, WZ_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(WZ_W, T0_L); \
-        m_incr_rg(WZ_W, 0x01); \
+        m_addu_rg(WZ_W, 0x01); \
         m_mreq_wr(WZ_W, T0_H); \
-        m_incr_rg(WZ_W, 0x01); \
+        m_addu_rg(WZ_W, 0x01); \
     } while(0)
 
 /*
@@ -932,9 +938,9 @@ extern "C" {
 #define m_push_r16(reg1) \
     do { \
         m_load_rg(T0_W, reg1); \
-        m_decr_rg(SP_W, 0x01); \
+        m_subu_rg(SP_W, 0x01); \
         m_mreq_wr(SP_W, T0_H); \
-        m_decr_rg(SP_W, 0x01); \
+        m_subu_rg(SP_W, 0x01); \
         m_mreq_wr(SP_W, T0_L); \
     } while(0)
 
@@ -945,9 +951,9 @@ extern "C" {
 #define m_pop_r16(reg1) \
     do { \
         m_mreq_rd(SP_W, T0_L); \
-        m_incr_rg(SP_W, 0x01); \
+        m_addu_rg(SP_W, 0x01); \
         m_mreq_rd(SP_W, T0_H); \
-        m_incr_rg(SP_W, 0x01); \
+        m_addu_rg(SP_W, 0x01); \
         m_load_rg(reg1, T0_W); \
     } while(0)
 
