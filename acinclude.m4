@@ -64,37 +64,6 @@ $2=`(test "x$prefix" = xNONE && prefix="$ac_default_prefix"
 ])dnl AX_RECURSIVE_EVAL
 
 # ----------------------------------------------------------------------------
-# AX_DEFINES
-# ----------------------------------------------------------------------------
-
-AC_DEFUN([AX_DEFINES], [
-AX_RECURSIVE_EVAL("${bindir}", XCPC_BINDIR)
-AC_DEFINE_UNQUOTED(XCPC_BINDIR, ["${XCPC_BINDIR}"], [XCPC_BINDIR])
-AC_SUBST(XCPC_BINDIR)
-AX_RECURSIVE_EVAL("${libdir}", XCPC_LIBDIR)
-AC_DEFINE_UNQUOTED(XCPC_LIBDIR, ["${XCPC_LIBDIR}"], [XCPC_LIBDIR])
-AC_SUBST(XCPC_LIBDIR)
-AX_RECURSIVE_EVAL("${datadir}", XCPC_DATDIR)
-AC_DEFINE_UNQUOTED(XCPC_DATDIR, ["${XCPC_DATDIR}"], [XCPC_DATDIR])
-AC_SUBST(XCPC_DATDIR)
-AX_RECURSIVE_EVAL("${docdir}", XCPC_DOCDIR)
-AC_DEFINE_UNQUOTED(XCPC_DOCDIR, ["${XCPC_DOCDIR}"], [XCPC_DOCDIR])
-AC_SUBST(XCPC_DOCDIR)
-AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}", XCPC_RESDIR)
-AC_DEFINE_UNQUOTED(XCPC_RESDIR, ["${XCPC_RESDIR}"], [XCPC_RESDIR])
-AC_SUBST(XCPC_RESDIR)
-AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}/roms", XCPC_ROMDIR)
-AC_DEFINE_UNQUOTED(XCPC_ROMDIR, ["${XCPC_ROMDIR}"], [XCPC_ROMDIR])
-AC_SUBST(XCPC_ROMDIR)
-AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}/disks", XCPC_DSKDIR)
-AC_DEFINE_UNQUOTED(XCPC_DSKDIR, ["${XCPC_DSKDIR}"], [XCPC_DSKDIR])
-AC_SUBST(XCPC_DSKDIR)
-AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}/snapshots", XCPC_SNADIR)
-AC_DEFINE_UNQUOTED(XCPC_SNADIR, ["${XCPC_SNADIR}"], [XCPC_SNADIR])
-AC_SUBST(XCPC_SNADIR)
-])dnl AX_DEFINES
-
-# ----------------------------------------------------------------------------
 # AX_CHECK_BYTE_ORDER
 # ----------------------------------------------------------------------------
 
@@ -408,6 +377,44 @@ else
     AM_CONDITIONAL([LINUX_JOYSTICK_API], false)
 fi
 ])dnl AX_CHECK_LINUX_JOYSTICK_API
+
+# ----------------------------------------------------------------------------
+# AX_DEFINES
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_DEFINES], [
+AX_RECURSIVE_EVAL("${bindir}", XCPC_BINDIR)
+AC_DEFINE_UNQUOTED(XCPC_BINDIR, ["${XCPC_BINDIR}"], [XCPC_BINDIR])
+AC_SUBST(XCPC_BINDIR)
+AX_RECURSIVE_EVAL("${libdir}", XCPC_LIBDIR)
+AC_DEFINE_UNQUOTED(XCPC_LIBDIR, ["${XCPC_LIBDIR}"], [XCPC_LIBDIR])
+AC_SUBST(XCPC_LIBDIR)
+AX_RECURSIVE_EVAL("${datadir}", XCPC_DATDIR)
+AC_DEFINE_UNQUOTED(XCPC_DATDIR, ["${XCPC_DATDIR}"], [XCPC_DATDIR])
+AC_SUBST(XCPC_DATDIR)
+AX_RECURSIVE_EVAL("${docdir}", XCPC_DOCDIR)
+AC_DEFINE_UNQUOTED(XCPC_DOCDIR, ["${XCPC_DOCDIR}"], [XCPC_DOCDIR])
+AC_SUBST(XCPC_DOCDIR)
+AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}", XCPC_RESDIR)
+AC_DEFINE_UNQUOTED(XCPC_RESDIR, ["${XCPC_RESDIR}"], [XCPC_RESDIR])
+AC_SUBST(XCPC_RESDIR)
+AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}/roms", XCPC_ROMDIR)
+AC_DEFINE_UNQUOTED(XCPC_ROMDIR, ["${XCPC_ROMDIR}"], [XCPC_ROMDIR])
+AC_SUBST(XCPC_ROMDIR)
+AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}/disks", XCPC_DSKDIR)
+AC_DEFINE_UNQUOTED(XCPC_DSKDIR, ["${XCPC_DSKDIR}"], [XCPC_DSKDIR])
+AC_SUBST(XCPC_DSKDIR)
+AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}/snapshots", XCPC_SNADIR)
+AC_DEFINE_UNQUOTED(XCPC_SNADIR, ["${XCPC_SNADIR}"], [XCPC_SNADIR])
+AC_SUBST(XCPC_SNADIR)
+if test "x${have_portaudio}" = "xyes"; then
+    AC_DEFINE([HAVE_PORTAUDIO], [1], [Define to 1 if you have the PortAudio library.])
+fi
+
+if test "x${have_linux_joystick_api}" = "xyes"; then
+    AC_DEFINE([HAVE_LINUX_JOYSTICK_API], [1], [Define to 1 if you have the Linux Joystick API.])
+fi
+])dnl AX_DEFINES
 
 # ----------------------------------------------------------------------------
 # End-Of-File
