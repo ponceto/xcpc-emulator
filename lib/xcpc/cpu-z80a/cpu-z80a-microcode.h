@@ -94,18 +94,18 @@ extern "C" {
  * addu_rg
  */
 
-#define m_addu_rg(reg, val) \
+#define m_addu_rg(reg, opd) \
     do { \
-        reg += val; \
+        reg += opd; \
     } while(0)
 
 /*
  * subu_rg
  */
 
-#define m_subu_rg(reg, val) \
+#define m_subu_rg(reg, opd) \
     do { \
-        reg -= val; \
+        reg -= opd; \
     } while(0)
 
 /*
@@ -138,7 +138,8 @@ extern "C" {
 
 #define m_fetch_opcode() \
     do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00, IFACE.user_data); \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -147,7 +148,8 @@ extern "C" {
 
 #define m_fetch_cb_opcode() \
     do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00, IFACE.user_data); \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -156,7 +158,8 @@ extern "C" {
 
 #define m_fetch_dd_opcode() \
     do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00, IFACE.user_data); \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -165,7 +168,8 @@ extern "C" {
 
 #define m_fetch_ed_opcode() \
     do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00, IFACE.user_data); \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -174,7 +178,8 @@ extern "C" {
 
 #define m_fetch_fd_opcode() \
     do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00, IFACE.user_data); \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -184,7 +189,8 @@ extern "C" {
 #define m_fetch_ddcb_opcode() \
     do { \
         WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
-        LAST_OP = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
+        m_mreq_rd(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -194,7 +200,8 @@ extern "C" {
 #define m_fetch_fdcb_opcode() \
     do { \
         WZ_W = IY_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
-        LAST_OP = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
+        m_mreq_rd(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -209,7 +216,7 @@ extern "C" {
 
 #define m_illegal() \
     do { \
-        xcpc_log_debug("illegal %02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal %02X opcode at %04X", OP_L, PREV_PC); \
     } while(0)
 
 /*
@@ -218,7 +225,7 @@ extern "C" {
 
 #define m_illegal_cb() \
     do { \
-        xcpc_log_debug("illegal CB%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal CB%02X opcode at %04X", OP_L, PREV_PC); \
     } while(0)
 
 /*
@@ -227,7 +234,7 @@ extern "C" {
 
 #define m_illegal_dd() \
     do { \
-        xcpc_log_debug("illegal DD%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal DD%02X opcode at %04X", OP_L, PREV_PC); \
     } while(0)
 
 /*
@@ -236,7 +243,7 @@ extern "C" {
 
 #define m_illegal_ed() \
     do { \
-        xcpc_log_debug("illegal ED%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal ED%02X opcode at %04X", OP_L, PREV_PC); \
     } while(0)
 
 /*
@@ -245,7 +252,7 @@ extern "C" {
 
 #define m_illegal_fd() \
     do { \
-        xcpc_log_debug("illegal FD%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal FD%02X opcode at %04X", OP_L, PREV_PC); \
     } while(0)
 
 /*
@@ -254,7 +261,7 @@ extern "C" {
 
 #define m_illegal_ddcb() \
     do { \
-        xcpc_log_debug("illegal DDCBxx%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal DDCBxx%02X opcode at %04X", OP_L, PREV_PC); \
     } while(0)
 
 /*
@@ -263,7 +270,7 @@ extern "C" {
 
 #define m_illegal_fdcb() \
     do { \
-        xcpc_log_debug("illegal FDCByy%02X opcode at %04X", LAST_OP, PREV_PC); \
+        xcpc_log_debug("illegal FDCByy%02X opcode at %04X", OP_L, PREV_PC); \
     } while(0)
 
 /*
@@ -380,7 +387,7 @@ extern "C" {
 
 #define m_di() \
     do { \
-        m_clr_bit(ST_L, (ST_IFF1 | ST_IFF2)); \
+        m_clr_bit(ST_L, (ST_IFF)); \
     } while(0)
 
 /*
@@ -389,7 +396,7 @@ extern "C" {
 
 #define m_ei() \
     do { \
-        m_set_bit(ST_L, (ST_IFF1 | ST_IFF2)); \
+        m_set_bit(ST_L, (ST_IFF)); \
     } while(0)
 
 /*

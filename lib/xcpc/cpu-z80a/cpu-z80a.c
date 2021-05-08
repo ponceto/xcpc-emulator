@@ -448,7 +448,7 @@ XcpcCpuZ80a* xcpc_cpu_z80a_reset(XcpcCpuZ80a* self)
 XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
 {
     uint16_t prev_pc;
-    uint8_t  last_op;
+    XcpcRegister OP;
     XcpcRegister T0;
     XcpcRegister T1;
     XcpcRegister T2;
@@ -485,7 +485,7 @@ fetch_opcode:
   goto execute_opcode;
 
 execute_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes.inc"
         default:
             {
@@ -504,7 +504,7 @@ fetch_cb_opcode:
     goto execute_cb_opcode;
 
 execute_cb_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-cb.inc"
         default:
             {
@@ -523,7 +523,7 @@ fetch_ed_opcode:
     goto execute_ed_opcode;
 
 execute_ed_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-ed.inc"
         default:
             {
@@ -542,7 +542,7 @@ fetch_dd_opcode:
     goto execute_dd_opcode;
 
 execute_dd_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-dd.inc"
         default:
             {
@@ -561,7 +561,7 @@ fetch_fd_opcode:
     goto execute_fd_opcode;
 
 execute_fd_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-fd.inc"
         default:
             {
@@ -579,7 +579,7 @@ fetch_ddcb_opcode:
     goto execute_ddcb_opcode;
 
 execute_ddcb_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-ddcb.inc"
         default:
             {
@@ -597,7 +597,7 @@ fetch_fdcb_opcode:
     goto execute_fdcb_opcode;
 
 execute_fdcb_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-fdcb.inc"
         default:
             {
