@@ -21,6 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#ifdef HAVE_PORTAUDIO
+#include <portaudio.h>
+#endif
 #include "xcpc-gtk3-priv.h"
 
 #ifndef _
@@ -1295,6 +1298,11 @@ XcpcApplication* xcpc_application_delete(XcpcApplication* self)
     /* finalize options */ {
         self->options = xcpc_options_delete(self->options);
     }
+    /* finalize portaudio */ {
+        if(Pa_Terminate() != paNoError) {
+            xcpc_log_error("unable to terminate PortAudio");
+        }
+    }
     /* free */ {
         self = (g_free(self), NULL);
     }
@@ -1308,6 +1316,11 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** 
     }
     /* parse the command-line */ {
         (void) xcpc_options_parse(self->options, argc, argv);
+    }
+    /* initialize portaudio */ {
+        if(Pa_Initialize() != paNoError) {
+            xcpc_log_error("unable to initialize PortAudio");
+        }
     }
     /* intialize the machine */ {
         const XcpcMachineIface machine_iface = {

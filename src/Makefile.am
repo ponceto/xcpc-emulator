@@ -166,6 +166,14 @@ xcpc_LDADD += \
 	$(NULL)
 endif
 
+if PORTAUDIO
+xcpc_CPPFLAGS += $(portaudio_CFLAGS)
+
+xcpc_LDFLAGS += $(portaudio_LDFLAGS)
+
+xcpc_LDADD += $(portaudio_LIBS)
+endif
+
 # ----------------------------------------------------------------------------
 # End-Of-File
 # ----------------------------------------------------------------------------

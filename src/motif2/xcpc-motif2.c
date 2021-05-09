@@ -21,6 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#ifdef HAVE_PORTAUDIO
+#include <portaudio.h>
+#endif
 #include "xcpc-motif2-priv.h"
 
 #ifndef _
@@ -1567,6 +1570,11 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
     /* parse the command-line */ {
         (void) xcpc_options_parse(self->options, argc, argv);
     }
+    /* initialize portaudio */ {
+        if(Pa_Initialize() != paNoError) {
+            xcpc_log_error("unable to initialize PortAudio");
+        }
+    }
     /* intialize machine */ {
         const XcpcMachineIface machine_iface = {
             self, /* user_data */
@@ -1626,6 +1634,11 @@ static XcpcApplication* Destruct(XcpcApplication* self)
     }
     /* finalize options */ {
         self->options = xcpc_options_delete(self->options);
+    }
+    /* finalize portaudio */ {
+        if(Pa_Terminate() != paNoError) {
+            xcpc_log_error("unable to terminate PortAudio");
+        }
     }
     return self;
 }
