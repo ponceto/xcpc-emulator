@@ -1293,22 +1293,22 @@ XcpcApplication* xcpc_application_new(int* argc, char*** argv)
 
 XcpcApplication* xcpc_application_delete(XcpcApplication* self)
 {
-    /* finalize application */ {
+    /* destroy application */ {
         if(self->layout.application != NULL) {
             self->layout.application = (g_object_unref(self->layout.application), NULL);
         }
     }
-    /* finalize machine */ {
+    /* destroy machine */ {
         if(self->machine != NULL) {
             self->machine = xcpc_machine_delete(self->machine);
         }
     }
-    /* finalize options */ {
+    /* destroy options */ {
         if(self->options != NULL) {
             self->options = xcpc_options_delete(self->options);
         }
     }
-    /* free */ {
+    /* delete self */ {
         self = (g_free(self), NULL);
     }
     return self;

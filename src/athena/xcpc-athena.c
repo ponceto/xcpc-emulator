@@ -1666,17 +1666,20 @@ XcpcApplication* XcpcApplicationDelete(XcpcApplication* self)
             self->appcontext = (XtDestroyApplicationContext(self->appcontext), NULL);
         }
     }
-    /* finalize machine */ {
+    /* destroy machine */ {
         if(self->machine != NULL) {
             self->machine = xcpc_machine_delete(self->machine);
         }
     }
-    /* finalize options */ {
+    /* destroy options */ {
         if(self->options != NULL) {
             self->options = xcpc_options_delete(self->options);
         }
     }
-    return xcpc_delete(XcpcApplication, self);
+    /* delete self */ {
+        self = xcpc_delete(XcpcApplication, self);
+    }
+    return self;
 }
 
 XcpcApplication* XcpcApplicationRun(XcpcApplication* self)
