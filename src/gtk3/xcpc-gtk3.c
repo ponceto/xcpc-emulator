@@ -1323,14 +1323,6 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self)
             return self;
         }
     }
-#ifdef HAVE_PORTAUDIO
-    /* initialize portaudio */ {
-        const PaError pa_error = Pa_Initialize();
-        if(pa_error != paNoError) {
-            xcpc_log_error("unable to initialize PortAudio (%s)", Pa_GetErrorText(pa_error));
-        }
-    }
-#endif
     /* intialize the machine */ {
         const XcpcMachineIface machine_iface = {
             self, /* user_data */
@@ -1345,6 +1337,14 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self)
         };
         self->machine = xcpc_machine_new(&machine_iface, self->options);
     }
+#ifdef HAVE_PORTAUDIO
+    /* initialize portaudio */ {
+        const PaError pa_error = Pa_Initialize();
+        if(pa_error != paNoError) {
+            xcpc_log_error("unable to initialize PortAudio (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     /* create application */ {
         self->layout.application = gtk_application_new(app_id, G_APPLICATION_FLAGS_NONE);
         (void) g_signal_connect(G_OBJECT(self->layout.application), sig_open, G_CALLBACK(application_open_callback), self);

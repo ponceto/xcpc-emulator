@@ -1616,14 +1616,6 @@ XcpcApplication* XcpcApplicationRun(XcpcApplication* self)
             return self;
         }
     }
-#ifdef HAVE_PORTAUDIO
-    /* initialize portaudio */ {
-        const PaError pa_error = Pa_Initialize();
-        if(pa_error != paNoError) {
-            xcpc_log_error("unable to initialize PortAudio (%s)", Pa_GetErrorText(pa_error));
-        }
-    }
-#endif
     /* intialize machine */ {
         const XcpcMachineIface machine_iface = {
             self, /* user_data */
@@ -1638,6 +1630,14 @@ XcpcApplication* XcpcApplicationRun(XcpcApplication* self)
         };
         self->machine = xcpc_machine_new(&machine_iface, self->options);
     }
+#ifdef HAVE_PORTAUDIO
+    /* initialize portaudio */ {
+        const PaError pa_error = Pa_Initialize();
+        if(pa_error != paNoError) {
+            xcpc_log_error("unable to initialize PortAudio (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     /* set language proc */ {
         (void) XtSetLanguageProc(NULL, NULL, NULL);
     }
@@ -1664,14 +1664,10 @@ XcpcApplication* XcpcApplicationRun(XcpcApplication* self)
         self->intervalId = XtAppAddTimeOut(self->appcontext, 25UL, (XtTimerCallbackProc) &DeferredStartHandler, self);
     }
     /* realize toplevel shell */ {
-        if((self->layout.toplevel != NULL)) {
-            XtRealizeWidget(self->layout.toplevel);
-        }
+        XtRealizeWidget(self->layout.toplevel);
     }
     /* run application loop  */ {
-        if((self->appcontext != NULL)) {
-            XtAppMainLoop(self->appcontext);
-        }
+        XtAppMainLoop(self->appcontext);
     }
 #ifdef HAVE_PORTAUDIO
     /* finalize portaudio */ {
