@@ -35,7 +35,8 @@ struct _XcpcOptionsIface
 
 struct _XcpcOptionsSetup
 {
-    int reserved;
+    int*    argc;
+    char*** argv;
 };
 
 struct _XcpcOptionsState
@@ -66,12 +67,12 @@ struct _XcpcOptionsState
     char* drive0;
     char* drive1;
     char* snapshot;
-    int   help;
-    int   version;
-    int   loglevel;
     int   turbo;
     int   xshm;
     int   fps;
+    int   help;
+    int   version;
+    int   loglevel;
 };
 
 struct _XcpcOptions

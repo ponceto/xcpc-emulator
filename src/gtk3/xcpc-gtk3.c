@@ -1280,27 +1280,32 @@ static void application_activate_callback(GApplication* application, XcpcApplica
  * ---------------------------------------------------------------------------
  */
 
-XcpcApplication* xcpc_application_new(void)
+XcpcApplication* xcpc_application_new(int* argc, char*** argv)
 {
     XcpcApplication* self = g_new0(XcpcApplication, 1);
 
+    if(self != NULL) {
+        self->argc = argc;
+        self->argv = argv;
+    }
     return self;
 }
 
 XcpcApplication* xcpc_application_delete(XcpcApplication* self)
 {
-    /* finalize */ {
-        self->layout.application = (g_object_unref(self->layout.application), NULL);
+    /* finalize application */ {
+        if(self->layout.application != NULL) {
+            self->layout.application = (g_object_unref(self->layout.application), NULL);
+        }
     }
     /* finalize machine */ {
-        self->machine = xcpc_machine_delete(self->machine);
+        if(self->machine != NULL) {
+            self->machine = xcpc_machine_delete(self->machine);
+        }
     }
     /* finalize options */ {
-        self->options = xcpc_options_delete(self->options);
-    }
-    /* finalize portaudio */ {
-        if(Pa_Terminate() != paNoError) {
-            xcpc_log_error("unable to terminate PortAudio");
+        if(self->options != NULL) {
+            self->options = xcpc_options_delete(self->options);
         }
     }
     /* free */ {
@@ -1309,19 +1314,23 @@ XcpcApplication* xcpc_application_delete(XcpcApplication* self)
     return self;
 }
 
-XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** argv)
+XcpcApplication* xcpc_application_run(XcpcApplication* self)
 {
     /* intialize the options */ {
-        self->options = xcpc_options_new();
-    }
-    /* parse the command-line */ {
-        (void) xcpc_options_parse(self->options, argc, argv);
-    }
-    /* initialize portaudio */ {
-        if(Pa_Initialize() != paNoError) {
-            xcpc_log_error("unable to initialize PortAudio");
+        self->options = xcpc_options_new(self->argc, self->argv);
+        (void) xcpc_options_parse(self->options);
+        if(xcpc_options_quit(self->options) != 0) {
+            return self;
         }
     }
+#ifdef HAVE_PORTAUDIO
+    /* initialize portaudio */ {
+        const PaError pa_error = Pa_Initialize();
+        if(pa_error != paNoError) {
+            xcpc_log_error("unable to initialize PortAudio (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     /* intialize the machine */ {
         const XcpcMachineIface machine_iface = {
             self, /* user_data */
@@ -1344,8 +1353,16 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** 
         (void) g_signal_connect(G_OBJECT(self->layout.application), sig_activate, G_CALLBACK(application_activate_callback), self);
     }
     /* loop */ {
-        (void) g_application_run(G_APPLICATION(self->layout.application), *argc, *argv);
+        (void) g_application_run(G_APPLICATION(self->layout.application), *self->argc, *self->argv);
     }
+#ifdef HAVE_PORTAUDIO
+    /* finalize portaudio */ {
+        const PaError pa_error = Pa_Terminate();
+        if(pa_error != paNoError) {
+            xcpc_log_error("unable to terminate PortAudio (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     return self;
 }
 
@@ -1357,10 +1374,10 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** 
 
 int xcpc_main(int* argc, char*** argv)
 {
-    XcpcApplication* self = xcpc_application_new();
+    XcpcApplication* self = xcpc_application_new(argc, argv);
 
     if(self != NULL) {
-        (void) xcpc_application_run(self, argc, argv);
+        (void) xcpc_application_run(self);
         self = xcpc_application_delete(self);
     }
     return EXIT_SUCCESS;

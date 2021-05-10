@@ -209,7 +209,7 @@ XcpcOptions* xcpc_options_free(XcpcOptions* self)
     return xcpc_delete(XcpcOptions, self);
 }
 
-XcpcOptions* xcpc_options_construct(XcpcOptions* self)
+XcpcOptions* xcpc_options_construct(XcpcOptions* self, int* argc, char*** argv)
 {
     log_trace("construct");
 
@@ -221,7 +221,11 @@ XcpcOptions* xcpc_options_construct(XcpcOptions* self)
     /* initialize iface */ {
         (void) xcpc_options_set_iface(self, NULL);
     }
-    /* construct */ {
+    /* initialize setup */ {
+        self->setup.argc = argc;
+        self->setup.argv = argv;
+    }
+    /* initialize state */ {
         self->state.program  = replace_setting(NULL, val_not_set, 0);
         self->state.company  = replace_setting(NULL, val_not_set, 0);
         self->state.machine  = replace_setting(NULL, val_not_set, 0);
@@ -262,7 +266,7 @@ XcpcOptions* xcpc_options_destruct(XcpcOptions* self)
 {
     log_trace("destruct");
 
-    /* destruct */ {
+    /* finalize state */ {
         self->state.program  = replace_setting(self->state.program , NULL, 0);
         self->state.company  = replace_setting(self->state.company , NULL, 0);
         self->state.machine  = replace_setting(self->state.machine , NULL, 0);
@@ -296,14 +300,18 @@ XcpcOptions* xcpc_options_destruct(XcpcOptions* self)
         self->state.version  = 0;
         self->state.loglevel = 0;
     }
+    /* finalize setup */ {
+        self->setup.argc = NULL;
+        self->setup.argv = NULL;
+    }
     return self;
 }
 
-XcpcOptions* xcpc_options_new(void)
+XcpcOptions* xcpc_options_new(int* argc, char*** argv)
 {
     log_trace("new");
 
-    return xcpc_options_construct(xcpc_options_alloc());
+    return xcpc_options_construct(xcpc_options_alloc(), argc, argv);
 }
 
 XcpcOptions* xcpc_options_delete(XcpcOptions* self)
@@ -326,16 +334,16 @@ XcpcOptions* xcpc_options_set_iface(XcpcOptions* self, const XcpcOptionsIface* i
     return self;
 }
 
-XcpcOptions* xcpc_options_parse(XcpcOptions* self, int* argcp, char*** argvp)
+XcpcOptions* xcpc_options_parse(XcpcOptions* self)
 {
     log_trace("parse");
 
-    if((argvp != NULL) && (argvp != NULL) && (*argvp != NULL)) {
+    if((self->setup.argv != NULL) && (self->setup.argv != NULL) && (*self->setup.argv != NULL)) {
         int    argi = 0;
-        int    argc = *argcp;
-        char** argv = *argvp;
+        int    argc = *self->setup.argc;
+        char** argv = *self->setup.argv;
         int    arg_count = 0;
-        char** arg_table = *argvp;
+        char** arg_table = *self->setup.argv;
         while(argi < argc) {
             char* argument = argv[argi];
             if(argi == 0) {
@@ -384,8 +392,8 @@ XcpcOptions* xcpc_options_parse(XcpcOptions* self, int* argcp, char*** argvp)
             ++argi;
         }
         /* finalize adjusted command-line */ {
-            *arg_table = NULL;
-            *argcp     = arg_count;
+            *arg_table        = NULL;
+            *self->setup.argc = arg_count;
         }
     }
     /* set loglevel */ {
@@ -427,11 +435,19 @@ XcpcOptions* xcpc_options_parse(XcpcOptions* self, int* argcp, char*** argvp)
     }
     if(self->state.help != 0) {
         print_usage(self);
-        exit(EXIT_SUCCESS);
+        return self;
     }
     if(self->state.version != 0) {
         print_version(self);
-        exit(EXIT_SUCCESS);
+        return self;
     }
     return self;
+}
+
+int xcpc_options_quit(XcpcOptions* self)
+{
+    if((self->state.help != 0) || (self->state.version != 0)) {
+        return 1;
+    }
+    return 0;
 }

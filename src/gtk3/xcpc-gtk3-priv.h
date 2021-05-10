@@ -133,6 +133,8 @@ struct _XcpcLayoutRec
 
 struct _XcpcApplicationRec
 {
+    int*          argc;
+    char***       argv;
     XcpcOptions*  options;
     XcpcMachine*  machine;
     XcpcLayoutRec layout;

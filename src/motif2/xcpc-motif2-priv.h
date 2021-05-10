@@ -155,6 +155,8 @@ struct _XcpcInfoBarRec
 
 struct _XcpcApplicationRec
 {
+    int*             argc;
+    char***          argv;
     XcpcOptions*     options;
     XcpcMachine*     machine;
     XtAppContext     appcontext;

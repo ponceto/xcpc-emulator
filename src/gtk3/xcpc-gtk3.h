@@ -25,9 +25,9 @@ extern "C" {
 
 typedef struct _XcpcApplicationRec XcpcApplication;
 
-extern XcpcApplication* xcpc_application_new    (void);
+extern XcpcApplication* xcpc_application_new    (int* argc, char*** argv);
 extern XcpcApplication* xcpc_application_delete (XcpcApplication* self);
-extern XcpcApplication* xcpc_application_run    (XcpcApplication* self, int* argc, char*** argv);
+extern XcpcApplication* xcpc_application_run    (XcpcApplication* self);
 
 #ifdef __cplusplus
 }
