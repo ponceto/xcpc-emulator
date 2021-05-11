@@ -27,7 +27,7 @@ G_BEGIN_DECLS
 
 typedef gpointer GemEmulatorData;
 
-typedef unsigned long (*GemEmulatorProc)(GemEmulatorData data, XEvent* event);
+typedef unsigned long (*GemEmulatorProc)(GemEmulatorData data, XEvent* event, void* extra);
 
 typedef struct _GemX11      GemX11;
 typedef struct _GemEvents   GemEvents;

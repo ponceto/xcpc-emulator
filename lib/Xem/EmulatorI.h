@@ -28,7 +28,7 @@ extern "C" {
 
 typedef XtPointer XemEmulatorData;
 
-typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event, void* extra);
 
 typedef struct _XemX11      XemX11;
 typedef struct _XemEvents   XemEvents;

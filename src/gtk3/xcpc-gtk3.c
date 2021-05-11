@@ -1148,6 +1148,7 @@ static void build_workwnd(XcpcApplication* self)
         current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");
         emulator_add_hotkey_callback(current->emulator, self, NULL);
+        gtk_widget_set_sensitive(current->emulator, FALSE);
         gem_emulator_set_machine(current->emulator, &machine);
         gem_emulator_set_joystick(current->emulator, 0, xcpc_get_joystick0());
         gem_emulator_set_joystick(current->emulator, 1, xcpc_get_joystick1());

@@ -2424,9 +2424,11 @@ static void reset_timer(XcpcMachine* self)
         now.tv_sec  = 0;
         now.tv_usec = 0;
     }
-    self->timer.currtime = now;
-    self->timer.deadline = now;
-    self->timer.profiler = now;
+    /* initialize timers */ {
+        self->timer.currtime = now;
+        self->timer.deadline = now;
+        self->timer.profiler = now;
+    }
 }
 
 static void construct_funcs(XcpcMachine* self)
@@ -2750,6 +2752,10 @@ XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
         reset_timer(self);
         reset_funcs(self);
     }
+    /* force to reschedule */ {
+        self->timer.deadline.tv_usec = 0;
+        self->timer.deadline.tv_sec  = 0;
+    }
     return self;
 }
 
@@ -2965,12 +2971,42 @@ XcpcMachine* xcpc_machine_save_snapshot(XcpcMachine* self, const char* filename)
     return self;
 }
 
-unsigned long xcpc_machine_create_proc(XcpcMachine* self, XEvent* event)
+XcpcCompanyName xcpc_machine_company_name(XcpcMachine* self)
+{
+    return self->setup.company_name;
+}
+
+XcpcMachineType xcpc_machine_machine_type(XcpcMachine* self)
+{
+    return self->setup.machine_type;
+}
+
+XcpcMonitorType xcpc_machine_monitor_type(XcpcMachine* self)
+{
+    return self->setup.monitor_type;
+}
+
+XcpcRefreshRate xcpc_machine_refresh_rate(XcpcMachine* self)
+{
+    return self->setup.refresh_rate;
+}
+
+XcpcKeyboardType xcpc_machine_keyboard_type(XcpcMachine* self)
+{
+    return self->setup.keyboard_type;
+}
+
+XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
+{
+    return self->setup.memory_size;
+}
+
+unsigned long xcpc_machine_create_proc(XcpcMachine* self, XEvent* event, void* extra)
 {
     return 0UL;
 }
 
-unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event, void* extra)
 {
     /* unrealize */ {
         (void) xcpc_monitor_unrealize(self->board.monitor);
@@ -2978,7 +3014,7 @@ unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event)
     return 0UL;
 }
 
-unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event, void* extra)
 {
     /* realize */ {
         (void) xcpc_monitor_realize ( self->board.monitor
@@ -3020,7 +3056,7 @@ unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event)
     return 0UL;
 }
 
-unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event, void* extra)
 {
     if(event->type == ConfigureNotify) {
         (void) xcpc_monitor_resize(self->board.monitor, &event->xconfigure);
@@ -3028,7 +3064,7 @@ unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event)
     return 0UL;
 }
 
-unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event, void* extra)
 {
     if(event->type == Expose) {
         (void) xcpc_monitor_expose(self->board.monitor, &event->xexpose);
@@ -3036,7 +3072,7 @@ unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
     return 0UL;
 }
 
-unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event, void* extra)
 {
     switch(event->type) {
         case KeyPress:
@@ -3060,7 +3096,7 @@ unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event)
     return 0UL;
 }
 
-unsigned long xcpc_machine_clock_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_clock_proc(XcpcMachine* self, XEvent* event, void* extra)
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;
@@ -3128,34 +3164,4 @@ unsigned long xcpc_machine_clock_proc(XcpcMachine* self, XEvent* event)
         }
     }
     return timeout;
-}
-
-XcpcCompanyName xcpc_machine_company_name(XcpcMachine* self)
-{
-    return self->setup.company_name;
-}
-
-XcpcMachineType xcpc_machine_machine_type(XcpcMachine* self)
-{
-    return self->setup.machine_type;
-}
-
-XcpcMonitorType xcpc_machine_monitor_type(XcpcMachine* self)
-{
-    return self->setup.monitor_type;
-}
-
-XcpcRefreshRate xcpc_machine_refresh_rate(XcpcMachine* self)
-{
-    return self->setup.refresh_rate;
-}
-
-XcpcKeyboardType xcpc_machine_keyboard_type(XcpcMachine* self)
-{
-    return self->setup.keyboard_type;
-}
-
-XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
-{
-    return self->setup.memory_size;
 }
