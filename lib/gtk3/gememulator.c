@@ -616,6 +616,78 @@ void gem_emulator_set_joystick(GtkWidget* widget, int id, const char* device)
     }
 }
 
+GemVideo* gem_video_construct(GtkWidget* widget, GemVideo* video)
+{
+    /* initialize */ {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+GemVideo* gem_video_destruct(GtkWidget* widget, GemVideo* video)
+{
+    /* finalize */ {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+GemVideo* gem_video_realize(GtkWidget* widget, GemVideo* video)
+{
+    GemEmulator* self        = CAST_EMULATOR(widget);
+    GdkWindow*   gdk_window  = gtk_widget_get_window(widget);
+    GdkDisplay*  gdk_display = gdk_window_get_display(gdk_window);
+
+    if(video->display == NULL) {
+        video->display = GDK_DISPLAY_XDISPLAY(gdk_display);
+        video->window  = GDK_WINDOW_XID(gdk_window);
+    }
+    if(video->display != NULL) {
+        (void) (*self->machine.realize_func)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL), NULL);
+    }
+    else {
+        printf("*** Ooops ***\n");
+    }
+    return video;
+}
+
+GemVideo* gem_video_unrealize(GtkWidget* widget, GemVideo* video)
+{
+    if(video->display != NULL) {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+GemAudio* gem_audio_construct(GtkWidget* widget, GemAudio* audio)
+{
+    /* initialize */ {
+        audio->reserved = NULL;
+    }
+    return audio;
+}
+
+GemAudio* gem_audio_destruct(GtkWidget* widget, GemAudio* audio)
+{
+    /* finalize */ {
+        audio->reserved = NULL;
+    }
+    return audio;
+}
+
+GemAudio* gem_audio_realize(GtkWidget* widget, GemAudio* audio)
+{
+    return audio;
+}
+
+GemAudio* gem_audio_unrealize(GtkWidget* widget, GemAudio* audio)
+{
+    return audio;
+}
+
 GemEvents* gem_events_construct(GtkWidget* widget, GemEvents* events)
 {
     XEvent event;
@@ -712,50 +784,6 @@ XEvent* gem_events_copy_or_fill(GtkWidget* widget, GemEvents* events, XEvent* ev
         events->last_rcv_event.xany.window     = self->video.window;
     }
     return &events->last_rcv_event;
-}
-
-GemMachine* gem_machine_construct(GtkWidget* widget, GemMachine* machine)
-{
-    /* initialize */ {
-        machine->instance     = NULL;
-        machine->create_func  = NULL;
-        machine->destroy_func = NULL;
-        machine->realize_func = NULL;
-        machine->resize_func  = NULL;
-        machine->expose_func  = NULL;
-        machine->input_func   = NULL;
-        machine->clock_func   = NULL;
-    }
-    return gem_machine_sanitize(widget, machine);
-}
-
-GemMachine* gem_machine_destruct(GtkWidget* widget, GemMachine* machine)
-{
-    /* finalize */ {
-        machine->instance     = NULL;
-        machine->create_func  = NULL;
-        machine->destroy_func = NULL;
-        machine->realize_func = NULL;
-        machine->resize_func  = NULL;
-        machine->expose_func  = NULL;
-        machine->input_func   = NULL;
-        machine->clock_func   = NULL;
-    }
-    return gem_machine_sanitize(widget, machine);
-}
-
-GemMachine* gem_machine_sanitize(GtkWidget* widget, GemMachine* machine)
-{
-    /* sanitize */ {
-        if(machine->create_func  == NULL) { machine->create_func  = GEM_EMULATOR_FUNC(&default_machine_func); }
-        if(machine->destroy_func == NULL) { machine->destroy_func = GEM_EMULATOR_FUNC(&default_machine_func); }
-        if(machine->realize_func == NULL) { machine->realize_func = GEM_EMULATOR_FUNC(&default_machine_func); }
-        if(machine->resize_func  == NULL) { machine->resize_func  = GEM_EMULATOR_FUNC(&default_machine_func); }
-        if(machine->expose_func  == NULL) { machine->expose_func  = GEM_EMULATOR_FUNC(&default_machine_func); }
-        if(machine->input_func   == NULL) { machine->input_func   = GEM_EMULATOR_FUNC(&default_machine_func); }
-        if(machine->clock_func   == NULL) { machine->clock_func   = GEM_EMULATOR_FUNC(&default_machine_func); }
-    }
-    return machine;
 }
 
 GemKeyboard* gem_keyboard_construct(GtkWidget* widget, GemKeyboard* keyboard, int id)
@@ -1164,74 +1192,46 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
     return FALSE;
 }
 
-GemVideo* gem_video_construct(GtkWidget* widget, GemVideo* video)
+GemMachine* gem_machine_construct(GtkWidget* widget, GemMachine* machine)
 {
     /* initialize */ {
-        video->display = NULL;
-        video->window  = None;
+        machine->instance     = NULL;
+        machine->create_func  = NULL;
+        machine->destroy_func = NULL;
+        machine->realize_func = NULL;
+        machine->resize_func  = NULL;
+        machine->expose_func  = NULL;
+        machine->input_func   = NULL;
+        machine->clock_func   = NULL;
     }
-    return video;
+    return gem_machine_sanitize(widget, machine);
 }
 
-GemVideo* gem_video_destruct(GtkWidget* widget, GemVideo* video)
+GemMachine* gem_machine_destruct(GtkWidget* widget, GemMachine* machine)
 {
     /* finalize */ {
-        video->display = NULL;
-        video->window  = None;
+        machine->instance     = NULL;
+        machine->create_func  = NULL;
+        machine->destroy_func = NULL;
+        machine->realize_func = NULL;
+        machine->resize_func  = NULL;
+        machine->expose_func  = NULL;
+        machine->input_func   = NULL;
+        machine->clock_func   = NULL;
     }
-    return video;
+    return gem_machine_sanitize(widget, machine);
 }
 
-GemVideo* gem_video_realize(GtkWidget* widget, GemVideo* video)
+GemMachine* gem_machine_sanitize(GtkWidget* widget, GemMachine* machine)
 {
-    GemEmulator* self        = CAST_EMULATOR(widget);
-    GdkWindow*   gdk_window  = gtk_widget_get_window(widget);
-    GdkDisplay*  gdk_display = gdk_window_get_display(gdk_window);
-
-    if(video->display == NULL) {
-        video->display = GDK_DISPLAY_XDISPLAY(gdk_display);
-        video->window  = GDK_WINDOW_XID(gdk_window);
+    /* sanitize */ {
+        if(machine->create_func  == NULL) { machine->create_func  = GEM_EMULATOR_FUNC(&default_machine_func); }
+        if(machine->destroy_func == NULL) { machine->destroy_func = GEM_EMULATOR_FUNC(&default_machine_func); }
+        if(machine->realize_func == NULL) { machine->realize_func = GEM_EMULATOR_FUNC(&default_machine_func); }
+        if(machine->resize_func  == NULL) { machine->resize_func  = GEM_EMULATOR_FUNC(&default_machine_func); }
+        if(machine->expose_func  == NULL) { machine->expose_func  = GEM_EMULATOR_FUNC(&default_machine_func); }
+        if(machine->input_func   == NULL) { machine->input_func   = GEM_EMULATOR_FUNC(&default_machine_func); }
+        if(machine->clock_func   == NULL) { machine->clock_func   = GEM_EMULATOR_FUNC(&default_machine_func); }
     }
-    if(video->display != NULL) {
-        (void) (*self->machine.realize_func)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL), NULL);
-    }
-    else {
-        printf("*** Ooops ***\n");
-    }
-    return video;
-}
-
-GemVideo* gem_video_unrealize(GtkWidget* widget, GemVideo* video)
-{
-    if(video->display != NULL) {
-        video->display = NULL;
-        video->window  = None;
-    }
-    return video;
-}
-
-GemAudio* gem_audio_construct(GtkWidget* widget, GemAudio* audio)
-{
-    /* initialize */ {
-        audio->reserved = NULL;
-    }
-    return audio;
-}
-
-GemAudio* gem_audio_destruct(GtkWidget* widget, GemAudio* audio)
-{
-    /* finalize */ {
-        audio->reserved = NULL;
-    }
-    return audio;
-}
-
-GemAudio* gem_audio_realize(GtkWidget* widget, GemAudio* audio)
-{
-    return audio;
-}
-
-GemAudio* gem_audio_unrealize(GtkWidget* widget, GemAudio* audio)
-{
-    return audio;
+    return machine;
 }

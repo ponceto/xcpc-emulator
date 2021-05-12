@@ -670,6 +670,73 @@ Widget XemCreateEmulator(Widget parent, String name, ArgList args, Cardinal num_
  * Utilities
  */
 
+XemVideo* XemVideoConstruct(Widget widget, XemVideo* video)
+{
+    /* initialize */ {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+XemVideo* XemVideoDestruct(Widget widget, XemVideo* video)
+{
+    /* finalize */ {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+XemVideo* XemVideoRealize(Widget widget, XemVideo* video)
+{
+    XemEmulatorWidget self = CAST_EMULATOR(widget);
+
+    if(video->display == NULL) {
+        video->display = XtDisplay(widget);
+        video->window  = XtWindow(widget);
+    }
+    if(video->display != NULL) {
+        (void) (*self->emulator.machine.realize_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    }
+    return video;
+}
+
+XemVideo* XemVideoUnrealize(Widget widget, XemVideo* video)
+{
+    if(video->display != NULL) {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+XemAudio* XemAudioConstruct(Widget widget, XemAudio* audio)
+{
+    /* initialize */ {
+        audio->reserved = NULL;
+    }
+    return audio;
+}
+
+XemAudio* XemAudioDestruct(Widget widget, XemAudio* audio)
+{
+    /* finalize */ {
+        audio->reserved = NULL;
+    }
+    return audio;
+}
+
+XemAudio* XemAudioRealize(Widget widget, XemAudio* audio)
+{
+    return audio;
+}
+
+XemAudio* XemAudioUnrealize(Widget widget, XemAudio* audio)
+{
+    return audio;
+}
+
 XemEvents* XemEventsConstruct(Widget widget, XemEvents* events)
 {
     XEvent event;
@@ -766,40 +833,6 @@ XEvent* XemEventsCopyOrFill(Widget widget, XemEvents* events, XEvent* event)
         events->last_rcv_event.xany.window     = self->emulator.video.window;
     }
     return &events->last_rcv_event;
-}
-
-XemMachine* XemMachineConstruct(Widget widget, XemMachine* machine)
-{
-    return XemMachineSanitize(widget, machine);
-}
-
-XemMachine* XemMachineDestruct(Widget widget, XemMachine* machine)
-{
-    /* finalize */ {
-        machine->instance     = NULL;
-        machine->create_func  = NULL;
-        machine->destroy_func = NULL;
-        machine->realize_func = NULL;
-        machine->resize_func  = NULL;
-        machine->expose_func  = NULL;
-        machine->input_func   = NULL;
-        machine->clock_func   = NULL;
-    }
-    return XemMachineSanitize(widget, machine);
-}
-
-XemMachine* XemMachineSanitize(Widget widget, XemMachine* machine)
-{
-    /* sanitize */ {
-        if(machine->create_func  == NULL) { machine->create_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
-        if(machine->destroy_func == NULL) { machine->destroy_func = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
-        if(machine->realize_func == NULL) { machine->realize_func = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
-        if(machine->resize_func  == NULL) { machine->resize_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
-        if(machine->expose_func  == NULL) { machine->expose_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
-        if(machine->input_func   == NULL) { machine->input_func   = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
-        if(machine->clock_func   == NULL) { machine->clock_func   = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
-    }
-    return machine;
 }
 
 XemKeyboard* XemKeyboardConstruct(Widget widget, XemKeyboard* keyboard, int id)
@@ -1252,69 +1285,36 @@ XemJoystick* XemJoystickDump(Widget widget, XemJoystick* joystick, unsigned char
     return joystick;
 }
 
-XemVideo* XemVideoConstruct(Widget widget, XemVideo* video)
+XemMachine* XemMachineConstruct(Widget widget, XemMachine* machine)
 {
-    /* initialize */ {
-        video->display = NULL;
-        video->window  = None;
-    }
-    return video;
+    return XemMachineSanitize(widget, machine);
 }
 
-XemVideo* XemVideoDestruct(Widget widget, XemVideo* video)
+XemMachine* XemMachineDestruct(Widget widget, XemMachine* machine)
 {
     /* finalize */ {
-        video->display = NULL;
-        video->window  = None;
+        machine->instance     = NULL;
+        machine->create_func  = NULL;
+        machine->destroy_func = NULL;
+        machine->realize_func = NULL;
+        machine->resize_func  = NULL;
+        machine->expose_func  = NULL;
+        machine->input_func   = NULL;
+        machine->clock_func   = NULL;
     }
-    return video;
+    return XemMachineSanitize(widget, machine);
 }
 
-XemVideo* XemVideoRealize(Widget widget, XemVideo* video)
+XemMachine* XemMachineSanitize(Widget widget, XemMachine* machine)
 {
-    XemEmulatorWidget self = CAST_EMULATOR(widget);
-
-    if(video->display == NULL) {
-        video->display = XtDisplay(widget);
-        video->window  = XtWindow(widget);
+    /* sanitize */ {
+        if(machine->create_func  == NULL) { machine->create_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->destroy_func == NULL) { machine->destroy_func = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->realize_func == NULL) { machine->realize_func = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->resize_func  == NULL) { machine->resize_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->expose_func  == NULL) { machine->expose_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->input_func   == NULL) { machine->input_func   = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->clock_func   == NULL) { machine->clock_func   = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
     }
-    if(video->display != NULL) {
-        (void) (*self->emulator.machine.realize_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
-    }
-    return video;
-}
-
-XemVideo* XemVideoUnrealize(Widget widget, XemVideo* video)
-{
-    if(video->display != NULL) {
-        video->display = NULL;
-        video->window  = None;
-    }
-    return video;
-}
-
-XemAudio* XemAudioConstruct(Widget widget, XemAudio* audio)
-{
-    /* initialize */ {
-        audio->reserved = NULL;
-    }
-    return audio;
-}
-
-XemAudio* XemAudioDestruct(Widget widget, XemAudio* audio)
-{
-    /* finalize */ {
-        audio->reserved = NULL;
-    }
-    return audio;
-}
-
-XemAudio* XemAudioRealize(Widget widget, XemAudio* audio)
-{
-    return audio;
-}
-
-XemAudio* XemAudioUnrealize(Widget widget, XemAudio* audio)
-{
-    return audio;
+    return machine;
 }

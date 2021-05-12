@@ -30,12 +30,23 @@ typedef XtPointer XemEmulatorData;
 
 typedef unsigned long (*XemEmulatorFunc)(XtPointer data, XEvent* event, void* extra);
 
-typedef struct _XemEvents   XemEvents;
-typedef struct _XemMachine  XemMachine;
-typedef struct _XemKeyboard XemKeyboard;
-typedef struct _XemJoystick XemJoystick;
 typedef struct _XemVideo    XemVideo;
 typedef struct _XemAudio    XemAudio;
+typedef struct _XemEvents   XemEvents;
+typedef struct _XemKeyboard XemKeyboard;
+typedef struct _XemJoystick XemJoystick;
+typedef struct _XemMachine  XemMachine;
+
+struct _XemVideo
+{
+    Display* display;
+    Window   window;
+};
+
+struct _XemAudio
+{
+    void* reserved;
+};
 
 struct _XemEvents
 {
@@ -44,18 +55,6 @@ struct _XemEvents
     XEvent       list[256];
     unsigned int head;
     unsigned int tail;
-};
-
-struct _XemMachine
-{
-    XemEmulatorData instance;
-    XemEmulatorFunc create_func;
-    XemEmulatorFunc destroy_func;
-    XemEmulatorFunc realize_func;
-    XemEmulatorFunc resize_func;
-    XemEmulatorFunc expose_func;
-    XemEmulatorFunc input_func;
-    XemEmulatorFunc clock_func;
 };
 
 struct _XemKeyboard
@@ -83,26 +82,33 @@ struct _XemJoystick
     unsigned short js_mapping[1024];
 };
 
-struct _XemVideo
+struct _XemMachine
 {
-    Display* display;
-    Window   window;
+    XemEmulatorData instance;
+    XemEmulatorFunc create_func;
+    XemEmulatorFunc destroy_func;
+    XemEmulatorFunc realize_func;
+    XemEmulatorFunc resize_func;
+    XemEmulatorFunc expose_func;
+    XemEmulatorFunc input_func;
+    XemEmulatorFunc clock_func;
 };
 
-struct _XemAudio
-{
-    void* reserved;
-};
+extern XemVideo*    XemVideoConstruct          (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoDestruct           (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoRealize            (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoUnrealize          (Widget widget, XemVideo* video);
+
+extern XemAudio*    XemAudioConstruct          (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioDestruct           (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioRealize            (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioUnrealize          (Widget widget, XemAudio* audio);
 
 extern XemEvents*   XemEventsConstruct         (Widget widget, XemEvents* events);
 extern XemEvents*   XemEventsDestruct          (Widget widget, XemEvents* events);
 extern XemEvents*   XemEventsThrottle          (Widget widget, XemEvents* events, XEvent* event);
 extern XemEvents*   XemEventsProcess           (Widget widget, XemEvents* events);
 extern XEvent*      XemEventsCopyOrFill        (Widget widget, XemEvents* events, XEvent* event);
-
-extern XemMachine*  XemMachineConstruct        (Widget widget, XemMachine* machine);
-extern XemMachine*  XemMachineDestruct         (Widget widget, XemMachine* machine);
-extern XemMachine*  XemMachineSanitize         (Widget widget, XemMachine* machine);
 
 extern XemKeyboard* XemKeyboardConstruct       (Widget widget, XemKeyboard* keyboard, int id);
 extern XemKeyboard* XemKeyboardDestruct        (Widget widget, XemKeyboard* keyboard);
@@ -114,15 +120,9 @@ extern XemJoystick* XemJoystickLookupByFd      (Widget widget, int fd);
 extern void         XemJoystickHandler         (Widget widget, int* source, XtInputId* input_id);
 extern XemJoystick* XemJoystickDump            (Widget widget, XemJoystick* joystick, unsigned char button);
 
-extern XemVideo*    XemVideoConstruct          (Widget widget, XemVideo* video);
-extern XemVideo*    XemVideoDestruct           (Widget widget, XemVideo* video);
-extern XemVideo*    XemVideoRealize            (Widget widget, XemVideo* video);
-extern XemVideo*    XemVideoUnrealize          (Widget widget, XemVideo* video);
-
-extern XemAudio*    XemAudioConstruct          (Widget widget, XemAudio* audio);
-extern XemAudio*    XemAudioDestruct           (Widget widget, XemAudio* audio);
-extern XemAudio*    XemAudioRealize            (Widget widget, XemAudio* audio);
-extern XemAudio*    XemAudioUnrealize          (Widget widget, XemAudio* audio);
+extern XemMachine*  XemMachineConstruct        (Widget widget, XemMachine* machine);
+extern XemMachine*  XemMachineDestruct         (Widget widget, XemMachine* machine);
+extern XemMachine*  XemMachineSanitize         (Widget widget, XemMachine* machine);
 
 #ifdef __cplusplus
 }
