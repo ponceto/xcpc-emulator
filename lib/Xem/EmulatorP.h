@@ -39,12 +39,13 @@ externalref XemEmulatorClassRec xemEmulatorClassRec;
 
 typedef struct _XemEmulatorPart
 {
-    XemX11         x11;
+    XemVideo       video;
+    XemAudio       audio;
     XemEvents      events;
-    XemMachine     machine;
     XemKeyboard    keyboard;
     XemJoystick    joystick0;
     XemJoystick    joystick1;
+    XemMachine     machine;
     XtCallbackList hotkey_callback;
     XtIntervalId   timer;
 } XemEmulatorPart;

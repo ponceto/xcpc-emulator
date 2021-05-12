@@ -24,23 +24,18 @@ extern "C" {
 #endif
 
 #define XEM_EMULATOR_DATA(data) ((XemEmulatorData)(data))
-#define XEM_EMULATOR_PROC(proc) ((XemEmulatorProc)(proc))
+#define XEM_EMULATOR_FUNC(func) ((XemEmulatorFunc)(func))
 
 typedef XtPointer XemEmulatorData;
 
-typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event, void* extra);
+typedef unsigned long (*XemEmulatorFunc)(XtPointer data, XEvent* event, void* extra);
 
-typedef struct _XemX11      XemX11;
 typedef struct _XemEvents   XemEvents;
 typedef struct _XemMachine  XemMachine;
 typedef struct _XemKeyboard XemKeyboard;
 typedef struct _XemJoystick XemJoystick;
-
-struct _XemX11
-{
-    Display* display;
-    Window   window;
-};
+typedef struct _XemVideo    XemVideo;
+typedef struct _XemAudio    XemAudio;
 
 struct _XemEvents
 {
@@ -54,13 +49,13 @@ struct _XemEvents
 struct _XemMachine
 {
     XemEmulatorData instance;
-    XemEmulatorProc create_proc;
-    XemEmulatorProc destroy_proc;
-    XemEmulatorProc realize_proc;
-    XemEmulatorProc resize_proc;
-    XemEmulatorProc expose_proc;
-    XemEmulatorProc input_proc;
-    XemEmulatorProc clock_proc;
+    XemEmulatorFunc create_func;
+    XemEmulatorFunc destroy_func;
+    XemEmulatorFunc realize_func;
+    XemEmulatorFunc resize_func;
+    XemEmulatorFunc expose_func;
+    XemEmulatorFunc input_func;
+    XemEmulatorFunc clock_func;
 };
 
 struct _XemKeyboard
@@ -88,10 +83,16 @@ struct _XemJoystick
     unsigned short js_mapping[1024];
 };
 
-extern XemX11*      XemX11Construct            (Widget widget, XemX11* x11);
-extern XemX11*      XemX11Destruct             (Widget widget, XemX11* x11);
-extern XemX11*      XemX11Realize              (Widget widget, XemX11* x11);
-extern XemX11*      XemX11Unrealize            (Widget widget, XemX11* x11);
+struct _XemVideo
+{
+    Display* display;
+    Window   window;
+};
+
+struct _XemAudio
+{
+    void* reserved;
+};
 
 extern XemEvents*   XemEventsConstruct         (Widget widget, XemEvents* events);
 extern XemEvents*   XemEventsDestruct          (Widget widget, XemEvents* events);
@@ -112,6 +113,16 @@ extern XemJoystick* XemJoystickDestruct        (Widget widget, XemJoystick* joys
 extern XemJoystick* XemJoystickLookupByFd      (Widget widget, int fd);
 extern void         XemJoystickHandler         (Widget widget, int* source, XtInputId* input_id);
 extern XemJoystick* XemJoystickDump            (Widget widget, XemJoystick* joystick, unsigned char button);
+
+extern XemVideo*    XemVideoConstruct          (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoDestruct           (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoRealize            (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoUnrealize          (Widget widget, XemVideo* video);
+
+extern XemAudio*    XemAudioConstruct          (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioDestruct           (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioRealize            (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioUnrealize          (Widget widget, XemAudio* audio);
 
 #ifdef __cplusplus
 }

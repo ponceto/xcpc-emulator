@@ -35,32 +35,32 @@ extern "C" {
 #define XtNmachineInstance "machineInstance"
 #endif
 
-#ifndef XtNmachineCreateProc
-#define XtNmachineCreateProc "machineCreateProc"
+#ifndef XtNmachineCreateFunc
+#define XtNmachineCreateFunc "machineCreateFunc"
 #endif
 
-#ifndef XtNmachineDestroyProc
-#define XtNmachineDestroyProc "machineDestroyProc"
+#ifndef XtNmachineDestroyFunc
+#define XtNmachineDestroyFunc "machineDestroyFunc"
 #endif
 
-#ifndef XtNmachineRealizeProc
-#define XtNmachineRealizeProc "machineRealizeProc"
+#ifndef XtNmachineRealizeFunc
+#define XtNmachineRealizeFunc "machineRealizeFunc"
 #endif
 
-#ifndef XtNmachineResizeProc
-#define XtNmachineResizeProc "machineResizeProc"
+#ifndef XtNmachineResizeFunc
+#define XtNmachineResizeFunc "machineResizeFunc"
 #endif
 
-#ifndef XtNmachineExposeProc
-#define XtNmachineExposeProc "machineExposeProc"
+#ifndef XtNmachineExposeFunc
+#define XtNmachineExposeFunc "machineExposeFunc"
 #endif
 
-#ifndef XtNmachineInputProc
-#define XtNmachineInputProc "machineInputProc"
+#ifndef XtNmachineInputFunc
+#define XtNmachineInputFunc "machineInputFunc"
 #endif
 
-#ifndef XtNmachineClockProc
-#define XtNmachineClockProc "machineClockProc"
+#ifndef XtNmachineClockFunc
+#define XtNmachineClockFunc "machineClockFunc"
 #endif
 
 #ifndef XtNhotkeyCallback

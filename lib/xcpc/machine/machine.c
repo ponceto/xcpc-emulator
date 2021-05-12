@@ -3001,12 +3001,12 @@ XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
     return self->setup.memory_size;
 }
 
-unsigned long xcpc_machine_create_proc(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_create_func(XcpcMachine* self, XEvent* event, void* extra)
 {
     return 0UL;
 }
 
-unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_destroy_func(XcpcMachine* self, XEvent* event, void* extra)
 {
     /* unrealize */ {
         (void) xcpc_monitor_unrealize(self->board.monitor);
@@ -3014,7 +3014,7 @@ unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event, void* 
     return 0UL;
 }
 
-unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_realize_func(XcpcMachine* self, XEvent* event, void* extra)
 {
     /* realize */ {
         (void) xcpc_monitor_realize ( self->board.monitor
@@ -3056,7 +3056,7 @@ unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event, void* 
     return 0UL;
 }
 
-unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_resize_func(XcpcMachine* self, XEvent* event, void* extra)
 {
     if(event->type == ConfigureNotify) {
         (void) xcpc_monitor_resize(self->board.monitor, &event->xconfigure);
@@ -3064,7 +3064,7 @@ unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event, void* e
     return 0UL;
 }
 
-unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_expose_func(XcpcMachine* self, XEvent* event, void* extra)
 {
     if(event->type == Expose) {
         (void) xcpc_monitor_expose(self->board.monitor, &event->xexpose);
@@ -3072,7 +3072,7 @@ unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event, void* e
     return 0UL;
 }
 
-unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_input_func(XcpcMachine* self, XEvent* event, void* extra)
 {
     switch(event->type) {
         case KeyPress:
@@ -3096,7 +3096,7 @@ unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event, void* ex
     return 0UL;
 }
 
-unsigned long xcpc_machine_clock_proc(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_clock_func(XcpcMachine* self, XEvent* event, void* extra)
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;

@@ -50,13 +50,13 @@ extern XcpcRefreshRate  xcpc_machine_refresh_rate  (XcpcMachine* machine);
 extern XcpcKeyboardType xcpc_machine_keyboard_type (XcpcMachine* machine);
 extern XcpcMemorySize   xcpc_machine_memory_size   (XcpcMachine* machine);
 
-extern unsigned long xcpc_machine_create_proc  (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_destroy_proc (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_realize_proc (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_resize_proc  (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_expose_proc  (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_input_proc   (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_clock_proc   (XcpcMachine* machine, XEvent* event, void* extra);
+extern unsigned long xcpc_machine_create_func  (XcpcMachine* machine, XEvent* event, void* extra);
+extern unsigned long xcpc_machine_destroy_func (XcpcMachine* machine, XEvent* event, void* extra);
+extern unsigned long xcpc_machine_realize_func (XcpcMachine* machine, XEvent* event, void* extra);
+extern unsigned long xcpc_machine_resize_func  (XcpcMachine* machine, XEvent* event, void* extra);
+extern unsigned long xcpc_machine_expose_func  (XcpcMachine* machine, XEvent* event, void* extra);
+extern unsigned long xcpc_machine_input_func   (XcpcMachine* machine, XEvent* event, void* extra);
+extern unsigned long xcpc_machine_clock_func   (XcpcMachine* machine, XEvent* event, void* extra);
 
 #ifdef __cplusplus
 }

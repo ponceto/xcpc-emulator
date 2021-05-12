@@ -23,23 +23,18 @@
 G_BEGIN_DECLS
 
 #define GEM_EMULATOR_DATA(data) ((GemEmulatorData)(data))
-#define GEM_EMULATOR_PROC(proc) ((GemEmulatorProc)(proc))
+#define GEM_EMULATOR_FUNC(func) ((GemEmulatorFunc)(func))
 
 typedef gpointer GemEmulatorData;
 
-typedef unsigned long (*GemEmulatorProc)(GemEmulatorData data, XEvent* event, void* extra);
+typedef unsigned long (*GemEmulatorFunc)(GemEmulatorData data, XEvent* event, void* extra);
 
-typedef struct _GemX11      GemX11;
 typedef struct _GemEvents   GemEvents;
 typedef struct _GemMachine  GemMachine;
 typedef struct _GemKeyboard GemKeyboard;
 typedef struct _GemJoystick GemJoystick;
-
-struct _GemX11
-{
-    Display* display;
-    Window   window;
-};
+typedef struct _GemVideo    GemVideo;
+typedef struct _GemAudio    GemAudio;
 
 struct _GemEvents
 {
@@ -53,13 +48,13 @@ struct _GemEvents
 struct _GemMachine
 {
     GemEmulatorData instance;
-    GemEmulatorProc create_proc;
-    GemEmulatorProc destroy_proc;
-    GemEmulatorProc realize_proc;
-    GemEmulatorProc resize_proc;
-    GemEmulatorProc expose_proc;
-    GemEmulatorProc input_proc;
-    GemEmulatorProc clock_proc;
+    GemEmulatorFunc create_func;
+    GemEmulatorFunc destroy_func;
+    GemEmulatorFunc realize_func;
+    GemEmulatorFunc resize_func;
+    GemEmulatorFunc expose_func;
+    GemEmulatorFunc input_func;
+    GemEmulatorFunc clock_func;
 };
 
 struct _GemKeyboard
@@ -87,10 +82,16 @@ struct _GemJoystick
     unsigned short js_mapping[1024];
 };
 
-extern GemX11*      gem_x11_construct         (GtkWidget* widget, GemX11* x11);
-extern GemX11*      gem_x11_destruct          (GtkWidget* widget, GemX11* x11);
-extern GemX11*      gem_x11_realize           (GtkWidget* widget, GemX11* x11);
-extern GemX11*      gem_x11_unrealize         (GtkWidget* widget, GemX11* x11);
+struct _GemVideo
+{
+    Display* display;
+    Window   window;
+};
+
+struct _GemAudio
+{
+    void* reserved;
+};
 
 extern GemEvents*   gem_events_construct      (GtkWidget* widget, GemEvents* events);
 extern GemEvents*   gem_events_destruct       (GtkWidget* widget, GemEvents* events);
@@ -110,6 +111,16 @@ extern GemJoystick* gem_joystick_construct    (GtkWidget* widget, GemJoystick* j
 extern GemJoystick* gem_joystick_destruct     (GtkWidget* widget, GemJoystick* joystick);
 extern GemJoystick* gem_joystick_lookup_by_fd (GtkWidget* widget, int fd);
 extern gboolean     gem_joystick_handler      (gint fd, GIOCondition condition, GtkWidget* widget);
+
+extern GemVideo*    gem_video_construct       (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_destruct        (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_realize         (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_unrealize       (GtkWidget* widget, GemVideo* video);
+
+extern GemAudio*    gem_audio_construct       (GtkWidget* widget, GemAudio* audio);
+extern GemAudio*    gem_audio_destruct        (GtkWidget* widget, GemAudio* audio);
+extern GemAudio*    gem_audio_realize         (GtkWidget* widget, GemAudio* audio);
+extern GemAudio*    gem_audio_unrealize       (GtkWidget* widget, GemAudio* audio);
 
 G_END_DECLS
 

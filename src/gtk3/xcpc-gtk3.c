@@ -1137,13 +1137,13 @@ static void build_workwnd(XcpcApplication* self)
         };
         const GemMachine machine = {
             GEM_EMULATOR_DATA(self->machine),
-            GEM_EMULATOR_PROC(&xcpc_machine_create_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_destroy_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_realize_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_resize_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_expose_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_input_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_clock_proc),
+            GEM_EMULATOR_FUNC(&xcpc_machine_create_func),
+            GEM_EMULATOR_FUNC(&xcpc_machine_destroy_func),
+            GEM_EMULATOR_FUNC(&xcpc_machine_realize_func),
+            GEM_EMULATOR_FUNC(&xcpc_machine_resize_func),
+            GEM_EMULATOR_FUNC(&xcpc_machine_expose_func),
+            GEM_EMULATOR_FUNC(&xcpc_machine_input_func),
+            GEM_EMULATOR_FUNC(&xcpc_machine_clock_func),
         };
         current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");

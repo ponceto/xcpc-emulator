@@ -34,12 +34,13 @@ typedef struct _GemEmulatorClass GemEmulatorClass;
 struct _GemEmulator
 {
     GtkWidget   widget;
-    GemX11      x11;
+    GemVideo    video;
+    GemAudio    audio;
     GemEvents   events;
-    GemMachine  machine;
     GemKeyboard keyboard;
     GemJoystick joystick0;
     GemJoystick joystick1;
+    GemMachine  machine;
     guint       minimum_width;
     guint       minimum_height;
     guint       natural_width;

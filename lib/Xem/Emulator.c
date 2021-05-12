@@ -146,39 +146,39 @@ static XtResource resources[] = {
         sizeof(XemEmulatorData), XtOffsetOf(XemEmulatorRec, emulator.machine.instance),
         XtRImmediate, XT_POINTER(NULL)
     },
-    /* XtNmachineCreateProc */ {
-        XtNmachineCreateProc, XtCFunction, XtRFunction,
-        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.create_proc),
+    /* XtNmachineCreateFunc */ {
+        XtNmachineCreateFunc, XtCFunction, XtRFunction,
+        sizeof(XemEmulatorFunc), XtOffsetOf(XemEmulatorRec, emulator.machine.create_func),
         XtRImmediate, XT_POINTER(NULL)
     },
-    /* XtNmachineDestroyProc */ {
-        XtNmachineDestroyProc, XtCFunction, XtRFunction,
-        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.destroy_proc),
+    /* XtNmachineDestroyFunc */ {
+        XtNmachineDestroyFunc, XtCFunction, XtRFunction,
+        sizeof(XemEmulatorFunc), XtOffsetOf(XemEmulatorRec, emulator.machine.destroy_func),
         XtRImmediate, XT_POINTER(NULL)
     },
-    /* XtNmachineRealizeProc */ {
-        XtNmachineRealizeProc, XtCFunction, XtRFunction,
-        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.realize_proc),
+    /* XtNmachineRealizeFunc */ {
+        XtNmachineRealizeFunc, XtCFunction, XtRFunction,
+        sizeof(XemEmulatorFunc), XtOffsetOf(XemEmulatorRec, emulator.machine.realize_func),
         XtRImmediate, XT_POINTER(NULL)
     },
-    /* XtNmachineResizeProc */ {
-        XtNmachineResizeProc, XtCFunction, XtRFunction,
-        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.resize_proc),
+    /* XtNmachineResizeFunc */ {
+        XtNmachineResizeFunc, XtCFunction, XtRFunction,
+        sizeof(XemEmulatorFunc), XtOffsetOf(XemEmulatorRec, emulator.machine.resize_func),
         XtRImmediate, XT_POINTER(NULL)
     },
-    /* XtNmachineExposeProc */ {
-        XtNmachineExposeProc, XtCFunction, XtRFunction,
-        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.expose_proc),
+    /* XtNmachineExposeFunc */ {
+        XtNmachineExposeFunc, XtCFunction, XtRFunction,
+        sizeof(XemEmulatorFunc), XtOffsetOf(XemEmulatorRec, emulator.machine.expose_func),
         XtRImmediate, XT_POINTER(NULL)
     },
-    /* XtNmachineInputProc */ {
-        XtNmachineInputProc, XtCFunction, XtRFunction,
-        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.input_proc),
+    /* XtNmachineInputFunc */ {
+        XtNmachineInputFunc, XtCFunction, XtRFunction,
+        sizeof(XemEmulatorFunc), XtOffsetOf(XemEmulatorRec, emulator.machine.input_func),
         XtRImmediate, XT_POINTER(NULL)
     },
-    /* XtNmachineClockProc */ {
-        XtNmachineClockProc, XtCFunction, XtRFunction,
-        sizeof(XemEmulatorProc), XtOffsetOf(XemEmulatorRec, emulator.machine.clock_proc),
+    /* XtNmachineClockFunc */ {
+        XtNmachineClockFunc, XtCFunction, XtRFunction,
+        sizeof(XemEmulatorFunc), XtOffsetOf(XemEmulatorRec, emulator.machine.clock_func),
         XtRImmediate, XT_POINTER(NULL)
     },
     /* XtNjoystick0 */ {
@@ -260,9 +260,9 @@ static Widget FindShell(Widget widget)
 }
 
 /*
- * XemEmulatorWidget::DefaultMachineProc()
+ * XemEmulatorWidget::DefaultMachineFunc()
  */
-static unsigned long DefaultMachineProc(XtPointer data, XEvent* event)
+static unsigned long DefaultMachineFunc(XtPointer data, XEvent* event)
 {
     return EMULATOR_DEFAULT_TIMEOUT;
 }
@@ -282,10 +282,10 @@ static void TimeOutHandler(Widget widget, XtIntervalId* timer)
     }
     /* call timer-proc */ {
         if((self->core.sensitive != FALSE) && (self->core.ancestor_sensitive != FALSE)) {
-            timeout = (*self->emulator.machine.clock_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+            timeout = (*self->emulator.machine.clock_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
         }
         else {
-            timeout = DefaultMachineProc(NULL, NULL);
+            timeout = DefaultMachineFunc(NULL, NULL);
         }
     }
     /* schedule timer */ {
@@ -349,14 +349,14 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* nu
             self->core.height = EMULATOR_DEFAULT_HEIGHT;
         }
     }
-    /* construct x11 */ {
-        (void) XemX11Construct(widget, &self->emulator.x11);
+    /* construct video */ {
+        (void) XemVideoConstruct(widget, &self->emulator.video);
+    }
+    /* construct audio */ {
+        (void) XemAudioConstruct(widget, &self->emulator.audio);
     }
     /* construct events */ {
         (void) XemEventsConstruct(widget, &self->emulator.events);
-    }
-    /* construct machine */ {
-        (void) XemMachineConstruct(widget, &self->emulator.machine);
     }
     /* construct keyboard */ {
         (void) XemKeyboardConstruct(widget, &self->emulator.keyboard, 0);
@@ -365,14 +365,17 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* nu
         (void) XemJoystickConstruct(widget, &self->emulator.joystick0, self->emulator.joystick0.device, 0);
         (void) XemJoystickConstruct(widget, &self->emulator.joystick1, self->emulator.joystick1.device, 1);
     }
+    /* construct machine */ {
+        (void) XemMachineConstruct(widget, &self->emulator.machine);
+    }
     /* initialize timer */ {
         self->emulator.timer = XT_INTERVAL_ID(0);
     }
     /* call create-proc */ {
-        (void) (*self->emulator.machine.create_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+        (void) (*self->emulator.machine.create_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
     }
     /* schedule timer */ {
-        Schedule(widget, DefaultMachineProc(NULL, NULL));
+        Schedule(widget, DefaultMachineFunc(NULL, NULL));
     }
 }
 
@@ -387,21 +390,18 @@ static void Realize(Widget widget, XtValueMask* mask, XSetWindowAttributes* attr
 {
     XemEmulatorWidget self = CAST_EMULATOR(widget);
 
+    /* unrealize video & audio */ {
+        (void) XemVideoUnrealize(widget, &self->emulator.video);
+        (void) XemAudioUnrealize(widget, &self->emulator.audio);
+    }
     /* call superclass method */ {
         if(XemEmulatorSuperClass->core_class.realize != NULL) {
             (*XemEmulatorSuperClass->core_class.realize)(widget, mask, attributes);
         }
     }
-    /* initialize X11 handles if needed */ {
-        if(self->emulator.x11.display != NULL) {
-            (void) XemX11Unrealize(widget, &self->emulator.x11);
-        }
-        if(self->emulator.x11.display == NULL) {
-            (void) XemX11Realize(widget, &self->emulator.x11);
-        }
-    }
-    /* call realize-proc */ {
-        (void) (*self->emulator.machine.realize_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    /* realize video & audio */ {
+        (void) XemVideoRealize(widget, &self->emulator.video);
+        (void) XemAudioRealize(widget, &self->emulator.audio);
     }
 }
 
@@ -418,7 +418,10 @@ static void Destroy(Widget widget)
         Unschedule(widget);
     }
     /* call destroy-proc */ {
-        (void) (*self->emulator.machine.destroy_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+        (void) (*self->emulator.machine.destroy_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    }
+    /* destruct machine */ {
+        (void) XemMachineDestruct(widget, &self->emulator.machine);
     }
     /* destruct joysticks */ {
         (void) XemJoystickDestruct(widget, &self->emulator.joystick0);
@@ -427,14 +430,14 @@ static void Destroy(Widget widget)
     /* destruct keyboard */ {
         (void) XemKeyboardDestruct(widget, &self->emulator.keyboard);
     }
-    /* destruct machine */ {
-        (void) XemMachineDestruct(widget, &self->emulator.machine);
-    }
     /* destruct events */ {
         (void) XemEventsDestruct(widget, &self->emulator.events);
     }
-    /* destruct x11 */ {
-        (void) XemX11Destruct(widget, &self->emulator.x11);
+    /* destruct audio */ {
+        (void) XemAudioDestruct(widget, &self->emulator.audio);
+    }
+    /* destruct video */ {
+        (void) XemVideoDestruct(widget, &self->emulator.video);
     }
 }
 
@@ -448,7 +451,7 @@ static void Resize(Widget widget)
     XemEmulatorWidget self = CAST_EMULATOR(widget);
 
     /* call resize-proc */ {
-        (void) (*self->emulator.machine.resize_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+        (void) (*self->emulator.machine.resize_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
     }
 }
 
@@ -464,7 +467,7 @@ static void Redraw(Widget widget, XEvent* event, Region region)
     XemEmulatorWidget self = CAST_EMULATOR(widget);
 
     if(event->type == Expose) {
-        (void) (*self->emulator.machine.expose_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, event), NULL);
+        (void) (*self->emulator.machine.expose_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, event), NULL);
     }
 }
 
@@ -642,7 +645,7 @@ static void OnConfigureNotify(Widget widget, XEvent* event, String* params, Card
             }
         }
         /* call resize-proc */ {
-            (void) (*self->emulator.machine.resize_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, event), NULL);
+            (void) (*self->emulator.machine.resize_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, event), NULL);
         }
     }
 }
@@ -666,47 +669,6 @@ Widget XemCreateEmulator(Widget parent, String name, ArgList args, Cardinal num_
 /*
  * Utilities
  */
-
-XemX11* XemX11Construct(Widget widget, XemX11* x11)
-{
-    /* initialize */ {
-        x11->display = NULL;
-        x11->window  = None;
-    }
-    return x11;
-}
-
-XemX11* XemX11Destruct(Widget widget, XemX11* x11)
-{
-    /* finalize */ {
-        x11->display = NULL;
-        x11->window  = None;
-    }
-    return x11;
-}
-
-XemX11* XemX11Realize(Widget widget, XemX11* x11)
-{
-    /* realize X11 handles */ {
-        if(x11->display == NULL) {
-            x11->display = XtDisplay(widget);
-            x11->window  = XtWindow(widget);
-        }
-    }
-    return x11;
-}
-
-XemX11* XemX11Unrealize(Widget widget, XemX11* x11)
-{
-    /* unrealize X11 handles */ {
-        if(x11->display != NULL) {
-            x11->display = NULL;
-            x11->window  = None;
-        }
-    }
-    return x11;
-}
-
 
 XemEvents* XemEventsConstruct(Widget widget, XemEvents* events)
 {
@@ -774,7 +736,7 @@ XemEvents* XemEventsProcess(Widget widget, XemEvents* events)
             event_type = event->type;
         }
         if(event->type == event_type) {
-            (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, event, NULL);
+            (void) (*self->emulator.machine.input_func)(self->emulator.machine.instance, event, NULL);
             events->head = ((events->head + 1) % countof(events->list));
             events->tail = ((events->tail + 0) % countof(events->list));
         }
@@ -800,8 +762,8 @@ XEvent* XemEventsCopyOrFill(Widget widget, XemEvents* events, XEvent* event)
         events->last_rcv_event.xany.type       = GenericEvent;
         events->last_rcv_event.xany.serial     = 0UL;
         events->last_rcv_event.xany.send_event = True;
-        events->last_rcv_event.xany.display    = self->emulator.x11.display;
-        events->last_rcv_event.xany.window     = self->emulator.x11.window;
+        events->last_rcv_event.xany.display    = self->emulator.video.display;
+        events->last_rcv_event.xany.window     = self->emulator.video.window;
     }
     return &events->last_rcv_event;
 }
@@ -814,28 +776,28 @@ XemMachine* XemMachineConstruct(Widget widget, XemMachine* machine)
 XemMachine* XemMachineDestruct(Widget widget, XemMachine* machine)
 {
     /* finalize */ {
-        machine->instance     = XEM_EMULATOR_DATA(NULL);
-        machine->create_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc);
-        machine->destroy_proc = XEM_EMULATOR_PROC(&DefaultMachineProc);
-        machine->realize_proc = XEM_EMULATOR_PROC(&DefaultMachineProc);
-        machine->resize_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc);
-        machine->expose_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc);
-        machine->input_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc);
-        machine->clock_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc);
+        machine->instance     = NULL;
+        machine->create_func  = NULL;
+        machine->destroy_func = NULL;
+        machine->realize_func = NULL;
+        machine->resize_func  = NULL;
+        machine->expose_func  = NULL;
+        machine->input_func   = NULL;
+        machine->clock_func   = NULL;
     }
-    return machine;
+    return XemMachineSanitize(widget, machine);
 }
 
 XemMachine* XemMachineSanitize(Widget widget, XemMachine* machine)
 {
     /* sanitize */ {
-        if(machine->create_proc  == NULL) { machine->create_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc); }
-        if(machine->destroy_proc == NULL) { machine->destroy_proc = XEM_EMULATOR_PROC(&DefaultMachineProc); }
-        if(machine->realize_proc == NULL) { machine->realize_proc = XEM_EMULATOR_PROC(&DefaultMachineProc); }
-        if(machine->resize_proc  == NULL) { machine->resize_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc); }
-        if(machine->expose_proc  == NULL) { machine->expose_proc  = XEM_EMULATOR_PROC(&DefaultMachineProc); }
-        if(machine->input_proc   == NULL) { machine->input_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc); }
-        if(machine->clock_proc   == NULL) { machine->clock_proc   = XEM_EMULATOR_PROC(&DefaultMachineProc); }
+        if(machine->create_func  == NULL) { machine->create_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->destroy_func == NULL) { machine->destroy_func = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->realize_func == NULL) { machine->realize_func = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->resize_func  == NULL) { machine->resize_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->expose_func  == NULL) { machine->expose_func  = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->input_func   == NULL) { machine->input_func   = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
+        if(machine->clock_func   == NULL) { machine->clock_func   = XEM_EMULATOR_FUNC(&DefaultMachineFunc); }
     }
     return machine;
 }
@@ -963,8 +925,8 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
                             xevent.xbutton.type        = (event_value != 0 ? ButtonPress : ButtonRelease);
                             xevent.xbutton.serial      = 0UL;
                             xevent.xbutton.send_event  = True;
-                            xevent.xbutton.display     = self->emulator.x11.display;
-                            xevent.xbutton.window      = self->emulator.x11.window;
+                            xevent.xbutton.display     = self->emulator.video.display;
+                            xevent.xbutton.window      = self->emulator.video.window;
                             xevent.xbutton.root        = None;
                             xevent.xbutton.subwindow   = None;
                             xevent.xbutton.time        = 0UL;
@@ -977,7 +939,7 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
                             xevent.xbutton.same_screen = True;
                         }
                         /* call input-proc */ {
-                            (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
+                            (void) (*self->emulator.machine.input_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
                         }
                     }
                     return TRUE;
@@ -996,8 +958,8 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
                             xevent.xmotion.type        = MotionNotify;
                             xevent.xmotion.serial      = 0UL;
                             xevent.xmotion.send_event  = True;
-                            xevent.xmotion.display     = self->emulator.x11.display;
-                            xevent.xmotion.window      = self->emulator.x11.window;
+                            xevent.xmotion.display     = self->emulator.video.display;
+                            xevent.xmotion.window      = self->emulator.video.window;
                             xevent.xmotion.root        = None;
                             xevent.xmotion.subwindow   = None;
                             xevent.xmotion.time        = 0UL;
@@ -1010,7 +972,7 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
                             xevent.xmotion.same_screen = True;
                         }
                         /* call input-proc */ {
-                            (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
+                            (void) (*self->emulator.machine.input_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
                         }
                     }
                     return TRUE;
@@ -1182,8 +1144,8 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xbutton.type        = (event.value != 0 ? ButtonPress : ButtonRelease);
                             xevent.xbutton.serial      = 0UL;
                             xevent.xbutton.send_event  = True;
-                            xevent.xbutton.display     = self->emulator.x11.display;
-                            xevent.xbutton.window      = self->emulator.x11.window;
+                            xevent.xbutton.display     = self->emulator.video.display;
+                            xevent.xbutton.window      = self->emulator.video.window;
                             xevent.xbutton.root        = None;
                             xevent.xbutton.subwindow   = None;
                             xevent.xbutton.time        = 0UL;
@@ -1196,7 +1158,7 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xbutton.same_screen = True;
                         }
                         /* call input-proc */ {
-                            (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
+                            (void) (*self->emulator.machine.input_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
                         }
                     }
                     break;
@@ -1215,8 +1177,8 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xmotion.type        = MotionNotify;
                             xevent.xmotion.serial      = 0UL;
                             xevent.xmotion.send_event  = True;
-                            xevent.xmotion.display     = self->emulator.x11.display;
-                            xevent.xmotion.window      = self->emulator.x11.window;
+                            xevent.xmotion.display     = self->emulator.video.display;
+                            xevent.xmotion.window      = self->emulator.video.window;
                             xevent.xmotion.root        = None;
                             xevent.xmotion.subwindow   = None;
                             xevent.xmotion.time        = 0UL;
@@ -1229,7 +1191,7 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xmotion.same_screen = True;
                         }
                         /* call input-proc */ {
-                            (void) (*self->emulator.machine.input_proc)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
+                            (void) (*self->emulator.machine.input_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
                         }
                     }
                     break;
@@ -1288,4 +1250,71 @@ XemJoystick* XemJoystickDump(Widget widget, XemJoystick* joystick, unsigned char
     (void) fprintf(stderr, "\n");
     (void) fflush(stderr);
     return joystick;
+}
+
+XemVideo* XemVideoConstruct(Widget widget, XemVideo* video)
+{
+    /* initialize */ {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+XemVideo* XemVideoDestruct(Widget widget, XemVideo* video)
+{
+    /* finalize */ {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+XemVideo* XemVideoRealize(Widget widget, XemVideo* video)
+{
+    XemEmulatorWidget self = CAST_EMULATOR(widget);
+
+    if(video->display == NULL) {
+        video->display = XtDisplay(widget);
+        video->window  = XtWindow(widget);
+    }
+    if(video->display != NULL) {
+        (void) (*self->emulator.machine.realize_func)(self->emulator.machine.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    }
+    return video;
+}
+
+XemVideo* XemVideoUnrealize(Widget widget, XemVideo* video)
+{
+    if(video->display != NULL) {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+XemAudio* XemAudioConstruct(Widget widget, XemAudio* audio)
+{
+    /* initialize */ {
+        audio->reserved = NULL;
+    }
+    return audio;
+}
+
+XemAudio* XemAudioDestruct(Widget widget, XemAudio* audio)
+{
+    /* finalize */ {
+        audio->reserved = NULL;
+    }
+    return audio;
+}
+
+XemAudio* XemAudioRealize(Widget widget, XemAudio* audio)
+{
+    return audio;
+}
+
+XemAudio* XemAudioUnrealize(Widget widget, XemAudio* audio)
+{
+    return audio;
 }
