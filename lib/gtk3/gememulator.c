@@ -647,9 +647,6 @@ GemVideo* gem_video_realize(GtkWidget* widget, GemVideo* video)
     if(video->display != NULL) {
         (void) (*self->machine.realize_func)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL), NULL);
     }
-    else {
-        printf("*** Ooops ***\n");
-    }
     return video;
 }
 
