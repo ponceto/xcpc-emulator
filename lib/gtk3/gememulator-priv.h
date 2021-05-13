@@ -37,6 +37,10 @@ G_BEGIN_DECLS
 #define CAST_XEVENT(event) ((XEvent*)(event))
 #endif
 
+#ifndef CAST_PA_STREAM
+#define CAST_PA_STREAM(stream) ((PaStream*)(stream))
+#endif
+
 #ifndef EMULATOR_DEFAULT_TIMEOUT
 #define EMULATOR_DEFAULT_TIMEOUT 100UL
 #endif

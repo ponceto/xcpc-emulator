@@ -27,6 +27,9 @@
 #include <linux/joystick.h>
 #include <sys/ioctl.h>
 #endif
+#ifdef HAVE_PORTAUDIO
+#include <portaudio.h>
+#endif
 #include <gtk3/gememulator-priv.h>
 
 G_DEFINE_TYPE(GemEmulator, gem_emulator, GTK_TYPE_WIDGET)
@@ -659,29 +662,101 @@ GemVideo* gem_video_unrealize(GtkWidget* widget, GemVideo* video)
     return video;
 }
 
+#ifdef HAVE_PORTAUDIO
+typedef struct _GemAudioFrame GemAudioFrame;
+
+struct _GemAudioFrame
+{
+    int8_t lft;
+    int8_t rgt;
+};
+#endif
+
+#ifdef HAVE_PORTAUDIO
+int gem_audio_callback(const int8_t* input, int8_t* output, unsigned long frames_per_buffer, const PaStreamCallbackTimeInfo* info, PaStreamCallbackFlags flags, void* user_data)
+{
+    unsigned long frame_index = 0;
+    unsigned long frame_count = frames_per_buffer;
+
+    for(frame_index = 0; frame_index < frame_count; ++frame_index) {
+        GemAudioFrame* audio_frame = ((GemAudioFrame*)(output));
+        audio_frame->lft = 0;
+        audio_frame->rgt = 0;
+        output += 2;
+    }
+    return 0;
+}
+#endif
+
 GemAudio* gem_audio_construct(GtkWidget* widget, GemAudio* audio)
 {
-    /* initialize */ {
-        audio->reserved = NULL;
+#ifdef HAVE_PORTAUDIO
+    PaDeviceIndex       device_index      = Pa_GetDefaultOutputDevice();
+    PaStreamParameters  stream_parameters = { 0 };
+    const double        suggested_latency = 20.0 / 1000.0;
+    const double        sample_rate       = 44100.0;
+    const unsigned long frames_per_buffer = 256;
+
+    if(device_index != paNoDevice) {
+        stream_parameters.device                    = device_index;
+        stream_parameters.channelCount              = 2;
+        stream_parameters.sampleFormat              = paInt8;
+        stream_parameters.suggestedLatency          = suggested_latency;
+        stream_parameters.hostApiSpecificStreamInfo = NULL;
     }
+    if(device_index != paNoDevice) {
+        PaStream* stream = NULL;
+        PaError pa_error = Pa_OpenStream(&stream, NULL, &stream_parameters, sample_rate, frames_per_buffer, paNoFlag, ((PaStreamCallback*)(&gem_audio_callback)), widget);
+        if(pa_error != paNoError) {
+            g_warning("unable to open audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+        else {
+            audio->stream = stream;
+        }
+    }
+#endif
     return audio;
 }
 
 GemAudio* gem_audio_destruct(GtkWidget* widget, GemAudio* audio)
 {
-    /* finalize */ {
-        audio->reserved = NULL;
+#ifdef HAVE_PORTAUDIO
+    if(audio->stream != NULL) {
+        PaError pa_error = Pa_CloseStream(audio->stream);
+        if(pa_error != paNoError) {
+            g_warning("unable to close audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+        else {
+            audio->stream = NULL;
+        }
     }
+#endif
     return audio;
 }
 
 GemAudio* gem_audio_realize(GtkWidget* widget, GemAudio* audio)
 {
+#ifdef HAVE_PORTAUDIO
+    if((audio->stream != NULL) && (Pa_IsStreamActive(audio->stream) == 0)) {
+        PaError pa_error = Pa_StartStream(audio->stream);
+        if(pa_error != paNoError) {
+            g_warning("unable to start audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     return audio;
 }
 
 GemAudio* gem_audio_unrealize(GtkWidget* widget, GemAudio* audio)
 {
+#ifdef HAVE_PORTAUDIO
+    if((audio->stream != NULL) && (Pa_IsStreamActive(audio->stream) != 0)) {
+        PaError pa_error = Pa_StopStream(audio->stream);
+        if(pa_error != paNoError) {
+            g_warning("unable to stop audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     return audio;
 }
 
@@ -1004,8 +1079,6 @@ GemJoystick* gem_joystick_construct(GtkWidget* widget, GemJoystick* joystick, co
             }
         }
     }
-#endif
-#ifdef HAVE_LINUX_JOYSTICK_H
     /* get the joystick mapping */ {
         unsigned char count = 0;
         if(joystick->fd != -1) {

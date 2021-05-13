@@ -20,12 +20,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #ifdef HAVE_LINUX_JOYSTICK_H
 #include <linux/joystick.h>
 #include <sys/ioctl.h>
+#endif
+#ifdef HAVE_PORTAUDIO
+#include <portaudio.h>
 #endif
 #include <X11/IntrinsicP.h>
 #include <Xem/StringDefs.h>
@@ -45,6 +49,10 @@
 
 #ifndef CAST_EMULATOR
 #define CAST_EMULATOR(widget) ((XemEmulatorWidget)(widget))
+#endif
+
+#ifndef CAST_PA_STREAM
+#define CAST_PA_STREAM(stream) ((PaStream*)(stream))
 #endif
 
 #ifndef XT_POINTER
@@ -247,6 +255,22 @@ externaldef(xememulatorclassrec) XemEmulatorClassRec xemEmulatorClassRec = {
 };
 
 externaldef(xememulatorwidgetclass) WidgetClass xemEmulatorWidgetClass = CAST_WIDGET_CLASS(&xemEmulatorClassRec);
+
+/*
+ * XemEmulatorWidget::LogAlert()
+ */
+static void LogAlert(const char* format, ...)
+{
+    char buffer[256];
+
+    if(format != NULL) {
+        va_list arguments;
+        va_start(arguments, format);
+        (void) vsnprintf(buffer, sizeof(buffer), format, arguments);
+        va_end(arguments);
+        XtWarning(buffer);
+    }
+}
 
 /*
  * XemEmulatorWidget::FindShell()
@@ -711,29 +735,101 @@ XemVideo* XemVideoUnrealize(Widget widget, XemVideo* video)
     return video;
 }
 
+#ifdef HAVE_PORTAUDIO
+typedef struct _XemAudioFrame XemAudioFrame;
+
+struct _XemAudioFrame
+{
+    int8_t lft;
+    int8_t rgt;
+};
+#endif
+
+#ifdef HAVE_PORTAUDIO
+int XemAudioCallback(const int8_t* input, int8_t* output, unsigned long frames_per_buffer, const PaStreamCallbackTimeInfo* info, PaStreamCallbackFlags flags, void* user_data)
+{
+    unsigned long frame_index = 0;
+    unsigned long frame_count = frames_per_buffer;
+
+    for(frame_index = 0; frame_index < frame_count; ++frame_index) {
+        XemAudioFrame* audio_frame = ((XemAudioFrame*)(output));
+        audio_frame->lft = 0;
+        audio_frame->rgt = 0;
+        output += 2;
+    }
+    return 0;
+}
+#endif
+
 XemAudio* XemAudioConstruct(Widget widget, XemAudio* audio)
 {
-    /* initialize */ {
-        audio->reserved = NULL;
+#ifdef HAVE_PORTAUDIO
+    PaDeviceIndex       device_index      = Pa_GetDefaultOutputDevice();
+    PaStreamParameters  stream_parameters = { 0 };
+    const double        suggested_latency = 20.0 / 1000.0;
+    const double        sample_rate       = 44100.0;
+    const unsigned long frames_per_buffer = 256;
+
+    if(device_index != paNoDevice) {
+        stream_parameters.device                    = device_index;
+        stream_parameters.channelCount              = 2;
+        stream_parameters.sampleFormat              = paInt8;
+        stream_parameters.suggestedLatency          = suggested_latency;
+        stream_parameters.hostApiSpecificStreamInfo = NULL;
     }
+    if(device_index != paNoDevice) {
+        PaStream* stream = NULL;
+        PaError pa_error = Pa_OpenStream(&stream, NULL, &stream_parameters, sample_rate, frames_per_buffer, paNoFlag, ((PaStreamCallback*)(&XemAudioCallback)), widget);
+        if(pa_error != paNoError) {
+            LogAlert("unable to open audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+        else {
+            audio->stream = stream;
+        }
+    }
+#endif
     return audio;
 }
 
 XemAudio* XemAudioDestruct(Widget widget, XemAudio* audio)
 {
-    /* finalize */ {
-        audio->reserved = NULL;
+#ifdef HAVE_PORTAUDIO
+    if(audio->stream != NULL) {
+        PaError pa_error = Pa_CloseStream(audio->stream);
+        if(pa_error != paNoError) {
+            LogAlert("unable to close audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+        else {
+            audio->stream = NULL;
+        }
     }
+#endif
     return audio;
 }
 
 XemAudio* XemAudioRealize(Widget widget, XemAudio* audio)
 {
+#ifdef HAVE_PORTAUDIO
+    if((audio->stream != NULL) && (Pa_IsStreamActive(audio->stream) == 0)) {
+        PaError pa_error = Pa_StartStream(audio->stream);
+        if(pa_error != paNoError) {
+            LogAlert("unable to start audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     return audio;
 }
 
 XemAudio* XemAudioUnrealize(Widget widget, XemAudio* audio)
 {
+#ifdef HAVE_PORTAUDIO
+    if((audio->stream != NULL) && (Pa_IsStreamActive(audio->stream) != 0)) {
+        PaError pa_error = Pa_StopStream(audio->stream);
+        if(pa_error != paNoError) {
+            LogAlert("unable to stop audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     return audio;
 }
 
@@ -1056,8 +1152,6 @@ XemJoystick* XemJoystickConstruct(Widget widget, XemJoystick* joystick, const ch
             }
         }
     }
-#endif
-#ifdef HAVE_LINUX_JOYSTICK_H
     /* get the joystick mapping */ {
         unsigned char count = 0;
         if(joystick->fd != -1) {
@@ -1137,12 +1231,7 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
         /* read joystick event */ {
             const ssize_t bytes = read(joystick->fd, &event, sizeof(event));
             if(bytes != sizeof(event)) {
-                char buffer[256];
-                (void) snprintf ( buffer, sizeof(buffer)
-                                , "an unexpected error occured while reading joystick #%d (%s)"
-                                , joystick->js_id
-                                , (joystick->identifier != NULL ? joystick->identifier : "unknown joystick") );
-                XtWarning(buffer);
+                LogAlert("an unexpected error occured while reading joystick #%d (%s)", joystick->js_id, (joystick->identifier != NULL ? joystick->identifier : "unknown joystick") );
                 joystick->input_id = (XtRemoveInput(joystick->input_id), XT_INPUT_ID(0));
                 return;
             }

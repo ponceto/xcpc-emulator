@@ -48,6 +48,20 @@ libgem3_la_LIBADD = \
 	$(gtk3_LIBS) \
 	$(NULL)
 
+if PORTAUDIO
+libgem3_la_CPPFLAGS += \
+	$(portaudio_CFLAGS) \
+	$(NULL)
+
+libgem3_la_LDFLAGS += \
+	$(portaudio_LDFLAGS) \
+	$(NULL)
+
+libgem3_la_LIBADD += \
+	$(portaudio_LIBS) \
+	$(NULL)
+endif
+
 # ----------------------------------------------------------------------------
 # End-Of-File
 # ----------------------------------------------------------------------------

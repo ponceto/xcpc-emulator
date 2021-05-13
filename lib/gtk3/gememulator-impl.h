@@ -44,7 +44,11 @@ struct _GemVideo
 
 struct _GemAudio
 {
-    void* reserved;
+#ifdef HAVE_PORTAUDIO
+    PaStream* stream;
+#else
+    void*     stream;
+#endif
 };
 
 struct _GemEvents

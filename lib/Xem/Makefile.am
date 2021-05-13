@@ -57,6 +57,20 @@ libXem_la_LIBADD = \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
 
+if PORTAUDIO
+libXem_la_CPPFLAGS += \
+	$(portaudio_CFLAGS) \
+	$(NULL)
+
+libXem_la_LDFLAGS += \
+	$(portaudio_LDFLAGS) \
+	$(NULL)
+
+libXem_la_LIBADD += \
+	$(portaudio_LIBS) \
+	$(NULL)
+endif
+
 # ----------------------------------------------------------------------------
 # End-Of-File
 # ----------------------------------------------------------------------------

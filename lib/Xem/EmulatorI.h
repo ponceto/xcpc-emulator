@@ -45,7 +45,11 @@ struct _XemVideo
 
 struct _XemAudio
 {
-    void* reserved;
+#ifdef HAVE_PORTAUDIO
+    PaStream* stream;
+#else
+    void*     stream;
+#endif
 };
 
 struct _XemEvents
