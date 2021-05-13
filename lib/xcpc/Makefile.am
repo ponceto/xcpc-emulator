@@ -44,6 +44,10 @@ libxcpc_la_SOURCES = \
 	xlib/xlib.h \
 	xlib/xlib-impl.h \
 	xlib/xlib-priv.h \
+	glue/backend.c \
+	glue/backend.h \
+	glue/frontend.c \
+	glue/frontend.h \
 	options/options.c \
 	options/options.h \
 	options/options-impl.h \
