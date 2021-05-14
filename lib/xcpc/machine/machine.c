@@ -2636,17 +2636,17 @@ static void initialize(XcpcMachine* self)
     }
     /* load initial snapshot */ {
         if(is_set(opt_snapshot)) {
-            xcpc_machine_load_snapshot(self, opt_snapshot);
+            (void) xcpc_machine_snapshot_load(self, opt_snapshot);
         }
     }
     /* load initial drive0 */ {
         if(is_set(opt_drive0)) {
-            xcpc_machine_drive0_insert(self, opt_drive0);
+            (void) xcpc_machine_drive0_insert(self, opt_drive0);
         }
     }
     /* load initial drive1 */ {
         if(is_set(opt_drive1)) {
-            xcpc_machine_drive1_insert(self, opt_drive1);
+            (void) xcpc_machine_drive1_insert(self, opt_drive1);
         }
     }
     /* cleanup */ {
@@ -2703,14 +2703,15 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* i
         (void) xcpc_backend_init(&self->backend);
     }
     /* set backend methods */ {
-        self->backend.user_data    = self;
-        self->backend.create_func  = ((XcpcBackendFunc)(&xcpc_machine_create_func ));
-        self->backend.destroy_func = ((XcpcBackendFunc)(&xcpc_machine_destroy_func));
-        self->backend.realize_func = ((XcpcBackendFunc)(&xcpc_machine_realize_func));
-        self->backend.resize_func  = ((XcpcBackendFunc)(&xcpc_machine_resize_func ));
-        self->backend.expose_func  = ((XcpcBackendFunc)(&xcpc_machine_expose_func ));
-        self->backend.input_func   = ((XcpcBackendFunc)(&xcpc_machine_input_func  ));
-        self->backend.clock_func   = ((XcpcBackendFunc)(&xcpc_machine_clock_func  ));
+        self->backend.instance       = self;
+        self->backend.attach_func    = ((XcpcBackendFunc)(&xcpc_machine_attach_func   ));
+        self->backend.detach_func    = ((XcpcBackendFunc)(&xcpc_machine_detach_func  ));
+        self->backend.realize_func   = ((XcpcBackendFunc)(&xcpc_machine_realize_func  ));
+        self->backend.unrealize_func = ((XcpcBackendFunc)(&xcpc_machine_unrealize_func));
+        self->backend.resize_func    = ((XcpcBackendFunc)(&xcpc_machine_resize_func   ));
+        self->backend.expose_func    = ((XcpcBackendFunc)(&xcpc_machine_expose_func   ));
+        self->backend.input_func     = ((XcpcBackendFunc)(&xcpc_machine_input_func    ));
+        self->backend.clock_func     = ((XcpcBackendFunc)(&xcpc_machine_clock_func    ));
     }
     /* initialize */ {
         (void) initialize(self);
@@ -2866,13 +2867,13 @@ const char* xcpc_machine_drive1_filename(XcpcMachine* self)
     return NULL;
 }
 
-XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
+XcpcMachine* xcpc_machine_snapshot_load(XcpcMachine* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
     uint32_t           ram_size = self->setup.memory_size;
 
-    log_trace("xcpc_machine_load_snapshot");
+    log_trace("xcpc_machine_snapshot_load");
     /* reset and clock just one frame to avoid a strange bug (eg. gryzor) */ {
         (void) xcpc_machine_reset(self);
         (void) xcpc_machine_clock(self);
@@ -2933,13 +2934,13 @@ XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
     return self;
 }
 
-XcpcMachine* xcpc_machine_save_snapshot(XcpcMachine* self, const char* filename)
+XcpcMachine* xcpc_machine_snapshot_save(XcpcMachine* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
     uint32_t           ram_size = self->setup.memory_size;
 
-    log_trace("xcpc_machine_save_snapshot");
+    log_trace("xcpc_machine_snapshot_save");
     /* store devices */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             (void) xcpc_snapshot_store_cpu_z80a(snapshot, self->board.cpu_z80a);
@@ -3017,20 +3018,17 @@ XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
     return self->setup.memory_size;
 }
 
-unsigned long xcpc_machine_create_func(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_attach_func(XcpcMachine* self, XEvent* event, XcpcBackendData* data)
 {
     return 0UL;
 }
 
-unsigned long xcpc_machine_destroy_func(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_detach_func(XcpcMachine* self, XEvent* event, XcpcBackendData* data)
 {
-    /* unrealize */ {
-        (void) xcpc_monitor_unrealize(self->board.monitor);
-    }
     return 0UL;
 }
 
-unsigned long xcpc_machine_realize_func(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_realize_func(XcpcMachine* self, XEvent* event, XcpcBackendData* data)
 {
     /* realize */ {
         (void) xcpc_monitor_realize ( self->board.monitor
@@ -3072,7 +3070,15 @@ unsigned long xcpc_machine_realize_func(XcpcMachine* self, XEvent* event, void* 
     return 0UL;
 }
 
-unsigned long xcpc_machine_resize_func(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_unrealize_func(XcpcMachine* self, XEvent* event, XcpcBackendData* data)
+{
+    /* unrealize */ {
+        (void) xcpc_monitor_unrealize(self->board.monitor);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_resize_func(XcpcMachine* self, XEvent* event, XcpcBackendData* data)
 {
     if(event->type == ConfigureNotify) {
         (void) xcpc_monitor_resize(self->board.monitor, &event->xconfigure);
@@ -3080,7 +3086,7 @@ unsigned long xcpc_machine_resize_func(XcpcMachine* self, XEvent* event, void* e
     return 0UL;
 }
 
-unsigned long xcpc_machine_expose_func(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_expose_func(XcpcMachine* self, XEvent* event, XcpcBackendData* data)
 {
     if(event->type == Expose) {
         (void) xcpc_monitor_expose(self->board.monitor, &event->xexpose);
@@ -3088,7 +3094,7 @@ unsigned long xcpc_machine_expose_func(XcpcMachine* self, XEvent* event, void* e
     return 0UL;
 }
 
-unsigned long xcpc_machine_input_func(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_input_func(XcpcMachine* self, XEvent* event, XcpcBackendData* data)
 {
     switch(event->type) {
         case KeyPress:
@@ -3112,7 +3118,7 @@ unsigned long xcpc_machine_input_func(XcpcMachine* self, XEvent* event, void* ex
     return 0UL;
 }
 
-unsigned long xcpc_machine_clock_func(XcpcMachine* self, XEvent* event, void* extra)
+unsigned long xcpc_machine_clock_func(XcpcMachine* self, XEvent* event, XcpcBackendData* data)
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;

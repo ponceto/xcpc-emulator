@@ -40,8 +40,8 @@ extern XcpcMachine* xcpc_machine_drive1_insert   (XcpcMachine* machine, const ch
 extern XcpcMachine* xcpc_machine_drive1_remove   (XcpcMachine* machine);
 extern const char*  xcpc_machine_drive1_filename (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_load_snapshot   (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_save_snapshot   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_snapshot_load   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_snapshot_save   (XcpcMachine* machine, const char* filename);
 
 extern XcpcCompanyName  xcpc_machine_company_name  (XcpcMachine* machine);
 extern XcpcMachineType  xcpc_machine_machine_type  (XcpcMachine* machine);
@@ -49,14 +49,6 @@ extern XcpcMonitorType  xcpc_machine_monitor_type  (XcpcMachine* machine);
 extern XcpcRefreshRate  xcpc_machine_refresh_rate  (XcpcMachine* machine);
 extern XcpcKeyboardType xcpc_machine_keyboard_type (XcpcMachine* machine);
 extern XcpcMemorySize   xcpc_machine_memory_size   (XcpcMachine* machine);
-
-extern unsigned long xcpc_machine_create_func  (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_destroy_func (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_realize_func (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_resize_func  (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_expose_func  (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_input_func   (XcpcMachine* machine, XEvent* event, void* extra);
-extern unsigned long xcpc_machine_clock_func   (XcpcMachine* machine, XEvent* event, void* extra);
 
 #ifdef __cplusplus
 }

@@ -27,15 +27,15 @@ typedef struct _XcpcFrontend XcpcFrontend;
 
 struct _XcpcFrontend
 {
-    void* user_data;
-    void (*reserved0)(void* user_data);
-    void (*reserved1)(void* user_data);
-    void (*reserved2)(void* user_data);
-    void (*reserved3)(void* user_data);
-    void (*reserved4)(void* user_data);
-    void (*reserved5)(void* user_data);
-    void (*reserved6)(void* user_data);
-    void (*reserved7)(void* user_data);
+    void* instance;
+    void (*reserved0)(void* instance);
+    void (*reserved1)(void* instance);
+    void (*reserved2)(void* instance);
+    void (*reserved3)(void* instance);
+    void (*reserved4)(void* instance);
+    void (*reserved5)(void* instance);
+    void (*reserved6)(void* instance);
+    void (*reserved7)(void* instance);
 };
 
 extern XcpcFrontend* xcpc_frontend_init(XcpcFrontend* frontend);

@@ -22,38 +22,32 @@
 #include <string.h>
 #include "frontend.h"
 
-static void default_proc(void* user_data)
+static void default_proc(void* instance)
 {
+}
+
+static XcpcFrontend* reset_frontend(XcpcFrontend* frontend)
+{
+    if(frontend != NULL) {
+        frontend->instance  = NULL;
+        frontend->reserved0 = &default_proc;
+        frontend->reserved1 = &default_proc;
+        frontend->reserved2 = &default_proc;
+        frontend->reserved3 = &default_proc;
+        frontend->reserved4 = &default_proc;
+        frontend->reserved5 = &default_proc;
+        frontend->reserved6 = &default_proc;
+        frontend->reserved7 = &default_proc;
+    }
+    return frontend;
 }
 
 XcpcFrontend* xcpc_frontend_init(XcpcFrontend* frontend)
 {
-    if(frontend != NULL) {
-        frontend->user_data = NULL;
-        frontend->reserved0 = &default_proc;
-        frontend->reserved1 = &default_proc;
-        frontend->reserved2 = &default_proc;
-        frontend->reserved3 = &default_proc;
-        frontend->reserved4 = &default_proc;
-        frontend->reserved5 = &default_proc;
-        frontend->reserved6 = &default_proc;
-        frontend->reserved7 = &default_proc;
-    }
-    return frontend;
+    return reset_frontend(frontend);
 }
 
 XcpcFrontend* xcpc_frontend_fini(XcpcFrontend* frontend)
 {
-    if(frontend != NULL) {
-        frontend->user_data = NULL;
-        frontend->reserved0 = &default_proc;
-        frontend->reserved1 = &default_proc;
-        frontend->reserved2 = &default_proc;
-        frontend->reserved3 = &default_proc;
-        frontend->reserved4 = &default_proc;
-        frontend->reserved5 = &default_proc;
-        frontend->reserved6 = &default_proc;
-        frontend->reserved7 = &default_proc;
-    }
-    return frontend;
+    return reset_frontend(frontend);
 }

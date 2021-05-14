@@ -245,9 +245,9 @@ static Widget FindShell(Widget widget)
 }
 
 /*
- * XemEmulatorWidget::TimeOutHandler()
+ * XemEmulatorWidget::TimerHandler()
  */
-static void TimeOutHandler(Widget widget, XtIntervalId* timer)
+static void TimerHandler(Widget widget, XtIntervalId* timer)
 {
     XemEmulatorWidget self = CAST_EMULATOR(widget);
     unsigned long     timeout = 0UL;
@@ -257,16 +257,20 @@ static void TimeOutHandler(Widget widget, XtIntervalId* timer)
             self->emulator.timer = XT_INTERVAL_ID(0);
         }
     }
-    /* call timer-proc */ {
+    /* call clock_func */ {
         if((self->core.sensitive != FALSE) && (self->core.ancestor_sensitive != FALSE)) {
-            timeout = (*self->emulator.backend.clock_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+            XcpcBackendData data;
+            data.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
+            timeout = (*self->emulator.backend.clock_func)(self->emulator.backend.instance, data.event, &data);
         }
         else {
-            timeout = (*self->emulator.backend.idle_func)(NULL, NULL, NULL);
+            XcpcBackendData data;
+            data.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
+            timeout = (*self->emulator.backend.idle_func)(self->emulator.backend.instance, data.event, &data);
         }
     }
     /* schedule timer */ {
-        self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), (timeout != 0UL ? timeout : 1UL), XT_TIMER_CALLBACK_PROC(&TimeOutHandler), XT_POINTER(widget));
+        self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), (timeout != 0UL ? timeout : 1UL), XT_TIMER_CALLBACK_PROC(&TimerHandler), XT_POINTER(widget));
     }
     /* process throttled input event */ {
         (void) XemEventsProcess(widget, &self->emulator.events);
@@ -281,7 +285,7 @@ static void Schedule(Widget widget, unsigned long timeout)
     XemEmulatorWidget self = CAST_EMULATOR(widget);
 
     if(self->emulator.timer == XT_INTERVAL_ID(0)) {
-        self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), (timeout != 0UL ? timeout : 1UL), XT_TIMER_CALLBACK_PROC(&TimeOutHandler), XT_POINTER(widget));
+        self->emulator.timer = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), (timeout != 0UL ? timeout : 1UL), XT_TIMER_CALLBACK_PROC(&TimerHandler), XT_POINTER(widget));
     }
 }
 
@@ -356,11 +360,11 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal* nu
             self->emulator.backend_ptr = &self->emulator.backend;
         }
     }
-    /* call create-proc */ {
-        (void) (*self->emulator.backend.create_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    /* call attach_func */ {
+        (void) (*self->emulator.backend.attach_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
     }
     /* schedule timer */ {
-        Schedule(widget, (*self->emulator.backend.idle_func)(NULL, NULL, NULL));
+        Schedule(widget, (*self->emulator.backend.idle_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL));
     }
 }
 
@@ -402,8 +406,11 @@ static void Destroy(Widget widget)
     /* unschedule timer */ {
         Unschedule(widget);
     }
-    /* call destroy-proc */ {
-        (void) (*self->emulator.backend.destroy_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    /* call unrealize_func */ {
+        (void) (*self->emulator.backend.unrealize_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    }
+    /* call detach_func */ {
+        (void) (*self->emulator.backend.detach_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
     }
     /* destruct backend */ {
         (void) XemBackendDestruct(widget, &self->emulator.backend);
@@ -435,8 +442,8 @@ static void Resize(Widget widget)
 {
     XemEmulatorWidget self = CAST_EMULATOR(widget);
 
-    /* call resize-proc */ {
-        (void) (*self->emulator.backend.resize_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    /* call resize_func */ {
+        (void) (*self->emulator.backend.resize_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
     }
 }
 
@@ -452,7 +459,7 @@ static void Redraw(Widget widget, XEvent* event, Region region)
     XemEmulatorWidget self = CAST_EMULATOR(widget);
 
     if(event->type == Expose) {
-        (void) (*self->emulator.backend.expose_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, event), NULL);
+        (void) (*self->emulator.backend.expose_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, event), NULL);
     }
 }
 
@@ -634,8 +641,8 @@ static void OnConfigureNotify(Widget widget, XEvent* event, String* params, Card
                 XtSetValues(widget, arglist, argcount);
             }
         }
-        /* call resize-proc */ {
-            (void) (*self->emulator.backend.resize_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, event), NULL);
+        /* call resize_func */ {
+            (void) (*self->emulator.backend.resize_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, event), NULL);
         }
     }
 }
@@ -654,7 +661,6 @@ Widget XemCreateEmulator(Widget parent, String name, ArgList args, Cardinal num_
 {
     return XtCreateWidget(name, xemEmulatorWidgetClass, parent, args, num_args);
 }
-
 
 /*
  * Utilities
@@ -687,13 +693,18 @@ XemVideo* XemVideoRealize(Widget widget, XemVideo* video)
         video->window  = XtWindow(widget);
     }
     if(video->display != NULL) {
-        (void) (*self->emulator.backend.realize_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+        (void) (*self->emulator.backend.realize_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
     }
     return video;
 }
 
 XemVideo* XemVideoUnrealize(Widget widget, XemVideo* video)
 {
+    XemEmulatorWidget self = CAST_EMULATOR(widget);
+
+    if(video->display != NULL) {
+        (void) (*self->emulator.backend.unrealize_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, NULL), NULL);
+    }
     if(video->display != NULL) {
         video->display = NULL;
         video->window  = None;
@@ -865,7 +876,7 @@ XemEvents* XemEventsProcess(Widget widget, XemEvents* events)
             event_type = event->type;
         }
         if(event->type == event_type) {
-            (void) (*self->emulator.backend.input_func)(self->emulator.backend.user_data, event, NULL);
+            (void) (*self->emulator.backend.input_func)(self->emulator.backend.instance, event, NULL);
             events->head = ((events->head + 1) % countof(events->list));
             events->tail = ((events->tail + 0) % countof(events->list));
         }
@@ -1033,8 +1044,8 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
                             xevent.xbutton.button      = event_number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* call input-proc */ {
-                            (void) (*self->emulator.backend.input_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
+                        /* call input_func */ {
+                            (void) (*self->emulator.backend.input_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
                         }
                     }
                     return TRUE;
@@ -1066,8 +1077,8 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* call input-proc */ {
-                            (void) (*self->emulator.backend.input_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
+                        /* call input_func */ {
+                            (void) (*self->emulator.backend.input_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
                         }
                     }
                     return TRUE;
@@ -1245,8 +1256,8 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xbutton.button      = event.number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* call input-proc */ {
-                            (void) (*self->emulator.backend.input_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
+                        /* call input_func */ {
+                            (void) (*self->emulator.backend.input_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
                         }
                     }
                     break;
@@ -1278,8 +1289,8 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* call input-proc */ {
-                            (void) (*self->emulator.backend.input_func)(self->emulator.backend.user_data, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
+                        /* call input_func */ {
+                            (void) (*self->emulator.backend.input_func)(self->emulator.backend.instance, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent), NULL);
                         }
                     }
                     break;

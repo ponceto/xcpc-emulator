@@ -311,7 +311,7 @@ static XcpcApplication* reset_emulator(XcpcApplication* self)
 static XcpcApplication* load_snapshot(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_load_snapshot(self->machine, filename);
+        (void) xcpc_machine_snapshot_load(self->machine, filename);
     }
     return self;
 }
@@ -319,7 +319,7 @@ static XcpcApplication* load_snapshot(XcpcApplication* self, const char* filenam
 static XcpcApplication* save_snapshot(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_save_snapshot(self->machine, filename);
+        (void) xcpc_machine_snapshot_save(self->machine, filename);
     }
     return self;
 }

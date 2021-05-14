@@ -22,39 +22,34 @@
 #include <string.h>
 #include "backend.h"
 
-static unsigned long default_func(void* user_data, XEvent* event, void* extra)
+static unsigned long default_func(void* instance, XEvent* event, XcpcBackendData* data)
 {
     return 100UL;
 }
 
-XcpcBackend* xcpc_backend_init(XcpcBackend* backend)
+static XcpcBackend* reset_backend(XcpcBackend* backend)
 {
     if(backend != NULL) {
-        backend->user_data    = NULL;
-        backend->idle_func    = &default_func;
-        backend->create_func  = &default_func;
-        backend->destroy_func = &default_func;
-        backend->realize_func = &default_func;
-        backend->resize_func  = &default_func;
-        backend->expose_func  = &default_func;
-        backend->input_func   = &default_func;
-        backend->clock_func   = &default_func;
+        backend->instance       = NULL;
+        backend->idle_func      = &default_func;
+        backend->attach_func    = &default_func;
+        backend->detach_func    = &default_func;
+        backend->realize_func   = &default_func;
+        backend->unrealize_func = &default_func;
+        backend->resize_func    = &default_func;
+        backend->expose_func    = &default_func;
+        backend->input_func     = &default_func;
+        backend->clock_func     = &default_func;
     }
     return backend;
 }
 
+XcpcBackend* xcpc_backend_init(XcpcBackend* backend)
+{
+    return reset_backend(backend);
+}
+
 XcpcBackend* xcpc_backend_fini(XcpcBackend* backend)
 {
-    if(backend != NULL) {
-        backend->user_data    = NULL;
-        backend->idle_func    = &default_func;
-        backend->create_func  = &default_func;
-        backend->destroy_func = &default_func;
-        backend->realize_func = &default_func;
-        backend->resize_func  = &default_func;
-        backend->expose_func  = &default_func;
-        backend->input_func   = &default_func;
-        backend->clock_func   = &default_func;
-    }
-    return backend;
+    return reset_backend(backend);
 }
