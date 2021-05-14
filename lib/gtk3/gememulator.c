@@ -54,12 +54,12 @@ static gboolean timer_handler(GtkWidget* widget)
     }
     /* call clock_func */ {
         if(gtk_widget_is_sensitive(widget) != FALSE) {
-            XcpcBackendData data;
+            XcpcBackendEvent data;
             data.event = gem_events_copy_or_fill(widget, &self->events, NULL);
             timeout = (*self->backend.clock_func)(self->backend.instance, data.event, &data);
         }
         else {
-            XcpcBackendData data;
+            XcpcBackendEvent data;
             data.event = gem_events_copy_or_fill(widget, &self->events, NULL);
             timeout = (*self->backend.idle_func)(self->backend.instance, data.event, &data);
         }

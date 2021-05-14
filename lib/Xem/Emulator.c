@@ -259,12 +259,12 @@ static void TimerHandler(Widget widget, XtIntervalId* timer)
     }
     /* call clock_func */ {
         if((self->core.sensitive != FALSE) && (self->core.ancestor_sensitive != FALSE)) {
-            XcpcBackendData data;
+            XcpcBackendEvent data;
             data.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
             timeout = (*self->emulator.backend.clock_func)(self->emulator.backend.instance, data.event, &data);
         }
         else {
-            XcpcBackendData data;
+            XcpcBackendEvent data;
             data.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
             timeout = (*self->emulator.backend.idle_func)(self->emulator.backend.instance, data.event, &data);
         }

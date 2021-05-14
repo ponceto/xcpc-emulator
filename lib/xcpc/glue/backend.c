@@ -22,7 +22,7 @@
 #include <string.h>
 #include "backend.h"
 
-static unsigned long default_func(void* instance, XEvent* event, XcpcBackendData* data)
+static unsigned long default_func(void* instance, XEvent* event, XcpcBackendEvent* data)
 {
     return 100UL;
 }

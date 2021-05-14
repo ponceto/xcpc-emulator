@@ -23,93 +23,93 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcBackend              XcpcBackend;
-typedef struct _XcpcBackendData          XcpcBackendData;
-typedef struct _XcpcBackendIdleData      XcpcBackendIdleData;
-typedef struct _XcpcBackendAttachData    XcpcBackendAttachData;
-typedef struct _XcpcBackendDetachData    XcpcBackendDetachData;
-typedef struct _XcpcBackendRealizeData   XcpcBackendRealizeData;
-typedef struct _XcpcBackendUnrealizeData XcpcBackendUnrealizeData;
-typedef struct _XcpcBackendResizeData    XcpcBackendResizeData;
-typedef struct _XcpcBackendExposeData    XcpcBackendExposeData;
-typedef struct _XcpcBackendInputData     XcpcBackendInputData;
-typedef struct _XcpcBackendClockData     XcpcBackendClockData;
+typedef struct _XcpcBackend               XcpcBackend;
+typedef struct _XcpcBackendEvent          XcpcBackendEvent;
+typedef struct _XcpcBackendIdleEvent      XcpcBackendIdleEvent;
+typedef struct _XcpcBackendAttachEvent    XcpcBackendAttachEvent;
+typedef struct _XcpcBackendDetachEvent    XcpcBackendDetachEvent;
+typedef struct _XcpcBackendRealizeEvent   XcpcBackendRealizeEvent;
+typedef struct _XcpcBackendUnrealizeEvent XcpcBackendUnrealizeEvent;
+typedef struct _XcpcBackendResizeEvent    XcpcBackendResizeEvent;
+typedef struct _XcpcBackendExposeEvent    XcpcBackendExposeEvent;
+typedef struct _XcpcBackendInputEvent     XcpcBackendInputEvent;
+typedef struct _XcpcBackendClockEvent     XcpcBackendClockEvent;
 
-typedef unsigned long (*XcpcBackendFunc)(void* instance, XEvent* event, XcpcBackendData* data);
+typedef unsigned long (*XcpcBackendFunc)(void* instance, XEvent* event, XcpcBackendEvent* data);
 
-struct _XcpcBackendIdleData
+struct _XcpcBackendIdleEvent
 {
     int pad;
 };
 
-struct _XcpcBackendAttachData
+struct _XcpcBackendAttachEvent
 {
     int pad;
 };
 
-struct _XcpcBackendDetachData
+struct _XcpcBackendDetachEvent
 {
     int pad;
 };
 
-struct _XcpcBackendRealizeData
+struct _XcpcBackendRealizeEvent
 {
     int pad;
 };
 
-struct _XcpcBackendUnrealizeData
+struct _XcpcBackendUnrealizeEvent
 {
     int pad;
 };
 
-struct _XcpcBackendResizeData
+struct _XcpcBackendResizeEvent
 {
     int pad;
 };
 
-struct _XcpcBackendExposeData
+struct _XcpcBackendExposeEvent
 {
     int pad;
 };
 
-struct _XcpcBackendInputData
+struct _XcpcBackendInputEvent
 {
     int pad;
 };
 
-struct _XcpcBackendClockData
+struct _XcpcBackendClockEvent
 {
     int pad;
 };
 
-struct _XcpcBackendData
+struct _XcpcBackendEvent
 {
     XEvent* event;
     union {
-        XcpcBackendIdleData      idle;
-        XcpcBackendAttachData    attach;
-        XcpcBackendDetachData    detach;
-        XcpcBackendRealizeData   realize;
-        XcpcBackendUnrealizeData unrealize;
-        XcpcBackendResizeData    resize;
-        XcpcBackendExposeData    expose;
-        XcpcBackendInputData     input;
-        XcpcBackendClockData     clock;
+        XcpcBackendIdleEvent      idle;
+        XcpcBackendAttachEvent    attach;
+        XcpcBackendDetachEvent    detach;
+        XcpcBackendRealizeEvent   realize;
+        XcpcBackendUnrealizeEvent unrealize;
+        XcpcBackendResizeEvent    resize;
+        XcpcBackendExposeEvent    expose;
+        XcpcBackendInputEvent     input;
+        XcpcBackendClockEvent     clock;
     } u;
 };
 
 struct _XcpcBackend
 {
     void* instance;
-    unsigned long (*idle_func)      (void* instance, XEvent* event, XcpcBackendData* data);
-    unsigned long (*attach_func)    (void* instance, XEvent* event, XcpcBackendData* data);
-    unsigned long (*detach_func)    (void* instance, XEvent* event, XcpcBackendData* data);
-    unsigned long (*realize_func)   (void* instance, XEvent* event, XcpcBackendData* data);
-    unsigned long (*unrealize_func) (void* instance, XEvent* event, XcpcBackendData* data);
-    unsigned long (*resize_func)    (void* instance, XEvent* event, XcpcBackendData* data);
-    unsigned long (*expose_func)    (void* instance, XEvent* event, XcpcBackendData* data);
-    unsigned long (*input_func)     (void* instance, XEvent* event, XcpcBackendData* data);
-    unsigned long (*clock_func)     (void* instance, XEvent* event, XcpcBackendData* data);
+    unsigned long (*idle_func)      (void* instance, XEvent* event, XcpcBackendEvent* data);
+    unsigned long (*attach_func)    (void* instance, XEvent* event, XcpcBackendEvent* data);
+    unsigned long (*detach_func)    (void* instance, XEvent* event, XcpcBackendEvent* data);
+    unsigned long (*realize_func)   (void* instance, XEvent* event, XcpcBackendEvent* data);
+    unsigned long (*unrealize_func) (void* instance, XEvent* event, XcpcBackendEvent* data);
+    unsigned long (*resize_func)    (void* instance, XEvent* event, XcpcBackendEvent* data);
+    unsigned long (*expose_func)    (void* instance, XEvent* event, XcpcBackendEvent* data);
+    unsigned long (*input_func)     (void* instance, XEvent* event, XcpcBackendEvent* data);
+    unsigned long (*clock_func)     (void* instance, XEvent* event, XcpcBackendEvent* data);
 };
 
 extern XcpcBackend* xcpc_backend_init(XcpcBackend* backend);
