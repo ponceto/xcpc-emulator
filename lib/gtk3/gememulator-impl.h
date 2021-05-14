@@ -19,6 +19,8 @@
 
 #include <gtk/gtkx.h>
 #include <glib-unix.h>
+#include <xcpc/glue/backend.h>
+#include <xcpc/glue/frontend.h>
 
 G_BEGIN_DECLS
 
@@ -34,7 +36,7 @@ typedef struct _GemAudio    GemAudio;
 typedef struct _GemEvents   GemEvents;
 typedef struct _GemKeyboard GemKeyboard;
 typedef struct _GemJoystick GemJoystick;
-typedef struct _GemMachine  GemMachine;
+typedef struct _XcpcBackend GemBackend;
 
 struct _GemVideo
 {
@@ -85,18 +87,6 @@ struct _GemJoystick
     unsigned short js_mapping[1024];
 };
 
-struct _GemMachine
-{
-    GemEmulatorData instance;
-    GemEmulatorFunc create_func;
-    GemEmulatorFunc destroy_func;
-    GemEmulatorFunc realize_func;
-    GemEmulatorFunc resize_func;
-    GemEmulatorFunc expose_func;
-    GemEmulatorFunc input_func;
-    GemEmulatorFunc clock_func;
-};
-
 extern GemVideo*    gem_video_construct       (GtkWidget* widget, GemVideo* video);
 extern GemVideo*    gem_video_destruct        (GtkWidget* widget, GemVideo* video);
 extern GemVideo*    gem_video_realize         (GtkWidget* widget, GemVideo* video);
@@ -122,9 +112,8 @@ extern GemJoystick* gem_joystick_destruct     (GtkWidget* widget, GemJoystick* j
 extern GemJoystick* gem_joystick_lookup_by_fd (GtkWidget* widget, int fd);
 extern gboolean     gem_joystick_handler      (gint fd, GIOCondition condition, GtkWidget* widget);
 
-extern GemMachine*  gem_machine_construct     (GtkWidget* widget, GemMachine* machine);
-extern GemMachine*  gem_machine_destruct      (GtkWidget* widget, GemMachine* machine);
-extern GemMachine*  gem_machine_sanitize      (GtkWidget* widget, GemMachine* machine);
+extern GemBackend*  gem_backend_construct     (GtkWidget* widget, GemBackend* backend);
+extern GemBackend*  gem_backend_destruct      (GtkWidget* widget, GemBackend* backend);
 
 G_END_DECLS
 

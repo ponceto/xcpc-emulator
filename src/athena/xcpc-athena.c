@@ -332,7 +332,7 @@ static XcpcApplication* SetDrive0(XcpcApplication* self)
     char        buffer[256];
 
     /* fetch filename */ {
-        filename = xcpc_machine_filename_drive0(self->machine);
+        filename = xcpc_machine_drive0_filename(self->machine);
         if((filename != NULL) && (*filename != '\0')) {
             const char* slash = strrchr(filename, '/');
             if(slash != NULL) {
@@ -364,7 +364,7 @@ static XcpcApplication* SetDrive1(XcpcApplication* self)
     char        buffer[256];
 
     /* fetch filename */ {
-        filename = xcpc_machine_filename_drive1(self->machine);
+        filename = xcpc_machine_drive1_filename(self->machine);
         if((filename != NULL) && (*filename != '\0')) {
             const char* slash = strrchr(filename, '/');
             if(slash != NULL) {
@@ -480,14 +480,14 @@ static XcpcApplication* SaveSnapshot(XcpcApplication* self, const char* filename
 static XcpcApplication* InsertDiskIntoDrive0(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_insert_drive0(self->machine, filename);
+        (void) xcpc_machine_drive0_insert(self->machine, filename);
     }
     return SetDrive0(self);
 }
 
 static XcpcApplication* RemoveDiskFromDrive0(XcpcApplication* self)
 {
-    xcpc_machine_remove_drive0(self->machine);
+    (void) xcpc_machine_drive0_remove(self->machine);
 
     return SetDrive0(self);
 }
@@ -501,14 +501,14 @@ static XcpcApplication* RemoveDiskFromDrive0(XcpcApplication* self)
 static XcpcApplication* InsertDiskIntoDrive1(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_insert_drive1(self->machine, filename);
+        (void) xcpc_machine_drive1_insert(self->machine, filename);
     }
     return SetDrive1(self);
 }
 
 static XcpcApplication* RemoveDiskFromDrive1(XcpcApplication* self)
 {
-    xcpc_machine_remove_drive1(self->machine);
+    (void) xcpc_machine_drive1_remove(self->machine);
 
     return SetDrive1(self);
 }
@@ -1559,30 +1559,23 @@ static XcpcApplication* BuildInfoBar(XcpcApplication* self)
 static XcpcApplication* BuildEmulator(XcpcApplication* self)
 {
     XcpcLayoutRec* layout = &self->layout;
-    Arg      arglist[24];
+    Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* emulator */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNborderWidth       , 0                         ); ++argcount;
-        XtSetArg(arglist[argcount], XtNsensitive         , False                     ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineInstance   , self->machine             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineCreateFunc , &xcpc_machine_create_func ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineDestroyFunc, &xcpc_machine_destroy_func); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineRealizeFunc, &xcpc_machine_realize_func); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineResizeFunc , &xcpc_machine_resize_func ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineExposeFunc , &xcpc_machine_expose_func ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineInputFunc  , &xcpc_machine_input_func  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineClockFunc  , &xcpc_machine_clock_func  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNjoystick0         , xcpc_get_joystick0()      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNjoystick1         , xcpc_get_joystick1()      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNresizable         , True                      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNfromHoriz         , NULL                      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNfromVert          , self->toolbar.widget      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNtop               , XtChainTop                ); ++argcount;
-        XtSetArg(arglist[argcount], XtNbottom            , XtChainBottom             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNleft              , XtChainLeft               ); ++argcount;
-        XtSetArg(arglist[argcount], XtNright             , XtChainRight              ); ++argcount;
+        XtSetArg(arglist[argcount], XtNborderWidth, 0                      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNsensitive  , False                  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNbackend    , &self->machine->backend); ++argcount;
+        XtSetArg(arglist[argcount], XtNjoystick0  , xcpc_get_joystick0()   ); ++argcount;
+        XtSetArg(arglist[argcount], XtNjoystick1  , xcpc_get_joystick1()   ); ++argcount;
+        XtSetArg(arglist[argcount], XtNresizable  , True                   ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromHoriz  , NULL                   ); ++argcount;
+        XtSetArg(arglist[argcount], XtNfromVert   , self->toolbar.widget   ); ++argcount;
+        XtSetArg(arglist[argcount], XtNtop        , XtChainTop             ); ++argcount;
+        XtSetArg(arglist[argcount], XtNbottom     , XtChainBottom          ); ++argcount;
+        XtSetArg(arglist[argcount], XtNleft       , XtChainLeft            ); ++argcount;
+        XtSetArg(arglist[argcount], XtNright      , XtChainRight           ); ++argcount;
         layout->emulator = XemCreateEmulator(self->layout.window, "emulator", arglist, argcount);
         XtAddCallback(layout->emulator, XtNhotkeyCallback , (XtCallbackProc) &HotkeyCallback , (XtPointer) self);
         XtAddCallback(layout->emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);
@@ -1695,18 +1688,7 @@ XcpcApplication* XcpcApplicationRun(XcpcApplication* self)
         }
     }
     /* intialize machine */ {
-        const XcpcMachineIface machine_iface = {
-            self, /* user_data */
-            NULL, /* reserved0 */
-            NULL, /* reserved1 */
-            NULL, /* reserved2 */
-            NULL, /* reserved3 */
-            NULL, /* reserved4 */
-            NULL, /* reserved5 */
-            NULL, /* reserved6 */
-            NULL, /* reserved7 */
-        };
-        self->machine = xcpc_machine_new(&machine_iface, self->options);
+        self->machine = xcpc_machine_new(NULL, self->options);
     }
 #ifdef HAVE_PORTAUDIO
     /* initialize portaudio */ {

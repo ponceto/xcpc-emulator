@@ -45,6 +45,7 @@ libgem3_la_LDFLAGS = \
 	$(NULL)
 
 libgem3_la_LIBADD = \
+	$(top_builddir)/lib/xcpc/libxcpc.la \
 	$(gtk3_LIBS) \
 	$(NULL)
 

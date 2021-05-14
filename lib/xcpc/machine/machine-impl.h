@@ -18,6 +18,8 @@
 #define __XCPC_MACHINE_IMPL_H__
 
 #include <xcpc/libxcpc.h>
+#include <xcpc/glue/backend.h>
+#include <xcpc/glue/frontend.h>
 #include <xcpc/options/options.h>
 #include <xcpc/monitor/monitor.h>
 #include <xcpc/keyboard/keyboard.h>
@@ -170,6 +172,7 @@ struct _XcpcMachine
     XcpcMachineStats stats;
     XcpcMachineTimer timer;
     XcpcMachineFuncs funcs;
+    XcpcBackend      backend;
 };
 
 #ifdef __cplusplus

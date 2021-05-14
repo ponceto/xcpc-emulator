@@ -2641,12 +2641,12 @@ static void initialize(XcpcMachine* self)
     }
     /* load initial drive0 */ {
         if(is_set(opt_drive0)) {
-            xcpc_machine_insert_drive0(self, opt_drive0);
+            xcpc_machine_drive0_insert(self, opt_drive0);
         }
     }
     /* load initial drive1 */ {
         if(is_set(opt_drive1)) {
-            xcpc_machine_insert_drive1(self, opt_drive1);
+            xcpc_machine_drive1_insert(self, opt_drive1);
         }
     }
     /* cleanup */ {
@@ -2699,6 +2699,19 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* i
         construct_timer(self);
         construct_funcs(self);
     }
+    /* initialize backend */ {
+        (void) xcpc_backend_init(&self->backend);
+    }
+    /* set backend methods */ {
+        self->backend.user_data    = self;
+        self->backend.create_func  = ((XcpcBackendFunc)(&xcpc_machine_create_func ));
+        self->backend.destroy_func = ((XcpcBackendFunc)(&xcpc_machine_destroy_func));
+        self->backend.realize_func = ((XcpcBackendFunc)(&xcpc_machine_realize_func));
+        self->backend.resize_func  = ((XcpcBackendFunc)(&xcpc_machine_resize_func ));
+        self->backend.expose_func  = ((XcpcBackendFunc)(&xcpc_machine_expose_func ));
+        self->backend.input_func   = ((XcpcBackendFunc)(&xcpc_machine_input_func  ));
+        self->backend.clock_func   = ((XcpcBackendFunc)(&xcpc_machine_clock_func  ));
+    }
     /* initialize */ {
         (void) initialize(self);
     }
@@ -2709,6 +2722,9 @@ XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
 {
     log_trace("destruct");
 
+    /* finalize backend */ {
+        (void) xcpc_backend_fini(&self->backend);
+    }
     /* destruct all subsystems */ {
         destruct_funcs(self);
         destruct_timer(self);
@@ -2790,9 +2806,9 @@ XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
     return self;
 }
 
-XcpcMachine* xcpc_machine_insert_drive0(XcpcMachine* self, const char* filename)
+XcpcMachine* xcpc_machine_drive0_insert(XcpcMachine* self, const char* filename)
 {
-    log_trace("xcpc_machine_insert_drive0");
+    log_trace("xcpc_machine_drive0_insert");
 
     if(self->board.fdc_765a != NULL) {
         (void) xcpc_fdc_765a_insert(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0, filename);
@@ -2800,9 +2816,9 @@ XcpcMachine* xcpc_machine_insert_drive0(XcpcMachine* self, const char* filename)
     return self;
 }
 
-XcpcMachine* xcpc_machine_remove_drive0(XcpcMachine* self)
+XcpcMachine* xcpc_machine_drive0_remove(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_remove_drive0");
+    log_trace("xcpc_machine_drive0_remove");
 
     if(self->board.fdc_765a != NULL) {
         (void) xcpc_fdc_765a_remove(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0);
@@ -2810,9 +2826,9 @@ XcpcMachine* xcpc_machine_remove_drive0(XcpcMachine* self)
     return self;
 }
 
-const char* xcpc_machine_filename_drive0(XcpcMachine* self)
+const char* xcpc_machine_drive0_filename(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_filename_drive0");
+    log_trace("xcpc_machine_drive0_filename");
 
     if(self->board.fdc_765a != NULL) {
         return xcpc_fdc_765a_filename(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0, NULL);
@@ -2820,9 +2836,9 @@ const char* xcpc_machine_filename_drive0(XcpcMachine* self)
     return NULL;
 }
 
-XcpcMachine* xcpc_machine_insert_drive1(XcpcMachine* self, const char* filename)
+XcpcMachine* xcpc_machine_drive1_insert(XcpcMachine* self, const char* filename)
 {
-    log_trace("xcpc_machine_insert_drive1");
+    log_trace("xcpc_machine_drive1_insert");
 
     if(self->board.fdc_765a != NULL) {
         (void) xcpc_fdc_765a_insert(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1, filename);
@@ -2830,9 +2846,9 @@ XcpcMachine* xcpc_machine_insert_drive1(XcpcMachine* self, const char* filename)
     return self;
 }
 
-XcpcMachine* xcpc_machine_remove_drive1(XcpcMachine* self)
+XcpcMachine* xcpc_machine_drive1_remove(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_remove_drive1");
+    log_trace("xcpc_machine_drive1_remove");
 
     if(self->board.fdc_765a != NULL) {
         (void) xcpc_fdc_765a_remove(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1);
@@ -2840,9 +2856,9 @@ XcpcMachine* xcpc_machine_remove_drive1(XcpcMachine* self)
     return self;
 }
 
-const char* xcpc_machine_filename_drive1(XcpcMachine* self)
+const char* xcpc_machine_drive1_filename(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_filename_drive1");
+    log_trace("xcpc_machine_drive1_filename");
 
     if(self->board.fdc_765a != NULL) {
         return xcpc_fdc_765a_filename(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1, NULL);

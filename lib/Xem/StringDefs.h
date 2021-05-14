@@ -31,40 +31,12 @@ extern "C" {
 #define XtNdropURICallback "dropURICallback"
 #endif
 
-#ifndef XtNmachineInstance
-#define XtNmachineInstance "machineInstance"
-#endif
-
-#ifndef XtNmachineCreateFunc
-#define XtNmachineCreateFunc "machineCreateFunc"
-#endif
-
-#ifndef XtNmachineDestroyFunc
-#define XtNmachineDestroyFunc "machineDestroyFunc"
-#endif
-
-#ifndef XtNmachineRealizeFunc
-#define XtNmachineRealizeFunc "machineRealizeFunc"
-#endif
-
-#ifndef XtNmachineResizeFunc
-#define XtNmachineResizeFunc "machineResizeFunc"
-#endif
-
-#ifndef XtNmachineExposeFunc
-#define XtNmachineExposeFunc "machineExposeFunc"
-#endif
-
-#ifndef XtNmachineInputFunc
-#define XtNmachineInputFunc "machineInputFunc"
-#endif
-
-#ifndef XtNmachineClockFunc
-#define XtNmachineClockFunc "machineClockFunc"
-#endif
-
 #ifndef XtNhotkeyCallback
 #define XtNhotkeyCallback "hotkeyCallback"
+#endif
+
+#ifndef XtNbackend
+#define XtNbackend "backend"
 #endif
 
 #ifndef XtNjoystick0
@@ -81,6 +53,10 @@ extern "C" {
 
 #ifndef XtCFunction
 #define XtCFunction "Function"
+#endif
+
+#ifndef XtCBackend
+#define XtCBackend "Backend"
 #endif
 
 #ifndef XtCJoystick

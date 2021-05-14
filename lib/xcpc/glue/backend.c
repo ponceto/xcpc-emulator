@@ -21,3 +21,40 @@
 #include <stdlib.h>
 #include <string.h>
 #include "backend.h"
+
+static unsigned long default_func(void* user_data, XEvent* event, void* extra)
+{
+    return 100UL;
+}
+
+XcpcBackend* xcpc_backend_init(XcpcBackend* backend)
+{
+    if(backend != NULL) {
+        backend->user_data    = NULL;
+        backend->idle_func    = &default_func;
+        backend->create_func  = &default_func;
+        backend->destroy_func = &default_func;
+        backend->realize_func = &default_func;
+        backend->resize_func  = &default_func;
+        backend->expose_func  = &default_func;
+        backend->input_func   = &default_func;
+        backend->clock_func   = &default_func;
+    }
+    return backend;
+}
+
+XcpcBackend* xcpc_backend_fini(XcpcBackend* backend)
+{
+    if(backend != NULL) {
+        backend->user_data    = NULL;
+        backend->idle_func    = &default_func;
+        backend->create_func  = &default_func;
+        backend->destroy_func = &default_func;
+        backend->realize_func = &default_func;
+        backend->resize_func  = &default_func;
+        backend->expose_func  = &default_func;
+        backend->input_func   = &default_func;
+        backend->clock_func   = &default_func;
+    }
+    return backend;
+}

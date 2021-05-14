@@ -32,13 +32,13 @@ extern XcpcMachine* xcpc_machine_delete    (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_reset     (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_clock     (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_insert_drive0   (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_remove_drive0   (XcpcMachine* machine);
-extern const char*  xcpc_machine_filename_drive0 (XcpcMachine* machine);
+extern XcpcMachine* xcpc_machine_drive0_insert   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_drive0_remove   (XcpcMachine* machine);
+extern const char*  xcpc_machine_drive0_filename (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_insert_drive1   (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_remove_drive1   (XcpcMachine* machine);
-extern const char*  xcpc_machine_filename_drive1 (XcpcMachine* machine);
+extern XcpcMachine* xcpc_machine_drive1_insert   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_drive1_remove   (XcpcMachine* machine);
+extern const char*  xcpc_machine_drive1_filename (XcpcMachine* machine);
 
 extern XcpcMachine* xcpc_machine_load_snapshot   (XcpcMachine* machine, const char* filename);
 extern XcpcMachine* xcpc_machine_save_snapshot   (XcpcMachine* machine, const char* filename);

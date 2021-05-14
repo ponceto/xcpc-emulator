@@ -18,6 +18,8 @@
 #define __XemEmulatorI_h__
 
 #include <Xem/Emulator.h>
+#include <xcpc/glue/backend.h>
+#include <xcpc/glue/frontend.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,7 +37,7 @@ typedef struct _XemAudio    XemAudio;
 typedef struct _XemEvents   XemEvents;
 typedef struct _XemKeyboard XemKeyboard;
 typedef struct _XemJoystick XemJoystick;
-typedef struct _XemMachine  XemMachine;
+typedef struct _XcpcBackend XemBackend;
 
 struct _XemVideo
 {
@@ -86,18 +88,6 @@ struct _XemJoystick
     unsigned short js_mapping[1024];
 };
 
-struct _XemMachine
-{
-    XemEmulatorData instance;
-    XemEmulatorFunc create_func;
-    XemEmulatorFunc destroy_func;
-    XemEmulatorFunc realize_func;
-    XemEmulatorFunc resize_func;
-    XemEmulatorFunc expose_func;
-    XemEmulatorFunc input_func;
-    XemEmulatorFunc clock_func;
-};
-
 extern XemVideo*    XemVideoConstruct          (Widget widget, XemVideo* video);
 extern XemVideo*    XemVideoDestruct           (Widget widget, XemVideo* video);
 extern XemVideo*    XemVideoRealize            (Widget widget, XemVideo* video);
@@ -124,9 +114,8 @@ extern XemJoystick* XemJoystickLookupByFd      (Widget widget, int fd);
 extern void         XemJoystickHandler         (Widget widget, int* source, XtInputId* input_id);
 extern XemJoystick* XemJoystickDump            (Widget widget, XemJoystick* joystick, unsigned char button);
 
-extern XemMachine*  XemMachineConstruct        (Widget widget, XemMachine* machine);
-extern XemMachine*  XemMachineDestruct         (Widget widget, XemMachine* machine);
-extern XemMachine*  XemMachineSanitize         (Widget widget, XemMachine* machine);
+extern XemBackend*  XemBackendConstruct        (Widget widget, XemBackend* backend);
+extern XemBackend*  XemBackendDestruct         (Widget widget, XemBackend* backend);
 
 #ifdef __cplusplus
 }

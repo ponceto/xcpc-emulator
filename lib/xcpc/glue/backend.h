@@ -17,24 +17,31 @@
 #ifndef __XCPC_BACKEND_H__
 #define __XCPC_BACKEND_H__
 
+#include <xcpc/libxcpc.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct _XcpcBackend XcpcBackend;
 
+typedef unsigned long (*XcpcBackendFunc)(void* user_data, XEvent* event, void* extra);
+
 struct _XcpcBackend
 {
-    void* data;
-    void (*reserved0)(void* data);
-    void (*reserved1)(void* data);
-    void (*reserved2)(void* data);
-    void (*reserved3)(void* data);
-    void (*reserved4)(void* data);
-    void (*reserved5)(void* data);
-    void (*reserved6)(void* data);
-    void (*reserved7)(void* data);
+    void* user_data;
+    unsigned long (*idle_func)    (void* user_data, XEvent* event, void* extra);
+    unsigned long (*create_func)  (void* user_data, XEvent* event, void* extra);
+    unsigned long (*destroy_func) (void* user_data, XEvent* event, void* extra);
+    unsigned long (*realize_func) (void* user_data, XEvent* event, void* extra);
+    unsigned long (*resize_func)  (void* user_data, XEvent* event, void* extra);
+    unsigned long (*expose_func)  (void* user_data, XEvent* event, void* extra);
+    unsigned long (*input_func)   (void* user_data, XEvent* event, void* extra);
+    unsigned long (*clock_func)   (void* user_data, XEvent* event, void* extra);
 };
+
+extern XcpcBackend* xcpc_backend_init(XcpcBackend* backend);
+extern XcpcBackend* xcpc_backend_fini(XcpcBackend* backend);
 
 #ifdef __cplusplus
 }

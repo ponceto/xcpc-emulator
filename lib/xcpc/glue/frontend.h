@@ -17,6 +17,8 @@
 #ifndef __XCPC_FRONTEND_H__
 #define __XCPC_FRONTEND_H__
 
+#include <xcpc/libxcpc.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,16 +27,19 @@ typedef struct _XcpcFrontend XcpcFrontend;
 
 struct _XcpcFrontend
 {
-    void* data;
-    void (*reserved0)(void* data);
-    void (*reserved1)(void* data);
-    void (*reserved2)(void* data);
-    void (*reserved3)(void* data);
-    void (*reserved4)(void* data);
-    void (*reserved5)(void* data);
-    void (*reserved6)(void* data);
-    void (*reserved7)(void* data);
+    void* user_data;
+    void (*reserved0)(void* user_data);
+    void (*reserved1)(void* user_data);
+    void (*reserved2)(void* user_data);
+    void (*reserved3)(void* user_data);
+    void (*reserved4)(void* user_data);
+    void (*reserved5)(void* user_data);
+    void (*reserved6)(void* user_data);
+    void (*reserved7)(void* user_data);
 };
+
+extern XcpcFrontend* xcpc_frontend_init(XcpcFrontend* frontend);
+extern XcpcFrontend* xcpc_frontend_fini(XcpcFrontend* frontend);
 
 #ifdef __cplusplus
 }

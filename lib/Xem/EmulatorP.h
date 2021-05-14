@@ -45,7 +45,8 @@ typedef struct _XemEmulatorPart
     XemKeyboard    keyboard;
     XemJoystick    joystick0;
     XemJoystick    joystick1;
-    XemMachine     machine;
+    XemBackend     backend;
+    XemBackend*    backend_ptr;
     XtCallbackList hotkey_callback;
     XtIntervalId   timer;
 } XemEmulatorPart;

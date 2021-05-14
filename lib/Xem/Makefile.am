@@ -52,6 +52,7 @@ libXem_la_LDFLAGS = \
 	$(NULL)
 
 libXem_la_LIBADD = \
+	$(top_builddir)/lib/xcpc/libxcpc.la \
 	-lXt \
 	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \

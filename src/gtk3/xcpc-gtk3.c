@@ -184,7 +184,7 @@ static XcpcApplication* set_drive0(XcpcApplication* self)
     char*       string   = NULL;
 
     /* fetch filename */ {
-        filename = xcpc_machine_filename_drive0(self->machine);
+        filename = xcpc_machine_drive0_filename(self->machine);
         if((filename != NULL) && (*filename != '\0')) {
             const char* slash = strrchr(filename, '/');
             if(slash != NULL) {
@@ -216,7 +216,7 @@ static XcpcApplication* set_drive1(XcpcApplication* self)
     char*       string   = NULL;
 
     /* fetch filename */ {
-        filename = xcpc_machine_filename_drive1(self->machine);
+        filename = xcpc_machine_drive1_filename(self->machine);
         if((filename != NULL) && (*filename != '\0')) {
             const char* slash = strrchr(filename, '/');
             if(slash != NULL) {
@@ -333,14 +333,14 @@ static XcpcApplication* save_snapshot(XcpcApplication* self, const char* filenam
 static XcpcApplication* insert_disk_into_drive0(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_insert_drive0(self->machine, filename);
+        (void) xcpc_machine_drive0_insert(self->machine, filename);
     }
     return set_drive0(self);
 }
 
 static XcpcApplication* remove_disk_from_drive0(XcpcApplication* self)
 {
-    xcpc_machine_remove_drive0(self->machine);
+    (void) xcpc_machine_drive0_remove(self->machine);
 
     return set_drive0(self);
 }
@@ -354,14 +354,14 @@ static XcpcApplication* remove_disk_from_drive0(XcpcApplication* self)
 static XcpcApplication* insert_disk_into_drive1(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_insert_drive1(self->machine, filename);
+        (void) xcpc_machine_drive1_insert(self->machine, filename);
     }
     return set_drive1(self);
 }
 
 static XcpcApplication* remove_disk_from_drive1(XcpcApplication* self)
 {
-    xcpc_machine_remove_drive1(self->machine);
+    (void) xcpc_machine_drive1_remove(self->machine);
 
     return set_drive1(self);
 }
@@ -1135,21 +1135,11 @@ static void build_workwnd(XcpcApplication* self)
         static const GtkTargetEntry target_entries[] = {
             { "text/uri-list", 0, 1 },
         };
-        const GemMachine machine = {
-            GEM_EMULATOR_DATA(self->machine),
-            GEM_EMULATOR_FUNC(&xcpc_machine_create_func),
-            GEM_EMULATOR_FUNC(&xcpc_machine_destroy_func),
-            GEM_EMULATOR_FUNC(&xcpc_machine_realize_func),
-            GEM_EMULATOR_FUNC(&xcpc_machine_resize_func),
-            GEM_EMULATOR_FUNC(&xcpc_machine_expose_func),
-            GEM_EMULATOR_FUNC(&xcpc_machine_input_func),
-            GEM_EMULATOR_FUNC(&xcpc_machine_clock_func),
-        };
         current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");
         emulator_add_hotkey_callback(current->emulator, self, NULL);
         gtk_widget_set_sensitive(current->emulator, FALSE);
-        gem_emulator_set_machine(current->emulator, &machine);
+        gem_emulator_set_backend(current->emulator, &self->machine->backend);
         gem_emulator_set_joystick(current->emulator, 0, xcpc_get_joystick0());
         gem_emulator_set_joystick(current->emulator, 1, xcpc_get_joystick1());
         gtk_box_pack_start(GTK_BOX(current->widget), current->emulator, TRUE, TRUE, 0);
@@ -1325,18 +1315,7 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self)
         }
     }
     /* intialize the machine */ {
-        const XcpcMachineIface machine_iface = {
-            self, /* user_data */
-            NULL, /* reserved0 */
-            NULL, /* reserved1 */
-            NULL, /* reserved2 */
-            NULL, /* reserved3 */
-            NULL, /* reserved4 */
-            NULL, /* reserved5 */
-            NULL, /* reserved6 */
-            NULL, /* reserved7 */
-        };
-        self->machine = xcpc_machine_new(&machine_iface, self->options);
+        self->machine = xcpc_machine_new(NULL, self->options);
     }
 #ifdef HAVE_PORTAUDIO
     /* initialize portaudio */ {
