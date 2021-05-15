@@ -54,14 +54,16 @@ static gboolean timer_handler(GtkWidget* widget)
     }
     /* call clock_func */ {
         if(gtk_widget_is_sensitive(widget) != FALSE) {
+            XcpcBackend*       backend = &self->backend;
             XcpcBackendClosure closure;
             closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-            timeout = (*self->backend.clock_func)(self->backend.instance, &closure);
+            timeout = (*backend->clock_func)(backend->instance, &closure);
         }
         else {
+            XcpcBackend*       backend = &self->backend;
             XcpcBackendClosure closure;
             closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-            timeout = (*self->backend.idle_func)(self->backend.instance, &closure);
+            timeout = (*backend->idle_func)(backend->instance, &closure);
         }
     }
     /* restart timer */ {
@@ -119,9 +121,10 @@ static GdkFilterReturn impl_filter_func(GdkXEvent* native_event, GdkEvent* event
                     }
                 }
                 /* call resize_func */ {
+                    XcpcBackend*       backend = &self->backend;
                     XcpcBackendClosure closure;
                     closure.event = gem_events_copy_or_fill(widget, &self->events, xevent);
-                    (void) (*self->backend.resize_func)(self->backend.instance, &closure);
+                    (void) (*backend->resize_func)(backend->instance, &closure);
                 }
                 gtk_widget_queue_resize(widget);
             }
@@ -156,9 +159,10 @@ static void impl_widget_destroy(GtkWidget* widget)
     GtkWidgetClass* super = GTK_WIDGET_CLASS(gem_emulator_parent_class);
 
     /* call detach_func */ {
+        XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*self->backend.detach_func)(self->backend.instance, &closure);
+        (void) (*backend->detach_func)(backend->instance, &closure);
     }
     /* unschedule timer */ {
         unschedule(widget);
@@ -276,9 +280,10 @@ static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
         xevent.xexpose.count      = 0;
     }
     /* call expose_func */ {
+        XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-        (void) (*self->backend.expose_func)(self->backend.instance, &closure);
+        (void) (*backend->expose_func)(backend->instance, &closure);
     }
     return FALSE;
 }
@@ -576,9 +581,10 @@ static void gem_emulator_init(GemEmulator* self)
         self->timer = 0;
     }
     /* schedule timer */ {
+        XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        schedule(widget, (*self->backend.idle_func)(self->backend.instance, &closure));
+        schedule(widget, (*backend->idle_func)(backend->instance, &closure));
     }
 }
 
@@ -592,17 +598,19 @@ void gem_emulator_set_backend(GtkWidget* widget, const GemBackend* backend)
     GemEmulator* self = CAST_EMULATOR(widget);
 
     /* call detach_func */ {
+        XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*self->backend.detach_func)(self->backend.instance, &closure);
+        (void) (*backend->detach_func)(backend->instance, &closure);
     }
     /* set backend */ {
         self->backend = *backend;
     }
     /* call attach_func */ {
+        XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*self->backend.attach_func)(self->backend.instance, &closure);
+        (void) (*backend->attach_func)(backend->instance, &closure);
     }
 }
 
@@ -656,9 +664,10 @@ GemVideo* gem_video_realize(GtkWidget* widget, GemVideo* video)
         video->window  = GDK_WINDOW_XID(gdk_window);
     }
     if(video->display != NULL) {
+        XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*self->backend.realize_func)(self->backend.instance, &closure);
+        (void) (*backend->realize_func)(backend->instance, &closure);
     }
     return video;
 }
@@ -668,9 +677,10 @@ GemVideo* gem_video_unrealize(GtkWidget* widget, GemVideo* video)
     GemEmulator* self = CAST_EMULATOR(widget);
 
     if(video->display != NULL) {
+        XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*self->backend.unrealize_func)(self->backend.instance, &closure);
+        (void) (*backend->unrealize_func)(backend->instance, &closure);
     }
     if(video->display != NULL) {
         video->display = NULL;
@@ -843,9 +853,10 @@ GemEvents* gem_events_process(GtkWidget* widget, GemEvents* events)
             event_type = event->type;
         }
         if(event->type == event_type) {
+            XcpcBackend*       backend = &self->backend;
             XcpcBackendClosure closure;
             closure.event = event;
-            (void) (*self->backend.input_func)(self->backend.instance, &closure);
+            (void) (*backend->input_func)(backend->instance, &closure);
             events->head = ((events->head + 1) % countof(events->list));
             events->tail = ((events->tail + 0) % countof(events->list));
         }
@@ -1014,9 +1025,10 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
                             xevent.xbutton.same_screen = True;
                         }
                         /* call input_func */ {
+                            XcpcBackend*       backend = &self->backend;
                             XcpcBackendClosure closure;
                             closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-                            (void) (*self->backend.input_func)(self->backend.instance, &closure);
+                            (void) (*backend->input_func)(backend->instance, &closure);
                         }
                     }
                     return TRUE;
@@ -1049,9 +1061,10 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
                             xevent.xmotion.same_screen = True;
                         }
                         /* call input_func */ {
+                            XcpcBackend*       backend = &self->backend;
                             XcpcBackendClosure closure;
                             closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-                            (void) (*self->backend.input_func)(self->backend.instance, &closure);
+                            (void) (*backend->input_func)(backend->instance, &closure);
                         }
                     }
                     return TRUE;
@@ -1235,9 +1248,10 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                             xevent.xbutton.same_screen = True;
                         }
                         /* call input_func */ {
+                            XcpcBackend*       backend = &self->backend;
                             XcpcBackendClosure closure;
                             closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-                            (void) (*self->backend.input_func)(self->backend.instance, &closure);
+                            (void) (*backend->input_func)(backend->instance, &closure);
                         }
                     }
                     break;
@@ -1270,9 +1284,10 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                             xevent.xmotion.same_screen = True;
                         }
                         /* call input_func */ {
+                            XcpcBackend*       backend = &self->backend;
                             XcpcBackendClosure closure;
                             closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-                            (void) (*self->backend.input_func)(self->backend.instance, &closure);
+                            (void) (*backend->input_func)(backend->instance, &closure);
                         }
                     }
                     break;
