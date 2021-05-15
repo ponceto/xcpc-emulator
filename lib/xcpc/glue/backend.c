@@ -22,7 +22,7 @@
 #include <string.h>
 #include "backend.h"
 
-static unsigned long default_func(void* instance, XcpcBackendParam* data)
+static unsigned long default_func(void* instance, XcpcBackendClosure* closure)
 {
     return 100UL;
 }

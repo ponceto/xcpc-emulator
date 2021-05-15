@@ -3018,24 +3018,24 @@ XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
     return self->setup.memory_size;
 }
 
-unsigned long xcpc_machine_attach_func(XcpcMachine* self, XcpcBackendParam* data)
+unsigned long xcpc_machine_attach_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
     return 0UL;
 }
 
-unsigned long xcpc_machine_detach_func(XcpcMachine* self, XcpcBackendParam* data)
+unsigned long xcpc_machine_detach_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
     return 0UL;
 }
 
-unsigned long xcpc_machine_realize_func(XcpcMachine* self, XcpcBackendParam* data)
+unsigned long xcpc_machine_realize_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
     /* realize */ {
         (void) xcpc_monitor_realize ( self->board.monitor
                                     , self->setup.monitor_type
                                     , self->setup.refresh_rate
-                                    , data->event->xany.display
-                                    , data->event->xany.window
+                                    , closure->event->xany.display
+                                    , closure->event->xany.window
                                     , (self->setup.xshm != 0 ? True : False) );
     }
     /* init paint handler */ {
@@ -3070,7 +3070,7 @@ unsigned long xcpc_machine_realize_func(XcpcMachine* self, XcpcBackendParam* dat
     return 0UL;
 }
 
-unsigned long xcpc_machine_unrealize_func(XcpcMachine* self, XcpcBackendParam* data)
+unsigned long xcpc_machine_unrealize_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
     /* unrealize */ {
         (void) xcpc_monitor_unrealize(self->board.monitor);
@@ -3078,39 +3078,39 @@ unsigned long xcpc_machine_unrealize_func(XcpcMachine* self, XcpcBackendParam* d
     return 0UL;
 }
 
-unsigned long xcpc_machine_resize_func(XcpcMachine* self, XcpcBackendParam* data)
+unsigned long xcpc_machine_resize_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    if(data->event->type == ConfigureNotify) {
-        (void) xcpc_monitor_resize(self->board.monitor, &data->event->xconfigure);
+    if(closure->event->type == ConfigureNotify) {
+        (void) xcpc_monitor_resize(self->board.monitor, &closure->event->xconfigure);
     }
     return 0UL;
 }
 
-unsigned long xcpc_machine_expose_func(XcpcMachine* self, XcpcBackendParam* data)
+unsigned long xcpc_machine_expose_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    if(data->event->type == Expose) {
-        (void) xcpc_monitor_expose(self->board.monitor, &data->event->xexpose);
+    if(closure->event->type == Expose) {
+        (void) xcpc_monitor_expose(self->board.monitor, &closure->event->xexpose);
     }
     return 0UL;
 }
 
-unsigned long xcpc_machine_input_func(XcpcMachine* self, XcpcBackendParam* data)
+unsigned long xcpc_machine_input_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    switch(data->event->type) {
+    switch(closure->event->type) {
         case KeyPress:
-            (*self->funcs.keybd_func)(self, data->event);
+            (*self->funcs.keybd_func)(self, closure->event);
             break;
         case KeyRelease:
-            (*self->funcs.keybd_func)(self, data->event);
+            (*self->funcs.keybd_func)(self, closure->event);
             break;
         case ButtonPress:
-            (*self->funcs.mouse_func)(self, data->event);
+            (*self->funcs.mouse_func)(self, closure->event);
             break;
         case ButtonRelease:
-            (*self->funcs.mouse_func)(self, data->event);
+            (*self->funcs.mouse_func)(self, closure->event);
             break;
         case MotionNotify:
-            (*self->funcs.mouse_func)(self, data->event);
+            (*self->funcs.mouse_func)(self, closure->event);
             break;
         default:
             break;
@@ -3118,7 +3118,7 @@ unsigned long xcpc_machine_input_func(XcpcMachine* self, XcpcBackendParam* data)
     return 0UL;
 }
 
-unsigned long xcpc_machine_clock_func(XcpcMachine* self, XcpcBackendParam* data)
+unsigned long xcpc_machine_clock_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;

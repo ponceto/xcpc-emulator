@@ -23,19 +23,25 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcFrontend XcpcFrontend;
+typedef struct _XcpcFrontend        XcpcFrontend;
+typedef struct _XcpcFrontendClosure XcpcFrontendClosure;
+
+struct _XcpcFrontendClosure
+{
+    int padding;
+};
 
 struct _XcpcFrontend
 {
     void* instance;
-    void (*reserved0)(void* instance);
-    void (*reserved1)(void* instance);
-    void (*reserved2)(void* instance);
-    void (*reserved3)(void* instance);
-    void (*reserved4)(void* instance);
-    void (*reserved5)(void* instance);
-    void (*reserved6)(void* instance);
-    void (*reserved7)(void* instance);
+    void (*reserved0)(void* instance, XcpcFrontendClosure* closure);
+    void (*reserved1)(void* instance, XcpcFrontendClosure* closure);
+    void (*reserved2)(void* instance, XcpcFrontendClosure* closure);
+    void (*reserved3)(void* instance, XcpcFrontendClosure* closure);
+    void (*reserved4)(void* instance, XcpcFrontendClosure* closure);
+    void (*reserved5)(void* instance, XcpcFrontendClosure* closure);
+    void (*reserved6)(void* instance, XcpcFrontendClosure* closure);
+    void (*reserved7)(void* instance, XcpcFrontendClosure* closure);
 };
 
 extern XcpcFrontend* xcpc_frontend_init(XcpcFrontend* frontend);

@@ -22,7 +22,7 @@
 #include <string.h>
 #include "frontend.h"
 
-static void default_proc(void* instance)
+static void default_proc(void* instance, XcpcFrontendClosure* closure)
 {
 }
 

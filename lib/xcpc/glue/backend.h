@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 typedef struct _XcpcBackend               XcpcBackend;
-typedef struct _XcpcBackendParam          XcpcBackendParam;
+typedef struct _XcpcBackendClosure        XcpcBackendClosure;
 typedef struct _XcpcBackendIdleEvent      XcpcBackendIdleEvent;
 typedef struct _XcpcBackendAttachEvent    XcpcBackendAttachEvent;
 typedef struct _XcpcBackendDetachEvent    XcpcBackendDetachEvent;
@@ -35,7 +35,7 @@ typedef struct _XcpcBackendExposeEvent    XcpcBackendExposeEvent;
 typedef struct _XcpcBackendInputEvent     XcpcBackendInputEvent;
 typedef struct _XcpcBackendClockEvent     XcpcBackendClockEvent;
 
-typedef unsigned long (*XcpcBackendFunc)(void* instance, XcpcBackendParam* data);
+typedef unsigned long (*XcpcBackendFunc)(void* instance, XcpcBackendClosure* closure);
 
 struct _XcpcBackendIdleEvent
 {
@@ -82,7 +82,7 @@ struct _XcpcBackendClockEvent
     int padding;
 };
 
-struct _XcpcBackendParam
+struct _XcpcBackendClosure
 {
     XEvent* event;
     union {
@@ -101,15 +101,15 @@ struct _XcpcBackendParam
 struct _XcpcBackend
 {
     void* instance;
-    unsigned long (*idle_func)      (void* instance, XcpcBackendParam* data);
-    unsigned long (*attach_func)    (void* instance, XcpcBackendParam* data);
-    unsigned long (*detach_func)    (void* instance, XcpcBackendParam* data);
-    unsigned long (*realize_func)   (void* instance, XcpcBackendParam* data);
-    unsigned long (*unrealize_func) (void* instance, XcpcBackendParam* data);
-    unsigned long (*resize_func)    (void* instance, XcpcBackendParam* data);
-    unsigned long (*expose_func)    (void* instance, XcpcBackendParam* data);
-    unsigned long (*input_func)     (void* instance, XcpcBackendParam* data);
-    unsigned long (*clock_func)     (void* instance, XcpcBackendParam* data);
+    unsigned long (*idle_func)      (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*attach_func)    (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*detach_func)    (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*realize_func)   (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*unrealize_func) (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*resize_func)    (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*expose_func)    (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*input_func)     (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*clock_func)     (void* instance, XcpcBackendClosure* closure);
 };
 
 extern XcpcBackend* xcpc_backend_init(XcpcBackend* backend);
