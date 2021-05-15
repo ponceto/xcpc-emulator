@@ -61,14 +61,14 @@ struct _XcpcBorders
 #define XCPC_WORD_PTR(pointer) ((uint16_t*)(pointer))
 #define XCPC_LONG_PTR(pointer) ((uint32_t*)(pointer))
 
-extern unsigned long xcpc_machine_attach_func    (XcpcMachine* machine, XEvent* event, XcpcBackendEvent* data);
-extern unsigned long xcpc_machine_detach_func    (XcpcMachine* machine, XEvent* event, XcpcBackendEvent* data);
-extern unsigned long xcpc_machine_realize_func   (XcpcMachine* machine, XEvent* event, XcpcBackendEvent* data);
-extern unsigned long xcpc_machine_unrealize_func (XcpcMachine* machine, XEvent* event, XcpcBackendEvent* data);
-extern unsigned long xcpc_machine_resize_func    (XcpcMachine* machine, XEvent* event, XcpcBackendEvent* data);
-extern unsigned long xcpc_machine_expose_func    (XcpcMachine* machine, XEvent* event, XcpcBackendEvent* data);
-extern unsigned long xcpc_machine_input_func     (XcpcMachine* machine, XEvent* event, XcpcBackendEvent* data);
-extern unsigned long xcpc_machine_clock_func     (XcpcMachine* machine, XEvent* event, XcpcBackendEvent* data);
+extern unsigned long xcpc_machine_attach_func    (XcpcMachine* machine, XcpcBackendParam* data);
+extern unsigned long xcpc_machine_detach_func    (XcpcMachine* machine, XcpcBackendParam* data);
+extern unsigned long xcpc_machine_realize_func   (XcpcMachine* machine, XcpcBackendParam* data);
+extern unsigned long xcpc_machine_unrealize_func (XcpcMachine* machine, XcpcBackendParam* data);
+extern unsigned long xcpc_machine_resize_func    (XcpcMachine* machine, XcpcBackendParam* data);
+extern unsigned long xcpc_machine_expose_func    (XcpcMachine* machine, XcpcBackendParam* data);
+extern unsigned long xcpc_machine_input_func     (XcpcMachine* machine, XcpcBackendParam* data);
+extern unsigned long xcpc_machine_clock_func     (XcpcMachine* machine, XcpcBackendParam* data);
 
 #ifdef __cplusplus
 }

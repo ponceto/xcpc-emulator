@@ -3018,24 +3018,24 @@ XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
     return self->setup.memory_size;
 }
 
-unsigned long xcpc_machine_attach_func(XcpcMachine* self, XEvent* event, XcpcBackendEvent* data)
+unsigned long xcpc_machine_attach_func(XcpcMachine* self, XcpcBackendParam* data)
 {
     return 0UL;
 }
 
-unsigned long xcpc_machine_detach_func(XcpcMachine* self, XEvent* event, XcpcBackendEvent* data)
+unsigned long xcpc_machine_detach_func(XcpcMachine* self, XcpcBackendParam* data)
 {
     return 0UL;
 }
 
-unsigned long xcpc_machine_realize_func(XcpcMachine* self, XEvent* event, XcpcBackendEvent* data)
+unsigned long xcpc_machine_realize_func(XcpcMachine* self, XcpcBackendParam* data)
 {
     /* realize */ {
         (void) xcpc_monitor_realize ( self->board.monitor
                                     , self->setup.monitor_type
                                     , self->setup.refresh_rate
-                                    , event->xany.display
-                                    , event->xany.window
+                                    , data->event->xany.display
+                                    , data->event->xany.window
                                     , (self->setup.xshm != 0 ? True : False) );
     }
     /* init paint handler */ {
@@ -3070,7 +3070,7 @@ unsigned long xcpc_machine_realize_func(XcpcMachine* self, XEvent* event, XcpcBa
     return 0UL;
 }
 
-unsigned long xcpc_machine_unrealize_func(XcpcMachine* self, XEvent* event, XcpcBackendEvent* data)
+unsigned long xcpc_machine_unrealize_func(XcpcMachine* self, XcpcBackendParam* data)
 {
     /* unrealize */ {
         (void) xcpc_monitor_unrealize(self->board.monitor);
@@ -3078,39 +3078,39 @@ unsigned long xcpc_machine_unrealize_func(XcpcMachine* self, XEvent* event, Xcpc
     return 0UL;
 }
 
-unsigned long xcpc_machine_resize_func(XcpcMachine* self, XEvent* event, XcpcBackendEvent* data)
+unsigned long xcpc_machine_resize_func(XcpcMachine* self, XcpcBackendParam* data)
 {
-    if(event->type == ConfigureNotify) {
-        (void) xcpc_monitor_resize(self->board.monitor, &event->xconfigure);
+    if(data->event->type == ConfigureNotify) {
+        (void) xcpc_monitor_resize(self->board.monitor, &data->event->xconfigure);
     }
     return 0UL;
 }
 
-unsigned long xcpc_machine_expose_func(XcpcMachine* self, XEvent* event, XcpcBackendEvent* data)
+unsigned long xcpc_machine_expose_func(XcpcMachine* self, XcpcBackendParam* data)
 {
-    if(event->type == Expose) {
-        (void) xcpc_monitor_expose(self->board.monitor, &event->xexpose);
+    if(data->event->type == Expose) {
+        (void) xcpc_monitor_expose(self->board.monitor, &data->event->xexpose);
     }
     return 0UL;
 }
 
-unsigned long xcpc_machine_input_func(XcpcMachine* self, XEvent* event, XcpcBackendEvent* data)
+unsigned long xcpc_machine_input_func(XcpcMachine* self, XcpcBackendParam* data)
 {
-    switch(event->type) {
+    switch(data->event->type) {
         case KeyPress:
-            (*self->funcs.keybd_func)(self, event);
+            (*self->funcs.keybd_func)(self, data->event);
             break;
         case KeyRelease:
-            (*self->funcs.keybd_func)(self, event);
+            (*self->funcs.keybd_func)(self, data->event);
             break;
         case ButtonPress:
-            (*self->funcs.mouse_func)(self, event);
+            (*self->funcs.mouse_func)(self, data->event);
             break;
         case ButtonRelease:
-            (*self->funcs.mouse_func)(self, event);
+            (*self->funcs.mouse_func)(self, data->event);
             break;
         case MotionNotify:
-            (*self->funcs.mouse_func)(self, event);
+            (*self->funcs.mouse_func)(self, data->event);
             break;
         default:
             break;
@@ -3118,7 +3118,7 @@ unsigned long xcpc_machine_input_func(XcpcMachine* self, XEvent* event, XcpcBack
     return 0UL;
 }
 
-unsigned long xcpc_machine_clock_func(XcpcMachine* self, XEvent* event, XcpcBackendEvent* data)
+unsigned long xcpc_machine_clock_func(XcpcMachine* self, XcpcBackendParam* data)
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;
