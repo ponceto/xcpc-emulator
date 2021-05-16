@@ -414,11 +414,11 @@ static void Destroy(Widget widget)
     /* unschedule timer */ {
         Unschedule(widget);
     }
-    /* call unrealize_func */ {
+    /* call delete_window_func */ {
         XcpcBackend*       backend = &self->emulator.backend;
         XcpcBackendClosure closure;
         closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
-        (void) (*backend->unrealize_func)(backend->instance, &closure);
+        (void) (*backend->delete_window_func)(backend->instance, &closure);
     }
     /* call detach_func */ {
         XcpcBackend*       backend = &self->emulator.backend;
@@ -456,11 +456,11 @@ static void Resize(Widget widget)
 {
     XemEmulatorWidget self = CAST_EMULATOR(widget);
 
-    /* call resize_func */ {
+    /* call resize_window_func */ {
         XcpcBackend*       backend = &self->emulator.backend;
         XcpcBackendClosure closure;
         closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
-        (void) (*backend->resize_func)(backend->instance, &closure);
+        (void) (*backend->resize_window_func)(backend->instance, &closure);
     }
 }
 
@@ -479,7 +479,7 @@ static void Redraw(Widget widget, XEvent* event, Region region)
         XcpcBackend*       backend = &self->emulator.backend;
         XcpcBackendClosure closure;
         closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, event);
-        (void) (*backend->expose_func)(backend->instance, &closure);
+        (void) (*backend->expose_window_func)(backend->instance, &closure);
     }
 }
 
@@ -661,11 +661,11 @@ static void OnConfigureNotify(Widget widget, XEvent* event, String* params, Card
                 XtSetValues(widget, arglist, argcount);
             }
         }
-        /* call resize_func */ {
+        /* call resize_window_func */ {
             XcpcBackend*       backend = &self->emulator.backend;
             XcpcBackendClosure closure;
             closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, event);
-            (void) (*backend->resize_func)(backend->instance, &closure);
+            (void) (*backend->resize_window_func)(backend->instance, &closure);
         }
     }
 }
@@ -719,7 +719,7 @@ XemVideo* XemVideoRealize(Widget widget, XemVideo* video)
         XcpcBackend*       backend = &self->emulator.backend;
         XcpcBackendClosure closure;
         closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
-        (void) (*backend->realize_func)(backend->instance, &closure);
+        (void) (*backend->create_window_func)(backend->instance, &closure);
     }
     return video;
 }
@@ -732,7 +732,7 @@ XemVideo* XemVideoUnrealize(Widget widget, XemVideo* video)
         XcpcBackend*       backend = &self->emulator.backend;
         XcpcBackendClosure closure;
         closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
-        (void) (*backend->unrealize_func)(backend->instance, &closure);
+        (void) (*backend->delete_window_func)(backend->instance, &closure);
     }
     if(video->display != NULL) {
         video->display = NULL;
@@ -881,6 +881,39 @@ XemEvents* XemEventsDestruct(Widget widget, XemEvents* events)
     return events;
 }
 
+XemEvents* XemEventsDispatch(Widget widget, XemEvents* events, XEvent* event)
+{
+    XemEmulatorWidget  self    = CAST_EMULATOR(widget);
+    XcpcBackend*       backend = &self->emulator.backend;
+    XcpcBackendClosure closure;
+
+    /* initialize closure */ {
+        closure.event = event;
+    }
+    /* dispatch event */ {
+        switch(event->type) {
+            case KeyPress:
+                (void) (*backend->key_press_func)(backend->instance, &closure);
+                break;
+            case KeyRelease:
+                (void) (*backend->key_release_func)(backend->instance, &closure);
+                break;
+            case ButtonPress:
+                (void) (*backend->button_press_func)(backend->instance, &closure);
+                break;
+            case ButtonRelease:
+                (void) (*backend->button_release_func)(backend->instance, &closure);
+                break;
+            case MotionNotify:
+                (void) (*backend->motion_notify_func)(backend->instance, &closure);
+                break;
+            default:
+                break;
+        }
+    }
+    return events;
+}
+
 XemEvents* XemEventsThrottle(Widget widget, XemEvents* events, XEvent* event)
 {
     unsigned int head = ((events->head + 0) % countof(events->list));
@@ -896,7 +929,6 @@ XemEvents* XemEventsThrottle(Widget widget, XemEvents* events, XEvent* event)
 
 XemEvents* XemEventsProcess(Widget widget, XemEvents* events)
 {
-    XemEmulatorWidget self = CAST_EMULATOR(widget);
     int event_type = 0;
 
     while(events->head != events->tail) {
@@ -905,10 +937,7 @@ XemEvents* XemEventsProcess(Widget widget, XemEvents* events)
             event_type = event->type;
         }
         if(event->type == event_type) {
-            XcpcBackend*       backend = &self->emulator.backend;
-            XcpcBackendClosure closure;
-            closure.event = event;
-            (void) (*backend->input_func)(backend->instance, &closure);
+            (void) XemEventsDispatch(widget, events, event);
             events->head = ((events->head + 1) % countof(events->list));
             events->tail = ((events->tail + 0) % countof(events->list));
         }
@@ -1076,11 +1105,8 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
                             xevent.xbutton.button      = event_number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* call input_func */ {
-                            XcpcBackend*       backend = &self->emulator.backend;
-                            XcpcBackendClosure closure;
-                            closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, &xevent);
-                            (void) (*backend->input_func)(backend->instance, &closure);
+                        /* dispatch event */ {
+                            (void) XemEventsDispatch(widget, &self->emulator.events, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent));
                         }
                     }
                     return TRUE;
@@ -1112,11 +1138,8 @@ static Boolean XemKeyboardPreprocessEvent(Widget widget, XemKeyboard* keyboard, 
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* call input_func */ {
-                            XcpcBackend*       backend = &self->emulator.backend;
-                            XcpcBackendClosure closure;
-                            closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, &xevent);
-                            (void) (*backend->input_func)(backend->instance, &closure);
+                        /* dispatch event */ {
+                            (void) XemEventsDispatch(widget, &self->emulator.events, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent));
                         }
                     }
                     return TRUE;
@@ -1294,11 +1317,8 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xbutton.button      = event.number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* call input_func */ {
-                            XcpcBackend*       backend = &self->emulator.backend;
-                            XcpcBackendClosure closure;
-                            closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, &xevent);
-                            (void) (*backend->input_func)(backend->instance, &closure);
+                        /* dispatch event */ {
+                            (void) XemEventsDispatch(widget, &self->emulator.events, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent));
                         }
                     }
                     break;
@@ -1330,11 +1350,8 @@ void XemJoystickHandler(Widget widget, int* source, XtInputId* input_id)
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* call input_func */ {
-                            XcpcBackend*       backend = &self->emulator.backend;
-                            XcpcBackendClosure closure;
-                            closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, &xevent);
-                            (void) (*backend->input_func)(backend->instance, &closure);
+                        /* dispatch event */ {
+                            (void) XemEventsDispatch(widget, &self->emulator.events, XemEventsCopyOrFill(widget, &self->emulator.events, &xevent));
                         }
                     }
                     break;

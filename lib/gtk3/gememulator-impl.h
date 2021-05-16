@@ -99,6 +99,7 @@ extern GemAudio*    gem_audio_unrealize       (GtkWidget* widget, GemAudio* audi
 
 extern GemEvents*   gem_events_construct      (GtkWidget* widget, GemEvents* events);
 extern GemEvents*   gem_events_destruct       (GtkWidget* widget, GemEvents* events);
+extern GemEvents*   gem_events_dispatch       (GtkWidget* widget, GemEvents* events, XEvent* event);
 extern GemEvents*   gem_events_throttle       (GtkWidget* widget, GemEvents* events, XEvent* event);
 extern GemEvents*   gem_events_process        (GtkWidget* widget, GemEvents* events);
 extern XEvent*      gem_events_copy_or_fill   (GtkWidget* widget, GemEvents* events, XEvent* event);

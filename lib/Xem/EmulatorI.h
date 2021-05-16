@@ -100,6 +100,7 @@ extern XemAudio*    XemAudioUnrealize          (Widget widget, XemAudio* audio);
 
 extern XemEvents*   XemEventsConstruct         (Widget widget, XemEvents* events);
 extern XemEvents*   XemEventsDestruct          (Widget widget, XemEvents* events);
+extern XemEvents*   XemEventsDispatch          (Widget widget, XemEvents* events, XEvent* event);
 extern XemEvents*   XemEventsThrottle          (Widget widget, XemEvents* events, XEvent* event);
 extern XemEvents*   XemEventsProcess           (Widget widget, XemEvents* events);
 extern XEvent*      XemEventsCopyOrFill        (Widget widget, XemEvents* events, XEvent* event);

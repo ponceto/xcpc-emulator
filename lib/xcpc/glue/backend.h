@@ -23,17 +23,21 @@
 extern "C" {
 #endif
 
-typedef struct _XcpcBackend               XcpcBackend;
-typedef struct _XcpcBackendClosure        XcpcBackendClosure;
-typedef struct _XcpcBackendIdleEvent      XcpcBackendIdleEvent;
-typedef struct _XcpcBackendAttachEvent    XcpcBackendAttachEvent;
-typedef struct _XcpcBackendDetachEvent    XcpcBackendDetachEvent;
-typedef struct _XcpcBackendRealizeEvent   XcpcBackendRealizeEvent;
-typedef struct _XcpcBackendUnrealizeEvent XcpcBackendUnrealizeEvent;
-typedef struct _XcpcBackendResizeEvent    XcpcBackendResizeEvent;
-typedef struct _XcpcBackendExposeEvent    XcpcBackendExposeEvent;
-typedef struct _XcpcBackendInputEvent     XcpcBackendInputEvent;
-typedef struct _XcpcBackendClockEvent     XcpcBackendClockEvent;
+typedef struct _XcpcBackend                  XcpcBackend;
+typedef struct _XcpcBackendClosure           XcpcBackendClosure;
+typedef struct _XcpcBackendIdleEvent         XcpcBackendIdleEvent;
+typedef struct _XcpcBackendAttachEvent       XcpcBackendAttachEvent;
+typedef struct _XcpcBackendDetachEvent       XcpcBackendDetachEvent;
+typedef struct _XcpcBackendClockEvent        XcpcBackendClockEvent;
+typedef struct _XcpcBackendCreateWindowEvent XcpcBackendCreateWindowEvent;
+typedef struct _XcpcBackendDeleteWindowEvent XcpcBackendDeleteWindowEvent;
+typedef struct _XcpcBackendResizeWindowEvent XcpcBackendResizeWindowEvent;
+typedef struct _XcpcBackendExposeWindowEvent XcpcBackendExposeWindowEvent;
+typedef struct _XcpcBackendKeyEvent          XcpcBackendKeyPressEvent;
+typedef struct _XcpcBackendKeyEvent          XcpcBackendKeyReleaseEvent;
+typedef struct _XcpcBackendButtonEvent       XcpcBackendButtonPressEvent;
+typedef struct _XcpcBackendButtonEvent       XcpcBackendButtonReleaseEvent;
+typedef struct _XcpcBackendMotionEvent       XcpcBackendMotionNotifyEvent;
 
 typedef unsigned long (*XcpcBackendFunc)(void* instance, XcpcBackendClosure* closure);
 
@@ -52,32 +56,42 @@ struct _XcpcBackendDetachEvent
     int padding;
 };
 
-struct _XcpcBackendRealizeEvent
-{
-    int padding;
-};
-
-struct _XcpcBackendUnrealizeEvent
-{
-    int padding;
-};
-
-struct _XcpcBackendResizeEvent
-{
-    int padding;
-};
-
-struct _XcpcBackendExposeEvent
-{
-    int padding;
-};
-
-struct _XcpcBackendInputEvent
-{
-    int padding;
-};
-
 struct _XcpcBackendClockEvent
+{
+    int padding;
+};
+
+struct _XcpcBackendCreateWindowEvent
+{
+    int padding;
+};
+
+struct _XcpcBackendDeleteWindowEvent
+{
+    int padding;
+};
+
+struct _XcpcBackendResizeWindowEvent
+{
+    int padding;
+};
+
+struct _XcpcBackendExposeWindowEvent
+{
+    int padding;
+};
+
+struct _XcpcBackendKeyEvent
+{
+    int padding;
+};
+
+struct _XcpcBackendButtonEvent
+{
+    int padding;
+};
+
+struct _XcpcBackendMotionEvent
 {
     int padding;
 };
@@ -86,30 +100,38 @@ struct _XcpcBackendClosure
 {
     XEvent* event;
     union {
-        XcpcBackendIdleEvent      idle;
-        XcpcBackendAttachEvent    attach;
-        XcpcBackendDetachEvent    detach;
-        XcpcBackendRealizeEvent   realize;
-        XcpcBackendUnrealizeEvent unrealize;
-        XcpcBackendResizeEvent    resize;
-        XcpcBackendExposeEvent    expose;
-        XcpcBackendInputEvent     input;
-        XcpcBackendClockEvent     clock;
+        XcpcBackendIdleEvent          idle;
+        XcpcBackendAttachEvent        attach;
+        XcpcBackendDetachEvent        detach;
+        XcpcBackendClockEvent         clock;
+        XcpcBackendCreateWindowEvent  create_window;
+        XcpcBackendDeleteWindowEvent  delete_window;
+        XcpcBackendResizeWindowEvent  resize_window;
+        XcpcBackendExposeWindowEvent  expose_window;
+        XcpcBackendKeyPressEvent      key_press;
+        XcpcBackendKeyReleaseEvent    key_release;
+        XcpcBackendButtonPressEvent   button_press;
+        XcpcBackendButtonReleaseEvent button_release;
+        XcpcBackendMotionNotifyEvent  motion_notify;
     } u;
 };
 
 struct _XcpcBackend
 {
     void* instance;
-    unsigned long (*idle_func)      (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*attach_func)    (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*detach_func)    (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*realize_func)   (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*unrealize_func) (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*resize_func)    (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*expose_func)    (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*input_func)     (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*clock_func)     (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*idle_func)           (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*attach_func)         (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*detach_func)         (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*clock_func)          (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*create_window_func)  (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*delete_window_func)  (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*resize_window_func)  (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*expose_window_func)  (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*key_press_func)      (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*key_release_func)    (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*button_press_func)   (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*button_release_func) (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*motion_notify_func)  (void* instance, XcpcBackendClosure* closure);
 };
 
 extern XcpcBackend* xcpc_backend_init(XcpcBackend* backend);

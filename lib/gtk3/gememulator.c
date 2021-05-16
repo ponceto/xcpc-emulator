@@ -120,11 +120,11 @@ static GdkFilterReturn impl_filter_func(GdkXEvent* native_event, GdkEvent* event
                         self->minimum_height = EMULATOR_MIN_HEIGHT;
                     }
                 }
-                /* call resize_func */ {
+                /* call resize_window_func */ {
                     XcpcBackend*       backend = &self->backend;
                     XcpcBackendClosure closure;
                     closure.event = gem_events_copy_or_fill(widget, &self->events, xevent);
-                    (void) (*backend->resize_func)(backend->instance, &closure);
+                    (void) (*backend->resize_window_func)(backend->instance, &closure);
                 }
                 gtk_widget_queue_resize(widget);
             }
@@ -279,11 +279,11 @@ static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
         xevent.xexpose.height     = gtk_widget_get_allocated_height(widget);
         xevent.xexpose.count      = 0;
     }
-    /* call expose_func */ {
+    /* call expose_window_func */ {
         XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-        (void) (*backend->expose_func)(backend->instance, &closure);
+        (void) (*backend->expose_window_func)(backend->instance, &closure);
     }
     return FALSE;
 }
@@ -667,7 +667,7 @@ GemVideo* gem_video_realize(GtkWidget* widget, GemVideo* video)
         XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*backend->realize_func)(backend->instance, &closure);
+        (void) (*backend->create_window_func)(backend->instance, &closure);
     }
     return video;
 }
@@ -680,7 +680,7 @@ GemVideo* gem_video_unrealize(GtkWidget* widget, GemVideo* video)
         XcpcBackend*       backend = &self->backend;
         XcpcBackendClosure closure;
         closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*backend->unrealize_func)(backend->instance, &closure);
+        (void) (*backend->delete_window_func)(backend->instance, &closure);
     }
     if(video->display != NULL) {
         video->display = NULL;
@@ -829,6 +829,39 @@ GemEvents* gem_events_destruct(GtkWidget* widget, GemEvents* events)
     return events;
 }
 
+GemEvents* gem_events_dispatch(GtkWidget* widget, GemEvents* events, XEvent* event)
+{
+    GemEmulator*       self    = CAST_EMULATOR(widget);
+    XcpcBackend*       backend = &self->backend;
+    XcpcBackendClosure closure;
+
+    /* initialize closure */ {
+        closure.event = event;
+    }
+    /* dispatch event */ {
+        switch(event->type) {
+            case KeyPress:
+                (void) (*backend->key_press_func)(backend->instance, &closure);
+                break;
+            case KeyRelease:
+                (void) (*backend->key_release_func)(backend->instance, &closure);
+                break;
+            case ButtonPress:
+                (void) (*backend->button_press_func)(backend->instance, &closure);
+                break;
+            case ButtonRelease:
+                (void) (*backend->button_release_func)(backend->instance, &closure);
+                break;
+            case MotionNotify:
+                (void) (*backend->motion_notify_func)(backend->instance, &closure);
+                break;
+            default:
+                break;
+        }
+    }
+    return events;
+}
+
 GemEvents* gem_events_throttle(GtkWidget* widget, GemEvents* events, XEvent* event)
 {
     unsigned int head = ((events->head + 0) % countof(events->list));
@@ -844,7 +877,6 @@ GemEvents* gem_events_throttle(GtkWidget* widget, GemEvents* events, XEvent* eve
 
 GemEvents* gem_events_process(GtkWidget* widget, GemEvents* events)
 {
-    GemEmulator* self = CAST_EMULATOR(widget);
     int event_type = 0;
 
     while(events->head != events->tail) {
@@ -853,10 +885,7 @@ GemEvents* gem_events_process(GtkWidget* widget, GemEvents* events)
             event_type = event->type;
         }
         if(event->type == event_type) {
-            XcpcBackend*       backend = &self->backend;
-            XcpcBackendClosure closure;
-            closure.event = event;
-            (void) (*backend->input_func)(backend->instance, &closure);
+            (void) gem_events_dispatch(widget, events, event);
             events->head = ((events->head + 1) % countof(events->list));
             events->tail = ((events->tail + 0) % countof(events->list));
         }
@@ -1024,11 +1053,8 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
                             xevent.xbutton.button      = event_number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* call input_func */ {
-                            XcpcBackend*       backend = &self->backend;
-                            XcpcBackendClosure closure;
-                            closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-                            (void) (*backend->input_func)(backend->instance, &closure);
+                        /* dispatch event */ {
+                            (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
                         }
                     }
                     return TRUE;
@@ -1060,11 +1086,8 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* call input_func */ {
-                            XcpcBackend*       backend = &self->backend;
-                            XcpcBackendClosure closure;
-                            closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-                            (void) (*backend->input_func)(backend->instance, &closure);
+                        /* dispatch event */ {
+                            (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
                         }
                     }
                     return TRUE;
@@ -1247,11 +1270,8 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                             xevent.xbutton.button      = event.number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* call input_func */ {
-                            XcpcBackend*       backend = &self->backend;
-                            XcpcBackendClosure closure;
-                            closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-                            (void) (*backend->input_func)(backend->instance, &closure);
+                        /* dispatch event */ {
+                            (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
                         }
                     }
                     break;
@@ -1283,11 +1303,8 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* call input_func */ {
-                            XcpcBackend*       backend = &self->backend;
-                            XcpcBackendClosure closure;
-                            closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-                            (void) (*backend->input_func)(backend->instance, &closure);
+                        /* dispatch event */ {
+                            (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
                         }
                     }
                     break;

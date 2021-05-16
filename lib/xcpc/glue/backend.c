@@ -30,16 +30,20 @@ static unsigned long default_func(void* instance, XcpcBackendClosure* closure)
 static XcpcBackend* reset_backend(XcpcBackend* backend)
 {
     if(backend != NULL) {
-        backend->instance       = NULL;
-        backend->idle_func      = &default_func;
-        backend->attach_func    = &default_func;
-        backend->detach_func    = &default_func;
-        backend->realize_func   = &default_func;
-        backend->unrealize_func = &default_func;
-        backend->resize_func    = &default_func;
-        backend->expose_func    = &default_func;
-        backend->input_func     = &default_func;
-        backend->clock_func     = &default_func;
+        backend->instance            = NULL;
+        backend->idle_func           = &default_func;
+        backend->attach_func         = &default_func;
+        backend->detach_func         = &default_func;
+        backend->clock_func          = &default_func;
+        backend->create_window_func  = &default_func;
+        backend->delete_window_func  = &default_func;
+        backend->resize_window_func  = &default_func;
+        backend->expose_window_func  = &default_func;
+        backend->key_press_func      = &default_func;
+        backend->key_release_func    = &default_func;
+        backend->button_press_func   = &default_func;
+        backend->button_release_func = &default_func;
+        backend->motion_notify_func  = &default_func;
     }
     return backend;
 }

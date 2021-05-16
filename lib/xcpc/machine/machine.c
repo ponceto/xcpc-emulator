@@ -2703,15 +2703,20 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* i
         (void) xcpc_backend_init(&self->backend);
     }
     /* set backend methods */ {
-        self->backend.instance       = self;
-        self->backend.attach_func    = ((XcpcBackendFunc)(&xcpc_machine_attach_func   ));
-        self->backend.detach_func    = ((XcpcBackendFunc)(&xcpc_machine_detach_func  ));
-        self->backend.realize_func   = ((XcpcBackendFunc)(&xcpc_machine_realize_func  ));
-        self->backend.unrealize_func = ((XcpcBackendFunc)(&xcpc_machine_unrealize_func));
-        self->backend.resize_func    = ((XcpcBackendFunc)(&xcpc_machine_resize_func   ));
-        self->backend.expose_func    = ((XcpcBackendFunc)(&xcpc_machine_expose_func   ));
-        self->backend.input_func     = ((XcpcBackendFunc)(&xcpc_machine_input_func    ));
-        self->backend.clock_func     = ((XcpcBackendFunc)(&xcpc_machine_clock_func    ));
+        self->backend.instance            = self;
+        self->backend.idle_func           = ((XcpcBackendFunc)(&xcpc_machine_idle_func          ));
+        self->backend.attach_func         = ((XcpcBackendFunc)(&xcpc_machine_attach_func        ));
+        self->backend.detach_func         = ((XcpcBackendFunc)(&xcpc_machine_detach_func        ));
+        self->backend.clock_func          = ((XcpcBackendFunc)(&xcpc_machine_clock_func         ));
+        self->backend.create_window_func  = ((XcpcBackendFunc)(&xcpc_machine_create_window_func ));
+        self->backend.delete_window_func  = ((XcpcBackendFunc)(&xcpc_machine_delete_window_func ));
+        self->backend.resize_window_func  = ((XcpcBackendFunc)(&xcpc_machine_resize_window_func ));
+        self->backend.expose_window_func  = ((XcpcBackendFunc)(&xcpc_machine_expose_window_func ));
+        self->backend.key_press_func      = ((XcpcBackendFunc)(&xcpc_machine_key_press_func     ));
+        self->backend.key_release_func    = ((XcpcBackendFunc)(&xcpc_machine_key_release_func   ));
+        self->backend.button_press_func   = ((XcpcBackendFunc)(&xcpc_machine_button_press_func  ));
+        self->backend.button_release_func = ((XcpcBackendFunc)(&xcpc_machine_button_release_func));
+        self->backend.motion_notify_func  = ((XcpcBackendFunc)(&xcpc_machine_motion_notify_func ));
     }
     /* initialize */ {
         (void) initialize(self);
@@ -3018,6 +3023,58 @@ XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
     return self->setup.memory_size;
 }
 
+unsigned long xcpc_machine_idle_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    unsigned long timeout   = 0UL;
+    unsigned long timedrift = 0UL;
+
+    /* compute the next deadline */ {
+        if((self->timer.deadline.tv_usec += self->frame.duration) >= 1000000) {
+            self->timer.deadline.tv_usec -= 1000000;
+            self->timer.deadline.tv_sec  += 1;
+        }
+    }
+    /* get the current time */ {
+        if(gettimeofday(&self->timer.currtime, NULL) != 0) {
+            xcpc_log_error("gettimeofday() has failed");
+        }
+    }
+    /* compute the next deadline timeout in us */ {
+        const long long currtime = XCPC_TIMESTAMP_OF(&self->timer.currtime);
+        const long long deadline = XCPC_TIMESTAMP_OF(&self->timer.deadline);
+        if(currtime <= deadline) {
+            timeout   = ((unsigned long)(deadline - currtime));
+        }
+        else {
+            timedrift = ((unsigned long)(currtime - deadline));
+        }
+    }
+    /* compute stats if needed */ {
+        if(++self->stats.frame_count == self->frame.rate) {
+            compute_stats(self);
+        }
+    }
+    /* check if the time has drifted for more than a second */ {
+        if(timedrift >= 1000000UL) {
+            timeout = self->frame.duration;
+            self->timer.deadline = self->timer.currtime;
+            if((self->timer.deadline.tv_usec += timeout) >= 1000000) {
+                self->timer.deadline.tv_usec -= 1000000;
+                self->timer.deadline.tv_sec  += 1;
+            }
+        }
+    }
+    /* schedule the next frame in ms */ {
+        timeout /= 1000UL;
+    }
+    /* adjust timeout if needed and only for the first frame */ {
+        if((timeout == 0UL) && (self->stats.frame_count == 0)) {
+            timeout = 1UL;
+        }
+    }
+    return timeout;
+}
+
 unsigned long xcpc_machine_attach_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
     return 0UL;
@@ -3025,96 +3082,6 @@ unsigned long xcpc_machine_attach_func(XcpcMachine* self, XcpcBackendClosure* cl
 
 unsigned long xcpc_machine_detach_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    return 0UL;
-}
-
-unsigned long xcpc_machine_realize_func(XcpcMachine* self, XcpcBackendClosure* closure)
-{
-    /* realize */ {
-        (void) xcpc_monitor_realize ( self->board.monitor
-                                    , self->setup.monitor_type
-                                    , self->setup.refresh_rate
-                                    , closure->event->xany.display
-                                    , closure->event->xany.window
-                                    , (self->setup.xshm != 0 ? True : False) );
-    }
-    /* init paint handler */ {
-        switch(self->board.monitor->state.image->bits_per_pixel) {
-            case 8:
-                self->funcs.paint_func = &paint_08bpp;
-                break;
-            case 16:
-                self->funcs.paint_func = &paint_16bpp;
-                break;
-            case 32:
-                self->funcs.paint_func = &paint_32bpp;
-                break;
-            default:
-                self->funcs.paint_func = &paint_default;
-                break;
-        }
-    }
-    /* init keybd handler */ {
-        switch(self->setup.keyboard_type) {
-            case XCPC_KEYBOARD_TYPE_QWERTY:
-                self->funcs.keybd_func = &keybd_qwerty;
-                break;
-            case XCPC_KEYBOARD_TYPE_AZERTY:
-                self->funcs.keybd_func = &keybd_azerty;
-                break;
-            default:
-                self->funcs.keybd_func = &keybd_default;
-                break;
-        }
-    }
-    return 0UL;
-}
-
-unsigned long xcpc_machine_unrealize_func(XcpcMachine* self, XcpcBackendClosure* closure)
-{
-    /* unrealize */ {
-        (void) xcpc_monitor_unrealize(self->board.monitor);
-    }
-    return 0UL;
-}
-
-unsigned long xcpc_machine_resize_func(XcpcMachine* self, XcpcBackendClosure* closure)
-{
-    if(closure->event->type == ConfigureNotify) {
-        (void) xcpc_monitor_resize(self->board.monitor, &closure->event->xconfigure);
-    }
-    return 0UL;
-}
-
-unsigned long xcpc_machine_expose_func(XcpcMachine* self, XcpcBackendClosure* closure)
-{
-    if(closure->event->type == Expose) {
-        (void) xcpc_monitor_expose(self->board.monitor, &closure->event->xexpose);
-    }
-    return 0UL;
-}
-
-unsigned long xcpc_machine_input_func(XcpcMachine* self, XcpcBackendClosure* closure)
-{
-    switch(closure->event->type) {
-        case KeyPress:
-            (*self->funcs.keybd_func)(self, closure->event);
-            break;
-        case KeyRelease:
-            (*self->funcs.keybd_func)(self, closure->event);
-            break;
-        case ButtonPress:
-            (*self->funcs.mouse_func)(self, closure->event);
-            break;
-        case ButtonRelease:
-            (*self->funcs.mouse_func)(self, closure->event);
-            break;
-        case MotionNotify:
-            (*self->funcs.mouse_func)(self, closure->event);
-            break;
-        default:
-            break;
-    }
     return 0UL;
 }
 
@@ -3171,7 +3138,7 @@ unsigned long xcpc_machine_clock_func(XcpcMachine* self, XcpcBackendClosure* clo
         if(timedrift >= 1000000UL) {
             timeout = self->frame.duration;
             self->timer.deadline = self->timer.currtime;
-            if((self->timer.deadline.tv_usec += self->frame.duration) >= 1000000) {
+            if((self->timer.deadline.tv_usec += timeout) >= 1000000) {
                 self->timer.deadline.tv_usec -= 1000000;
                 self->timer.deadline.tv_sec  += 1;
             }
@@ -3180,10 +3147,116 @@ unsigned long xcpc_machine_clock_func(XcpcMachine* self, XcpcBackendClosure* clo
     /* schedule the next frame in ms */ {
         timeout /= 1000UL;
     }
-    /* adjust timeout for the first frame */ {
+    /* adjust timeout if needed and only for the first frame */ {
         if((timeout == 0UL) && (self->stats.frame_count == 0)) {
             timeout = 1UL;
         }
     }
     return timeout;
+}
+
+unsigned long xcpc_machine_create_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* realize */ {
+        (void) xcpc_monitor_realize ( self->board.monitor
+                                    , self->setup.monitor_type
+                                    , self->setup.refresh_rate
+                                    , closure->event->xany.display
+                                    , closure->event->xany.window
+                                    , (self->setup.xshm != 0 ? True : False) );
+    }
+    /* init paint handler */ {
+        switch(self->board.monitor->state.image->bits_per_pixel) {
+            case 8:
+                self->funcs.paint_func = &paint_08bpp;
+                break;
+            case 16:
+                self->funcs.paint_func = &paint_16bpp;
+                break;
+            case 32:
+                self->funcs.paint_func = &paint_32bpp;
+                break;
+            default:
+                self->funcs.paint_func = &paint_default;
+                break;
+        }
+    }
+    /* init keybd handler */ {
+        switch(self->setup.keyboard_type) {
+            case XCPC_KEYBOARD_TYPE_QWERTY:
+                self->funcs.keybd_func = &keybd_qwerty;
+                break;
+            case XCPC_KEYBOARD_TYPE_AZERTY:
+                self->funcs.keybd_func = &keybd_azerty;
+                break;
+            default:
+                self->funcs.keybd_func = &keybd_default;
+                break;
+        }
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_delete_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* unrealize */ {
+        (void) xcpc_monitor_unrealize(self->board.monitor);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_resize_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    if(closure->event->type == ConfigureNotify) {
+        (void) xcpc_monitor_resize(self->board.monitor, &closure->event->xconfigure);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_expose_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    if(closure->event->type == Expose) {
+        (void) xcpc_monitor_expose(self->board.monitor, &closure->event->xexpose);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_key_press_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* process event */ {
+        (*self->funcs.keybd_func)(self, closure->event);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_key_release_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* process event */ {
+        (*self->funcs.keybd_func)(self, closure->event);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_button_press_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* process event */ {
+        (*self->funcs.mouse_func)(self, closure->event);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_button_release_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* process event */ {
+        (*self->funcs.mouse_func)(self, closure->event);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_motion_notify_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* process event */ {
+        (*self->funcs.mouse_func)(self, closure->event);
+    }
+    return 0UL;
 }
