@@ -120,11 +120,8 @@ static GdkFilterReturn impl_filter_func(GdkXEvent* native_event, GdkEvent* event
                         self->minimum_height = EMULATOR_MIN_HEIGHT;
                     }
                 }
-                /* call resize_window_func */ {
-                    XcpcBackend*       backend = &self->backend;
-                    XcpcBackendClosure closure;
-                    closure.event = gem_events_copy_or_fill(widget, &self->events, xevent);
-                    (void) (*backend->resize_window_func)(backend->instance, &closure);
+                /* dispatch event */ {
+                    (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, xevent));
                 }
                 gtk_widget_queue_resize(widget);
             }
@@ -279,11 +276,8 @@ static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
         xevent.xexpose.height     = gtk_widget_get_allocated_height(widget);
         xevent.xexpose.count      = 0;
     }
-    /* call expose_window_func */ {
-        XcpcBackend*       backend = &self->backend;
-        XcpcBackendClosure closure;
-        closure.event = gem_events_copy_or_fill(widget, &self->events, &xevent);
-        (void) (*backend->expose_window_func)(backend->instance, &closure);
+    /* dispatch event */ {
+        (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
     }
     return FALSE;
 }
@@ -840,20 +834,40 @@ GemEvents* gem_events_dispatch(GtkWidget* widget, GemEvents* events, XEvent* eve
     }
     /* dispatch event */ {
         switch(event->type) {
+            case ConfigureNotify:
+                {
+                    (void) (*backend->resize_window_func)(backend->instance, &closure);
+                }
+                break;
+            case Expose:
+                {
+                    (void) (*backend->expose_window_func)(backend->instance, &closure);
+                }
+                break;
             case KeyPress:
-                (void) (*backend->key_press_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->key_press_func)(backend->instance, &closure);
+                }
                 break;
             case KeyRelease:
-                (void) (*backend->key_release_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->key_release_func)(backend->instance, &closure);
+                }
                 break;
             case ButtonPress:
-                (void) (*backend->button_press_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->button_press_func)(backend->instance, &closure);
+                }
                 break;
             case ButtonRelease:
-                (void) (*backend->button_release_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->button_release_func)(backend->instance, &closure);
+                }
                 break;
             case MotionNotify:
-                (void) (*backend->motion_notify_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->motion_notify_func)(backend->instance, &closure);
+                }
                 break;
             default:
                 break;

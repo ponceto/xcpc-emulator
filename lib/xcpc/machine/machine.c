@@ -2704,9 +2704,9 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* i
     }
     /* set backend methods */ {
         self->backend.instance            = self;
-        self->backend.idle_func           = ((XcpcBackendFunc)(&xcpc_machine_idle_func          ));
         self->backend.attach_func         = ((XcpcBackendFunc)(&xcpc_machine_attach_func        ));
         self->backend.detach_func         = ((XcpcBackendFunc)(&xcpc_machine_detach_func        ));
+        self->backend.idle_func           = ((XcpcBackendFunc)(&xcpc_machine_idle_func          ));
         self->backend.clock_func          = ((XcpcBackendFunc)(&xcpc_machine_clock_func         ));
         self->backend.create_window_func  = ((XcpcBackendFunc)(&xcpc_machine_create_window_func ));
         self->backend.delete_window_func  = ((XcpcBackendFunc)(&xcpc_machine_delete_window_func ));
@@ -3023,6 +3023,16 @@ XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
     return self->setup.memory_size;
 }
 
+unsigned long xcpc_machine_attach_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    return 0UL;
+}
+
+unsigned long xcpc_machine_detach_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    return 0UL;
+}
+
 unsigned long xcpc_machine_idle_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
     unsigned long timeout   = 0UL;
@@ -3073,16 +3083,6 @@ unsigned long xcpc_machine_idle_func(XcpcMachine* self, XcpcBackendClosure* clos
         }
     }
     return timeout;
-}
-
-unsigned long xcpc_machine_attach_func(XcpcMachine* self, XcpcBackendClosure* closure)
-{
-    return 0UL;
-}
-
-unsigned long xcpc_machine_detach_func(XcpcMachine* self, XcpcBackendClosure* closure)
-{
-    return 0UL;
 }
 
 unsigned long xcpc_machine_clock_func(XcpcMachine* self, XcpcBackendClosure* closure)
@@ -3199,7 +3199,7 @@ unsigned long xcpc_machine_create_window_func(XcpcMachine* self, XcpcBackendClos
 
 unsigned long xcpc_machine_delete_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    /* unrealize */ {
+    /* process event */ {
         (void) xcpc_monitor_unrealize(self->board.monitor);
     }
     return 0UL;
@@ -3207,7 +3207,7 @@ unsigned long xcpc_machine_delete_window_func(XcpcMachine* self, XcpcBackendClos
 
 unsigned long xcpc_machine_resize_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    if(closure->event->type == ConfigureNotify) {
+    /* process event */ {
         (void) xcpc_monitor_resize(self->board.monitor, &closure->event->xconfigure);
     }
     return 0UL;
@@ -3215,7 +3215,7 @@ unsigned long xcpc_machine_resize_window_func(XcpcMachine* self, XcpcBackendClos
 
 unsigned long xcpc_machine_expose_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    if(closure->event->type == Expose) {
+    /* process event */ {
         (void) xcpc_monitor_expose(self->board.monitor, &closure->event->xexpose);
     }
     return 0UL;

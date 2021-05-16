@@ -61,9 +61,9 @@ struct _XcpcBorders
 #define XCPC_WORD_PTR(pointer) ((uint16_t*)(pointer))
 #define XCPC_LONG_PTR(pointer) ((uint32_t*)(pointer))
 
-extern unsigned long xcpc_machine_idle_func           (XcpcMachine* machine, XcpcBackendClosure* closure);
 extern unsigned long xcpc_machine_attach_func         (XcpcMachine* machine, XcpcBackendClosure* closure);
 extern unsigned long xcpc_machine_detach_func         (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_idle_func           (XcpcMachine* machine, XcpcBackendClosure* closure);
 extern unsigned long xcpc_machine_clock_func          (XcpcMachine* machine, XcpcBackendClosure* closure);
 extern unsigned long xcpc_machine_create_window_func  (XcpcMachine* machine, XcpcBackendClosure* closure);
 extern unsigned long xcpc_machine_delete_window_func  (XcpcMachine* machine, XcpcBackendClosure* closure);

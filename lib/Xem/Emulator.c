@@ -455,12 +455,25 @@ static void Destroy(Widget widget)
 static void Resize(Widget widget)
 {
     XemEmulatorWidget self = CAST_EMULATOR(widget);
+    XEvent            event;
 
-    /* call resize_window_func */ {
-        XcpcBackend*       backend = &self->emulator.backend;
-        XcpcBackendClosure closure;
-        closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, NULL);
-        (void) (*backend->resize_window_func)(backend->instance, &closure);
+    /* forge configure event */ {
+        event.xconfigure.type              = ConfigureNotify;
+        event.xconfigure.serial            = 0UL;
+        event.xconfigure.send_event        = True;
+        event.xconfigure.display           = self->emulator.video.display;
+        event.xconfigure.event             = None;
+        event.xconfigure.window            = self->emulator.video.window;
+        event.xconfigure.x                 = self->core.x;
+        event.xconfigure.y                 = self->core.y;
+        event.xconfigure.width             = self->core.width;
+        event.xconfigure.height            = self->core.height;
+        event.xconfigure.border_width      = self->core.border_width;
+        event.xconfigure.above             = None;
+        event.xconfigure.override_redirect = False;
+    }
+    /* dispatch event */ {
+        (void) XemEventsDispatch(widget, &self->emulator.events, XemEventsCopyOrFill(widget, &self->emulator.events, &event));
     }
 }
 
@@ -475,11 +488,8 @@ static void Redraw(Widget widget, XEvent* event, Region region)
 {
     XemEmulatorWidget self = CAST_EMULATOR(widget);
 
-    if(event->type == Expose) {
-        XcpcBackend*       backend = &self->emulator.backend;
-        XcpcBackendClosure closure;
-        closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, event);
-        (void) (*backend->expose_window_func)(backend->instance, &closure);
+    /* dispatch event */ {
+        (void) XemEventsDispatch(widget, &self->emulator.events, XemEventsCopyOrFill(widget, &self->emulator.events, event));
     }
 }
 
@@ -661,11 +671,8 @@ static void OnConfigureNotify(Widget widget, XEvent* event, String* params, Card
                 XtSetValues(widget, arglist, argcount);
             }
         }
-        /* call resize_window_func */ {
-            XcpcBackend*       backend = &self->emulator.backend;
-            XcpcBackendClosure closure;
-            closure.event = XemEventsCopyOrFill(widget, &self->emulator.events, event);
-            (void) (*backend->resize_window_func)(backend->instance, &closure);
+        /* dispatch event */ {
+            (void) XemEventsDispatch(widget, &self->emulator.events, XemEventsCopyOrFill(widget, &self->emulator.events, event));
         }
     }
 }
@@ -892,20 +899,40 @@ XemEvents* XemEventsDispatch(Widget widget, XemEvents* events, XEvent* event)
     }
     /* dispatch event */ {
         switch(event->type) {
+            case ConfigureNotify:
+                {
+                    (void) (*backend->resize_window_func)(backend->instance, &closure);
+                }
+                break;
+            case Expose:
+                {
+                    (void) (*backend->expose_window_func)(backend->instance, &closure);
+                }
+                break;
             case KeyPress:
-                (void) (*backend->key_press_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->key_press_func)(backend->instance, &closure);
+                }
                 break;
             case KeyRelease:
-                (void) (*backend->key_release_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->key_release_func)(backend->instance, &closure);
+                }
                 break;
             case ButtonPress:
-                (void) (*backend->button_press_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->button_press_func)(backend->instance, &closure);
+                }
                 break;
             case ButtonRelease:
-                (void) (*backend->button_release_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->button_release_func)(backend->instance, &closure);
+                }
                 break;
             case MotionNotify:
-                (void) (*backend->motion_notify_func)(backend->instance, &closure);
+                {
+                    (void) (*backend->motion_notify_func)(backend->instance, &closure);
+                }
                 break;
             default:
                 break;

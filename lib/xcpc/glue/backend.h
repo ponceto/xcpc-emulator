@@ -25,9 +25,9 @@ extern "C" {
 
 typedef struct _XcpcBackend                  XcpcBackend;
 typedef struct _XcpcBackendClosure           XcpcBackendClosure;
-typedef struct _XcpcBackendIdleEvent         XcpcBackendIdleEvent;
 typedef struct _XcpcBackendAttachEvent       XcpcBackendAttachEvent;
 typedef struct _XcpcBackendDetachEvent       XcpcBackendDetachEvent;
+typedef struct _XcpcBackendIdleEvent         XcpcBackendIdleEvent;
 typedef struct _XcpcBackendClockEvent        XcpcBackendClockEvent;
 typedef struct _XcpcBackendCreateWindowEvent XcpcBackendCreateWindowEvent;
 typedef struct _XcpcBackendDeleteWindowEvent XcpcBackendDeleteWindowEvent;
@@ -41,17 +41,17 @@ typedef struct _XcpcBackendMotionEvent       XcpcBackendMotionNotifyEvent;
 
 typedef unsigned long (*XcpcBackendFunc)(void* instance, XcpcBackendClosure* closure);
 
-struct _XcpcBackendIdleEvent
-{
-    int padding;
-};
-
 struct _XcpcBackendAttachEvent
 {
     int padding;
 };
 
 struct _XcpcBackendDetachEvent
+{
+    int padding;
+};
+
+struct _XcpcBackendIdleEvent
 {
     int padding;
 };
@@ -100,9 +100,9 @@ struct _XcpcBackendClosure
 {
     XEvent* event;
     union {
-        XcpcBackendIdleEvent          idle;
         XcpcBackendAttachEvent        attach;
         XcpcBackendDetachEvent        detach;
+        XcpcBackendIdleEvent          idle;
         XcpcBackendClockEvent         clock;
         XcpcBackendCreateWindowEvent  create_window;
         XcpcBackendDeleteWindowEvent  delete_window;
@@ -119,9 +119,9 @@ struct _XcpcBackendClosure
 struct _XcpcBackend
 {
     void* instance;
-    unsigned long (*idle_func)           (void* instance, XcpcBackendClosure* closure);
     unsigned long (*attach_func)         (void* instance, XcpcBackendClosure* closure);
     unsigned long (*detach_func)         (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*idle_func)           (void* instance, XcpcBackendClosure* closure);
     unsigned long (*clock_func)          (void* instance, XcpcBackendClosure* closure);
     unsigned long (*create_window_func)  (void* instance, XcpcBackendClosure* closure);
     unsigned long (*delete_window_func)  (void* instance, XcpcBackendClosure* closure);
