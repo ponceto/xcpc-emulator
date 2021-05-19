@@ -99,6 +99,10 @@ struct _XcpcPsg8910Setup
         uint8_t addr;
         uint8_t data[16];
     } mask_of;
+    struct
+    {
+        uint16_t level[16];
+    } volume;
 };
 
 struct _XcpcPsg8910State

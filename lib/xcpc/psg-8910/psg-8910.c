@@ -22,26 +22,24 @@
 #include <string.h>
 #include "psg-8910-priv.h"
 
-#if 0
-static const double volume_table[] = {
-        0,
-      836,
-     1212,
-     1773,
-     2619,
-     3875,
-     5397,
-     8823,
-    10392,
-    16706,
-    23339,
-    29292,
-    36969,
-    46421,
-    55195,
-    65535,
+static const uint16_t volume_table[16] = {
+    /*  0 */ 0,
+    /*  1 */ 836,
+    /*  2 */ 1212,
+    /*  3 */ 1773,
+    /*  4 */ 2619,
+    /*  5 */ 3875,
+    /*  6 */ 5397,
+    /*  7 */ 8823,
+    /*  8 */ 10392,
+    /*  9 */ 16706,
+    /* 10 */ 23339,
+    /* 11 */ 29292,
+    /* 12 */ 36969,
+    /* 13 */ 46421,
+    /* 14 */ 55195,
+    /* 15 */ 65535,
 };
-#endif
 
 static void log_trace(const char* function)
 {
@@ -177,6 +175,12 @@ static void reset_setup(XcpcPsg8910* self)
         self->setup.mask_of.data[0x0d] = 0x0f;
         self->setup.mask_of.data[0x0e] = 0xff;
         self->setup.mask_of.data[0x0f] = 0xff;
+    }
+    /* volume table */ {
+        int level = 0;
+        do {
+            self->setup.volume.level[level] = volume_table[level];
+        } while(++level < 16);
     }
 }
 
