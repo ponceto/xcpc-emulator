@@ -22,21 +22,56 @@
 #include <string.h>
 #include "psg-8910-priv.h"
 
+#if 0
+static const double volume_table[] = {
+        0,
+      836,
+     1212,
+     1773,
+     2619,
+     3875,
+     5397,
+     8823,
+    10392,
+    16706,
+    23339,
+    29292,
+    36969,
+    46421,
+    55195,
+    65535,
+};
+#endif
+
 static void log_trace(const char* function)
 {
     xcpc_log_trace("XcpcPsg8910::%s()", function);
 }
 
-static uint8_t default_rd_handler(XcpcPsg8910* self, uint8_t data, void* user_data)
+static uint8_t port_a_rd_handler(XcpcPsg8910* self, uint8_t data, void* user_data)
 {
-    log_trace("default_rd_handler");
+    log_trace("port_a_rd_handler");
 
     return data;
 }
 
-static uint8_t default_wr_handler(XcpcPsg8910* self, uint8_t data, void* user_data)
+static uint8_t port_a_wr_handler(XcpcPsg8910* self, uint8_t data, void* user_data)
 {
-    log_trace("default_wr_handler");
+    log_trace("port_a_wr_handler");
+
+    return data;
+}
+
+static uint8_t port_b_rd_handler(XcpcPsg8910* self, uint8_t data, void* user_data)
+{
+    log_trace("port_b_rd_handler");
+
+    return data;
+}
+
+static uint8_t port_b_wr_handler(XcpcPsg8910* self, uint8_t data, void* user_data)
+{
+    log_trace("port_b_wr_handler");
 
     return data;
 }
@@ -67,6 +102,40 @@ static const char* get_register_name(unsigned int address_register)
         return register_name[address_register];
     }
     return "invalid-register";
+}
+
+static void reset_registers(XcpcPsg8910* self, XcpcPsg8910Registers* registers)
+{
+    registers->named.address_register      = 0x00;
+    registers->named.channel_a_fine_tune   = 0x00;
+    registers->named.channel_a_coarse_tune = 0x00;
+    registers->named.channel_b_fine_tune   = 0x00;
+    registers->named.channel_b_coarse_tune = 0x00;
+    registers->named.channel_c_fine_tune   = 0x00;
+    registers->named.channel_c_coarse_tune = 0x00;
+    registers->named.noise_period          = 0x00;
+    registers->named.mixer_and_io_control  = 0x00;
+    registers->named.channel_a_volume      = 0x00;
+    registers->named.channel_b_volume      = 0x00;
+    registers->named.channel_c_volume      = 0x00;
+    registers->named.envelope_fine_tune    = 0x00;
+    registers->named.envelope_coarse_tune  = 0x00;
+    registers->named.envelope_shape        = 0x00;
+    registers->named.io_port_a             = 0xff;
+    registers->named.io_port_b             = 0xff;
+}
+
+static void reset_channel(XcpcPsg8910* self, XcpcPsg8910Channel* channel)
+{
+    channel->buffer[0] = 0;
+    channel->buf_rd    = 0;
+    channel->buf_wr    = 0;
+    channel->tone      = 0;
+    channel->noise     = 0;
+    channel->amplitude = 0;
+    channel->envelope  = 0;
+    channel->shape     = 0;
+    channel->mixer     = 0;
 }
 
 static void reset_setup(XcpcPsg8910* self)
@@ -113,25 +182,10 @@ static void reset_setup(XcpcPsg8910* self)
 
 static void reset_state(XcpcPsg8910* self)
 {
-    /* reset internal registers */ {
-        self->state.regs.named.address_register      = 0x00;
-        self->state.regs.named.channel_a_fine_tune   = 0x00;
-        self->state.regs.named.channel_a_coarse_tune = 0x00;
-        self->state.regs.named.channel_b_fine_tune   = 0x00;
-        self->state.regs.named.channel_b_coarse_tune = 0x00;
-        self->state.regs.named.channel_c_fine_tune   = 0x00;
-        self->state.regs.named.channel_c_coarse_tune = 0x00;
-        self->state.regs.named.noise_period          = 0x00;
-        self->state.regs.named.mixer_and_io_control  = 0x00;
-        self->state.regs.named.channel_a_volume      = 0x00;
-        self->state.regs.named.channel_b_volume      = 0x00;
-        self->state.regs.named.channel_c_volume      = 0x00;
-        self->state.regs.named.envelope_fine_tune    = 0x00;
-        self->state.regs.named.envelope_coarse_tune  = 0x00;
-        self->state.regs.named.envelope_shape        = 0x00;
-        self->state.regs.named.io_port_a             = 0xff;
-        self->state.regs.named.io_port_b             = 0xff;
-    }
+    reset_registers(self, &self->state.regs);
+    reset_channel(self, &self->state.channel_a);
+    reset_channel(self, &self->state.channel_b);
+    reset_channel(self, &self->state.channel_c);
 }
 
 XcpcPsg8910* xcpc_psg_8910_alloc(void)
@@ -170,15 +224,12 @@ XcpcPsg8910* xcpc_psg_8910_construct(XcpcPsg8910* self, const XcpcPsg8910Iface* 
         }
     }
     /* adjust iface */ {
-        if(self->iface.rd_port_a == NULL) { self->iface.rd_port_a = &default_rd_handler; }
-        if(self->iface.wr_port_a == NULL) { self->iface.wr_port_a = &default_wr_handler; }
-        if(self->iface.rd_port_b == NULL) { self->iface.rd_port_b = &default_rd_handler; }
-        if(self->iface.wr_port_b == NULL) { self->iface.wr_port_b = &default_wr_handler; }
+        if(self->iface.rd_port_a == NULL) { self->iface.rd_port_a = &port_a_rd_handler; }
+        if(self->iface.wr_port_a == NULL) { self->iface.wr_port_a = &port_a_wr_handler; }
+        if(self->iface.rd_port_b == NULL) { self->iface.rd_port_b = &port_b_rd_handler; }
+        if(self->iface.wr_port_b == NULL) { self->iface.wr_port_b = &port_b_wr_handler; }
     }
-    /* reset */ {
-        (void) xcpc_psg_8910_reset(self);
-    }
-    return self;
+    return xcpc_psg_8910_reset(self);
 }
 
 XcpcPsg8910* xcpc_psg_8910_destruct(XcpcPsg8910* self)
@@ -243,6 +294,23 @@ XcpcPsg8910* xcpc_psg_8910_reset(XcpcPsg8910* self)
 
 XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
 {
+#if 0
+    /* channel a */ {
+        self->state.channel_a.tone = (((uint16_t)(self->state.regs.named.channel_a_coarse_tune)) << 8)
+                                   | (((uint16_t)(self->state.regs.named.channel_a_fine_tune  )) << 0)
+                                   ;
+    }
+    /* channel b */ {
+        self->state.channel_b.tone = (((uint16_t)(self->state.regs.named.channel_b_coarse_tune)) << 8)
+                                   | (((uint16_t)(self->state.regs.named.channel_b_fine_tune  )) << 0)
+                                   ;
+    }
+    /* channel c */ {
+        self->state.channel_c.tone = (((uint16_t)(self->state.regs.named.channel_c_coarse_tune)) << 8)
+                                   | (((uint16_t)(self->state.regs.named.channel_c_fine_tune  )) << 0)
+                                   ;
+    }
+#endif
     return self;
 }
 
@@ -284,10 +352,10 @@ uint8_t xcpc_psg_8910_rd_data(XcpcPsg8910* self, uint8_t data_bus)
         uint8_t const register_mask = (self->setup.mask_of.data[address_register]);
         uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
         if(is_readable != 0) {
-            if(address_register == PSG_IO_PORT_A) {
+            if((address_register == PSG_IO_PORT_A) && ((self->state.regs.named.mixer_and_io_control & BIT6) == 0)) {
                 *register_addr = (*self->iface.rd_port_a)(self, data_bus, self->iface.user_data);
             }
-            if(address_register == PSG_IO_PORT_B) {
+            if((address_register == PSG_IO_PORT_B) && ((self->state.regs.named.mixer_and_io_control & BIT7) == 0)) {
                 *register_addr = (*self->iface.rd_port_b)(self, data_bus, self->iface.user_data);
             }
             data_bus = (*register_addr &= register_mask);
@@ -305,10 +373,10 @@ uint8_t xcpc_psg_8910_wr_data(XcpcPsg8910* self, uint8_t data_bus)
         uint8_t const register_mask = (self->setup.mask_of.data[address_register]);
         uint8_t*      register_addr = (&self->state.regs.array.data[address_register]);
         if(is_writable != 0) {
-            if(address_register == PSG_IO_PORT_A) {
+            if((address_register == PSG_IO_PORT_A) && ((self->state.regs.named.mixer_and_io_control & BIT6) != 0)) {
                 *register_addr = (*self->iface.wr_port_a)(self, data_bus, self->iface.user_data);
             }
-            if(address_register == PSG_IO_PORT_B) {
+            if((address_register == PSG_IO_PORT_B) && ((self->state.regs.named.mixer_and_io_control & BIT7) != 0)) {
                 *register_addr = (*self->iface.wr_port_b)(self, data_bus, self->iface.user_data);
             }
             *register_addr = (data_bus &= register_mask);

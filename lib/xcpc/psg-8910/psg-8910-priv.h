@@ -23,6 +23,15 @@
 extern "C" {
 #endif
 
+#define BIT0 0x01
+#define BIT1 0x02
+#define BIT2 0x04
+#define BIT3 0x08
+#define BIT4 0x10
+#define BIT5 0x20
+#define BIT6 0x40
+#define BIT7 0x80
+
 #define NOT_READABLE 0x00
 #define REG_READABLE 0x01
 #define NOT_WRITABLE 0x00
@@ -48,6 +57,13 @@ enum Psg8910Registers
     PSG_IO_PORT_A             = 14,
     PSG_IO_PORT_B             = 15,
     PSG_REGISTER_COUNT        = 16,
+};
+
+enum Psg8910Channels
+{
+    PSG_CHANNEL_A = 0,
+    PSG_CHANNEL_B = 1,
+    PSG_CHANNEL_C = 2,
 };
 
 #ifdef __cplusplus
