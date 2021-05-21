@@ -23,22 +23,22 @@
 #include "psg-8910-priv.h"
 
 static const uint16_t volume_table[16] = {
-    /*  0 */ 0,
-    /*  1 */ 836,
-    /*  2 */ 1212,
-    /*  3 */ 1773,
-    /*  4 */ 2619,
-    /*  5 */ 3875,
-    /*  6 */ 5397,
-    /*  7 */ 8823,
-    /*  8 */ 10392,
-    /*  9 */ 16706,
-    /* 10 */ 23339,
-    /* 11 */ 29292,
-    /* 12 */ 36969,
-    /* 13 */ 46421,
-    /* 14 */ 55195,
-    /* 15 */ 65535,
+    0,
+    511,
+    723,
+    1023,
+    1447,
+    2047,
+    2895,
+    4095,
+    5792,
+    8191,
+    11584,
+    16383,
+    23169,
+    32767,
+    46340,
+    65535,
 };
 
 static void log_trace(const char* function)
@@ -84,11 +84,11 @@ static const char* get_register_name(unsigned int address_register)
         "channel_b_coarse_tune",
         "channel_c_fine_tune",
         "channel_c_coarse_tune",
-        "noise_period",
+        "noise_generator",
         "mixer_and_io_control",
-        "channel_a_volume",
-        "channel_b_volume",
-        "channel_c_volume",
+        "channel_a_amplitude",
+        "channel_b_amplitude",
+        "channel_c_amplitude",
         "envelope_fine_tune",
         "envelope_coarse_tune",
         "envelope_shape",
@@ -111,11 +111,11 @@ static void reset_registers(XcpcPsg8910* self, XcpcPsg8910Registers* registers)
     registers->named.channel_b_coarse_tune = 0x00;
     registers->named.channel_c_fine_tune   = 0x00;
     registers->named.channel_c_coarse_tune = 0x00;
-    registers->named.noise_period          = 0x00;
+    registers->named.noise_generator       = 0x00;
     registers->named.mixer_and_io_control  = 0x00;
-    registers->named.channel_a_volume      = 0x00;
-    registers->named.channel_b_volume      = 0x00;
-    registers->named.channel_c_volume      = 0x00;
+    registers->named.channel_a_amplitude   = 0x00;
+    registers->named.channel_b_amplitude   = 0x00;
+    registers->named.channel_c_amplitude   = 0x00;
     registers->named.envelope_fine_tune    = 0x00;
     registers->named.envelope_coarse_tune  = 0x00;
     registers->named.envelope_shape        = 0x00;
@@ -126,14 +126,29 @@ static void reset_registers(XcpcPsg8910* self, XcpcPsg8910Registers* registers)
 static void reset_channel(XcpcPsg8910* self, XcpcPsg8910Channel* channel)
 {
     channel->buffer[0] = 0;
-    channel->buf_rd    = 0;
-    channel->buf_wr    = 0;
-    channel->tone      = 0;
-    channel->noise     = 0;
+    channel->rd_index  = 0;
+    channel->wr_index  = 0;
+    channel->period    = 0;
+    channel->counter   = 0;
     channel->amplitude = 0;
-    channel->envelope  = 0;
-    channel->shape     = 0;
-    channel->mixer     = 0;
+}
+
+static void reset_envelope(XcpcPsg8910* self, XcpcPsg8910Envelope* envelope)
+{
+    envelope->period  = 0;
+    envelope->counter = 0;
+    envelope->shape   = 0;
+}
+
+static void reset_noise(XcpcPsg8910* self, XcpcPsg8910Noise* noise)
+{
+    noise->period  = 0;
+    noise->counter = 0;
+}
+
+static void reset_clock(XcpcPsg8910* self, XcpcPsg8910Clock* clock)
+{
+    clock->counter = 0;
 }
 
 static void reset_setup(XcpcPsg8910* self)
@@ -187,9 +202,12 @@ static void reset_setup(XcpcPsg8910* self)
 static void reset_state(XcpcPsg8910* self)
 {
     reset_registers(self, &self->state.regs);
-    reset_channel(self, &self->state.channel_a);
-    reset_channel(self, &self->state.channel_b);
-    reset_channel(self, &self->state.channel_c);
+    reset_channel(self, &self->state.channel[PSG_CHANNEL_A]);
+    reset_channel(self, &self->state.channel[PSG_CHANNEL_B]);
+    reset_channel(self, &self->state.channel[PSG_CHANNEL_C]);
+    reset_envelope(self, &self->state.envelope);
+    reset_noise(self, &self->state.noise);
+    reset_clock(self, &self->state.clock);
 }
 
 XcpcPsg8910* xcpc_psg_8910_alloc(void)
@@ -271,11 +289,11 @@ XcpcPsg8910* xcpc_psg_8910_debug(XcpcPsg8910* self)
         xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_B_COARSE_TUNE), self->state.regs.named.channel_b_coarse_tune);
         xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_C_FINE_TUNE  ), self->state.regs.named.channel_c_fine_tune  );
         xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_C_COARSE_TUNE), self->state.regs.named.channel_c_coarse_tune);
-        xcpc_log_debug(format2, get_register_name(PSG_NOISE_PERIOD         ), self->state.regs.named.noise_period         );
+        xcpc_log_debug(format2, get_register_name(PSG_NOISE_GENERATOR      ), self->state.regs.named.noise_generator      );
         xcpc_log_debug(format2, get_register_name(PSG_MIXER_AND_IO_CONTROL ), self->state.regs.named.mixer_and_io_control );
-        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_A_VOLUME     ), self->state.regs.named.channel_a_volume     );
-        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_B_VOLUME     ), self->state.regs.named.channel_b_volume     );
-        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_C_VOLUME     ), self->state.regs.named.channel_c_volume     );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_A_AMPLITUDE  ), self->state.regs.named.channel_a_amplitude  );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_B_AMPLITUDE  ), self->state.regs.named.channel_b_amplitude  );
+        xcpc_log_debug(format2, get_register_name(PSG_CHANNEL_C_AMPLITUDE  ), self->state.regs.named.channel_c_amplitude  );
         xcpc_log_debug(format2, get_register_name(PSG_ENVELOPE_FINE_TUNE   ), self->state.regs.named.envelope_fine_tune   );
         xcpc_log_debug(format2, get_register_name(PSG_ENVELOPE_COARSE_TUNE ), self->state.regs.named.envelope_coarse_tune );
         xcpc_log_debug(format2, get_register_name(PSG_ENVELOPE_SHAPE       ), self->state.regs.named.envelope_shape       );
@@ -298,23 +316,75 @@ XcpcPsg8910* xcpc_psg_8910_reset(XcpcPsg8910* self)
 
 XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
 {
-#if 0
-    /* channel a */ {
-        self->state.channel_a.tone = (((uint16_t)(self->state.regs.named.channel_a_coarse_tune)) << 8)
-                                   | (((uint16_t)(self->state.regs.named.channel_a_fine_tune  )) << 0)
-                                   ;
+    XcpcPsg8910Channel*  channel_a = &self->state.channel[PSG_CHANNEL_A];
+    XcpcPsg8910Channel*  channel_b = &self->state.channel[PSG_CHANNEL_B];
+    XcpcPsg8910Channel*  channel_c = &self->state.channel[PSG_CHANNEL_C];
+    XcpcPsg8910Envelope* envelope  = &self->state.envelope;
+    XcpcPsg8910Noise*    noise     = &self->state.noise;
+
+    /* process master clock divider */ {
+        self->state.clock.counter = (self->state.clock.counter + 1) & 15;
+        if(self->state.clock.counter != 0) {
+            return self;
+        }
     }
-    /* channel b */ {
-        self->state.channel_b.tone = (((uint16_t)(self->state.regs.named.channel_b_coarse_tune)) << 8)
-                                   | (((uint16_t)(self->state.regs.named.channel_b_fine_tune  )) << 0)
-                                   ;
+    /* setup channel a */ {
+        XcpcRegister pair;
+        pair.b.h             = self->state.regs.named.channel_a_coarse_tune;
+        pair.b.l             = self->state.regs.named.channel_a_fine_tune;
+        channel_a->period    = pair.w.l;
+        channel_a->amplitude = self->state.regs.named.channel_a_amplitude;
     }
-    /* channel c */ {
-        self->state.channel_c.tone = (((uint16_t)(self->state.regs.named.channel_c_coarse_tune)) << 8)
-                                   | (((uint16_t)(self->state.regs.named.channel_c_fine_tune  )) << 0)
-                                   ;
+    /* setup channel b */ {
+        XcpcRegister pair;
+        pair.b.h             = self->state.regs.named.channel_b_coarse_tune;
+        pair.b.l             = self->state.regs.named.channel_b_fine_tune;
+        channel_b->period    = pair.w.l;
+        channel_b->amplitude = self->state.regs.named.channel_b_amplitude;
     }
-#endif
+    /* setup channel c */ {
+        XcpcRegister pair;
+        pair.b.h             = self->state.regs.named.channel_c_coarse_tune;
+        pair.b.l             = self->state.regs.named.channel_c_fine_tune;
+        channel_c->period    = pair.w.l;
+        channel_c->amplitude = self->state.regs.named.channel_c_amplitude;
+    }
+    /* setup envelope */ {
+        XcpcRegister pair;
+        pair.b.h             = self->state.regs.named.envelope_coarse_tune;
+        pair.b.l             = self->state.regs.named.envelope_fine_tune;
+        envelope->period     = pair.w.l;
+        envelope->shape      = self->state.regs.named.envelope_shape;
+    }
+    /* setup noise */ {
+        noise->period        = self->state.regs.named.noise_generator;
+    }
+
+    /* process channel a */ {
+        if(++channel_a->counter >= channel_a->period) {
+            channel_a->counter = 0;
+        }
+    }
+    /* process channel b */ {
+        if(++channel_b->counter >= channel_b->period) {
+            channel_b->counter = 0;
+        }
+    }
+    /* process channel c */ {
+        if(++channel_c->counter >= channel_c->period) {
+            channel_c->counter = 0;
+        }
+    }
+    /* process envelope */ {
+        if(++envelope->counter >= envelope->period) {
+            envelope->counter = 0;
+        }
+    }
+    /* process noise */ {
+        if(++noise->counter >= noise->period) {
+            noise->counter = 0;
+        }
+    }
     return self;
 }
 
