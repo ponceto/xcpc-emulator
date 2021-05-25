@@ -68,11 +68,11 @@ enum Psg8910Channels
 
 #define _state    self->state
 #define _regs     _state.regs
-#define _tone_a   _state.tone[PSG_CHANNEL_A]
-#define _tone_b   _state.tone[PSG_CHANNEL_B]
-#define _tone_c   _state.tone[PSG_CHANNEL_C]
-#define _envelope _state.envelope
+#define _tone0    _state.tone[PSG_CHANNEL_A]
+#define _tone1    _state.tone[PSG_CHANNEL_B]
+#define _tone2    _state.tone[PSG_CHANNEL_C]
 #define _noise    _state.noise
+#define _envelope _state.envelope
 #define _clock    _state.clock
 
 #ifdef __cplusplus

@@ -83,17 +83,17 @@ struct _XcpcPsg8910Tone
     uint32_t amplitude;
 };
 
+struct _XcpcPsg8910Noise
+{
+    uint32_t period;
+    uint32_t counter;
+};
+
 struct _XcpcPsg8910Envelope
 {
     uint32_t period;
     uint32_t counter;
     uint32_t shape;
-};
-
-struct _XcpcPsg8910Noise
-{
-    uint32_t period;
-    uint32_t counter;
 };
 
 struct _XcpcPsg8910Clock
@@ -133,8 +133,8 @@ struct _XcpcPsg8910State
     XcpcPsg8910Registers regs;
     XcpcPsg8910Channel   channel[3];
     XcpcPsg8910Tone      tone[3];
-    XcpcPsg8910Envelope  envelope;
     XcpcPsg8910Noise     noise;
+    XcpcPsg8910Envelope  envelope;
     XcpcPsg8910Clock     clock;
 };
 

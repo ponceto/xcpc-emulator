@@ -212,8 +212,8 @@ static void reset_state(XcpcPsg8910* self)
     reset_tone(self, &self->state.tone[PSG_CHANNEL_A]);
     reset_tone(self, &self->state.tone[PSG_CHANNEL_B]);
     reset_tone(self, &self->state.tone[PSG_CHANNEL_C]);
-    reset_envelope(self, &self->state.envelope);
     reset_noise(self, &self->state.noise);
+    reset_envelope(self, &self->state.envelope);
     reset_clock(self, &self->state.clock);
 }
 
@@ -222,14 +222,43 @@ static void commit(XcpcPsg8910* self)
     XcpcRegister tmp;
 
     switch(_regs.named.address_register) {
-        case PSG_CHANNEL_A_COARSE_TUNE:
         case PSG_CHANNEL_A_FINE_TUNE:
+        case PSG_CHANNEL_A_COARSE_TUNE:
             {
                 tmp.b.x = 0;
                 tmp.b.y = 0;
                 tmp.b.h = _regs.named.channel_a_coarse_tune;
                 tmp.b.l = _regs.named.channel_a_fine_tune;
-                _tone_a.period = tmp.l.r;
+                _tone0.period = tmp.l.r;
+            }
+            break;
+        case PSG_CHANNEL_B_FINE_TUNE:
+        case PSG_CHANNEL_B_COARSE_TUNE:
+            {
+                tmp.b.x = 0;
+                tmp.b.y = 0;
+                tmp.b.h = _regs.named.channel_b_coarse_tune;
+                tmp.b.l = _regs.named.channel_b_fine_tune;
+                _tone1.period = tmp.l.r;
+            }
+            break;
+        case PSG_CHANNEL_C_FINE_TUNE:
+        case PSG_CHANNEL_C_COARSE_TUNE:
+            {
+                tmp.b.x = 0;
+                tmp.b.y = 0;
+                tmp.b.h = _regs.named.channel_c_coarse_tune;
+                tmp.b.l = _regs.named.channel_c_fine_tune;
+                _tone2.period = tmp.l.r;
+            }
+            break;
+        case PSG_NOISE_GENERATOR:
+            {
+                tmp.b.x = 0;
+                tmp.b.y = 0;
+                tmp.b.h = 0;
+                tmp.b.l = _regs.named.noise_generator;
+                _noise.period = tmp.l.r;
             }
             break;
         case PSG_CHANNEL_A_AMPLITUDE:
@@ -238,17 +267,7 @@ static void commit(XcpcPsg8910* self)
                 tmp.b.y = 0;
                 tmp.b.h = 0;
                 tmp.b.l = _regs.named.channel_a_amplitude;
-                _tone_a.amplitude = tmp.l.r;
-            }
-            break;
-        case PSG_CHANNEL_B_COARSE_TUNE:
-        case PSG_CHANNEL_B_FINE_TUNE:
-            {
-                tmp.b.x = 0;
-                tmp.b.y = 0;
-                tmp.b.h = _regs.named.channel_b_coarse_tune;
-                tmp.b.l = _regs.named.channel_b_fine_tune;
-                _tone_b.period = tmp.l.r;
+                _tone0.amplitude = tmp.l.r;
             }
             break;
         case PSG_CHANNEL_B_AMPLITUDE:
@@ -257,17 +276,7 @@ static void commit(XcpcPsg8910* self)
                 tmp.b.y = 0;
                 tmp.b.h = 0;
                 tmp.b.l = _regs.named.channel_b_amplitude;
-                _tone_b.amplitude = tmp.l.r;
-            }
-            break;
-        case PSG_CHANNEL_C_COARSE_TUNE:
-        case PSG_CHANNEL_C_FINE_TUNE:
-            {
-                tmp.b.x = 0;
-                tmp.b.y = 0;
-                tmp.b.h = _regs.named.channel_c_coarse_tune;
-                tmp.b.l = _regs.named.channel_c_fine_tune;
-                _tone_c.period = tmp.l.r;
+                _tone1.amplitude = tmp.l.r;
             }
             break;
         case PSG_CHANNEL_C_AMPLITUDE:
@@ -276,11 +285,11 @@ static void commit(XcpcPsg8910* self)
                 tmp.b.y = 0;
                 tmp.b.h = 0;
                 tmp.b.l = _regs.named.channel_c_amplitude;
-                _tone_c.amplitude = tmp.l.r;
+                _tone2.amplitude = tmp.l.r;
             }
             break;
-        case PSG_ENVELOPE_COARSE_TUNE:
         case PSG_ENVELOPE_FINE_TUNE:
+        case PSG_ENVELOPE_COARSE_TUNE:
             {
                 tmp.b.x = 0;
                 tmp.b.y = 0;
@@ -296,15 +305,6 @@ static void commit(XcpcPsg8910* self)
                 tmp.b.h = 0;
                 tmp.b.l = _regs.named.envelope_shape;
                 _envelope.shape = tmp.l.r;
-            }
-            break;
-        case PSG_NOISE_GENERATOR:
-            {
-                tmp.b.x = 0;
-                tmp.b.y = 0;
-                tmp.b.h = 0;
-                tmp.b.l = _regs.named.noise_generator;
-                _noise.period = tmp.l.r;
             }
             break;
         default:
@@ -423,14 +423,14 @@ XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
     }
     /* divide clock by 16 */ {
         if((_clock.counter & 0x0f) == 0) {
-            if(++_tone_a.counter >= _tone_a.period) {
-                _tone_a.counter = 0;
+            if(++_tone0.counter >= _tone0.period) {
+                _tone0.counter = 0;
             }
-            if(++_tone_b.counter >= _tone_b.period) {
-                _tone_b.counter = 0;
+            if(++_tone1.counter >= _tone1.period) {
+                _tone1.counter = 0;
             }
-            if(++_tone_c.counter >= _tone_c.period) {
-                _tone_c.counter = 0;
+            if(++_tone2.counter >= _tone2.period) {
+                _tone2.counter = 0;
             }
             if(++_noise.counter >= _noise.period) {
                 _noise.counter = 0;
