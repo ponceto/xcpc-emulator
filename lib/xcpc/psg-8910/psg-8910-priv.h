@@ -59,21 +59,18 @@ enum Psg8910Registers
     PSG_REGISTER_COUNT        = 16,
 };
 
-enum Psg8910Channels
-{
-    PSG_CHANNEL_A = 0,
-    PSG_CHANNEL_B = 1,
-    PSG_CHANNEL_C = 2,
-};
-
+#define _setup    self->setup
 #define _state    self->state
 #define _regs     _state.regs
-#define _tone0    _state.tone[PSG_CHANNEL_A]
-#define _tone1    _state.tone[PSG_CHANNEL_B]
-#define _tone2    _state.tone[PSG_CHANNEL_C]
+#define _clock    _state.clock
+#define _tone0    _state.tone[0]
+#define _tone1    _state.tone[1]
+#define _tone2    _state.tone[2]
 #define _noise    _state.noise
 #define _envelope _state.envelope
-#define _clock    _state.clock
+#define _channel0 _state.channel[0]
+#define _channel1 _state.channel[1]
+#define _channel2 _state.channel[2]
 
 #ifdef __cplusplus
 }

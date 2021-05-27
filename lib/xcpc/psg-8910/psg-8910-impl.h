@@ -32,11 +32,11 @@ typedef struct _XcpcPsg8910State XcpcPsg8910State;
 typedef struct _XcpcPsg8910      XcpcPsg8910;
 
 typedef union  _XcpcPsg8910Registers XcpcPsg8910Registers;
-typedef struct _XcpcPsg8910Channel   XcpcPsg8910Channel;
-typedef struct _XcpcPsg8910Tone      XcpcPsg8910Tone;
-typedef struct _XcpcPsg8910Envelope  XcpcPsg8910Envelope;
-typedef struct _XcpcPsg8910Noise     XcpcPsg8910Noise;
 typedef struct _XcpcPsg8910Clock     XcpcPsg8910Clock;
+typedef struct _XcpcPsg8910Tone      XcpcPsg8910Tone;
+typedef struct _XcpcPsg8910Noise     XcpcPsg8910Noise;
+typedef struct _XcpcPsg8910Envelope  XcpcPsg8910Envelope;
+typedef struct _XcpcPsg8910Channel   XcpcPsg8910Channel;
 typedef uint8_t (*XcpcPsg8910RdFunc)(XcpcPsg8910* psg_8910, uint8_t data, void* user_data);
 typedef uint8_t (*XcpcPsg8910WrFunc)(XcpcPsg8910* psg_8910, uint8_t data, void* user_data);
 
@@ -69,13 +69,6 @@ union _XcpcPsg8910Registers
     } named;
 };
 
-struct _XcpcPsg8910Channel
-{
-    uint8_t  buffer[65536];
-    int      rd_index;
-    int      wr_index;
-};
-
 struct _XcpcPsg8910Tone
 {
     uint32_t period;
@@ -94,6 +87,13 @@ struct _XcpcPsg8910Envelope
     uint32_t period;
     uint32_t counter;
     uint32_t shape;
+};
+
+struct _XcpcPsg8910Channel
+{
+    uint8_t  buffer[65536];
+    int      rd_index;
+    int      wr_index;
 };
 
 struct _XcpcPsg8910Clock
@@ -131,11 +131,11 @@ struct _XcpcPsg8910Setup
 struct _XcpcPsg8910State
 {
     XcpcPsg8910Registers regs;
-    XcpcPsg8910Channel   channel[3];
+    XcpcPsg8910Clock     clock;
     XcpcPsg8910Tone      tone[3];
     XcpcPsg8910Noise     noise;
     XcpcPsg8910Envelope  envelope;
-    XcpcPsg8910Clock     clock;
+    XcpcPsg8910Channel   channel[3];
 };
 
 struct _XcpcPsg8910

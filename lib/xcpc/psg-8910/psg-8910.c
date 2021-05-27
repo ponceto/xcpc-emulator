@@ -102,119 +102,120 @@ static const char* get_register_name(unsigned int address_register)
     return "invalid-register";
 }
 
-static void reset_registers(XcpcPsg8910* self, XcpcPsg8910Registers* registers)
+static void reset_registers(XcpcPsg8910* self, XcpcPsg8910Registers* impl)
 {
-    registers->named.address_register      = 0x00;
-    registers->named.channel_a_fine_tune   = 0x00;
-    registers->named.channel_a_coarse_tune = 0x00;
-    registers->named.channel_b_fine_tune   = 0x00;
-    registers->named.channel_b_coarse_tune = 0x00;
-    registers->named.channel_c_fine_tune   = 0x00;
-    registers->named.channel_c_coarse_tune = 0x00;
-    registers->named.noise_generator       = 0x00;
-    registers->named.mixer_and_io_control  = 0x00;
-    registers->named.channel_a_amplitude   = 0x00;
-    registers->named.channel_b_amplitude   = 0x00;
-    registers->named.channel_c_amplitude   = 0x00;
-    registers->named.envelope_fine_tune    = 0x00;
-    registers->named.envelope_coarse_tune  = 0x00;
-    registers->named.envelope_shape        = 0x00;
-    registers->named.io_port_a             = 0xff;
-    registers->named.io_port_b             = 0xff;
+    impl->named.address_register      = 0x00;
+    impl->named.channel_a_fine_tune   = 0x00;
+    impl->named.channel_a_coarse_tune = 0x00;
+    impl->named.channel_b_fine_tune   = 0x00;
+    impl->named.channel_b_coarse_tune = 0x00;
+    impl->named.channel_c_fine_tune   = 0x00;
+    impl->named.channel_c_coarse_tune = 0x00;
+    impl->named.noise_generator       = 0x00;
+    impl->named.mixer_and_io_control  = 0x00;
+    impl->named.channel_a_amplitude   = 0x00;
+    impl->named.channel_b_amplitude   = 0x00;
+    impl->named.channel_c_amplitude   = 0x00;
+    impl->named.envelope_fine_tune    = 0x00;
+    impl->named.envelope_coarse_tune  = 0x00;
+    impl->named.envelope_shape        = 0x00;
+    impl->named.io_port_a             = 0xff;
+    impl->named.io_port_b             = 0xff;
 }
 
-static void reset_channel(XcpcPsg8910* self, XcpcPsg8910Channel* channel)
+static void reset_clock(XcpcPsg8910* self, XcpcPsg8910Clock* impl)
 {
-    channel->buffer[0] = 0;
-    channel->rd_index  = 0;
-    channel->wr_index  = 0;
+    impl->counter = 0;
 }
 
-static void reset_tone(XcpcPsg8910* self, XcpcPsg8910Tone* tone)
+static void reset_tone(XcpcPsg8910* self, XcpcPsg8910Tone* impl)
 {
-    tone->period    = 0;
-    tone->counter   = 0;
-    tone->amplitude = 0;
+    impl->period    = 0;
+    impl->counter   = 0;
+    impl->amplitude = 0;
 }
 
-static void reset_envelope(XcpcPsg8910* self, XcpcPsg8910Envelope* envelope)
+static void reset_noise(XcpcPsg8910* self, XcpcPsg8910Noise* impl)
 {
-    envelope->period  = 0;
-    envelope->counter = 0;
-    envelope->shape   = 0;
+    impl->period  = 0;
+    impl->counter = 0;
 }
 
-static void reset_noise(XcpcPsg8910* self, XcpcPsg8910Noise* noise)
+static void reset_envelope(XcpcPsg8910* self, XcpcPsg8910Envelope* impl)
 {
-    noise->period  = 0;
-    noise->counter = 0;
+    impl->period  = 0;
+    impl->counter = 0;
+    impl->shape   = 0;
 }
 
-static void reset_clock(XcpcPsg8910* self, XcpcPsg8910Clock* clock)
+static void reset_channel(XcpcPsg8910* self, XcpcPsg8910Channel* impl)
 {
-    clock->counter = 0;
+    impl->buffer[0] = 0;
+    impl->rd_index  = 0;
+    impl->wr_index  = 0;
 }
 
-static void reset_setup(XcpcPsg8910* self)
+static void reset_setup(XcpcPsg8910* self, XcpcPsg8910Setup* impl)
 {
     /* reset caps_of */ {
-        self->setup.caps_of.addr       = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x00] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x01] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x02] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x03] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x04] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x05] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x06] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x07] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x08] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x09] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x0a] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x0b] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x0c] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x0d] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x0e] = (REG_READABLE | REG_WRITABLE);
-        self->setup.caps_of.data[0x0f] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.addr       = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x00] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x01] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x02] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x03] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x04] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x05] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x06] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x07] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x08] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x09] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x0a] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x0b] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x0c] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x0d] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x0e] = (REG_READABLE | REG_WRITABLE);
+        impl->caps_of.data[0x0f] = (REG_READABLE | REG_WRITABLE);
     }
     /* reset mask_of */ {
-        self->setup.mask_of.addr       = 0xff;
-        self->setup.mask_of.data[0x00] = 0xff;
-        self->setup.mask_of.data[0x01] = 0x0f;
-        self->setup.mask_of.data[0x02] = 0xff;
-        self->setup.mask_of.data[0x03] = 0x0f;
-        self->setup.mask_of.data[0x04] = 0xff;
-        self->setup.mask_of.data[0x05] = 0x0f;
-        self->setup.mask_of.data[0x06] = 0x1f;
-        self->setup.mask_of.data[0x07] = 0xff;
-        self->setup.mask_of.data[0x08] = 0x1f;
-        self->setup.mask_of.data[0x09] = 0x1f;
-        self->setup.mask_of.data[0x0a] = 0x1f;
-        self->setup.mask_of.data[0x0b] = 0xff;
-        self->setup.mask_of.data[0x0c] = 0xff;
-        self->setup.mask_of.data[0x0d] = 0x0f;
-        self->setup.mask_of.data[0x0e] = 0xff;
-        self->setup.mask_of.data[0x0f] = 0xff;
+        impl->mask_of.addr       = 0xff;
+        impl->mask_of.data[0x00] = 0xff;
+        impl->mask_of.data[0x01] = 0x0f;
+        impl->mask_of.data[0x02] = 0xff;
+        impl->mask_of.data[0x03] = 0x0f;
+        impl->mask_of.data[0x04] = 0xff;
+        impl->mask_of.data[0x05] = 0x0f;
+        impl->mask_of.data[0x06] = 0x1f;
+        impl->mask_of.data[0x07] = 0xff;
+        impl->mask_of.data[0x08] = 0x1f;
+        impl->mask_of.data[0x09] = 0x1f;
+        impl->mask_of.data[0x0a] = 0x1f;
+        impl->mask_of.data[0x0b] = 0xff;
+        impl->mask_of.data[0x0c] = 0xff;
+        impl->mask_of.data[0x0d] = 0x0f;
+        impl->mask_of.data[0x0e] = 0xff;
+        impl->mask_of.data[0x0f] = 0xff;
     }
     /* volume table */ {
-        int level = 0;
+        int index = 0;
+        int count = countof(volume_table);
         do {
-            self->setup.volume.level[level] = volume_table[level];
-        } while(++level < 16);
+            impl->volume.level[index] = volume_table[index];
+        } while(++index < count);
     }
 }
 
-static void reset_state(XcpcPsg8910* self)
+static void reset_state(XcpcPsg8910* self, XcpcPsg8910State* impl)
 {
-    reset_registers(self, &self->state.regs);
-    reset_channel(self, &self->state.channel[PSG_CHANNEL_A]);
-    reset_channel(self, &self->state.channel[PSG_CHANNEL_B]);
-    reset_channel(self, &self->state.channel[PSG_CHANNEL_C]);
-    reset_tone(self, &self->state.tone[PSG_CHANNEL_A]);
-    reset_tone(self, &self->state.tone[PSG_CHANNEL_B]);
-    reset_tone(self, &self->state.tone[PSG_CHANNEL_C]);
-    reset_noise(self, &self->state.noise);
-    reset_envelope(self, &self->state.envelope);
-    reset_clock(self, &self->state.clock);
+    reset_registers(self, &impl->regs);
+    reset_clock(self, &impl->clock);
+    reset_tone(self, &impl->tone[0]);
+    reset_tone(self, &impl->tone[1]);
+    reset_tone(self, &impl->tone[2]);
+    reset_noise(self, &impl->noise);
+    reset_envelope(self, &impl->envelope);
+    reset_channel(self, &impl->channel[0]);
+    reset_channel(self, &impl->channel[1]);
+    reset_channel(self, &impl->channel[2]);
 }
 
 static void commit(XcpcPsg8910* self)
@@ -410,8 +411,8 @@ XcpcPsg8910* xcpc_psg_8910_reset(XcpcPsg8910* self)
     log_trace("reset");
 
     /* reset */ {
-        reset_setup(self);
-        reset_state(self);
+        reset_setup(self, &_setup);
+        reset_state(self, &_state);
     }
     return self;
 }
