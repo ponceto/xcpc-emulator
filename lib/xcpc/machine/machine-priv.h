@@ -74,6 +74,7 @@ extern unsigned long xcpc_machine_key_release_func    (XcpcMachine* machine, Xcp
 extern unsigned long xcpc_machine_button_press_func   (XcpcMachine* machine, XcpcBackendClosure* closure);
 extern unsigned long xcpc_machine_button_release_func (XcpcMachine* machine, XcpcBackendClosure* closure);
 extern unsigned long xcpc_machine_motion_notify_func  (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_audio_func          (XcpcMachine* machine, XcpcBackendClosure* closure);
 
 #ifdef __cplusplus
 }

@@ -133,6 +133,7 @@ static void reset_tone(XcpcPsg8910* self, XcpcPsg8910Tone* impl)
     impl->period    = 0;
     impl->counter   = 0;
     impl->amplitude = 0;
+    impl->signal    = 0;
 }
 
 static void reset_noise(XcpcPsg8910* self, XcpcPsg8910Noise* impl)
@@ -426,12 +427,15 @@ XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
         if((_clock.counter & 0x0f) == 0) {
             if(++_tone0.counter >= _tone0.period) {
                 _tone0.counter = 0;
+                _tone0.signal ^= 255;
             }
             if(++_tone1.counter >= _tone1.period) {
                 _tone1.counter = 0;
+                _tone1.signal ^= 255;
             }
             if(++_tone2.counter >= _tone2.period) {
                 _tone2.counter = 0;
+                _tone2.signal ^= 255;
             }
             if(++_noise.counter >= _noise.period) {
                 _noise.counter = 0;
@@ -439,6 +443,30 @@ XcpcPsg8910* xcpc_psg_8910_clock(XcpcPsg8910* self)
             if(++_envelope.counter >= _envelope.period) {
                 _envelope.counter = 0;
             }
+        }
+    }
+    /* process channel a */ {
+        const int rd_index = ((_channel0.rd_index + 0) % countof(_channel0.buffer));
+        const int wr_index = ((_channel0.wr_index + 1) % countof(_channel0.buffer));
+        if(wr_index != rd_index) {
+            _channel0.buffer[_channel0.wr_index] = _tone0.signal;
+            _channel0.wr_index = wr_index;
+        }
+    }
+    /* process channel b */ {
+        const int rd_index = ((_channel1.rd_index + 0) % countof(_channel1.buffer));
+        const int wr_index = ((_channel1.wr_index + 1) % countof(_channel1.buffer));
+        if(wr_index != rd_index) {
+            _channel1.buffer[_channel1.wr_index] = _tone1.signal;
+            _channel1.wr_index = wr_index;
+        }
+    }
+    /* process channel c */ {
+        const int rd_index = ((_channel2.rd_index + 0) % countof(_channel2.buffer));
+        const int wr_index = ((_channel2.wr_index + 1) % countof(_channel2.buffer));
+        if(wr_index != rd_index) {
+            _channel2.buffer[_channel2.wr_index] = _tone2.signal;
+            _channel2.wr_index = wr_index;
         }
     }
     return self;

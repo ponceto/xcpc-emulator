@@ -74,6 +74,7 @@ struct _XcpcPsg8910Tone
     uint32_t period;
     uint32_t counter;
     uint32_t amplitude;
+    uint32_t signal;
 };
 
 struct _XcpcPsg8910Noise

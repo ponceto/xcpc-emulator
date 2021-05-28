@@ -44,6 +44,7 @@ static XcpcBackend* reset_backend(XcpcBackend* backend)
         backend->button_press_func   = &default_func;
         backend->button_release_func = &default_func;
         backend->motion_notify_func  = &default_func;
+        backend->audio_func          = &default_func;
     }
     return backend;
 }

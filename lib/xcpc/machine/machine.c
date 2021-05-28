@@ -2717,6 +2717,7 @@ XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* i
         self->backend.button_press_func   = ((XcpcBackendFunc)(&xcpc_machine_button_press_func  ));
         self->backend.button_release_func = ((XcpcBackendFunc)(&xcpc_machine_button_release_func));
         self->backend.motion_notify_func  = ((XcpcBackendFunc)(&xcpc_machine_motion_notify_func ));
+        self->backend.audio_func          = ((XcpcBackendFunc)(&xcpc_machine_audio_func         ));
     }
     /* initialize */ {
         (void) initialize(self);
@@ -3258,5 +3259,10 @@ unsigned long xcpc_machine_motion_notify_func(XcpcMachine* self, XcpcBackendClos
     /* process event */ {
         (*self->funcs.mouse_func)(self, closure->event);
     }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_audio_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
     return 0UL;
 }

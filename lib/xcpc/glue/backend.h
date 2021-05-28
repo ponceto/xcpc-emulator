@@ -38,6 +38,7 @@ typedef struct _XcpcBackendKeyEvent          XcpcBackendKeyReleaseEvent;
 typedef struct _XcpcBackendButtonEvent       XcpcBackendButtonPressEvent;
 typedef struct _XcpcBackendButtonEvent       XcpcBackendButtonReleaseEvent;
 typedef struct _XcpcBackendMotionEvent       XcpcBackendMotionNotifyEvent;
+typedef struct _XcpcBackendAudioEvent        XcpcBackendAudioEvent;
 
 typedef unsigned long (*XcpcBackendFunc)(void* instance, XcpcBackendClosure* closure);
 
@@ -96,6 +97,11 @@ struct _XcpcBackendMotionEvent
     int padding;
 };
 
+struct _XcpcBackendAudioEvent
+{
+    int padding;
+};
+
 struct _XcpcBackendClosure
 {
     XEvent* event;
@@ -113,6 +119,7 @@ struct _XcpcBackendClosure
         XcpcBackendButtonPressEvent   button_press;
         XcpcBackendButtonReleaseEvent button_release;
         XcpcBackendMotionNotifyEvent  motion_notify;
+        XcpcBackendAudioEvent         audio;
     } u;
 };
 
@@ -132,6 +139,7 @@ struct _XcpcBackend
     unsigned long (*button_press_func)   (void* instance, XcpcBackendClosure* closure);
     unsigned long (*button_release_func) (void* instance, XcpcBackendClosure* closure);
     unsigned long (*motion_notify_func)  (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*audio_func)          (void* instance, XcpcBackendClosure* closure);
 };
 
 extern XcpcBackend* xcpc_backend_init(XcpcBackend* backend);

@@ -761,14 +761,23 @@ struct _XemAudioFrame
 #ifdef HAVE_PORTAUDIO
 int XemAudioCallback(const int8_t* input, int8_t* output, unsigned long frames_per_buffer, const PaStreamCallbackTimeInfo* info, PaStreamCallbackFlags flags, void* user_data)
 {
-    unsigned long frame_index = 0;
-    unsigned long frame_count = frames_per_buffer;
+    XemEmulatorWidget self = CAST_EMULATOR(user_data);
 
-    for(frame_index = 0; frame_index < frame_count; ++frame_index) {
-        XemAudioFrame* audio_frame = ((XemAudioFrame*)(output));
-        audio_frame->lft = 0;
-        audio_frame->rgt = 0;
-        output += 2;
+    /* call audio_func */ {
+        XcpcBackend*       backend = &self->emulator.backend;
+        XcpcBackendClosure closure;
+        closure.event = NULL;
+        (void) (*backend->audio_func)(backend->instance, &closure);
+    }
+    /* clear */ {
+        unsigned long frame_index = 0;
+        unsigned long frame_count = frames_per_buffer;
+        for(frame_index = 0; frame_index < frame_count; ++frame_index) {
+            XemAudioFrame* audio_frame = ((XemAudioFrame*)(output));
+            audio_frame->lft = 0;
+            audio_frame->rgt = 0;
+            output += 2;
+        }
     }
     return 0;
 }
