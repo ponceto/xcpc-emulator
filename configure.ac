@@ -41,7 +41,8 @@ m4_define([pkg_lt_age], [m4_eval(pkg_binary_age - pkg_interface_age)])
 # Autoconf/Automake/Libtool
 # ----------------------------------------------------------------------------
 
-AC_INIT([pkg_name],[pkg_version],[pkg_bugreport])
+AC_PREREQ([2.70])
+AC_INIT([pkg_name], [pkg_version], [pkg_bugreport])
 AM_INIT_AUTOMAKE
 LT_INIT
 
