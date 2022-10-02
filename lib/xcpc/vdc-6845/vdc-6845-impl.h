@@ -1,5 +1,5 @@
 /*
- * vdc-6845-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * vdc-6845-impl.h - Copyright (c) 2001-2022 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

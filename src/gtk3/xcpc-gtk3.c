@@ -1,5 +1,5 @@
 /*
- * xcpc-gtk3.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-gtk3.c - Copyright (c) 2001-2022 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -607,7 +607,7 @@ static void help_legal_callback(GtkWidget* widget, XcpcApplication* self)
         gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), self->layout.logo);
         gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc"));
         gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _("Legal informations"));
-        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2021 - Olivier Poncet"));
+        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2022 - Olivier Poncet"));
         gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), xcpc_legal_text());
         gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), _("https://www.xcpc-emulator.net/"));
         gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(dialog), xcpc_about_text());
@@ -635,7 +635,7 @@ static void help_about_callback(GtkWidget* widget, XcpcApplication* self)
         gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), self->layout.logo);
         gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc"));
         gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), PACKAGE_STRING);
-        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2021 - Olivier Poncet"));
+        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2022 - Olivier Poncet"));
         gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("Xcpc is an Amstrad CPC emulator for Linux, BSD and Unix"));
         gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), _("https://www.xcpc-emulator.net/"));
         gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(dialog), xcpc_about_text());

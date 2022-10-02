@@ -9,7 +9,7 @@ Xcpc is an emulator, so it has been designed to deal with old copyrighted softwa
 Xcpc is released under the terms of the General Public License version 2.
 
 ```
-Xcpc - Copyright (c) 2001-2021 - Olivier Poncet
+Xcpc - Copyright (c) 2001-2022 - Olivier Poncet
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
