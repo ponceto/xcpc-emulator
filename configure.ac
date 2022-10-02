@@ -41,7 +41,7 @@ m4_define([pkg_lt_age], [m4_eval(pkg_binary_age - pkg_interface_age)])
 # Autoconf/Automake/Libtool
 # ----------------------------------------------------------------------------
 
-AC_INIT([pkg_name], [pkg_version], [pkg_bugreport])
+AC_INIT([pkg_name],[pkg_version],[pkg_bugreport])
 AM_INIT_AUTOMAKE
 LT_INIT
 
@@ -51,7 +51,7 @@ LT_INIT
 
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_LEX
+AC_PROG_LEX([noyywrap])
 AC_PROG_YACC
 
 # ----------------------------------------------------------------------------
