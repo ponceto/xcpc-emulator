@@ -485,7 +485,7 @@ static dsk_err_t wrbyte(SQ_COMPRESS_DATA *self, unsigned char b)
 static dsk_err_t unsqueeze(SQ_COMPRESS_DATA *self)
 {
 	dsk_err_t err;
-	unsigned short magic, checksum;
+	unsigned short magic, checksum = 0;
 	unsigned char c;
 	unsigned short dictlen;
 	unsigned short nd;

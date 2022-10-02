@@ -173,6 +173,9 @@ fd_err_t fdd_new_dsk(FDRV_PTR fd);
  * for disc I/O. */
 FDRV_PTR fd_newldsk(void);
 
+/* Create a new DSK file. */
+fd_err_t fdl_create_dsk(FDRV_PTR fd, const char *s);
+
 /* Get / set DSK file associated with this drive.
  * Note that doing fdd_setfilename() causes an implicit eject on the 
  * previous disc in the drive. */

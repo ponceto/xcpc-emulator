@@ -4,9 +4,6 @@
 
 Here is a non-exhaustive list of supported features:
 
-  - A simple X11 Intrinsic user interface.
-  - A complete Athena user interface.
-  - A complete Motif-2x user interface.
   - A complete Gtk+-3.x user interface.
   - Full X11 with XShm extension.
   - Adaptative frame-rate.

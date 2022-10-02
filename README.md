@@ -1,6 +1,6 @@
 ## README
 
-Xcpc is a portable Amstrad CPC 464/664/6128 emulator written in C. It is designed to run on any POSIX compliant system having an X11 server, including Linux, BSD and Unix.
+Xcpc is a portable Amstrad CPC 464/664/6128 emulator written in C and C++. It is designed to run on any POSIX compliant system having an X11 server, including Linux, BSD and Unix.
 
 Note there is absolutely no support for Microsoft Windows operating systems and there never will be. Please do not ask me to add such functionality.
 

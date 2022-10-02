@@ -36,90 +36,50 @@ noinst_LTLIBRARIES = \
 # ----------------------------------------------------------------------------
 
 libxcpc_la_SOURCES = \
-	libxcpc.c \
+	libxcpc.cc \
 	libxcpc.h \
-	libxcpc-impl.h \
+	libxcpc-cxx.h \
 	libxcpc-priv.h \
-	xlib/xlib.c \
+	xlib/xlib.cc \
 	xlib/xlib.h \
-	xlib/xlib-impl.h \
-	xlib/xlib-priv.h \
-	glue/backend.c \
-	glue/backend.h \
-	glue/frontend.c \
-	glue/frontend.h \
-	options/options.c \
-	options/options.h \
-	options/options-impl.h \
-	options/options-priv.h \
-	machine/machine.c \
-	machine/machine.h \
-	machine/machine-impl.h \
-	machine/machine-priv.h \
-	monitor/monitor.c \
-	monitor/monitor.h \
-	monitor/monitor-impl.h \
-	monitor/monitor-priv.h \
-	keyboard/keyboard.c \
-	keyboard/keyboard.h \
-	keyboard/keyboard-impl.h \
-	keyboard/keyboard-priv.h \
-	joystick/joystick.c \
-	joystick/joystick.h \
-	joystick/joystick-impl.h \
-	joystick/joystick-priv.h \
-	cpu-z80a/cpu-z80a.c \
-	cpu-z80a/cpu-z80a.h \
-	cpu-z80a/cpu-z80a-impl.h \
-	cpu-z80a/cpu-z80a-priv.h \
-	cpu-z80a/cpu-z80a-microcode.h \
-	cpu-z80a/cpu-z80a-opcodes.inc \
-	cpu-z80a/cpu-z80a-opcodes-cb.inc \
-	cpu-z80a/cpu-z80a-opcodes-ed.inc \
-	cpu-z80a/cpu-z80a-opcodes-dd.inc \
-	cpu-z80a/cpu-z80a-opcodes-fd.inc \
-	cpu-z80a/cpu-z80a-opcodes-ddcb.inc \
-	cpu-z80a/cpu-z80a-opcodes-fdcb.inc \
-	vga-core/vga-core.c \
-	vga-core/vga-core.h \
-	vga-core/vga-core-impl.h \
-	vga-core/vga-core-priv.h \
-	vdc-6845/vdc-6845.c \
-	vdc-6845/vdc-6845.h \
-	vdc-6845/vdc-6845-impl.h \
-	vdc-6845/vdc-6845-priv.h \
-	ppi-8255/ppi-8255.c \
-	ppi-8255/ppi-8255.h \
-	ppi-8255/ppi-8255-impl.h \
-	ppi-8255/ppi-8255-priv.h \
-	psg-8910/psg-8910.c \
-	psg-8910/psg-8910.h \
-	psg-8910/psg-8910-impl.h \
-	psg-8910/psg-8910-priv.h \
-	fdc-765a/fdc-765a.c \
-	fdc-765a/fdc-765a.h \
-	fdc-765a/fdc-765a-impl.h \
-	fdc-765a/fdc-765a-priv.h \
-	ram-bank/ram-bank.c \
-	ram-bank/ram-bank.h \
-	ram-bank/ram-bank-impl.h \
-	ram-bank/ram-bank-priv.h \
-	rom-bank/rom-bank.c \
-	rom-bank/rom-bank.h \
-	rom-bank/rom-bank-impl.h \
-	rom-bank/rom-bank-priv.h \
-	snapshot/snapshot.c \
-	snapshot/snapshot.h \
-	snapshot/snapshot-impl.h \
-	snapshot/snapshot-priv.h \
-	snapshot/snapshot-reader.c \
-	snapshot/snapshot-reader.h \
-	snapshot/snapshot-reader-impl.h \
-	snapshot/snapshot-reader-priv.h \
-	snapshot/snapshot-writer.c \
-	snapshot/snapshot-writer.h \
-	snapshot/snapshot-writer-impl.h \
-	snapshot/snapshot-writer-priv.h \
+	amstrad/cpc/cpc-machine.cc \
+	amstrad/cpc/cpc-machine.h \
+	amstrad/cpc/cpc-mainboard.cc \
+	amstrad/cpc/cpc-mainboard.h \
+	amstrad/cpc/cpc-settings.cc \
+	amstrad/cpc/cpc-settings.h \
+	devices/dpy/dpy-device.cc \
+	devices/dpy/dpy-device.h \
+	devices/kbd/kbd-device.cc \
+	devices/kbd/kbd-device.h \
+	devices/cpu/cpu-device.cc \
+	devices/cpu/cpu-device.h \
+	devices/cpu/cpu-microcode.inc \
+	devices/cpu/cpu-opcodes.inc \
+	devices/cpu/cpu-opcodes-cb.inc \
+	devices/cpu/cpu-opcodes-ed.inc \
+	devices/cpu/cpu-opcodes-dd.inc \
+	devices/cpu/cpu-opcodes-fd.inc \
+	devices/cpu/cpu-opcodes-ddcb.inc \
+	devices/cpu/cpu-opcodes-fdcb.inc \
+	devices/vga/vga-device.cc \
+	devices/vga/vga-device.h \
+	devices/vdc/vdc-device.cc \
+	devices/vdc/vdc-device.h \
+	devices/ppi/ppi-device.cc \
+	devices/ppi/ppi-device.h \
+	devices/psg/psg-device.cc \
+	devices/psg/psg-device.h \
+	devices/fdc/fdc-device.cc \
+	devices/fdc/fdc-device.h \
+	devices/mem/mem-device.cc \
+	devices/mem/mem-device.h \
+	formats/cdt/cdt-format.cc \
+	formats/cdt/cdt-format.h \
+	formats/dsk/dsk-format.cc \
+	formats/dsk/dsk-format.h \
+	formats/sna/sna-format.cc \
+	formats/sna/sna-format.h \
 	$(NULL)
 
 libxcpc_la_CPPFLAGS = \
@@ -131,12 +91,35 @@ libxcpc_la_LDFLAGS = \
 	$(NULL)
 
 libxcpc_la_LIBADD = \
-	$(top_builddir)/lib/lib765/lib765.la \
-	$(top_builddir)/lib/libdsk/libdsk.la \
-	$(X_LIBS) \
-	$(X_PRE_LIBS) -lXext -lX11 \
-	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
+
+if USE_LIB765
+if HAVE_LIB765
+libxcpc_la_LIBADD += $(top_builddir)/lib/lib765/lib765.la
+endif
+endif
+
+if USE_LIBDSK
+if HAVE_LIBDSK
+libxcpc_la_LIBADD += $(top_builddir)/lib/libdsk/libdsk.la
+endif
+endif
+
+if USE_MINIAUDIO
+if HAVE_MINIAUDIO
+libxcpc_la_LIBADD += $(top_builddir)/lib/miniaudio/libminiaudio.la
+endif
+endif
+
+if USE_X11
+if HAVE_X11
+libxcpc_la_LIBADD += $(X_LIBS) $(X_PRE_LIBS) -lXext -lX11 $(X_EXTRA_LIBS)
+endif
+endif
+
+if TRUE
+libxcpc_la_LIBADD += -lm
+endif
 
 # ----------------------------------------------------------------------------
 # End-Of-File

@@ -38,10 +38,11 @@ m4_define([pkg_lt_revision], [m4_eval(pkg_interface_age)])
 m4_define([pkg_lt_age], [m4_eval(pkg_binary_age - pkg_interface_age)])
 
 # ----------------------------------------------------------------------------
-# Autoconf/Automake/Libtool
+# Initialize autoconf/automake/libtool
 # ----------------------------------------------------------------------------
 
 AC_PREREQ([2.69])
+AC_CONFIG_MACRO_DIRS([m4])
 AC_INIT([pkg_name], [pkg_version], [pkg_bugreport])
 AM_INIT_AUTOMAKE
 LT_INIT
@@ -62,8 +63,6 @@ esac
 
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_LEX([noyywrap])
-AC_PROG_YACC
 
 # ----------------------------------------------------------------------------
 # Checks
@@ -81,15 +80,10 @@ AX_CHECK_HEADERS
 AX_CHECK_FUNCTIONS
 AX_CHECK_ZLIB
 AX_CHECK_BZLIB
-AX_CHECK_X11
-AX_CHECK_XSHM
-AX_CHECK_INTRINSIC
-AX_CHECK_ATHENA
-AX_CHECK_MOTIF2
-AX_CHECK_GTK3
-AX_CHECK_GTK4
 AX_CHECK_GUI_TOOLKIT
-AX_CHECK_PORTAUDIO
+AX_CHECK_MINIAUDIO
+AX_CHECK_LIBDSK
+AX_CHECK_LIB765
 AX_CHECK_LINUX_JOYSTICK_API
 
 # ----------------------------------------------------------------------------
@@ -114,34 +108,43 @@ AC_SUBST(LT_AGE, [pkg_lt_age])
 AC_SUBST(LT_VERSION_INFO, [pkg_lt_current:pkg_lt_revision:pkg_lt_age])
 
 # ----------------------------------------------------------------------------
-# Output
+# Config header
 # ----------------------------------------------------------------------------
 
 AC_CONFIG_HEADERS([config.h])
+
+# ----------------------------------------------------------------------------
+# Config files
+# ----------------------------------------------------------------------------
+
 AC_CONFIG_FILES([
 	Makefile
 	bin/Makefile
 	etc/Makefile
 	doc/Makefile
 	lib/Makefile
+	lib/miniaudio/Makefile
 	lib/libdsk/Makefile
 	lib/lib765/Makefile
 	lib/xcpc/Makefile
-	lib/Xem/Makefile
-	lib/gtk3/Makefile
-	lib/gtk4/Makefile
 	src/Makefile
+	src/utils/Makefile
+	src/gtk3ui/Makefile
+	src/gtk4ui/Makefile
 	share/Makefile
 	share/applications/Makefile
 	share/applications/xcpc.desktop
 	share/pixmaps/Makefile
 	share/xcpc/Makefile
-	share/xcpc/bitmaps/Makefile
-	share/xcpc/pixmaps/Makefile
 	share/xcpc/roms/Makefile
 	share/xcpc/disks/Makefile
 	share/xcpc/snapshots/Makefile
 ])
+
+# ----------------------------------------------------------------------------
+# Output
+# ----------------------------------------------------------------------------
+
 AC_OUTPUT
 
 # ----------------------------------------------------------------------------
@@ -152,14 +155,13 @@ AC_MSG_NOTICE([configured to build Xcpc:
 
   X11 .................... ${have_x}
   X11 XShm ............... ${have_xshm}
-  Intrinsic .............. ${have_intrinsic}
-  Athena ................. ${have_athena}
-  Motif2 ................. ${have_motif2}
-  Gtk3 ................... ${have_gtk3}
-  Gtk4 (not supported) ... ${have_gtk4}
-  PortAudio .............. ${have_portaudio}
-  Linux Joystick API ..... ${have_linux_joystick_api}
-  X11 toolkit ............ ${with_x11_toolkit}
+  gtk3 ................... ${have_gtk3}
+  gtk4 ................... ${have_gtk4}
+  miniaudio .............. ${have_miniaudio}
+  libdsk ................. ${have_libdsk}
+  lib765 ................. ${have_lib765}
+  linux joystick api ..... ${have_linux_joystick_api}
+  user interface ......... ${with_gui_toolkit}
 
 Have fun with Xcpc ;-)
 ])

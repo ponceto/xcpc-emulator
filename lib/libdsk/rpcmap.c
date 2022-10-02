@@ -80,7 +80,7 @@ static dsk_err_t dsk_map_add(DSK_PDRIVER ptr, unsigned int *n)
 	}
 	for (m = 1; m < maplen; m++) newmap[m] = mapping[m];
 	free(mapping);
-	mapping[*n = maplen] = ptr;
+	newmap[*n = maplen] = ptr;
 	maplen *= 2;
 	return DSK_ERR_OK;
 }

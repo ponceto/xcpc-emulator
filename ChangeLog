@@ -1,3 +1,17 @@
+2024-07-29	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+    * Major cleanup and refactoring
+    * Codebase rewritten and moved to C++
+    * Portaudio support removed
+    * Miniaudio support added (embedded)
+    * Emulation is more accurate, better timings
+    * Disk images can now be created from emulator
+    * Support for all interrupts modes
+    * Intrinsic user interface removed
+    * Athena user interface removed
+    * Motif2 user interface removed
+    * Gtk+-3.x user interface rewritten
+
 2023-04-08	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Force X11 with Gtk3 under Wayland.
