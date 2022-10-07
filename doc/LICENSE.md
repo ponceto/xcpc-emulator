@@ -1,10 +1,10 @@
-## License and legal informations
+## LICENSES
 
-Xcpc is a free software, so it's source code is free (free as freedom, not as free beer).
+Xcpc is a free software, so it's source code is free (free as in freedom, not free as in free beer).
 
-Xcpc is an emulator, so it has been designed to deal with old copyrighted softwares, so you should take your own responsibility about these softwares.
+Due to the fact that Xcpc is an emulator, it has been designed to deal with old copyrighted softwares, so you should take your own responsibility about these softwares.
 
-### License terms
+### LICENSE TERMS
 
 Xcpc is released under the terms of the General Public License version 2.
 
@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>
 ```
 
-### Legal Informations
+### LEGAL INFORMATIONS
 
 Xcpc is distributed with some copyrighted materials from Amstrad with their permission.
 
@@ -44,13 +44,13 @@ and cannot be distributed in this package. You can download and/or use
 ROM and DISK images at your own risk and responsibility.
 ```
 
-### libdsk
+### LIBDSK
 
-libdsk v1.4.2, a general floppy and diskimage access library.
+libdsk v1.4.2, a library for accessing discs and disc image files.
 
 This library is embedded into this projet with some little fixes.
 
-  - http://www.seasip.info/Unix/LibDsk/index.html
+  - https://www.seasip.info/Unix/LibDsk/
 
 ```
 Copyright (C) 2001-2015 John Elliott <seasip.webmaster@gmail.com>
@@ -74,16 +74,15 @@ Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
 MA 02111-1307, USA
 ```
 
-### lib765
+### LIB765
 
 lib765 v0.4.2, a library to emulate the uPD765a floppy controller (aka Intel 8272).
 
 This library is embedded into this projet with some little fixes.
 
-  - http://www.seasip.info/Unix/LibDsk/index.html
+  - https://www.seasip.info/Unix/LibDsk/
 
 ```
-
 Copyright (C) 2002,2003,2004  John Elliott <jce@seasip.demon.co.uk>
 
 Modifications to add dirty flags
