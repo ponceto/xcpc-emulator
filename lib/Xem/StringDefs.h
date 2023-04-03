@@ -1,5 +1,5 @@
 /*
- * StringDefs.h - Copyright (c) 2001-2022 - Olivier Poncet
+ * StringDefs.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
