@@ -1,3 +1,9 @@
+2023-04-03	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* Autotoolization updated.
+	* CI/CD and debianization.
+	* License fixed.
+
 2021-05-02	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Refactoring of the Z80 core.
