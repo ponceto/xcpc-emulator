@@ -41,7 +41,7 @@ m4_define([pkg_lt_age], [m4_eval(pkg_binary_age - pkg_interface_age)])
 # Autoconf/Automake/Libtool
 # ----------------------------------------------------------------------------
 
-AC_PREREQ([2.70])
+AC_PREREQ([2.69])
 AC_INIT([pkg_name], [pkg_version], [pkg_bugreport])
 AM_INIT_AUTOMAKE
 LT_INIT
@@ -110,6 +110,7 @@ AC_SUBST(LT_VERSION_INFO, [pkg_lt_current:pkg_lt_revision:pkg_lt_age])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
 	Makefile
+	bin/Makefile
 	doc/Makefile
 	lib/Makefile
 	lib/libdsk/Makefile

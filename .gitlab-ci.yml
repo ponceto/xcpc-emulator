@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2023 - Olivier Poncet
+# .gitlab-ci.yml - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,33 +12,36 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 # ----------------------------------------------------------------------------
-# SUBDIRS
+# image
 # ----------------------------------------------------------------------------
 
-SUBDIRS = \
-	bin \
-	doc \
-	lib \
-	src \
-	share \
-	$(NULL)
+image: gcc
 
 # ----------------------------------------------------------------------------
-# EXTRA_DIST
+# stages
 # ----------------------------------------------------------------------------
 
-EXTRA_DIST = \
-	README.md \
-	debian/control \
-	debian/changelog \
-	debian/copyright \
-	debian/rules \
-	debian/source/format \
-	$(NULL)
+stages:
+  - build
+
+# ----------------------------------------------------------------------------
+# build-all
+# ----------------------------------------------------------------------------
+
+build-all:
+  stage: build
+  script:
+    - ./bin/setup.sh
+    - ./bin/build.sh
+    - ./bin/build-deb.sh
+  artifacts:
+    paths:
+      - ./*.tar.gz
+      - ./*.deb
 
 # ----------------------------------------------------------------------------
 # End-Of-File
