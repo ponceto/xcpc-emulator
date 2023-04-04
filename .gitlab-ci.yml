@@ -35,9 +35,9 @@ stages:
 build-all:
   stage: build
   script:
-    - ./bin/setup.sh
-    - ./bin/build.sh
-    - ./bin/build-deb.sh
+    - ./bin/ci-prepare.sh
+    - ./bin/ci-build-all.sh
+    - ./bin/ci-build-deb.sh
   artifacts:
     paths:
       - ./*.tar.gz

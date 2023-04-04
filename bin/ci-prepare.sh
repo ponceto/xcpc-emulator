@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# build.sh - Copyright (c) 2001-2023 - Olivier Poncet
+# ci-prepare.sh - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 # variables
 # ----------------------------------------------------------------------------
 
-arg_jobs="$(cat /proc/cpuinfo | grep '^processor' | wc -l)"
+arg_prefix="/usr"
 
 # ----------------------------------------------------------------------------
 # debug
@@ -29,10 +29,22 @@ arg_jobs="$(cat /proc/cpuinfo | grep '^processor' | wc -l)"
 set -x
 
 # ----------------------------------------------------------------------------
-# build the project
+# autoreconf
 # ----------------------------------------------------------------------------
 
-make -j "${arg_jobs}"                                                || exit 1
+autoreconf -v -i -f                                                  || exit 1
+
+# ----------------------------------------------------------------------------
+# configure the build system
+# ----------------------------------------------------------------------------
+
+./configure --prefix="${arg_prefix}"                                 || exit 1
+
+# ----------------------------------------------------------------------------
+# create the tarball
+# ----------------------------------------------------------------------------
+
+make dist                                                            || exit 1
 
 # ----------------------------------------------------------------------------
 # End-Of-File

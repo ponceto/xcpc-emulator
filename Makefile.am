@@ -33,11 +33,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	README.md \
-	debian/control \
-	debian/changelog \
-	debian/copyright \
-	debian/rules \
-	debian/source/format \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

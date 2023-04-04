@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# setup.sh - Copyright (c) 2001-2023 - Olivier Poncet
+# ci-build-all.sh - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 # variables
 # ----------------------------------------------------------------------------
 
-arg_prefix="/opt/xcpc"
+arg_jobs="$(cat /proc/cpuinfo | grep '^processor' | wc -l)"
 
 # ----------------------------------------------------------------------------
 # debug
@@ -29,22 +29,10 @@ arg_prefix="/opt/xcpc"
 set -x
 
 # ----------------------------------------------------------------------------
-# autoreconf
+# build the project
 # ----------------------------------------------------------------------------
 
-autoreconf -v -i -f                                                  || exit 1
-
-# ----------------------------------------------------------------------------
-# configure the build system
-# ----------------------------------------------------------------------------
-
-./configure --prefix="${arg_prefix}"                                 || exit 1
-
-# ----------------------------------------------------------------------------
-# create the tarball
-# ----------------------------------------------------------------------------
-
-make dist                                                            || exit 1
+make -j "${arg_jobs}"                                                || exit 1
 
 # ----------------------------------------------------------------------------
 # End-Of-File

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# build-deb.sh - Copyright (c) 2001-2023 - Olivier Poncet
+# ci-build-deb.sh - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,10 +20,9 @@
 # variables
 # ----------------------------------------------------------------------------
 
-arg_tmpdir="build"
+arg_builddir="_build"
 arg_tarball="$(ls xcpc-*.tar.gz 2>/dev/null)"
 arg_sources="$(echo "${arg_tarball:-not-set}" | sed -e 's/\.tar\.gz//g')"
-arg_debian="debian"
 
 # ----------------------------------------------------------------------------
 # sanity checks
@@ -45,14 +44,14 @@ set -x
 # build debian package
 # ----------------------------------------------------------------------------
 
-rm -rf "${arg_tmpdir}"                                               || exit 1
-mkdir "${arg_tmpdir}"                                                || exit 1
-cd "${arg_tmpdir}"                                                   || exit 1
+rm -rf "${arg_builddir}"                                             || exit 1
+mkdir "${arg_builddir}"                                              || exit 1
+cd "${arg_builddir}"                                                 || exit 1
 tar xf "../${arg_tarball}"                                           || exit 1
 cd "${arg_sources}"                                                  || exit 1
-dh_make --yes --single --addmissing --file "../../${arg_tarball}"    || exit 1
-rm -rf "${arg_debian}"                                               || exit 1
-cp -rf "../../${arg_debian}" "./${arg_debian}"                       || exit 1
+dh_make --yes --single --file "../../${arg_tarball}"                 || exit 1
+rm -rf "debian"                                                      || exit 1
+cp -rf "../../debian" "./debian"                                     || exit 1
 dpkg-buildpackage --no-sign                                          || exit 1
 cd "../"                                                             || exit 1
 cp -f *.deb "../"                                                    || exit 1
