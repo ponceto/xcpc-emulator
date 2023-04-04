@@ -20,6 +20,8 @@
 # variables
 # ----------------------------------------------------------------------------
 
+arg_prefix="/opt/xcpc"
+arg_jobs="$(cat /proc/cpuinfo | grep '^processor' | wc -l)"
 arg_builddir="_build"
 arg_tarball="$(ls xcpc-*.tar.gz 2>/dev/null)"
 arg_sources="$(echo "${arg_tarball:-not-set}" | sed -e 's/\.tar\.gz//g')"
