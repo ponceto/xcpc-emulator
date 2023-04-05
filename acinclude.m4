@@ -158,9 +158,9 @@ AC_PATH_XTRA
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_XSHM], [
-AC_ARG_ENABLE([xshm], [AS_HELP_STRING([--enable-xshm], [add the support of XShm if available [default=yes]])], [], [enable_xshm="yes"])
-if test "x${enable_xshm}" = "xyes"; then
-AC_CHECK_HEADERS([X11/extensions/XShm.h], [have_xshm="yes"], [have_xshm="no"], [
+AC_ARG_ENABLE([xshm], [AS_HELP_STRING([--enable-xshm], [add the support of XShm if available [default=yes]])], [], [enable_xshm='yes'])
+if test "x${enable_xshm}" = 'xyes'; then
+AC_CHECK_HEADERS([X11/extensions/XShm.h], [have_xshm='yes'], [have_xshm='no'], [
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -171,10 +171,10 @@ AC_CHECK_HEADERS([X11/extensions/XShm.h], [have_xshm="yes"], [have_xshm="no"], [
 ]
 )
 fi
-if test "x${have_xshm}" = "xyes"; then
+if test "x${have_xshm}" = 'xyes'; then
     AC_DEFINE([HAVE_XSHM], [1], [Define to 1 if you have the X11-SHM extension.])
 else
-    have_xshm="no"
+    have_xshm='no'
 fi
 ])
 ])dnl AX_CHECK_XSHM
@@ -184,7 +184,7 @@ fi
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_INTRINSIC], [
-AC_CHECK_HEADERS([X11/Intrinsic.h], [have_intrinsic="yes"], [have_intrinsic="no"], [
+AC_CHECK_HEADERS([X11/Intrinsic.h], [have_intrinsic='yes'], [have_intrinsic='no'], [
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 ])
@@ -195,14 +195,14 @@ AC_CHECK_HEADERS([X11/Intrinsic.h], [have_intrinsic="yes"], [have_intrinsic="no"
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_ATHENA], [
-AC_ARG_ENABLE([athena], [AS_HELP_STRING([--enable-athena], [add the support of Athena if available [default=yes]])], [], [enable_athena="yes"])
-if test "x${enable_athena}" = "xyes"; then
-AC_CHECK_HEADERS([X11/Xaw/XawInit.h], [have_athena="yes"], [have_athena="no"], [
+AC_ARG_ENABLE([athena], [AS_HELP_STRING([--enable-athena], [add the support of Athena if available [default=yes]])], [], [enable_athena='yes'])
+if test "x${enable_athena}" = 'xyes'; then
+AC_CHECK_HEADERS([X11/Xaw/XawInit.h], [have_athena='yes'], [have_athena='no'], [
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 ])
 else
-    have_athena="no"
+    have_athena='no'
 fi
 ])dnl AX_CHECK_ATHENA
 
@@ -211,14 +211,14 @@ fi
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_MOTIF2], [
-AC_ARG_ENABLE([motif2], [AS_HELP_STRING([--enable-motif2], [add the support of Motif2 if available [default=yes]])], [], [enable_motif2="yes"])
-if test "x${enable_motif2}" = "xyes"; then
-AC_CHECK_HEADERS([Xm/Xm.h], [have_motif2="yes"], [have_motif2="no"], [
+AC_ARG_ENABLE([motif2], [AS_HELP_STRING([--enable-motif2], [add the support of Motif2 if available [default=yes]])], [], [enable_motif2='yes'])
+if test "x${enable_motif2}" = 'xyes'; then
+AC_CHECK_HEADERS([Xm/Xm.h], [have_motif2='yes'], [have_motif2='no'], [
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 ])
 else
-    have_motif2="no"
+    have_motif2='no'
 fi
 ])dnl AX_CHECK_MOTIF2
 
@@ -227,11 +227,11 @@ fi
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_GTK3], [
-AC_ARG_ENABLE([gtk3], [AS_HELP_STRING([--enable-gtk3], [add the support of Gtk3 if available [default=yes]])], [], [enable_gtk3="yes"])
-if test "x${enable_gtk3}" = "xyes"; then
-    PKG_CHECK_MODULES([gtk3], [gtk+-3.0], [have_gtk3="yes"], [have_gtk3="no"])
+AC_ARG_ENABLE([gtk3], [AS_HELP_STRING([--enable-gtk3], [add the support of Gtk3 if available [default=yes]])], [], [enable_gtk3='yes'])
+if test "x${enable_gtk3}" = 'xyes'; then
+    PKG_CHECK_MODULES([gtk3], [gtk+-3.0], [have_gtk3='yes'], [have_gtk3='no'])
 else
-    have_gtk3="no"
+    have_gtk3='no'
 fi
 ])dnl AX_CHECK_GTK3
 
@@ -240,11 +240,11 @@ fi
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_GTK4], [
-AC_ARG_ENABLE([gtk4], [AS_HELP_STRING([--enable-gtk4], [add the support of Gtk4 if available [default=yes]])], [], [enable_gtk4="no"])
-if test "x${enable_gtk4}" = "xyes"; then
-    PKG_CHECK_MODULES([gtk4], [gtk4], [have_gtk4="yes"], [have_gtk4="no"])
+AC_ARG_ENABLE([gtk4], [AS_HELP_STRING([--enable-gtk4], [add the support of Gtk4 if available [default=yes]])], [], [enable_gtk4='no'])
+if test "x${enable_gtk4}" = 'xyes'; then
+    PKG_CHECK_MODULES([gtk4], [gtk4], [have_gtk4='yes'], [have_gtk4='no'])
 else
-    have_gtk4="no"
+    have_gtk4='no'
 fi
 ])dnl AX_CHECK_GTK4
 
@@ -254,43 +254,43 @@ fi
 
 AC_DEFUN([AX_CHECK_X11_TOOLKIT], [
 AC_ARG_WITH([x11-toolkit], [AS_HELP_STRING([--with-x11-toolkit], [select the graphical toolkit (gtk4, gtk3, motif2, athena, intrinsic)])])
-if test "x${with_x11_toolkit}${have_gtk4}" = "xyes"; then
-    with_x11_toolkit="gtk4"
+if test "x${with_x11_toolkit}${have_gtk4}" = 'xyes'; then
+    with_x11_toolkit='gtk4'
 fi
-if test "x${with_x11_toolkit}${have_gtk3}" = "xyes"; then
-    with_x11_toolkit="gtk3"
+if test "x${with_x11_toolkit}${have_gtk3}" = 'xyes'; then
+    with_x11_toolkit='gtk3'
 fi
-if test "x${with_x11_toolkit}${have_motif2}" = "xyes"; then
-    with_x11_toolkit="motif2"
+if test "x${with_x11_toolkit}${have_motif2}" = 'xyes'; then
+    with_x11_toolkit='motif2'
 fi
-if test "x${with_x11_toolkit}${have_athena}" = "xyes"; then
-    with_x11_toolkit="athena"
+if test "x${with_x11_toolkit}${have_athena}" = 'xyes'; then
+    with_x11_toolkit='athena'
 fi
-if test "x${with_x11_toolkit}${have_intrinsic}" = "xyes"; then
-    with_x11_toolkit="intrinsic"
+if test "x${with_x11_toolkit}${have_intrinsic}" = 'xyes'; then
+    with_x11_toolkit='intrinsic'
 fi
-if test "x${with_x11_toolkit}" = "xgtk4"; then
-    if test "x${have_gtk4}" != "xyes"; then
+if test "x${with_x11_toolkit}" = 'xgtk4'; then
+    if test "x${have_gtk4}" != 'xyes'; then
         AC_MSG_ERROR([gtk4 toolkit was not found])
     fi
 fi
-if test "x${with_x11_toolkit}" = "xgtk3"; then
-    if test "x${have_gtk3}" != "xyes"; then
+if test "x${with_x11_toolkit}" = 'xgtk3'; then
+    if test "x${have_gtk3}" != 'xyes'; then
         AC_MSG_ERROR([gtk3 toolkit was not found])
     fi
 fi
-if test "x${with_x11_toolkit}" = "xmotif2"; then
-    if test "x${have_motif2}" != "xyes"; then
+if test "x${with_x11_toolkit}" = 'xmotif2'; then
+    if test "x${have_motif2}" != 'xyes'; then
         AC_MSG_ERROR([motif2 toolkit was not found])
     fi
 fi
-if test "x${with_x11_toolkit}" = "xathena"; then
-    if test "x${have_athena}" != "xyes"; then
+if test "x${with_x11_toolkit}" = 'xathena'; then
+    if test "x${have_athena}" != 'xyes'; then
         AC_MSG_ERROR([athena toolkit was not found])
     fi
 fi
-if test "x${with_x11_toolkit}" = "xintrinsic"; then
-    if test "x${have_intrinsic}" != "xyes"; then
+if test "x${with_x11_toolkit}" = 'xintrinsic'; then
+    if test "x${have_intrinsic}" != 'xyes'; then
         AC_MSG_ERROR([intrinsic toolkit was not found])
     fi
 fi
@@ -346,13 +346,13 @@ esac
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_PORTAUDIO], [
-AC_ARG_ENABLE([portaudio], [AS_HELP_STRING([--enable-portaudio], [add the support of PortAudio if available [default=yes]])], [], [enable_portaudio="yes"])
-if test "x${enable_portaudio}" = "xyes"; then
-    PKG_CHECK_MODULES([portaudio], portaudio-2.0 >= 19, [have_portaudio="yes"], [have_portaudio="no"])
+AC_ARG_ENABLE([portaudio], [AS_HELP_STRING([--enable-portaudio], [add the support of PortAudio if available [default=yes]])], [], [enable_portaudio='yes'])
+if test "x${enable_portaudio}" = 'xyes'; then
+    PKG_CHECK_MODULES([portaudio], portaudio-2.0 >= 19, [have_portaudio='yes'], [have_portaudio='no'])
 else
-    have_portaudio="no"
+    have_portaudio='no'
 fi
-if test "x${have_portaudio}" = "xyes"; then
+if test "x${have_portaudio}" = 'xyes'; then
     AM_CONDITIONAL([PORTAUDIO], true)
 else
     AM_CONDITIONAL([PORTAUDIO], false)
@@ -364,13 +364,13 @@ fi
 # ----------------------------------------------------------------------------
 
 AC_DEFUN([AX_CHECK_LINUX_JOYSTICK_API], [
-AC_ARG_ENABLE([linux-joystick-api], [AS_HELP_STRING([--enable-linux-joystick-api], [add the support of Linux Joystick API if available [default=yes]])], [], [enable_linux_joystick_api="yes"])
-if test "x${enable_linux_joystick_api}" = "xyes"; then
-    AC_CHECK_HEADERS([linux/joystick.h], [have_linux_joystick_api="yes"], [have_linux_joystick_api="no"])
+AC_ARG_ENABLE([linux-joystick-api], [AS_HELP_STRING([--enable-linux-joystick-api], [add the support of Linux Joystick API if available [default=yes]])], [], [enable_linux_joystick_api='yes'])
+if test "x${enable_linux_joystick_api}" = 'xyes'; then
+    AC_CHECK_HEADERS([linux/joystick.h], [have_linux_joystick_api='yes'], [have_linux_joystick_api='no'])
 else
-    have_linux_joystick_api="no"
+    have_linux_joystick_api='no'
 fi
-if test "x${have_linux_joystick_api}" = "xyes"; then
+if test "x${have_linux_joystick_api}" = 'xyes'; then
     AM_CONDITIONAL([LINUX_JOYSTICK_API], true)
 else
     AM_CONDITIONAL([LINUX_JOYSTICK_API], false)
@@ -406,11 +406,11 @@ AC_SUBST(XCPC_DSKDIR)
 AX_RECURSIVE_EVAL("${datadir}/${PACKAGE_TARNAME}/snapshots", XCPC_SNADIR)
 AC_DEFINE_UNQUOTED(XCPC_SNADIR, ["${XCPC_SNADIR}"], [XCPC_SNADIR])
 AC_SUBST(XCPC_SNADIR)
-if test "x${have_portaudio}" = "xyes"; then
+if test "x${have_portaudio}" = 'xyes'; then
     AC_DEFINE([HAVE_PORTAUDIO], [1], [Define to 1 if you have the PortAudio library.])
 fi
 
-if test "x${have_linux_joystick_api}" = "xyes"; then
+if test "x${have_linux_joystick_api}" = 'xyes'; then
     AC_DEFINE([HAVE_LINUX_JOYSTICK_API], [1], [Define to 1 if you have the Linux Joystick API.])
 fi
 ])dnl AX_DEFINES
