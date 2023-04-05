@@ -114,4 +114,4 @@ The emulator lacks some features. Here is a list of the most wanted features :
 
 ### License and legal informations
 
-Please read the file [doc/LICENSE.md](doc/LICENSE.md).
+Please read the file [doc/LICENSES.md](doc/LICENSES.md).
