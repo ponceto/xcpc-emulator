@@ -249,10 +249,10 @@ fi
 ])dnl AX_CHECK_GTK4
 
 # ----------------------------------------------------------------------------
-# AX_CHECK_X11_TOOLKIT
+# AX_CHECK_GUI_TOOLKIT
 # ----------------------------------------------------------------------------
 
-AC_DEFUN([AX_CHECK_X11_TOOLKIT], [
+AC_DEFUN([AX_CHECK_GUI_TOOLKIT], [
 AC_ARG_WITH([x11-toolkit], [AS_HELP_STRING([--with-x11-toolkit], [select the graphical toolkit (gtk4, gtk3, motif2, athena, intrinsic)])])
 if test "x${with_x11_toolkit}${have_gtk4}" = 'xyes'; then
     with_x11_toolkit='gtk4'
@@ -339,7 +339,7 @@ case "${with_x11_toolkit}" in
         AC_MSG_ERROR([no usable X11 toolkit was found])
         ;;
 esac
-])dnl AX_CHECK_X11_TOOLKIT
+])dnl AX_CHECK_GUI_TOOLKIT
 
 # ----------------------------------------------------------------------------
 # AX_CHECK_PORTAUDIO
