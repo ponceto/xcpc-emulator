@@ -1,8 +1,8 @@
-2023-04-03	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+0000-00-00	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Autotoolization updated.
 	* CI/CD and debianization.
-	* License fixed.
+	* Documentation fixed.
 
 2021-05-02	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
