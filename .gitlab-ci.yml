@@ -26,21 +26,57 @@ image: gcc
 # ----------------------------------------------------------------------------
 
 stages:
+  - prepare
   - build
 
 # ----------------------------------------------------------------------------
-# build-all
+# tarball
 # ----------------------------------------------------------------------------
 
-build-all:
-  stage: build
+tarball:
+  stage: prepare
+  tags:
+    - debian-11
+    - amd64
   script:
     - ./bin/ci-prepare.sh
     - ./bin/ci-build-all.sh
-    - ./bin/ci-build-deb.sh
   artifacts:
     paths:
       - ./*.tar.gz
+
+# ----------------------------------------------------------------------------
+# debian-package-amd64
+# ----------------------------------------------------------------------------
+
+debian-package-amd64:
+  stage: build
+  tags:
+    - debian-11
+    - amd64
+  dependencies:
+    - tarball
+  script:
+    - ./bin/ci-build-deb.sh
+  artifacts:
+    paths:
+      - ./*.deb
+
+# ----------------------------------------------------------------------------
+# debian-package-arm64
+# ----------------------------------------------------------------------------
+
+debian-package-arm64:
+  stage: build
+  tags:
+    - debian-11
+    - arm64
+  dependencies:
+    - tarball
+  script:
+    - ./bin/ci-build-deb.sh
+  artifacts:
+    paths:
       - ./*.deb
 
 # ----------------------------------------------------------------------------
