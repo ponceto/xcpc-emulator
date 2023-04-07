@@ -1,4 +1,4 @@
-xcpc (0.38.0-1) unstable; urgency=medium
+xcpc (0.38.1-1) unstable; urgency=medium
 
   * Huge cleanup and refactoring.
   * User interface refactoring.
