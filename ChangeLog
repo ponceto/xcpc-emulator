@@ -1,8 +1,12 @@
-0000-00-00	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+2023-04-07	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
+	* Huge cleanup and refactoring.
+	* User interface refactoring.
+	* Command-line parsing fixed.
+	* Some emulation fixes.
 	* Autotoolization updated.
 	* CI/CD and debianization.
-	* Documentation fixed.
+	* Documentation fixed and updated.
 
 2021-05-02	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
