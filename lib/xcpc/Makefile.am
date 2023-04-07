@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2021 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,6 +44,10 @@ libxcpc_la_SOURCES = \
 	xlib/xlib.h \
 	xlib/xlib-impl.h \
 	xlib/xlib-priv.h \
+	glue/backend.c \
+	glue/backend.h \
+	glue/frontend.c \
+	glue/frontend.h \
 	options/options.c \
 	options/options.h \
 	options/options-impl.h \

@@ -1,5 +1,5 @@
 /*
- * cpu-z80a-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * cpu-z80a-priv.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ extern "C" {
 
 #define ST_IFF1 0x01 /* interrupt flip-flop #1 */
 #define ST_IFF2 0x02 /* interrupt flip-flop #2 */
+#define ST_IFF  0x03 /* interrupt flip-flop    */
 #define ST_IM1  0x04 /* interrupt mode #1      */
 #define ST_IM2  0x08 /* interrupt mode #2      */
 #define ST_XYZ  0x10 /* not used               */
@@ -145,6 +146,12 @@ extern "C" {
 #define T_STATES CTRS.t_states
 #define I_PERIOD CTRS.i_period
 
+#define OP_R OP.l.r
+#define OP_P OP.w.h
+#define OP_W OP.w.l
+#define OP_H OP.b.h
+#define OP_L OP.b.l
+
 #define T0_R T0.l.r
 #define T0_P T0.w.h
 #define T0_W T0.w.l
@@ -170,15 +177,14 @@ extern "C" {
 #define T3_L T3.b.l
 
 #define PREV_PC prev_pc
-#define LAST_OP last_op
 
-#define MREQ_M1(addr, data) (void)(data=(*IFACE.mreq_m1)((self),(addr),(0x00)))
-#define MREQ_RD(addr, data) (void)(data=(*IFACE.mreq_rd)((self),(addr),(0x00)))
-#define MREQ_WR(addr, data) (void)((*IFACE.mreq_wr)((self),(addr),(data)))
+#define MREQ_M1(addr, data) (void)(data=(*IFACE.mreq_m1)((self),(addr),(0x00),(IFACE.user_data)))
+#define MREQ_RD(addr, data) (void)(data=(*IFACE.mreq_rd)((self),(addr),(0x00),(IFACE.user_data)))
+#define MREQ_WR(addr, data) (void)((*IFACE.mreq_wr)((self),(addr),(data),(IFACE.user_data)))
 
-#define IORQ_M1(port, data) (void)(data=(*IFACE.iorq_m1)((self),(port),(0x00)))
-#define IORQ_RD(port, data) (void)(data=(*IFACE.iorq_rd)((self),(port),(0x00)))
-#define IORQ_WR(port, data) (void)((*IFACE.iorq_wr)((self),(port),(data)))
+#define IORQ_M1(port, data) (void)(data=(*IFACE.iorq_m1)((self),(port),(0x00),(IFACE.user_data)))
+#define IORQ_RD(port, data) (void)(data=(*IFACE.iorq_rd)((self),(port),(0x00),(IFACE.user_data)))
+#define IORQ_WR(port, data) (void)((*IFACE.iorq_wr)((self),(port),(data),(IFACE.user_data)))
 
 #define SIGNED_BYTE(value) ((int8_t)(value))
 #define UNSIGNED_BYTE(value) ((uint8_t)(value))

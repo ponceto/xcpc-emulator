@@ -1,5 +1,5 @@
 /*
- * fdc-765a-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * fdc-765a-impl.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define XCPC_FDC_765A_IFACE(instance) (&(instance)->iface)
-#define XCPC_FDC_765A_SETUP(instance) (&(instance)->setup)
-#define XCPC_FDC_765A_STATE(instance) (&(instance)->state)
 
 typedef struct fdc_765      XcpcFdcImpl;
 typedef struct floppy_drive XcpcFddImpl;

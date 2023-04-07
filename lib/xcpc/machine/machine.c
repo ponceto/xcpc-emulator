@@ -1,5 +1,5 @@
 /*
- * machine.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * machine.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,11 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcMachine::%s()", function);
 }
 
+static void default_handler(XcpcMachine* machine, void* user_data)
+{
+    log_trace("default_handler");
+}
+
 static int is_set(const char* value)
 {
     if(value == NULL) {
@@ -60,7 +65,7 @@ static char* build_filename(const char* directory, const char* filename)
 {
     char buffer[PATH_MAX + 1];
 
-    (void) snprintf(buffer, sizeof(buffer), "%s/%s/%s", XCPC_RESDIR, directory, filename);
+    (void) snprintf(buffer, sizeof(buffer), "%s/%s", directory, filename);
 
     return strdup(buffer);
 }
@@ -137,7 +142,7 @@ static void cpc_mem_select(XcpcMachine* self, uint8_t ram_conf, uint8_t rom_conf
     self->pager.conf.ram = ram_conf;
     self->pager.conf.rom = rom_conf;
     if(self->setup.memory_size >= XCPC_MEMORY_SIZE_128K) {
-        switch(self->pager.conf.ram) {
+        switch(self->pager.conf.ram & 0x3f) {
             case 0x00:
                 {
                     self->pager.bank.rd[0] = self->pager.bank.wr[0] = self->board.ram_bank[0]->state.data;
@@ -228,9 +233,8 @@ static void cpc_mem_select(XcpcMachine* self, uint8_t ram_conf, uint8_t rom_conf
     }
 }
 
-static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
+static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
     const uint16_t index  = ((addr >> 14) & 0x0003);
     const uint16_t offset = ((addr >>  0) & 0x3fff);
 
@@ -240,9 +244,8 @@ static uint8_t cpu_mreq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
+static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
     const uint16_t index  = ((addr >> 14) & 0x0003);
     const uint16_t offset = ((addr >>  0) & 0x3fff);
 
@@ -252,9 +255,8 @@ static uint8_t cpu_mreq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
+static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
     const uint16_t index  = ((addr >> 14) & 0x0003);
     const uint16_t offset = ((addr >>  0) & 0x3fff);
 
@@ -264,10 +266,8 @@ static uint8_t cpu_mreq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
+static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-
     /* clear data */ {
         data = 0x00;
     }
@@ -277,10 +277,8 @@ static uint8_t cpu_iorq_m1(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
+static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-
     /* clear data */ {
         data = 0x00;
     }
@@ -364,18 +362,21 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
                     {
                         data = xcpc_ppi_8255_rd_port_a(self->board.ppi_8255, data);
                         debug_iorq("ppi-8255", "get-port-a", port, (data & 0xff));
+                        data &= 0xff;
                     }
                     break;
                 case 1: /* [----0-01xxxxxxxx] [0xf5xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_b(self->board.ppi_8255, data);
                         debug_iorq("ppi-8255", "get-port-b", port, (data & 0xff));
+                        data &= 0xff;
                     }
                     break;
                 case 2: /* [----0-10xxxxxxxx] [0xf6xx] */
                     {
                         data = xcpc_ppi_8255_rd_port_c(self->board.ppi_8255, data);
                         debug_iorq("ppi-8255", "get-port-c", port, (data & 0xff));
+                        data &= 0xf0;
                     }
                     break;
                 case 3: /* [----0-11xxxxxxxx] [0xf7xx] */
@@ -421,10 +422,8 @@ static uint8_t cpu_iorq_rd(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     return data;
 }
 
-static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
+static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(cpu_z80a->iface.user_data));
-
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
             const uint8_t function = ((data >> 6) & 3);
@@ -564,14 +563,13 @@ static uint8_t cpu_iorq_wr(XcpcCpuZ80a* cpu_z80a, uint16_t port, uint8_t data)
     return data;
 }
 
-static uint8_t vdc_frame(XcpcVdc6845* vdc_6845)
+static uint8_t vdc_frame(XcpcVdc6845* vdc_6845, int frame, XcpcMachine* self)
 {
     return 0x00;
 }
 
-static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
+static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(vdc_6845->iface.user_data));
     XcpcMonitor* monitor  = self->board.monitor;
     XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
     XcpcVgaCore* vga_core = self->board.vga_core;
@@ -620,10 +618,8 @@ static uint8_t vdc_hsync(XcpcVdc6845* vdc_6845, int hsync)
     return 0x00;
 }
 
-static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
+static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(vdc_6845->iface.user_data));
-
     if((self->state.vsync = vsync) != 0) {
         /* rising edge */ {
             ++self->stats.total_vsync;
@@ -638,10 +634,8 @@ static uint8_t vdc_vsync(XcpcVdc6845* vdc_6845, int vsync)
     return 0x00;
 }
 
-static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* read from psg */ {
         const uint8_t psg_function = (self->state.psg_bdir << 2)
                                    | (self->state.psg_bc2  << 1)
@@ -665,10 +659,8 @@ static uint8_t ppi_rd_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* write to psg */ {
         const uint8_t psg_function = (self->state.psg_bdir << 2)
                                    | (self->state.psg_bc2  << 1)
@@ -692,10 +684,8 @@ static uint8_t ppi_wr_port_a(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* read port b */ {
         data = ((self->state.cas_read  & 0x01) << 7)
              | ((self->state.parallel  & 0x01) << 6)
@@ -707,10 +697,8 @@ static uint8_t ppi_rd_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* write port b - illegal */ {
         data = ((self->state.cas_read  & 0x01) << 7)
              | ((self->state.parallel  & 0x01) << 6)
@@ -722,7 +710,7 @@ static uint8_t ppi_wr_port_b(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
     /* read port c */ {
         /* illegal */
@@ -730,10 +718,8 @@ static uint8_t ppi_rd_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
+static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(ppi_8255->iface.user_data));
-
     /* update state */ {
         self->state.psg_bdir  = ((data & 0x80) >> 7);
         self->state.psg_bc1   = ((data & 0x40) >> 6);
@@ -765,27 +751,25 @@ static uint8_t ppi_wr_port_c(XcpcPpi8255* ppi_8255, uint8_t data)
     return data;
 }
 
-static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data)
+static uint8_t psg_rd_port_a(XcpcPsg8910* psg_8910, uint8_t data, XcpcMachine* self)
 {
-    XcpcMachine* self = ((XcpcMachine*)(psg_8910->iface.user_data));
-
     /* read keyboard */ {
         data = (self->state.psg_data = xcpc_keyboard_get_data(self->board.keyboard, 0xff));
     }
     return data;
 }
 
-static uint8_t psg_wr_port_a(XcpcPsg8910* psg_8910, uint8_t data)
+static uint8_t psg_wr_port_a(XcpcPsg8910* psg_8910, uint8_t data, XcpcMachine* self)
 {
     return 0xff;
 }
 
-static uint8_t psg_rd_port_b(XcpcPsg8910* psg_8910, uint8_t data)
+static uint8_t psg_rd_port_b(XcpcPsg8910* psg_8910, uint8_t data, XcpcMachine* self)
 {
     return 0xff;
 }
 
-static uint8_t psg_wr_port_b(XcpcPsg8910* psg_8910, uint8_t data)
+static uint8_t psg_wr_port_b(XcpcPsg8910* psg_8910, uint8_t data, XcpcMachine* self)
 {
     return 0xff;
 }
@@ -1971,9 +1955,30 @@ static void mouse_default(XcpcMachine* self, XEvent* event)
     (void) xcpc_keyboard_joystick(self->board.keyboard, event);
 }
 
-static void construct_iface(XcpcMachine* self)
+static void construct_iface(XcpcMachine* self, const XcpcMachineIface* iface)
 {
-    (void) xcpc_machine_set_iface(self, NULL);
+    if(iface != NULL) {
+        *(&self->iface) = *(iface);
+    }
+    else {
+        self->iface.user_data = NULL;
+        self->iface.reserved0 = NULL;
+        self->iface.reserved1 = NULL;
+        self->iface.reserved2 = NULL;
+        self->iface.reserved3 = NULL;
+        self->iface.reserved4 = NULL;
+        self->iface.reserved5 = NULL;
+        self->iface.reserved6 = NULL;
+        self->iface.reserved7 = NULL;
+    }
+    if(self->iface.reserved0 == NULL) { self->iface.reserved0 = &default_handler; }
+    if(self->iface.reserved1 == NULL) { self->iface.reserved1 = &default_handler; }
+    if(self->iface.reserved2 == NULL) { self->iface.reserved2 = &default_handler; }
+    if(self->iface.reserved3 == NULL) { self->iface.reserved3 = &default_handler; }
+    if(self->iface.reserved4 == NULL) { self->iface.reserved4 = &default_handler; }
+    if(self->iface.reserved5 == NULL) { self->iface.reserved5 = &default_handler; }
+    if(self->iface.reserved6 == NULL) { self->iface.reserved6 = &default_handler; }
+    if(self->iface.reserved7 == NULL) { self->iface.reserved7 = &default_handler; }
 }
 
 static void destruct_iface(XcpcMachine* self)
@@ -1984,9 +1989,9 @@ static void reset_iface(XcpcMachine* self)
 {
 }
 
-static void construct_setup(XcpcMachine* self)
+static void construct_setup(XcpcMachine* self, XcpcOptions* options)
 {
-    self->setup.options       = xcpc_options_new();
+    self->setup.options       = options;
     self->setup.company_name  = XCPC_COMPANY_NAME_DEFAULT;
     self->setup.machine_type  = XCPC_MACHINE_TYPE_DEFAULT;
     self->setup.monitor_type  = XCPC_MONITOR_TYPE_DEFAULT;
@@ -2000,7 +2005,6 @@ static void construct_setup(XcpcMachine* self)
 
 static void destruct_setup(XcpcMachine* self)
 {
-    self->setup.options = xcpc_options_delete(self->setup.options);
 }
 
 static void reset_setup(XcpcMachine* self)
@@ -2052,8 +2056,7 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.monitor == NULL) {
-            self->board.monitor = xcpc_monitor_new();
-            self->board.monitor = xcpc_monitor_set_iface(self->board.monitor, &monitor_iface);
+            self->board.monitor = xcpc_monitor_new(&monitor_iface);
         }
     }
     /* keyboard */ {
@@ -2061,8 +2064,7 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.keyboard == NULL) {
-            self->board.keyboard = xcpc_keyboard_new();
-            self->board.keyboard = xcpc_keyboard_set_iface(self->board.keyboard, &keyboard_iface);
+            self->board.keyboard = xcpc_keyboard_new(&keyboard_iface);
         }
     }
     /* joystick */ {
@@ -2070,23 +2072,21 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.joystick == NULL) {
-            self->board.joystick = xcpc_joystick_new();
-            self->board.joystick = xcpc_joystick_set_iface(self->board.joystick, &joystick_iface);
+            self->board.joystick = xcpc_joystick_new(&joystick_iface);
         }
     }
     /* cpu_z80a */ {
         const XcpcCpuZ80aIface cpu_z80a_iface = {
-            self,         /* user_data */
-            &cpu_mreq_m1, /* mreq_m1   */
-            &cpu_mreq_rd, /* mreq_rd   */
-            &cpu_mreq_wr, /* mreq_wr   */
-            &cpu_iorq_m1, /* iorq_m1   */
-            &cpu_iorq_rd, /* iorq_rd   */
-            &cpu_iorq_wr, /* iorq_wr   */
+            self,                                  /* user_data */
+            XCPC_CPU_Z80A_MREQ_FUNC(&cpu_mreq_m1), /* mreq_m1   */
+            XCPC_CPU_Z80A_MREQ_FUNC(&cpu_mreq_rd), /* mreq_rd   */
+            XCPC_CPU_Z80A_MREQ_FUNC(&cpu_mreq_wr), /* mreq_wr   */
+            XCPC_CPU_Z80A_IORQ_FUNC(&cpu_iorq_m1), /* iorq_m1   */
+            XCPC_CPU_Z80A_IORQ_FUNC(&cpu_iorq_rd), /* iorq_rd   */
+            XCPC_CPU_Z80A_IORQ_FUNC(&cpu_iorq_wr), /* iorq_wr   */
         };
         if(self->board.cpu_z80a == NULL) {
-            self->board.cpu_z80a = xcpc_cpu_z80a_new();
-            self->board.cpu_z80a = xcpc_cpu_z80a_set_iface(self->board.cpu_z80a, &cpu_z80a_iface);
+            self->board.cpu_z80a = xcpc_cpu_z80a_new(&cpu_z80a_iface);
         }
     }
     /* vga_core */ {
@@ -2094,48 +2094,44 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.vga_core == NULL) {
-            self->board.vga_core = xcpc_vga_core_new();
-            self->board.vga_core = xcpc_vga_core_set_iface(self->board.vga_core, &vga_core_iface);
+            self->board.vga_core = xcpc_vga_core_new(&vga_core_iface);
         }
     }
     /* vdc_6845 */ {
         const XcpcVdc6845Iface vdc_6845_iface = {
-            self,       /* user_data */
-            &vdc_frame, /* frame     */
-            &vdc_hsync, /* hsync     */
-            &vdc_vsync, /* vsync     */
+            self,                                 /* user_data */
+            XCPC_VDC_6845_FRAME_FUNC(&vdc_frame), /* frame     */
+            XCPC_VDC_6845_HSYNC_FUNC(&vdc_hsync), /* hsync     */
+            XCPC_VDC_6845_VSYNC_FUNC(&vdc_vsync), /* vsync     */
         };
         if(self->board.vdc_6845 == NULL) {
-            self->board.vdc_6845 = xcpc_vdc_6845_new();
-            self->board.vdc_6845 = xcpc_vdc_6845_set_iface(self->board.vdc_6845, &vdc_6845_iface);
+            self->board.vdc_6845 = xcpc_vdc_6845_new(&vdc_6845_iface);
         }
     }
     /* ppi_8255 */ {
         const XcpcPpi8255Iface ppi_8255_iface = {
-            self,           /* user_data */
-            &ppi_rd_port_a, /* rd_port_a */
-            &ppi_wr_port_a, /* wr_port_a */
-            &ppi_rd_port_b, /* rd_port_b */
-            &ppi_wr_port_b, /* wr_port_b */
-            &ppi_rd_port_c, /* rd_port_c */
-            &ppi_wr_port_c, /* wr_port_c */
+            self,                                  /* user_data */
+            XCPC_PPI_8255_RD_FUNC(&ppi_rd_port_a), /* rd_port_a */
+            XCPC_PPI_8255_WR_FUNC(&ppi_wr_port_a), /* wr_port_a */
+            XCPC_PPI_8255_RD_FUNC(&ppi_rd_port_b), /* rd_port_b */
+            XCPC_PPI_8255_WR_FUNC(&ppi_wr_port_b), /* wr_port_b */
+            XCPC_PPI_8255_RD_FUNC(&ppi_rd_port_c), /* rd_port_c */
+            XCPC_PPI_8255_WR_FUNC(&ppi_wr_port_c), /* wr_port_c */
         };
         if(self->board.ppi_8255 == NULL) {
-            self->board.ppi_8255 = xcpc_ppi_8255_new();
-            self->board.ppi_8255 = xcpc_ppi_8255_set_iface(self->board.ppi_8255, &ppi_8255_iface);
+            self->board.ppi_8255 = xcpc_ppi_8255_new(&ppi_8255_iface);
         }
     }
     /* psg_8910 */ {
         const XcpcPsg8910Iface psg_8910_iface = {
-            self,           /* user_data */
-            &psg_rd_port_a, /* rd_port_a */
-            &psg_wr_port_a, /* wr_port_a */
-            &psg_rd_port_b, /* rd_port_b */
-            &psg_wr_port_b, /* wr_port_b */
+            self,                                  /* user_data */
+            XCPC_PSG_8910_RD_FUNC(&psg_rd_port_a), /* rd_port_a */
+            XCPC_PSG_8910_WR_FUNC(&psg_wr_port_a), /* wr_port_a */
+            XCPC_PSG_8910_RD_FUNC(&psg_rd_port_b), /* rd_port_b */
+            XCPC_PSG_8910_WR_FUNC(&psg_wr_port_b), /* wr_port_b */
         };
         if(self->board.psg_8910 == NULL) {
-            self->board.psg_8910 = xcpc_psg_8910_new();
-            self->board.psg_8910 = xcpc_psg_8910_set_iface(self->board.psg_8910, &psg_8910_iface);
+            self->board.psg_8910 = xcpc_psg_8910_new(&psg_8910_iface);
         }
     }
     /* fdc_765a */ {
@@ -2143,8 +2139,7 @@ static void construct_board(XcpcMachine* self)
             self /* user_data */
         };
         if(self->board.fdc_765a == NULL) {
-            self->board.fdc_765a = xcpc_fdc_765a_new();
-            self->board.fdc_765a = xcpc_fdc_765a_set_iface(self->board.fdc_765a, &fdc_765a_iface);
+            self->board.fdc_765a = xcpc_fdc_765a_new(&fdc_765a_iface);
             (void) xcpc_fdc_765a_attach(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0);
             (void) xcpc_fdc_765a_attach(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1);
         }
@@ -2157,8 +2152,7 @@ static void construct_board(XcpcMachine* self)
         unsigned int ram_count = countof(self->board.ram_bank);
         do {
             if(self->board.ram_bank[ram_index] == NULL) {
-                self->board.ram_bank[ram_index] = xcpc_ram_bank_new();
-                self->board.ram_bank[ram_index] = xcpc_ram_bank_set_iface(self->board.ram_bank[ram_index], &ram_bank_iface);
+                self->board.ram_bank[ram_index] = xcpc_ram_bank_new(&ram_bank_iface);
             }
         } while(++ram_index < ram_count);
     }
@@ -2170,8 +2164,7 @@ static void construct_board(XcpcMachine* self)
         unsigned int rom_count = countof(self->board.rom_bank);
         do {
             if(self->board.rom_bank[rom_index] == NULL) {
-                self->board.rom_bank[rom_index] = xcpc_rom_bank_new();
-                self->board.rom_bank[rom_index] = xcpc_rom_bank_set_iface(self->board.rom_bank[rom_index], &rom_bank_iface);
+                self->board.rom_bank[rom_index] = xcpc_rom_bank_new(&rom_bank_iface);
             }
         } while(++rom_index < rom_count);
     }
@@ -2184,8 +2177,7 @@ static void construct_board(XcpcMachine* self)
         unsigned int exp_count = countof(self->board.exp_bank);
         do {
             if(self->board.exp_bank[exp_index] == NULL) {
-                self->board.exp_bank[exp_index] = xcpc_rom_bank_new();
-                self->board.exp_bank[exp_index] = xcpc_rom_bank_set_iface(self->board.exp_bank[exp_index], &exp_bank_iface);
+                self->board.exp_bank[exp_index] = xcpc_rom_bank_new(&exp_bank_iface);
             }
         } while(++exp_index < exp_count);
     }
@@ -2432,9 +2424,11 @@ static void reset_timer(XcpcMachine* self)
         now.tv_sec  = 0;
         now.tv_usec = 0;
     }
-    self->timer.currtime = now;
-    self->timer.deadline = now;
-    self->timer.profiler = now;
+    /* initialize timers */ {
+        self->timer.currtime = now;
+        self->timer.deadline = now;
+        self->timer.profiler = now;
+    }
 }
 
 static void construct_funcs(XcpcMachine* self)
@@ -2452,171 +2446,24 @@ static void reset_funcs(XcpcMachine* self)
 {
 }
 
-XcpcMachine* xcpc_machine_alloc(void)
-{
-    log_trace("alloc");
-
-    return xcpc_new(XcpcMachine);
-}
-
-XcpcMachine* xcpc_machine_free(XcpcMachine* self)
-{
-    log_trace("free");
-
-    return xcpc_delete(XcpcMachine, self);
-}
-
-XcpcMachine* xcpc_machine_construct(XcpcMachine* self)
-{
-    log_trace("construct");
-
-    /* clear all */ {
-        (void) memset(&self->iface, 0, sizeof(XcpcMachineIface));
-        (void) memset(&self->setup, 0, sizeof(XcpcMachineSetup));
-        (void) memset(&self->state, 0, sizeof(XcpcMachineState));
-        (void) memset(&self->board, 0, sizeof(XcpcMachineBoard));
-        (void) memset(&self->pager, 0, sizeof(XcpcMachinePager));
-        (void) memset(&self->frame, 0, sizeof(XcpcMachineFrame));
-        (void) memset(&self->stats, 0, sizeof(XcpcMachineStats));
-        (void) memset(&self->timer, 0, sizeof(XcpcMachineTimer));
-        (void) memset(&self->funcs, 0, sizeof(XcpcMachineFuncs));
-    }
-    /* construct all subsystems */ {
-        construct_iface(self);
-        construct_setup(self);
-        construct_state(self);
-        construct_board(self);
-        construct_pager(self);
-        construct_frame(self);
-        construct_stats(self);
-        construct_timer(self);
-        construct_funcs(self);
-    }
-    /* reset */ {
-        (void) xcpc_machine_reset(self);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
-{
-    log_trace("destruct");
-
-    /* destruct all subsystems */ {
-        destruct_funcs(self);
-        destruct_timer(self);
-        destruct_stats(self);
-        destruct_frame(self);
-        destruct_pager(self);
-        destruct_board(self);
-        destruct_state(self);
-        destruct_setup(self);
-        destruct_iface(self);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_new(void)
-{
-    log_trace("new");
-
-    return xcpc_machine_construct(xcpc_machine_alloc());
-}
-
-XcpcMachine* xcpc_machine_delete(XcpcMachine* self)
-{
-    log_trace("delete");
-
-    return xcpc_machine_free(xcpc_machine_destruct(self));
-}
-
-XcpcMachine* xcpc_machine_set_iface(XcpcMachine* self, const XcpcMachineIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
-{
-    log_trace("reset");
-
-    /* reset all subsystems */ {
-        reset_iface(self);
-        reset_setup(self);
-        reset_state(self);
-        reset_board(self);
-        reset_pager(self);
-        reset_frame(self);
-        reset_stats(self);
-        reset_timer(self);
-        reset_funcs(self);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
-{
-    XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
-    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
-    XcpcPsg8910* psg_8910 = self->board.psg_8910;
-    XcpcFdc765a* fdc_765a = self->board.fdc_765a;
-
-    /* process each scanline */ {
-        int scanlines = self->frame.scanline_count;
-        do {
-            int32_t old_i_period;
-            int32_t new_i_period;
-            int cpu_ticks = self->frame.cpu_ticks;
-            do {
-                (void) xcpc_vdc_6845_clock(vdc_6845);
-                if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
-                    old_i_period = cpu_z80a->state.ctrs.i_period;
-                    (void) xcpc_cpu_z80a_clock(self->board.cpu_z80a);
-                    new_i_period = cpu_z80a->state.ctrs.i_period;
-                    cpu_z80a->state.ctrs.i_period = old_i_period - (((old_i_period - new_i_period) + 3) & (~3));
-                }
-                (void) xcpc_psg_8910_clock(psg_8910);
-            } while((cpu_ticks -= 4) > 0);
-        } while(--scanlines > 0);
-    }
-    /* clock the fdc */ {
-        (void) xcpc_fdc_765a_clock(fdc_765a);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_parse(XcpcMachine* self, int* argc, char*** argv)
-{
-    /* parse command-line */ {
-        (void) xcpc_options_parse(self->setup.options, argc, argv);
-    }
-    return self;
-}
-
-XcpcMachine* xcpc_machine_start(XcpcMachine* self)
+static void initialize(XcpcMachine* self)
 {
     char* system_rom = NULL;
     char* amsdos_rom = NULL;
-    const char* opt_company  = XCPC_OPTIONS_STATE(self->setup.options)->company;
-    const char* opt_machine  = XCPC_OPTIONS_STATE(self->setup.options)->machine;
-    const char* opt_monitor  = XCPC_OPTIONS_STATE(self->setup.options)->monitor;
-    const char* opt_refresh  = XCPC_OPTIONS_STATE(self->setup.options)->refresh;
-    const char* opt_keyboard = XCPC_OPTIONS_STATE(self->setup.options)->keyboard;
-    const char* opt_system   = XCPC_OPTIONS_STATE(self->setup.options)->sysrom;
-    const char* opt_amsdos   = XCPC_OPTIONS_STATE(self->setup.options)->rom007;
-    const char* opt_drive0   = XCPC_OPTIONS_STATE(self->setup.options)->drive0;
-    const char* opt_drive1   = XCPC_OPTIONS_STATE(self->setup.options)->drive1;
-    const char* opt_snapshot = XCPC_OPTIONS_STATE(self->setup.options)->snapshot;
-    const int   opt_turbo    = XCPC_OPTIONS_STATE(self->setup.options)->turbo;
-    const int   opt_xshm     = XCPC_OPTIONS_STATE(self->setup.options)->xshm;
-    const int   opt_fps      = XCPC_OPTIONS_STATE(self->setup.options)->fps;
+    XcpcOptions* options     = self->setup.options;
+    const char* opt_company  = options->state.company;
+    const char* opt_machine  = options->state.machine;
+    const char* opt_monitor  = options->state.monitor;
+    const char* opt_refresh  = options->state.refresh;
+    const char* opt_keyboard = options->state.keyboard;
+    const char* opt_system   = options->state.sysrom;
+    const char* opt_amsdos   = options->state.rom007;
+    const char* opt_drive0   = options->state.drive0;
+    const char* opt_drive1   = options->state.drive1;
+    const char* opt_snapshot = options->state.snapshot;
+    const int   opt_turbo    = options->state.turbo;
+    const int   opt_xshm     = options->state.xshm;
+    const int   opt_fps      = options->state.fps;
 
     /* initialize setup */ {
         self->setup.company_name  = xcpc_company_name(opt_company, XCPC_COMPANY_NAME_DEFAULT);
@@ -2668,20 +2515,20 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
         switch(self->setup.machine_type) {
             case XCPC_MACHINE_TYPE_CPC464:
                 {
-                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc464.rom"));
-                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : NULL                                );
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename(xcpc_get_romdir(), "cpc464.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : NULL                                           );
                 }
                 break;
             case XCPC_MACHINE_TYPE_CPC664:
                 {
-                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc664.rom"));
-                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename("roms", "amsdos.rom"));
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename(xcpc_get_romdir(), "cpc664.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename(xcpc_get_romdir(), "amsdos.rom"));
                 }
                 break;
             case XCPC_MACHINE_TYPE_CPC6128:
                 {
-                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename("roms", "cpc6128.rom"));
-                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename("roms", "amsdos.rom" ));
+                    system_rom = (is_set(opt_system) ? strdup(opt_system) : build_filename(xcpc_get_romdir(), "cpc6128.rom"));
+                    amsdos_rom = (is_set(opt_amsdos) ? strdup(opt_amsdos) : build_filename(xcpc_get_romdir(), "amsdos.rom" ));
                 }
                 break;
             default:
@@ -2703,22 +2550,22 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
     }
     /* load expansion roms */ {
         const char* cpc_expansions[16] = {
-            XCPC_OPTIONS_STATE(self->setup.options)->rom000,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom001,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom002,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom003,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom004,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom005,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom006,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom007,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom008,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom009,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom010,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom011,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom012,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom013,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom014,
-            XCPC_OPTIONS_STATE(self->setup.options)->rom015,
+            options->state.rom000,
+            options->state.rom001,
+            options->state.rom002,
+            options->state.rom003,
+            options->state.rom004,
+            options->state.rom005,
+            options->state.rom006,
+            options->state.rom007,
+            options->state.rom008,
+            options->state.rom009,
+            options->state.rom010,
+            options->state.rom011,
+            options->state.rom012,
+            options->state.rom013,
+            options->state.rom014,
+            options->state.rom015,
         };
         /* create expansion roms banks */ {
             const XcpcRomBankIface exp_bank_iface = {
@@ -2736,8 +2583,7 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
                 }
                 if(is_set(filename)) {
                     if(self->board.exp_bank[exp_index] == NULL) {
-                        self->board.exp_bank[exp_index] = xcpc_rom_bank_new();
-                        self->board.exp_bank[exp_index] = xcpc_rom_bank_set_iface(self->board.exp_bank[exp_index], &exp_bank_iface);
+                        self->board.exp_bank[exp_index] = xcpc_rom_bank_new(&exp_bank_iface);
                     }
                 }
                 else {
@@ -2790,17 +2636,17 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
     }
     /* load initial snapshot */ {
         if(is_set(opt_snapshot)) {
-            xcpc_machine_load_snapshot(self, opt_snapshot);
+            (void) xcpc_machine_snapshot_load(self, opt_snapshot);
         }
     }
     /* load initial drive0 */ {
         if(is_set(opt_drive0)) {
-            xcpc_machine_insert_drive0(self, opt_drive0);
+            (void) xcpc_machine_drive0_insert(self, opt_drive0);
         }
     }
     /* load initial drive1 */ {
         if(is_set(opt_drive1)) {
-            xcpc_machine_insert_drive1(self, opt_drive1);
+            (void) xcpc_machine_drive1_insert(self, opt_drive1);
         }
     }
     /* cleanup */ {
@@ -2811,20 +2657,165 @@ XcpcMachine* xcpc_machine_start(XcpcMachine* self)
             amsdos_rom = (free(amsdos_rom), NULL);
         }
     }
-    return self;
 }
 
-XcpcMachine* xcpc_machine_close(XcpcMachine* self)
+XcpcMachine* xcpc_machine_alloc(void)
 {
-    /* unrealize */ {
-        (void) xcpc_monitor_unrealize(self->board.monitor);
+    log_trace("alloc");
+
+    return xcpc_new(XcpcMachine);
+}
+
+XcpcMachine* xcpc_machine_free(XcpcMachine* self)
+{
+    log_trace("free");
+
+    return xcpc_delete(XcpcMachine, self);
+}
+
+XcpcMachine* xcpc_machine_construct(XcpcMachine* self, const XcpcMachineIface* iface, XcpcOptions* options)
+{
+    log_trace("construct");
+
+    /* clear all */ {
+        (void) memset(&self->iface, 0, sizeof(XcpcMachineIface));
+        (void) memset(&self->setup, 0, sizeof(XcpcMachineSetup));
+        (void) memset(&self->state, 0, sizeof(XcpcMachineState));
+        (void) memset(&self->board, 0, sizeof(XcpcMachineBoard));
+        (void) memset(&self->pager, 0, sizeof(XcpcMachinePager));
+        (void) memset(&self->frame, 0, sizeof(XcpcMachineFrame));
+        (void) memset(&self->stats, 0, sizeof(XcpcMachineStats));
+        (void) memset(&self->timer, 0, sizeof(XcpcMachineTimer));
+        (void) memset(&self->funcs, 0, sizeof(XcpcMachineFuncs));
+    }
+    /* construct all subsystems */ {
+        construct_iface(self, iface);
+        construct_setup(self, options);
+        construct_state(self);
+        construct_board(self);
+        construct_pager(self);
+        construct_frame(self);
+        construct_stats(self);
+        construct_timer(self);
+        construct_funcs(self);
+    }
+    /* initialize backend */ {
+        (void) xcpc_backend_init(&self->backend);
+    }
+    /* set backend methods */ {
+        self->backend.instance            = self;
+        self->backend.attach_func         = ((XcpcBackendFunc)(&xcpc_machine_attach_func        ));
+        self->backend.detach_func         = ((XcpcBackendFunc)(&xcpc_machine_detach_func        ));
+        self->backend.idle_func           = ((XcpcBackendFunc)(&xcpc_machine_idle_func          ));
+        self->backend.clock_func          = ((XcpcBackendFunc)(&xcpc_machine_clock_func         ));
+        self->backend.create_window_func  = ((XcpcBackendFunc)(&xcpc_machine_create_window_func ));
+        self->backend.delete_window_func  = ((XcpcBackendFunc)(&xcpc_machine_delete_window_func ));
+        self->backend.resize_window_func  = ((XcpcBackendFunc)(&xcpc_machine_resize_window_func ));
+        self->backend.expose_window_func  = ((XcpcBackendFunc)(&xcpc_machine_expose_window_func ));
+        self->backend.key_press_func      = ((XcpcBackendFunc)(&xcpc_machine_key_press_func     ));
+        self->backend.key_release_func    = ((XcpcBackendFunc)(&xcpc_machine_key_release_func   ));
+        self->backend.button_press_func   = ((XcpcBackendFunc)(&xcpc_machine_button_press_func  ));
+        self->backend.button_release_func = ((XcpcBackendFunc)(&xcpc_machine_button_release_func));
+        self->backend.motion_notify_func  = ((XcpcBackendFunc)(&xcpc_machine_motion_notify_func ));
+        self->backend.audio_func          = ((XcpcBackendFunc)(&xcpc_machine_audio_func         ));
+    }
+    /* initialize */ {
+        (void) initialize(self);
     }
     return self;
 }
 
-XcpcMachine* xcpc_machine_insert_drive0(XcpcMachine* self, const char* filename)
+XcpcMachine* xcpc_machine_destruct(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_insert_drive0");
+    log_trace("destruct");
+
+    /* finalize backend */ {
+        (void) xcpc_backend_fini(&self->backend);
+    }
+    /* destruct all subsystems */ {
+        destruct_funcs(self);
+        destruct_timer(self);
+        destruct_stats(self);
+        destruct_frame(self);
+        destruct_pager(self);
+        destruct_board(self);
+        destruct_state(self);
+        destruct_setup(self);
+        destruct_iface(self);
+    }
+    return self;
+}
+
+XcpcMachine* xcpc_machine_new(const XcpcMachineIface* iface, XcpcOptions* options)
+{
+    log_trace("new");
+
+    return xcpc_machine_construct(xcpc_machine_alloc(), iface, options);
+}
+
+XcpcMachine* xcpc_machine_delete(XcpcMachine* self)
+{
+    log_trace("delete");
+
+    return xcpc_machine_free(xcpc_machine_destruct(self));
+}
+
+XcpcMachine* xcpc_machine_reset(XcpcMachine* self)
+{
+    log_trace("reset");
+
+    /* reset all subsystems */ {
+        reset_iface(self);
+        reset_setup(self);
+        reset_state(self);
+        reset_board(self);
+        reset_pager(self);
+        reset_frame(self);
+        reset_stats(self);
+        reset_timer(self);
+        reset_funcs(self);
+    }
+    /* force to reschedule */ {
+        self->timer.deadline.tv_usec = 0;
+        self->timer.deadline.tv_sec  = 0;
+    }
+    return self;
+}
+
+XcpcMachine* xcpc_machine_clock(XcpcMachine* self)
+{
+    XcpcCpuZ80a* cpu_z80a = self->board.cpu_z80a;
+    XcpcVdc6845* vdc_6845 = self->board.vdc_6845;
+    XcpcPsg8910* psg_8910 = self->board.psg_8910;
+    XcpcFdc765a* fdc_765a = self->board.fdc_765a;
+
+    /* process each scanline */ {
+        int scanlines = self->frame.scanline_count;
+        do {
+            int32_t old_i_period;
+            int32_t new_i_period;
+            int cpu_ticks = self->frame.cpu_ticks;
+            do {
+                (void) xcpc_vdc_6845_clock(vdc_6845);
+                if((cpu_z80a->state.ctrs.i_period += 4) > 0) {
+                    old_i_period = cpu_z80a->state.ctrs.i_period;
+                    (void) xcpc_cpu_z80a_clock(self->board.cpu_z80a);
+                    new_i_period = cpu_z80a->state.ctrs.i_period;
+                    cpu_z80a->state.ctrs.i_period = old_i_period - (((old_i_period - new_i_period) + 3) & (~3));
+                }
+                (void) xcpc_psg_8910_clock(psg_8910);
+            } while((cpu_ticks -= 4) > 0);
+        } while(--scanlines > 0);
+    }
+    /* clock the fdc */ {
+        (void) xcpc_fdc_765a_clock(fdc_765a);
+    }
+    return self;
+}
+
+XcpcMachine* xcpc_machine_drive0_insert(XcpcMachine* self, const char* filename)
+{
+    log_trace("xcpc_machine_drive0_insert");
 
     if(self->board.fdc_765a != NULL) {
         (void) xcpc_fdc_765a_insert(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0, filename);
@@ -2832,9 +2823,9 @@ XcpcMachine* xcpc_machine_insert_drive0(XcpcMachine* self, const char* filename)
     return self;
 }
 
-XcpcMachine* xcpc_machine_remove_drive0(XcpcMachine* self)
+XcpcMachine* xcpc_machine_drive0_remove(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_remove_drive0");
+    log_trace("xcpc_machine_drive0_remove");
 
     if(self->board.fdc_765a != NULL) {
         (void) xcpc_fdc_765a_remove(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0);
@@ -2842,9 +2833,9 @@ XcpcMachine* xcpc_machine_remove_drive0(XcpcMachine* self)
     return self;
 }
 
-const char* xcpc_machine_filename_drive0(XcpcMachine* self)
+const char* xcpc_machine_drive0_filename(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_filename_drive0");
+    log_trace("xcpc_machine_drive0_filename");
 
     if(self->board.fdc_765a != NULL) {
         return xcpc_fdc_765a_filename(self->board.fdc_765a, XCPC_FDC_765A_DRIVE0, NULL);
@@ -2852,9 +2843,9 @@ const char* xcpc_machine_filename_drive0(XcpcMachine* self)
     return NULL;
 }
 
-XcpcMachine* xcpc_machine_insert_drive1(XcpcMachine* self, const char* filename)
+XcpcMachine* xcpc_machine_drive1_insert(XcpcMachine* self, const char* filename)
 {
-    log_trace("xcpc_machine_insert_drive1");
+    log_trace("xcpc_machine_drive1_insert");
 
     if(self->board.fdc_765a != NULL) {
         (void) xcpc_fdc_765a_insert(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1, filename);
@@ -2862,9 +2853,9 @@ XcpcMachine* xcpc_machine_insert_drive1(XcpcMachine* self, const char* filename)
     return self;
 }
 
-XcpcMachine* xcpc_machine_remove_drive1(XcpcMachine* self)
+XcpcMachine* xcpc_machine_drive1_remove(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_remove_drive1");
+    log_trace("xcpc_machine_drive1_remove");
 
     if(self->board.fdc_765a != NULL) {
         (void) xcpc_fdc_765a_remove(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1);
@@ -2872,9 +2863,9 @@ XcpcMachine* xcpc_machine_remove_drive1(XcpcMachine* self)
     return self;
 }
 
-const char* xcpc_machine_filename_drive1(XcpcMachine* self)
+const char* xcpc_machine_drive1_filename(XcpcMachine* self)
 {
-    log_trace("xcpc_machine_filename_drive1");
+    log_trace("xcpc_machine_drive1_filename");
 
     if(self->board.fdc_765a != NULL) {
         return xcpc_fdc_765a_filename(self->board.fdc_765a, XCPC_FDC_765A_DRIVE1, NULL);
@@ -2882,13 +2873,13 @@ const char* xcpc_machine_filename_drive1(XcpcMachine* self)
     return NULL;
 }
 
-XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
+XcpcMachine* xcpc_machine_snapshot_load(XcpcMachine* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
     uint32_t           ram_size = self->setup.memory_size;
 
-    log_trace("xcpc_machine_load_snapshot");
+    log_trace("xcpc_machine_snapshot_load");
     /* reset and clock just one frame to avoid a strange bug (eg. gryzor) */ {
         (void) xcpc_machine_reset(self);
         (void) xcpc_machine_clock(self);
@@ -2949,13 +2940,13 @@ XcpcMachine* xcpc_machine_load_snapshot(XcpcMachine* self, const char* filename)
     return self;
 }
 
-XcpcMachine* xcpc_machine_save_snapshot(XcpcMachine* self, const char* filename)
+XcpcMachine* xcpc_machine_snapshot_save(XcpcMachine* self, const char* filename)
 {
     XcpcSnapshot*      snapshot = xcpc_snapshot_new();
     XcpcSnapshotStatus status   = XCPC_SNAPSHOT_STATUS_SUCCESS;
     uint32_t           ram_size = self->setup.memory_size;
 
-    log_trace("xcpc_machine_save_snapshot");
+    log_trace("xcpc_machine_snapshot_save");
     /* store devices */ {
         if(status == XCPC_SNAPSHOT_STATUS_SUCCESS) {
             (void) xcpc_snapshot_store_cpu_z80a(snapshot, self->board.cpu_z80a);
@@ -3003,83 +2994,99 @@ XcpcMachine* xcpc_machine_save_snapshot(XcpcMachine* self, const char* filename)
     return self;
 }
 
-unsigned long xcpc_machine_create_proc(XcpcMachine* self, XEvent* event)
+XcpcCompanyName xcpc_machine_company_name(XcpcMachine* self)
 {
-    /* start */ {
-        (void) xcpc_machine_start(self);
-    }
+    return self->setup.company_name;
+}
+
+XcpcMachineType xcpc_machine_machine_type(XcpcMachine* self)
+{
+    return self->setup.machine_type;
+}
+
+XcpcMonitorType xcpc_machine_monitor_type(XcpcMachine* self)
+{
+    return self->setup.monitor_type;
+}
+
+XcpcRefreshRate xcpc_machine_refresh_rate(XcpcMachine* self)
+{
+    return self->setup.refresh_rate;
+}
+
+XcpcKeyboardType xcpc_machine_keyboard_type(XcpcMachine* self)
+{
+    return self->setup.keyboard_type;
+}
+
+XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
+{
+    return self->setup.memory_size;
+}
+
+unsigned long xcpc_machine_attach_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
     return 0UL;
 }
 
-unsigned long xcpc_machine_destroy_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_detach_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    /* close */ {
-        (void) xcpc_machine_close(self);
-    }
     return 0UL;
 }
 
-unsigned long xcpc_machine_realize_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_idle_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    if(self != NULL) {
-        /* realize */ {
-            (void) xcpc_monitor_realize ( self->board.monitor
-                                        , self->setup.monitor_type
-                                        , self->setup.refresh_rate
-                                        , event->xany.display
-                                        , event->xany.window
-                                        , (self->setup.xshm != 0 ? True : False) );
+    unsigned long timeout   = 0UL;
+    unsigned long timedrift = 0UL;
+
+    /* compute the next deadline */ {
+        if((self->timer.deadline.tv_usec += self->frame.duration) >= 1000000) {
+            self->timer.deadline.tv_usec -= 1000000;
+            self->timer.deadline.tv_sec  += 1;
         }
-        /* init paint handler */ {
-            switch(self->board.monitor->state.image->bits_per_pixel) {
-                case 8:
-                    self->funcs.paint_func = &paint_08bpp;
-                    break;
-                case 16:
-                    self->funcs.paint_func = &paint_16bpp;
-                    break;
-                case 32:
-                    self->funcs.paint_func = &paint_32bpp;
-                    break;
-                default:
-                    self->funcs.paint_func = &paint_default;
-                    break;
+    }
+    /* get the current time */ {
+        if(gettimeofday(&self->timer.currtime, NULL) != 0) {
+            xcpc_log_error("gettimeofday() has failed");
+        }
+    }
+    /* compute the next deadline timeout in us */ {
+        const long long currtime = XCPC_TIMESTAMP_OF(&self->timer.currtime);
+        const long long deadline = XCPC_TIMESTAMP_OF(&self->timer.deadline);
+        if(currtime <= deadline) {
+            timeout   = ((unsigned long)(deadline - currtime));
+        }
+        else {
+            timedrift = ((unsigned long)(currtime - deadline));
+        }
+    }
+    /* compute stats if needed */ {
+        if(++self->stats.frame_count == self->frame.rate) {
+            compute_stats(self);
+        }
+    }
+    /* check if the time has drifted for more than a second */ {
+        if(timedrift >= 1000000UL) {
+            timeout = self->frame.duration;
+            self->timer.deadline = self->timer.currtime;
+            if((self->timer.deadline.tv_usec += timeout) >= 1000000) {
+                self->timer.deadline.tv_usec -= 1000000;
+                self->timer.deadline.tv_sec  += 1;
             }
         }
-        /* init keybd handler */ {
-            switch(self->setup.keyboard_type) {
-                case XCPC_KEYBOARD_TYPE_QWERTY:
-                    self->funcs.keybd_func = &keybd_qwerty;
-                    break;
-                case XCPC_KEYBOARD_TYPE_AZERTY:
-                    self->funcs.keybd_func = &keybd_azerty;
-                    break;
-                default:
-                    self->funcs.keybd_func = &keybd_default;
-                    break;
-            }
+    }
+    /* schedule the next frame in ms */ {
+        timeout /= 1000UL;
+    }
+    /* adjust timeout if needed and only for the first frame */ {
+        if((timeout == 0UL) && (self->stats.frame_count == 0)) {
+            timeout = 1UL;
         }
     }
-    return 0UL;
+    return timeout;
 }
 
-unsigned long xcpc_machine_resize_proc(XcpcMachine* self, XEvent* event)
-{
-    if((self != NULL) && (event != NULL) && (event->type == ConfigureNotify)) {
-        (void) xcpc_monitor_resize(self->board.monitor, &event->xconfigure);
-    }
-    return 0UL;
-}
-
-unsigned long xcpc_machine_expose_proc(XcpcMachine* self, XEvent* event)
-{
-    if((self != NULL) && (event != NULL) && (event->type == Expose)) {
-        (void) xcpc_monitor_expose(self->board.monitor, &event->xexpose);
-    }
-    return 0UL;
-}
-
-unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_clock_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;
@@ -3132,7 +3139,7 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
         if(timedrift >= 1000000UL) {
             timeout = self->frame.duration;
             self->timer.deadline = self->timer.currtime;
-            if((self->timer.deadline.tv_usec += self->frame.duration) >= 1000000) {
+            if((self->timer.deadline.tv_usec += timeout) >= 1000000) {
                 self->timer.deadline.tv_usec -= 1000000;
                 self->timer.deadline.tv_sec  += 1;
             }
@@ -3141,7 +3148,7 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
     /* schedule the next frame in ms */ {
         timeout /= 1000UL;
     }
-    /* adjust timeout for the first frame */ {
+    /* adjust timeout if needed and only for the first frame */ {
         if((timeout == 0UL) && (self->stats.frame_count == 0)) {
             timeout = 1UL;
         }
@@ -3149,56 +3156,113 @@ unsigned long xcpc_machine_timer_proc(XcpcMachine* self, XEvent* event)
     return timeout;
 }
 
-unsigned long xcpc_machine_input_proc(XcpcMachine* self, XEvent* event)
+unsigned long xcpc_machine_create_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    switch(event->type) {
-        case KeyPress:
-            (*self->funcs.keybd_func)(self, event);
-            break;
-        case KeyRelease:
-            (*self->funcs.keybd_func)(self, event);
-            break;
-        case ButtonPress:
-            (*self->funcs.mouse_func)(self, event);
-            break;
-        case ButtonRelease:
-            (*self->funcs.mouse_func)(self, event);
-            break;
-        case MotionNotify:
-            (*self->funcs.mouse_func)(self, event);
-            break;
-        default:
-            break;
+    /* realize */ {
+        (void) xcpc_monitor_realize ( self->board.monitor
+                                    , self->setup.monitor_type
+                                    , self->setup.refresh_rate
+                                    , closure->event->xany.display
+                                    , closure->event->xany.window
+                                    , (self->setup.xshm != 0 ? True : False) );
+    }
+    /* init paint handler */ {
+        switch(self->board.monitor->state.image->bits_per_pixel) {
+            case 8:
+                self->funcs.paint_func = &paint_08bpp;
+                break;
+            case 16:
+                self->funcs.paint_func = &paint_16bpp;
+                break;
+            case 32:
+                self->funcs.paint_func = &paint_32bpp;
+                break;
+            default:
+                self->funcs.paint_func = &paint_default;
+                break;
+        }
+    }
+    /* init keybd handler */ {
+        switch(self->setup.keyboard_type) {
+            case XCPC_KEYBOARD_TYPE_QWERTY:
+                self->funcs.keybd_func = &keybd_qwerty;
+                break;
+            case XCPC_KEYBOARD_TYPE_AZERTY:
+                self->funcs.keybd_func = &keybd_azerty;
+                break;
+            default:
+                self->funcs.keybd_func = &keybd_default;
+                break;
+        }
     }
     return 0UL;
 }
 
-XcpcCompanyName xcpc_machine_company_name(XcpcMachine* self)
+unsigned long xcpc_machine_delete_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    return self->setup.company_name;
+    /* process event */ {
+        (void) xcpc_monitor_unrealize(self->board.monitor);
+    }
+    return 0UL;
 }
 
-XcpcMachineType xcpc_machine_machine_type(XcpcMachine* self)
+unsigned long xcpc_machine_resize_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    return self->setup.machine_type;
+    /* process event */ {
+        (void) xcpc_monitor_resize(self->board.monitor, &closure->event->xconfigure);
+    }
+    return 0UL;
 }
 
-XcpcMonitorType xcpc_machine_monitor_type(XcpcMachine* self)
+unsigned long xcpc_machine_expose_window_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    return self->setup.monitor_type;
+    /* process event */ {
+        (void) xcpc_monitor_expose(self->board.monitor, &closure->event->xexpose);
+    }
+    return 0UL;
 }
 
-XcpcRefreshRate xcpc_machine_refresh_rate(XcpcMachine* self)
+unsigned long xcpc_machine_key_press_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    return self->setup.refresh_rate;
+    /* process event */ {
+        (*self->funcs.keybd_func)(self, closure->event);
+    }
+    return 0UL;
 }
 
-XcpcKeyboardType xcpc_machine_keyboard_type(XcpcMachine* self)
+unsigned long xcpc_machine_key_release_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    return self->setup.keyboard_type;
+    /* process event */ {
+        (*self->funcs.keybd_func)(self, closure->event);
+    }
+    return 0UL;
 }
 
-XcpcMemorySize xcpc_machine_memory_size(XcpcMachine* self)
+unsigned long xcpc_machine_button_press_func(XcpcMachine* self, XcpcBackendClosure* closure)
 {
-    return self->setup.memory_size;
+    /* process event */ {
+        (*self->funcs.mouse_func)(self, closure->event);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_button_release_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* process event */ {
+        (*self->funcs.mouse_func)(self, closure->event);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_motion_notify_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    /* process event */ {
+        (*self->funcs.mouse_func)(self, closure->event);
+    }
+    return 0UL;
+}
+
+unsigned long xcpc_machine_audio_func(XcpcMachine* self, XcpcBackendClosure* closure)
+{
+    return 0UL;
 }

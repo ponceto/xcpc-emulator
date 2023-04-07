@@ -1,5 +1,5 @@
 /*
- * keyboard-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * keyboard-impl.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define XCPC_KEYBOARD_IFACE(instance) (&(instance)->iface)
-#define XCPC_KEYBOARD_SETUP(instance) (&(instance)->setup)
-#define XCPC_KEYBOARD_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcKeyboardIface XcpcKeyboardIface;
 typedef struct _XcpcKeyboardSetup XcpcKeyboardSetup;

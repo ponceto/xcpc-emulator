@@ -1,5 +1,5 @@
 /*
- * ram-bank.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * ram-bank.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcRamBank*      xcpc_ram_bank_alloc     (void);
 extern XcpcRamBank*      xcpc_ram_bank_free      (XcpcRamBank* ram_bank);
-extern XcpcRamBank*      xcpc_ram_bank_construct (XcpcRamBank* ram_bank);
+extern XcpcRamBank*      xcpc_ram_bank_construct (XcpcRamBank* ram_bank, const XcpcRamBankIface* ram_bank_iface);
 extern XcpcRamBank*      xcpc_ram_bank_destruct  (XcpcRamBank* ram_bank);
-extern XcpcRamBank*      xcpc_ram_bank_new       (void);
+extern XcpcRamBank*      xcpc_ram_bank_new       (const XcpcRamBankIface* ram_bank_iface);
 extern XcpcRamBank*      xcpc_ram_bank_delete    (XcpcRamBank* ram_bank);
-extern XcpcRamBank*      xcpc_ram_bank_set_iface (XcpcRamBank* ram_bank, const XcpcRamBankIface* ram_bank_iface);
 extern XcpcRamBank*      xcpc_ram_bank_reset     (XcpcRamBank* ram_bank);
 extern XcpcRamBankStatus xcpc_ram_bank_load      (XcpcRamBank* ram_bank, const char* filename, size_t offset);
 extern XcpcRamBankStatus xcpc_ram_bank_copy      (XcpcRamBank* ram_bank, const uint8_t* data, size_t size);

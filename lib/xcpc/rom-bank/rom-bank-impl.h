@@ -1,5 +1,5 @@
 /*
- * rom-bank-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * rom-bank-impl.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define XCPC_ROM_BANK_IFACE(instance) (&(instance)->iface)
-#define XCPC_ROM_BANK_SETUP(instance) (&(instance)->setup)
-#define XCPC_ROM_BANK_STATE(instance) (&(instance)->state)
 
 typedef enum   _XcpcRomBankStatus XcpcRomBankStatus;
 typedef struct _XcpcRomBankIface  XcpcRomBankIface;

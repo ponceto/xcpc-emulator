@@ -1,5 +1,5 @@
 /*
- * cpu-z80a.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * cpu-z80a.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -306,42 +306,42 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcCpuZ80a::%s()", function);
 }
 
-static uint8_t default_mreq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_mreq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_mreq_m1_handler");
 
     return 0x00;
 }
 
-static uint8_t default_mreq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_mreq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_mreq_rd_handler");
 
     return 0x00;
 }
 
-static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_mreq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_mreq_wr_handler");
 
     return 0x00;
 }
 
-static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_iorq_m1_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_iorq_m1_handler");
 
     return 0x00;
 }
 
-static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_iorq_rd_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_iorq_rd_handler");
 
     return 0x00;
 }
 
-static uint8_t default_iorq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data)
+static uint8_t default_iorq_wr_handler(XcpcCpuZ80a* self, uint16_t addr, uint8_t data, void* user_data)
 {
     log_trace("default_iorq_wr_handler");
 
@@ -362,7 +362,7 @@ XcpcCpuZ80a* xcpc_cpu_z80a_free(XcpcCpuZ80a* self)
     return xcpc_delete(XcpcCpuZ80a, self);
 }
 
-XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
+XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self, const XcpcCpuZ80aIface* iface)
 {
     log_trace("construct");
 
@@ -372,7 +372,26 @@ XcpcCpuZ80a* xcpc_cpu_z80a_construct(XcpcCpuZ80a* self)
         (void) memset(&self->state, 0, sizeof(XcpcCpuZ80aState));
     }
     /* initialize iface */ {
-        (void) xcpc_cpu_z80a_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+            self->iface.mreq_m1   = NULL;
+            self->iface.mreq_rd   = NULL;
+            self->iface.mreq_wr   = NULL;
+            self->iface.iorq_m1   = NULL;
+            self->iface.iorq_rd   = NULL;
+            self->iface.iorq_wr   = NULL;
+        }
+    }
+    /* adjust iface */ {
+        if(self->iface.mreq_m1 == NULL) { self->iface.mreq_m1 = &default_mreq_m1_handler; }
+        if(self->iface.mreq_rd == NULL) { self->iface.mreq_rd = &default_mreq_rd_handler; }
+        if(self->iface.mreq_wr == NULL) { self->iface.mreq_wr = &default_mreq_wr_handler; }
+        if(self->iface.iorq_m1 == NULL) { self->iface.iorq_m1 = &default_iorq_m1_handler; }
+        if(self->iface.iorq_rd == NULL) { self->iface.iorq_rd = &default_iorq_rd_handler; }
+        if(self->iface.iorq_wr == NULL) { self->iface.iorq_wr = &default_iorq_wr_handler; }
     }
     /* reset */ {
         (void) xcpc_cpu_z80a_reset(self);
@@ -387,11 +406,11 @@ XcpcCpuZ80a* xcpc_cpu_z80a_destruct(XcpcCpuZ80a* self)
     return self;
 }
 
-XcpcCpuZ80a* xcpc_cpu_z80a_new(void)
+XcpcCpuZ80a* xcpc_cpu_z80a_new(const XcpcCpuZ80aIface* iface)
 {
     log_trace("new");
 
-    return xcpc_cpu_z80a_construct(xcpc_cpu_z80a_alloc());
+    return xcpc_cpu_z80a_construct(xcpc_cpu_z80a_alloc(), iface);
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_delete(XcpcCpuZ80a* self)
@@ -399,25 +418,6 @@ XcpcCpuZ80a* xcpc_cpu_z80a_delete(XcpcCpuZ80a* self)
     log_trace("delete");
 
     return xcpc_cpu_z80a_free(xcpc_cpu_z80a_destruct(self));
-}
-
-XcpcCpuZ80a* xcpc_cpu_z80a_set_iface(XcpcCpuZ80a* self, const XcpcCpuZ80aIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-        self->iface.mreq_m1   = &default_mreq_m1_handler;
-        self->iface.mreq_rd   = &default_mreq_rd_handler;
-        self->iface.mreq_wr   = &default_mreq_wr_handler;
-        self->iface.iorq_m1   = &default_iorq_m1_handler;
-        self->iface.iorq_rd   = &default_iorq_rd_handler;
-        self->iface.iorq_wr   = &default_iorq_wr_handler;
-    }
-    return self;
 }
 
 XcpcCpuZ80a* xcpc_cpu_z80a_reset(XcpcCpuZ80a* self)
@@ -448,7 +448,7 @@ XcpcCpuZ80a* xcpc_cpu_z80a_reset(XcpcCpuZ80a* self)
 XcpcCpuZ80a* xcpc_cpu_z80a_clock(XcpcCpuZ80a* self)
 {
     uint16_t prev_pc;
-    uint8_t  last_op;
+    XcpcRegister OP;
     XcpcRegister T0;
     XcpcRegister T1;
     XcpcRegister T2;
@@ -485,7 +485,7 @@ fetch_opcode:
   goto execute_opcode;
 
 execute_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes.inc"
         default:
             {
@@ -504,7 +504,7 @@ fetch_cb_opcode:
     goto execute_cb_opcode;
 
 execute_cb_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-cb.inc"
         default:
             {
@@ -523,7 +523,7 @@ fetch_ed_opcode:
     goto execute_ed_opcode;
 
 execute_ed_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-ed.inc"
         default:
             {
@@ -542,7 +542,7 @@ fetch_dd_opcode:
     goto execute_dd_opcode;
 
 execute_dd_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-dd.inc"
         default:
             {
@@ -561,7 +561,7 @@ fetch_fd_opcode:
     goto execute_fd_opcode;
 
 execute_fd_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-fd.inc"
         default:
             {
@@ -579,7 +579,7 @@ fetch_ddcb_opcode:
     goto execute_ddcb_opcode;
 
 execute_ddcb_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-ddcb.inc"
         default:
             {
@@ -597,7 +597,7 @@ fetch_fdcb_opcode:
     goto execute_fdcb_opcode;
 
 execute_fdcb_opcode:
-    switch(last_op) {
+    switch(OP_L) {
 #include "cpu-z80a-opcodes-fdcb.inc"
         default:
             {

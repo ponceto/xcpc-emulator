@@ -1,5 +1,5 @@
 /*
- * vdc-6845.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * vdc-6845.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,21 +27,21 @@ static void log_trace(const char* function)
     xcpc_log_trace("XcpcVdc6845::%s()", function);
 }
 
-static uint8_t default_frame_handler(XcpcVdc6845* self)
+static uint8_t default_frame_handler(XcpcVdc6845* self, int frame, void* user_data)
 {
     log_trace("default_frame_handler");
 
     return 0x00;
 }
 
-static uint8_t default_hsync_handler(XcpcVdc6845* self, int hsync)
+static uint8_t default_hsync_handler(XcpcVdc6845* self, int hsync, void* user_data)
 {
     log_trace("default_hsync_handler");
 
     return 0x00;
 }
 
-static uint8_t default_vsync_handler(XcpcVdc6845* self, int vsync)
+static uint8_t default_vsync_handler(XcpcVdc6845* self, int vsync, void* user_data)
 {
     log_trace("default_vsync_handler");
 
@@ -177,7 +177,7 @@ XcpcVdc6845* xcpc_vdc_6845_free(XcpcVdc6845* self)
     return xcpc_delete(XcpcVdc6845, self);
 }
 
-XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
+XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self, const XcpcVdc6845Iface* iface)
 {
     log_trace("construct");
 
@@ -188,7 +188,20 @@ XcpcVdc6845* xcpc_vdc_6845_construct(XcpcVdc6845* self)
         (void) memset(&self->count, 0, sizeof(XcpcVdc6845Count));
     }
     /* initialize iface */ {
-        (void) xcpc_vdc_6845_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+            self->iface.frame     = NULL;
+            self->iface.hsync     = NULL;
+            self->iface.vsync     = NULL;
+        }
+    }
+    /* adjust iface */ {
+        if(self->iface.frame == NULL) { self->iface.frame = &default_frame_handler; }
+        if(self->iface.hsync == NULL) { self->iface.hsync = &default_hsync_handler; }
+        if(self->iface.vsync == NULL) { self->iface.vsync = &default_vsync_handler; }
     }
     /* reset */ {
         (void) xcpc_vdc_6845_reset(self);
@@ -203,11 +216,11 @@ XcpcVdc6845* xcpc_vdc_6845_destruct(XcpcVdc6845* self)
     return self;
 }
 
-XcpcVdc6845* xcpc_vdc_6845_new(void)
+XcpcVdc6845* xcpc_vdc_6845_new(const XcpcVdc6845Iface* iface)
 {
     log_trace("new");
 
-    return xcpc_vdc_6845_construct(xcpc_vdc_6845_alloc());
+    return xcpc_vdc_6845_construct(xcpc_vdc_6845_alloc(), iface);
 }
 
 XcpcVdc6845* xcpc_vdc_6845_delete(XcpcVdc6845* self)
@@ -215,22 +228,6 @@ XcpcVdc6845* xcpc_vdc_6845_delete(XcpcVdc6845* self)
     log_trace("delete");
 
     return xcpc_vdc_6845_free(xcpc_vdc_6845_destruct(self));
-}
-
-XcpcVdc6845* xcpc_vdc_6845_set_iface(XcpcVdc6845* self, const XcpcVdc6845Iface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-        self->iface.frame     = &default_frame_handler;
-        self->iface.hsync     = &default_hsync_handler;
-        self->iface.vsync     = &default_vsync_handler;
-    }
-    return self;
 }
 
 XcpcVdc6845* xcpc_vdc_6845_debug(XcpcVdc6845* self)
@@ -339,17 +336,17 @@ XcpcVdc6845* xcpc_vdc_6845_clock(XcpcVdc6845* self)
     }
     /* hsync handler */ {
         if(self->count.hsync_signal != horizontal_sync_signal) {
-            (void) (*self->iface.hsync)(self, self->count.hsync_signal);
+            (void) (*self->iface.hsync)(self, self->count.hsync_signal, self->iface.user_data);
         }
     }
     /* vsync handler */ {
         if(self->count.vsync_signal != vertical_sync_signal) {
-            (void) (*self->iface.vsync)(self, self->count.vsync_signal);
+            (void) (*self->iface.vsync)(self, self->count.vsync_signal, self->iface.user_data);
         }
     }
     /* frame handler */ {
         if(process_frame != 0) {
-            (void) (*self->iface.frame)(self);
+            (void) (*self->iface.frame)(self, 0, self->iface.user_data);
         }
     }
     return self;

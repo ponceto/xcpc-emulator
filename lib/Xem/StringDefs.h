@@ -1,5 +1,5 @@
 /*
- * StringDefs.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * StringDefs.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,40 +31,12 @@ extern "C" {
 #define XtNdropURICallback "dropURICallback"
 #endif
 
-#ifndef XtNmachineInstance
-#define XtNmachineInstance "emuInstance"
-#endif
-
-#ifndef XtNmachineCreateProc
-#define XtNmachineCreateProc "emuCreateProc"
-#endif
-
-#ifndef XtNmachineDestroyProc
-#define XtNmachineDestroyProc "emuDestroyProc"
-#endif
-
-#ifndef XtNmachineRealizeProc
-#define XtNmachineRealizeProc "emuRealizeProc"
-#endif
-
-#ifndef XtNmachineResizeProc
-#define XtNmachineResizeProc "emuResizeProc"
-#endif
-
-#ifndef XtNmachineExposeProc
-#define XtNmachineExposeProc "emuExposeProc"
-#endif
-
-#ifndef XtNmachineTimerProc
-#define XtNmachineTimerProc "emuTimerProc"
-#endif
-
-#ifndef XtNmachineInputProc
-#define XtNmachineInputProc "emuInputProc"
-#endif
-
 #ifndef XtNhotkeyCallback
 #define XtNhotkeyCallback "hotkeyCallback"
+#endif
+
+#ifndef XtNbackend
+#define XtNbackend "backend"
 #endif
 
 #ifndef XtNjoystick0
@@ -81,6 +53,10 @@ extern "C" {
 
 #ifndef XtCFunction
 #define XtCFunction "Function"
+#endif
+
+#ifndef XtCBackend
+#define XtCBackend "Backend"
 #endif
 
 #ifndef XtCJoystick

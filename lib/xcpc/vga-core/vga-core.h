@@ -1,5 +1,5 @@
 /*
- * vga-core.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * vga-core.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcVgaCore* xcpc_vga_core_alloc     (void);
 extern XcpcVgaCore* xcpc_vga_core_free      (XcpcVgaCore* vga_core);
-extern XcpcVgaCore* xcpc_vga_core_construct (XcpcVgaCore* vga_core);
+extern XcpcVgaCore* xcpc_vga_core_construct (XcpcVgaCore* vga_core, const XcpcVgaCoreIface* vga_core_iface);
 extern XcpcVgaCore* xcpc_vga_core_destruct  (XcpcVgaCore* vga_core);
-extern XcpcVgaCore* xcpc_vga_core_new       (void);
+extern XcpcVgaCore* xcpc_vga_core_new       (const XcpcVgaCoreIface* vga_core_iface);
 extern XcpcVgaCore* xcpc_vga_core_delete    (XcpcVgaCore* vga_core);
-extern XcpcVgaCore* xcpc_vga_core_set_iface (XcpcVgaCore* vga_core, const XcpcVgaCoreIface* vga_core_iface);
 extern XcpcVgaCore* xcpc_vga_core_debug     (XcpcVgaCore* vga_core);
 extern XcpcVgaCore* xcpc_vga_core_reset     (XcpcVgaCore* vga_core);
 extern XcpcVgaCore* xcpc_vga_core_clock     (XcpcVgaCore* vga_core);

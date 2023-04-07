@@ -1,5 +1,5 @@
 /*
- * xcpc-motif2.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-motif2.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ extern "C" {
 typedef struct _XcpcApplicationRec XcpcApplication;
 
 extern XcpcApplication* XcpcApplicationNew    (int* argc, char*** argv);
-extern XcpcApplication* XcpcApplicationLoop   (XcpcApplication* application);
+extern XcpcApplication* XcpcApplicationRun    (XcpcApplication* application);
 extern XcpcApplication* XcpcApplicationDelete (XcpcApplication* application);
 
 #ifdef __cplusplus

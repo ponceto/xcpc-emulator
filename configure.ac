@@ -1,5 +1,5 @@
 #
-# configure.ac - Copyright (c) 2001-2021 - Olivier Poncet
+# configure.ac - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ m4_define([pkg_lt_age], [m4_eval(pkg_binary_age - pkg_interface_age)])
 # Autoconf/Automake/Libtool
 # ----------------------------------------------------------------------------
 
+AC_PREREQ([2.69])
 AC_INIT([pkg_name], [pkg_version], [pkg_bugreport])
 AM_INIT_AUTOMAKE
 LT_INIT
@@ -51,7 +52,7 @@ LT_INIT
 
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_LEX
+AC_PROG_LEX([noyywrap])
 AC_PROG_YACC
 
 # ----------------------------------------------------------------------------
@@ -77,7 +78,7 @@ AX_CHECK_ATHENA
 AX_CHECK_MOTIF2
 AX_CHECK_GTK3
 AX_CHECK_GTK4
-AX_CHECK_X11_TOOLKIT
+AX_CHECK_GUI_TOOLKIT
 AX_CHECK_PORTAUDIO
 AX_CHECK_LINUX_JOYSTICK_API
 
@@ -109,6 +110,7 @@ AC_SUBST(LT_VERSION_INFO, [pkg_lt_current:pkg_lt_revision:pkg_lt_age])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
 	Makefile
+	bin/Makefile
 	doc/Makefile
 	lib/Makefile
 	lib/libdsk/Makefile

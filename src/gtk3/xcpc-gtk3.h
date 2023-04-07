@@ -1,5 +1,5 @@
 /*
- * xcpc-gtk3.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-gtk3.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@ extern "C" {
 
 typedef struct _XcpcApplicationRec XcpcApplication;
 
-extern XcpcApplication* xcpc_application_new    (void);
+extern XcpcApplication* xcpc_application_new    (int* argc, char*** argv);
 extern XcpcApplication* xcpc_application_delete (XcpcApplication* self);
-extern XcpcApplication* xcpc_application_run    (XcpcApplication* self, int* argc, char*** argv);
+extern XcpcApplication* xcpc_application_run    (XcpcApplication* self);
 
 #ifdef __cplusplus
 }

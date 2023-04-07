@@ -1,5 +1,5 @@
 /*
- * cpu-z80a.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * cpu-z80a.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcCpuZ80a* xcpc_cpu_z80a_alloc     (void);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_free      (XcpcCpuZ80a* cpu_z80a);
-extern XcpcCpuZ80a* xcpc_cpu_z80a_construct (XcpcCpuZ80a* cpu_z80a);
+extern XcpcCpuZ80a* xcpc_cpu_z80a_construct (XcpcCpuZ80a* cpu_z80a, const XcpcCpuZ80aIface* cpu_z80a_iface);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_destruct  (XcpcCpuZ80a* cpu_z80a);
-extern XcpcCpuZ80a* xcpc_cpu_z80a_new       (void);
+extern XcpcCpuZ80a* xcpc_cpu_z80a_new       (const XcpcCpuZ80aIface* cpu_z80a_iface);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_delete    (XcpcCpuZ80a* cpu_z80a);
-extern XcpcCpuZ80a* xcpc_cpu_z80a_set_iface (XcpcCpuZ80a* cpu_z80a, const XcpcCpuZ80aIface* cpu_z80a_iface);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_reset     (XcpcCpuZ80a* cpu_z80a);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_clock     (XcpcCpuZ80a* cpu_z80a);
 extern XcpcCpuZ80a* xcpc_cpu_z80a_pulse_nmi (XcpcCpuZ80a* cpu_z80a);

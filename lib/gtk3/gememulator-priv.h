@@ -1,5 +1,5 @@
 /*
- * gememulator-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * gememulator-priv.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,10 @@ G_BEGIN_DECLS
 
 #ifndef CAST_XEVENT
 #define CAST_XEVENT(event) ((XEvent*)(event))
+#endif
+
+#ifndef CAST_PA_STREAM
+#define CAST_PA_STREAM(stream) ((PaStream*)(stream))
 #endif
 
 #ifndef EMULATOR_DEFAULT_TIMEOUT

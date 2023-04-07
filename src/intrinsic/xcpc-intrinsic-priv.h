@@ -1,5 +1,5 @@
 /*
- * xcpc-intrinsic-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-intrinsic-priv.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <Xem/AppShell.h>
 #include <Xem/DlgShell.h>
 #include <Xem/Emulator.h>
+#include <xcpc/options/options.h>
 #include <xcpc/machine/machine.h>
 #include "xcpc-intrinsic.h"
 
@@ -50,6 +51,9 @@ struct _XcpcLayoutRec
 
 struct _XcpcApplicationRec
 {
+    int*             argc;
+    char***          argv;
+    XcpcOptions*     options;
     XcpcMachine*     machine;
     XtAppContext     appcontext;
     XtIntervalId     intervalId;

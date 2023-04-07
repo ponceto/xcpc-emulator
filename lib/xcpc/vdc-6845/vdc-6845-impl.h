@@ -1,5 +1,5 @@
 /*
- * vdc-6845-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * vdc-6845-impl.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,9 @@
 extern "C" {
 #endif
 
-#define XCPC_VDC_6845_IFACE(instance) (&(instance)->iface)
-#define XCPC_VDC_6845_SETUP(instance) (&(instance)->setup)
-#define XCPC_VDC_6845_STATE(instance) (&(instance)->state)
-#define XCPC_VDC_6845_COUNT(instance) (&(instance)->count)
+#define XCPC_VDC_6845_FRAME_FUNC(func) ((XcpcVdc6845FrameFunc)(func))
+#define XCPC_VDC_6845_HSYNC_FUNC(func) ((XcpcVdc6845HSyncFunc)(func))
+#define XCPC_VDC_6845_VSYNC_FUNC(func) ((XcpcVdc6845VSyncFunc)(func))
 
 typedef struct _XcpcVdc6845Iface XcpcVdc6845Iface;
 typedef struct _XcpcVdc6845Setup XcpcVdc6845Setup;
@@ -34,12 +33,16 @@ typedef struct _XcpcVdc6845State XcpcVdc6845State;
 typedef struct _XcpcVdc6845Count XcpcVdc6845Count;
 typedef struct _XcpcVdc6845      XcpcVdc6845;
 
+typedef uint8_t (*XcpcVdc6845FrameFunc)(XcpcVdc6845* vdc_6845, int frame, void* user_data);
+typedef uint8_t (*XcpcVdc6845HSyncFunc)(XcpcVdc6845* vdc_6845, int hsync, void* user_data);
+typedef uint8_t (*XcpcVdc6845VSyncFunc)(XcpcVdc6845* vdc_6845, int vsync, void* user_data);
+
 struct _XcpcVdc6845Iface
 {
     void* user_data;
-    uint8_t (*frame)(XcpcVdc6845* vdc_6845);
-    uint8_t (*hsync)(XcpcVdc6845* vdc_6845, int hsync);
-    uint8_t (*vsync)(XcpcVdc6845* vdc_6845, int vsync);
+    XcpcVdc6845FrameFunc frame;
+    XcpcVdc6845HSyncFunc hsync;
+    XcpcVdc6845VSyncFunc vsync;
 };
 
 struct _XcpcVdc6845Setup

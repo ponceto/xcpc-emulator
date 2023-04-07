@@ -1,5 +1,5 @@
 /*
- * machine-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * machine-priv.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,21 @@ struct _XcpcBorders
 #define XCPC_BYTE_PTR(pointer) ((uint8_t*)(pointer))
 #define XCPC_WORD_PTR(pointer) ((uint16_t*)(pointer))
 #define XCPC_LONG_PTR(pointer) ((uint32_t*)(pointer))
+
+extern unsigned long xcpc_machine_attach_func         (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_detach_func         (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_idle_func           (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_clock_func          (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_create_window_func  (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_delete_window_func  (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_resize_window_func  (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_expose_window_func  (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_key_press_func      (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_key_release_func    (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_button_press_func   (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_button_release_func (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_motion_notify_func  (XcpcMachine* machine, XcpcBackendClosure* closure);
+extern unsigned long xcpc_machine_audio_func          (XcpcMachine* machine, XcpcBackendClosure* closure);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*
- * EmulatorI.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * EmulatorI.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,28 +18,40 @@
 #define __XemEmulatorI_h__
 
 #include <Xem/Emulator.h>
+#include <xcpc/glue/backend.h>
+#include <xcpc/glue/frontend.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define XEM_EMULATOR_DATA(data) ((XemEmulatorData)(data))
-#define XEM_EMULATOR_PROC(proc) ((XemEmulatorProc)(proc))
+#define XEM_EMULATOR_FUNC(func) ((XemEmulatorFunc)(func))
 
 typedef XtPointer XemEmulatorData;
 
-typedef unsigned long (*XemEmulatorProc)(XtPointer data, XEvent* event);
+typedef unsigned long (*XemEmulatorFunc)(XtPointer data, XEvent* event, void* extra);
 
-typedef struct _XemX11      XemX11;
+typedef struct _XemVideo    XemVideo;
+typedef struct _XemAudio    XemAudio;
 typedef struct _XemEvents   XemEvents;
-typedef struct _XemMachine  XemMachine;
 typedef struct _XemKeyboard XemKeyboard;
 typedef struct _XemJoystick XemJoystick;
+typedef struct _XcpcBackend XemBackend;
 
-struct _XemX11
+struct _XemVideo
 {
     Display* display;
     Window   window;
+};
+
+struct _XemAudio
+{
+#ifdef HAVE_PORTAUDIO
+    PaStream* stream;
+#else
+    void*     stream;
+#endif
 };
 
 struct _XemEvents
@@ -49,18 +61,6 @@ struct _XemEvents
     XEvent       list[256];
     unsigned int head;
     unsigned int tail;
-};
-
-struct _XemMachine
-{
-    XemEmulatorData instance;
-    XemEmulatorProc create_proc;
-    XemEmulatorProc destroy_proc;
-    XemEmulatorProc realize_proc;
-    XemEmulatorProc resize_proc;
-    XemEmulatorProc expose_proc;
-    XemEmulatorProc input_proc;
-    XemEmulatorProc timer_proc;
 };
 
 struct _XemKeyboard
@@ -88,20 +88,22 @@ struct _XemJoystick
     unsigned short js_mapping[1024];
 };
 
-extern XemX11*      XemX11Construct            (Widget widget, XemX11* x11);
-extern XemX11*      XemX11Destruct             (Widget widget, XemX11* x11);
-extern XemX11*      XemX11Realize              (Widget widget, XemX11* x11);
-extern XemX11*      XemX11Unrealize            (Widget widget, XemX11* x11);
+extern XemVideo*    XemVideoConstruct          (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoDestruct           (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoRealize            (Widget widget, XemVideo* video);
+extern XemVideo*    XemVideoUnrealize          (Widget widget, XemVideo* video);
+
+extern XemAudio*    XemAudioConstruct          (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioDestruct           (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioRealize            (Widget widget, XemAudio* audio);
+extern XemAudio*    XemAudioUnrealize          (Widget widget, XemAudio* audio);
 
 extern XemEvents*   XemEventsConstruct         (Widget widget, XemEvents* events);
 extern XemEvents*   XemEventsDestruct          (Widget widget, XemEvents* events);
+extern XemEvents*   XemEventsDispatch          (Widget widget, XemEvents* events, XEvent* event);
 extern XemEvents*   XemEventsThrottle          (Widget widget, XemEvents* events, XEvent* event);
 extern XemEvents*   XemEventsProcess           (Widget widget, XemEvents* events);
 extern XEvent*      XemEventsCopyOrFill        (Widget widget, XemEvents* events, XEvent* event);
-
-extern XemMachine*  XemMachineConstruct        (Widget widget, XemMachine* machine);
-extern XemMachine*  XemMachineDestruct         (Widget widget, XemMachine* machine);
-extern XemMachine*  XemMachineSanitize         (Widget widget, XemMachine* machine);
 
 extern XemKeyboard* XemKeyboardConstruct       (Widget widget, XemKeyboard* keyboard, int id);
 extern XemKeyboard* XemKeyboardDestruct        (Widget widget, XemKeyboard* keyboard);
@@ -112,6 +114,9 @@ extern XemJoystick* XemJoystickDestruct        (Widget widget, XemJoystick* joys
 extern XemJoystick* XemJoystickLookupByFd      (Widget widget, int fd);
 extern void         XemJoystickHandler         (Widget widget, int* source, XtInputId* input_id);
 extern XemJoystick* XemJoystickDump            (Widget widget, XemJoystick* joystick, unsigned char button);
+
+extern XemBackend*  XemBackendConstruct        (Widget widget, XemBackend* backend);
+extern XemBackend*  XemBackendDestruct         (Widget widget, XemBackend* backend);
 
 #ifdef __cplusplus
 }

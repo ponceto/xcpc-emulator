@@ -1,5 +1,5 @@
 /*
- * machine.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * machine.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,35 +25,23 @@ extern "C" {
 
 extern XcpcMachine* xcpc_machine_alloc     (void);
 extern XcpcMachine* xcpc_machine_free      (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_construct (XcpcMachine* machine);
+extern XcpcMachine* xcpc_machine_construct (XcpcMachine* machine, const XcpcMachineIface* machine_iface, XcpcOptions* options);
 extern XcpcMachine* xcpc_machine_destruct  (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_new       (void);
+extern XcpcMachine* xcpc_machine_new       (const XcpcMachineIface* iface, XcpcOptions* options);
 extern XcpcMachine* xcpc_machine_delete    (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_set_iface (XcpcMachine* machine, const XcpcMachineIface* machine_iface);
 extern XcpcMachine* xcpc_machine_reset     (XcpcMachine* machine);
 extern XcpcMachine* xcpc_machine_clock     (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_parse     (XcpcMachine* machine, int* argc, char*** argv);
-extern XcpcMachine* xcpc_machine_start     (XcpcMachine* machine);
-extern XcpcMachine* xcpc_machine_close     (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_insert_drive0   (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_remove_drive0   (XcpcMachine* machine);
-extern const char*  xcpc_machine_filename_drive0 (XcpcMachine* machine);
+extern XcpcMachine* xcpc_machine_drive0_insert   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_drive0_remove   (XcpcMachine* machine);
+extern const char*  xcpc_machine_drive0_filename (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_insert_drive1   (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_remove_drive1   (XcpcMachine* machine);
-extern const char*  xcpc_machine_filename_drive1 (XcpcMachine* machine);
+extern XcpcMachine* xcpc_machine_drive1_insert   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_drive1_remove   (XcpcMachine* machine);
+extern const char*  xcpc_machine_drive1_filename (XcpcMachine* machine);
 
-extern XcpcMachine* xcpc_machine_load_snapshot   (XcpcMachine* machine, const char* filename);
-extern XcpcMachine* xcpc_machine_save_snapshot   (XcpcMachine* machine, const char* filename);
-
-extern unsigned long xcpc_machine_create_proc  (XcpcMachine* machine, XEvent* event);
-extern unsigned long xcpc_machine_destroy_proc (XcpcMachine* machine, XEvent* event);
-extern unsigned long xcpc_machine_realize_proc (XcpcMachine* machine, XEvent* event);
-extern unsigned long xcpc_machine_resize_proc  (XcpcMachine* machine, XEvent* event);
-extern unsigned long xcpc_machine_expose_proc  (XcpcMachine* machine, XEvent* event);
-extern unsigned long xcpc_machine_timer_proc   (XcpcMachine* machine, XEvent* event);
-extern unsigned long xcpc_machine_input_proc   (XcpcMachine* machine, XEvent* event);
+extern XcpcMachine* xcpc_machine_snapshot_load   (XcpcMachine* machine, const char* filename);
+extern XcpcMachine* xcpc_machine_snapshot_save   (XcpcMachine* machine, const char* filename);
 
 extern XcpcCompanyName  xcpc_machine_company_name  (XcpcMachine* machine);
 extern XcpcMachineType  xcpc_machine_machine_type  (XcpcMachine* machine);

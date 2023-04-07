@@ -1,5 +1,5 @@
 /*
- * rom-bank.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * rom-bank.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ XcpcRomBank* xcpc_rom_bank_free(XcpcRomBank* self)
     return xcpc_delete(XcpcRomBank, self);
 }
 
-XcpcRomBank* xcpc_rom_bank_construct(XcpcRomBank* self)
+XcpcRomBank* xcpc_rom_bank_construct(XcpcRomBank* self, const XcpcRomBankIface* iface)
 {
     log_trace("construct");
 
@@ -51,7 +51,12 @@ XcpcRomBank* xcpc_rom_bank_construct(XcpcRomBank* self)
         (void) memset(&self->state, 0, sizeof(XcpcRomBankState));
     }
     /* initialize iface */ {
-        (void) xcpc_rom_bank_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = self;
+        }
     }
     /* reset */ {
         (void) xcpc_rom_bank_reset(self);
@@ -66,11 +71,11 @@ XcpcRomBank* xcpc_rom_bank_destruct(XcpcRomBank* self)
     return self;
 }
 
-XcpcRomBank* xcpc_rom_bank_new(void)
+XcpcRomBank* xcpc_rom_bank_new(const XcpcRomBankIface* iface)
 {
     log_trace("new");
 
-    return xcpc_rom_bank_construct(xcpc_rom_bank_alloc());
+    return xcpc_rom_bank_construct(xcpc_rom_bank_alloc(), iface);
 }
 
 XcpcRomBank* xcpc_rom_bank_delete(XcpcRomBank* self)
@@ -78,19 +83,6 @@ XcpcRomBank* xcpc_rom_bank_delete(XcpcRomBank* self)
     log_trace("delete");
 
     return xcpc_rom_bank_free(xcpc_rom_bank_destruct(self));
-}
-
-XcpcRomBank* xcpc_rom_bank_set_iface(XcpcRomBank* self, const XcpcRomBankIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = self;
-    }
-    return self;
 }
 
 XcpcRomBank* xcpc_rom_bank_reset(XcpcRomBank* self)

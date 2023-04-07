@@ -1,5 +1,5 @@
 /*
- * rom-bank.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * rom-bank.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcRomBank*      xcpc_rom_bank_alloc     (void);
 extern XcpcRomBank*      xcpc_rom_bank_free      (XcpcRomBank* rom_bank);
-extern XcpcRomBank*      xcpc_rom_bank_construct (XcpcRomBank* rom_bank);
+extern XcpcRomBank*      xcpc_rom_bank_construct (XcpcRomBank* rom_bank, const XcpcRomBankIface* rom_bank_iface);
 extern XcpcRomBank*      xcpc_rom_bank_destruct  (XcpcRomBank* rom_bank);
-extern XcpcRomBank*      xcpc_rom_bank_new       (void);
+extern XcpcRomBank*      xcpc_rom_bank_new       (const XcpcRomBankIface* rom_bank_iface);
 extern XcpcRomBank*      xcpc_rom_bank_delete    (XcpcRomBank* rom_bank);
-extern XcpcRomBank*      xcpc_rom_bank_set_iface (XcpcRomBank* rom_bank, const XcpcRomBankIface* rom_bank_iface);
 extern XcpcRomBank*      xcpc_rom_bank_reset     (XcpcRomBank* rom_bank);
 extern XcpcRomBankStatus xcpc_rom_bank_load      (XcpcRomBank* rom_bank, const char* filename, size_t offset);
 extern XcpcRomBankStatus xcpc_rom_bank_copy      (XcpcRomBank* rom_bank, const uint8_t* data, size_t size);

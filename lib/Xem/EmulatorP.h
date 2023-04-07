@@ -1,5 +1,5 @@
 /*
- * EmulatorP.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * EmulatorP.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,12 +39,14 @@ externalref XemEmulatorClassRec xemEmulatorClassRec;
 
 typedef struct _XemEmulatorPart
 {
-    XemX11         x11;
+    XemVideo       video;
+    XemAudio       audio;
     XemEvents      events;
-    XemMachine     machine;
     XemKeyboard    keyboard;
     XemJoystick    joystick0;
     XemJoystick    joystick1;
+    XemBackend     backend;
+    XemBackend*    backend_ptr;
     XtCallbackList hotkey_callback;
     XtIntervalId   timer;
 } XemEmulatorPart;

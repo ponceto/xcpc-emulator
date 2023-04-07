@@ -1,5 +1,5 @@
 /*
- * cpu-z80a-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * cpu-z80a-impl.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,24 +23,26 @@
 extern "C" {
 #endif
 
-#define XCPC_CPU_Z80A_IFACE(instance) (&(instance)->iface)
-#define XCPC_CPU_Z80A_SETUP(instance) (&(instance)->setup)
-#define XCPC_CPU_Z80A_STATE(instance) (&(instance)->state)
+#define XCPC_CPU_Z80A_MREQ_FUNC(func) ((XcpcCpuZ80aMreqFunc)(func))
+#define XCPC_CPU_Z80A_IORQ_FUNC(func) ((XcpcCpuZ80aIorqFunc)(func))
 
 typedef struct _XcpcCpuZ80aIface XcpcCpuZ80aIface;
 typedef struct _XcpcCpuZ80aSetup XcpcCpuZ80aSetup;
 typedef struct _XcpcCpuZ80aState XcpcCpuZ80aState;
 typedef struct _XcpcCpuZ80a      XcpcCpuZ80a;
 
+typedef uint8_t (*XcpcCpuZ80aMreqFunc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+typedef uint8_t (*XcpcCpuZ80aIorqFunc)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data, void* user_data);
+
 struct _XcpcCpuZ80aIface
 {
     void* user_data;
-    uint8_t (*mreq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*mreq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*mreq_wr)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*iorq_m1)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*iorq_rd)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
-    uint8_t (*iorq_wr)(XcpcCpuZ80a* cpu_z80a, uint16_t addr, uint8_t data);
+    XcpcCpuZ80aMreqFunc mreq_m1;
+    XcpcCpuZ80aMreqFunc mreq_rd;
+    XcpcCpuZ80aMreqFunc mreq_wr;
+    XcpcCpuZ80aIorqFunc iorq_m1;
+    XcpcCpuZ80aIorqFunc iorq_rd;
+    XcpcCpuZ80aIorqFunc iorq_wr;
 };
 
 struct _XcpcCpuZ80aSetup

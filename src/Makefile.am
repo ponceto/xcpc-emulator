@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2021 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,6 +55,10 @@ xcpc_LDADD = \
 	$(top_builddir)/lib/xcpc/libxcpc.la \
 	$(NULL)
 
+# ----------------------------------------------------------------------------
+# xcpc - gtk4
+# ----------------------------------------------------------------------------
+
 if GTK4
 xcpc_SOURCES += \
 	gtk4/xcpc-gtk4.c \
@@ -76,6 +80,10 @@ xcpc_LDADD += \
 	$(NULL)
 endif
 
+# ----------------------------------------------------------------------------
+# xcpc - gtk3
+# ----------------------------------------------------------------------------
+
 if GTK3
 xcpc_SOURCES += \
 	gtk3/xcpc-gtk3.c \
@@ -96,6 +104,10 @@ xcpc_LDADD += \
 	$(gtk3_LIBS) \
 	$(NULL)
 endif
+
+# ----------------------------------------------------------------------------
+# xcpc - motif2
+# ----------------------------------------------------------------------------
 
 if MOTIF2
 xcpc_SOURCES += \
@@ -120,6 +132,10 @@ xcpc_LDADD += \
 	$(NULL)
 endif
 
+# ----------------------------------------------------------------------------
+# xcpc - athena
+# ----------------------------------------------------------------------------
+
 if ATHENA
 xcpc_SOURCES += \
 	athena/xcpc-athena.c \
@@ -143,6 +159,10 @@ xcpc_LDADD += \
 	$(NULL)
 endif
 
+# ----------------------------------------------------------------------------
+# xcpc - intrinsic
+# ----------------------------------------------------------------------------
+
 if INTRINSIC
 xcpc_SOURCES += \
 	intrinsic/xcpc-intrinsic.c \
@@ -163,6 +183,24 @@ xcpc_LDADD += \
 	$(top_builddir)/lib/Xem/libXem.la \
 	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
+	$(NULL)
+endif
+
+# ----------------------------------------------------------------------------
+# xcpc - portaudio
+# ----------------------------------------------------------------------------
+
+if PORTAUDIO
+xcpc_CPPFLAGS += \
+	$(portaudio_CFLAGS) \
+	$(NULL)
+
+xcpc_LDFLAGS += \
+	$(portaudio_LDFLAGS) \
+	$(NULL)
+
+xcpc_LDADD += \
+	$(portaudio_LIBS) \
 	$(NULL)
 endif
 

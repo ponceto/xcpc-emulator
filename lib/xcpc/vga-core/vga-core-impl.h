@@ -1,5 +1,5 @@
 /*
- * vga-core-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * vga-core-impl.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define XCPC_VGA_CORE_IFACE(instance) (&(instance)->iface)
-#define XCPC_VGA_CORE_SETUP(instance) (&(instance)->setup)
-#define XCPC_VGA_CORE_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcVgaCoreIface XcpcVgaCoreIface;
 typedef struct _XcpcVgaCoreSetup XcpcVgaCoreSetup;

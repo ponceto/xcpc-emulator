@@ -1,5 +1,5 @@
 /*
- * gememulator.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * gememulator.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,12 +34,13 @@ typedef struct _GemEmulatorClass GemEmulatorClass;
 struct _GemEmulator
 {
     GtkWidget   widget;
-    GemX11      x11;
+    GemVideo    video;
+    GemAudio    audio;
     GemEvents   events;
-    GemMachine  machine;
     GemKeyboard keyboard;
     GemJoystick joystick0;
     GemJoystick joystick1;
+    GemBackend  backend;
     guint       minimum_width;
     guint       minimum_height;
     guint       natural_width;
@@ -55,7 +56,7 @@ struct _GemEmulatorClass
 
 extern GType      gem_emulator_get_type     (void) G_GNUC_CONST;
 extern GtkWidget* gem_emulator_new          (void);
-extern void       gem_emulator_set_machine  (GtkWidget* widget, const GemMachine* machine);
+extern void       gem_emulator_set_backend  (GtkWidget* widget, const GemBackend* backend);
 extern void       gem_emulator_set_joystick (GtkWidget* widget, int id, const char* device);
 
 G_END_DECLS

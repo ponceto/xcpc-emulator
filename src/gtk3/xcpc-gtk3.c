@@ -1,5 +1,5 @@
 /*
- * xcpc-gtk3.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-gtk3.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#ifdef HAVE_PORTAUDIO
+#include <portaudio.h>
+#endif
 #include "xcpc-gtk3-priv.h"
 
 #ifndef _
@@ -181,7 +184,7 @@ static XcpcApplication* set_drive0(XcpcApplication* self)
     char*       string   = NULL;
 
     /* fetch filename */ {
-        filename = xcpc_machine_filename_drive0(self->machine);
+        filename = xcpc_machine_drive0_filename(self->machine);
         if((filename != NULL) && (*filename != '\0')) {
             const char* slash = strrchr(filename, '/');
             if(slash != NULL) {
@@ -213,7 +216,7 @@ static XcpcApplication* set_drive1(XcpcApplication* self)
     char*       string   = NULL;
 
     /* fetch filename */ {
-        filename = xcpc_machine_filename_drive1(self->machine);
+        filename = xcpc_machine_drive1_filename(self->machine);
         if((filename != NULL) && (*filename != '\0')) {
             const char* slash = strrchr(filename, '/');
             if(slash != NULL) {
@@ -308,7 +311,7 @@ static XcpcApplication* reset_emulator(XcpcApplication* self)
 static XcpcApplication* load_snapshot(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_load_snapshot(self->machine, filename);
+        (void) xcpc_machine_snapshot_load(self->machine, filename);
     }
     return self;
 }
@@ -316,7 +319,7 @@ static XcpcApplication* load_snapshot(XcpcApplication* self, const char* filenam
 static XcpcApplication* save_snapshot(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_save_snapshot(self->machine, filename);
+        (void) xcpc_machine_snapshot_save(self->machine, filename);
     }
     return self;
 }
@@ -330,14 +333,14 @@ static XcpcApplication* save_snapshot(XcpcApplication* self, const char* filenam
 static XcpcApplication* insert_disk_into_drive0(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_insert_drive0(self->machine, filename);
+        (void) xcpc_machine_drive0_insert(self->machine, filename);
     }
     return set_drive0(self);
 }
 
 static XcpcApplication* remove_disk_from_drive0(XcpcApplication* self)
 {
-    xcpc_machine_remove_drive0(self->machine);
+    (void) xcpc_machine_drive0_remove(self->machine);
 
     return set_drive0(self);
 }
@@ -351,14 +354,14 @@ static XcpcApplication* remove_disk_from_drive0(XcpcApplication* self)
 static XcpcApplication* insert_disk_into_drive1(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_insert_drive1(self->machine, filename);
+        (void) xcpc_machine_drive1_insert(self->machine, filename);
     }
     return set_drive1(self);
 }
 
 static XcpcApplication* remove_disk_from_drive1(XcpcApplication* self)
 {
-    xcpc_machine_remove_drive1(self->machine);
+    (void) xcpc_machine_drive1_remove(self->machine);
 
     return set_drive1(self);
 }
@@ -604,7 +607,7 @@ static void help_legal_callback(GtkWidget* widget, XcpcApplication* self)
         gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), self->layout.logo);
         gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc"));
         gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _("Legal informations"));
-        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2021 - Olivier Poncet"));
+        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2023 - Olivier Poncet"));
         gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), xcpc_legal_text());
         gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), _("https://www.xcpc-emulator.net/"));
         gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(dialog), xcpc_about_text());
@@ -632,7 +635,7 @@ static void help_about_callback(GtkWidget* widget, XcpcApplication* self)
         gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), self->layout.logo);
         gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), _("Xcpc"));
         gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), PACKAGE_STRING);
-        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2021 - Olivier Poncet"));
+        gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), _("Copyright (c) 2001-2023 - Olivier Poncet"));
         gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("Xcpc is an Amstrad CPC emulator for Linux, BSD and Unix"));
         gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), _("https://www.xcpc-emulator.net/"));
         gtk_about_dialog_set_license(GTK_ABOUT_DIALOG(dialog), xcpc_about_text());
@@ -1132,20 +1135,11 @@ static void build_workwnd(XcpcApplication* self)
         static const GtkTargetEntry target_entries[] = {
             { "text/uri-list", 0, 1 },
         };
-        const GemMachine machine = {
-            GEM_EMULATOR_DATA(self->machine),
-            GEM_EMULATOR_PROC(&xcpc_machine_create_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_destroy_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_realize_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_resize_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_expose_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_input_proc),
-            GEM_EMULATOR_PROC(&xcpc_machine_timer_proc),
-        };
         current->emulator = gem_emulator_new();
         widget_add_destroy_callback(&current->emulator, "emulator");
         emulator_add_hotkey_callback(current->emulator, self, NULL);
-        gem_emulator_set_machine(current->emulator, &machine);
+        gtk_widget_set_sensitive(current->emulator, FALSE);
+        gem_emulator_set_backend(current->emulator, &self->machine->backend);
         gem_emulator_set_joystick(current->emulator, 0, xcpc_get_joystick0());
         gem_emulator_set_joystick(current->emulator, 1, xcpc_get_joystick1());
         gtk_box_pack_start(GTK_BOX(current->widget), current->emulator, TRUE, TRUE, 0);
@@ -1194,7 +1188,9 @@ static void build_layout(XcpcApplication* self)
     XcpcLayoutRec* current = &self->layout;
 
     /* logo */ {
-        current->logo = gdk_pixbuf_new_from_file(XCPC_RESDIR "/bitmaps/xcpc-icon.png", NULL);
+        gchar* filename = g_build_filename(xcpc_get_resdir(), "bitmaps", "xcpc-icon.png", NULL);
+        current->logo = gdk_pixbuf_new_from_file(filename, NULL);
+        filename = (g_free(filename), NULL);
     }
     /* window */ {
         current->window = gtk_application_window_new(self->layout.application);
@@ -1275,35 +1271,60 @@ static void application_activate_callback(GApplication* application, XcpcApplica
  * ---------------------------------------------------------------------------
  */
 
-XcpcApplication* xcpc_application_new(void)
+XcpcApplication* xcpc_application_new(int* argc, char*** argv)
 {
     XcpcApplication* self = g_new0(XcpcApplication, 1);
 
-    /* intialize the machine */ {
-        self->machine = xcpc_machine_new();
+    if(self != NULL) {
+        self->argc = argc;
+        self->argv = argv;
     }
     return self;
 }
 
 XcpcApplication* xcpc_application_delete(XcpcApplication* self)
 {
-    /* finalize */ {
-        self->layout.application = (g_object_unref(self->layout.application), NULL);
+    /* destroy application */ {
+        if(self->layout.application != NULL) {
+            self->layout.application = (g_object_unref(self->layout.application), NULL);
+        }
     }
-    /* finalize the emulator */ {
-        self->machine = xcpc_machine_delete(self->machine);
+    /* destroy machine */ {
+        if(self->machine != NULL) {
+            self->machine = xcpc_machine_delete(self->machine);
+        }
     }
-    /* free */ {
+    /* destroy options */ {
+        if(self->options != NULL) {
+            self->options = xcpc_options_delete(self->options);
+        }
+    }
+    /* delete self */ {
         self = (g_free(self), NULL);
     }
     return self;
 }
 
-XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** argv)
+XcpcApplication* xcpc_application_run(XcpcApplication* self)
 {
-    /* parse the command-line */ {
-        (void) xcpc_machine_parse(self->machine, argc, argv);
+    /* intialize the options */ {
+        self->options = xcpc_options_new(self->argc, self->argv);
+        (void) xcpc_options_parse(self->options);
+        if(xcpc_options_quit(self->options) != 0) {
+            return self;
+        }
     }
+    /* intialize the machine */ {
+        self->machine = xcpc_machine_new(NULL, self->options);
+    }
+#ifdef HAVE_PORTAUDIO
+    /* initialize portaudio */ {
+        const PaError pa_error = Pa_Initialize();
+        if(pa_error != paNoError) {
+            xcpc_log_error("unable to initialize PortAudio (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     /* create application */ {
         self->layout.application = gtk_application_new(app_id, G_APPLICATION_FLAGS_NONE);
         (void) g_signal_connect(G_OBJECT(self->layout.application), sig_open, G_CALLBACK(application_open_callback), self);
@@ -1312,8 +1333,16 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** 
         (void) g_signal_connect(G_OBJECT(self->layout.application), sig_activate, G_CALLBACK(application_activate_callback), self);
     }
     /* loop */ {
-        (void) g_application_run(G_APPLICATION(self->layout.application), *argc, *argv);
+        (void) g_application_run(G_APPLICATION(self->layout.application), *self->argc, *self->argv);
     }
+#ifdef HAVE_PORTAUDIO
+    /* finalize portaudio */ {
+        const PaError pa_error = Pa_Terminate();
+        if(pa_error != paNoError) {
+            xcpc_log_error("unable to terminate PortAudio (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     return self;
 }
 
@@ -1325,12 +1354,10 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self, int* argc, char*** 
 
 int xcpc_main(int* argc, char*** argv)
 {
-    XcpcApplication* self = xcpc_application_new();
+    XcpcApplication* self = xcpc_application_new(argc, argv);
 
-    /* run */ {
-        (void) xcpc_application_run(self, argc, argv);
-    }
-    /* delete */ {
+    if(self != NULL) {
+        (void) xcpc_application_run(self);
         self = xcpc_application_delete(self);
     }
     return EXIT_SUCCESS;

@@ -1,5 +1,5 @@
 /*
- * xcpc-main-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-main-priv.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern int main(int argc, char* argv[]);
 
 #ifdef __cplusplus
 }

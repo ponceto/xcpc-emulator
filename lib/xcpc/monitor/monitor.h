@@ -1,5 +1,5 @@
 /*
- * monitor.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * monitor.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcMonitor* xcpc_monitor_alloc       (void);
 extern XcpcMonitor* xcpc_monitor_free        (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_construct   (XcpcMonitor* monitor);
+extern XcpcMonitor* xcpc_monitor_construct   (XcpcMonitor* monitor, const XcpcMonitorIface* monitor_iface);
 extern XcpcMonitor* xcpc_monitor_destruct    (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_new         (void);
+extern XcpcMonitor* xcpc_monitor_new         (const XcpcMonitorIface* monitor_iface);
 extern XcpcMonitor* xcpc_monitor_delete      (XcpcMonitor* monitor);
-extern XcpcMonitor* xcpc_monitor_set_iface   (XcpcMonitor* monitor, const XcpcMonitorIface* monitor_iface);
 extern XcpcMonitor* xcpc_monitor_reset       (XcpcMonitor* monitor);
 extern XcpcMonitor* xcpc_monitor_realize     (XcpcMonitor* monitor, XcpcMonitorType monitor_type, XcpcRefreshRate refresh_rate, Display* display, Window window, Bool try_xshm);
 extern XcpcMonitor* xcpc_monitor_unrealize   (XcpcMonitor* monitor);

@@ -1,5 +1,5 @@
 /*
- * libxcpc.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * libxcpc.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,11 @@ static XcpcLibrary libxcpc = {
     NULL,                  /* input_stream  */
     NULL,                  /* print_stream  */
     NULL,                  /* error_stream  */
+    NULL,                  /* bindir        */
+    NULL,                  /* libdir        */
+    NULL,                  /* datdir        */
+    NULL,                  /* docdir        */
+    NULL,                  /* resdir        */
     NULL,                  /* joystick0     */
     NULL,                  /* joystick1     */
 };
@@ -193,6 +198,39 @@ static void fini_error_stream(void)
     }
 }
 
+static void init_directories(void)
+{
+    const char* bindir = getenv("XCPC_BINDIR");
+    const char* libdir = getenv("XCPC_LIBDIR");
+    const char* datdir = getenv("XCPC_DATDIR");
+    const char* docdir = getenv("XCPC_DOCDIR");
+    const char* resdir = getenv("XCPC_RESDIR");
+    const char* romdir = getenv("XCPC_ROMDIR");
+    const char* dskdir = getenv("XCPC_DSKDIR");
+    const char* snadir = getenv("XCPC_SNADIR");
+
+    if(libxcpc.bindir == NULL) { libxcpc.bindir = strdup(bindir != NULL ? bindir : XCPC_BINDIR); }
+    if(libxcpc.libdir == NULL) { libxcpc.libdir = strdup(libdir != NULL ? libdir : XCPC_LIBDIR); }
+    if(libxcpc.datdir == NULL) { libxcpc.datdir = strdup(datdir != NULL ? datdir : XCPC_DATDIR); }
+    if(libxcpc.docdir == NULL) { libxcpc.docdir = strdup(docdir != NULL ? docdir : XCPC_DOCDIR); }
+    if(libxcpc.resdir == NULL) { libxcpc.resdir = strdup(resdir != NULL ? resdir : XCPC_RESDIR); }
+    if(libxcpc.romdir == NULL) { libxcpc.romdir = strdup(romdir != NULL ? romdir : XCPC_ROMDIR); }
+    if(libxcpc.dskdir == NULL) { libxcpc.dskdir = strdup(dskdir != NULL ? dskdir : XCPC_DSKDIR); }
+    if(libxcpc.snadir == NULL) { libxcpc.snadir = strdup(snadir != NULL ? snadir : XCPC_SNADIR); }
+}
+
+static void fini_directories(void)
+{
+    if(libxcpc.bindir != NULL) { libxcpc.bindir = (free(libxcpc.bindir), NULL); }
+    if(libxcpc.libdir != NULL) { libxcpc.libdir = (free(libxcpc.libdir), NULL); }
+    if(libxcpc.datdir != NULL) { libxcpc.datdir = (free(libxcpc.datdir), NULL); }
+    if(libxcpc.docdir != NULL) { libxcpc.docdir = (free(libxcpc.docdir), NULL); }
+    if(libxcpc.resdir != NULL) { libxcpc.resdir = (free(libxcpc.resdir), NULL); }
+    if(libxcpc.romdir != NULL) { libxcpc.romdir = (free(libxcpc.romdir), NULL); }
+    if(libxcpc.dskdir != NULL) { libxcpc.dskdir = (free(libxcpc.dskdir), NULL); }
+    if(libxcpc.snadir != NULL) { libxcpc.snadir = (free(libxcpc.snadir), NULL); }
+}
+
 static void init_joystick0(void)
 {
     if(libxcpc.joystick0 == NULL) {
@@ -234,6 +272,7 @@ void xcpc_begin(void)
         init_input_stream();
         init_print_stream();
         init_error_stream();
+        init_directories();
         init_joystick0();
         init_joystick1();
     }
@@ -258,6 +297,7 @@ void xcpc_end(void)
     if(--libxcpc.initialized == 0) {
         fini_joystick1();
         fini_joystick0();
+        fini_directories();
         fini_error_stream();
         fini_print_stream();
         fini_input_stream();
@@ -404,7 +444,7 @@ void xcpc_log_debug(const char* format, ...)
     }
 }
 
-extern void* xcpc_malloc(const char* type, size_t size)
+void* xcpc_malloc(const char* type, size_t size)
 {
     void* pointer = malloc(size);
 
@@ -425,7 +465,7 @@ extern void* xcpc_malloc(const char* type, size_t size)
     return pointer;
 }
 
-extern void* xcpc_calloc(const char* type, size_t count, size_t size)
+void* xcpc_calloc(const char* type, size_t count, size_t size)
 {
     void* pointer = calloc(count, size);
 
@@ -448,7 +488,7 @@ extern void* xcpc_calloc(const char* type, size_t count, size_t size)
     return pointer;
 }
 
-extern void* xcpc_realloc(const char* type, void* pointer, size_t size)
+void* xcpc_realloc(const char* type, void* pointer, size_t size)
 {
     void* old_pointer = pointer;
     void* new_pointer = realloc(pointer, size);
@@ -472,7 +512,7 @@ extern void* xcpc_realloc(const char* type, void* pointer, size_t size)
     return new_pointer;
 }
 
-extern void* xcpc_free(const char* type, void* pointer)
+void* xcpc_free(const char* type, void* pointer)
 {
     void* old_pointer = pointer;
     void* new_pointer = (free(pointer), NULL);
@@ -492,12 +532,52 @@ extern void* xcpc_free(const char* type, void* pointer)
     return new_pointer;
 }
 
-extern const char* xcpc_get_joystick0(void)
+const char* xcpc_get_bindir(void)
+{
+    return libxcpc.bindir;
+}
+
+const char* xcpc_get_libdir(void)
+{
+    return libxcpc.libdir;
+}
+
+const char* xcpc_get_datdir(void)
+{
+    return libxcpc.datdir;
+}
+
+const char* xcpc_get_docdir(void)
+{
+    return libxcpc.docdir;
+}
+
+const char* xcpc_get_resdir(void)
+{
+    return libxcpc.resdir;
+}
+
+const char* xcpc_get_romdir(void)
+{
+    return libxcpc.romdir;
+}
+
+const char* xcpc_get_dskdir(void)
+{
+    return libxcpc.dskdir;
+}
+
+const char* xcpc_get_snadir(void)
+{
+    return libxcpc.snadir;
+}
+
+const char* xcpc_get_joystick0(void)
 {
     return libxcpc.joystick0;
 }
 
-extern const char* xcpc_get_joystick1(void)
+const char* xcpc_get_joystick1(void)
 {
     return libxcpc.joystick1;
 }
@@ -518,7 +598,7 @@ const char* xcpc_legal_text(void)
 const char* xcpc_about_text(void)
 {
     static const char text[] = PACKAGE_STRING " - "
-        "Amstrad CPC emulator - Copyright (c) 2001-2021 - Olivier Poncet\n\n"
+        "Amstrad CPC emulator - Copyright (c) 2001-2023 - Olivier Poncet\n\n"
         "This program is free software: you can redistribute it and/or modify\n"
         "it under the terms of the GNU General Public License as published by\n"
         "the Free Software Foundation, either version 2 of the License, or\n"

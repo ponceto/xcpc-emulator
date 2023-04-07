@@ -1,5 +1,5 @@
 /*
- * vga-core.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * vga-core.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,7 +123,7 @@ XcpcVgaCore* xcpc_vga_core_free(XcpcVgaCore* self)
     return xcpc_delete(XcpcVgaCore, self);
 }
 
-XcpcVgaCore* xcpc_vga_core_construct(XcpcVgaCore* self)
+XcpcVgaCore* xcpc_vga_core_construct(XcpcVgaCore* self, const XcpcVgaCoreIface* iface)
 {
     log_trace("construct");
 
@@ -133,7 +133,12 @@ XcpcVgaCore* xcpc_vga_core_construct(XcpcVgaCore* self)
         (void) memset(&self->state, 0, sizeof(XcpcVgaCoreState));
     }
     /* initialize iface */ {
-        (void) xcpc_vga_core_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+        }
     }
     /* initialize setup */ {
         build_mode0_lookup_table(self);
@@ -154,11 +159,11 @@ XcpcVgaCore* xcpc_vga_core_destruct(XcpcVgaCore* self)
     return self;
 }
 
-XcpcVgaCore* xcpc_vga_core_new(void)
+XcpcVgaCore* xcpc_vga_core_new(const XcpcVgaCoreIface* iface)
 {
     log_trace("new");
 
-    return xcpc_vga_core_construct(xcpc_vga_core_alloc());
+    return xcpc_vga_core_construct(xcpc_vga_core_alloc(), iface);
 }
 
 XcpcVgaCore* xcpc_vga_core_delete(XcpcVgaCore* self)
@@ -166,19 +171,6 @@ XcpcVgaCore* xcpc_vga_core_delete(XcpcVgaCore* self)
     log_trace("delete");
 
     return xcpc_vga_core_free(xcpc_vga_core_destruct(self));
-}
-
-XcpcVgaCore* xcpc_vga_core_set_iface(XcpcVgaCore* self, const XcpcVgaCoreIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-    }
-    return self;
 }
 
 XcpcVgaCore* xcpc_vga_core_debug(XcpcVgaCore* self)

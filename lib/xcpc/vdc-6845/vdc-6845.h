@@ -1,5 +1,5 @@
 /*
- * vdc-6845.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * vdc-6845.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcVdc6845* xcpc_vdc_6845_alloc     (void);
 extern XcpcVdc6845* xcpc_vdc_6845_free      (XcpcVdc6845* vdc_6845);
-extern XcpcVdc6845* xcpc_vdc_6845_construct (XcpcVdc6845* vdc_6845);
+extern XcpcVdc6845* xcpc_vdc_6845_construct (XcpcVdc6845* vdc_6845, const XcpcVdc6845Iface* vdc_6845_iface);
 extern XcpcVdc6845* xcpc_vdc_6845_destruct  (XcpcVdc6845* vdc_6845);
-extern XcpcVdc6845* xcpc_vdc_6845_new       (void);
+extern XcpcVdc6845* xcpc_vdc_6845_new       (const XcpcVdc6845Iface* vdc_6845_iface);
 extern XcpcVdc6845* xcpc_vdc_6845_delete    (XcpcVdc6845* vdc_6845);
-extern XcpcVdc6845* xcpc_vdc_6845_set_iface (XcpcVdc6845* vdc_6845, const XcpcVdc6845Iface* vdc_6845_iface);
 extern XcpcVdc6845* xcpc_vdc_6845_debug     (XcpcVdc6845* vdc_6845);
 extern XcpcVdc6845* xcpc_vdc_6845_reset     (XcpcVdc6845* vdc_6845);
 extern XcpcVdc6845* xcpc_vdc_6845_clock     (XcpcVdc6845* vdc_6845);

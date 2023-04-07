@@ -1,5 +1,5 @@
 /*
- * ram-bank.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * ram-bank.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ XcpcRamBank* xcpc_ram_bank_free(XcpcRamBank* self)
     return xcpc_delete(XcpcRamBank, self);
 }
 
-XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self)
+XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self, const XcpcRamBankIface* iface)
 {
     log_trace("construct");
 
@@ -51,7 +51,12 @@ XcpcRamBank* xcpc_ram_bank_construct(XcpcRamBank* self)
         (void) memset(&self->state, 0, sizeof(XcpcRamBankState));
     }
     /* initialize iface */ {
-        (void) xcpc_ram_bank_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+        }
     }
     /* reset */ {
         (void) xcpc_ram_bank_reset(self);
@@ -66,11 +71,11 @@ XcpcRamBank* xcpc_ram_bank_destruct(XcpcRamBank* self)
     return self;
 }
 
-XcpcRamBank* xcpc_ram_bank_new(void)
+XcpcRamBank* xcpc_ram_bank_new(const XcpcRamBankIface* iface)
 {
     log_trace("new");
 
-    return xcpc_ram_bank_construct(xcpc_ram_bank_alloc());
+    return xcpc_ram_bank_construct(xcpc_ram_bank_alloc(), iface);
 }
 
 XcpcRamBank* xcpc_ram_bank_delete(XcpcRamBank* self)
@@ -78,19 +83,6 @@ XcpcRamBank* xcpc_ram_bank_delete(XcpcRamBank* self)
     log_trace("delete");
 
     return xcpc_ram_bank_free(xcpc_ram_bank_destruct(self));
-}
-
-XcpcRamBank* xcpc_ram_bank_set_iface(XcpcRamBank* self, const XcpcRamBankIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-    }
-    return self;
 }
 
 XcpcRamBank* xcpc_ram_bank_reset(XcpcRamBank* self)

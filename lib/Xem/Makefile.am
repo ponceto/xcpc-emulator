@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2021 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,10 +52,25 @@ libXem_la_LDFLAGS = \
 	$(NULL)
 
 libXem_la_LIBADD = \
+	$(top_builddir)/lib/xcpc/libxcpc.la \
 	-lXt \
 	$(X_PRE_LIBS) $(X_LIBS) -lXext -lX11 \
 	$(X_EXTRA_LIBS) -lm \
 	$(NULL)
+
+if PORTAUDIO
+libXem_la_CPPFLAGS += \
+	$(portaudio_CFLAGS) \
+	$(NULL)
+
+libXem_la_LDFLAGS += \
+	$(portaudio_LDFLAGS) \
+	$(NULL)
+
+libXem_la_LIBADD += \
+	$(portaudio_LIBS) \
+	$(NULL)
+endif
 
 # ----------------------------------------------------------------------------
 # End-Of-File

@@ -1,5 +1,5 @@
 /*
- * cpu-z80a-microcode.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * cpu-z80a-microcode.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,147 +23,7 @@ extern "C" {
 
 /*
  * ---------------------------------------------------------------------------
- * fetch pseudo instructions
- * ---------------------------------------------------------------------------
- */
-
-/*
- * fetch opcode
- */
-
-#define m_fetch_opcode() \
-    do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
-    } while(0)
-
-/*
- * fetch cb opcode
- */
-
-#define m_fetch_cb_opcode() \
-    do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
-    } while(0)
-
-/*
- * fetch dd opcode
- */
-
-#define m_fetch_dd_opcode() \
-    do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
-    } while(0)
-
-/*
- * fetch ed opcode
- */
-
-#define m_fetch_ed_opcode() \
-    do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
-    } while(0)
-
-/*
- * fetch fd opcode
- */
-
-#define m_fetch_fd_opcode() \
-    do { \
-        LAST_OP = (*IFACE.mreq_m1)(SELF, PC_W++, 0x00); \
-    } while(0)
-
-/*
- * fetch ddcb opcode
- */
-
-#define m_fetch_ddcb_opcode() \
-    do { \
-        WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
-        LAST_OP = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-    } while(0)
-
-/*
- * fetch fdcb opcode
- */
-
-#define m_fetch_fdcb_opcode() \
-    do { \
-        WZ_W = IY_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
-        LAST_OP = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
-    } while(0)
-
-/*
- * ---------------------------------------------------------------------------
- * illegal pseudo instructions
- * ---------------------------------------------------------------------------
- */
-
-/*
- * illegal opcode
- */
-
-#define m_illegal() \
-    do { \
-        xcpc_log_debug("illegal %02X opcode at %04X", LAST_OP, PREV_PC); \
-    } while(0)
-
-/*
- * illegal cb opcode
- */
-
-#define m_illegal_cb() \
-    do { \
-        xcpc_log_debug("illegal CB%02X opcode at %04X", LAST_OP, PREV_PC); \
-    } while(0)
-
-/*
- * illegal dd opcode
- */
-
-#define m_illegal_dd() \
-    do { \
-        xcpc_log_debug("illegal DD%02X opcode at %04X", LAST_OP, PREV_PC); \
-    } while(0)
-
-/*
- * illegal ed opcode
- */
-
-#define m_illegal_ed() \
-    do { \
-        xcpc_log_debug("illegal ED%02X opcode at %04X", LAST_OP, PREV_PC); \
-    } while(0)
-
-/*
- * illegal fd opcode
- */
-
-#define m_illegal_fd() \
-    do { \
-        xcpc_log_debug("illegal FD%02X opcode at %04X", LAST_OP, PREV_PC); \
-    } while(0)
-
-/*
- * illegal ddcb opcode
- */
-
-#define m_illegal_ddcb() \
-    do { \
-        xcpc_log_debug("illegal DDCBxx%02X opcode at %04X", LAST_OP, PREV_PC); \
-    } while(0)
-
-/*
- * illegal fdcb opcode
- */
-
-#define m_illegal_fdcb() \
-    do { \
-        xcpc_log_debug("illegal FDCByy%02X opcode at %04X", LAST_OP, PREV_PC); \
-    } while(0)
-
-/*
- * ---------------------------------------------------------------------------
- * miscellaneous pseudo instructions
+ * pseudo micro-instructions
  * ---------------------------------------------------------------------------
  */
 
@@ -220,6 +80,204 @@ extern "C" {
     do { \
         IORQ_WR(port, data); \
     } while(0)
+
+/*
+ * load_rg
+ */
+
+#define m_load_rg(dst, src) \
+    do { \
+        dst = src; \
+    } while(0)
+
+/*
+ * addu_rg
+ */
+
+#define m_addu_rg(reg, opd) \
+    do { \
+        reg += opd; \
+    } while(0)
+
+/*
+ * subu_rg
+ */
+
+#define m_subu_rg(reg, opd) \
+    do { \
+        reg -= opd; \
+    } while(0)
+
+/*
+ * set_bit
+ */
+
+#define m_set_bit(dst, bit) \
+    do { \
+        dst |= (bit); \
+    } while(0)
+
+/*
+ * clr_bit
+ */
+
+#define m_clr_bit(dst, bit) \
+    do { \
+        dst &= ~(bit); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * fetch pseudo instructions
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * fetch opcode
+ */
+
+#define m_fetch_opcode() \
+    do { \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
+    } while(0)
+
+/*
+ * fetch cb opcode
+ */
+
+#define m_fetch_cb_opcode() \
+    do { \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
+    } while(0)
+
+/*
+ * fetch dd opcode
+ */
+
+#define m_fetch_dd_opcode() \
+    do { \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
+    } while(0)
+
+/*
+ * fetch ed opcode
+ */
+
+#define m_fetch_ed_opcode() \
+    do { \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
+    } while(0)
+
+/*
+ * fetch fd opcode
+ */
+
+#define m_fetch_fd_opcode() \
+    do { \
+        m_mreq_m1(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
+    } while(0)
+
+/*
+ * fetch ddcb opcode
+ */
+
+#define m_fetch_ddcb_opcode() \
+    do { \
+        WZ_W = IX_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
+        m_mreq_rd(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
+    } while(0)
+
+/*
+ * fetch fdcb opcode
+ */
+
+#define m_fetch_fdcb_opcode() \
+    do { \
+        WZ_W = IY_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
+        m_mreq_rd(PC_W, OP_L); \
+        m_addu_rg(PC_W, 0x01); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * illegal pseudo instructions
+ * ---------------------------------------------------------------------------
+ */
+
+/*
+ * illegal opcode
+ */
+
+#define m_illegal() \
+    do { \
+        xcpc_log_debug("illegal %02X opcode at %04X", OP_L, PREV_PC); \
+    } while(0)
+
+/*
+ * illegal cb opcode
+ */
+
+#define m_illegal_cb() \
+    do { \
+        xcpc_log_debug("illegal CB%02X opcode at %04X", OP_L, PREV_PC); \
+    } while(0)
+
+/*
+ * illegal dd opcode
+ */
+
+#define m_illegal_dd() \
+    do { \
+        xcpc_log_debug("illegal DD%02X opcode at %04X", OP_L, PREV_PC); \
+    } while(0)
+
+/*
+ * illegal ed opcode
+ */
+
+#define m_illegal_ed() \
+    do { \
+        xcpc_log_debug("illegal ED%02X opcode at %04X", OP_L, PREV_PC); \
+    } while(0)
+
+/*
+ * illegal fd opcode
+ */
+
+#define m_illegal_fd() \
+    do { \
+        xcpc_log_debug("illegal FD%02X opcode at %04X", OP_L, PREV_PC); \
+    } while(0)
+
+/*
+ * illegal ddcb opcode
+ */
+
+#define m_illegal_ddcb() \
+    do { \
+        xcpc_log_debug("illegal DDCBxx%02X opcode at %04X", OP_L, PREV_PC); \
+    } while(0)
+
+/*
+ * illegal fdcb opcode
+ */
+
+#define m_illegal_fdcb() \
+    do { \
+        xcpc_log_debug("illegal FDCByy%02X opcode at %04X", OP_L, PREV_PC); \
+    } while(0)
+
+/*
+ * ---------------------------------------------------------------------------
+ * miscellaneous pseudo instructions
+ * ---------------------------------------------------------------------------
+ */
 
 /*
  * refresh dram
@@ -293,51 +351,6 @@ extern "C" {
     } while(0)
 
 /*
- * load_rg
- */
-
-#define m_load_rg(dst, src) \
-    do { \
-        dst = src; \
-    } while(0)
-
-/*
- * incr_rg
- */
-
-#define m_incr_rg(reg, val) \
-    do { \
-        reg += val; \
-    } while(0)
-
-/*
- * decr_rg
- */
-
-#define m_decr_rg(reg, val) \
-    do { \
-        reg -= val; \
-    } while(0)
-
-/*
- * set_bit
- */
-
-#define m_set_bit(dst, bit) \
-    do { \
-        dst |= (bit); \
-    } while(0)
-
-/*
- * clr_bit
- */
-
-#define m_clr_bit(dst, bit) \
-    do { \
-        dst &= ~(bit); \
-    } while(0)
-
-/*
  * prefix
  */
 
@@ -374,7 +387,7 @@ extern "C" {
 
 #define m_di() \
     do { \
-        m_clr_bit(ST_L, (ST_IFF1 | ST_IFF2)); \
+        m_clr_bit(ST_L, (ST_IFF)); \
     } while(0)
 
 /*
@@ -383,7 +396,7 @@ extern "C" {
 
 #define m_ei() \
     do { \
-        m_set_bit(ST_L, (ST_IFF1 | ST_IFF2)); \
+        m_set_bit(ST_L, (ST_IFF)); \
     } while(0)
 
 /*
@@ -462,7 +475,7 @@ extern "C" {
     do { \
         m_load_rg(T0_W, AF_W); \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_iorq_rd(T0_W, reg1); \
     } while(0)
 
@@ -475,8 +488,8 @@ extern "C" {
         m_iorq_rd(BC_W, T0_L); \
         m_mreq_wr(HL_W, T0_L); \
         m_load_rg(WZ_W, BC_W); \
-        m_decr_rg(BC_H, 0x01); \
-        m_incr_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
+        m_addu_rg(HL_W, 0x01); \
         T3_L = PZSTable[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
@@ -498,8 +511,8 @@ extern "C" {
         m_iorq_rd(BC_W, T1_L); \
         m_mreq_wr(HL_W, T1_L); \
         m_load_rg(WZ_W, BC_W); \
-        m_incr_rg(HL_W, 0x01); \
-        m_decr_rg(BC_H, 0x01); \
+        m_addu_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
         if(BC_H != 0) { \
             m_restore_pc(); \
             m_consume(1, 5); \
@@ -525,8 +538,8 @@ extern "C" {
         m_iorq_rd(BC_W, T0_L); \
         m_mreq_wr(HL_W, T0_L); \
         m_load_rg(WZ_W, BC_W); \
-        m_decr_rg(BC_H, 0x01); \
-        m_decr_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
+        m_subu_rg(HL_W, 0x01); \
         T3_L = PZSTable[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (T3_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
@@ -548,8 +561,8 @@ extern "C" {
         m_iorq_rd(BC_W, T1_L); \
         m_mreq_wr(HL_W, T1_L); \
         m_load_rg(WZ_W, BC_W); \
-        m_decr_rg(HL_W, 0x01); \
-        m_decr_rg(BC_H, 0x01); \
+        m_subu_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
         if(BC_H != 0) { \
             m_restore_pc(); \
             m_consume(1, 5); \
@@ -591,7 +604,7 @@ extern "C" {
     do { \
         m_load_rg(T0_W, AF_W); \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_iorq_wr(T0_W, reg1); \
     } while(0)
 
@@ -602,8 +615,8 @@ extern "C" {
 #define m_outi() \
     do { \
         m_mreq_rd(HL_W, T0_L); \
-        m_decr_rg(BC_H, 0x01); \
-        m_incr_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
+        m_addu_rg(HL_W, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, T0_L); \
         T3_L = PZSTable[BC_H]; \
@@ -625,8 +638,8 @@ extern "C" {
 #define m_otir() \
     do { \
         m_mreq_rd(HL_W, T1_L); \
-        m_incr_rg(HL_W, 0x01); \
-        m_decr_rg(BC_H, 0x01); \
+        m_addu_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, T1_L); \
         if(BC_H != 0) { \
@@ -652,8 +665,8 @@ extern "C" {
 #define m_outd() \
     do { \
         m_mreq_rd(HL_W, T0_L); \
-        m_decr_rg(BC_H, 0x01); \
-        m_decr_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
+        m_subu_rg(HL_W, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, T0_L); \
         T3_L = PZSTable[BC_H]; \
@@ -675,8 +688,8 @@ extern "C" {
 #define m_otdr() \
     do { \
         m_mreq_rd(HL_W, T1_L); \
-        m_decr_rg(HL_W, 0x01); \
-        m_decr_rg(BC_H, 0x01); \
+        m_subu_rg(HL_W, 0x01); \
+        m_subu_rg(BC_H, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, T1_L); \
         if(BC_H != 0) { \
@@ -717,7 +730,7 @@ extern "C" {
 #define m_ld_r08_i08(reg1) \
     do { \
         m_mreq_rd(PC_W, reg1); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 /*
@@ -745,9 +758,9 @@ extern "C" {
 #define m_ld_r08_ind_i16(reg1) \
     do { \
         m_mreq_rd(PC_W, WZ_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, WZ_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(WZ_W, reg1); \
     } while(0)
 
@@ -758,9 +771,9 @@ extern "C" {
 #define m_ld_ind_i16_r08(reg1) \
     do { \
         m_mreq_rd(PC_W, WZ_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, WZ_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(WZ_W, reg1); \
     } while(0)
 
@@ -771,7 +784,7 @@ extern "C" {
 #define m_ld_ind_r16_i08(reg1) \
     do { \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(reg1, T0_L); \
     } while(0)
 
@@ -781,7 +794,7 @@ extern "C" {
 
 #define m_ld_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         m_mreq_rd(WZ_W, reg1); \
     } while(0)
 
@@ -791,7 +804,7 @@ extern "C" {
 
 #define m_ld_ind_r16_plus_i08_r08(reg1, reg2) \
     do { \
-        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         m_mreq_wr(WZ_W, reg2); \
     } while(0)
 
@@ -801,9 +814,9 @@ extern "C" {
 
 #define m_ld_ind_r16_plus_i08_i08(reg1) \
     do { \
-        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(WZ_W, T0_L); \
     } while(0)
 
@@ -885,9 +898,9 @@ extern "C" {
 #define m_ld_r16_i16(reg1) \
     do { \
         m_mreq_rd(PC_W, T0_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, T0_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_load_rg(reg1, T0_W); \
     } while(0)
 
@@ -898,13 +911,13 @@ extern "C" {
 #define m_ld_r16_ind_i16(reg1) \
     do { \
         m_mreq_rd(PC_W, WZ_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, WZ_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(WZ_W, T0_L); \
-        m_incr_rg(WZ_W, 0x01); \
+        m_addu_rg(WZ_W, 0x01); \
         m_mreq_rd(WZ_W, T0_H); \
-        m_incr_rg(WZ_W, 0x01); \
+        m_addu_rg(WZ_W, 0x01); \
         m_load_rg(reg1, T0_W); \
     } while(0)
 
@@ -916,13 +929,13 @@ extern "C" {
     do { \
         m_load_rg(T0_W, reg1); \
         m_mreq_rd(PC_W, WZ_L); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_rd(PC_W, WZ_H); \
-        m_incr_rg(PC_W, 0x01); \
+        m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(WZ_W, T0_L); \
-        m_incr_rg(WZ_W, 0x01); \
+        m_addu_rg(WZ_W, 0x01); \
         m_mreq_wr(WZ_W, T0_H); \
-        m_incr_rg(WZ_W, 0x01); \
+        m_addu_rg(WZ_W, 0x01); \
     } while(0)
 
 /*
@@ -932,9 +945,9 @@ extern "C" {
 #define m_push_r16(reg1) \
     do { \
         m_load_rg(T0_W, reg1); \
-        m_decr_rg(SP_W, 0x01); \
+        m_subu_rg(SP_W, 0x01); \
         m_mreq_wr(SP_W, T0_H); \
-        m_decr_rg(SP_W, 0x01); \
+        m_subu_rg(SP_W, 0x01); \
         m_mreq_wr(SP_W, T0_L); \
     } while(0)
 
@@ -945,9 +958,9 @@ extern "C" {
 #define m_pop_r16(reg1) \
     do { \
         m_mreq_rd(SP_W, T0_L); \
-        m_incr_rg(SP_W, 0x01); \
+        m_addu_rg(SP_W, 0x01); \
         m_mreq_rd(SP_W, T0_H); \
-        m_incr_rg(SP_W, 0x01); \
+        m_addu_rg(SP_W, 0x01); \
         m_load_rg(reg1, T0_W); \
     } while(0)
 
@@ -1079,7 +1092,7 @@ extern "C" {
 #define m_add_r08_i08(reg1) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
         T0_W = T1_L + T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1101,7 +1114,7 @@ extern "C" {
 #define m_add_r08_ind_r16(reg1, reg2) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00, IFACE.user_data); \
         T0_W = T1_L + T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1122,9 +1135,9 @@ extern "C" {
 
 #define m_add_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00, IFACE.user_data); \
         m_add_r08_r08(T1_L, T2_L); \
     } while(0)
 
@@ -1163,7 +1176,7 @@ extern "C" {
 #define m_adc_r08_i08(reg1) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
         T0_W = T1_L + T2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1185,7 +1198,7 @@ extern "C" {
 #define m_adc_r08_ind_r16(reg1, reg2) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00, IFACE.user_data); \
         T0_W = T1_L + T2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1206,9 +1219,9 @@ extern "C" {
 
 #define m_adc_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00, IFACE.user_data); \
         m_adc_r08_r08(T1_L, T2_L); \
     } while(0)
 
@@ -1247,7 +1260,7 @@ extern "C" {
 #define m_sub_r08_i08(reg1) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
         T0_W = T1_L - T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1269,7 +1282,7 @@ extern "C" {
 #define m_sub_r08_ind_r16(reg1, reg2) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00, IFACE.user_data); \
         T0_W = T1_L - T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1290,9 +1303,9 @@ extern "C" {
 
 #define m_sub_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00, IFACE.user_data); \
         m_sub_r08_r08(T1_L, T2_L); \
     } while(0)
 
@@ -1331,7 +1344,7 @@ extern "C" {
 #define m_sbc_r08_i08(reg1) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
         T0_W = T1_L - T2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1353,7 +1366,7 @@ extern "C" {
 #define m_sbc_r08_ind_r16(reg1, reg2) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00, IFACE.user_data); \
         T0_W = T1_L - T2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1374,9 +1387,9 @@ extern "C" {
 
 #define m_sbc_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00, IFACE.user_data); \
         m_sbc_r08_r08(T1_L, T2_L); \
     } while(0)
 
@@ -1415,7 +1428,7 @@ extern "C" {
 #define m_and_r08_i08(reg1) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
         T0_L = T1_L & T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1437,7 +1450,7 @@ extern "C" {
 #define m_and_r08_ind_r16(reg1, reg2) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00, IFACE.user_data); \
         T0_L = T1_L & T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1458,9 +1471,9 @@ extern "C" {
 
 #define m_and_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00, IFACE.user_data); \
         m_and_r08_r08(T1_L, T2_L); \
     } while(0)
 
@@ -1499,7 +1512,7 @@ extern "C" {
 #define m_xor_r08_i08(reg1) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
         T0_L = T1_L ^ T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1521,7 +1534,7 @@ extern "C" {
 #define m_xor_r08_ind_r16(reg1, reg2) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00, IFACE.user_data); \
         T0_L = T1_L ^ T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1542,9 +1555,9 @@ extern "C" {
 
 #define m_xor_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00, IFACE.user_data); \
         m_xor_r08_r08(T1_L, T2_L); \
     } while(0)
 
@@ -1583,7 +1596,7 @@ extern "C" {
 #define m_or_r08_i08(reg1) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
         T0_L = T1_L | T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1605,7 +1618,7 @@ extern "C" {
 #define m_or_r08_ind_r16(reg1, reg2) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00, IFACE.user_data); \
         T0_L = T1_L | T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_H = T0_L; \
@@ -1626,9 +1639,9 @@ extern "C" {
 
 #define m_or_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00, IFACE.user_data); \
         m_or_r08_r08(T1_L, T2_L); \
     } while(0)
 
@@ -1666,7 +1679,7 @@ extern "C" {
 #define m_cp_r08_i08(reg1) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data); \
         T0_W = T1_L - T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
@@ -1687,7 +1700,7 @@ extern "C" {
 #define m_cp_r08_ind_r16(reg1, reg2) \
     do { \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, reg2, 0x00, IFACE.user_data); \
         T0_W = T1_L - T2_L; \
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is affected     */ (SF & (T3_L)) \
@@ -1707,9 +1720,9 @@ extern "C" {
 
 #define m_cp_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         T1_L = reg1; \
-        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00); \
+        T2_L = (*IFACE.mreq_rd)(SELF, WZ_W, 0x00, IFACE.user_data); \
         m_cp_r08_r08(T1_L, T2_L); \
     } while(0)
 
@@ -1769,7 +1782,7 @@ extern "C" {
 
 #define m_inc_ind_r16_plus_i08(reg1) \
     do { \
-        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         m_mreq_rd(WZ_W, T1_L); \
         m_inc_r08(T1_L); \
         m_mreq_wr(WZ_W, T1_L); \
@@ -1831,7 +1844,7 @@ extern "C" {
 
 #define m_dec_ind_r16_plus_i08(reg1) \
     do { \
-        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00)); \
+        WZ_W = reg1 + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W++, 0x00, IFACE.user_data)); \
         m_mreq_rd(WZ_W, T1_L); \
         m_dec_r08(T1_L); \
         m_mreq_wr(WZ_W, T1_L); \
@@ -1964,7 +1977,7 @@ extern "C" {
     do { \
         --BC_H; \
         if(BC_H != 0) { \
-            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00, IFACE.user_data)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2139,7 +2152,7 @@ extern "C" {
 
 #define m_jr_i08() \
     do { \
-        WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+        WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00, IFACE.user_data)) + 1; \
         PC_W = WZ_W; \
     } while(0)
 
@@ -2150,7 +2163,7 @@ extern "C" {
 #define m_jr_nz_i08() \
     do { \
         if((AF_L & ZF) == 0) { \
-            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00, IFACE.user_data)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2166,7 +2179,7 @@ extern "C" {
 #define m_jr_z_i08() \
     do { \
         if((AF_L & ZF) != 0) { \
-            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00, IFACE.user_data)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2182,7 +2195,7 @@ extern "C" {
 #define m_jr_nc_i08() \
     do { \
         if((AF_L & CF) == 0) { \
-            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00, IFACE.user_data)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2198,7 +2211,7 @@ extern "C" {
 #define m_jr_c_i08() \
     do { \
         if((AF_L & CF) != 0) { \
-            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SIGNED_BYTE((*IFACE.mreq_rd)(SELF, PC_W, 0x00, IFACE.user_data)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \

@@ -1,5 +1,5 @@
 /*
- * options.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * options.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +25,13 @@ extern "C" {
 
 extern XcpcOptions* xcpc_options_alloc     (void);
 extern XcpcOptions* xcpc_options_free      (XcpcOptions* options);
-extern XcpcOptions* xcpc_options_construct (XcpcOptions* options);
+extern XcpcOptions* xcpc_options_construct (XcpcOptions* options, int* argc, char*** argv);
 extern XcpcOptions* xcpc_options_destruct  (XcpcOptions* options);
-extern XcpcOptions* xcpc_options_new       (void);
+extern XcpcOptions* xcpc_options_new       (int* argc, char*** argv);
 extern XcpcOptions* xcpc_options_delete    (XcpcOptions* options);
 extern XcpcOptions* xcpc_options_set_iface (XcpcOptions* options, const XcpcOptionsIface* options_iface);
-extern XcpcOptions* xcpc_options_parse     (XcpcOptions* options, int* argc, char*** argv);
+extern XcpcOptions* xcpc_options_parse     (XcpcOptions* options);
+extern int          xcpc_options_quit      (XcpcOptions* options);
 
 #ifdef __cplusplus
 }

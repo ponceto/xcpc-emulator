@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2021 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2023 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,8 +45,23 @@ libgem3_la_LDFLAGS = \
 	$(NULL)
 
 libgem3_la_LIBADD = \
+	$(top_builddir)/lib/xcpc/libxcpc.la \
 	$(gtk3_LIBS) \
 	$(NULL)
+
+if PORTAUDIO
+libgem3_la_CPPFLAGS += \
+	$(portaudio_CFLAGS) \
+	$(NULL)
+
+libgem3_la_LDFLAGS += \
+	$(portaudio_LDFLAGS) \
+	$(NULL)
+
+libgem3_la_LIBADD += \
+	$(portaudio_LIBS) \
+	$(NULL)
+endif
 
 # ----------------------------------------------------------------------------
 # End-Of-File

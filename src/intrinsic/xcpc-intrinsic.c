@@ -1,5 +1,5 @@
 /*
- * xcpc-intrinsic.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * xcpc-intrinsic.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#ifdef HAVE_PORTAUDIO
+#include <portaudio.h>
+#endif
 #include "xcpc-intrinsic-priv.h"
 
 #ifndef _
@@ -197,7 +200,7 @@ static XcpcApplication* SetDrive0(XcpcApplication* self)
     char        buffer[256];
 
     /* fetch filename */ {
-        filename = xcpc_machine_filename_drive0(self->machine);
+        filename = xcpc_machine_drive0_filename(self->machine);
         if((filename != NULL) && (*filename != '\0')) {
             const char* slash = strrchr(filename, '/');
             if(slash != NULL) {
@@ -231,7 +234,7 @@ static XcpcApplication* SetDrive1(XcpcApplication* self)
     char        buffer[256];
 
     /* fetch filename */ {
-        filename = xcpc_machine_filename_drive1(self->machine);
+        filename = xcpc_machine_drive1_filename(self->machine);
         if((filename != NULL) && (*filename != '\0')) {
             const char* slash = strrchr(filename, '/');
             if(slash != NULL) {
@@ -333,7 +336,7 @@ static XcpcApplication* Reset(XcpcApplication* self)
 static XcpcApplication* LoadSnapshot(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_load_snapshot(self->machine, filename);
+        (void) xcpc_machine_snapshot_load(self->machine, filename);
     }
     return self;
 }
@@ -343,7 +346,7 @@ static XcpcApplication* LoadSnapshot(XcpcApplication* self, const char* filename
 static XcpcApplication* SaveSnapshot(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_save_snapshot(self->machine, filename);
+        (void) xcpc_machine_snapshot_save(self->machine, filename);
     }
     return self;
 }
@@ -358,14 +361,14 @@ static XcpcApplication* SaveSnapshot(XcpcApplication* self, const char* filename
 static XcpcApplication* InsertDiskIntoDrive0(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_insert_drive0(self->machine, filename);
+        (void) xcpc_machine_drive0_insert(self->machine, filename);
     }
     return SetDrive0(self);
 }
 
 static XcpcApplication* RemoveDiskFromDrive0(XcpcApplication* self)
 {
-    xcpc_machine_remove_drive0(self->machine);
+    (void) xcpc_machine_drive0_remove(self->machine);
 
     return SetDrive0(self);
 }
@@ -380,7 +383,7 @@ static XcpcApplication* RemoveDiskFromDrive0(XcpcApplication* self)
 static XcpcApplication* InsertDiskIntoDrive1(XcpcApplication* self, const char* filename)
 {
     if((filename != NULL) && (*filename != '\0')) {
-        xcpc_machine_insert_drive1(self->machine, filename);
+        (void) xcpc_machine_drive1_insert(self->machine, filename);
     }
     return SetDrive1(self);
 }
@@ -389,7 +392,7 @@ static XcpcApplication* InsertDiskIntoDrive1(XcpcApplication* self, const char* 
 #if 0
 static XcpcApplication* RemoveDiskFromDrive1(XcpcApplication* self)
 {
-    xcpc_machine_remove_drive1(self->machine);
+    (void) xcpc_machine_drive1_remove(self->machine);
 
     return SetDrive1(self);
 }
@@ -647,23 +650,16 @@ static void HotkeyCallback(Widget widget, XcpcApplication* self, KeySym* keysym)
 static XcpcApplication* BuildEmulator(XcpcApplication* self)
 {
     XcpcLayoutRec* layout = &self->layout;
-    Arg      arglist[24];
+    Arg      arglist[16];
     Cardinal argcount = 0;
 
     /* emulator */ {
         argcount = 0;
-        XtSetArg(arglist[argcount], XtNborderWidth       , 0                         ); ++argcount;
-        XtSetArg(arglist[argcount], XtNsensitive         , False                     ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineInstance   , self->machine             ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineCreateProc , &xcpc_machine_create_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineDestroyProc, &xcpc_machine_destroy_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineRealizeProc, &xcpc_machine_realize_proc); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineResizeProc , &xcpc_machine_resize_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineExposeProc , &xcpc_machine_expose_proc ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineTimerProc  , &xcpc_machine_timer_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNmachineInputProc  , &xcpc_machine_input_proc  ); ++argcount;
-        XtSetArg(arglist[argcount], XtNjoystick0         , xcpc_get_joystick0()      ); ++argcount;
-        XtSetArg(arglist[argcount], XtNjoystick1         , xcpc_get_joystick1()      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNborderWidth, 0                      ); ++argcount;
+        XtSetArg(arglist[argcount], XtNsensitive  , False                  ); ++argcount;
+        XtSetArg(arglist[argcount], XtNbackend    , &self->machine->backend); ++argcount;
+        XtSetArg(arglist[argcount], XtNjoystick0  , xcpc_get_joystick0()   ); ++argcount;
+        XtSetArg(arglist[argcount], XtNjoystick1  , xcpc_get_joystick1()   ); ++argcount;
         layout->emulator = XemCreateEmulator(self->layout.toplevel, "emulator", arglist, argcount);
         XtAddCallback(layout->emulator, XtNhotkeyCallback , (XtCallbackProc) &HotkeyCallback , (XtPointer) self);
         XtAddCallback(layout->emulator, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &layout->emulator);
@@ -693,20 +689,77 @@ static void DeferredStartHandler(XcpcApplication* self, XtIntervalId* intervalId
     }
 }
 
-static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv)
+/*
+ * ---------------------------------------------------------------------------
+ * XcpcApplication public methods
+ * ---------------------------------------------------------------------------
+ */
+
+XcpcApplication* XcpcApplicationNew(int* argc, char*** argv)
+{
+    XcpcApplication* self = xcpc_new(XcpcApplication);
+
+    if(self != NULL) {
+        (void) memset(self, 0, sizeof(XcpcApplication));
+    }
+    if(self != NULL) {
+        self->argc = argc;
+        self->argv = argv;
+    }
+    return self;
+}
+
+XcpcApplication* XcpcApplicationDelete(XcpcApplication* self)
+{
+    /* destroy toplevel shell */ {
+        if(self->layout.toplevel != NULL) {
+            self->layout.toplevel = (XtDestroyWidget(self->layout.toplevel), NULL);
+        }
+    }
+    /* destroy application context */ {
+        if(self->appcontext != NULL) {
+            self->appcontext = (XtDestroyApplicationContext(self->appcontext), NULL);
+        }
+    }
+    /* destroy machine */ {
+        if(self->machine != NULL) {
+            self->machine = xcpc_machine_delete(self->machine);
+        }
+    }
+    /* destroy options */ {
+        if(self->options != NULL) {
+            self->options = xcpc_options_delete(self->options);
+        }
+    }
+    /* delete self */ {
+        self = xcpc_delete(XcpcApplication, self);
+    }
+    return self;
+}
+
+XcpcApplication* XcpcApplicationRun(XcpcApplication* self)
 {
     Arg      arglist[16];
     Cardinal argcount = 0;
 
-    /* clear instance */ {
-        (void) memset(self, 0, sizeof(XcpcApplication));
+    /* intialize options */ {
+        self->options = xcpc_options_new(self->argc, self->argv);
+        (void) xcpc_options_parse(self->options);
+        if(xcpc_options_quit(self->options) != 0) {
+            return self;
+        }
     }
-    /* intialize the machine */ {
-        self->machine = xcpc_machine_new();
+    /* intialize machine */ {
+        self->machine = xcpc_machine_new(NULL, self->options);
     }
-    /* parse the command-line */ {
-        (void) xcpc_machine_parse(self->machine, argc, argv);
+#ifdef HAVE_PORTAUDIO
+    /* initialize portaudio */ {
+        const PaError pa_error = Pa_Initialize();
+        if(pa_error != paNoError) {
+            xcpc_log_error("unable to initialize PortAudio (%s)", Pa_GetErrorText(pa_error));
+        }
     }
+#endif
     /* set language proc */ {
         (void) XtSetLanguageProc(NULL, NULL, NULL);
     }
@@ -714,7 +767,7 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
         argcount = 0;
         XtSetArg(arglist[argcount], XtNmappedWhenManaged, True); ++argcount;
         XtSetArg(arglist[argcount], XtNallowShellResize , True); ++argcount;
-        self->layout.toplevel = XtOpenApplication(&self->appcontext, "Xcpc", options, XtNumber(options), argc, *argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
+        self->layout.toplevel = XtOpenApplication(&self->appcontext, "Xcpc", options, XtNumber(options), self->argc, *self->argv, fallback_resources, xemAppShellWidgetClass, arglist, argcount);
         XtAddCallback(self->layout.toplevel, XtNdestroyCallback, (XtCallbackProc) &DestroyCallback, (XtPointer) &self->layout.toplevel);
         XtAddCallback(self->layout.toplevel, XtNdropURICallback, (XtCallbackProc) &DropUriCallback, (XtPointer) self);
     }
@@ -731,63 +784,21 @@ static XcpcApplication* Construct(XcpcApplication* self, int* argc, char*** argv
     /* deferred start */ {
         self->intervalId = XtAppAddTimeOut(self->appcontext, 25UL, (XtTimerCallbackProc) &DeferredStartHandler, self);
     }
+    /* realize toplevel shell */ {
+        XtRealizeWidget(self->layout.toplevel);
+    }
+    /* run application loop  */ {
+        XtAppMainLoop(self->appcontext);
+    }
+#ifdef HAVE_PORTAUDIO
+    /* finalize portaudio */ {
+        const PaError pa_error = Pa_Terminate();
+        if(pa_error != paNoError) {
+            xcpc_log_error("unable to terminate PortAudio (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
     return self;
-}
-
-static XcpcApplication* Destruct(XcpcApplication* self)
-{
-    /* destroy toplevel shell */ {
-        if(self->layout.toplevel != NULL) {
-            self->layout.toplevel = (XtDestroyWidget(self->layout.toplevel), NULL);
-        }
-    }
-    /* destroy application context */ {
-        if(self->appcontext != NULL) {
-            self->appcontext = (XtDestroyApplicationContext(self->appcontext), NULL);
-        }
-    }
-    /* finalize the emulator */ {
-        self->machine = xcpc_machine_delete(self->machine);
-    }
-    return self;
-}
-
-static XcpcApplication* MainLoop(XcpcApplication* self)
-{
-    if(XtAppGetExitFlag(self->appcontext) == False) {
-        /* realize toplevel shell */ {
-            if((self->layout.toplevel != NULL)) {
-                XtRealizeWidget(self->layout.toplevel);
-            }
-        }
-        /* run application loop  */ {
-            if((self->appcontext != NULL)) {
-                XtAppMainLoop(self->appcontext);
-            }
-        }
-    }
-    return self;
-}
-
-/*
- * ---------------------------------------------------------------------------
- * XcpcApplication public methods
- * ---------------------------------------------------------------------------
- */
-
-XcpcApplication* XcpcApplicationNew(int* argc, char*** argv)
-{
-    return Construct(xcpc_new(XcpcApplication), argc, argv);
-}
-
-XcpcApplication* XcpcApplicationDelete(XcpcApplication* self)
-{
-    return xcpc_delete(XcpcApplication, Destruct(self));
-}
-
-XcpcApplication* XcpcApplicationLoop(XcpcApplication* self)
-{
-    return MainLoop(self);
 }
 
 /*
@@ -800,10 +811,8 @@ int xcpc_main(int* argc, char*** argv)
 {
     XcpcApplication* self = XcpcApplicationNew(argc, argv);
 
-    /* main */ {
-        (void) XcpcApplicationLoop(self);
-    }
-    /* delete */ {
+    if(self != NULL) {
+        (void) XcpcApplicationRun(self);
         self = XcpcApplicationDelete(self);
     }
     return EXIT_SUCCESS;

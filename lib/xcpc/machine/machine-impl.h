@@ -1,5 +1,5 @@
 /*
- * machine-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * machine-impl.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 #define __XCPC_MACHINE_IMPL_H__
 
 #include <xcpc/libxcpc.h>
+#include <xcpc/glue/backend.h>
+#include <xcpc/glue/frontend.h>
 #include <xcpc/options/options.h>
 #include <xcpc/monitor/monitor.h>
 #include <xcpc/keyboard/keyboard.h>
@@ -35,10 +37,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define XCPC_MACHINE_IFACE(instance) (&(instance)->iface)
-#define XCPC_MACHINE_SETUP(instance) (&(instance)->setup)
-#define XCPC_MACHINE_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcMachineIface XcpcMachineIface;
 typedef struct _XcpcMachineSetup XcpcMachineSetup;
@@ -58,6 +56,14 @@ typedef void (*XcpcMouseFunc)(XcpcMachine* machine, XEvent* xevent);
 struct _XcpcMachineIface
 {
     void* user_data;
+    void (*reserved0)(XcpcMachine* machine, void* user_data);
+    void (*reserved1)(XcpcMachine* machine, void* user_data);
+    void (*reserved2)(XcpcMachine* machine, void* user_data);
+    void (*reserved3)(XcpcMachine* machine, void* user_data);
+    void (*reserved4)(XcpcMachine* machine, void* user_data);
+    void (*reserved5)(XcpcMachine* machine, void* user_data);
+    void (*reserved6)(XcpcMachine* machine, void* user_data);
+    void (*reserved7)(XcpcMachine* machine, void* user_data);
 };
 
 struct _XcpcMachineSetup
@@ -166,6 +172,7 @@ struct _XcpcMachine
     XcpcMachineStats stats;
     XcpcMachineTimer timer;
     XcpcMachineFuncs funcs;
+    XcpcBackend      backend;
 };
 
 #ifdef __cplusplus

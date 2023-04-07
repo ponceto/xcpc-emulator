@@ -1,5 +1,5 @@
 /*
- * keyboard.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * keyboard.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,10 @@ extern "C" {
 
 extern XcpcKeyboard* xcpc_keyboard_alloc     (void);
 extern XcpcKeyboard* xcpc_keyboard_free      (XcpcKeyboard* keyboard);
-extern XcpcKeyboard* xcpc_keyboard_construct (XcpcKeyboard* keyboard);
+extern XcpcKeyboard* xcpc_keyboard_construct (XcpcKeyboard* keyboard, const XcpcKeyboardIface* keyboard_iface);
 extern XcpcKeyboard* xcpc_keyboard_destruct  (XcpcKeyboard* keyboard);
-extern XcpcKeyboard* xcpc_keyboard_new       (void);
+extern XcpcKeyboard* xcpc_keyboard_new       (const XcpcKeyboardIface* keyboard_iface);
 extern XcpcKeyboard* xcpc_keyboard_delete    (XcpcKeyboard* keyboard);
-extern XcpcKeyboard* xcpc_keyboard_set_iface (XcpcKeyboard* keyboard, const XcpcKeyboardIface* keyboard_iface);
 extern XcpcKeyboard* xcpc_keyboard_reset     (XcpcKeyboard* keyboard);
 extern XcpcKeyboard* xcpc_keyboard_clock     (XcpcKeyboard* keyboard);
 extern XcpcKeyboard* xcpc_keyboard_qwerty    (XcpcKeyboard* keyboard, XKeyEvent* event);

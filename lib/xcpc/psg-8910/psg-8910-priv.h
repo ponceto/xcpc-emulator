@@ -1,5 +1,5 @@
 /*
- * psg-8910-priv.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * psg-8910-priv.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,15 @@
 extern "C" {
 #endif
 
+#define BIT0 0x01
+#define BIT1 0x02
+#define BIT2 0x04
+#define BIT3 0x08
+#define BIT4 0x10
+#define BIT5 0x20
+#define BIT6 0x40
+#define BIT7 0x80
+
 #define NOT_READABLE 0x00
 #define REG_READABLE 0x01
 #define NOT_WRITABLE 0x00
@@ -37,11 +46,11 @@ enum Psg8910Registers
     PSG_CHANNEL_B_COARSE_TUNE =  3,
     PSG_CHANNEL_C_FINE_TUNE   =  4,
     PSG_CHANNEL_C_COARSE_TUNE =  5,
-    PSG_NOISE_PERIOD          =  6,
+    PSG_NOISE_GENERATOR       =  6,
     PSG_MIXER_AND_IO_CONTROL  =  7,
-    PSG_CHANNEL_A_VOLUME      =  8,
-    PSG_CHANNEL_B_VOLUME      =  9,
-    PSG_CHANNEL_C_VOLUME      = 10,
+    PSG_CHANNEL_A_AMPLITUDE   =  8,
+    PSG_CHANNEL_B_AMPLITUDE   =  9,
+    PSG_CHANNEL_C_AMPLITUDE   = 10,
     PSG_ENVELOPE_FINE_TUNE    = 11,
     PSG_ENVELOPE_COARSE_TUNE  = 12,
     PSG_ENVELOPE_SHAPE        = 13,
@@ -49,6 +58,19 @@ enum Psg8910Registers
     PSG_IO_PORT_B             = 15,
     PSG_REGISTER_COUNT        = 16,
 };
+
+#define _setup    self->setup
+#define _state    self->state
+#define _regs     _state.regs
+#define _clock    _state.clock
+#define _tone0    _state.tone[0]
+#define _tone1    _state.tone[1]
+#define _tone2    _state.tone[2]
+#define _noise    _state.noise
+#define _envelope _state.envelope
+#define _channel0 _state.channel[0]
+#define _channel1 _state.channel[1]
+#define _channel2 _state.channel[2]
 
 #ifdef __cplusplus
 }

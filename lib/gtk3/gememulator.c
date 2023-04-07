@@ -1,5 +1,5 @@
 /*
- * gememulator.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * gememulator.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@
 #include <linux/joystick.h>
 #include <sys/ioctl.h>
 #endif
+#ifdef HAVE_PORTAUDIO
+#include <portaudio.h>
+#endif
 #include <gtk3/gememulator-priv.h>
 
 G_DEFINE_TYPE(GemEmulator, gem_emulator, GTK_TYPE_WIDGET)
@@ -41,11 +44,6 @@ static guint emulator_signals[LAST_SIGNAL] = {
     0, /* SIG_HOTKEY */
 };
 
-static unsigned long default_machine_proc(GemEmulatorData data, XEvent* event)
-{
-    return EMULATOR_DEFAULT_TIMEOUT;
-}
-
 static gboolean timer_handler(GtkWidget* widget)
 {
     GemEmulator*  self    = CAST_EMULATOR(widget);
@@ -54,12 +52,18 @@ static gboolean timer_handler(GtkWidget* widget)
     /* aknowledge timer */ {
         self->timer = 0;
     }
-    /* call timer-proc */ {
+    /* call clock_func */ {
         if(gtk_widget_is_sensitive(widget) != FALSE) {
-            timeout = (*self->machine.timer_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
+            XcpcBackend*       backend = &self->backend;
+            XcpcBackendClosure closure;
+            closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+            timeout = (*backend->clock_func)(backend->instance, &closure);
         }
         else {
-            timeout = default_machine_proc(NULL, NULL);
+            XcpcBackend*       backend = &self->backend;
+            XcpcBackendClosure closure;
+            closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+            timeout = (*backend->idle_func)(backend->instance, &closure);
         }
     }
     /* restart timer */ {
@@ -89,10 +93,10 @@ static void unschedule(GtkWidget* widget)
     }
 }
 
-static GdkFilterReturn impl_filter_func(GdkXEvent* native_event, GdkEvent* event, gpointer data)
+static GdkFilterReturn impl_filter_func(GdkXEvent* native_event, GdkEvent* event, gpointer user_data)
 {
-    GtkWidget*   widget = CAST_WIDGET(data);
-    GemEmulator* self   = CAST_EMULATOR(data);
+    GtkWidget*   widget = CAST_WIDGET(user_data);
+    GemEmulator* self   = CAST_EMULATOR(user_data);
     XEvent*      xevent = CAST_XEVENT(native_event);
 
     switch(xevent->type) {
@@ -116,8 +120,8 @@ static GdkFilterReturn impl_filter_func(GdkXEvent* native_event, GdkEvent* event
                         self->minimum_height = EMULATOR_MIN_HEIGHT;
                     }
                 }
-                /* call resize-proc */ {
-                    (void) (*self->machine.resize_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, xevent));
+                /* dispatch event */ {
+                    (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, xevent));
                 }
                 gtk_widget_queue_resize(widget);
             }
@@ -151,11 +155,17 @@ static void impl_widget_destroy(GtkWidget* widget)
     GemEmulator*    self  = CAST_EMULATOR(widget);
     GtkWidgetClass* super = GTK_WIDGET_CLASS(gem_emulator_parent_class);
 
-    /* call destroy-proc */ {
-        (void) (*self->machine.destroy_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
+    /* call detach_func */ {
+        XcpcBackend*       backend = &self->backend;
+        XcpcBackendClosure closure;
+        closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+        (void) (*backend->detach_func)(backend->instance, &closure);
     }
     /* unschedule timer */ {
         unschedule(widget);
+    }
+    /* destruct backend */ {
+        (void) gem_backend_destruct(widget, &self->backend);
     }
     /* destruct joysticks */ {
         (void) gem_joystick_destruct(widget, &self->joystick0);
@@ -164,14 +174,14 @@ static void impl_widget_destroy(GtkWidget* widget)
     /* destruct keyboard */ {
         (void) gem_keyboard_destruct(widget, &self->keyboard);
     }
-    /* destruct machine */ {
-        (void) gem_machine_destruct(widget, &self->machine);
-    }
     /* destruct events */ {
         (void) gem_events_destruct(widget, &self->events);
     }
-    /* destruct x11 */ {
-        (void) gem_x11_destruct(widget, &self->x11);
+    /* destruct audio */ {
+        (void) gem_audio_destruct(widget, &self->audio);
+    }
+    /* destruct video */ {
+        (void) gem_video_destruct(widget, &self->video);
     }
     /* call superclass method */ {
         (*super->destroy)(widget);
@@ -180,6 +190,7 @@ static void impl_widget_destroy(GtkWidget* widget)
 
 static void impl_widget_realize(GtkWidget* widget)
 {
+    GemEmulator*  self = CAST_EMULATOR(widget);
     GtkAllocation allocation;
     GdkWindowAttr attributes;
     gint          attributes_mask;
@@ -218,6 +229,10 @@ static void impl_widget_realize(GtkWidget* widget)
         gtk_widget_set_window(widget, window);
         gdk_window_add_filter(window, &impl_filter_func, widget);
     }
+    /* realize video & audio */ {
+        (void) gem_video_realize(widget, &self->video);
+        (void) gem_audio_realize(widget, &self->audio);
+    }
 }
 
 static void impl_widget_unrealize(GtkWidget* widget)
@@ -225,10 +240,9 @@ static void impl_widget_unrealize(GtkWidget* widget)
     GtkWidgetClass* super = GTK_WIDGET_CLASS(gem_emulator_parent_class);
     GemEmulator*    self  = CAST_EMULATOR(widget);
 
-    /* finalize X11 handles if needed */ {
-        if(self->x11.display != NULL) {
-            (void) gem_x11_unrealize(widget, &self->x11);
-        }
+    /* unrealize video & audio */ {
+        (void) gem_video_unrealize(widget, &self->video);
+        (void) gem_audio_unrealize(widget, &self->audio);
     }
     /* call superclass method */ {
         (*super->unrealize)(widget);
@@ -240,11 +254,6 @@ static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
     GemEmulator* self  = CAST_EMULATOR(widget);
     XEvent       xevent;
 
-    /* initialize X11 handles if needed */ {
-        if(self->x11.display == NULL) {
-            (void) gem_x11_realize(widget, &self->x11);
-        }
-    }
     /* clear surface */ {
         GdkRGBA color = {
             0.20, /* red   */
@@ -259,16 +268,16 @@ static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
         xevent.xexpose.type       = Expose;
         xevent.xexpose.serial     = 0UL;
         xevent.xexpose.send_event = True;
-        xevent.xexpose.display    = self->x11.display;
-        xevent.xexpose.window     = self->x11.window;
+        xevent.xexpose.display    = self->video.display;
+        xevent.xexpose.window     = self->video.window;
         xevent.xexpose.x          = 0;
         xevent.xexpose.y          = 0;
         xevent.xexpose.width      = gtk_widget_get_allocated_width(widget);
         xevent.xexpose.height     = gtk_widget_get_allocated_height(widget);
         xevent.xexpose.count      = 0;
     }
-    /* call expose-proc */ {
-        (void) (*self->machine.expose_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, &xevent));
+    /* dispatch event */ {
+        (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
     }
     return FALSE;
 }
@@ -347,17 +356,12 @@ static gboolean impl_widget_key_press_event(GtkWidget* widget, GdkEventKey* even
     GemEmulator* self = CAST_EMULATOR(widget);
     XEvent       xevent;
 
-    /* initialize X11 handles if needed */ {
-        if(self->x11.display == NULL) {
-            (void) gem_x11_realize(widget, &self->x11);
-        }
-    }
     /* forge keypress event */ {
         xevent.xkey.type        = KeyPress;
         xevent.xkey.serial      = 0UL;
         xevent.xkey.send_event  = True;
-        xevent.xkey.display     = self->x11.display;
-        xevent.xkey.window      = self->x11.window;
+        xevent.xkey.display     = self->video.display;
+        xevent.xkey.window      = self->video.window;
         xevent.xkey.root        = None;
         xevent.xkey.subwindow   = None;
         xevent.xkey.time        = event->time;
@@ -422,17 +426,12 @@ static gboolean impl_widget_key_release_event(GtkWidget* widget, GdkEventKey* ev
     GemEmulator* self = CAST_EMULATOR(widget);
     XEvent       xevent;
 
-    /* initialize X11 handles if needed */ {
-        if(self->x11.display == NULL) {
-            (void) gem_x11_realize(widget, &self->x11);
-        }
-    }
     /* forge keypress event */ {
         xevent.xkey.type        = KeyRelease;
         xevent.xkey.serial      = 0UL;
         xevent.xkey.send_event  = True;
-        xevent.xkey.display     = self->x11.display;
-        xevent.xkey.window      = self->x11.window;
+        xevent.xkey.display     = self->video.display;
+        xevent.xkey.window      = self->video.window;
         xevent.xkey.root        = None;
         xevent.xkey.subwindow   = None;
         xevent.xkey.time        = event->time;
@@ -472,13 +471,6 @@ static gboolean impl_widget_key_release_event(GtkWidget* widget, GdkEventKey* ev
 
 static gboolean impl_widget_button_press_event(GtkWidget* widget, GdkEventButton* event)
 {
-    GemEmulator* self = CAST_EMULATOR(widget);
-
-    /* initialize X11 handles if needed */ {
-        if(self->x11.display == NULL) {
-            (void) gem_x11_realize(widget, &self->x11);
-        }
-    }
     /* grab the focus if needed */ {
         if(gtk_widget_has_focus(widget) == FALSE) {
             gtk_widget_grab_focus(widget);
@@ -489,25 +481,11 @@ static gboolean impl_widget_button_press_event(GtkWidget* widget, GdkEventButton
 
 static gboolean impl_widget_button_release_event(GtkWidget* widget, GdkEventButton* event)
 {
-    GemEmulator* self = CAST_EMULATOR(widget);
-
-    /* initialize X11 handles if needed */ {
-        if(self->x11.display == NULL) {
-            (void) gem_x11_realize(widget, &self->x11);
-        }
-    }
     return TRUE;
 }
 
 static gboolean impl_widget_configure_event(GtkWidget* widget, GdkEventConfigure* event)
 {
-    GemEmulator* self = CAST_EMULATOR(widget);
-
-    /* initialize X11 handles if needed */ {
-        if(self->x11.display == NULL) {
-            (void) gem_x11_realize(widget, &self->x11);
-        }
-    }
     return TRUE;
 }
 
@@ -568,14 +546,14 @@ static void gem_emulator_init(GemEmulator* self)
         gtk_widget_set_focus_on_click(widget, TRUE);
         gtk_widget_set_receives_default(widget, TRUE);
     }
-    /* construct x11 */ {
-        (void) gem_x11_construct(widget, &self->x11);
+    /* construct video */ {
+        (void) gem_video_construct(widget, &self->video);
+    }
+    /* construct audio */ {
+        (void) gem_audio_construct(widget, &self->audio);
     }
     /* construct events */ {
         (void) gem_events_construct(widget, &self->events);
-    }
-    /* construct machine */ {
-        (void) gem_machine_construct(widget, &self->machine);
     }
     /* construct keyboard */ {
         (void) gem_keyboard_construct(widget, &self->keyboard, 0);
@@ -583,6 +561,9 @@ static void gem_emulator_init(GemEmulator* self)
     /* construct joysticks */ {
         (void) gem_joystick_construct(widget, &self->joystick0, NULL, 0);
         (void) gem_joystick_construct(widget, &self->joystick1, NULL, 1);
+    }
+    /* construct backend */ {
+        (void) gem_backend_construct(widget, &self->backend);
     }
     /* initialize minimum/natural dimensions */ {
         self->minimum_width  = EMULATOR_DEFAULT_WIDTH;
@@ -594,7 +575,10 @@ static void gem_emulator_init(GemEmulator* self)
         self->timer = 0;
     }
     /* schedule timer */ {
-        schedule(widget, default_machine_proc(NULL, NULL));
+        XcpcBackend*       backend = &self->backend;
+        XcpcBackendClosure closure;
+        closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+        schedule(widget, (*backend->idle_func)(backend->instance, &closure));
     }
 }
 
@@ -603,21 +587,24 @@ GtkWidget* gem_emulator_new(void)
     return g_object_new(GEM_TYPE_EMULATOR, NULL);
 }
 
-void gem_emulator_set_machine(GtkWidget* widget, const GemMachine* machine)
+void gem_emulator_set_backend(GtkWidget* widget, const GemBackend* backend)
 {
     GemEmulator* self = CAST_EMULATOR(widget);
 
-    /* call destoy-proc */ {
-        (void) (*self->machine.destroy_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
+    /* call detach_func */ {
+        XcpcBackend*       backend = &self->backend;
+        XcpcBackendClosure closure;
+        closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+        (void) (*backend->detach_func)(backend->instance, &closure);
     }
-    /* set machine */ {
-        self->machine = *machine;
+    /* set backend */ {
+        self->backend = *backend;
     }
-    /* initialize machine */ {
-        gem_machine_sanitize(widget, &self->machine);
-    }
-    /* call create-proc */ {
-        (void) (*self->machine.create_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
+    /* call attach_func */ {
+        XcpcBackend*       backend = &self->backend;
+        XcpcBackendClosure closure;
+        closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+        (void) (*backend->attach_func)(backend->instance, &closure);
     }
 }
 
@@ -642,51 +629,165 @@ void gem_emulator_set_joystick(GtkWidget* widget, int id, const char* device)
     }
 }
 
-GemX11* gem_x11_construct(GtkWidget* widget, GemX11* x11)
+GemVideo* gem_video_construct(GtkWidget* widget, GemVideo* video)
 {
     /* initialize */ {
-        x11->display = NULL;
-        x11->window  = None;
+        video->display = NULL;
+        video->window  = None;
     }
-    return x11;
+    return video;
 }
 
-GemX11* gem_x11_destruct(GtkWidget* widget, GemX11* x11)
+GemVideo* gem_video_destruct(GtkWidget* widget, GemVideo* video)
 {
     /* finalize */ {
-        x11->display = NULL;
-        x11->window  = None;
+        video->display = NULL;
+        video->window  = None;
     }
-    return x11;
+    return video;
 }
 
-GemX11* gem_x11_realize(GtkWidget* widget, GemX11* x11)
+GemVideo* gem_video_realize(GtkWidget* widget, GemVideo* video)
 {
     GemEmulator* self        = CAST_EMULATOR(widget);
     GdkWindow*   gdk_window  = gtk_widget_get_window(widget);
     GdkDisplay*  gdk_display = gdk_window_get_display(gdk_window);
 
-    /* realize X11 handles */ {
-        if(x11->display == NULL) {
-            x11->display = GDK_DISPLAY_XDISPLAY(gdk_display);
-            x11->window  = GDK_WINDOW_XID(gdk_window);
-        }
-        if(x11->display != NULL) {
-            (void) (*self->machine.realize_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, NULL));
-        }
+    if(video->display == NULL) {
+        video->display = GDK_DISPLAY_XDISPLAY(gdk_display);
+        video->window  = GDK_WINDOW_XID(gdk_window);
     }
-    return x11;
+    if(video->display != NULL) {
+        XcpcBackend*       backend = &self->backend;
+        XcpcBackendClosure closure;
+        closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+        (void) (*backend->create_window_func)(backend->instance, &closure);
+    }
+    return video;
 }
 
-GemX11* gem_x11_unrealize(GtkWidget* widget, GemX11* x11)
+GemVideo* gem_video_unrealize(GtkWidget* widget, GemVideo* video)
 {
-    /* unrealize X11 handles */ {
-        if(x11->display != NULL) {
-            x11->display = NULL;
-            x11->window  = None;
+    GemEmulator* self = CAST_EMULATOR(widget);
+
+    if(video->display != NULL) {
+        XcpcBackend*       backend = &self->backend;
+        XcpcBackendClosure closure;
+        closure.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+        (void) (*backend->delete_window_func)(backend->instance, &closure);
+    }
+    if(video->display != NULL) {
+        video->display = NULL;
+        video->window  = None;
+    }
+    return video;
+}
+
+#ifdef HAVE_PORTAUDIO
+typedef struct _GemAudioFrame GemAudioFrame;
+
+struct _GemAudioFrame
+{
+    int8_t lft;
+    int8_t rgt;
+};
+#endif
+
+#ifdef HAVE_PORTAUDIO
+int gem_audio_callback(const int8_t* input, int8_t* output, unsigned long frames_per_buffer, const PaStreamCallbackTimeInfo* info, PaStreamCallbackFlags flags, void* user_data)
+{
+    GemEmulator* self = CAST_EMULATOR(user_data);
+
+    /* call audio_func */ {
+        XcpcBackend*       backend = &self->backend;
+        XcpcBackendClosure closure;
+        closure.event = NULL;
+        (void) (*backend->audio_func)(backend->instance, &closure);
+    }
+    /* clear */ {
+        unsigned long frame_index = 0;
+        unsigned long frame_count = frames_per_buffer;
+        for(frame_index = 0; frame_index < frame_count; ++frame_index) {
+            GemAudioFrame* audio_frame = ((GemAudioFrame*)(output));
+            audio_frame->lft = 0;
+            audio_frame->rgt = 0;
+            output += 2;
         }
     }
-    return x11;
+    return 0;
+}
+#endif
+
+GemAudio* gem_audio_construct(GtkWidget* widget, GemAudio* audio)
+{
+#ifdef HAVE_PORTAUDIO
+    PaDeviceIndex       device_index      = Pa_GetDefaultOutputDevice();
+    PaStreamParameters  stream_parameters = { 0 };
+    const double        suggested_latency = 20.0 / 1000.0;
+    const double        sample_rate       = 44100.0;
+    const unsigned long frames_per_buffer = 256;
+
+    if(device_index != paNoDevice) {
+        stream_parameters.device                    = device_index;
+        stream_parameters.channelCount              = 2;
+        stream_parameters.sampleFormat              = paInt8;
+        stream_parameters.suggestedLatency          = suggested_latency;
+        stream_parameters.hostApiSpecificStreamInfo = NULL;
+    }
+    if(device_index != paNoDevice) {
+        PaStream* stream = NULL;
+        PaError pa_error = Pa_OpenStream(&stream, NULL, &stream_parameters, sample_rate, frames_per_buffer, paNoFlag, ((PaStreamCallback*)(&gem_audio_callback)), widget);
+        if(pa_error != paNoError) {
+            g_warning("unable to open audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+        else {
+            audio->stream = stream;
+        }
+    }
+#endif
+    return audio;
+}
+
+GemAudio* gem_audio_destruct(GtkWidget* widget, GemAudio* audio)
+{
+#ifdef HAVE_PORTAUDIO
+    if(audio->stream != NULL) {
+        PaError pa_error = Pa_CloseStream(audio->stream);
+        if(pa_error != paNoError) {
+            g_warning("unable to close audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+        else {
+            audio->stream = NULL;
+        }
+    }
+#endif
+    return audio;
+}
+
+GemAudio* gem_audio_realize(GtkWidget* widget, GemAudio* audio)
+{
+#ifdef HAVE_PORTAUDIO
+    if((audio->stream != NULL) && (Pa_IsStreamActive(audio->stream) == 0)) {
+        PaError pa_error = Pa_StartStream(audio->stream);
+        if(pa_error != paNoError) {
+            g_warning("unable to start audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
+    return audio;
+}
+
+GemAudio* gem_audio_unrealize(GtkWidget* widget, GemAudio* audio)
+{
+#ifdef HAVE_PORTAUDIO
+    if((audio->stream != NULL) && (Pa_IsStreamActive(audio->stream) != 0)) {
+        PaError pa_error = Pa_StopStream(audio->stream);
+        if(pa_error != paNoError) {
+            g_warning("unable to stop audio stream (%s)", Pa_GetErrorText(pa_error));
+        }
+    }
+#endif
+    return audio;
 }
 
 GemEvents* gem_events_construct(GtkWidget* widget, GemEvents* events)
@@ -731,6 +832,59 @@ GemEvents* gem_events_destruct(GtkWidget* widget, GemEvents* events)
     return events;
 }
 
+GemEvents* gem_events_dispatch(GtkWidget* widget, GemEvents* events, XEvent* event)
+{
+    GemEmulator*       self    = CAST_EMULATOR(widget);
+    XcpcBackend*       backend = &self->backend;
+    XcpcBackendClosure closure;
+
+    /* initialize closure */ {
+        closure.event = event;
+    }
+    /* dispatch event */ {
+        switch(event->type) {
+            case ConfigureNotify:
+                {
+                    (void) (*backend->resize_window_func)(backend->instance, &closure);
+                }
+                break;
+            case Expose:
+                {
+                    (void) (*backend->expose_window_func)(backend->instance, &closure);
+                }
+                break;
+            case KeyPress:
+                {
+                    (void) (*backend->key_press_func)(backend->instance, &closure);
+                }
+                break;
+            case KeyRelease:
+                {
+                    (void) (*backend->key_release_func)(backend->instance, &closure);
+                }
+                break;
+            case ButtonPress:
+                {
+                    (void) (*backend->button_press_func)(backend->instance, &closure);
+                }
+                break;
+            case ButtonRelease:
+                {
+                    (void) (*backend->button_release_func)(backend->instance, &closure);
+                }
+                break;
+            case MotionNotify:
+                {
+                    (void) (*backend->motion_notify_func)(backend->instance, &closure);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return events;
+}
+
 GemEvents* gem_events_throttle(GtkWidget* widget, GemEvents* events, XEvent* event)
 {
     unsigned int head = ((events->head + 0) % countof(events->list));
@@ -746,7 +900,6 @@ GemEvents* gem_events_throttle(GtkWidget* widget, GemEvents* events, XEvent* eve
 
 GemEvents* gem_events_process(GtkWidget* widget, GemEvents* events)
 {
-    GemEmulator* self = CAST_EMULATOR(widget);
     int event_type = 0;
 
     while(events->head != events->tail) {
@@ -755,7 +908,7 @@ GemEvents* gem_events_process(GtkWidget* widget, GemEvents* events)
             event_type = event->type;
         }
         if(event->type == event_type) {
-            (void) (*self->machine.input_proc)(self->machine.instance, event);
+            (void) gem_events_dispatch(widget, events, event);
             events->head = ((events->head + 1) % countof(events->list));
             events->tail = ((events->tail + 0) % countof(events->list));
         }
@@ -781,54 +934,10 @@ XEvent* gem_events_copy_or_fill(GtkWidget* widget, GemEvents* events, XEvent* ev
         events->last_rcv_event.xany.type       = GenericEvent;
         events->last_rcv_event.xany.serial     = 0UL;
         events->last_rcv_event.xany.send_event = True;
-        events->last_rcv_event.xany.display    = self->x11.display;
-        events->last_rcv_event.xany.window     = self->x11.window;
+        events->last_rcv_event.xany.display    = self->video.display;
+        events->last_rcv_event.xany.window     = self->video.window;
     }
     return &events->last_rcv_event;
-}
-
-GemMachine* gem_machine_construct(GtkWidget* widget, GemMachine* machine)
-{
-    /* initialize */ {
-        machine->instance     = GEM_EMULATOR_DATA(NULL);
-        machine->create_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->destroy_proc = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->realize_proc = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->resize_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->expose_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->input_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->timer_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
-    }
-    return gem_machine_sanitize(widget, machine);
-}
-
-GemMachine* gem_machine_destruct(GtkWidget* widget, GemMachine* machine)
-{
-    /* finalize */ {
-        machine->instance     = GEM_EMULATOR_DATA(NULL);
-        machine->create_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->destroy_proc = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->realize_proc = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->resize_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->expose_proc  = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->input_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
-        machine->timer_proc   = GEM_EMULATOR_PROC(&default_machine_proc);
-    }
-    return machine;
-}
-
-GemMachine* gem_machine_sanitize(GtkWidget* widget, GemMachine* machine)
-{
-    /* sanitize */ {
-        if(machine->create_proc  == NULL) { machine->create_proc  = GEM_EMULATOR_PROC(&default_machine_proc); }
-        if(machine->destroy_proc == NULL) { machine->destroy_proc = GEM_EMULATOR_PROC(&default_machine_proc); }
-        if(machine->realize_proc == NULL) { machine->realize_proc = GEM_EMULATOR_PROC(&default_machine_proc); }
-        if(machine->resize_proc  == NULL) { machine->resize_proc  = GEM_EMULATOR_PROC(&default_machine_proc); }
-        if(machine->expose_proc  == NULL) { machine->expose_proc  = GEM_EMULATOR_PROC(&default_machine_proc); }
-        if(machine->input_proc   == NULL) { machine->input_proc   = GEM_EMULATOR_PROC(&default_machine_proc); }
-        if(machine->timer_proc   == NULL) { machine->timer_proc   = GEM_EMULATOR_PROC(&default_machine_proc); }
-    }
-    return machine;
 }
 
 GemKeyboard* gem_keyboard_construct(GtkWidget* widget, GemKeyboard* keyboard, int id)
@@ -954,8 +1063,8 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
                             xevent.xbutton.type        = (event_value != 0 ? ButtonPress : ButtonRelease);
                             xevent.xbutton.serial      = 0UL;
                             xevent.xbutton.send_event  = True;
-                            xevent.xbutton.display     = self->x11.display;
-                            xevent.xbutton.window      = self->x11.window;
+                            xevent.xbutton.display     = self->video.display;
+                            xevent.xbutton.window      = self->video.window;
                             xevent.xbutton.root        = None;
                             xevent.xbutton.subwindow   = None;
                             xevent.xbutton.time        = 0UL;
@@ -967,8 +1076,8 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
                             xevent.xbutton.button      = event_number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* call input-proc */ {
-                            (void) (*self->machine.input_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, &xevent));
+                        /* dispatch event */ {
+                            (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
                         }
                     }
                     return TRUE;
@@ -987,8 +1096,8 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
                             xevent.xmotion.type        = MotionNotify;
                             xevent.xmotion.serial      = 0UL;
                             xevent.xmotion.send_event  = True;
-                            xevent.xmotion.display     = self->x11.display;
-                            xevent.xmotion.window      = self->x11.window;
+                            xevent.xmotion.display     = self->video.display;
+                            xevent.xmotion.window      = self->video.window;
                             xevent.xmotion.root        = None;
                             xevent.xmotion.subwindow   = None;
                             xevent.xmotion.time        = 0UL;
@@ -1000,8 +1109,8 @@ gboolean gem_keyboard_preprocess(GtkWidget* widget, GemKeyboard* keyboard, XEven
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* call input-proc */ {
-                            (void) (*self->machine.input_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, &xevent));
+                        /* dispatch event */ {
+                            (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
                         }
                     }
                     return TRUE;
@@ -1052,8 +1161,6 @@ GemJoystick* gem_joystick_construct(GtkWidget* widget, GemJoystick* joystick, co
             }
         }
     }
-#endif
-#ifdef HAVE_LINUX_JOYSTICK_H
     /* get the joystick mapping */ {
         unsigned char count = 0;
         if(joystick->fd != -1) {
@@ -1173,8 +1280,8 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                             xevent.xbutton.type        = (event.value != 0 ? ButtonPress : ButtonRelease);
                             xevent.xbutton.serial      = 0UL;
                             xevent.xbutton.send_event  = True;
-                            xevent.xbutton.display     = self->x11.display;
-                            xevent.xbutton.window      = self->x11.window;
+                            xevent.xbutton.display     = self->video.display;
+                            xevent.xbutton.window      = self->video.window;
                             xevent.xbutton.root        = None;
                             xevent.xbutton.subwindow   = None;
                             xevent.xbutton.time        = 0UL;
@@ -1186,8 +1293,8 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                             xevent.xbutton.button      = event.number;
                             xevent.xbutton.same_screen = True;
                         }
-                        /* call input-proc */ {
-                            (void) (*self->machine.input_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, &xevent));
+                        /* dispatch event */ {
+                            (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
                         }
                     }
                     break;
@@ -1206,8 +1313,8 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                             xevent.xmotion.type        = MotionNotify;
                             xevent.xmotion.serial      = 0UL;
                             xevent.xmotion.send_event  = True;
-                            xevent.xmotion.display     = self->x11.display;
-                            xevent.xmotion.window      = self->x11.window;
+                            xevent.xmotion.display     = self->video.display;
+                            xevent.xmotion.window      = self->video.window;
                             xevent.xmotion.root        = None;
                             xevent.xmotion.subwindow   = None;
                             xevent.xmotion.time        = 0UL;
@@ -1219,8 +1326,8 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                             xevent.xmotion.is_hint     = 0;
                             xevent.xmotion.same_screen = True;
                         }
-                        /* call input-proc */ {
-                            (void) (*self->machine.input_proc)(self->machine.instance, gem_events_copy_or_fill(widget, &self->events, &xevent));
+                        /* dispatch event */ {
+                            (void) gem_events_dispatch(widget, &self->events, gem_events_copy_or_fill(widget, &self->events, &xevent));
                         }
                     }
                     break;
@@ -1235,4 +1342,14 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
         gem_joystick_destruct(widget, joystick);
     }
     return FALSE;
+}
+
+GemBackend* gem_backend_construct(GtkWidget* widget, GemBackend* backend)
+{
+    return xcpc_backend_init(backend);
+}
+
+GemBackend* gem_backend_destruct(GtkWidget* widget, GemBackend* backend)
+{
+    return xcpc_backend_fini(backend);
 }

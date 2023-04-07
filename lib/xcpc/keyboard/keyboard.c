@@ -1,5 +1,5 @@
 /*
- * keyboard.c - Copyright (c) 2001-2021 - Olivier Poncet
+ * keyboard.c - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ XcpcKeyboard* xcpc_keyboard_free(XcpcKeyboard* self)
     return xcpc_delete(XcpcKeyboard, self);
 }
 
-XcpcKeyboard* xcpc_keyboard_construct(XcpcKeyboard* self)
+XcpcKeyboard* xcpc_keyboard_construct(XcpcKeyboard* self, const XcpcKeyboardIface* iface)
 {
     log_trace("construct");
 
@@ -51,7 +51,12 @@ XcpcKeyboard* xcpc_keyboard_construct(XcpcKeyboard* self)
         (void) memset(&self->state, 0, sizeof(XcpcKeyboardState));
     }
     /* initialize iface */ {
-        (void) xcpc_keyboard_set_iface(self, NULL);
+        if(iface != NULL) {
+            *(&self->iface) = *(iface);
+        }
+        else {
+            self->iface.user_data = NULL;
+        }
     }
     /* reset */ {
         (void) xcpc_keyboard_reset(self);
@@ -66,11 +71,11 @@ XcpcKeyboard* xcpc_keyboard_destruct(XcpcKeyboard* self)
     return self;
 }
 
-XcpcKeyboard* xcpc_keyboard_new(void)
+XcpcKeyboard* xcpc_keyboard_new(const XcpcKeyboardIface* iface)
 {
     log_trace("new");
 
-    return xcpc_keyboard_construct(xcpc_keyboard_alloc());
+    return xcpc_keyboard_construct(xcpc_keyboard_alloc(), iface);
 }
 
 XcpcKeyboard* xcpc_keyboard_delete(XcpcKeyboard* self)
@@ -78,19 +83,6 @@ XcpcKeyboard* xcpc_keyboard_delete(XcpcKeyboard* self)
     log_trace("delete");
 
     return xcpc_keyboard_free(xcpc_keyboard_destruct(self));
-}
-
-XcpcKeyboard* xcpc_keyboard_set_iface(XcpcKeyboard* self, const XcpcKeyboardIface* iface)
-{
-    log_trace("set_iface");
-
-    if(iface != NULL) {
-        *(&self->iface) = *(iface);
-    }
-    else {
-        self->iface.user_data = NULL;
-    }
-    return self;
 }
 
 XcpcKeyboard* xcpc_keyboard_reset(XcpcKeyboard* self)

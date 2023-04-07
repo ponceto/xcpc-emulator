@@ -1,5 +1,5 @@
 /*
- * joystick-impl.h - Copyright (c) 2001-2021 - Olivier Poncet
+ * joystick-impl.h - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define XCPC_JOYSTICK_IFACE(instance) (&(instance)->iface)
-#define XCPC_JOYSTICK_SETUP(instance) (&(instance)->setup)
-#define XCPC_JOYSTICK_STATE(instance) (&(instance)->state)
 
 typedef struct _XcpcJoystickIface XcpcJoystickIface;
 typedef struct _XcpcJoystickSetup XcpcJoystickSetup;
