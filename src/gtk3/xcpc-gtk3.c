@@ -1325,6 +1325,9 @@ XcpcApplication* xcpc_application_run(XcpcApplication* self)
         }
     }
 #endif
+    /* force the X11 backend on Wayland */ {
+        (void) putenv("GDK_BACKEND=x11");
+    }
     /* create application */ {
         self->layout.application = gtk_application_new(app_id, G_APPLICATION_FLAGS_NONE);
         (void) g_signal_connect(G_OBJECT(self->layout.application), sig_open, G_CALLBACK(application_open_callback), self);
