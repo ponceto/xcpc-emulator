@@ -1,5 +1,11 @@
-xcpc (0.0.0-1) unstable; urgency=medium
+xcpc (0.38.0-1) unstable; urgency=medium
 
-  * Initial release
+  * Huge cleanup and refactoring.
+  * User interface refactoring.
+  * Command-line parsing fixed.
+  * Some emulation fixes.
+  * Autotoolization updated.
+  * CI/CD and debianization.
+  * Documentation fixed and updated.
 
- -- Olivier Poncet <ponceto@free.fr>  Mon, 02 Apr 2001 00:00:00 +0200
+ -- Olivier Poncet <ponceto@free.fr>  Fri, 07 Apr 2023 00:00:00 +0200
