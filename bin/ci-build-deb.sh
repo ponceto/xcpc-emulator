@@ -17,14 +17,17 @@
 #
 
 # ----------------------------------------------------------------------------
-# variables
+# settings
 # ----------------------------------------------------------------------------
 
-arg_prefix="/opt/xcpc"
+arg_topdir="$(pwd)"
+arg_prefix="/usr/local"
 arg_jobs="$(cat /proc/cpuinfo | grep '^processor' | wc -l)"
 arg_builddir="_build"
-arg_tarball="$(ls xcpc-*.tar.gz 2>/dev/null)"
-arg_sources="$(echo "${arg_tarball:-not-set}" | sed -e 's/\.tar\.gz//g')"
+arg_distdir="_dist"
+arg_tarball="$(ls xcpc-*.tar.gz 2>/dev/null | grep '^xcpc-[0-9]\+.[0-9]\+.[0-9]\+.tar.gz')"
+arg_pkgname="$(echo "${arg_tarball:-not-set}" | sed -e 's/\.tar\.gz//g')"
+arg_system="unknown"
 
 # ----------------------------------------------------------------------------
 # sanity checks
@@ -43,21 +46,21 @@ fi
 set -x
 
 # ----------------------------------------------------------------------------
-# build debian package
+# build the debian package
 # ----------------------------------------------------------------------------
 
 rm -rf "${arg_builddir}"                                             || exit 1
 mkdir "${arg_builddir}"                                              || exit 1
 cd "${arg_builddir}"                                                 || exit 1
 tar xf "../${arg_tarball}"                                           || exit 1
-cd "${arg_sources}"                                                  || exit 1
+cd "${arg_pkgname}"                                                  || exit 1
 dh_make --yes --single --file "../../${arg_tarball}"                 || exit 1
 rm -rf "debian"                                                      || exit 1
 cp -rf "../../debian" "./debian"                                     || exit 1
 dpkg-buildpackage --no-sign                                          || exit 1
 cd "../"                                                             || exit 1
-cp -f *.deb "../"                                                    || exit 1
-cd "../"                                                             || exit 1
+cp -f *.deb "${arg_topdir}"                                          || exit 1
+cd "${arg_topdir}"                                                   || exit 1
 
 # ----------------------------------------------------------------------------
 # End-Of-File

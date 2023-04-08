@@ -16,18 +16,13 @@
 #
 
 # ----------------------------------------------------------------------------
-# image
-# ----------------------------------------------------------------------------
-
-image: gcc
-
-# ----------------------------------------------------------------------------
 # stages
 # ----------------------------------------------------------------------------
 
 stages:
   - prepare
-  - build
+  - build-bin
+  - build-deb
 
 # ----------------------------------------------------------------------------
 # tarball
@@ -35,47 +30,83 @@ stages:
 
 tarball:
   stage: prepare
+  when: on_success
   tags:
     - debian-11
     - amd64
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
   script:
     - ./bin/ci-prepare.sh
-    - ./bin/ci-build-all.sh
   artifacts:
+    name: "xcpc-sources"
     paths:
       - ./*.tar.gz
 
 # ----------------------------------------------------------------------------
-# debian-package-amd64
+# build-bin_amd64
 # ----------------------------------------------------------------------------
 
-debian-package-amd64:
-  stage: build
+build-bin_amd64:
+  stage: build-bin
+  when: on_success
   tags:
     - debian-11
     - amd64
   dependencies:
     - tarball
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  script:
+    - ./bin/ci-build-bin.sh
+  artifacts:
+    name: "xcpc-bin_amd64"
+    paths:
+      - ./*.tar.gz
+
+# ----------------------------------------------------------------------------
+# build-deb_amd64
+# ----------------------------------------------------------------------------
+
+build-deb_amd64:
+  stage: build-deb
+  when: on_success
+  tags:
+    - debian-11
+    - amd64
+  dependencies:
+    - tarball
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
   script:
     - ./bin/ci-build-deb.sh
   artifacts:
+    name: "xcpc-deb_amd64"
     paths:
       - ./*.deb
 
 # ----------------------------------------------------------------------------
-# debian-package-arm64
+# build-deb_arm64
 # ----------------------------------------------------------------------------
 
-debian-package-arm64:
-  stage: build
+build-deb_arm64:
+  stage: build-deb
+  when: on_success
   tags:
     - debian-11
     - arm64
   dependencies:
     - tarball
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
   script:
     - ./bin/ci-build-deb.sh
   artifacts:
+    name: "xcpc-deb_arm64"
     paths:
       - ./*.deb
 
