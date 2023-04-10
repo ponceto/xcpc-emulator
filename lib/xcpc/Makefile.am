@@ -120,10 +120,6 @@ libxcpc_la_SOURCES = \
 	snapshot/snapshot-writer.h \
 	snapshot/snapshot-writer-impl.h \
 	snapshot/snapshot-writer-priv.h \
-	builtin-roms/builtin-roms.c \
-	builtin-roms/builtin-roms.h \
-	builtin-roms/builtin-roms-impl.h \
-	builtin-roms/builtin-roms-priv.h \
 	$(NULL)
 
 libxcpc_la_CPPFLAGS = \
