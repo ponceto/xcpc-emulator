@@ -1,5 +1,12 @@
 xcpc (0.38.1-1) unstable; urgency=medium
 
+  * Force X11 with Gtk3 under Wayland.
+  * Documentation fix.
+
+ -- Olivier Poncet <ponceto@free.fr>  Sat, 08 Apr 2023 00:00:00 +0200
+
+xcpc (0.38.0-1) unstable; urgency=medium
+
   * Huge cleanup and refactoring.
   * User interface refactoring.
   * Command-line parsing fixed.
@@ -9,3 +16,9 @@ xcpc (0.38.1-1) unstable; urgency=medium
   * Documentation fixed and updated.
 
  -- Olivier Poncet <ponceto@free.fr>  Fri, 07 Apr 2023 00:00:00 +0200
+
+xcpc (0.0.0-1) unstable; urgency=medium
+
+  * Initial release
+
+ -- Olivier Poncet <ponceto@free.fr>  Mon, 02 Apr 2001 00:00:00 +0200
