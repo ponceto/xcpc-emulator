@@ -18,4 +18,4 @@
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- --bindir="/usr/games"
+	dh_auto_configure -- --bindir=\$${prefix}/games
