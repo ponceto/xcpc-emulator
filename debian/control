@@ -11,8 +11,13 @@ Package: xcpc
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Amstrad CPC emulator
- Xcpc is a portable Amstrad CPC 464/664/6128 emulator written in C and C++. It is designed to run on any POSIX compliant system having an X11 server, including Linux, BSD and Unix.
+ Xcpc is a portable Amstrad CPC 464/664/6128 emulator written in C and C++.
  .
- Xcpc is designed to emulate classic range of the Amstrad CPC systems: Amstrad CPC 464 (v1), Amstrad CPC 664 (v2), Amstrad CPC 6128 (v3).
+ It is designed to run on any POSIX compliant system having an X11 server,
+ including Linux, BSD and Unix.
  .
- The Amstrad CPC+ range and the GX4000 console are not currently emulated and likely will not be.
+ Xcpc is designed to emulate classic range of the Amstrad CPC systems:
+ Amstrad CPC 464 (v1), Amstrad CPC 664 (v2), Amstrad CPC 6128 (v3).
+ .
+ The Amstrad CPC+ range and the GX4000 console are not currently emulated
+ and likely will not be.
