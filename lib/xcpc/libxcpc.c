@@ -1,5 +1,5 @@
 /*
- * libxcpc.c - Copyright (c) 2001-2023 - Olivier Poncet
+ * libxcpc.c - Copyright (c) 2001-2024 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -598,7 +598,7 @@ const char* xcpc_legal_text(void)
 const char* xcpc_about_text(void)
 {
     static const char text[] = PACKAGE_STRING " - "
-        "Amstrad CPC emulator - Copyright (c) 2001-2023 - Olivier Poncet\n\n"
+        "Amstrad CPC emulator - Copyright (c) 2001-2024 - Olivier Poncet\n\n"
         "This program is free software: you can redistribute it and/or modify\n"
         "it under the terms of the GNU General Public License as published by\n"
         "the Free Software Foundation, either version 2 of the License, or\n"
