@@ -121,6 +121,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
 	Makefile
 	bin/Makefile
+	etc/Makefile
 	doc/Makefile
 	lib/Makefile
 	lib/libdsk/Makefile

@@ -38,7 +38,7 @@ tarball:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
   script:
-    - ./bin/ci-prepare.sh
+    - ./.ci/ci-prepare.sh
   artifacts:
     name: "xcpc-sources"
     paths:
@@ -60,7 +60,7 @@ build-bin_amd64:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
   script:
-    - ./bin/ci-build-bin.sh
+    - ./.ci/ci-build-bin.sh
   artifacts:
     name: "xcpc-bin_amd64"
     paths:
@@ -82,7 +82,7 @@ build-deb_amd64:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
   script:
-    - ./bin/ci-build-deb.sh
+    - ./.ci/ci-build-deb.sh
   artifacts:
     name: "xcpc-deb_amd64"
     paths:
@@ -104,7 +104,7 @@ build-deb_arm64:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
   script:
-    - ./bin/ci-build-deb.sh
+    - ./.ci/ci-build-deb.sh
   artifacts:
     name: "xcpc-deb_arm64"
     paths:
