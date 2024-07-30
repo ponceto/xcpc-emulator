@@ -325,10 +325,10 @@ struct Borders
 // some useful macros
 // ---------------------------------------------------------------------------
 
-#define XCPC_TIMESTAMP_OF(tv)   ((static_cast<long long>((tv)->tv_sec) * 1000000LL) + (static_cast<long long>((tv)->tv_usec) * 1LL))
-#define XCPC_BYTE_PTR(pointer)  (reinterpret_cast<uint8_t*>(pointer))
-#define XCPC_WORD_PTR(pointer)  (reinterpret_cast<uint16_t*>(pointer))
-#define XCPC_LONG_PTR(pointer)  (reinterpret_cast<uint32_t*>(pointer))
+#define XCPC_TIMESTAMP_OF(tv)  ((static_cast<long long>((tv)->tv_sec) * 1000000LL) + (static_cast<long long>((tv)->tv_usec) * 1LL))
+#define XCPC_BYTE_PTR(pointer) (reinterpret_cast<uint8_t*>(pointer))
+#define XCPC_WORD_PTR(pointer) (reinterpret_cast<uint16_t*>(pointer))
+#define XCPC_LONG_PTR(pointer) (reinterpret_cast<uint32_t*>(pointer))
 
 // ---------------------------------------------------------------------------
 // cpc::Mainboard
@@ -828,13 +828,13 @@ auto Mainboard::on_idle(BackendClosure& closure) -> unsigned long
         const long long currtime = XCPC_TIMESTAMP_OF(&_clock.currtime);
         const long long deadline = XCPC_TIMESTAMP_OF(&_clock.deadline);
         if(currtime <= deadline) {
-            timeout   = ((unsigned long)(deadline - currtime));
+            timeout   = static_cast<unsigned long>(deadline - currtime);
         }
         else {
-            timedrift = ((unsigned long)(currtime - deadline));
+            timedrift = static_cast<unsigned long>(currtime - deadline);
         }
     }
-    /* compute stats if needed */ {
+    /* compute stats */ {
         if(++_stats.frame_count == _video.frame_rate) {
             update_stats();
         }
@@ -890,27 +890,29 @@ auto Mainboard::on_clock(BackendClosure& closure) -> unsigned long
         const long long currtime = XCPC_TIMESTAMP_OF(&_clock.currtime);
         const long long deadline = XCPC_TIMESTAMP_OF(&_clock.deadline);
         if(currtime <= deadline) {
-            timeout     = ((unsigned long)(deadline - currtime));
-            skip_frame |= 0;
+            timeout     = static_cast<unsigned long>(deadline - currtime);
+            skip_frame &= 0;
         }
         else {
-            timedrift   = ((unsigned long)(currtime - deadline));
+            timedrift   = static_cast<unsigned long>(currtime - deadline);
             skip_frame |= 1;
         }
     }
-    /* force always the first frame and skip other in turbo mode */ {
+    /* always force the first frame and always skip frames in turbo mode */ {
         if(_stats.frame_count == 0) {
-            skip_frame = 0;
+            skip_frame &= 0;
         }
         else if(_setup.turbo != false) {
-            skip_frame = 1;
+            skip_frame |= 1;
         }
     }
-    /* draw the frame and compute stats if needed */ {
+    /* draw the frame if needed */ {
         if(skip_frame == 0) {
             (*_funcs.paint_func)(this);
             ++_stats.frame_drawn;
         }
+    }
+    /* compute stats */ {
         if(++_stats.frame_count == _video.frame_rate) {
             update_stats();
         }
