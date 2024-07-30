@@ -3419,6 +3419,7 @@ auto Mainboard::cpu_mreq_m1(cpu::Device& device, uint16_t addr, uint8_t data) ->
         const uint32_t old_t_states = cpu->t_states;
         const uint32_t new_t_states = ((old_t_states + 3) & (~ 3));
         const uint32_t add_t_states = (new_t_states - old_t_states);
+        cpu->t_states  = new_t_states;
         cpu->i_period += add_t_states;
     }
     return data;
