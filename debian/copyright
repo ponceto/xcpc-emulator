@@ -4,7 +4,7 @@ Upstream-Contact: Olivier Poncet <ponceto@free.fr>
 Source: https://www.xcpc-emulator.net/
 
 Files: *
-Copyright: 2001-2023 Olivier Poncet <ponceto@free.fr>
+Copyright: 2001-2024 Olivier Poncet <ponceto@free.fr>
 License: GPL-2.0+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ License: GPL-2.0+
  along with this program. If not, see <https://www.gnu.org/licenses/>
 
 Files: debian/*
-Copyright: 2001-2023 Olivier Poncet <ponceto@free.fr>
+Copyright: 2001-2024 Olivier Poncet <ponceto@free.fr>
 License: GPL-2.0+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

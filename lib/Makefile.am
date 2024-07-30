@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2023 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2024 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,21 +20,44 @@
 # ----------------------------------------------------------------------------
 
 SUBDIRS = \
-	libdsk \
-	lib765 \
-	xcpc \
 	$(NULL)
 
-if LIBXEM
-SUBDIRS += Xem
+# ----------------------------------------------------------------------------
+# miniaudio
+# ----------------------------------------------------------------------------
+
+if USE_MINIAUDIO
+if HAVE_MINIAUDIO
+SUBDIRS += miniaudio
+endif
 endif
 
-if GTK3
-SUBDIRS += gtk3
+# ----------------------------------------------------------------------------
+# libdsk
+# ----------------------------------------------------------------------------
+
+if USE_LIBDSK
+if HAVE_LIBDSK
+SUBDIRS += libdsk
+endif
 endif
 
-if GTK4
-SUBDIRS += gtk4
+# ----------------------------------------------------------------------------
+# lib765
+# ----------------------------------------------------------------------------
+
+if USE_LIB765
+if HAVE_LIB765
+SUBDIRS += lib765
+endif
+endif
+
+# ----------------------------------------------------------------------------
+# xcpc
+# ----------------------------------------------------------------------------
+
+if TRUE
+SUBDIRS += xcpc
 endif
 
 # ----------------------------------------------------------------------------

@@ -1,0 +1,85 @@
+/*
+ * gtk3-base.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstdint>
+#include <climits>
+#include <cassert>
+#include <memory>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <stdexcept>
+#include "gtk3-base.h"
+
+// ---------------------------------------------------------------------------
+// gtk3::signals
+// ---------------------------------------------------------------------------
+
+namespace gtk3 {
+
+const char sig_destroy[]            = "destroy";
+const char sig_open[]               = "open";
+const char sig_startup[]            = "startup";
+const char sig_shutdown[]           = "shutdown";
+const char sig_activate[]           = "activate";
+const char sig_clicked[]            = "clicked";
+const char sig_select[]             = "select";
+const char sig_deselect[]           = "deselect";
+const char sig_drag_data_received[] = "drag-data-received";
+const char sig_hotkey[]             = "hotkey";
+
+}
+
+// ---------------------------------------------------------------------------
+// <anonymous>
+// ---------------------------------------------------------------------------
+
+namespace {
+
+void on_destroy(GtkWidget* widget_ptr, GtkWidget** widget_ref)
+{
+    if((widget_ref != nullptr) && (*widget_ref == widget_ptr)) {
+        *widget_ref = nullptr;
+    }
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// gtk3::BasicTraits
+// ---------------------------------------------------------------------------
+
+namespace gtk3 {
+
+void BasicTraits::register_widget_instance(GtkWidget*& instance)
+{
+    if(instance != nullptr) {
+        static_cast<void>(signal_connect(G_OBJECT(instance), sig_destroy, G_CALLBACK(&on_destroy), &instance));
+    }
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// End-Of-File
+// ---------------------------------------------------------------------------

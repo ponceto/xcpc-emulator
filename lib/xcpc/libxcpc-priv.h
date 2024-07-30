@@ -1,5 +1,5 @@
 /*
- * libxcpc-priv.h - Copyright (c) 2001-2023 - Olivier Poncet
+ * libxcpc-priv.h - Copyright (c) 2001-2024 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,97 +17,54 @@
 #ifndef __XCPC_LIBXCPC_PRIV_H__
 #define __XCPC_LIBXCPC_PRIV_H__
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstdarg>
+#include <cstdint>
+#include <climits>
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+#ifdef HAVE_SYS_IPC_H
+#include <sys/ipc.h>
+#endif
+#ifdef HAVE_SYS_SHM_H
+#include <sys/shm.h>
+#endif
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <memory>
+#include <string>
+#include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
+#include <iostream>
+#include <stdexcept>
 #include <xcpc/libxcpc.h>
+#include <xcpc/libxcpc-cxx.h>
 
-#ifdef __cplusplus
-extern "C" {
+#ifndef countof
+#define countof(array) (sizeof(array) / sizeof(array[0]))
 #endif
 
-#define XCPC_DEFAULT_INPUT_STREAM stdin
-#define XCPC_DEFAULT_PRINT_STREAM stdout
-#define XCPC_DEFAULT_ERROR_STREAM stderr
-#define XCPC_DEFAULT_JOYSTICK0 "/dev/input/js0"
-#define XCPC_DEFAULT_JOYSTICK1 "/dev/input/js1"
-
-typedef struct _XcpcLibrary           XcpcLibrary;
-typedef struct _XcpcCompanyNameEntry  XcpcCompanyNameEntry;
-typedef struct _XcpcMachineTypeEntry  XcpcMachineTypeEntry;
-typedef struct _XcpcMonitorTypeEntry  XcpcMonitorTypeEntry;
-typedef struct _XcpcRefreshRateEntry  XcpcRefreshRateEntry;
-typedef struct _XcpcKeyboardTypeEntry XcpcKeyboardTypeEntry;
-typedef struct _XcpcMemorySizeEntry   XcpcMemorySizeEntry;
-typedef struct _XcpcColorEntry        XcpcColorEntry;
-
-struct _XcpcLibrary
-{
-    int         initialized;
-    int         major_version;
-    int         minor_version;
-    int         micro_version;
-    int         loglevel;
-    FILE*       input_stream;
-    FILE*       print_stream;
-    FILE*       error_stream;
-    char*       bindir;
-    char*       libdir;
-    char*       datdir;
-    char*       docdir;
-    char*       resdir;
-    char*       romdir;
-    char*       dskdir;
-    char*       snadir;
-    const char* joystick0;
-    const char* joystick1;
-};
-
-struct _XcpcCompanyNameEntry
-{
-    const char*     label;
-    XcpcCompanyName value;
-};
-
-struct _XcpcMachineTypeEntry
-{
-    const char*     label;
-    XcpcMachineType value;
-};
-
-struct _XcpcMonitorTypeEntry
-{
-    const char*     label;
-    XcpcMonitorType value;
-};
-
-struct _XcpcRefreshRateEntry
-{
-    const char*     label;
-    XcpcRefreshRate value;
-};
-
-struct _XcpcKeyboardTypeEntry
-{
-    const char*      label;
-    XcpcKeyboardType value;
-};
-
-struct _XcpcMemorySizeEntry
-{
-    const char*    label;
-    XcpcMemorySize value;
-};
-
-struct _XcpcColorEntry
-{
-    const char*    label;
-    XcpcColor      color;
-    unsigned short red;
-    unsigned short green;
-    unsigned short blue;
-    unsigned short luminance;
-};
-
-#ifdef __cplusplus
-}
-#endif
+// ---------------------------------------------------------------------------
+// End-Of-File
+// ---------------------------------------------------------------------------
 
 #endif /* __XCPC_LIBXCPC_PRIV_H__ */

@@ -1,5 +1,5 @@
 /*
- * xlib.h - Copyright (c) 2001-2023 - Olivier Poncet
+ * xlib.h - Copyright (c) 2001-2024 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,19 @@
 #ifndef __XCPC_XLIB_H__
 #define __XCPC_XLIB_H__
 
-#include <xcpc/xlib/xlib-impl.h>
-
-#ifdef __cplusplus
-extern "C" {
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/keysym.h>
+#ifdef HAVE_XSHM
+#ifdef HAVE_X11_EXTENSIONS_XSHM_H
+#include <X11/extensions/XShm.h>
 #endif
+#endif
+
+// ---------------------------------------------------------------------------
+// Xlib utilities
+// ---------------------------------------------------------------------------
 
 extern XImage* XcpcCreateImage       ( Display*     display
                                      , Visual*      visual
@@ -30,6 +38,8 @@ extern XImage* XcpcCreateImage       ( Display*     display
                                      , unsigned int width
                                      , unsigned int height );
 
+extern int     XcpcDestroyImage      ( XImage *image );
+
 extern XImage* XcpcCreateShmImage    ( Display*     display
                                      , Visual*      visual
                                      , unsigned int depth
@@ -37,13 +47,15 @@ extern XImage* XcpcCreateShmImage    ( Display*     display
                                      , unsigned int width
                                      , unsigned int height );
 
-extern Bool    XcpcAttachShmImage    ( Display* display
-                                     , XImage* image );
-
-extern Bool    XcpcDetachShmImage    ( Display* display
-                                     , XImage* image );
+extern int     XcpcDestroyShmImage   ( XImage *image );
 
 extern Bool    XcpcQueryShmExtension ( Display* display );
+
+extern Bool    XcpcAttachShmImage    ( Display* display
+                                     , XImage*  image );
+
+extern Bool    XcpcDetachShmImage    ( Display* display
+                                     , XImage*  image );
 
 extern int     XcpcPutImage          ( Display*     display
                                      , Drawable     drawable
@@ -58,8 +70,8 @@ extern int     XcpcPutImage          ( Display*     display
                                      , Bool         xshm_image
                                      , Bool         send_event );
 
-#ifdef __cplusplus
-}
-#endif
+// ---------------------------------------------------------------------------
+// End-Of-File
+// ---------------------------------------------------------------------------
 
 #endif /* __XCPC_XLIB_H__ */

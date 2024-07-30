@@ -410,6 +410,26 @@ fd_err_t fdl_new_dsk(LIBDSK_FLOPPY_DRIVE *fdl)
 	return 0;
 }
 
+/* Create a new DSK file. */
+fd_err_t fdl_create_dsk(FDRV_PTR fd, const char *s)
+{
+    LIBDSK_FLOPPY_DRIVE *fdl = NULL;
+	dsk_err_t err = 0;
+
+    if (fd->fd_vtable == &fdv_libdsk)
+    {
+        fdl = (LIBDSK_FLOPPY_DRIVE *) fd;
+        fdl_setfilename(fd, s);
+        fdl_settype(fd, "dsk");
+        fdl_setcomp(fd, NULL);
+        err = dsk_creat(&fdl->fdl_diskp, fdl->fdl_filename, fdl->fdl_type, fdl->fdl_compress);
+        if (err) return fdl_xlt_error(err);
+        dsk_close(&fdl->fdl_diskp);
+        return err;
+    }
+    return -1;
+}
+
 /* Get / set DSK file associated with this drive.
  * Note that doing fdl_setfilename() causes an implicit eject on the 
  * previous disc in the drive. */

@@ -1,0 +1,119 @@
+#
+# .gitlab-ci.yml - Copyright (c) 2001-2024 - Olivier Poncet
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# ----------------------------------------------------------------------------
+# stages
+# ----------------------------------------------------------------------------
+
+stages:
+  - prepare
+  - build-bin
+  - build-deb
+
+# ----------------------------------------------------------------------------
+# tarball
+# ----------------------------------------------------------------------------
+
+tarball:
+  stage: prepare
+  when: on_success
+  tags:
+    - debian-11
+    - amd64
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  script:
+    - ./.ci/ci-prepare.sh
+  artifacts:
+    name: "xcpc-sources"
+    paths:
+      - ./*.tar.gz
+
+# ----------------------------------------------------------------------------
+# build-bin_amd64
+# ----------------------------------------------------------------------------
+
+build-bin_amd64:
+  stage: build-bin
+  when: on_success
+  tags:
+    - debian-11
+    - amd64
+  dependencies:
+    - tarball
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  script:
+    - ./.ci/ci-build-bin.sh
+  artifacts:
+    name: "xcpc-bin_amd64"
+    paths:
+      - ./*.tar.gz
+
+# ----------------------------------------------------------------------------
+# build-deb_amd64
+# ----------------------------------------------------------------------------
+
+build-deb_amd64:
+  stage: build-deb
+  when: on_success
+  tags:
+    - debian-11
+    - amd64
+  dependencies:
+    - tarball
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  script:
+    - ./.ci/ci-build-deb.sh
+  artifacts:
+    name: "xcpc-deb_amd64"
+    paths:
+      - ./*.buildinfo
+      - ./*.changes
+      - ./*.deb
+
+# ----------------------------------------------------------------------------
+# build-deb_arm64
+# ----------------------------------------------------------------------------
+
+build-deb_arm64:
+  stage: build-deb
+  when: on_success
+  tags:
+    - debian-11
+    - arm64
+  dependencies:
+    - tarball
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  script:
+    - ./.ci/ci-build-deb.sh
+  artifacts:
+    name: "xcpc-deb_arm64"
+    paths:
+      - ./*.buildinfo
+      - ./*.changes
+      - ./*.deb
+
+# ----------------------------------------------------------------------------
+# End-Of-File
+# ----------------------------------------------------------------------------

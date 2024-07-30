@@ -1,16 +1,17 @@
-## How to install Xcpc
+## HOW TO INSTALL
 
-The xcpc emulator is fully autotoolized.
+The Xcpc emulator is fully autotoolized, so you can build it with the well-known workflow `configure && make && make install`.
 
-### Dependencies
+### DEPENDENCIES
 
-Under Debian or derivatives (Ubuntu, Mint, ...), please install first these dependencies. On the other distros, please install equivalent packages.
+Under Debian or derivatives (Ubuntu, Mint, ...), please install first these dependencies. On other systems, please install the equivalent packages.
 
 Mandatory dependencies :
 
 ```
 build-essential
 xorg-dev
+libgtk-3-dev
 ```
 
 Optional dependencies :
@@ -20,19 +21,7 @@ zlib1g-dev
 libbz2-dev
 ```
 
-If you want to build the Gtk+-3.x user interface, you must install this package:
-
-```
-libgtk-3-dev
-```
-
-If you want to build the Motif-2.x user interface, you must install this package:
-
-```
-libmotif-dev
-```
-
-### Generate the configure script
+### GENERATE THE CONFIGURE SCRIPT
 
 Generate the `configure` script if it does not exists. This step is mandatory in case you just have cloned the git repository.
 
@@ -51,7 +40,7 @@ Then you just have to run this command:
 autoreconf -v -i -f
 ```
 
-### Configure the sources
+### CONFIGURE THE SOURCES
 
 Run the `configure` script
 
@@ -59,50 +48,23 @@ Run the `configure` script
 ./configure --prefix={destination-path}
 ```
 
-Xcpc supports 4 differents user interface types:
+### BUILD THE EMULATOR
 
-  - Gtk+-3.x
-  - Motif-2.x
-  - Athena
-  - Intrinsic
-
-The user interface toolkit is detected automagically when running the `configure` script.
-
-You can disable the support of a specific toolkit:
+Build the emulator:
 
 ```
---disable-gtk3
---disable-motif2
---disable-athena
---disable-intrinsic
+make -j$(nproc)
 ```
 
-You can also force the user interface toolkit with the `--with-x11-toolkit` option:
+### INSTALL THE EMULATOR
 
-```
---with-x11-toolkit=gtk3
---with-x11-toolkit=motif2
---with-x11-toolkit=athena
---with-x11-toolkit=intrinsic
-```
-
-### Build the emulator
-
-Build the emulator
-
-```
-make -j5
-```
-
-### Install the emulator
-
-Install the emulator
+Install the emulator:
 
 ```
 make install
 ```
 
-### Run the emulator
+### RUN THE EMULATOR
 
 Run the emulator
 
@@ -110,32 +72,33 @@ Run the emulator
 {destination-path}/bin/xcpc
 ```
 
-### Desktop integration
+### DESKTOP INTEGRATION
 
 A XDG compliant `.desktop` file is provided, so you can copy or symlink this file in a relevant directory
 
-For example, in the system directory
+For example, in the system directory:
 
 ```
 ln -sf {destination-path}/share/applications/xcpc.desktop /usr/share/applications/xcpc.desktop
 ```
 
-For example, or the user directory
+For example, or the user directory:
 
 ```
 ln -sf {destination-path}/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
 ```
 
-## How to install into your home directory
+## HOW TO INSTALL INTO YOUR HOME DIRECTORY
 
-Quick installation instructions
+Quick installation instructions:
 
 ```
 autoreconf -v -i -f
 ./configure --prefix=${HOME}/Apps/xcpc
-make -j5
+make -j$(nproc)
 make install
 ln -sf {HOME}/Apps/xcpc/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
 ```
 
 You can now run the emulator from your desktop menu `Games > Xcpc`
+

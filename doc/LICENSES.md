@@ -9,7 +9,7 @@ Due to the fact that Xcpc is an emulator, it has been designed to deal with old 
 Xcpc is released under the terms of the General Public License version 2.
 
 ```
-Xcpc - Copyright (c) 2001-2023 - Olivier Poncet
+Xcpc - Copyright (c) 2001-2024 - Olivier Poncet
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,6 +42,33 @@ You should not distribute Xcpc with other copyrighted materials.
 ROM and DISK images are protected under the copyrights of their authors,
 and cannot be distributed in this package. You can download and/or use
 ROM and DISK images at your own risk and responsibility.
+```
+
+### MINIAUDIO
+
+miniaudio v0.11.21, a single file audio playback and capture library written in C.
+
+This library is embedded into this projet in split form.
+
+  - https://miniaud.io/
+
+```
+Copyright 2023 David Reid
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 
 ### LIBDSK
