@@ -1,6 +1,6 @@
 ## HOW TO EXECUTE
 
-### COMMAND-LINE
+### COMMAND-LINE OPTIONS
 
 ```
 Usage: xcpc [toolkit-options] [program-options]
@@ -54,7 +54,26 @@ Debug options:
 
 ### ENVIRONMENT VARIABLES
 
-You can adjust some environment variables if needed.
+#### LOGLEVEL
+
+The default loglevel is overridden with the `--quiet`, `--trace`, `--debug` options.
+
+You can also set the default loglevel with the `XCPC_LOGLEVEL` variable:
+
+```
+export XCPC_LOGLEVEL={xcpc-loglevel}
+```
+
+The available loglevel values are:
+
+```
+0 = quiet
+1 = error
+2 = alert
+3 = print
+4 = trace
+5 = debug
+```
 
 #### Joysticks
 
@@ -90,4 +109,54 @@ Example for a high-end hardware:
 export XCPC_AUDIO_CHANNELS="2"
 export XCPC_AUDIO_SAMPLERATE="48000"
 ```
+
+### HOTKEYS
+
+Some Hotkeys/shortcuts are available:
+
+  - `F1` for help.
+  - `F2` for loading snapshots.
+  - `F3` for saving snapshots.
+  - `F5` for resetting the emulator.
+  - `F6` for inserting disk into drive A.
+  - `F7` for removing disk from drive A.
+  - `F8` for inserting disk into drive B.
+  - `F9` for removing disk from drive B.
+
+### KEYBOARD
+
+The left control keys (`Left Control`, `Left Alt`, ...) are sent to the emulated machine, so if you want to send some keycodes (eg. when you are using an `AZERTY` keyboard), you must use the right control keys of your keyboard (`Right Control`, `Right Shift`, `AltGr`, ...).
+
+If you don't have a joystick or if the joystick support is not available at compilation time, a joystick emulator is provided:
+
+  - `Home` or `End` for toggling the joystick emulation.
+  - `Cursor Up` for moving the joystick up.
+  - `Cursor Down` for moving the joystick down.
+  - `Cursor Left` for moving the joystick left.
+  - `Cursor Right` for moving the joystick right.
+  - `Left Control` for Fire 1.
+  - `Left Alt` for Fire 2.
+
+### JOYSTICK
+
+A joystick support is available under Linux:
+
+  - Up to two physical joysticks can be used.
+  - Joysticks must be plugged before launching Xcpc.
+  - Joysticks are tied by default to `/dev/input/js0` and `/dev/input/js1`.
+  - You can set the `XCPC_JOYSTICK0` environment variable to specify 1st joystick device.
+  - You can set the `XCPC_JOYSTICK1` environment variable to specify 2nd joystick device.
+
+### DRAG'N DROP
+
+Xcpc supports drag'n drop, so you can use your file manager to load snapshots and/or disk images.
+
+The supported extensions are:
+
+  - `.sna` for loading snapshots
+  - `.dsk` for loading raw disk images
+  - `.dsk.gz` for loading compressed disk images with the zlib algorithm.
+  - `.dsk.bz2` for loading compressed disk images with the bz2 algorithm.
+
+Note: `.zip` disk images are currently not supported, so you have to extract the disk images from the zip archives.
 
