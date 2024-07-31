@@ -1894,7 +1894,7 @@ int Application::main()
     return run(argc(), argv());
 }
 
-void Application::load_snapshot(const std::string& filename)
+auto Application::load_snapshot(const std::string& filename) -> void
 {
     try {
         ::xcpc_log_debug("load-snapshot <%s>", filename.c_str());
@@ -1906,7 +1906,7 @@ void Application::load_snapshot(const std::string& filename)
     }
 }
 
-void Application::save_snapshot(const std::string& filename)
+auto Application::save_snapshot(const std::string& filename) -> void
 {
     try {
         ::xcpc_log_debug("save-snapshot <%s>", filename.c_str());
@@ -1918,7 +1918,7 @@ void Application::save_snapshot(const std::string& filename)
     }
 }
 
-void Application::exit()
+auto Application::exit() -> void
 {
     try {
         ::xcpc_log_debug("exit-emulator");
@@ -1930,7 +1930,7 @@ void Application::exit()
     }
 }
 
-void Application::play_emulator()
+auto Application::play_emulator() -> void
 {
     try {
         ::xcpc_log_debug("play-emulator");
@@ -1946,7 +1946,7 @@ void Application::play_emulator()
     update_gui();
 }
 
-void Application::pause_emulator()
+auto Application::pause_emulator() -> void
 {
     try {
         ::xcpc_log_debug("pause-emulator");
@@ -1962,7 +1962,7 @@ void Application::pause_emulator()
     update_gui();
 }
 
-void Application::reset_emulator()
+auto Application::reset_emulator() -> void
 {
     auto play = [&]() -> void
     {
@@ -1993,7 +1993,7 @@ void Application::reset_emulator()
     update_gui();
 }
 
-void Application::create_disk_into_drive0(const std::string& filename)
+auto Application::create_disk_into_drive0(const std::string& filename) -> void
 {
     try {
         ::xcpc_log_debug("create-disk-into-drive0 <%s>", filename.c_str());
@@ -2006,7 +2006,7 @@ void Application::create_disk_into_drive0(const std::string& filename)
     update_gui();
 }
 
-void Application::insert_disk_into_drive0(const std::string& filename)
+auto Application::insert_disk_into_drive0(const std::string& filename) -> void
 {
     try {
         ::xcpc_log_debug("insert-disk-into-drive0 <%s>", filename.c_str());
@@ -2019,7 +2019,7 @@ void Application::insert_disk_into_drive0(const std::string& filename)
     update_gui();
 }
 
-void Application::remove_disk_from_drive0()
+auto Application::remove_disk_from_drive0() -> void
 {
     try {
         ::xcpc_log_debug("remove-disk-from-drive0");
@@ -2032,7 +2032,7 @@ void Application::remove_disk_from_drive0()
     update_gui();
 }
 
-void Application::create_disk_into_drive1(const std::string& filename)
+auto Application::create_disk_into_drive1(const std::string& filename) -> void
 {
     try {
         ::xcpc_log_debug("create-disk-into-drive1 <%s>", filename.c_str());
@@ -2045,7 +2045,7 @@ void Application::create_disk_into_drive1(const std::string& filename)
     update_gui();
 }
 
-void Application::insert_disk_into_drive1(const std::string& filename)
+auto Application::insert_disk_into_drive1(const std::string& filename) -> void
 {
     try {
         ::xcpc_log_debug("insert-disk-into-drive1 <%s>", filename.c_str());
@@ -2058,7 +2058,7 @@ void Application::insert_disk_into_drive1(const std::string& filename)
     update_gui();
 }
 
-void Application::remove_disk_from_drive1()
+auto Application::remove_disk_from_drive1() -> void
 {
     try {
         ::xcpc_log_debug("remove-disk-from-drive1");
@@ -2071,7 +2071,7 @@ void Application::remove_disk_from_drive1()
     update_gui();
 }
 
-void Application::set_volume(const float volume)
+auto Application::set_volume(const float volume) -> void
 {
     try {
         ::xcpc_log_debug("increase-volume <%d>", static_cast<int>(volume * 100.0f));
@@ -2084,7 +2084,7 @@ void Application::set_volume(const float volume)
     update_gui();
 }
 
-void Application::set_scanlines(const bool scanlines)
+auto Application::set_scanlines(const bool scanlines) -> void
 {
     try {
         ::xcpc_log_debug("set-scanlines <%d>", scanlines);
@@ -2097,7 +2097,7 @@ void Application::set_scanlines(const bool scanlines)
     update_gui();
 }
 
-void Application::set_monitor_type(const std::string& monitor_type)
+auto Application::set_monitor_type(const std::string& monitor_type) -> void
 {
     try {
         ::xcpc_log_debug("set-monitor-type <%s>", monitor_type.c_str());
@@ -2110,7 +2110,7 @@ void Application::set_monitor_type(const std::string& monitor_type)
     update_gui();
 }
 
-void Application::set_refresh_rate(const std::string& refresh_rate)
+auto Application::set_refresh_rate(const std::string& refresh_rate) -> void
 {
     try {
         ::xcpc_log_debug("set-refresh-rate <%s>", refresh_rate.c_str());
@@ -2123,7 +2123,7 @@ void Application::set_refresh_rate(const std::string& refresh_rate)
     update_gui();
 }
 
-void Application::set_keyboard_type(const std::string& keyboard_type)
+auto Application::set_keyboard_type(const std::string& keyboard_type) -> void
 {
     try {
         ::xcpc_log_debug("set-keyboard-type <%s>", keyboard_type.c_str());
@@ -2136,7 +2136,7 @@ void Application::set_keyboard_type(const std::string& keyboard_type)
     update_gui();
 }
 
-void Application::set_joystick0(const std::string& device)
+auto Application::set_joystick0(const std::string& device) -> void
 {
     try {
         ::xcpc_log_debug("set-joystick0 <%s>", device.c_str());
@@ -2149,7 +2149,7 @@ void Application::set_joystick0(const std::string& device)
     update_gui();
 }
 
-void Application::set_joystick1(const std::string& device)
+auto Application::set_joystick1(const std::string& device) -> void
 {
     try {
         ::xcpc_log_debug("set-joystick1 <%s>", device.c_str());
@@ -2162,7 +2162,7 @@ void Application::set_joystick1(const std::string& device)
     update_gui();
 }
 
-void Application::on_startup()
+auto Application::on_startup() -> void
 {
     auto create_app_icon = [&](const std::string& datadir, const std::string& directory, const std::string& filename) -> void
     {
@@ -2184,7 +2184,7 @@ void Application::on_startup()
     return execute();
 }
 
-void Application::on_shutdown()
+auto Application::on_shutdown() -> void
 {
     auto destroy_app_icon = [&]() -> void
     {
@@ -2205,138 +2205,138 @@ void Application::on_shutdown()
     return execute();
 }
 
-void Application::on_statistics()
+auto Application::on_statistics() -> void
 {
     update_fps_label();
 }
 
-void Application::on_load_snapshot()
+auto Application::on_load_snapshot() -> void
 {
     LoadSnapshotDialog dialog(*this);
 
     run_dialog(dialog);
 }
 
-void Application::on_save_snapshot()
+auto Application::on_save_snapshot() -> void
 {
     SaveSnapshotDialog dialog(*this);
 
     run_dialog(dialog);
 }
 
-void Application::on_exit()
+auto Application::on_exit() -> void
 {
     exit();
 }
 
-void Application::on_play_emulator()
+auto Application::on_play_emulator() -> void
 {
     play_emulator();
 }
 
-void Application::on_pause_emulator()
+auto Application::on_pause_emulator() -> void
 {
     pause_emulator();
 }
 
-void Application::on_reset_emulator()
+auto Application::on_reset_emulator() -> void
 {
     reset_emulator();
 }
 
-void Application::on_color_monitor()
+auto Application::on_color_monitor() -> void
 {
     set_monitor_type("color");
 }
 
-void Application::on_green_monitor()
+auto Application::on_green_monitor() -> void
 {
     set_monitor_type("green");
 }
 
-void Application::on_gray_monitor()
+auto Application::on_gray_monitor() -> void
 {
     set_monitor_type("gray");
 }
 
-void Application::on_refresh_50hz()
+auto Application::on_refresh_50hz() -> void
 {
     set_refresh_rate("50hz");
 }
 
-void Application::on_refresh_60hz()
+auto Application::on_refresh_60hz() -> void
 {
     set_refresh_rate("60hz");
 }
 
-void Application::on_english_keyboard()
+auto Application::on_english_keyboard() -> void
 {
     set_keyboard_type("english");
 }
 
-void Application::on_french_keyboard()
+auto Application::on_french_keyboard() -> void
 {
     set_keyboard_type("french");
 }
 
-void Application::on_german_keyboard()
+auto Application::on_german_keyboard() -> void
 {
     set_keyboard_type("german");
 }
 
-void Application::on_spanish_keyboard()
+auto Application::on_spanish_keyboard() -> void
 {
     set_keyboard_type("spanish");
 }
 
-void Application::on_danish_keyboard()
+auto Application::on_danish_keyboard() -> void
 {
     set_keyboard_type("danish");
 }
 
-void Application::on_create_disk_into_drive0()
+auto Application::on_create_disk_into_drive0() -> void
 {
     CreateDiskDialog dialog(*this, CreateDiskDialog::DRIVE_A);
 
     run_dialog(dialog);
 }
 
-void Application::on_insert_disk_into_drive0()
+auto Application::on_insert_disk_into_drive0() -> void
 {
     InsertDiskDialog dialog(*this, InsertDiskDialog::DRIVE_A);
 
     run_dialog(dialog);
 }
 
-void Application::on_remove_disk_from_drive0()
+auto Application::on_remove_disk_from_drive0() -> void
 {
     RemoveDiskDialog dialog(*this, RemoveDiskDialog::DRIVE_A);
 
     run_dialog(dialog);
 }
 
-void Application::on_create_disk_into_drive1()
+auto Application::on_create_disk_into_drive1() -> void
 {
     CreateDiskDialog dialog(*this, CreateDiskDialog::DRIVE_B);
 
     run_dialog(dialog);
 }
 
-void Application::on_insert_disk_into_drive1()
+auto Application::on_insert_disk_into_drive1() -> void
 {
     InsertDiskDialog dialog(*this, InsertDiskDialog::DRIVE_B);
 
     run_dialog(dialog);
 }
 
-void Application::on_remove_disk_from_drive1()
+auto Application::on_remove_disk_from_drive1() -> void
 {
     RemoveDiskDialog dialog(*this, RemoveDiskDialog::DRIVE_B);
 
     run_dialog(dialog);
 }
 
-void Application::on_increase_volume()
+auto Application::on_increase_volume() -> void
 {
     constexpr float increment = 0.05f;
     const     float volume    = _emulator.get_volume() + increment;
@@ -2344,7 +2344,7 @@ void Application::on_increase_volume()
     set_volume(volume);
 }
 
-void Application::on_decrease_volume()
+auto Application::on_decrease_volume() -> void
 {
     constexpr float increment = 0.05f;
     const     float volume    = _emulator.get_volume() - increment;
@@ -2352,41 +2352,41 @@ void Application::on_decrease_volume()
     set_volume(volume);
 }
 
-void Application::on_enable_scanlines()
+auto Application::on_enable_scanlines() -> void
 {
     set_scanlines(true);
 }
 
-void Application::on_disable_scanlines()
+auto Application::on_disable_scanlines() -> void
 {
     set_scanlines(false);
 }
 
-void Application::on_joystick0()
+auto Application::on_joystick0() -> void
 {
     set_joystick0(xcpc::Utils::get_joystick0());
 }
 
-void Application::on_joystick1()
+auto Application::on_joystick1() -> void
 {
     set_joystick1(xcpc::Utils::get_joystick1());
 }
 
-void Application::on_help()
+auto Application::on_help() -> void
 {
     HelpDialog dialog(*this);
 
     return run_dialog(dialog);
 }
 
-void Application::on_about()
+auto Application::on_about() -> void
 {
     AboutDialog dialog(*this);
 
     return run_dialog(dialog);
 }
 
-void Application::start_timer()
+auto Application::start_timer() -> void
 {
     static constexpr guint interval = 1511;
 
@@ -2398,106 +2398,61 @@ void Application::start_timer()
     }
 }
 
-void Application::stop_timer()
+auto Application::stop_timer() -> void
 {
     if(_timer != 0) {
         _timer = (static_cast<void>(::g_source_remove(_timer)), 0);
     }
 }
 
-void Application::show_play()
+auto Application::show_play() -> void
 {
-    auto execute = [&]() -> void
-    {
-        _main_window.show_play();
-    };
-
-    return execute();
+    _main_window.show_play();
 }
 
-void Application::hide_play()
+auto Application::hide_play() -> void
 {
-    auto execute = [&]() -> void
-    {
-        _main_window.hide_play();
-    };
-
-    return execute();
+    _main_window.hide_play();
 }
 
-void Application::show_pause()
+auto Application::show_pause() -> void
 {
-    auto execute = [&]() -> void
-    {
-        _main_window.show_pause();
-    };
-
-    return execute();
+    _main_window.show_pause();
 }
 
-void Application::hide_pause()
+auto Application::hide_pause() -> void
 {
-    auto execute = [&]() -> void
-    {
-        _main_window.hide_pause();
-    };
-
-    return execute();
+    _main_window.hide_pause();
 }
 
-void Application::show_reset()
+auto Application::show_reset() -> void
 {
-    auto execute = [&]() -> void
-    {
-        _main_window.show_reset();
-    };
-
-    return execute();
+    _main_window.show_reset();
 }
 
-void Application::hide_reset()
+auto Application::hide_reset() -> void
 {
-    auto execute = [&]() -> void
-    {
-        _main_window.hide_reset();
-    };
-
-    return execute();
+    _main_window.hide_reset();
 }
 
-void Application::set_state(const std::string& state)
+auto Application::set_state(const std::string& state) -> void
 {
-    auto update_app_state = [&]() -> void
-    {
-        _app_state = state;
-    };
-
-    auto execute = [&]() -> void
-    {
-        update_app_state();
-        update_gui();
-    };
-
-    return execute();
+    _app_state = state;
+    update_gui();
 }
 
-void Application::update_gui()
+auto Application::update_gui() -> void
 {
-    auto execute = [&]() -> void
-    {
-        update_window_title();
-        update_status_label();
-        update_drive0_label();
-        update_drive1_label();
-        update_system_label();
-        update_volume_label();
-        update_fps_label();
-    };
-
-    return execute();
+    update_window_title();
+    update_status_label();
+    update_drive0_label();
+    update_drive1_label();
+    update_system_label();
+    update_volume_label();
+    update_fps_label();
 }
 
-void Application::update_window_title()
+auto Application::update_window_title() -> void
 {
     char buffer[256];
 
@@ -2526,7 +2481,7 @@ void Application::update_window_title()
     return execute();
 }
 
-void Application::update_status_label()
+auto Application::update_status_label() -> void
 {
     std::string label(_app_state);
 
@@ -2551,7 +2506,7 @@ void Application::update_status_label()
     return execute();
 }
 
-void Application::update_drive0_label()
+auto Application::update_drive0_label() -> void
 {
     std::string label(_emulator.get_drive0_filename());
 
@@ -2581,7 +2536,7 @@ void Application::update_drive0_label()
     return execute();
 }
 
-void Application::update_drive1_label()
+auto Application::update_drive1_label() -> void
 {
     std::string label(_emulator.get_drive1_filename());
 
@@ -2611,7 +2566,7 @@ void Application::update_drive1_label()
     return execute();
 }
 
-void Application::update_system_label()
+auto Application::update_system_label() -> void
 {
     auto execute = [&]() -> void
     {
@@ -2621,7 +2576,7 @@ void Application::update_system_label()
     return execute();
 }
 
-void Application::update_volume_label()
+auto Application::update_volume_label() -> void
 {
     char buffer[64];
 
@@ -2637,7 +2592,7 @@ void Application::update_volume_label()
     return execute();
 }
 
-void Application::update_fps_label()
+auto Application::update_fps_label() -> void
 {
     auto execute = [&]() -> void
     {
