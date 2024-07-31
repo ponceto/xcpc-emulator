@@ -68,8 +68,8 @@ struct Traits
         setup.refresh_rate  = XCPC_REFRESH_RATE_DEFAULT;
         setup.keyboard_type = XCPC_KEYBOARD_TYPE_DEFAULT;
         setup.memory_size   = XCPC_MEMORY_SIZE_DEFAULT;
+        setup.speedup       = 1;
         setup.xshm          = true;
-        setup.turbo         = false;
         setup.scanlines     = true;
     }
 
@@ -391,7 +391,12 @@ Mainboard::Mainboard(Machine& machine)
 Mainboard::Mainboard(Machine& machine, const Settings& settings)
     : Mainboard(machine)
 {
-    configure(settings);
+    try {
+        configure(settings);
+    }
+    catch(const std::runtime_error& e) {
+        ::xcpc_log_error("error while initializing machine: %s", e.what());
+    }
 }
 
 Mainboard::~Mainboard()
@@ -873,12 +878,13 @@ auto Mainboard::on_clock(BackendClosure& closure) -> unsigned long
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;
     unsigned int  skip_frame = 0;
+    const unsigned long frame_duration = (_video.frame_duration / _setup.speedup);
 
     /* clock the mainboard */ {
         clock();
     }
     /* compute the next deadline */ {
-        if((_clock.deadline.tv_usec += _video.frame_duration) >= 1000000) {
+        if((_clock.deadline.tv_usec += frame_duration) >= 1000000) {
             _clock.deadline.tv_usec -= 1000000;
             _clock.deadline.tv_sec  += 1;
         }
@@ -898,11 +904,11 @@ auto Mainboard::on_clock(BackendClosure& closure) -> unsigned long
             skip_frame |= 1;
         }
     }
-    /* always force the first frame and always skip frames in turbo mode */ {
+    /* always force the first frame and skip frames if needed in speedup mode */ {
         if(_stats.frame_count == 0) {
             skip_frame &= 0;
         }
-        else if(_setup.turbo != false) {
+        else if(_setup.speedup >= 10) {
             skip_frame |= 1;
         }
     }
@@ -919,7 +925,7 @@ auto Mainboard::on_clock(BackendClosure& closure) -> unsigned long
     }
     /* check if the time has drifted for more than a second */ {
         if(timedrift >= 1000000UL) {
-            timeout = _video.frame_duration;
+            timeout = frame_duration;
             _clock.deadline = _clock.currtime;
             if((_clock.deadline.tv_usec += timeout) >= 1000000) {
                 _clock.deadline.tv_usec -= 1000000;
@@ -1335,6 +1341,17 @@ auto Mainboard::configure(const Settings& settings) -> void
         settings.opt_rom015,
     };
 
+    auto clamp_int = [](const int value, const int min, const int max) -> int
+    {
+        if(value < min) {
+            return min;
+        }
+        if(value > max) {
+            return max;
+        }
+        return value;
+    };
+
     auto is_set = [](const std::string& string) -> bool
     {
         if(string.size() == 0) {
@@ -1448,8 +1465,8 @@ auto Mainboard::configure(const Settings& settings) -> void
         setup.refresh_rate  = Utils::refresh_rate_from_string(settings.opt_refresh);
         setup.keyboard_type = Utils::keyboard_type_from_string(settings.opt_keyboard);
         setup.memory_size   = Utils::memory_size_from_string(settings.opt_memory);
+        setup.speedup       = clamp_int(::atoi(settings.opt_speedup.c_str()), 1, 100);
         setup.xshm          = settings.opt_xshm;
-        setup.turbo         = settings.opt_turbo;
         setup.scanlines     = settings.opt_scanlines;
 
         if(setup.company_name <= XCPC_COMPANY_NAME_DEFAULT) {
@@ -1505,9 +1522,6 @@ auto Mainboard::configure(const Settings& settings) -> void
             default:
                 throw std::runtime_error("unsupported refresh rate");
                 break;
-        }
-        if(setup.turbo != false) {
-            video.frame_duration = 1000;
         }
     };
 
@@ -1619,22 +1633,37 @@ auto Mainboard::configure(const Settings& settings) -> void
 
     auto load_initial_snapshot = [&]() -> void
     {
-        if(is_set(settings.opt_snapshot)) {
-            _machine.load_snapshot(settings.opt_snapshot);
+        try {
+            if(is_set(settings.opt_snapshot)) {
+                _machine.load_snapshot(settings.opt_snapshot);
+            }
+        }
+        catch(const std::runtime_error& e) {
+            ::xcpc_log_error("error while loading initial snapshot: %s", e.what());
         }
     };
 
     auto load_initial_drive0 = [&]() -> void
     {
-        if(is_set(settings.opt_drive0)) {
-            _machine.insert_disk_into_drive0(settings.opt_drive0);
+        try {
+            if(is_set(settings.opt_drive0)) {
+                _machine.insert_disk_into_drive0(settings.opt_drive0);
+            }
+        }
+        catch(const std::runtime_error& e) {
+            ::xcpc_log_error("error while loading initial drive0: %s", e.what());
         }
     };
 
     auto load_initial_drive1 = [&]() -> void
     {
-        if(is_set(settings.opt_drive1)) {
-            _machine.insert_disk_into_drive1(settings.opt_drive1);
+        try {
+            if(is_set(settings.opt_drive1)) {
+                _machine.insert_disk_into_drive1(settings.opt_drive1);
+            }
+        }
+        catch(const std::runtime_error& e) {
+            ::xcpc_log_error("error while loading initial drive1: %s", e.what());
         }
     };
 

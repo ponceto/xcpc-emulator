@@ -159,8 +159,8 @@ public: // public types
         RefreshRate  refresh_rate;
         KeyboardType keyboard_type;
         MemorySize   memory_size;
+        uint32_t     speedup;
         bool         xshm;
-        bool         turbo;
         bool         scanlines;
     };
 
