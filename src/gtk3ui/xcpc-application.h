@@ -726,9 +726,7 @@ public: // public methods
 
     virtual void remove_disk_from_drive1() override final;
 
-    virtual void increase_volume(const float value) override final;
-
-    virtual void decrease_volume(const float value) override final;
+    virtual void set_volume(const float value) override final;
 
     virtual void set_scanlines(const bool scanlines) override final;
 

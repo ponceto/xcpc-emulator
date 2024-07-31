@@ -2071,30 +2071,15 @@ void Application::remove_disk_from_drive1()
     update_gui();
 }
 
-void Application::increase_volume(const float value)
+void Application::set_volume(const float volume)
 {
     try {
-        const float volume = _emulator.get_volume() + value;
         ::xcpc_log_debug("increase-volume <%d>", static_cast<int>(volume * 100.0f));
         _emulator.set_volume(volume);
         ::xcpc_log_debug("increase-volume has succeeded");
     }
     catch(const std::runtime_error& e) {
         ::xcpc_log_error("increase-volume has failed (%s)", e.what());
-    }
-    update_gui();
-}
-
-void Application::decrease_volume(const float value)
-{
-    try {
-        const float volume = _emulator.get_volume() - value;
-        ::xcpc_log_debug("decrease-volume <%d>", static_cast<int>(volume * 100.0f));
-        _emulator.set_volume(volume);
-        ::xcpc_log_debug("decrease-volume has succeeded");
-    }
-    catch(const std::runtime_error& e) {
-        ::xcpc_log_error("decrease-volume has failed (%s)", e.what());
     }
     update_gui();
 }
@@ -2353,12 +2338,18 @@ void Application::on_remove_disk_from_drive1()
 
 void Application::on_increase_volume()
 {
-    increase_volume(0.05f);
+    constexpr float increment = 0.05f;
+    const     float volume    = _emulator.get_volume() + increment;
+
+    set_volume(volume);
 }
 
 void Application::on_decrease_volume()
 {
-    decrease_volume(0.05f);
+    constexpr float increment = 0.05f;
+    const     float volume    = _emulator.get_volume() - increment;
+
+    set_volume(volume);
 }
 
 void Application::on_enable_scanlines()

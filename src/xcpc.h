@@ -207,9 +207,7 @@ public: // public methods
 
     virtual void remove_disk_from_drive1() = 0;
 
-    virtual void increase_volume(const float value) = 0;
-
-    virtual void decrease_volume(const float value) = 0;
+    virtual void set_volume(const float volume) = 0;
 
     virtual void set_scanlines(const bool scanlines) = 0;
 
