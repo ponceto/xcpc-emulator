@@ -30,6 +30,10 @@ class DialogListener
 public: // public interface
     DialogListener() = default;
 
+    DialogListener(const DialogListener&) = delete;
+
+    DialogListener& operator=(const DialogListener&) = delete;
+
     virtual ~DialogListener() = default;
 
     virtual void on_response(const int response);

@@ -33,6 +33,10 @@ public: // public interface
 
     MenuBar(GtkWidget*);
 
+    MenuBar(const MenuBar&) = delete;
+
+    MenuBar& operator=(const MenuBar&) = delete;
+
     virtual ~MenuBar() = default;
 
     operator GtkMenuBar*() const

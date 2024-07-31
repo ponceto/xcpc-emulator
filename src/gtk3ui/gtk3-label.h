@@ -33,6 +33,10 @@ public: // public interface
 
     Label(GtkWidget*);
 
+    Label(const Label&) = delete;
+
+    Label& operator=(const Label&) = delete;
+
     virtual ~Label() = default;
 
     operator GtkLabel*() const

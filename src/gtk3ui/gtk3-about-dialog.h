@@ -33,6 +33,10 @@ public: // public interface
 
     AboutDialog(GtkWidget*);
 
+    AboutDialog(const AboutDialog&) = delete;
+
+    AboutDialog& operator=(const AboutDialog&) = delete;
+
     virtual ~AboutDialog() = default;
 
     operator GtkAboutDialog*() const

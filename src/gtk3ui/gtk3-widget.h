@@ -32,6 +32,10 @@ public: // public interface
 
     Widget(GtkWidget*);
 
+    Widget(const Widget&) = delete;
+
+    Widget& operator=(const Widget&) = delete;
+
     virtual ~Widget();
 
     operator bool() const

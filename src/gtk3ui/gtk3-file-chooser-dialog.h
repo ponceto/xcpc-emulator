@@ -33,6 +33,10 @@ public: // public interface
 
     FileChooserDialog(GtkWidget*);
 
+    FileChooserDialog(const FileChooserDialog&) = delete;
+
+    FileChooserDialog& operator=(const FileChooserDialog&) = delete;
+
     virtual ~FileChooserDialog() = default;
 
     operator GtkFileChooser*() const

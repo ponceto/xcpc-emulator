@@ -30,6 +30,10 @@ class ApplicationListener
 public: // public interface
     ApplicationListener() = default;
 
+    ApplicationListener(const ApplicationListener&) = delete;
+
+    ApplicationListener& operator=(const ApplicationListener&) = delete;
+
     virtual ~ApplicationListener() = default;
 
     virtual void on_open();

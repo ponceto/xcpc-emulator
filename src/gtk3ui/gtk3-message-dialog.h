@@ -33,6 +33,10 @@ public: // public interface
 
     MessageDialog(GtkWidget*);
 
+    MessageDialog(const MessageDialog&) = delete;
+
+    MessageDialog& operator=(const MessageDialog&) = delete;
+
     virtual ~MessageDialog() = default;
 
     operator GtkMessageDialog*() const

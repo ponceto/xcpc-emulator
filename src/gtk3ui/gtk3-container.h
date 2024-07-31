@@ -33,6 +33,10 @@ public: // public interface
 
     Container(GtkWidget*);
 
+    Container(const Container&) = delete;
+
+    Container& operator=(const Container&) = delete;
+
     virtual ~Container() = default;
 
     operator GtkContainer*() const

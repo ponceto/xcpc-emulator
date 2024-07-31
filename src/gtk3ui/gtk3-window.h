@@ -33,6 +33,10 @@ public: // public interface
 
     Window(GtkWidget*);
 
+    Window(const Window&) = delete;
+
+    Window& operator=(const Window&) = delete;
+
     virtual ~Window() = default;
 
     operator GtkWindow*() const
