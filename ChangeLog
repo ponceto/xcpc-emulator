@@ -1,3 +1,9 @@
+2024-00-00	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* Z80 unofficial flags fixed for BIT r,n
+	* Z80 is 100% compliant with the `zexall` testsuite
+	* The `--turbo` option is replaced by `--speedup`
+
 2024-07-29	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Major cleanup and refactoring
