@@ -211,15 +211,19 @@ auto Device::clock() -> void
     uint8_t const horizontal_sync_width    = (((_state.regs.named.sync_width >> 0) & 0x0f)  );
     uint8_t const horizontal_sync_signal   = (_state.core.hsync_signal != 0                 );
     uint8_t const vertical_total           = (_state.regs.named.vertical_total           + 1);
+    uint8_t const vertical_total_adjust    = (_state.regs.named.vertical_total_adjust    + 0);
 //  uint8_t const vertical_displayed       = (_state.regs.named.vertical_displayed       + 0);
     uint8_t const vertical_sync_position   = (_state.regs.named.vertical_sync_position   + 0);
     uint8_t const vertical_sync_width      = (((_state.regs.named.sync_width >> 4) & 0x0f)  );
     uint8_t const vertical_sync_signal     = (_state.core.vsync_signal != 0                 );
-    uint8_t const scanline_total           = (_state.regs.named.maximum_scanline_address + 1);
+    uint8_t       scanline_total           = (_state.regs.named.maximum_scanline_address + 1);
     uint8_t       process_hcc              = 1;
     uint8_t       process_vcc              = 0;
     uint8_t       process_slc              = 0;
 
+    if((_state.core.vcc + 1) == vertical_total) {
+        scanline_total += vertical_total_adjust;
+    }
     if(process_hcc != 0) {
         if(++_state.core.hcc == horizontal_total) {
             _state.core.hcc = 0;

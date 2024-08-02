@@ -2224,32 +2224,32 @@ auto Mainboard::paint_08bpp() -> void
         /* ht  : chars  */ (1 + (vdc->regs.named.horizontal_total     < 63 ? vdc->regs.named.horizontal_total     : 63)),
         /* hd  : chars  */ (0 + (vdc->regs.named.horizontal_displayed < 52 ? vdc->regs.named.horizontal_displayed : 52)),
         /* hsp : chars  */ (0 + (vdc->regs.named.horizontal_sync_position)),
-        /* hsw : pixels */ (0 + (((vdc->regs.named.sync_width >> 0) & 0x0f) << 4)),
+        /* hsw : pixels */ (0 + ((vdc->regs.named.sync_width >> 0) & 0x0f)),
     };
     const VertProps v = {
         /* ch  : pixels */ (1 + (vdc->regs.named.maximum_scanline_address)),
         /* vt  : chars  */ (1 + (vdc->regs.named.vertical_total     < 40 ? vdc->regs.named.vertical_total     : 40)),
         /* vd  : chars  */ (0 + (vdc->regs.named.vertical_displayed < 40 ? vdc->regs.named.vertical_displayed : 40)),
         /* vsp : chars  */ (0 + (vdc->regs.named.vertical_sync_position)),
-        /* vsw : pixels */ (0 + (((vdc->regs.named.sync_width >> 4) & 0x0f) << 0)),
+        /* vsw : pixels */ (0 + ((vdc->regs.named.sync_width >> 4) & 0x0f)),
     };
     const Borders b = {
-        /* top : pixels */ ((v.ch * (v.vt - v.vsp)) - (v.vsw != 0 ? v.vsw :  16)),
-        /* bot : pixels */ ((v.ch * (v.vsp - v.vd)) + (v.vsw != 0 ? v.vsw :  16)),
-        /* lft : pixels */ ((h.cw * (h.ht - h.hsp)) - (h.hsw != 0 ? h.hsw : 256)),
-        /* rgt : pixels */ ((h.cw * (h.hsp - h.hd)) + (h.hsw != 0 ? h.hsw : 256)),
+        /* top : pixels */ ((v.vt - v.vsp) * v.ch) + vdc->regs.named.vertical_total_adjust,
+        /* bot : pixels */ ((v.vsp - v.vd) * v.ch),
+        /* lft : pixels */ ((h.ht - h.hsp) * h.cw),
+        /* rgt : pixels */ ((h.hsp - h.hd) * h.cw),
     };
     unsigned int address = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
-    const unsigned int rowstride  = ximage->bytes_per_line;
+    const unsigned int rowstride       = ximage->bytes_per_line;
     int                remaining_lines = ximage->height;
-    uint8_t* data_iter = XCPC_BYTE_PTR(ximage->data);
-    uint8_t* this_line = nullptr;
-    uint8_t* next_line = nullptr;
-    uint8_t  pixel0    = 0;
-    uint8_t  pixel1    = 0;
-    int      row       = 0;
-    int      col       = 0;
-    int      ras       = 0;
+    uint8_t*  data_iter = XCPC_BYTE_PTR(ximage->data);
+    uint8_t*  this_line = nullptr;
+    uint8_t*  next_line = nullptr;
+    uint8_t   pixel0    = 0;
+    uint8_t   pixel1    = 0;
+    int       row       = 0;
+    int       col       = 0;
+    int       ras       = 0;
 
     /* vertical top border */ {
         const int rows = b.top;
@@ -2308,6 +2308,9 @@ auto Mainboard::paint_08bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -2351,6 +2354,9 @@ auto Mainboard::paint_08bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -2422,6 +2428,9 @@ auto Mainboard::paint_08bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -2610,23 +2619,23 @@ auto Mainboard::paint_16bpp() -> void
         /* ht  : chars  */ (1 + (vdc->regs.named.horizontal_total     < 63 ? vdc->regs.named.horizontal_total     : 63)),
         /* hd  : chars  */ (0 + (vdc->regs.named.horizontal_displayed < 52 ? vdc->regs.named.horizontal_displayed : 52)),
         /* hsp : chars  */ (0 + (vdc->regs.named.horizontal_sync_position)),
-        /* hsw : pixels */ (0 + (((vdc->regs.named.sync_width >> 0) & 0x0f) << 4)),
+        /* hsw : pixels */ (0 + ((vdc->regs.named.sync_width >> 0) & 0x0f)),
     };
     const VertProps v = {
         /* ch  : pixels */ (1 + (vdc->regs.named.maximum_scanline_address)),
         /* vt  : chars  */ (1 + (vdc->regs.named.vertical_total     < 40 ? vdc->regs.named.vertical_total     : 40)),
         /* vd  : chars  */ (0 + (vdc->regs.named.vertical_displayed < 40 ? vdc->regs.named.vertical_displayed : 40)),
         /* vsp : chars  */ (0 + (vdc->regs.named.vertical_sync_position)),
-        /* vsw : pixels */ (0 + (((vdc->regs.named.sync_width >> 4) & 0x0f) << 0)),
+        /* vsw : pixels */ (0 + ((vdc->regs.named.sync_width >> 4) & 0x0f)),
     };
     const Borders b = {
-        /* top : pixels */ ((v.ch * (v.vt - v.vsp)) - (v.vsw != 0 ? v.vsw :  16)),
-        /* bot : pixels */ ((v.ch * (v.vsp - v.vd)) + (v.vsw != 0 ? v.vsw :  16)),
-        /* lft : pixels */ ((h.cw * (h.ht - h.hsp)) - (h.hsw != 0 ? h.hsw : 256)),
-        /* rgt : pixels */ ((h.cw * (h.hsp - h.hd)) + (h.hsw != 0 ? h.hsw : 256)),
+        /* top : pixels */ ((v.vt - v.vsp) * v.ch) + vdc->regs.named.vertical_total_adjust,
+        /* bot : pixels */ ((v.vsp - v.vd) * v.ch),
+        /* lft : pixels */ ((h.ht - h.hsp) * h.cw),
+        /* rgt : pixels */ ((h.hsp - h.hd) * h.cw),
     };
     unsigned int address = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
-    const unsigned int rowstride  = ximage->bytes_per_line;
+    const unsigned int rowstride       = ximage->bytes_per_line;
     int                remaining_lines = ximage->height;
     uint16_t* data_iter = XCPC_WORD_PTR(ximage->data);
     uint16_t* this_line = nullptr;
@@ -2694,6 +2703,9 @@ auto Mainboard::paint_16bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -2737,6 +2749,9 @@ auto Mainboard::paint_16bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -2808,6 +2823,9 @@ auto Mainboard::paint_16bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -2996,23 +3014,23 @@ auto Mainboard::paint_32bpp() -> void
         /* ht  : chars  */ (1 + (vdc->regs.named.horizontal_total     < 63 ? vdc->regs.named.horizontal_total     : 63)),
         /* hd  : chars  */ (0 + (vdc->regs.named.horizontal_displayed < 52 ? vdc->regs.named.horizontal_displayed : 52)),
         /* hsp : chars  */ (0 + (vdc->regs.named.horizontal_sync_position)),
-        /* hsw : pixels */ (0 + (((vdc->regs.named.sync_width >> 0) & 0x0f) << 4)),
+        /* hsw : pixels */ (0 + ((vdc->regs.named.sync_width >> 0) & 0x0f)),
     };
     const VertProps v = {
         /* ch  : pixels */ (1 + (vdc->regs.named.maximum_scanline_address)),
         /* vt  : chars  */ (1 + (vdc->regs.named.vertical_total     < 40 ? vdc->regs.named.vertical_total     : 40)),
         /* vd  : chars  */ (0 + (vdc->regs.named.vertical_displayed < 40 ? vdc->regs.named.vertical_displayed : 40)),
         /* vsp : chars  */ (0 + (vdc->regs.named.vertical_sync_position)),
-        /* vsw : pixels */ (0 + (((vdc->regs.named.sync_width >> 4) & 0x0f) << 0)),
+        /* vsw : pixels */ (0 + ((vdc->regs.named.sync_width >> 4) & 0x0f)),
     };
     const Borders b = {
-        /* top : pixels */ ((v.ch * (v.vt - v.vsp)) - (v.vsw != 0 ? v.vsw :  16)),
-        /* bot : pixels */ ((v.ch * (v.vsp - v.vd)) + (v.vsw != 0 ? v.vsw :  16)),
-        /* lft : pixels */ ((h.cw * (h.ht - h.hsp)) - (h.hsw != 0 ? h.hsw : 256)),
-        /* rgt : pixels */ ((h.cw * (h.hsp - h.hd)) + (h.hsw != 0 ? h.hsw : 256)),
+        /* top : pixels */ ((v.vt - v.vsp) * v.ch) + vdc->regs.named.vertical_total_adjust,
+        /* bot : pixels */ ((v.vsp - v.vd) * v.ch),
+        /* lft : pixels */ ((h.ht - h.hsp) * h.cw),
+        /* rgt : pixels */ ((h.hsp - h.hd) * h.cw),
     };
     unsigned int address = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
-    const unsigned int rowstride  = ximage->bytes_per_line;
+    const unsigned int rowstride       = ximage->bytes_per_line;
     int                remaining_lines = ximage->height;
     uint32_t* data_iter = XCPC_LONG_PTR(ximage->data);
     uint32_t* this_line = nullptr;
@@ -3080,6 +3098,9 @@ auto Mainboard::paint_32bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode0[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -3123,6 +3144,9 @@ auto Mainboard::paint_32bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode1[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
@@ -3194,6 +3218,9 @@ auto Mainboard::paint_32bpp() -> void
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
                                     /* process 1st byte */ {
                                         uint8_t byte = mode2[ram[bank][disp | 0]];
                                         /* render pixel 0 */ {
