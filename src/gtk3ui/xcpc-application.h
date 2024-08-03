@@ -43,7 +43,7 @@ class AboutDialog;
 
 struct posix_traits
 {
-    static bool file_exists(const std::string& filename)
+    static auto file_exists(const std::string& filename) -> bool
     {
         const int rc = ::access(filename.c_str(), F_OK);
         if(rc == 0) {
@@ -52,7 +52,7 @@ struct posix_traits
         return false;
     };
 
-    static bool file_readable(const std::string& filename)
+    static auto file_readable(const std::string& filename) -> bool
     {
         const int rc = ::access(filename.c_str(), R_OK);
         if(rc == 0) {
@@ -61,7 +61,7 @@ struct posix_traits
         return false;
     };
 
-    static bool file_writable(const std::string& filename)
+    static auto file_writable(const std::string& filename) -> bool
     {
         const int rc = ::access(filename.c_str(), W_OK);
         if(rc == 0) {
@@ -702,147 +702,145 @@ public: // public accessors
     }
 
 public: // public methods
-    virtual void load_snapshot(const std::string& filename) override final;
+    virtual auto load_snapshot(const std::string& filename) -> void override final;
 
-    virtual void save_snapshot(const std::string& filename) override final;
+    virtual auto save_snapshot(const std::string& filename) -> void override final;
 
-    virtual void exit() override final;
+    virtual auto exit() -> void override final;
 
-    virtual void play_emulator() override final;
+    virtual auto play_emulator() -> void override final;
 
-    virtual void pause_emulator() override final;
+    virtual auto pause_emulator() -> void override final;
 
-    virtual void reset_emulator() override final;
+    virtual auto reset_emulator() -> void override final;
 
-    virtual void create_disk_into_drive0(const std::string& filename) override final;
+    virtual auto create_disk_into_drive0(const std::string& filename) -> void override final;
 
-    virtual void insert_disk_into_drive0(const std::string& filename) override final;
+    virtual auto insert_disk_into_drive0(const std::string& filename) -> void override final;
 
-    virtual void remove_disk_from_drive0() override final;
+    virtual auto remove_disk_from_drive0() -> void override final;
 
-    virtual void create_disk_into_drive1(const std::string& filename) override final;
+    virtual auto create_disk_into_drive1(const std::string& filename) -> void override final;
 
-    virtual void insert_disk_into_drive1(const std::string& filename) override final;
+    virtual auto insert_disk_into_drive1(const std::string& filename) -> void override final;
 
-    virtual void remove_disk_from_drive1() override final;
+    virtual auto remove_disk_from_drive1() -> void override final;
 
-    virtual void increase_volume(const float value) override final;
+    virtual auto set_volume(const float value) -> void override final;
 
-    virtual void decrease_volume(const float value) override final;
+    virtual auto set_scanlines(const bool scanlines) -> void override final;
 
-    virtual void set_scanlines(const bool scanlines) override final;
+    virtual auto set_monitor_type(const std::string& monitor_type) -> void override final;
 
-    virtual void set_monitor_type(const std::string& monitor_type) override final;
+    virtual auto set_refresh_rate(const std::string& refresh_rate) -> void override final;
 
-    virtual void set_refresh_rate(const std::string& refresh_rate) override final;
+    virtual auto set_keyboard_type(const std::string& keyboard_type) -> void override final;
 
-    virtual void set_keyboard_type(const std::string& keyboard_type) override final;
+    virtual auto set_joystick0(const std::string& device) -> void override final;
 
-    virtual void set_joystick0(const std::string& device) override final;
-
-    virtual void set_joystick1(const std::string& device) override final;
+    virtual auto set_joystick1(const std::string& device) -> void override final;
 
 public: // public signals
-    virtual void on_startup() override final;
+    virtual auto on_startup() -> void override final;
 
-    virtual void on_shutdown() override final;
+    virtual auto on_shutdown() -> void override final;
 
-    virtual void on_statistics() override final;
+    virtual auto on_statistics() -> void override final;
 
-    virtual void on_load_snapshot() override final;
+    virtual auto on_load_snapshot() -> void override final;
 
-    virtual void on_save_snapshot() override final;
+    virtual auto on_save_snapshot() -> void override final;
 
-    virtual void on_exit() override final;
+    virtual auto on_exit() -> void override final;
 
-    virtual void on_play_emulator() override final;
+    virtual auto on_play_emulator() -> void override final;
 
-    virtual void on_pause_emulator() override final;
+    virtual auto on_pause_emulator() -> void override final;
 
-    virtual void on_reset_emulator() override final;
+    virtual auto on_reset_emulator() -> void override final;
 
-    virtual void on_color_monitor() override final;
+    virtual auto on_color_monitor() -> void override final;
 
-    virtual void on_green_monitor() override final;
+    virtual auto on_green_monitor() -> void override final;
 
-    virtual void on_gray_monitor() override final;
+    virtual auto on_gray_monitor() -> void override final;
 
-    virtual void on_refresh_50hz() override final;
+    virtual auto on_refresh_50hz() -> void override final;
 
-    virtual void on_refresh_60hz() override final;
+    virtual auto on_refresh_60hz() -> void override final;
 
-    virtual void on_english_keyboard() override final;
+    virtual auto on_english_keyboard() -> void override final;
 
-    virtual void on_french_keyboard() override final;
+    virtual auto on_french_keyboard() -> void override final;
 
-    virtual void on_german_keyboard() override final;
+    virtual auto on_german_keyboard() -> void override final;
 
-    virtual void on_spanish_keyboard() override final;
+    virtual auto on_spanish_keyboard() -> void override final;
 
-    virtual void on_danish_keyboard() override final;
+    virtual auto on_danish_keyboard() -> void override final;
 
-    virtual void on_create_disk_into_drive0() override final;
+    virtual auto on_create_disk_into_drive0() -> void override final;
 
-    virtual void on_insert_disk_into_drive0() override final;
+    virtual auto on_insert_disk_into_drive0() -> void override final;
 
-    virtual void on_remove_disk_from_drive0() override final;
+    virtual auto on_remove_disk_from_drive0() -> void override final;
 
-    virtual void on_create_disk_into_drive1() override final;
+    virtual auto on_create_disk_into_drive1() -> void override final;
 
-    virtual void on_insert_disk_into_drive1() override final;
+    virtual auto on_insert_disk_into_drive1() -> void override final;
 
-    virtual void on_remove_disk_from_drive1() override final;
+    virtual auto on_remove_disk_from_drive1() -> void override final;
 
-    virtual void on_increase_volume() override final;
+    virtual auto on_increase_volume() -> void override final;
 
-    virtual void on_decrease_volume() override final;
+    virtual auto on_decrease_volume() -> void override final;
 
-    virtual void on_enable_scanlines() override final;
+    virtual auto on_enable_scanlines() -> void override final;
 
-    virtual void on_disable_scanlines() override final;
+    virtual auto on_disable_scanlines() -> void override final;
 
-    virtual void on_joystick0() override final;
+    virtual auto on_joystick0() -> void override final;
 
-    virtual void on_joystick1() override final;
+    virtual auto on_joystick1() -> void override final;
 
-    virtual void on_help() override final;
+    virtual auto on_help() -> void override final;
 
-    virtual void on_about() override final;
+    virtual auto on_about() -> void override final;
 
 private: // private interface
-    void start_timer();
+    auto start_timer() -> void;
 
-    void stop_timer();
+    auto stop_timer() -> void;
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
 
-    void set_state(const std::string& state);
+    auto set_state(const std::string& state) -> void;
 
-    void update_gui();
+    auto update_gui() -> void;
 
-    void update_window_title();
+    auto update_window_title() -> void;
 
-    void update_status_label();
+    auto update_status_label() -> void;
 
-    void update_drive0_label();
+    auto update_drive0_label() -> void;
 
-    void update_drive1_label();
+    auto update_drive1_label() -> void;
 
-    void update_system_label();
+    auto update_system_label() -> void;
 
-    void update_volume_label();
+    auto update_volume_label() -> void;
 
-    void update_fps_label();
+    auto update_fps_label() -> void;
 
 private: // private data
     std::string      _app_title;

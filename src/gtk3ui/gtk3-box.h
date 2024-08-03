@@ -33,6 +33,10 @@ public: // public interface
 
     Box(GtkWidget*);
 
+    Box(const Box&) = delete;
+
+    Box& operator=(const Box&) = delete;
+
     virtual ~Box() = default;
 
     operator GtkBox*() const

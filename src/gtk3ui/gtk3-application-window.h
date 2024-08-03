@@ -34,6 +34,10 @@ public: // public interface
 
     ApplicationWindow(GtkWidget*);
 
+    ApplicationWindow(const ApplicationWindow&) = delete;
+
+    ApplicationWindow& operator=(const ApplicationWindow&) = delete;
+
     virtual ~ApplicationWindow() = default;
 
     operator GtkApplicationWindow*() const

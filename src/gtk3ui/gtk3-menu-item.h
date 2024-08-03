@@ -33,6 +33,10 @@ public: // public interface
 
     MenuItem(GtkWidget*);
 
+    MenuItem(const MenuItem&) = delete;
+
+    MenuItem& operator=(const MenuItem&) = delete;
+
     virtual ~MenuItem() = default;
 
     operator GtkMenuItem*() const

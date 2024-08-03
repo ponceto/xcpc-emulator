@@ -68,17 +68,16 @@ enum OptionEnum
     OPT_DRIVE0       = 23,
     OPT_DRIVE1       = 24,
     OPT_SNAPSHOT     = 25,
-    OPT_XSHM         = 26,
-    OPT_NO_XSHM      = 27,
-    OPT_TURBO        = 28,
-    OPT_NO_TURBO     = 29,
-    OPT_SCANLINES    = 30,
-    OPT_NO_SCANLINES = 31,
-    OPT_HELP         = 32,
-    OPT_VERSION      = 33,
-    OPT_QUIET        = 34,
-    OPT_TRACE        = 35,
-    OPT_DEBUG        = 36,
+    OPT_SPEEDUP      = 26,
+    OPT_XSHM         = 27,
+    OPT_NO_XSHM      = 28,
+    OPT_SCANLINES    = 29,
+    OPT_NO_SCANLINES = 30,
+    OPT_HELP         = 31,
+    OPT_VERSION      = 32,
+    OPT_QUIET        = 33,
+    OPT_TRACE        = 34,
+    OPT_DEBUG        = 35,
 };
 
 }
@@ -140,10 +139,9 @@ const OptionType options[] = {
     { "--drive0={filename}"  , "drive0 disk image"                                             },
     { "--drive1={filename}"  , "drive1 disk image"                                             },
     { "--snapshot={filename}", "initial snapshot"                                              },
+    { "--speedup={factor}"   , "speeds up emulation by an integer factor"                      },
     { "--xshm"               , "use the XShm extension"                                        },
     { "--no-xshm"            , "don't use the XShm extension"                                  },
-    { "--turbo"              , "enable the turbo mode"                                         },
-    { "--no-turbo"           , "disable the turbo mode"                                        },
     { "--scanlines"          , "simulate crt scanlines"                                        },
     { "--no-scanlines"       , "don't simulate crt scanlines"                                  },
     { "--help"               , "display this help and exit"                                    },
@@ -191,7 +189,6 @@ Settings::Settings()
     , opt_drive1(not_set)
     , opt_snapshot(not_set)
     , opt_xshm(true)
-    , opt_turbo(false)
     , opt_scanlines(true)
     , opt_help(false)
     , opt_version(false)
@@ -277,8 +274,8 @@ void Settings::parse(int& argc, char**& argv)
         ::xcpc_log_debug("xcpc.settings.drive0    = %s", opt_drive0.c_str()  );
         ::xcpc_log_debug("xcpc.settings.drive1    = %s", opt_drive1.c_str()  );
         ::xcpc_log_debug("xcpc.settings.snapshot  = %s", opt_snapshot.c_str());
+        ::xcpc_log_debug("xcpc.settings.speedup   = %d", opt_speedup         );
         ::xcpc_log_debug("xcpc.settings.xshm      = %d", opt_xshm            );
-        ::xcpc_log_debug("xcpc.settings.turbo     = %d", opt_turbo           );
         ::xcpc_log_debug("xcpc.settings.scanlines = %d", opt_scanlines       );
         ::xcpc_log_debug("xcpc.settings.help      = %d", opt_help            );
         ::xcpc_log_debug("xcpc.settings.version   = %d", opt_version         );
@@ -323,10 +320,9 @@ void Settings::parse(int& argc, char**& argv)
             else if(is_option(OPT_DRIVE0      , argument)) { opt_drive0    = value_of(argument);  }
             else if(is_option(OPT_DRIVE1      , argument)) { opt_drive1    = value_of(argument);  }
             else if(is_option(OPT_SNAPSHOT    , argument)) { opt_snapshot  = value_of(argument);  }
+            else if(is_option(OPT_SPEEDUP     , argument)) { opt_speedup   = value_of(argument);  }
             else if(is_option(OPT_XSHM        , argument)) { opt_xshm      = true;                }
             else if(is_option(OPT_NO_XSHM     , argument)) { opt_xshm      = false;               }
-            else if(is_option(OPT_TURBO       , argument)) { opt_turbo     = true;                }
-            else if(is_option(OPT_NO_TURBO    , argument)) { opt_turbo     = false;               }
             else if(is_option(OPT_SCANLINES   , argument)) { opt_scanlines = true;                }
             else if(is_option(OPT_NO_SCANLINES, argument)) { opt_scanlines = false;               }
             else if(is_option(OPT_HELP        , argument)) { opt_help      = true;                }
@@ -416,8 +412,7 @@ void Settings::usage()
     print_opt(OPT_SNAPSHOT        );
     print_str(""                  );
     print_str("Misc. options:"    );
-    print_opt(OPT_TURBO           );
-    print_opt(OPT_NO_TURBO        );
+    print_opt(OPT_SPEEDUP         );
     print_opt(OPT_XSHM            );
     print_opt(OPT_NO_XSHM         );
     print_opt(OPT_SCANLINES       );

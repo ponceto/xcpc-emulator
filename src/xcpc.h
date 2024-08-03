@@ -165,7 +165,7 @@ public: // public interface
 
     virtual ~Application() = default;
 
-    virtual int main() = 0;
+    virtual auto main() ->int = 0;
 
     auto argc() -> int&
     {
@@ -183,115 +183,113 @@ public: // public interface
     };
 
 public: // public methods
-    virtual void load_snapshot(const std::string& filename) = 0;
+    virtual auto load_snapshot(const std::string& filename) -> void = 0;
 
-    virtual void save_snapshot(const std::string& filename) = 0;
+    virtual auto save_snapshot(const std::string& filename) -> void = 0;
 
-    virtual void exit() = 0;
+    virtual auto exit() -> void = 0;
 
-    virtual void play_emulator() = 0;
+    virtual auto play_emulator() -> void = 0;
 
-    virtual void pause_emulator() = 0;
+    virtual auto pause_emulator() -> void = 0;
 
-    virtual void reset_emulator() = 0;
+    virtual auto reset_emulator() -> void = 0;
 
-    virtual void create_disk_into_drive0(const std::string& filename) = 0;
+    virtual auto create_disk_into_drive0(const std::string& filename) -> void = 0;
 
-    virtual void insert_disk_into_drive0(const std::string& filename) = 0;
+    virtual auto insert_disk_into_drive0(const std::string& filename) -> void = 0;
 
-    virtual void remove_disk_from_drive0() = 0;
+    virtual auto remove_disk_from_drive0() -> void = 0;
 
-    virtual void create_disk_into_drive1(const std::string& filename) = 0;
+    virtual auto create_disk_into_drive1(const std::string& filename) -> void = 0;
 
-    virtual void insert_disk_into_drive1(const std::string& filename) = 0;
+    virtual auto insert_disk_into_drive1(const std::string& filename) -> void = 0;
 
-    virtual void remove_disk_from_drive1() = 0;
+    virtual auto remove_disk_from_drive1() -> void = 0;
 
-    virtual void increase_volume(const float value) = 0;
+    virtual auto set_volume(const float volume) -> void = 0;
 
-    virtual void decrease_volume(const float value) = 0;
+    virtual auto set_scanlines(const bool scanlines) -> void = 0;
 
-    virtual void set_scanlines(const bool scanlines) = 0;
+    virtual auto set_monitor_type(const std::string& monitor_type) -> void = 0;
 
-    virtual void set_monitor_type(const std::string& monitor_type) = 0;
+    virtual auto set_refresh_rate(const std::string& refresh_rate) -> void = 0;
 
-    virtual void set_refresh_rate(const std::string& refresh_rate) = 0;
+    virtual auto set_keyboard_type(const std::string& keyboard_type) -> void = 0;
 
-    virtual void set_keyboard_type(const std::string& keyboard_type) = 0;
+    virtual auto set_joystick0(const std::string& device) -> void = 0;
 
-    virtual void set_joystick0(const std::string& device) = 0;
-
-    virtual void set_joystick1(const std::string& device) = 0;
+    virtual auto set_joystick1(const std::string& device) -> void = 0;
 
 public: // public signals
-    virtual void on_startup() = 0;
+    virtual auto on_startup() -> void = 0;
 
-    virtual void on_shutdown() = 0;
+    virtual auto on_shutdown() -> void = 0;
 
-    virtual void on_statistics() = 0;
+    virtual auto on_statistics() -> void = 0;
 
-    virtual void on_load_snapshot() = 0;
+    virtual auto on_load_snapshot() -> void = 0;
 
-    virtual void on_save_snapshot() = 0;
+    virtual auto on_save_snapshot() -> void = 0;
 
-    virtual void on_exit() = 0;
+    virtual auto on_exit() -> void = 0;
 
-    virtual void on_play_emulator() = 0;
+    virtual auto on_play_emulator() -> void = 0;
 
-    virtual void on_pause_emulator() = 0;
+    virtual auto on_pause_emulator() -> void = 0;
 
-    virtual void on_reset_emulator() = 0;
+    virtual auto on_reset_emulator() -> void = 0;
 
-    virtual void on_color_monitor() = 0;
+    virtual auto on_color_monitor() -> void = 0;
 
-    virtual void on_green_monitor() = 0;
+    virtual auto on_green_monitor() -> void = 0;
 
-    virtual void on_gray_monitor() = 0;
+    virtual auto on_gray_monitor() -> void = 0;
 
-    virtual void on_refresh_50hz() = 0;
+    virtual auto on_refresh_50hz() -> void = 0;
 
-    virtual void on_refresh_60hz() = 0;
+    virtual auto on_refresh_60hz() -> void = 0;
 
-    virtual void on_english_keyboard() = 0;
+    virtual auto on_english_keyboard() -> void = 0;
 
-    virtual void on_french_keyboard() = 0;
+    virtual auto on_french_keyboard() -> void = 0;
 
-    virtual void on_german_keyboard() = 0;
+    virtual auto on_german_keyboard() -> void = 0;
 
-    virtual void on_spanish_keyboard() = 0;
+    virtual auto on_spanish_keyboard() -> void = 0;
 
-    virtual void on_danish_keyboard() = 0;
+    virtual auto on_danish_keyboard() -> void = 0;
 
-    virtual void on_create_disk_into_drive0() = 0;
+    virtual auto on_create_disk_into_drive0() -> void = 0;
 
-    virtual void on_insert_disk_into_drive0() = 0;
+    virtual auto on_insert_disk_into_drive0() -> void = 0;
 
-    virtual void on_remove_disk_from_drive0() = 0;
+    virtual auto on_remove_disk_from_drive0() -> void = 0;
 
-    virtual void on_create_disk_into_drive1() = 0;
+    virtual auto on_create_disk_into_drive1() -> void = 0;
 
-    virtual void on_insert_disk_into_drive1() = 0;
+    virtual auto on_insert_disk_into_drive1() -> void = 0;
 
-    virtual void on_remove_disk_from_drive1() = 0;
+    virtual auto on_remove_disk_from_drive1() -> void = 0;
 
-    virtual void on_increase_volume() = 0;
+    virtual auto on_increase_volume() -> void = 0;
 
-    virtual void on_decrease_volume() = 0;
+    virtual auto on_decrease_volume() -> void = 0;
 
-    virtual void on_enable_scanlines() = 0;
+    virtual auto on_enable_scanlines() -> void = 0;
 
-    virtual void on_disable_scanlines() = 0;
+    virtual auto on_disable_scanlines() -> void = 0;
 
-    virtual void on_joystick0() = 0;
+    virtual auto on_joystick0() -> void = 0;
 
-    virtual void on_joystick1() = 0;
+    virtual auto on_joystick1() -> void = 0;
 
-    virtual void on_help() = 0;
+    virtual auto on_help() -> void = 0;
 
-    virtual void on_about() = 0;
+    virtual auto on_about() -> void = 0;
 
 protected: // protected interface
-    virtual void run_dialog(Dialog&);
+    virtual auto run_dialog(Dialog&) -> void;
 
 protected: // protected data
     Emulator _emulator;
@@ -318,32 +316,32 @@ public: // public interface
 
     virtual ~Dialog() = default;
 
-    virtual void run() = 0;
+    virtual auto run() -> void = 0;
 
 protected: // protected methods
-    void load_snapshot(const std::string& filename);
+    auto load_snapshot(const std::string& filename) -> void;
 
-    void save_snapshot(const std::string& filename);
+    auto save_snapshot(const std::string& filename) -> void;
 
-    void exit();
+    auto exit() -> void;
 
-    void play_emulator();
+    auto play_emulator() -> void;
 
-    void pause_emulator();
+    auto pause_emulator() -> void;
 
-    void reset_emulator();
+    auto reset_emulator() -> void;
 
-    void create_disk_into_drive0(const std::string& filename);
+    auto create_disk_into_drive0(const std::string& filename) -> void;
 
-    void insert_disk_into_drive0(const std::string& filename);
+    auto insert_disk_into_drive0(const std::string& filename) -> void;
 
-    void remove_disk_from_drive0();
+    auto remove_disk_from_drive0() -> void;
 
-    void create_disk_into_drive1(const std::string& filename);
+    auto create_disk_into_drive1(const std::string& filename) -> void;
 
-    void insert_disk_into_drive1(const std::string& filename);
+    auto insert_disk_into_drive1(const std::string& filename) -> void;
 
-    void remove_disk_from_drive1();
+    auto remove_disk_from_drive1() -> void;
 
 protected: // protected data
     Application& _application;
@@ -441,11 +439,11 @@ public: // public static data
     static constexpr char DRIVE_B = 'B';
 
 protected: // protected interface
-    void create_disk(const std::string& filename);
+    auto create_disk(const std::string& filename) -> void;
 
-    void insert_disk(const std::string& filename);
+    auto insert_disk(const std::string& filename) -> void;
 
-    void remove_disk();
+    auto remove_disk() -> void;
 
 protected: // protected data
     const char  _drive;
@@ -670,7 +668,7 @@ public: // public interface
 
     virtual ~Xcpc();
 
-    virtual int main() const;
+    auto main() const -> int;
 
 private: // private data
     int&    _argc;

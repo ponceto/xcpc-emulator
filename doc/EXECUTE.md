@@ -38,8 +38,7 @@ Emulation options:
     --snapshot={filename}       initial snapshot
 
 Misc. options:
-    --turbo                     enable the turbo mode
-    --no-turbo                  disable the turbo mode
+    --speedup={factor}          speeds up emulation by an integer factor
     --xshm                      use the XShm extension
     --no-xshm                   don't use the XShm extension
     --scanlines                 simulate crt scanlines

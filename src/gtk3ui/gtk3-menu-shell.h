@@ -33,6 +33,10 @@ public: // public interface
 
     MenuShell(GtkWidget*);
 
+    MenuShell(const MenuShell&) = delete;
+
+    MenuShell& operator=(const MenuShell&) = delete;
+
     virtual ~MenuShell() = default;
 
     operator GtkMenuShell*() const

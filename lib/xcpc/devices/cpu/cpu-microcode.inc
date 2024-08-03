@@ -3178,9 +3178,9 @@ auto m_restore_pc = [&]() -> void
         T3_L = PZSTable[T0_L]; \
         AF_L = /* SF is undocumented */ (SF & (T0_L)) \
              | /* ZF is affected     */ (ZF & (T3_L)) \
-             | /* YF is undocumented */ (YF & (T0_L)) \
+             | /* YF is undocumented */ (YF & (T1_L)) \
              | /* HF is set          */ (HF & (0xff)) \
-             | /* XF is undocumented */ (XF & (T0_L)) \
+             | /* XF is undocumented */ (XF & (T1_L)) \
              | /* PF is undocumented */ (PF & (T0_L == 0x00 ? 0xff : 0x00)) \
              | /* NF is reset        */ (NF & (0x00)) \
              | /* CF is not affected */ (CF & (AF_L)) \

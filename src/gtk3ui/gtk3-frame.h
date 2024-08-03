@@ -33,6 +33,10 @@ public: // public interface
 
     Frame(GtkWidget*);
 
+    Frame(const Frame&) = delete;
+
+    Frame& operator=(const Frame&) = delete;
+
     virtual ~Frame() = default;
 
     operator GtkFrame*() const

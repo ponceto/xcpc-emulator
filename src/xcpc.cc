@@ -219,62 +219,62 @@ Dialog::Dialog(Application& application, const std::string& title)
 {
 }
 
-void Dialog::load_snapshot(const std::string& filename)
+auto Dialog::load_snapshot(const std::string& filename) -> void
 {
     _application.load_snapshot(filename);
 }
 
-void Dialog::save_snapshot(const std::string& filename)
+auto Dialog::save_snapshot(const std::string& filename) -> void
 {
     _application.save_snapshot(filename);
 }
 
-void Dialog::exit()
+auto Dialog::exit() -> void
 {
     _application.exit();
 }
 
-void Dialog::play_emulator()
+auto Dialog::play_emulator() -> void
 {
     _application.play_emulator();
 }
 
-void Dialog::pause_emulator()
+auto Dialog::pause_emulator() -> void
 {
     _application.pause_emulator();
 }
 
-void Dialog::reset_emulator()
+auto Dialog::reset_emulator() -> void
 {
     _application.reset_emulator();
 }
 
-void Dialog::create_disk_into_drive0(const std::string& filename)
+auto Dialog::create_disk_into_drive0(const std::string& filename) -> void
 {
     _application.create_disk_into_drive0(filename);
 }
 
-void Dialog::insert_disk_into_drive0(const std::string& filename)
+auto Dialog::insert_disk_into_drive0(const std::string& filename) -> void
 {
     _application.insert_disk_into_drive0(filename);
 }
 
-void Dialog::remove_disk_from_drive0()
+auto Dialog::remove_disk_from_drive0() -> void
 {
     _application.remove_disk_from_drive0();
 }
 
-void Dialog::create_disk_into_drive1(const std::string& filename)
+auto Dialog::create_disk_into_drive1(const std::string& filename) -> void
 {
     _application.create_disk_into_drive1(filename);
 }
 
-void Dialog::insert_disk_into_drive1(const std::string& filename)
+auto Dialog::insert_disk_into_drive1(const std::string& filename) -> void
 {
     _application.insert_disk_into_drive1(filename);
 }
 
-void Dialog::remove_disk_from_drive1()
+auto Dialog::remove_disk_from_drive1() -> void
 {
     _application.remove_disk_from_drive1();
 }
@@ -334,7 +334,7 @@ DiskDialog::DiskDialog(Application& application, const std::string& title, const
 {
 }
 
-void DiskDialog::create_disk(const std::string& filename)
+auto DiskDialog::create_disk(const std::string& filename) -> void
 {
     switch(_drive) {
         case DRIVE_A:
@@ -348,7 +348,7 @@ void DiskDialog::create_disk(const std::string& filename)
     }
 }
 
-void DiskDialog::insert_disk(const std::string& filename)
+auto DiskDialog::insert_disk(const std::string& filename) -> void
 {
     switch(_drive) {
         case DRIVE_A:
@@ -362,7 +362,7 @@ void DiskDialog::insert_disk(const std::string& filename)
     }
 }
 
-void DiskDialog::remove_disk()
+auto DiskDialog::remove_disk() -> void
 {
     switch(_drive) {
         case DRIVE_A:
@@ -489,7 +489,7 @@ Xcpc::~Xcpc()
     ::xcpc_end();
 }
 
-int Xcpc::main() const
+auto Xcpc::main() const -> int
 {
     return ::xcpc_main(&_argc, &_argv);
 }

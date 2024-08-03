@@ -108,8 +108,8 @@ public: // public data
     std::string opt_drive0;
     std::string opt_drive1;
     std::string opt_snapshot;
+    std::string opt_speedup;
     bool        opt_xshm;
-    bool        opt_turbo;
     bool        opt_scanlines;
     bool        opt_help;
     bool        opt_version;

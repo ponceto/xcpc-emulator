@@ -33,6 +33,10 @@ public: // public interface
 
     Bin(GtkWidget*);
 
+    Bin(const Bin&) = delete;
+
+    Bin& operator=(const Bin&) = delete;
+
     virtual ~Bin() = default;
 
     operator GtkBin*() const

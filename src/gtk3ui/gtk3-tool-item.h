@@ -33,6 +33,10 @@ public: // public interface
 
     ToolItem(GtkWidget*);
 
+    ToolItem(const ToolItem&) = delete;
+
+    ToolItem& operator=(const ToolItem&) = delete;
+
     virtual ~ToolItem() = default;
 
     operator GtkToolItem*() const

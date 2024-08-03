@@ -269,12 +269,12 @@ auto Device::assert_vsync(uint8_t vsync) -> void
 {
     auto on_rising_edge = [&]() -> void
     {
+        _state.frame_y = 0;
         _state.r02 = 2;
     };
 
     auto on_falling_edge = [&]() -> void
     {
-        _state.frame_y = 0;
     };
 
     if(vsync != 0) {

@@ -33,6 +33,10 @@ public: // public interface
 
     Toolbar(GtkWidget*);
 
+    Toolbar(const Toolbar&) = delete;
+
+    Toolbar& operator=(const Toolbar&) = delete;
+
     virtual ~Toolbar() = default;
 
     operator GtkToolbar*() const

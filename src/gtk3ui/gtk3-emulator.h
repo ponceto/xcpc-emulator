@@ -33,6 +33,10 @@ public: // public interface
 
     Emulator(GtkWidget*);
 
+    Emulator(const Emulator&) = delete;
+
+    Emulator& operator=(const Emulator&) = delete;
+
     virtual ~Emulator() = default;
 
     operator GtkEmulator*() const
