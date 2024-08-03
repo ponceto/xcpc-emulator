@@ -1,3 +1,12 @@
+xcpc (0.51.0-1) unstable; urgency=medium
+
+  * Z80 unofficial flags fixed for BIT r,n
+  * Z80 emulation is 100% compliant with the `zexall` testsuite
+  * The `--turbo` option is replaced by `--speedup` option
+  * The CRTC emulation is fixed and improved
+
+ -- Olivier Poncet <ponceto@free.fr>  Tue, 03 Aug 2024 00:00:00 +0200
+
 xcpc (0.50.0-1) unstable; urgency=medium
 
   * Major cleanup and refactoring
