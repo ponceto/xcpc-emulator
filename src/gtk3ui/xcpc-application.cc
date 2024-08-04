@@ -1901,7 +1901,7 @@ auto Application::load_snapshot(const std::string& filename) -> void
         _emulator.load_snapshot(filename);
         ::xcpc_log_debug("load-snapshot has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("load-snapshot has failed (%s)", e.what());
     }
 }
@@ -1913,7 +1913,7 @@ auto Application::save_snapshot(const std::string& filename) -> void
         _emulator.save_snapshot(filename);
         ::xcpc_log_debug("save-snapshot has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("save-snapshot has failed (%s)", e.what());
     }
 }
@@ -1925,7 +1925,7 @@ auto Application::exit() -> void
         _main_window.destroy();
         ::xcpc_log_debug("exit-emulator has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("exit-emulator has failed (%s)", e.what());
     }
 }
@@ -1940,7 +1940,7 @@ auto Application::play_emulator() -> void
         set_state(_("Playing"));
         ::xcpc_log_debug("play-emulator has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("play-emulator has failed (%s)", e.what());
     }
     update_gui();
@@ -1956,7 +1956,7 @@ auto Application::pause_emulator() -> void
         set_state(_("Paused"));
         ::xcpc_log_debug("pause-emulator has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("pause-emulator has failed (%s)", e.what());
     }
     update_gui();
@@ -1987,7 +1987,7 @@ auto Application::reset_emulator() -> void
         play();
         ::xcpc_log_debug("reset-emulator has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("reset-emulator has failed (%s)", e.what());
     }
     update_gui();
@@ -2000,7 +2000,7 @@ auto Application::create_disk_into_drive0(const std::string& filename) -> void
         _emulator.create_disk_into_drive0(filename);
         ::xcpc_log_debug("create-disk-into-drive0 has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("create-disk-into-drive0 has failed (%s)", e.what());
     }
     update_gui();
@@ -2013,7 +2013,7 @@ auto Application::insert_disk_into_drive0(const std::string& filename) -> void
         _emulator.insert_disk_into_drive0(filename);
         ::xcpc_log_debug("insert-disk-into-drive0 has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("insert-disk-into-drive0 has failed (%s)", e.what());
     }
     update_gui();
@@ -2026,7 +2026,7 @@ auto Application::remove_disk_from_drive0() -> void
         _emulator.remove_disk_from_drive0();
         ::xcpc_log_debug("remove-disk-from-drive0 has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("remove-disk-from-drive0 has failed (%s)", e.what());
     }
     update_gui();
@@ -2039,7 +2039,7 @@ auto Application::create_disk_into_drive1(const std::string& filename) -> void
         _emulator.create_disk_into_drive1(filename);
         ::xcpc_log_debug("create-disk-into-drive1 has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("create-disk-into-drive1 has failed (%s)", e.what());
     }
     update_gui();
@@ -2052,7 +2052,7 @@ auto Application::insert_disk_into_drive1(const std::string& filename) -> void
         _emulator.insert_disk_into_drive1(filename);
         ::xcpc_log_debug("insert-disk-into-drive1 has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("insert-disk-into-drive1 has failed (%s)", e.what());
     }
     update_gui();
@@ -2065,7 +2065,7 @@ auto Application::remove_disk_from_drive1() -> void
         _emulator.remove_disk_from_drive1();
         ::xcpc_log_debug("remove-disk-from-drive1 has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("remove-disk-from-drive1 has failed (%s)", e.what());
     }
     update_gui();
@@ -2078,7 +2078,7 @@ auto Application::set_volume(const float volume) -> void
         _emulator.set_volume(volume);
         ::xcpc_log_debug("increase-volume has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("increase-volume has failed (%s)", e.what());
     }
     update_gui();
@@ -2091,7 +2091,7 @@ auto Application::set_scanlines(const bool scanlines) -> void
         _emulator.set_scanlines(scanlines);
         ::xcpc_log_debug("set-scanlines has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("set-scanlines has failed (%s)", e.what());
     }
     update_gui();
@@ -2104,7 +2104,7 @@ auto Application::set_monitor_type(const std::string& monitor_type) -> void
         _emulator.set_monitor_type(monitor_type);
         ::xcpc_log_debug("set-monitor-type has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("set-monitor-type has failed (%s)", e.what());
     }
     update_gui();
@@ -2117,7 +2117,7 @@ auto Application::set_refresh_rate(const std::string& refresh_rate) -> void
         _emulator.set_refresh_rate(refresh_rate);
         ::xcpc_log_debug("set-refresh-rate has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("set-refresh-rate has failed (%s)", e.what());
     }
     update_gui();
@@ -2130,7 +2130,7 @@ auto Application::set_keyboard_type(const std::string& keyboard_type) -> void
         _emulator.set_keyboard_type(keyboard_type);
         ::xcpc_log_debug("set-keyboard-type has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("set-keyboard-type has failed (%s)", e.what());
     }
     update_gui();
@@ -2143,7 +2143,7 @@ auto Application::set_joystick0(const std::string& device) -> void
         work_wnd().emulator().set_joystick(0, device);
         ::xcpc_log_debug("set-joystick0 has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("set-joystick0 has failed (%s)", e.what());
     }
     update_gui();
@@ -2156,7 +2156,7 @@ auto Application::set_joystick1(const std::string& device) -> void
         work_wnd().emulator().set_joystick(1, device);
         ::xcpc_log_debug("set-joystick1 has succeeded");
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("set-joystick1 has failed (%s)", e.what());
     }
     update_gui();

@@ -23,8 +23,8 @@ romsdir = $(datadir)/@PACKAGE@/roms
 
 dist_roms_DATA = \
 	README.md \
-	cpc464.rom \
-	cpc664.rom \
+	cpc464en.rom \
+	cpc664en.rom \
 	cpc6128en.rom \
 	cpc6128fr.rom \
 	amsdos.rom \
