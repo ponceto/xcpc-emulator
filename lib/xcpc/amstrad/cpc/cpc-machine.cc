@@ -140,6 +140,16 @@ auto Machine::set_scanlines(const bool scanlines) -> void
     return _mainboard.set_scanlines(scanlines);
 }
 
+auto Machine::set_company_name(const std::string& company_name) -> void
+{
+    return _mainboard.set_company_name(company_name);
+}
+
+auto Machine::set_machine_type(const std::string& machine_type) -> void
+{
+    return _mainboard.set_machine_type(machine_type);
+}
+
 auto Machine::set_monitor_type(const std::string& monitor_type) -> void
 {
     return _mainboard.set_monitor_type(monitor_type);

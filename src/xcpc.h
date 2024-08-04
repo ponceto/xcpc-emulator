@@ -107,6 +107,8 @@ public: // public interface
 
     auto set_scanlines(const bool scanlines) const -> void;
 
+    auto set_company_name(const std::string& company_name) const -> void;
+
     auto set_monitor_type(const std::string& monitor_type) const -> void;
 
     auto set_refresh_rate(const std::string& refresh_rate) const -> void;
@@ -211,6 +213,8 @@ public: // public methods
 
     virtual auto set_scanlines(const bool scanlines) -> void = 0;
 
+    virtual auto set_company_name(const std::string& company_name) -> void = 0;
+
     virtual auto set_monitor_type(const std::string& monitor_type) -> void = 0;
 
     virtual auto set_refresh_rate(const std::string& refresh_rate) -> void = 0;
@@ -239,6 +243,22 @@ public: // public signals
     virtual auto on_pause_emulator() -> void = 0;
 
     virtual auto on_reset_emulator() -> void = 0;
+
+    virtual auto on_company_isp() -> void = 0;
+
+    virtual auto on_company_triumph() -> void = 0;
+
+    virtual auto on_company_saisho() -> void = 0;
+
+    virtual auto on_company_solavox() -> void = 0;
+
+    virtual auto on_company_awa() -> void = 0;
+
+    virtual auto on_company_schneider() -> void = 0;
+
+    virtual auto on_company_orion() -> void = 0;
+
+    virtual auto on_company_amstrad() -> void = 0;
 
     virtual auto on_color_monitor() -> void = 0;
 

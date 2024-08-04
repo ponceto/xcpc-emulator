@@ -63,6 +63,10 @@ public: // public interface
 
     auto set_scanlines(const bool scanlines) -> void;
 
+    auto set_company_name(const std::string& company_name) -> void;
+
+    auto set_machine_type(const std::string& machine_type) -> void;
+
     auto set_monitor_type(const std::string& monitor_type) -> void;
 
     auto set_refresh_rate(const std::string& refresh_rate) -> void;

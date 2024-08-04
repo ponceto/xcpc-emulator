@@ -193,13 +193,22 @@ public: // public interface
 
 private: // private data
     gtk3::Menu              _menu;
+    gtk3::MenuItem          _company_isp;
+    gtk3::MenuItem          _company_triumph;
+    gtk3::MenuItem          _company_saisho;
+    gtk3::MenuItem          _company_solavox;
+    gtk3::MenuItem          _company_awa;
+    gtk3::MenuItem          _company_schneider;
+    gtk3::MenuItem          _company_orion;
+    gtk3::MenuItem          _company_amstrad;
+    gtk3::SeparatorMenuItem _separator1;
     gtk3::MenuItem          _color_monitor;
     gtk3::MenuItem          _green_monitor;
     gtk3::MenuItem          _gray_monitor;
-    gtk3::SeparatorMenuItem _separator1;
+    gtk3::SeparatorMenuItem _separator2;
     gtk3::MenuItem          _refresh_50hz;
     gtk3::MenuItem          _refresh_60hz;
-    gtk3::SeparatorMenuItem _separator2;
+    gtk3::SeparatorMenuItem _separator3;
     gtk3::MenuItem          _english_keyboard;
     gtk3::MenuItem          _french_keyboard;
     gtk3::MenuItem          _german_keyboard;
@@ -730,6 +739,8 @@ public: // public methods
 
     virtual auto set_scanlines(const bool scanlines) -> void override final;
 
+    virtual auto set_company_name(const std::string& company_name) -> void override final;
+
     virtual auto set_monitor_type(const std::string& monitor_type) -> void override final;
 
     virtual auto set_refresh_rate(const std::string& refresh_rate) -> void override final;
@@ -758,6 +769,22 @@ public: // public signals
     virtual auto on_pause_emulator() -> void override final;
 
     virtual auto on_reset_emulator() -> void override final;
+
+    virtual auto on_company_isp() -> void override final;
+
+    virtual auto on_company_triumph() -> void override final;
+
+    virtual auto on_company_saisho() -> void override final;
+
+    virtual auto on_company_solavox() -> void override final;
+
+    virtual auto on_company_awa() -> void override final;
+
+    virtual auto on_company_schneider() -> void override final;
+
+    virtual auto on_company_orion() -> void override final;
+
+    virtual auto on_company_amstrad() -> void override final;
 
     virtual auto on_color_monitor() -> void override final;
 

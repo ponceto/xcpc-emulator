@@ -609,7 +609,7 @@ auto Mainboard::set_company_name(const std::string& string) -> void
 {
     auto company_name = Utils::company_name_from_string(string);
 
-    auto set = [&](const uint8_t lnk_lk1, const uint8_t lnk_lk2, const uint8_t lnk_lk3) -> void
+    auto set = [&](const uint8_t lnk_lk3, const uint8_t lnk_lk2, const uint8_t lnk_lk1) -> void
     {
         if(company_name != _setup.company_name) {
             _setup.company_name = company_name;

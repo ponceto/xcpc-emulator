@@ -2,6 +2,7 @@
 
 	* Full support for french keyboard
 	* Refactoring, better machine setup
+	* Manufacturer selectable from GUI
 
 2024-08-03	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 

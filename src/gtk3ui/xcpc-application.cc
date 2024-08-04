@@ -107,167 +107,207 @@ namespace {
 
 struct Callbacks
 {
-    static gboolean on_statistics(xcpc::Application* self)
+    static auto on_statistics(xcpc::Application* self) -> gboolean
     {
         self->on_statistics();
         return TRUE;
     }
 
-    static void on_ignore(GtkWidget* widget, xcpc::Application* self)
+    static auto on_ignore(GtkWidget* widget, xcpc::Application* self) -> void
     {
     }
 
-    static void on_load_snapshot(GtkWidget* widget, xcpc::Application* self)
+    static auto on_load_snapshot(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_load_snapshot();
     }
 
-    static void on_save_snapshot(GtkWidget* widget, xcpc::Application* self)
+    static auto on_save_snapshot(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_save_snapshot();
     }
 
-    static void on_exit(GtkWidget* widget, xcpc::Application* self)
+    static auto on_exit(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_exit();
     }
 
-    static void on_play_emulator(GtkWidget* widget, xcpc::Application* self)
+    static auto on_play_emulator(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_play_emulator();
     }
 
-    static void on_pause_emulator(GtkWidget* widget, xcpc::Application* self)
+    static auto on_pause_emulator(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_pause_emulator();
     }
 
-    static void on_reset_emulator(GtkWidget* widget, xcpc::Application* self)
+    static auto on_reset_emulator(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_reset_emulator();
     }
 
-    static void on_color_monitor(GtkWidget* widget, xcpc::Application* self)
+    static auto on_company_isp(GtkWidget* widget, xcpc::Application* self) -> void
+    {
+        self->on_company_isp();
+    }
+
+    static auto on_company_triumph(GtkWidget* widget, xcpc::Application* self) -> void
+    {
+        self->on_company_triumph();
+    }
+
+    static auto on_company_saisho(GtkWidget* widget, xcpc::Application* self) -> void
+    {
+        self->on_company_saisho();
+    }
+
+    static auto on_company_solavox(GtkWidget* widget, xcpc::Application* self) -> void
+    {
+        self->on_company_solavox();
+    }
+
+    static auto on_company_awa(GtkWidget* widget, xcpc::Application* self) -> void
+    {
+        self->on_company_awa();
+    }
+
+    static auto on_company_schneider(GtkWidget* widget, xcpc::Application* self) -> void
+    {
+        self->on_company_schneider();
+    }
+
+    static auto on_company_orion(GtkWidget* widget, xcpc::Application* self) -> void
+    {
+        self->on_company_orion();
+    }
+
+    static auto on_company_amstrad(GtkWidget* widget, xcpc::Application* self) -> void
+    {
+        self->on_company_amstrad();
+    }
+
+    static auto on_color_monitor(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_color_monitor();
     }
 
-    static void on_green_monitor(GtkWidget* widget, xcpc::Application* self)
+    static auto on_green_monitor(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_green_monitor();
     }
 
-    static void on_gray_monitor(GtkWidget* widget, xcpc::Application* self)
+    static auto on_gray_monitor(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_gray_monitor();
     }
 
-    static void on_refresh_50hz(GtkWidget* widget, xcpc::Application* self)
+    static auto on_refresh_50hz(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_refresh_50hz();
     }
 
-    static void on_refresh_60hz(GtkWidget* widget, xcpc::Application* self)
+    static auto on_refresh_60hz(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_refresh_60hz();
     }
 
-    static void on_english_keyboard(GtkWidget* widget, xcpc::Application* self)
+    static auto on_english_keyboard(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_english_keyboard();
     }
 
-    static void on_french_keyboard(GtkWidget* widget, xcpc::Application* self)
+    static auto on_french_keyboard(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_french_keyboard();
     }
 
-    static void on_german_keyboard(GtkWidget* widget, xcpc::Application* self)
+    static auto on_german_keyboard(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_german_keyboard();
     }
 
-    static void on_spanish_keyboard(GtkWidget* widget, xcpc::Application* self)
+    static auto on_spanish_keyboard(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_spanish_keyboard();
     }
 
-    static void on_danish_keyboard(GtkWidget* widget, xcpc::Application* self)
+    static auto on_danish_keyboard(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_danish_keyboard();
     }
 
-    static void on_create_disk_into_drive0(GtkWidget* widget, xcpc::Application* self)
+    static auto on_create_disk_into_drive0(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_create_disk_into_drive0();
     }
 
-    static void on_insert_disk_into_drive0(GtkWidget* widget, xcpc::Application* self)
+    static auto on_insert_disk_into_drive0(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_insert_disk_into_drive0();
     }
 
-    static void on_remove_disk_from_drive0(GtkWidget* widget, xcpc::Application* self)
+    static auto on_remove_disk_from_drive0(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_remove_disk_from_drive0();
     }
 
-    static void on_create_disk_into_drive1(GtkWidget* widget, xcpc::Application* self)
+    static auto on_create_disk_into_drive1(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_create_disk_into_drive1();
     }
 
-    static void on_insert_disk_into_drive1(GtkWidget* widget, xcpc::Application* self)
+    static auto on_insert_disk_into_drive1(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_insert_disk_into_drive1();
     }
 
-    static void on_remove_disk_from_drive1(GtkWidget* widget, xcpc::Application* self)
+    static auto on_remove_disk_from_drive1(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_remove_disk_from_drive1();
     }
 
-    static void on_increase_volume(GtkWidget* widget, xcpc::Application* self)
+    static auto on_increase_volume(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_increase_volume();
     }
 
-    static void on_decrease_volume(GtkWidget* widget, xcpc::Application* self)
+    static auto on_decrease_volume(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_decrease_volume();
     }
 
-    static void on_enable_scanlines(GtkWidget* widget, xcpc::Application* self)
+    static auto on_enable_scanlines(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_enable_scanlines();
     }
 
-    static void on_disable_scanlines(GtkWidget* widget, xcpc::Application* self)
+    static auto on_disable_scanlines(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_disable_scanlines();
     }
 
-    static void on_joystick0(GtkWidget* widget, xcpc::Application* self)
+    static auto on_joystick0(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_joystick0();
     }
 
-    static void on_joystick1(GtkWidget* widget, xcpc::Application* self)
+    static auto on_joystick1(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_joystick1();
     }
 
-    static void on_help(GtkWidget* widget, xcpc::Application* self)
+    static auto on_help(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_help();
     }
 
-    static void on_about(GtkWidget* widget, xcpc::Application* self)
+    static auto on_about(GtkWidget* widget, xcpc::Application* self) -> void
     {
         self->on_about();
     }
 
-    static void on_hotkey(GtkWidget* widget, KeySym* keysym, xcpc::Application* self)
+    static auto on_hotkey(GtkWidget* widget, KeySym* keysym, xcpc::Application* self) -> void
     {
         if(keysym != nullptr) {
             switch(*keysym) {
@@ -334,14 +374,14 @@ struct Callbacks
         return false;
     }
 
-    static void on_drag_data_received ( GtkWidget*         widget
+    static auto on_drag_data_received ( GtkWidget*         widget
                                       , GdkDragContext*    context
                                       , int                x
                                       , int                y
                                       , GtkSelectionData*  data
                                       , guint              info
                                       , guint              time
-                                      , xcpc::Application* self )
+                                      , xcpc::Application* self ) -> void
     {
         const char* prefix_str = "file://";
         const int   prefix_len = ::strlen(prefix_str);
@@ -586,13 +626,22 @@ MachineMenu::MachineMenu(xcpc::Application& application)
     : impl::AppWidget(application)
     , gtk3::MenuItem(nullptr)
     , _menu(nullptr)
+    , _company_isp(nullptr)
+    , _company_triumph(nullptr)
+    , _company_saisho(nullptr)
+    , _company_solavox(nullptr)
+    , _company_awa(nullptr)
+    , _company_schneider(nullptr)
+    , _company_orion(nullptr)
+    , _company_amstrad(nullptr)
+    , _separator1(nullptr)
     , _color_monitor(nullptr)
     , _green_monitor(nullptr)
     , _gray_monitor(nullptr)
-    , _separator1(nullptr)
+    , _separator2(nullptr)
     , _refresh_50hz(nullptr)
     , _refresh_60hz(nullptr)
-    , _separator2(nullptr)
+    , _separator3(nullptr)
     , _english_keyboard(nullptr)
     , _french_keyboard(nullptr)
     , _german_keyboard(nullptr)
@@ -617,6 +666,68 @@ void MachineMenu::build()
         _self.set_submenu(_menu);
     };
 
+    auto build_company_isp = [&]() -> void
+    {
+        _company_isp.create_menu_item_with_label(_("Isp"));
+        _company_isp.add_activate_callback(G_CALLBACK(&Callbacks::on_company_isp), &_application);
+        _menu.append(_company_isp);
+    };
+
+    auto build_company_triumph = [&]() -> void
+    {
+        _company_triumph.create_menu_item_with_label(_("Triumph"));
+        _company_triumph.add_activate_callback(G_CALLBACK(&Callbacks::on_company_triumph), &_application);
+        _menu.append(_company_triumph);
+    };
+
+    auto build_company_saisho = [&]() -> void
+    {
+        _company_saisho.create_menu_item_with_label(_("Saisho"));
+        _company_saisho.add_activate_callback(G_CALLBACK(&Callbacks::on_company_saisho), &_application);
+        _menu.append(_company_saisho);
+    };
+
+    auto build_company_solavox = [&]() -> void
+    {
+        _company_solavox.create_menu_item_with_label(_("Solavox"));
+        _company_solavox.add_activate_callback(G_CALLBACK(&Callbacks::on_company_solavox), &_application);
+        _menu.append(_company_solavox);
+    };
+
+    auto build_company_awa = [&]() -> void
+    {
+        _company_awa.create_menu_item_with_label(_("Awa"));
+        _company_awa.add_activate_callback(G_CALLBACK(&Callbacks::on_company_awa), &_application);
+        _menu.append(_company_awa);
+    };
+
+    auto build_company_schneider = [&]() -> void
+    {
+        _company_schneider.create_menu_item_with_label(_("Schneider"));
+        _company_schneider.add_activate_callback(G_CALLBACK(&Callbacks::on_company_schneider), &_application);
+        _menu.append(_company_schneider);
+    };
+
+    auto build_company_orion = [&]() -> void
+    {
+        _company_orion.create_menu_item_with_label(_("Orion"));
+        _company_orion.add_activate_callback(G_CALLBACK(&Callbacks::on_company_orion), &_application);
+        _menu.append(_company_orion);
+    };
+
+    auto build_company_amstrad = [&]() -> void
+    {
+        _company_amstrad.create_menu_item_with_label(_("Amstrad"));
+        _company_amstrad.add_activate_callback(G_CALLBACK(&Callbacks::on_company_amstrad), &_application);
+        _menu.append(_company_amstrad);
+    };
+
+    auto build_separator1 = [&]() -> void
+    {
+        _separator1.create_separator_menu_item();
+        _menu.append(_separator1);
+    };
+
     auto build_color_monitor = [&]() -> void
     {
         _color_monitor.create_menu_item_with_label(_("Color monitor"));
@@ -638,10 +749,10 @@ void MachineMenu::build()
         _menu.append(_gray_monitor);
     };
 
-    auto build_separator1 = [&]() -> void
+    auto build_separator2 = [&]() -> void
     {
-        _separator1.create_separator_menu_item();
-        _menu.append(_separator1);
+        _separator2.create_separator_menu_item();
+        _menu.append(_separator2);
     };
 
     auto build_refresh_50hz = [&]() -> void
@@ -658,10 +769,10 @@ void MachineMenu::build()
         _menu.append(_refresh_60hz);
     };
 
-    auto build_separator2 = [&]() -> void
+    auto build_separator3 = [&]() -> void
     {
-        _separator2.create_separator_menu_item();
-        _menu.append(_separator2);
+        _separator3.create_separator_menu_item();
+        _menu.append(_separator3);
     };
 
     auto build_english_keyboard = [&]() -> void
@@ -706,13 +817,22 @@ void MachineMenu::build()
     {
         build_self();
         build_menu();
+        build_company_isp();
+        build_company_triumph();
+        build_company_saisho();
+        build_company_solavox();
+        build_company_awa();
+        build_company_schneider();
+        build_company_orion();
+        build_company_amstrad();
+        build_separator1();
         build_color_monitor();
         build_green_monitor();
         build_gray_monitor();
-        build_separator1();
+        build_separator2();
         build_refresh_50hz();
         build_refresh_60hz();
-        build_separator2();
+        build_separator3();
         build_english_keyboard();
         build_french_keyboard();
         build_german_keyboard();
@@ -2097,6 +2217,19 @@ auto Application::set_scanlines(const bool scanlines) -> void
     update_gui();
 }
 
+auto Application::set_company_name(const std::string& company_name) -> void
+{
+    try {
+        ::xcpc_log_debug("set-company-name <%s>", company_name.c_str());
+        _emulator.set_company_name(company_name);
+        ::xcpc_log_debug("set-company-name has succeeded");
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_error("set-company-name has failed (%s)", e.what());
+    }
+    update_gui();
+}
+
 auto Application::set_monitor_type(const std::string& monitor_type) -> void
 {
     try {
@@ -2242,6 +2375,46 @@ auto Application::on_pause_emulator() -> void
 auto Application::on_reset_emulator() -> void
 {
     reset_emulator();
+}
+
+auto Application::on_company_isp() -> void
+{
+    set_company_name("isp");
+}
+
+auto Application::on_company_triumph() -> void
+{
+    set_company_name("Triumph");
+}
+
+auto Application::on_company_saisho() -> void
+{
+    set_company_name("Saisho");
+}
+
+auto Application::on_company_solavox() -> void
+{
+    set_company_name("Solavox");
+}
+
+auto Application::on_company_awa() -> void
+{
+    set_company_name("Awa");
+}
+
+auto Application::on_company_schneider() -> void
+{
+    set_company_name("Schneider");
+}
+
+auto Application::on_company_orion() -> void
+{
+    set_company_name("Orion");
+}
+
+auto Application::on_company_amstrad() -> void
+{
+    set_company_name("Amstrad");
 }
 
 auto Application::on_color_monitor() -> void

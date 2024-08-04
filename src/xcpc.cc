@@ -108,6 +108,11 @@ auto Emulator::set_scanlines(const bool scanlines) const -> void
     return _machine->set_scanlines(scanlines);
 }
 
+auto Emulator::set_company_name(const std::string& company_name) const -> void
+{
+    return _machine->set_company_name(company_name);
+}
+
 auto Emulator::set_monitor_type(const std::string& monitor_type) const -> void
 {
     return _machine->set_monitor_type(monitor_type);
