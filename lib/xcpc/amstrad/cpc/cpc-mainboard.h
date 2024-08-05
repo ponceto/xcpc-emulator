@@ -72,6 +72,10 @@ public: // public interface
 
     virtual ~Mainboard();
 
+    virtual auto play() -> void override final;
+
+    virtual auto pause() -> void override final;
+
     virtual auto reset() -> void override final;
 
     virtual auto clock() -> void override final;
@@ -130,8 +134,6 @@ public: // public interface
     auto get_statistics() const -> std::string;
 
 public: // backend interface
-    auto on_idle(BackendClosure& closure) -> unsigned long;
-
     auto on_reset(BackendClosure& closure) -> unsigned long;
 
     auto on_clock(BackendClosure& closure) -> unsigned long;
@@ -278,7 +280,6 @@ private: // private interface
     auto reset_ram() -> void;
     auto reset_rom() -> void;
     auto reset_exp() -> void;
-    auto reset_cpc() -> void;
 
     auto configure(const Settings& settings) -> void;
     auto load_lower_rom(const std::string& filename) -> void;

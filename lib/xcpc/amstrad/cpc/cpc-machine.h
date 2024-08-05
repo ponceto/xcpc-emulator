@@ -38,6 +38,10 @@ public: // public interface
 
     virtual ~Machine();
 
+    virtual auto play() -> void override final;
+
+    virtual auto pause() -> void override final;
+
     virtual auto reset() -> void override final;
 
     virtual auto clock() -> void override final;

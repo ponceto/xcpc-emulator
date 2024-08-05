@@ -212,6 +212,7 @@ struct Traits
 
     static auto reset(State& state) -> void
     {
+        state.cpc_flags   &= 0;
         state.cpc_clock   |= 0;
         state.cpc_ticks   &= 0;
         state.cpu_clock   |= 0;
@@ -422,6 +423,16 @@ Mainboard::~Mainboard()
     Traits::destruct(_setup);
 }
 
+auto Mainboard::play() -> void
+{
+    _state.cpc_flags &= ~FLAG_PAUSE;
+}
+
+auto Mainboard::pause() -> void
+{
+    _state.cpc_flags |= FLAG_PAUSE;
+}
+
 auto Mainboard::reset() -> void
 {
     Traits::reset(_setup);
@@ -491,6 +502,9 @@ auto Mainboard::clock() -> void
 
     auto emulate = [&]() -> void
     {
+        if((_state.cpc_flags & FLAG_PAUSE) != 0) {
+            return;
+        }
         while(_state.cpc_ticks < _state.cpc_clock) {
             _state.cpc_ticks += _video.frame_rate;
             clock_vdc();
@@ -513,7 +527,7 @@ auto Mainboard::load_snapshot(const std::string& filename) -> void
         load_cpc(snapshot);
     }
     catch(...) {
-        reset_cpc();
+        reset();
         throw;
     }
 }
@@ -527,7 +541,7 @@ auto Mainboard::save_snapshot(const std::string& filename) -> void
         snapshot.save(filename);
     }
     catch(...) {
-    //  reset_cpc();
+    //  reset();
         throw;
     }
 }
@@ -616,7 +630,7 @@ auto Mainboard::set_company_name(const std::string& string) -> void
             _state.lnk_lk1      = lnk_lk1;
             _state.lnk_lk2      = lnk_lk2;
             _state.lnk_lk3      = lnk_lk3;
-            reset_cpc();
+            reset();
         }
     };
 
@@ -665,7 +679,7 @@ auto Mainboard::set_machine_type(const std::string& string) -> void
             if(_setup.memory_size < memory_size) {
                 _setup.memory_size = memory_size;
             }
-            reset_cpc();
+            reset();
         }
     };
 
@@ -754,7 +768,7 @@ auto Mainboard::set_refresh_rate(const std::string& string) -> void
             if(_dpy != nullptr) {
                 _dpy->set_rate(frame_rate);
                 update_vga();
-                reset_cpc();
+                reset();
             }
         }
     };
@@ -892,56 +906,6 @@ auto Mainboard::get_drive1_filename() const -> std::string
 auto Mainboard::get_statistics() const -> std::string
 {
     return _stats.buffer;
-}
-
-auto Mainboard::on_idle(BackendClosure& closure) -> unsigned long
-{
-    unsigned long timeout   = 0UL;
-    unsigned long timedrift = 0UL;
-
-    /* compute the next deadline */ {
-        if((_clock.deadline.tv_usec += _video.frame_duration) >= 1000000) {
-            _clock.deadline.tv_usec -= 1000000;
-            _clock.deadline.tv_sec  += 1;
-        }
-    }
-    /* get the current time */ {
-        Traits::gettimeofday(_clock.currtime);
-    }
-    /* compute the next deadline timeout in us */ {
-        const long long currtime = XCPC_TIMESTAMP_OF(&_clock.currtime);
-        const long long deadline = XCPC_TIMESTAMP_OF(&_clock.deadline);
-        if(currtime <= deadline) {
-            timeout   = static_cast<unsigned long>(deadline - currtime);
-        }
-        else {
-            timedrift = static_cast<unsigned long>(currtime - deadline);
-        }
-    }
-    /* compute stats */ {
-        if(++_stats.frame_count == _video.frame_rate) {
-            update_stats();
-        }
-    }
-    /* check if the time has drifted for more than a second */ {
-        if(timedrift >= 1000000UL) {
-            timeout = _video.frame_duration;
-            _clock.deadline = _clock.currtime;
-            if((_clock.deadline.tv_usec += timeout) >= 1000000) {
-                _clock.deadline.tv_usec -= 1000000;
-                _clock.deadline.tv_sec  += 1;
-            }
-        }
-    }
-    /* schedule the next frame in ms */ {
-        timeout /= 1000UL;
-    }
-    /* adjust timeout if needed and only for the first frame */ {
-        if((timeout == 0UL) && (_stats.frame_count == 0)) {
-            timeout = 1UL;
-        }
-    }
-    return timeout;
 }
 
 auto Mainboard::on_reset(BackendClosure& closure) -> unsigned long
@@ -1389,11 +1353,6 @@ auto Mainboard::reset_exp() -> void
     }
 };
 
-auto Mainboard::reset_cpc() -> void
-{
-    _machine.reset();
-}
-
 auto Mainboard::configure(const Settings& settings) -> void
 {
     auto clamp_int = [](const int value, const int min, const int max) -> int
@@ -1585,7 +1544,7 @@ auto Mainboard::configure(const Settings& settings) -> void
         try {
             init_machine();
             load_roms();
-            reset_cpc();
+            reset();
             load_initial_snapshot();
             load_initial_drive0();
             load_initial_drive1();
@@ -1806,7 +1765,7 @@ auto Mainboard::load_cpc(sna::Snapshot& snapshot) -> void
 
     auto load_all = [&]() -> void
     {
-        reset_cpc();
+        reset();
         load_cpu();
         load_vga();
         load_vdc();

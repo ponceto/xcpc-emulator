@@ -110,11 +110,6 @@ struct _XcpcBackendAnyEvent
     XEvent* event;
 };
 
-struct _XcpcBackendIdleEvent
-{
-    XEvent* event;
-};
-
 struct _XcpcBackendResetEvent
 {
     XEvent* event;
@@ -180,7 +175,6 @@ typedef enum   _XcpcMemorySize                XcpcMemorySize;
 typedef struct _XcpcBackend                   XcpcBackend;
 typedef struct _XcpcBackendClosure            XcpcBackendClosure;
 typedef struct _XcpcBackendAnyEvent           XcpcBackendAnyEvent;
-typedef struct _XcpcBackendIdleEvent          XcpcBackendIdleEvent;
 typedef struct _XcpcBackendResetEvent         XcpcBackendResetEvent;
 typedef struct _XcpcBackendClockEvent         XcpcBackendClockEvent;
 typedef struct _XcpcBackendCreateWindowEvent  XcpcBackendCreateWindowEvent;
@@ -197,7 +191,6 @@ struct _XcpcBackendClosure
 {
     union {
         XcpcBackendAnyEvent           any;
-        XcpcBackendIdleEvent          idle;
         XcpcBackendResetEvent         reset;
         XcpcBackendClockEvent         clock;
         XcpcBackendCreateWindowEvent  create_window;
@@ -215,7 +208,6 @@ struct _XcpcBackendClosure
 struct _XcpcBackend
 {
     void* instance;
-    unsigned long (*idle_func)           (void* instance, XcpcBackendClosure* closure);
     unsigned long (*reset_func)          (void* instance, XcpcBackendClosure* closure);
     unsigned long (*clock_func)          (void* instance, XcpcBackendClosure* closure);
     unsigned long (*create_window_func)  (void* instance, XcpcBackendClosure* closure);

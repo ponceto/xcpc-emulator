@@ -47,7 +47,6 @@ struct translation_traits
 
 namespace base {
 
-class Emulator;
 class Application;
 class Dialog;
 class SnapshotDialog;
@@ -62,91 +61,6 @@ class AboutDialog;
 class ScopedOperation;
 class ScopedPause;
 class ScopedReset;
-
-}
-
-// ---------------------------------------------------------------------------
-// base::Emulator
-// ---------------------------------------------------------------------------
-
-namespace base {
-
-class Emulator
-{
-public: // public interface
-    Emulator(int& argc, char**& argv);
-
-    Emulator(const Emulator&) = delete;
-
-    Emulator& operator=(const Emulator&) = delete;
-
-    virtual ~Emulator() = default;
-
-    auto ready() -> bool;
-
-    auto reset() -> void;
-
-public: // public interface
-    auto load_snapshot(const std::string& filename) const -> void;
-
-    auto save_snapshot(const std::string& filename) const -> void;
-
-    auto create_disk_into_drive0(const std::string& filename) const -> void;
-
-    auto insert_disk_into_drive0(const std::string& filename) const -> void;
-
-    auto remove_disk_from_drive0() const -> void;
-
-    auto create_disk_into_drive1(const std::string& filename) const -> void;
-
-    auto insert_disk_into_drive1(const std::string& filename) const -> void;
-
-    auto remove_disk_from_drive1() const -> void;
-
-    auto set_volume(const float volume) const -> void;
-
-    auto set_scanlines(const bool scanlines) const -> void;
-
-    auto set_company_name(const std::string& company_name) const -> void;
-
-    auto set_monitor_type(const std::string& monitor_type) const -> void;
-
-    auto set_refresh_rate(const std::string& refresh_rate) const -> void;
-
-    auto set_keyboard_type(const std::string& keyboard_type) const -> void;
-
-    auto get_volume() const -> float;
-
-    auto get_system_info() const -> std::string;
-
-    auto get_company_name() const -> std::string;
-
-    auto get_machine_type() const -> std::string;
-
-    auto get_memory_size() const -> std::string;
-
-    auto get_monitor_type() const -> std::string;
-
-    auto get_refresh_rate() const -> std::string;
-
-    auto get_keyboard_type() const -> std::string;
-
-    auto get_drive0_filename() const -> std::string;
-
-    auto get_drive1_filename() const -> std::string;
-
-    auto get_statistics() const -> std::string;
-
-    auto get_backend() const -> const xcpc::Backend*;
-
-private: // private declarations
-    using SettingsPtr = std::unique_ptr<cpc::Settings>;
-    using MachinePtr  = std::unique_ptr<cpc::Machine>;
-
-private: // private data
-    const SettingsPtr _settings;
-    const MachinePtr  _machine;
-};
 
 }
 
@@ -169,20 +83,10 @@ public: // public interface
 
     virtual auto main() ->int = 0;
 
-    auto argc() -> int&
+    auto get_backend() const -> const xcpc::Backend*
     {
-        return _argc;
-    };
-
-    auto argv() -> char**&
-    {
-        return _argv;
-    };
-
-    auto ready() -> bool
-    {
-        return _emulator.ready();
-    };
+        return _machine->get_backend();
+    }
 
 public: // public methods
     virtual auto load_snapshot(const std::string& filename) -> void = 0;
@@ -232,17 +136,17 @@ public: // public signals
 
     virtual auto on_statistics() -> void = 0;
 
-    virtual auto on_load_snapshot() -> void = 0;
+    virtual auto on_snapshot_load() -> void = 0;
 
-    virtual auto on_save_snapshot() -> void = 0;
+    virtual auto on_snapshot_save() -> void = 0;
 
     virtual auto on_exit() -> void = 0;
 
-    virtual auto on_play_emulator() -> void = 0;
+    virtual auto on_emulator_play() -> void = 0;
 
-    virtual auto on_pause_emulator() -> void = 0;
+    virtual auto on_emulator_pause() -> void = 0;
 
-    virtual auto on_reset_emulator() -> void = 0;
+    virtual auto on_emulator_reset() -> void = 0;
 
     virtual auto on_company_isp() -> void = 0;
 
@@ -260,45 +164,45 @@ public: // public signals
 
     virtual auto on_company_amstrad() -> void = 0;
 
-    virtual auto on_color_monitor() -> void = 0;
+    virtual auto on_monitor_color() -> void = 0;
 
-    virtual auto on_green_monitor() -> void = 0;
+    virtual auto on_monitor_green() -> void = 0;
 
-    virtual auto on_gray_monitor() -> void = 0;
+    virtual auto on_monitor_gray() -> void = 0;
 
     virtual auto on_refresh_50hz() -> void = 0;
 
     virtual auto on_refresh_60hz() -> void = 0;
 
-    virtual auto on_english_keyboard() -> void = 0;
+    virtual auto on_keyboard_english() -> void = 0;
 
-    virtual auto on_french_keyboard() -> void = 0;
+    virtual auto on_keyboard_french() -> void = 0;
 
-    virtual auto on_german_keyboard() -> void = 0;
+    virtual auto on_keyboard_german() -> void = 0;
 
-    virtual auto on_spanish_keyboard() -> void = 0;
+    virtual auto on_keyboard_spanish() -> void = 0;
 
-    virtual auto on_danish_keyboard() -> void = 0;
+    virtual auto on_keyboard_danish() -> void = 0;
 
-    virtual auto on_create_disk_into_drive0() -> void = 0;
+    virtual auto on_drive0_create_disk() -> void = 0;
 
-    virtual auto on_insert_disk_into_drive0() -> void = 0;
+    virtual auto on_drive0_insert_disk() -> void = 0;
 
-    virtual auto on_remove_disk_from_drive0() -> void = 0;
+    virtual auto on_drive0_remove_disk() -> void = 0;
 
-    virtual auto on_create_disk_into_drive1() -> void = 0;
+    virtual auto on_drive1_create_disk() -> void = 0;
 
-    virtual auto on_insert_disk_into_drive1() -> void = 0;
+    virtual auto on_drive1_insert_disk() -> void = 0;
 
-    virtual auto on_remove_disk_from_drive1() -> void = 0;
+    virtual auto on_drive1_remove_disk() -> void = 0;
 
-    virtual auto on_increase_volume() -> void = 0;
+    virtual auto on_volume_increase() -> void = 0;
 
-    virtual auto on_decrease_volume() -> void = 0;
+    virtual auto on_volume_decrease() -> void = 0;
 
-    virtual auto on_enable_scanlines() -> void = 0;
+    virtual auto on_scanlines_enable() -> void = 0;
 
-    virtual auto on_disable_scanlines() -> void = 0;
+    virtual auto on_scanlines_disable() -> void = 0;
 
     virtual auto on_joystick0() -> void = 0;
 
@@ -309,12 +213,16 @@ public: // public signals
     virtual auto on_about() -> void = 0;
 
 protected: // protected interface
+    using SettingsPtr = std::unique_ptr<cpc::Settings>;
+    using MachinePtr  = std::unique_ptr<cpc::Machine>;
+
     virtual auto run_dialog(Dialog&) -> void;
 
 protected: // protected data
-    Emulator _emulator;
-    int&     _argc;
-    char**&  _argv;
+    int&              _argc;
+    char**&           _argv;
+    const SettingsPtr _settings;
+    const MachinePtr  _machine;
 };
 
 }

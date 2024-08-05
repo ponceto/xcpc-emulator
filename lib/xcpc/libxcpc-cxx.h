@@ -37,7 +37,6 @@ using Backend                   = XcpcBackend;
 using BackendHandler            = XcpcBackendHandler;
 using BackendClosure            = XcpcBackendClosure;
 using BackendAnyEvent           = XcpcBackendAnyEvent;
-using BackendIdleEvent          = XcpcBackendIdleEvent;
 using BackendClockEvent         = XcpcBackendClockEvent;
 using BackendCreateWindowEvent  = XcpcBackendCreateWindowEvent;
 using BackendDeleteWindowEvent  = XcpcBackendDeleteWindowEvent;
@@ -165,6 +164,10 @@ public: // public interface
 
     virtual ~Machine() = default;
 
+    virtual auto play() -> void = 0;
+
+    virtual auto pause() -> void = 0;
+
     virtual auto reset() -> void = 0;
 
     virtual auto clock() -> void = 0;
@@ -188,6 +191,10 @@ public: // public interface
     Mainboard& operator=(const Mainboard&) = delete;
 
     virtual ~Mainboard() = default;
+
+    virtual auto play() -> void = 0;
+
+    virtual auto pause() -> void = 0;
 
     virtual auto reset() -> void = 0;
 

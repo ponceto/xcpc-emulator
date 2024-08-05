@@ -50,18 +50,10 @@ static gboolean timer_handler(GtkWidget* widget)
         self->timer = 0;
     }
     /* call clock_func */ {
-        if(gtk_widget_is_sensitive(widget) != FALSE) {
-            GemBackend*       backend = &self->backend;
-            GemBackendClosure closure;
-            closure.u.any.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-            timeout = (*backend->clock_func)(backend->instance, &closure);
-        }
-        else {
-            GemBackend*       backend = &self->backend;
-            GemBackendClosure closure;
-            closure.u.any.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-            timeout = (*backend->idle_func)(backend->instance, &closure);
-        }
+        GemBackend*       backend = &self->backend;
+        GemBackendClosure closure;
+        closure.u.any.event = gem_events_copy_or_fill(widget, &self->events, NULL);
+        timeout = (*backend->clock_func)(backend->instance, &closure);
     }
     /* restart timer */ {
         self->timer = g_timeout_add(timeout, G_SOURCE_FUNC(&timer_handler), self);
@@ -554,10 +546,7 @@ static void gtk_emulator_init(GtkEmulator* self)
         self->timer = 0;
     }
     /* schedule timer */ {
-        GemBackend*       backend = &self->backend;
-        GemBackendClosure closure;
-        closure.u.any.event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        schedule(widget, (*backend->idle_func)(backend->instance, &closure));
+        schedule(widget, 1UL);
     }
 }
 
@@ -1212,7 +1201,6 @@ GemBackend* gem_backend_construct(GtkWidget* widget, GemBackend* backend)
 {
     /* construct backend */ {
         backend->instance            = NULL;
-        backend->idle_func           = &gem_backend_default_handler;
         backend->reset_func          = &gem_backend_default_handler;
         backend->clock_func          = &gem_backend_default_handler;
         backend->create_window_func  = &gem_backend_default_handler;
@@ -1232,7 +1220,6 @@ GemBackend* gem_backend_destruct(GtkWidget* widget, GemBackend* backend)
 {
     /* destruct backend */ {
         backend->instance            = NULL;
-        backend->idle_func           = &gem_backend_default_handler;
         backend->reset_func          = &gem_backend_default_handler;
         backend->clock_func          = &gem_backend_default_handler;
         backend->create_window_func  = &gem_backend_default_handler;
@@ -1252,7 +1239,6 @@ GemBackend* gem_backend_copy(GtkWidget* widget, GemBackend* backend, GemBackend*
 {
     /* setup backend */ {
         backend->instance            = source->instance;
-        backend->idle_func           = (source->idle_func           != NULL ? source->idle_func           : &gem_backend_default_handler);
         backend->reset_func          = (source->reset_func          != NULL ? source->reset_func          : &gem_backend_default_handler);
         backend->clock_func          = (source->clock_func          != NULL ? source->clock_func          : &gem_backend_default_handler);
         backend->create_window_func  = (source->create_window_func  != NULL ? source->create_window_func  : &gem_backend_default_handler);

@@ -47,7 +47,6 @@ Machine::Machine(Settings& settings)
     , _mainboard(*this, settings)
 {
     _backend.instance            = this;
-    _backend.idle_func           = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_idle(*closure);           };
     _backend.reset_func          = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*closure);          };
     _backend.clock_func          = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*closure);          };
     _backend.create_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*closure);  };
@@ -66,7 +65,6 @@ Machine::~Machine()
 {
     _audio.stop();
     _backend.instance            = nullptr;
-    _backend.idle_func           = nullptr;
     _backend.reset_func          = nullptr;
     _backend.clock_func          = nullptr;
     _backend.create_window_func  = nullptr;
@@ -78,6 +76,16 @@ Machine::~Machine()
     _backend.button_press_func   = nullptr;
     _backend.button_release_func = nullptr;
     _backend.motion_notify_func  = nullptr;
+}
+
+auto Machine::play() -> void
+{
+    _mainboard.play();
+}
+
+auto Machine::pause() -> void
+{
+    _mainboard.pause();
 }
 
 auto Machine::reset() -> void

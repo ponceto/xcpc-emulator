@@ -192,28 +192,33 @@ public: // public interface
     virtual void build() override;
 
 private: // private data
-    gtk3::Menu              _menu;
-    gtk3::MenuItem          _company_isp;
-    gtk3::MenuItem          _company_triumph;
-    gtk3::MenuItem          _company_saisho;
-    gtk3::MenuItem          _company_solavox;
-    gtk3::MenuItem          _company_awa;
-    gtk3::MenuItem          _company_schneider;
-    gtk3::MenuItem          _company_orion;
-    gtk3::MenuItem          _company_amstrad;
-    gtk3::SeparatorMenuItem _separator1;
-    gtk3::MenuItem          _color_monitor;
-    gtk3::MenuItem          _green_monitor;
-    gtk3::MenuItem          _gray_monitor;
-    gtk3::SeparatorMenuItem _separator2;
-    gtk3::MenuItem          _refresh_50hz;
-    gtk3::MenuItem          _refresh_60hz;
-    gtk3::SeparatorMenuItem _separator3;
-    gtk3::MenuItem          _english_keyboard;
-    gtk3::MenuItem          _french_keyboard;
-    gtk3::MenuItem          _german_keyboard;
-    gtk3::MenuItem          _spanish_keyboard;
-    gtk3::MenuItem          _danish_keyboard;
+    gtk3::Menu     _menu;
+    gtk3::MenuItem _company;
+    gtk3::Menu     _company_menu;
+    gtk3::MenuItem _company_isp;
+    gtk3::MenuItem _company_triumph;
+    gtk3::MenuItem _company_saisho;
+    gtk3::MenuItem _company_solavox;
+    gtk3::MenuItem _company_awa;
+    gtk3::MenuItem _company_schneider;
+    gtk3::MenuItem _company_orion;
+    gtk3::MenuItem _company_amstrad;
+    gtk3::MenuItem _monitor;
+    gtk3::Menu     _monitor_menu;
+    gtk3::MenuItem _monitor_color;
+    gtk3::MenuItem _monitor_green;
+    gtk3::MenuItem _monitor_gray;
+    gtk3::MenuItem _refresh;
+    gtk3::Menu     _refresh_menu;
+    gtk3::MenuItem _refresh_50hz;
+    gtk3::MenuItem _refresh_60hz;
+    gtk3::MenuItem _keyboard;
+    gtk3::Menu     _keyboard_menu;
+    gtk3::MenuItem _keyboard_english;
+    gtk3::MenuItem _keyboard_french;
+    gtk3::MenuItem _keyboard_german;
+    gtk3::MenuItem _keyboard_spanish;
+    gtk3::MenuItem _keyboard_danish;
 };
 
 }
@@ -303,8 +308,8 @@ public: // public interface
 
 private: // private data
     gtk3::Menu      _menu;
-    gtk3::MenuItem  _increase_volume;
-    gtk3::MenuItem  _decrease_volume;
+    gtk3::MenuItem  _volume_increase;
+    gtk3::MenuItem  _volume_decrease;
 };
 
 }
@@ -332,8 +337,8 @@ public: // public interface
 
 private: // private data
     gtk3::Menu     _menu;
-    gtk3::MenuItem _enable_scanlines;
-    gtk3::MenuItem _disable_scanlines;
+    gtk3::MenuItem _scanlines_enable;
+    gtk3::MenuItem _scanlines_disable;
 };
 
 }
@@ -485,8 +490,8 @@ private: // private data
     gtk3::ToolButton        _pause_emulator;
     gtk3::ToolButton        _reset_emulator;
     gtk3::SeparatorToolItem _separator2;
-    gtk3::ToolButton        _decrease_volume;
-    gtk3::ToolButton        _increase_volume;
+    gtk3::ToolButton        _volume_decrease;
+    gtk3::ToolButton        _volume_increase;
 };
 
 }
@@ -555,14 +560,6 @@ public: // public interface
     virtual ~WorkWnd() = default;
 
     virtual void build() override;
-
-    void enable();
-
-    bool enabled();
-
-    void disable();
-
-    bool disabled();
 
     auto emulator() -> gtk3::Emulator&
     {
@@ -680,11 +677,6 @@ public: // public accessors
         return _app_icon;
     }
 
-    auto emulator() -> base::Emulator&
-    {
-        return _emulator;
-    }
-
     auto main_window() -> impl::MainWindow&
     {
         return _main_window;
@@ -758,17 +750,17 @@ public: // public signals
 
     virtual auto on_statistics() -> void override final;
 
-    virtual auto on_load_snapshot() -> void override final;
+    virtual auto on_snapshot_load() -> void override final;
 
-    virtual auto on_save_snapshot() -> void override final;
+    virtual auto on_snapshot_save() -> void override final;
 
     virtual auto on_exit() -> void override final;
 
-    virtual auto on_play_emulator() -> void override final;
+    virtual auto on_emulator_play() -> void override final;
 
-    virtual auto on_pause_emulator() -> void override final;
+    virtual auto on_emulator_pause() -> void override final;
 
-    virtual auto on_reset_emulator() -> void override final;
+    virtual auto on_emulator_reset() -> void override final;
 
     virtual auto on_company_isp() -> void override final;
 
@@ -786,45 +778,45 @@ public: // public signals
 
     virtual auto on_company_amstrad() -> void override final;
 
-    virtual auto on_color_monitor() -> void override final;
+    virtual auto on_monitor_color() -> void override final;
 
-    virtual auto on_green_monitor() -> void override final;
+    virtual auto on_monitor_green() -> void override final;
 
-    virtual auto on_gray_monitor() -> void override final;
+    virtual auto on_monitor_gray() -> void override final;
 
     virtual auto on_refresh_50hz() -> void override final;
 
     virtual auto on_refresh_60hz() -> void override final;
 
-    virtual auto on_english_keyboard() -> void override final;
+    virtual auto on_keyboard_english() -> void override final;
 
-    virtual auto on_french_keyboard() -> void override final;
+    virtual auto on_keyboard_french() -> void override final;
 
-    virtual auto on_german_keyboard() -> void override final;
+    virtual auto on_keyboard_german() -> void override final;
 
-    virtual auto on_spanish_keyboard() -> void override final;
+    virtual auto on_keyboard_spanish() -> void override final;
 
-    virtual auto on_danish_keyboard() -> void override final;
+    virtual auto on_keyboard_danish() -> void override final;
 
-    virtual auto on_create_disk_into_drive0() -> void override final;
+    virtual auto on_drive0_create_disk() -> void override final;
 
-    virtual auto on_insert_disk_into_drive0() -> void override final;
+    virtual auto on_drive0_insert_disk() -> void override final;
 
-    virtual auto on_remove_disk_from_drive0() -> void override final;
+    virtual auto on_drive0_remove_disk() -> void override final;
 
-    virtual auto on_create_disk_into_drive1() -> void override final;
+    virtual auto on_drive1_create_disk() -> void override final;
 
-    virtual auto on_insert_disk_into_drive1() -> void override final;
+    virtual auto on_drive1_insert_disk() -> void override final;
 
-    virtual auto on_remove_disk_from_drive1() -> void override final;
+    virtual auto on_drive1_remove_disk() -> void override final;
 
-    virtual auto on_increase_volume() -> void override final;
+    virtual auto on_volume_increase() -> void override final;
 
-    virtual auto on_decrease_volume() -> void override final;
+    virtual auto on_volume_decrease() -> void override final;
 
-    virtual auto on_enable_scanlines() -> void override final;
+    virtual auto on_scanlines_enable() -> void override final;
 
-    virtual auto on_disable_scanlines() -> void override final;
+    virtual auto on_scanlines_disable() -> void override final;
 
     virtual auto on_joystick0() -> void override final;
 
