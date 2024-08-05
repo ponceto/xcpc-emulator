@@ -356,9 +356,38 @@ struct Callbacks
         }
     }
 
-    static auto on_gl_render(GtkWidget* widget, GdkGLContext* context, xcpc::Application* self) -> void
+    static auto on_gl_key_press(GtkWidget* widget, GdkEventKey* event, xcpc::Application* self) -> gboolean
+    {
+        ::gtk_widget_grab_focus(widget);
+        ::xcpc_log_debug("on_gl_key_press");
+        return TRUE;
+    }
+
+    static auto on_gl_key_release(GtkWidget* widget, GdkEventKey* event, xcpc::Application* self) -> gboolean
+    {
+        ::gtk_widget_grab_focus(widget);
+        ::xcpc_log_debug("on_gl_key_release");
+        return TRUE;
+    }
+
+    static auto on_gl_button_press(GtkWidget* widget, GdkEventButton* event, xcpc::Application* self) -> gboolean
+    {
+        ::gtk_widget_grab_focus(widget);
+        ::xcpc_log_debug("on_gl_button_press");
+        return TRUE;
+    }
+
+    static auto on_gl_button_release(GtkWidget* widget, GdkEventButton* event, xcpc::Application* self) -> gboolean
+    {
+        ::gtk_widget_grab_focus(widget);
+        ::xcpc_log_debug("on_gl_button_release");
+        return TRUE;
+    }
+
+    static auto on_gl_render(GtkWidget* widget, GdkGLContext* context, xcpc::Application* self) -> gboolean
     {
         ::xcpc_log_debug("on_gl_render()");
+        return TRUE;
     }
 
     static auto on_gl_resize(GtkWidget* widget, gint width, gint height, xcpc::Application* self) -> void
@@ -1849,8 +1878,13 @@ void WorkWnd::build()
 
     auto build_gl_area = [&]() -> void
     {
-#if XCPC_ENABLE_GL_AREA
+#ifdef XCPC_ENABLE_GL_AREA
         _gl_area.create_gl_area();
+        _gl_area.set_can_focus(true);
+        _gl_area.add_key_press_event_callback(G_CALLBACK(&Callbacks::on_gl_key_press), &_application);
+        _gl_area.add_key_release_event_callback(G_CALLBACK(&Callbacks::on_gl_key_release), &_application);
+        _gl_area.add_button_press_event_callback(G_CALLBACK(&Callbacks::on_gl_button_press), &_application);
+        _gl_area.add_button_release_event_callback(G_CALLBACK(&Callbacks::on_gl_button_release), &_application);
         _gl_area.add_render_callback(G_CALLBACK(&Callbacks::on_gl_render), &_application);
         _gl_area.add_resize_callback(G_CALLBACK(&Callbacks::on_gl_resize), &_application);
         _self.pack_start(_gl_area, true, true, 0);

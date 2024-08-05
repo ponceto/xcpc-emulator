@@ -80,6 +80,20 @@ struct WidgetTraits
         }
     }
 
+    static void set_can_focus(Widget& widget, bool can_focus)
+    {
+        if(widget) {
+            return ::gtk_widget_set_can_focus(widget, can_focus);
+        }
+    }
+
+    static void set_focus_on_click(Widget& widget, bool focus_on_click)
+    {
+        if(widget) {
+            return ::gtk_widget_set_focus_on_click(widget, focus_on_click);
+        }
+    }
+
     static void set_sensitive(Widget& widget, bool sensitive)
     {
         if(widget) {
@@ -99,6 +113,13 @@ struct WidgetTraits
     {
         if(widget) {
             return ::gtk_drag_dest_set(widget, flags, targets, num_targets, actions);
+        }
+    }
+
+    static void add_events(Widget& widget, gint events)
+    {
+        if(widget) {
+            return ::gtk_widget_add_events(widget, events);
         }
     }
 };
@@ -162,6 +183,16 @@ void Widget::grab_focus()
     return traits::grab_focus(*this);
 }
 
+void Widget::set_can_focus(bool can_focus)
+{
+    return traits::set_can_focus(*this, can_focus);
+}
+
+void Widget::set_focus_on_click(bool focus_on_click)
+{
+    return traits::set_focus_on_click(*this, focus_on_click);
+}
+
 void Widget::set_sensitive(bool sensitive)
 {
     return traits::set_sensitive(*this, sensitive);
@@ -194,21 +225,29 @@ void Widget::add_unrealize_callback(GCallback callback, void* data)
 
 void Widget::add_key_press_event_callback(GCallback callback, void* data)
 {
+    traits::add_events(*this, GDK_KEY_PRESS_MASK);
+
     return signal_connect(sig_key_press_event, callback, data);
 }
 
 void Widget::add_key_release_event_callback(GCallback callback, void* data)
 {
+    traits::add_events(*this, GDK_KEY_RELEASE_MASK);
+
     return signal_connect(sig_key_release_event, callback, data);
 }
 
 void Widget::add_button_press_event_callback(GCallback callback, void* data)
 {
+    traits::add_events(*this, GDK_BUTTON_PRESS_MASK);
+
     return signal_connect(sig_button_press_event, callback, data);
 }
 
 void Widget::add_button_release_event_callback(GCallback callback, void* data)
 {
+    traits::add_events(*this, GDK_BUTTON_RELEASE_MASK);
+
     return signal_connect(sig_button_release_event, callback, data);
 }
 

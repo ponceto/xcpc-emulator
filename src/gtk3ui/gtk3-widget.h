@@ -63,6 +63,10 @@ public: // public interface
 
     void grab_focus();
 
+    void set_can_focus(bool can_focus);
+
+    void set_focus_on_click(bool focus_on_click);
+
     void set_sensitive(bool sensitive);
 
     bool is_sensitive();
