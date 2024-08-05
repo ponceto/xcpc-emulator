@@ -356,6 +356,16 @@ struct Callbacks
         }
     }
 
+    static auto on_gl_render(GtkWidget* widget, GdkGLContext* context, xcpc::Application* self) -> void
+    {
+        ::xcpc_log_debug("on_gl_render()");
+    }
+
+    static auto on_gl_resize(GtkWidget* widget, gint width, gint height, xcpc::Application* self) -> void
+    {
+        ::xcpc_log_debug("on_gl_resize(%d, %d)", width, height);
+    }
+
     static bool check_extension(const char* filename, const char* extension)
     {
         const int filename_length  = ::strlen(filename);
@@ -1808,6 +1818,7 @@ WorkWnd::WorkWnd(xcpc::Application& application)
     : impl::AppWidget(application)
     , gtk3::HBox(nullptr)
     , _emulator(nullptr)
+    , _gl_area(nullptr)
 {
 }
 
@@ -1836,10 +1847,21 @@ void WorkWnd::build()
         _self.pack_start(_emulator, true, true, 0);
     };
 
+    auto build_gl_area = [&]() -> void
+    {
+#if XCPC_ENABLE_GL_AREA
+        _gl_area.create_gl_area();
+        _gl_area.add_render_callback(G_CALLBACK(&Callbacks::on_gl_render), &_application);
+        _gl_area.add_resize_callback(G_CALLBACK(&Callbacks::on_gl_resize), &_application);
+        _self.pack_start(_gl_area, true, true, 0);
+#endif
+    };
+
     auto build_all = [&]() -> void
     {
         build_self();
         build_emulator();
+        build_gl_area();
     };
 
     return build_all();

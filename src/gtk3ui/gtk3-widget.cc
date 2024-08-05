@@ -182,6 +182,41 @@ void Widget::signal_connect(const char* signal, GCallback callback, void* data)
     return traits::signal_connect(_instance, signal, callback, data);
 }
 
+void Widget::add_realize_callback(GCallback callback, void* data)
+{
+    return signal_connect(sig_realize, callback, data);
+}
+
+void Widget::add_unrealize_callback(GCallback callback, void* data)
+{
+    return signal_connect(sig_unrealize, callback, data);
+}
+
+void Widget::add_key_press_event_callback(GCallback callback, void* data)
+{
+    return signal_connect(sig_key_press_event, callback, data);
+}
+
+void Widget::add_key_release_event_callback(GCallback callback, void* data)
+{
+    return signal_connect(sig_key_release_event, callback, data);
+}
+
+void Widget::add_button_press_event_callback(GCallback callback, void* data)
+{
+    return signal_connect(sig_button_press_event, callback, data);
+}
+
+void Widget::add_button_release_event_callback(GCallback callback, void* data)
+{
+    return signal_connect(sig_button_release_event, callback, data);
+}
+
+void Widget::add_motion_notify_event_callback(GCallback callback, void* data)
+{
+    return signal_connect(sig_motion_notify_event, callback, data);
+}
+
 void Widget::add_drag_data_received_callback(GCallback callback, void* data)
 {
     return signal_connect(sig_drag_data_received, callback, data);

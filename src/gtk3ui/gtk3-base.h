@@ -32,10 +32,23 @@ extern const char sig_startup[];
 extern const char sig_shutdown[];
 extern const char sig_activate[];
 extern const char sig_clicked[];
+extern const char sig_enter[];
+extern const char sig_leave[];
+extern const char sig_pressed[];
+extern const char sig_released[];
 extern const char sig_select[];
 extern const char sig_deselect[];
 extern const char sig_drag_data_received[];
 extern const char sig_hotkey[];
+extern const char sig_render[];
+extern const char sig_resize[];
+extern const char sig_realize[];
+extern const char sig_unrealize[];
+extern const char sig_key_press_event[];
+extern const char sig_key_release_event[];
+extern const char sig_button_press_event[];
+extern const char sig_button_release_event[];
+extern const char sig_motion_notify_event[];
 
 }
 

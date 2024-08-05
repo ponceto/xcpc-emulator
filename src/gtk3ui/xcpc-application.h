@@ -568,6 +568,7 @@ public: // public interface
 
 private: // private data
     gtk3::Emulator _emulator;
+    gtk3::GLArea   _gl_area;
 };
 
 }

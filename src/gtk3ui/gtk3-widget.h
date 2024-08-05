@@ -71,6 +71,20 @@ public: // public interface
 
     void signal_connect(const char* signal, GCallback callback, void* data);
 
+    void add_realize_callback(GCallback callback, void* data);
+
+    void add_unrealize_callback(GCallback callback, void* data);
+
+    void add_key_press_event_callback(GCallback callback, void* data);
+
+    void add_key_release_event_callback(GCallback callback, void* data);
+
+    void add_button_press_event_callback(GCallback callback, void* data);
+
+    void add_button_release_event_callback(GCallback callback, void* data);
+
+    void add_motion_notify_event_callback(GCallback callback, void* data);
+
     void add_drag_data_received_callback(GCallback callback, void* data);
 
 protected: // protected data

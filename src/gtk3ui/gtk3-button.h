@@ -1,5 +1,5 @@
 /*
- * gtk3-frame.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-button.h - Copyright (c) 2001-2024 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,37 +14,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __GTK3_CXX_FRAME_H__
-#define __GTK3_CXX_FRAME_H__
+#ifndef __GTK3_CXX_BUTTON_H__
+#define __GTK3_CXX_BUTTON_H__
 
 #include <gtk3ui/gtk3-bin.h>
 
 // ---------------------------------------------------------------------------
-// gtk3::Frame
+// gtk3::Button
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-class Frame
+class Button
     : public Bin
 {
 public: // public interface
-    Frame();
+    Button();
 
-    Frame(GtkWidget*);
+    Button(GtkWidget*);
 
-    Frame(const Frame&) = delete;
+    Button(const Button&) = delete;
 
-    Frame& operator=(const Frame&) = delete;
+    Button& operator=(const Button&) = delete;
 
-    virtual ~Frame() = default;
+    virtual ~Button() = default;
 
-    operator GtkFrame*() const
+    operator GtkButton*() const
     {
-        return GTK_FRAME(_instance);
+        return GTK_BUTTON(_instance);
     }
 
-    void create_frame(const std::string& string);
+    void create_button();
+
+    void create_button_with_label(const std::string& string);
+
+    void add_activate_callback(GCallback callback, void* data);
+
+    void add_clicked_callback(GCallback callback, void* data);
+
+    void add_enter_callback(GCallback callback, void* data);
+
+    void add_leave_callback(GCallback callback, void* data);
+
+    void add_pressed_callback(GCallback callback, void* data);
+
+    void add_released_callback(GCallback callback, void* data);
 };
 
 }
@@ -53,4 +67,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __GTK3_CXX_FRAME_H__ */
+#endif /* __GTK3_CXX_BUTTON_H__ */

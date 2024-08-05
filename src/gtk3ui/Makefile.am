@@ -54,6 +54,8 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-bin.h \
 	gtk3-box.cc \
 	gtk3-box.h \
+	gtk3-button.cc \
+	gtk3-button.h \
 	gtk3-frame.cc \
 	gtk3-frame.h \
 	gtk3-window.cc \
@@ -68,6 +70,8 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-message-dialog.h \
 	gtk3-file-chooser-dialog.cc \
 	gtk3-file-chooser-dialog.h \
+	gtk3-gl-area.cc \
+	gtk3-gl-area.h \
 	gtk3-label.cc \
 	gtk3-label.h \
 	gtk3-menu-shell.cc \
