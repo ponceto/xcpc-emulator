@@ -1,5 +1,5 @@
 #
-# xcpc.desktop - Copyright (c) 2001-2024 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2024 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,14 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
-[Desktop Entry]
-Version=1.0
-Encoding=UTF-8
-Name=Xcpc - Amstrad CPC emulator
-Comment=Amstrad CPC emulator
-Categories=Game;
-Exec=@XCPC_BINDIR@/xcpc
-Icon=@XCPC_DATDIR@/pixmaps/xcpc.png
-Terminal=false
-Type=Application
-MimeType=application/x-amstrad-cpc-snapshot;application/x-amstrad-cpc-disk-image;application/x-amstrad-cpc-gz-disk-image;application/x-amstrad-cpc-bz2-disk-image
+
+# ----------------------------------------------------------------------------
+# SUBDIRS
+# ----------------------------------------------------------------------------
+
+SUBDIRS = \
+	packages \
+	$(NULL)
+
+# ----------------------------------------------------------------------------
+# End-Of-File
+# ----------------------------------------------------------------------------

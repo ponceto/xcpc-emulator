@@ -745,6 +745,8 @@ public: // public methods
     virtual auto set_joystick1(const std::string& device) -> void override final;
 
 public: // public signals
+    virtual auto on_open(GFile** files, int num_files) -> void override final;
+
     virtual auto on_startup() -> void override final;
 
     virtual auto on_shutdown() -> void override final;

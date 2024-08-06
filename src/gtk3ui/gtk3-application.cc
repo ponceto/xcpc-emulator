@@ -42,10 +42,14 @@ struct ApplicationTraits
 {
     static GtkApplication* create_application(const std::string& app_id)
     {
+#if 1
+        constexpr auto flags = G_APPLICATION_HANDLES_OPEN;
+#else
 #if GLIB_CHECK_VERSION(2, 74, 0)
         constexpr auto flags = G_APPLICATION_DEFAULT_FLAGS;
 #else
         constexpr auto flags = G_APPLICATION_FLAGS_NONE;
+#endif
 #endif
         return ::gtk_application_new(app_id.c_str(), flags);
     }
@@ -75,11 +79,11 @@ struct ApplicationTraits
         return EXIT_FAILURE;
     }
 
-    static void on_open(GApplication* object, gpointer files, int num_files, char* hint, Application* application)
+    static void on_open(GApplication* object, GFile** files, int num_files, char* hint, Application* application)
     {
         ApplicationListener& listener(application->listener());
 
-        return listener.on_open();
+        return listener.on_open(files, num_files);
     }
 
     static void on_startup(GApplication* object, Application* application)
@@ -122,7 +126,7 @@ using traits = gtk3::ApplicationTraits;
 
 namespace gtk3 {
 
-void ApplicationListener::on_open()
+void ApplicationListener::on_open(GFile** files, int num_files)
 {
 }
 

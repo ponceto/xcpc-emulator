@@ -364,7 +364,7 @@ void Settings::usage()
 
     auto print_cmd = [&](const char* string) -> void
     {
-        ::xcpc_println("Usage: %s [toolkit-options] [program-options]", basename_of(string));
+        ::xcpc_println("Usage: %s [toolkit-options] [xcpc-options] [files...]", basename_of(string));
     };
 
     auto print_str = [&](const char* string) -> void

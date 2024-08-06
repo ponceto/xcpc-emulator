@@ -4,6 +4,7 @@
 	* Refactoring, better machine setup
 	* Manufacturer selectable from GUI
 	* GUI code cleanup/refactoring
+	* Desktop integration and mime types
 
 2024-08-03	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 

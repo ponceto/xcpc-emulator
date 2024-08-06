@@ -395,7 +395,7 @@ struct Callbacks
         ::xcpc_log_debug("on_gl_resize(%d, %d)", width, height);
     }
 
-    static bool check_extension(const char* filename, const char* extension)
+    static auto has_extension(const char* filename, const char* extension) -> bool
     {
         const int filename_length  = ::strlen(filename);
         const int extension_length = ::strlen(extension);
@@ -408,6 +408,33 @@ struct Callbacks
         return false;
     }
 
+    static auto open_file(xcpc::Application& self, const char* filename) -> void
+    {
+        const char* file_scheme_str = "file://";
+        const int   file_scheme_len = ::strlen(file_scheme_str);
+        if(filename != nullptr) {
+            if(::strncmp(filename, file_scheme_str, file_scheme_len) == 0) {
+                filename += file_scheme_len;
+            }
+            if(has_extension(filename, ".sna") != false) {
+                self.load_snapshot(filename);
+                self.play_emulator();
+            }
+            else if(has_extension(filename, ".dsk") != false) {
+                self.insert_disk_into_drive0(filename);
+                self.play_emulator();
+            }
+            else if(has_extension(filename, ".dsk.gz") != false) {
+                self.insert_disk_into_drive0(filename);
+                self.play_emulator();
+            }
+            else if(has_extension(filename, ".dsk.bz2") != false) {
+                self.insert_disk_into_drive0(filename);
+                self.play_emulator();
+            }
+        }
+    }
+
     static auto on_drag_data_received ( GtkWidget*         widget
                                       , GdkDragContext*    context
                                       , int                x
@@ -417,36 +444,12 @@ struct Callbacks
                                       , guint              time
                                       , xcpc::Application* self ) -> void
     {
-        const char* prefix_str = "file://";
-        const int   prefix_len = ::strlen(prefix_str);
-        gchar**     uri_list   = ::gtk_selection_data_get_uris(data);
-        gchar*      filename   = nullptr;
+        gchar** uri_list = ::gtk_selection_data_get_uris(data);
 
         if(uri_list != nullptr) {
-            filename = uri_list[0];
-        }
-        if(filename != nullptr) {
-            if(::strncmp(filename, prefix_str, prefix_len) == 0) {
-                filename += prefix_len;
+            for(int index = 0; uri_list[index] != nullptr; ++index) {
+                open_file(*self, uri_list[index]);
             }
-            if(check_extension(filename, ".sna") != false) {
-                self->load_snapshot(filename);
-                self->play_emulator();
-            }
-            else if(check_extension(filename, ".dsk") != false) {
-                self->insert_disk_into_drive0(filename);
-                self->play_emulator();
-            }
-            else if(check_extension(filename, ".dsk.gz") != false) {
-                self->insert_disk_into_drive0(filename);
-                self->play_emulator();
-            }
-            else if(check_extension(filename, ".dsk.bz2") != false) {
-                self->insert_disk_into_drive0(filename);
-                self->play_emulator();
-            }
-        }
-        if(uri_list != nullptr) {
             uri_list = (::g_strfreev(uri_list), nullptr);
         }
     }
@@ -2338,6 +2341,16 @@ auto Application::set_joystick1(const std::string& device) -> void
         ::xcpc_log_error("set-joystick1 has failed (%s)", e.what());
     }
     update_gui();
+}
+
+auto Application::on_open(GFile** files, int num_files) -> void
+{
+    const int count = num_files;
+    for(int index = 0; index < count; ++index) {
+        char* path = ::g_file_get_path(files[index]);
+        Callbacks::open_file(*this, path);
+        path = (::g_free(path), nullptr);
+    }
 }
 
 auto Application::on_startup() -> void

@@ -3,7 +3,7 @@
 ### COMMAND-LINE OPTIONS
 
 ```
-Usage: xcpc [toolkit-options] [program-options]
+Usage: xcpc [toolkit-options] [xcpc-options] [files...]
 
 Help options:
     --help                      display this help and exit

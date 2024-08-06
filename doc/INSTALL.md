@@ -74,18 +74,20 @@ Run the emulator
 
 ### DESKTOP INTEGRATION
 
-A XDG compliant `.desktop` file is provided, so you can copy or symlink this file in a relevant directory
+A desktop and mime type files are provided, so you can copy or symlink these files into the relevant directories.
 
 For example, in the system directory:
 
 ```
-ln -sf {destination-path}/share/applications/xcpc.desktop /usr/share/applications/xcpc.desktop
+ln -sf ${destination-path}/share/applications/xcpc.desktop /usr/share/applications/xcpc.desktop
+ln -sf ${destination-path}/share/mime/packages/xcpc.xml /usr/share/mime/packages/xcpc.xml
 ```
 
 For example, or the user directory:
 
 ```
-ln -sf {destination-path}/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
+ln -sf ${destination-path}/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
+ln -sf ${destination-path}/share/mime/packages/xcpc.xml ${HOME}/.local/share/mime/packages/xcpc.xml
 ```
 
 ## HOW TO INSTALL INTO YOUR HOME DIRECTORY
@@ -97,7 +99,10 @@ autoreconf -v -i -f
 ./configure --prefix=${HOME}/Apps/xcpc
 make -j$(nproc)
 make install
-ln -sf {HOME}/Apps/xcpc/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
+ln -sf ${HOME}/Apps/xcpc/share/applications/xcpc.desktop ${HOME}/.local/share/applications/xcpc.desktop
+ln -sf ${HOME}/Apps/xcpc/share/mime/packages/xcpc.xml ${HOME}/.local/share/mime/packages/xcpc.xml
+update-desktop-database ${HOME}/.local/share/applications/
+update-mime-database ${HOME}/.local/share/mime/
 ```
 
 You can now run the emulator from your desktop menu `Games > Xcpc`
