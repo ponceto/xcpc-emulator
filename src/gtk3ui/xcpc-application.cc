@@ -32,6 +32,7 @@
 #include <mutex>
 #include <iostream>
 #include <stdexcept>
+#include <epoxy/gl.h>
 #include "xcpc-application.h"
 #include "xcpc-snapshot-dialog.h"
 #include "xcpc-disk-dialog.h"
@@ -663,6 +664,9 @@ auto Canvas::on_canvas_unrealize() -> void
 auto Canvas::on_canvas_render(GdkGLContext& context) -> void
 {
     ::xcpc_log_debug("on_canvas_render");
+    ::glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    ::glClear(GL_COLOR_BUFFER_BIT);
+    ::glFlush();
 }
 
 auto Canvas::on_canvas_resize(gint width, gint height) -> void
