@@ -188,6 +188,11 @@ public: // public interface
 private: // private data
     gtk3::MenuItem& _self;
     gtk3::Menu      _menu;
+    gtk3::MenuItem  _machine;
+    gtk3::Menu      _machine_menu;
+    gtk3::MenuItem  _machine_cpc464;
+    gtk3::MenuItem  _machine_cpc664;
+    gtk3::MenuItem  _machine_cpc6128;
     gtk3::MenuItem  _company;
     gtk3::Menu      _company_menu;
     gtk3::MenuItem  _company_isp;
@@ -736,6 +741,8 @@ public: // public methods
 
     virtual auto set_scanlines(const bool scanlines) -> void override final;
 
+    virtual auto set_machine_type(const std::string& machine_type) -> void override final;
+
     virtual auto set_company_name(const std::string& company_name) -> void override final;
 
     virtual auto set_monitor_type(const std::string& monitor_type) -> void override final;
@@ -768,6 +775,12 @@ public: // public signals
     virtual auto on_emulator_pause() -> void override final;
 
     virtual auto on_emulator_reset() -> void override final;
+
+    virtual auto on_machine_cpc464() -> void override final;
+
+    virtual auto on_machine_cpc664() -> void override final;
+
+    virtual auto on_machine_cpc6128() -> void override final;
 
     virtual auto on_company_isp() -> void override final;
 

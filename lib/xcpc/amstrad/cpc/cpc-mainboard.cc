@@ -673,13 +673,46 @@ auto Mainboard::set_machine_type(const std::string& string) -> void
 {
     auto machine_type = Utils::machine_type_from_string(string);
 
-    auto set = [&](const MemorySize memory_size) -> void
+    auto set_lower_rom = [&](const std::string& filename) -> void
+    {
+        try {
+            load_lower_rom(filename);
+        }
+        catch(const std::exception& e) {
+            ::xcpc_log_error("error while loading lower rom: %s", e.what());
+        }
+    };
+
+    auto set_upper_rom = [&](const std::string& filename) -> void
+    {
+        try {
+            load_upper_rom(filename);
+        }
+        catch(const std::exception& e) {
+            ::xcpc_log_error("error while loading upper rom: %s", e.what());
+        }
+    };
+
+    auto set_amsdos_rom = [&](const std::string& filename) -> void
+    {
+        try {
+            load_expansion(filename, 7);
+        }
+        catch(const std::exception& e) {
+            ::xcpc_log_error("error while loading amsdos rom: %s", e.what());
+        }
+    };
+
+    auto set = [&](const MemorySize memory_size, const std::string& firmware, const std::string& amsdos) -> void
     {
         if(machine_type != _setup.machine_type) {
             _setup.machine_type = machine_type;
             if(_setup.memory_size < memory_size) {
                 _setup.memory_size = memory_size;
             }
+            set_lower_rom(firmware);
+            set_upper_rom(firmware);
+            set_amsdos_rom(amsdos);
             reset();
         }
     };
@@ -689,13 +722,13 @@ auto Mainboard::set_machine_type(const std::string& string) -> void
     }
     switch(machine_type) {
         case XCPC_MACHINE_TYPE_CPC464:
-            set(XCPC_MEMORY_SIZE_64K);
+            set(XCPC_MEMORY_SIZE_64K, "cpc464en.rom", "amsdos.rom");
             break;
         case XCPC_MACHINE_TYPE_CPC664:
-            set(XCPC_MEMORY_SIZE_64K);
+            set(XCPC_MEMORY_SIZE_64K, "cpc664en.rom", "amsdos.rom");
             break;
         case XCPC_MACHINE_TYPE_CPC6128:
-            set(XCPC_MEMORY_SIZE_128K);
+            set(XCPC_MEMORY_SIZE_128K, "cpc6128en.rom", "amsdos.rom");
             break;
         default:
             throw std::runtime_error("unsupported machine type");
@@ -1378,16 +1411,6 @@ auto Mainboard::configure(const Settings& settings) -> void
         return true;
     };
 
-    auto build_filename = [](const std::string& directory, const std::string& filename) -> std::string
-    {
-        char buffer[PATH_MAX + 1];
-        const int rc = ::snprintf(buffer, sizeof(buffer), "%s/%s", directory.c_str(), filename.c_str());
-        if(rc <= 0) {
-            throw std::runtime_error("snprintf() has failed");
-        }
-        return buffer;
-    };
-
     auto init_machine = [&]() -> void
     {
         set_company_name(settings.opt_company);
@@ -1405,8 +1428,7 @@ auto Mainboard::configure(const Settings& settings) -> void
 
     auto load_roms = [&]() -> void
     {
-        std::string system_rom(settings.opt_sysrom);
-        std::string amsdos_rom(settings.opt_rom007);
+        std::string firmware(settings.opt_sysrom);
         std::string expansions[16] = {
             settings.opt_rom000,
             settings.opt_rom001,
@@ -1426,35 +1448,10 @@ auto Mainboard::configure(const Settings& settings) -> void
             settings.opt_rom015,
         };
 
-        /* prepare filenames */ {
-            switch(_setup.machine_type) {
-                case XCPC_MACHINE_TYPE_CPC464:
-                    {
-                        system_rom = (is_set(system_rom) ? system_rom : build_filename(Utils::get_romdir(), "cpc464en.rom"));
-                        amsdos_rom = (is_set(amsdos_rom) ? amsdos_rom : ""                                                 );
-                    }
-                    break;
-                case XCPC_MACHINE_TYPE_CPC664:
-                    {
-                        system_rom = (is_set(system_rom) ? system_rom : build_filename(Utils::get_romdir(), "cpc664en.rom"));
-                        amsdos_rom = (is_set(amsdos_rom) ? amsdos_rom : build_filename(Utils::get_romdir(), "amsdos.rom"  ));
-                    }
-                    break;
-                case XCPC_MACHINE_TYPE_CPC6128:
-                    {
-                        system_rom = (is_set(system_rom) ? system_rom : build_filename(Utils::get_romdir(), "cpc6128en.rom"));
-                        amsdos_rom = (is_set(amsdos_rom) ? amsdos_rom : build_filename(Utils::get_romdir(), "amsdos.rom"   ));
-                    }
-                    break;
-                default:
-                    throw std::runtime_error("unknown machine type");
-                    break;
-            }
-        }
         /* load lower rom */ {
             try {
-                if(is_set(system_rom)) {
-                    load_lower_rom(system_rom);
+                if(is_set(firmware)) {
+                    load_lower_rom(firmware);
                 }
             }
             catch(const std::exception& e) {
@@ -1463,8 +1460,8 @@ auto Mainboard::configure(const Settings& settings) -> void
         }
         /* load upper rom */ {
             try {
-                if(is_set(system_rom)) {
-                    load_upper_rom(system_rom);
+                if(is_set(firmware)) {
+                    load_upper_rom(firmware);
                 }
             }
             catch(const std::exception& e) {
@@ -1474,21 +1471,16 @@ auto Mainboard::configure(const Settings& settings) -> void
         /* load expansions */ {
             unsigned int index = 0;
             for(auto& exp : _exp) {
-                std::string filename;
+                std::string expansion;
                 if(index < countof(expansions)) {
-                    if((index == 7) && is_set(amsdos_rom)) {
-                        filename = amsdos_rom;
-                    }
-                    else {
-                        filename = expansions[index];
+                    expansion = expansions[index];
+                    if((index == 7) && !is_set(expansion)) {
+                        continue;
                     }
                 }
-                if(is_set(filename)) {
-                    if(exp == nullptr) {
-                        exp = new mem::Device(mem::Type::TYPE_ROM, *this);
-                    }
+                if(is_set(expansion)) {
                     try {
-                        load_expansion(filename, index);
+                        load_expansion(expansion, index);
                     }
                     catch(const std::exception& e) {
                         ::xcpc_log_error("error while loading expansion: %s", e.what());
@@ -1561,28 +1553,51 @@ auto Mainboard::configure(const Settings& settings) -> void
 
 auto Mainboard::load_lower_rom(const std::string& filename) -> void
 {
-    auto* lower_rom = _rom[0];
+    constexpr int index = 0;
+    auto*         rom   = _rom[index];
 
-    if(lower_rom != nullptr) {
-        lower_rom->load(filename, 0x0000);
+    if(rom == nullptr) {
+        rom = _rom[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+    }
+    if(rom != nullptr) {
+        std::string path(filename);
+        if((path.size() > 0) && (path[0] != '.') && (path[0] != '/')) {
+            path = Utils::get_romdir() + '/' + path;
+        }
+        rom->load(path, 0x0000);
     }
 }
 
 auto Mainboard::load_upper_rom(const std::string& filename) -> void
 {
-    auto* upper_rom = _rom[1];
+    constexpr int index = 1;
+    auto*         rom   = _rom[index];
 
-    if(upper_rom != nullptr) {
-        upper_rom->load(filename, 0x4000);
+    if(rom == nullptr) {
+        rom = _rom[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+    }
+    if(rom != nullptr) {
+        std::string path(filename);
+        if((path.size() > 0) && (path[0] != '.') && (path[0] != '/')) {
+            path = Utils::get_romdir() + '/' + path;
+        }
+        rom->load(path, 0x4000);
     }
 }
 
 auto Mainboard::load_expansion(const std::string& filename, const int index) -> void
 {
-    auto* expansion = _exp[index];
+    auto* rom = _exp[index];
 
-    if(expansion != nullptr) {
-        expansion->load(filename, 0x0000);
+    if(rom == nullptr) {
+        rom = _exp[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+    }
+    if(rom != nullptr) {
+        std::string path(filename);
+        if((path.size() > 0) && (path[0] != '.') && (path[0] != '/')) {
+            path = Utils::get_romdir() + '/' + path;
+        }
+        rom->load(path, 0x0000);
     }
 }
 

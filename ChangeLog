@@ -2,6 +2,7 @@
 
 	* Full support for french keyboard
 	* Refactoring, better machine setup
+	* Machine selectable from GUI
 	* Manufacturer selectable from GUI
 	* GUI code cleanup/refactoring
 	* Desktop integration and mime types

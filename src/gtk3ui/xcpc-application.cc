@@ -166,6 +166,27 @@ struct Callbacks
         }
     }
 
+    static auto on_machine_cpc464(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_machine_cpc464();
+        }
+    }
+
+    static auto on_machine_cpc664(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_machine_cpc664();
+        }
+    }
+
+    static auto on_machine_cpc6128(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_machine_cpc6128();
+        }
+    }
+
     static auto on_company_isp(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
@@ -756,6 +777,11 @@ MachineMenu::MachineMenu(Application& application)
     , gtk3::MenuItem(nullptr)
     , _self(*this)
     , _menu(nullptr)
+    , _machine(nullptr)
+    , _machine_menu(nullptr)
+    , _machine_cpc464(nullptr)
+    , _machine_cpc664(nullptr)
+    , _machine_cpc6128(nullptr)
     , _company(nullptr)
     , _company_menu(nullptr)
     , _company_isp(nullptr)
@@ -796,6 +822,35 @@ void MachineMenu::build()
     {
         _menu.create_menu();
         _self.set_submenu(_menu);
+    };
+
+    auto build_machine = [&]() -> void
+    {
+        _machine.create_menu_item_with_label(_("Machine"));
+        _menu.append(_machine);
+        _machine_menu.create_menu();
+        _machine.set_submenu(_machine_menu);
+    };
+
+    auto build_machine_cpc464 = [&]() -> void
+    {
+        _machine_cpc464.create_menu_item_with_label(_("CPC 464"));
+        _machine_cpc464.add_activate_callback(G_CALLBACK(&Callbacks::on_machine_cpc464), &_application);
+        _machine_menu.append(_machine_cpc464);
+    };
+
+    auto build_machine_cpc664 = [&]() -> void
+    {
+        _machine_cpc664.create_menu_item_with_label(_("CPC 664"));
+        _machine_cpc664.add_activate_callback(G_CALLBACK(&Callbacks::on_machine_cpc664), &_application);
+        _machine_menu.append(_machine_cpc664);
+    };
+
+    auto build_machine_cpc6128 = [&]() -> void
+    {
+        _machine_cpc6128.create_menu_item_with_label(_("CPC 6128"));
+        _machine_cpc6128.add_activate_callback(G_CALLBACK(&Callbacks::on_machine_cpc6128), &_application);
+        _machine_menu.append(_machine_cpc6128);
     };
 
     auto build_company = [&]() -> void
@@ -963,6 +1018,10 @@ void MachineMenu::build()
     {
         build_self();
         build_menu();
+        build_machine();
+        build_machine_cpc464();
+        build_machine_cpc664();
+        build_machine_cpc6128();
         build_company();
         build_company_isp();
         build_company_triumph();
@@ -2293,6 +2352,17 @@ auto Application::set_scanlines(const bool scanlines) -> void
     update_all();
 }
 
+auto Application::set_machine_type(const std::string& machine_type) -> void
+{
+    try {
+        _machine->set_machine_type(machine_type);
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_error("set-machine-type has failed (%s)", e.what());
+    }
+    update_all();
+}
+
 auto Application::set_company_name(const std::string& company_name) -> void
 {
     try {
@@ -2451,6 +2521,21 @@ auto Application::on_emulator_pause() -> void
 auto Application::on_emulator_reset() -> void
 {
     reset_emulator();
+}
+
+auto Application::on_machine_cpc464() -> void
+{
+    set_machine_type("cpc464");
+}
+
+auto Application::on_machine_cpc664() -> void
+{
+    set_machine_type("cpc664");
+}
+
+auto Application::on_machine_cpc6128() -> void
+{
+    set_machine_type("cpc6128");
 }
 
 auto Application::on_company_isp() -> void

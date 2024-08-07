@@ -126,6 +126,8 @@ public: // public methods
 
     virtual auto set_scanlines(const bool scanlines) -> void = 0;
 
+    virtual auto set_machine_type(const std::string& machine_type) -> void = 0;
+
     virtual auto set_company_name(const std::string& company_name) -> void = 0;
 
     virtual auto set_monitor_type(const std::string& monitor_type) -> void = 0;
@@ -156,6 +158,12 @@ public: // public signals
     virtual auto on_emulator_pause() -> void = 0;
 
     virtual auto on_emulator_reset() -> void = 0;
+
+    virtual auto on_machine_cpc464() -> void = 0;
+
+    virtual auto on_machine_cpc664() -> void = 0;
+
+    virtual auto on_machine_cpc6128() -> void = 0;
 
     virtual auto on_company_isp() -> void = 0;
 
