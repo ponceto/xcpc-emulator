@@ -107,248 +107,331 @@ namespace {
 
 struct Callbacks
 {
-    static auto on_statistics(xcpc::Application* self) -> gboolean
+    using Application = xcpc::Application;
+
+    static auto on_statistics(Application* application) -> gboolean
     {
-        self->on_statistics();
+        if(application != nullptr) {
+            application->on_statistics();
+        }
         return TRUE;
     }
 
-    static auto on_ignore(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_ignore(GtkWidget* widget, Application* application) -> void
     {
+        if(application != nullptr) {
+            /* do nothing */
+        }
     }
 
-    static auto on_snapshot_load(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_snapshot_load(GtkWidget* widget, Application* application) -> void
     {
-        self->on_snapshot_load();
+        if(application != nullptr) {
+            application->on_snapshot_load();
+        }
     }
 
-    static auto on_snapshot_save(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_snapshot_save(GtkWidget* widget, Application* application) -> void
     {
-        self->on_snapshot_save();
+        if(application != nullptr) {
+            application->on_snapshot_save();
+        }
     }
 
-    static auto on_exit(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_exit(GtkWidget* widget, Application* application) -> void
     {
-        self->on_exit();
+        if(application != nullptr) {
+            application->on_exit();
+        }
     }
 
-    static auto on_emulator_play(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_emulator_play(GtkWidget* widget, Application* application) -> void
     {
-        self->on_emulator_play();
+        if(application != nullptr) {
+            application->on_emulator_play();
+        }
     }
 
-    static auto on_emulator_pause(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_emulator_pause(GtkWidget* widget, Application* application) -> void
     {
-        self->on_emulator_pause();
+        if(application != nullptr) {
+            application->on_emulator_pause();
+        }
     }
 
-    static auto on_emulator_reset(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_emulator_reset(GtkWidget* widget, Application* application) -> void
     {
-        self->on_emulator_reset();
+        if(application != nullptr) {
+            application->on_emulator_reset();
+        }
     }
 
-    static auto on_company_isp(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_company_isp(GtkWidget* widget, Application* application) -> void
     {
-        self->on_company_isp();
+        if(application != nullptr) {
+            application->on_company_isp();
+        }
     }
 
-    static auto on_company_triumph(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_company_triumph(GtkWidget* widget, Application* application) -> void
     {
-        self->on_company_triumph();
+        if(application != nullptr) {
+            application->on_company_triumph();
+        }
     }
 
-    static auto on_company_saisho(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_company_saisho(GtkWidget* widget, Application* application) -> void
     {
-        self->on_company_saisho();
+        if(application != nullptr) {
+            application->on_company_saisho();
+        }
     }
 
-    static auto on_company_solavox(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_company_solavox(GtkWidget* widget, Application* application) -> void
     {
-        self->on_company_solavox();
+        if(application != nullptr) {
+            application->on_company_solavox();
+        }
     }
 
-    static auto on_company_awa(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_company_awa(GtkWidget* widget, Application* application) -> void
     {
-        self->on_company_awa();
+        if(application != nullptr) {
+            application->on_company_awa();
+        }
     }
 
-    static auto on_company_schneider(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_company_schneider(GtkWidget* widget, Application* application) -> void
     {
-        self->on_company_schneider();
+        if(application != nullptr) {
+            application->on_company_schneider();
+        }
     }
 
-    static auto on_company_orion(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_company_orion(GtkWidget* widget, Application* application) -> void
     {
-        self->on_company_orion();
+        if(application != nullptr) {
+            application->on_company_orion();
+        }
     }
 
-    static auto on_company_amstrad(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_company_amstrad(GtkWidget* widget, Application* application) -> void
     {
-        self->on_company_amstrad();
+        if(application != nullptr) {
+            application->on_company_amstrad();
+        }
     }
 
-    static auto on_monitor_color(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_monitor_color(GtkWidget* widget, Application* application) -> void
     {
-        self->on_monitor_color();
+        if(application != nullptr) {
+            application->on_monitor_color();
+        }
     }
 
-    static auto on_monitor_green(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_monitor_green(GtkWidget* widget, Application* application) -> void
     {
-        self->on_monitor_green();
+        if(application != nullptr) {
+            application->on_monitor_green();
+        }
     }
 
-    static auto on_monitor_gray(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_monitor_gray(GtkWidget* widget, Application* application) -> void
     {
-        self->on_monitor_gray();
+        if(application != nullptr) {
+            application->on_monitor_gray();
+        }
     }
 
-    static auto on_refresh_50hz(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_refresh_50hz(GtkWidget* widget, Application* application) -> void
     {
-        self->on_refresh_50hz();
+        if(application != nullptr) {
+            application->on_refresh_50hz();
+        }
     }
 
-    static auto on_refresh_60hz(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_refresh_60hz(GtkWidget* widget, Application* application) -> void
     {
-        self->on_refresh_60hz();
+        if(application != nullptr) {
+            application->on_refresh_60hz();
+        }
     }
 
-    static auto on_keyboard_english(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_keyboard_english(GtkWidget* widget, Application* application) -> void
     {
-        self->on_keyboard_english();
+        if(application != nullptr) {
+            application->on_keyboard_english();
+        }
     }
 
-    static auto on_keyboard_french(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_keyboard_french(GtkWidget* widget, Application* application) -> void
     {
-        self->on_keyboard_french();
+        if(application != nullptr) {
+            application->on_keyboard_french();
+        }
     }
 
-    static auto on_keyboard_german(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_keyboard_german(GtkWidget* widget, Application* application) -> void
     {
-        self->on_keyboard_german();
+        if(application != nullptr) {
+            application->on_keyboard_german();
+        }
     }
 
-    static auto on_keyboard_spanish(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_keyboard_spanish(GtkWidget* widget, Application* application) -> void
     {
-        self->on_keyboard_spanish();
+        if(application != nullptr) {
+            application->on_keyboard_spanish();
+        }
     }
 
-    static auto on_keyboard_danish(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_keyboard_danish(GtkWidget* widget, Application* application) -> void
     {
-        self->on_keyboard_danish();
+        if(application != nullptr) {
+            application->on_keyboard_danish();
+        }
     }
 
-    static auto on_drive0_create_disk(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_drive0_create_disk(GtkWidget* widget, Application* application) -> void
     {
-        self->on_drive0_create_disk();
+        if(application != nullptr) {
+            application->on_drive0_create_disk();
+        }
     }
 
-    static auto on_drive0_insert_disk(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_drive0_insert_disk(GtkWidget* widget, Application* application) -> void
     {
-        self->on_drive0_insert_disk();
+        if(application != nullptr) {
+            application->on_drive0_insert_disk();
+        }
     }
 
-    static auto on_drive0_remove_disk(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_drive0_remove_disk(GtkWidget* widget, Application* application) -> void
     {
-        self->on_drive0_remove_disk();
+        if(application != nullptr) {
+            application->on_drive0_remove_disk();
+        }
     }
 
-    static auto on_drive1_create_disk(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_drive1_create_disk(GtkWidget* widget, Application* application) -> void
     {
-        self->on_drive1_create_disk();
+        if(application != nullptr) {
+            application->on_drive1_create_disk();
+        }
     }
 
-    static auto on_drive1_insert_disk(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_drive1_insert_disk(GtkWidget* widget, Application* application) -> void
     {
-        self->on_drive1_insert_disk();
+        if(application != nullptr) {
+            application->on_drive1_insert_disk();
+        }
     }
 
-    static auto on_drive1_remove_disk(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_drive1_remove_disk(GtkWidget* widget, Application* application) -> void
     {
-        self->on_drive1_remove_disk();
+        if(application != nullptr) {
+            application->on_drive1_remove_disk();
+        }
     }
 
-    static auto on_volume_increase(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_volume_increase(GtkWidget* widget, Application* application) -> void
     {
-        self->on_volume_increase();
+        if(application != nullptr) {
+            application->on_volume_increase();
+        }
     }
 
-    static auto on_volume_decrease(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_volume_decrease(GtkWidget* widget, Application* application) -> void
     {
-        self->on_volume_decrease();
+        if(application != nullptr) {
+            application->on_volume_decrease();
+        }
     }
 
-    static auto on_scanlines_enable(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_scanlines_enable(GtkWidget* widget, Application* application) -> void
     {
-        self->on_scanlines_enable();
+        if(application != nullptr) {
+            application->on_scanlines_enable();
+        }
     }
 
-    static auto on_scanlines_disable(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_scanlines_disable(GtkWidget* widget, Application* application) -> void
     {
-        self->on_scanlines_disable();
+        if(application != nullptr) {
+            application->on_scanlines_disable();
+        }
     }
 
-    static auto on_joystick0(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_joystick0(GtkWidget* widget, Application* application) -> void
     {
-        self->on_joystick0();
+        if(application != nullptr) {
+            application->on_joystick0();
+        }
     }
 
-    static auto on_joystick1(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_joystick1(GtkWidget* widget, Application* application) -> void
     {
-        self->on_joystick1();
+        if(application != nullptr) {
+            application->on_joystick1();
+        }
     }
 
-    static auto on_help(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_help(GtkWidget* widget, Application* application) -> void
     {
-        self->on_help();
+        if(application != nullptr) {
+            application->on_help();
+        }
     }
 
-    static auto on_about(GtkWidget* widget, xcpc::Application* self) -> void
+    static auto on_about(GtkWidget* widget, Application* application) -> void
     {
-        self->on_about();
+        if(application != nullptr) {
+            application->on_about();
+        }
     }
 
-    static auto on_hotkey(GtkWidget* widget, KeySym* keysym, xcpc::Application* self) -> void
+    static auto on_hotkey(GtkWidget* widget, KeySym* keysym, Application* application) -> void
     {
         if(keysym != nullptr) {
             switch(*keysym) {
                 case XK_Pause:
-                    on_emulator_pause(widget, self);
+                    on_emulator_pause(widget, application);
                     break;
                 case XK_F1:
-                    on_help(widget, self);
+                    on_help(widget, application);
                     break;
                 case XK_F2:
-                    on_snapshot_load(widget, self);
+                    on_snapshot_load(widget, application);
                     break;
                 case XK_F3:
-                    on_snapshot_save(widget, self);
+                    on_snapshot_save(widget, application);
                     break;
                 case XK_F4:
-                    on_ignore(widget, self);
+                    on_ignore(widget, application);
                     break;
                 case XK_F5:
-                    on_emulator_reset(widget, self);
+                    on_emulator_reset(widget, application);
                     break;
                 case XK_F6:
-                    on_drive0_insert_disk(widget, self);
+                    on_drive0_insert_disk(widget, application);
                     break;
                 case XK_F7:
-                    on_drive0_remove_disk(widget, self);
+                    on_drive0_remove_disk(widget, application);
                     break;
                 case XK_F8:
-                    on_drive1_insert_disk(widget, self);
+                    on_drive1_insert_disk(widget, application);
                     break;
                 case XK_F9:
-                    on_drive1_remove_disk(widget, self);
+                    on_drive1_remove_disk(widget, application);
                     break;
                 case XK_F10:
-                    on_ignore(widget, self);
+                    on_ignore(widget, application);
                     break;
                 case XK_F11:
-                    on_ignore(widget, self);
+                    on_ignore(widget, application);
                     break;
                 case XK_F12:
-                    on_ignore(widget, self);
+                    on_ignore(widget, application);
                     break;
                 default:
                     break;
@@ -356,81 +439,94 @@ struct Callbacks
         }
     }
 
-    static auto on_gl_key_press(GtkWidget* widget, GdkEventKey* event, xcpc::Application* self) -> gboolean
+    static auto on_gl_key_press(GtkWidget* widget, GdkEventKey* event, Application* application) -> gboolean
     {
-        ::gtk_widget_grab_focus(widget);
-        ::xcpc_log_debug("on_gl_key_press");
+        if(application != nullptr) {
+            ::gtk_widget_grab_focus(widget);
+            ::xcpc_log_debug("on_gl_key_press");
+        }
         return TRUE;
     }
 
-    static auto on_gl_key_release(GtkWidget* widget, GdkEventKey* event, xcpc::Application* self) -> gboolean
+    static auto on_gl_key_release(GtkWidget* widget, GdkEventKey* event, Application* application) -> gboolean
     {
-        ::gtk_widget_grab_focus(widget);
-        ::xcpc_log_debug("on_gl_key_release");
+        if(application != nullptr) {
+            ::gtk_widget_grab_focus(widget);
+            ::xcpc_log_debug("on_gl_key_release");
+        }
         return TRUE;
     }
 
-    static auto on_gl_button_press(GtkWidget* widget, GdkEventButton* event, xcpc::Application* self) -> gboolean
+    static auto on_gl_button_press(GtkWidget* widget, GdkEventButton* event, Application* application) -> gboolean
     {
-        ::gtk_widget_grab_focus(widget);
-        ::xcpc_log_debug("on_gl_button_press");
+        if(application != nullptr) {
+            ::gtk_widget_grab_focus(widget);
+            ::xcpc_log_debug("on_gl_button_press");
+        }
         return TRUE;
     }
 
-    static auto on_gl_button_release(GtkWidget* widget, GdkEventButton* event, xcpc::Application* self) -> gboolean
+    static auto on_gl_button_release(GtkWidget* widget, GdkEventButton* event, Application* application) -> gboolean
     {
-        ::gtk_widget_grab_focus(widget);
-        ::xcpc_log_debug("on_gl_button_release");
+        if(application != nullptr) {
+            ::gtk_widget_grab_focus(widget);
+            ::xcpc_log_debug("on_gl_button_release");
+        }
         return TRUE;
     }
 
-    static auto on_gl_render(GtkWidget* widget, GdkGLContext* context, xcpc::Application* self) -> gboolean
+    static auto on_gl_render(GtkWidget* widget, GdkGLContext* context, Application* application) -> gboolean
     {
-        ::xcpc_log_debug("on_gl_render()");
+        if(application != nullptr) {
+            ::xcpc_log_debug("on_gl_render()");
+        }
         return TRUE;
     }
 
-    static auto on_gl_resize(GtkWidget* widget, gint width, gint height, xcpc::Application* self) -> void
+    static auto on_gl_resize(GtkWidget* widget, gint width, gint height, Application* application) -> void
     {
-        ::xcpc_log_debug("on_gl_resize(%d, %d)", width, height);
+        if(application != nullptr) {
+            ::xcpc_log_debug("on_gl_resize(%d, %d)", width, height);
+        }
     }
 
     static auto has_extension(const char* filename, const char* extension) -> bool
     {
-        const int filename_length  = ::strlen(filename);
-        const int extension_length = ::strlen(extension);
-
-        if(filename_length >= extension_length) {
-            if(::strcasecmp(&filename[filename_length - extension_length], extension) == 0) {
-                return true;
+        if((filename != nullptr) && (extension != nullptr)) {
+            const int filename_length  = ::strlen(filename);
+            const int extension_length = ::strlen(extension);
+            if(filename_length >= extension_length) {
+                if(::strcasecmp(&filename[filename_length - extension_length], extension) == 0) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    static auto open_file(xcpc::Application& self, const char* filename) -> void
+    static auto open_file(Application& application, const char* filename) -> void
     {
-        const char* file_scheme_str = "file://";
-        const int   file_scheme_len = ::strlen(file_scheme_str);
         if(filename != nullptr) {
+            const char* file_scheme_str = "file://";
+            const int   file_scheme_len = ::strlen(file_scheme_str);
             if(::strncmp(filename, file_scheme_str, file_scheme_len) == 0) {
                 filename += file_scheme_len;
             }
             if(has_extension(filename, ".sna") != false) {
-                self.load_snapshot(filename);
-                self.play_emulator();
+                application.load_snapshot(filename);
+                application.play_emulator();
             }
             else if(has_extension(filename, ".dsk") != false) {
-                self.insert_disk_into_drive0(filename);
-                self.play_emulator();
+                application.insert_disk_into_drive0(filename);
+                application.play_emulator();
             }
             else if(has_extension(filename, ".dsk.gz") != false) {
-                self.insert_disk_into_drive0(filename);
-                self.play_emulator();
+                application.insert_disk_into_drive0(filename);
+                application.play_emulator();
             }
             else if(has_extension(filename, ".dsk.bz2") != false) {
-                self.insert_disk_into_drive0(filename);
-                self.play_emulator();
+                application.insert_disk_into_drive0(filename);
+                application.play_emulator();
             }
         }
     }
@@ -442,15 +538,15 @@ struct Callbacks
                                       , GtkSelectionData*  data
                                       , guint              info
                                       , guint              time
-                                      , xcpc::Application* self ) -> void
+                                      , Application*       application ) -> void
     {
-        gchar** uri_list = ::gtk_selection_data_get_uris(data);
+        gchar** uris = ::gtk_selection_data_get_uris(data);
 
-        if(uri_list != nullptr) {
-            for(int index = 0; uri_list[index] != nullptr; ++index) {
-                open_file(*self, uri_list[index]);
+        if(uris != nullptr) {
+            for(int index = 0; uris[index] != nullptr; ++index) {
+                open_file(*application, uris[index]);
             }
-            uri_list = (::g_strfreev(uri_list), nullptr);
+            uris = (::g_strfreev(uris), nullptr);
         }
     }
 };
@@ -463,7 +559,7 @@ struct Callbacks
 
 namespace impl {
 
-AppWidget::AppWidget(xcpc::Application& application)
+AppWidget::AppWidget(Application& application)
     : _application(application)
 {
 }
@@ -476,12 +572,13 @@ AppWidget::AppWidget(xcpc::Application& application)
 
 namespace impl {
 
-FileMenu::FileMenu(xcpc::Application& application)
-    : impl::AppWidget(application)
+FileMenu::FileMenu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
-    , _load_snapshot(nullptr)
-    , _save_snapshot(nullptr)
+    , _snapshot_load(nullptr)
+    , _snapshot_save(nullptr)
     , _separator(nullptr)
     , _exit(nullptr)
 {
@@ -489,12 +586,9 @@ FileMenu::FileMenu(xcpc::Application& application)
 
 void FileMenu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("File"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -505,18 +599,18 @@ void FileMenu::build()
 
     auto build_load_snapshot = [&]() -> void
     {
-        _load_snapshot.create_menu_item_with_label(_("Load snapshot..."));
-        _load_snapshot.set_accel(GDK_KEY_F2, GdkModifierType(0));
-        _load_snapshot.add_activate_callback(G_CALLBACK(&Callbacks::on_snapshot_load), &_application);
-        _menu.append(_load_snapshot);
+        _snapshot_load.create_menu_item_with_label(_("Load snapshot..."));
+        _snapshot_load.set_accel(GDK_KEY_F2, GdkModifierType(0));
+        _snapshot_load.add_activate_callback(G_CALLBACK(&Callbacks::on_snapshot_load), &_application);
+        _menu.append(_snapshot_load);
     };
 
     auto build_save_snapshot = [&]() -> void
     {
-        _save_snapshot.create_menu_item_with_label(_("Save snapshot..."));
-        _save_snapshot.set_accel(GDK_KEY_F3, GdkModifierType(0));
-        _save_snapshot.add_activate_callback(G_CALLBACK(&Callbacks::on_snapshot_save), &_application);
-        _menu.append(_save_snapshot);
+        _snapshot_save.create_menu_item_with_label(_("Save snapshot..."));
+        _snapshot_save.set_accel(GDK_KEY_F3, GdkModifierType(0));
+        _snapshot_save.add_activate_callback(G_CALLBACK(&Callbacks::on_snapshot_save), &_application);
+        _menu.append(_snapshot_save);
     };
 
     auto build_separator = [&]() -> void
@@ -553,25 +647,23 @@ void FileMenu::build()
 
 namespace impl {
 
-ControlsMenu::ControlsMenu(xcpc::Application& application)
-    : impl::AppWidget(application)
+ControlsMenu::ControlsMenu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
-    , _play_emulator(nullptr)
-    , _pause_emulator(nullptr)
+    , _emulator_play(nullptr)
+    , _emulator_pause(nullptr)
     , _separator(nullptr)
-    , _reset_emulator(nullptr)
+    , _emulator_reset(nullptr)
 {
 }
 
 void ControlsMenu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("Controls"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -582,16 +674,16 @@ void ControlsMenu::build()
 
     auto build_play = [&]() -> void
     {
-        _play_emulator.create_menu_item_with_label(_("Play"));
-        _play_emulator.add_activate_callback(G_CALLBACK(&Callbacks::on_emulator_play), &_application);
-        _menu.append(_play_emulator);
+        _emulator_play.create_menu_item_with_label(_("Play"));
+        _emulator_play.add_activate_callback(G_CALLBACK(&Callbacks::on_emulator_play), &_application);
+        _menu.append(_emulator_play);
     };
 
     auto build_pause = [&]() -> void
     {
-        _pause_emulator.create_menu_item_with_label(_("Pause"));
-        _pause_emulator.add_activate_callback(G_CALLBACK(&Callbacks::on_emulator_pause), &_application);
-        _menu.append(_pause_emulator);
+        _emulator_pause.create_menu_item_with_label(_("Pause"));
+        _emulator_pause.add_activate_callback(G_CALLBACK(&Callbacks::on_emulator_pause), &_application);
+        _menu.append(_emulator_pause);
     };
 
     auto build_separator = [&]() -> void
@@ -602,10 +694,10 @@ void ControlsMenu::build()
 
     auto build_reset = [&]() -> void
     {
-        _reset_emulator.create_menu_item_with_label(_("Reset"));
-        _reset_emulator.set_accel(GDK_KEY_F5, GdkModifierType(0));
-        _reset_emulator.add_activate_callback(G_CALLBACK(&Callbacks::on_emulator_reset), &_application);
-        _menu.append(_reset_emulator);
+        _emulator_reset.create_menu_item_with_label(_("Reset"));
+        _emulator_reset.set_accel(GDK_KEY_F5, GdkModifierType(0));
+        _emulator_reset.add_activate_callback(G_CALLBACK(&Callbacks::on_emulator_reset), &_application);
+        _menu.append(_emulator_reset);
     };
 
     auto build_all = [&]() -> void
@@ -623,32 +715,32 @@ void ControlsMenu::build()
 
 void ControlsMenu::show_play()
 {
-    _play_emulator.show();
+    _emulator_play.show();
 }
 
 void ControlsMenu::hide_play()
 {
-    _play_emulator.hide();
+    _emulator_play.hide();
 }
 
 void ControlsMenu::show_pause()
 {
-    _pause_emulator.show();
+    _emulator_pause.show();
 }
 
 void ControlsMenu::hide_pause()
 {
-    _pause_emulator.hide();
+    _emulator_pause.hide();
 }
 
 void ControlsMenu::show_reset()
 {
-    _reset_emulator.show();
+    _emulator_reset.show();
 }
 
 void ControlsMenu::hide_reset()
 {
-    _reset_emulator.hide();
+    _emulator_reset.hide();
 }
 
 }
@@ -659,9 +751,10 @@ void ControlsMenu::hide_reset()
 
 namespace impl {
 
-MachineMenu::MachineMenu(xcpc::Application& application)
-    : impl::AppWidget(application)
+MachineMenu::MachineMenu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
     , _company(nullptr)
     , _company_menu(nullptr)
@@ -694,12 +787,9 @@ MachineMenu::MachineMenu(xcpc::Application& application)
 
 void MachineMenu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("Machine"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -908,9 +998,10 @@ void MachineMenu::build()
 
 namespace impl {
 
-Drive0Menu::Drive0Menu(xcpc::Application& application)
-    : impl::AppWidget(application)
+Drive0Menu::Drive0Menu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
     , _create_disk(nullptr)
     , _separator(nullptr)
@@ -921,12 +1012,9 @@ Drive0Menu::Drive0Menu(xcpc::Application& application)
 
 void Drive0Menu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("Drive A"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -985,9 +1073,10 @@ void Drive0Menu::build()
 
 namespace impl {
 
-Drive1Menu::Drive1Menu(xcpc::Application& application)
-    : impl::AppWidget(application)
+Drive1Menu::Drive1Menu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
     , _create_disk(nullptr)
     , _separator(nullptr)
@@ -998,12 +1087,9 @@ Drive1Menu::Drive1Menu(xcpc::Application& application)
 
 void Drive1Menu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("Drive B"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -1062,9 +1148,10 @@ void Drive1Menu::build()
 
 namespace impl {
 
-AudioMenu::AudioMenu(xcpc::Application& application)
-    : impl::AppWidget(application)
+AudioMenu::AudioMenu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
     , _volume_increase(nullptr)
     , _volume_decrease(nullptr)
@@ -1073,12 +1160,9 @@ AudioMenu::AudioMenu(xcpc::Application& application)
 
 void AudioMenu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("Audio"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -1120,9 +1204,10 @@ void AudioMenu::build()
 
 namespace impl {
 
-VideoMenu::VideoMenu(xcpc::Application& application)
-    : impl::AppWidget(application)
+VideoMenu::VideoMenu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
     , _scanlines_enable(nullptr)
     , _scanlines_disable(nullptr)
@@ -1131,12 +1216,9 @@ VideoMenu::VideoMenu(xcpc::Application& application)
 
 void VideoMenu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("Video"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -1178,9 +1260,10 @@ void VideoMenu::build()
 
 namespace impl {
 
-InputMenu::InputMenu(xcpc::Application& application)
-    : impl::AppWidget(application)
+InputMenu::InputMenu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
     , _joystick0(nullptr)
     , _joystick1(nullptr)
@@ -1189,12 +1272,9 @@ InputMenu::InputMenu(xcpc::Application& application)
 
 void InputMenu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("Input"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -1208,7 +1288,7 @@ void InputMenu::build()
         std::string label(_("Joystick 0"));
         label += ' ';
         label += '(';
-        label += xcpc::Utils::get_joystick0();
+        label += Utils::get_joystick0();
         label += ')';
         _joystick0.create_menu_item_with_label(label);
         _joystick0.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick0), &_application);
@@ -1220,7 +1300,7 @@ void InputMenu::build()
         std::string label(_("Joystick 1"));
         label += ' ';
         label += '(';
-        label += xcpc::Utils::get_joystick1();
+        label += Utils::get_joystick1();
         label += ')';
         _joystick1.create_menu_item_with_label(label);
         _joystick1.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick1), &_application);
@@ -1246,9 +1326,10 @@ void InputMenu::build()
 
 namespace impl {
 
-HelpMenu::HelpMenu(xcpc::Application& application)
-    : impl::AppWidget(application)
+HelpMenu::HelpMenu(Application& application)
+    : AppWidget(application)
     , gtk3::MenuItem(nullptr)
+    , _self(*this)
     , _menu(nullptr)
     , _help(nullptr)
     , _separator(nullptr)
@@ -1258,12 +1339,9 @@ HelpMenu::HelpMenu(xcpc::Application& application)
 
 void HelpMenu::build()
 {
-    gtk3::MenuItem& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_item_with_label(_("Help"));
-        _application.menu_bar().append(_self);
     };
 
     auto build_menu = [&]() -> void
@@ -1313,25 +1391,24 @@ void HelpMenu::build()
 
 namespace impl {
 
-MenuBar::MenuBar(xcpc::Application& application)
-    : impl::AppWidget(application)
+MenuBar::MenuBar(Application& application)
+    : AppWidget(application)
     , gtk3::MenuBar(nullptr)
-    , _file_menu(application)
-    , _controls_menu(application)
-    , _machine_menu(application)
-    , _drive0_menu(application)
-    , _drive1_menu(application)
-    , _audio_menu(application)
-    , _video_menu(application)
-    , _input_menu(application)
-    , _help_menu(application)
+    , _self(*this)
+    , _file_menu(_application)
+    , _controls_menu(_application)
+    , _machine_menu(_application)
+    , _drive0_menu(_application)
+    , _drive1_menu(_application)
+    , _audio_menu(_application)
+    , _video_menu(_application)
+    , _input_menu(_application)
+    , _help_menu(_application)
 {
 }
 
 void MenuBar::build()
 {
-    auto& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_menu_bar();
@@ -1340,46 +1417,55 @@ void MenuBar::build()
     auto build_file_menu = [&]() -> void
     {
         _file_menu.build();
+        _self.append(_file_menu);
     };
 
     auto build_controls_menu = [&]() -> void
     {
         _controls_menu.build();
+        _self.append(_controls_menu);
     };
 
     auto build_machine_menu = [&]() -> void
     {
         _machine_menu.build();
+        _self.append(_machine_menu);
     };
 
     auto build_drive0_menu = [&]() -> void
     {
         _drive0_menu.build();
+        _self.append(_drive0_menu);
     };
 
     auto build_drive1_menu = [&]() -> void
     {
         _drive1_menu.build();
+        _self.append(_drive1_menu);
     };
 
     auto build_audio_menu = [&]() -> void
     {
         _audio_menu.build();
+        _self.append(_audio_menu);
     };
 
     auto build_video_menu = [&]() -> void
     {
         _video_menu.build();
+        _self.append(_video_menu);
     };
 
     auto build_input_menu = [&]() -> void
     {
         _input_menu.build();
+        _self.append(_input_menu);
     };
 
     auto build_help_menu = [&]() -> void
     {
         _help_menu.build();
+        _self.append(_help_menu);
     };
 
     auto build_all = [&]() -> void
@@ -1437,15 +1523,16 @@ void MenuBar::hide_reset()
 
 namespace impl {
 
-ToolBar::ToolBar(xcpc::Application& application)
-    : impl::AppWidget(application)
+ToolBar::ToolBar(Application& application)
+    : AppWidget(application)
     , gtk3::Toolbar(nullptr)
-    , _load_snapshot(nullptr)
-    , _save_snapshot(nullptr)
+    , _self(*this)
+    , _snapshot_load(nullptr)
+    , _snapshot_save(nullptr)
     , _separator1(nullptr)
-    , _play_emulator(nullptr)
-    , _pause_emulator(nullptr)
-    , _reset_emulator(nullptr)
+    , _emulator_play(nullptr)
+    , _emulator_pause(nullptr)
+    , _emulator_reset(nullptr)
     , _separator2(nullptr)
     , _volume_decrease(nullptr)
     , _volume_increase(nullptr)
@@ -1454,27 +1541,25 @@ ToolBar::ToolBar(xcpc::Application& application)
 
 void ToolBar::build()
 {
-    auto& _self(*this);
-
-    auto build_toolbar = [&]() -> void
+    auto build_self = [&]() -> void
     {
         _self.create_toolbar();
     };
 
     auto build_load_snapshot = [&]() -> void
     {
-        _load_snapshot.create_tool_button();
-        _load_snapshot.set_icon_name(IconTraits::ico_load_snapshot);
-        _load_snapshot.add_clicked_callback(G_CALLBACK(&Callbacks::on_snapshot_load), &_application);
-        _self.insert(_load_snapshot, -1);
+        _snapshot_load.create_tool_button();
+        _snapshot_load.set_icon_name(IconTraits::ico_load_snapshot);
+        _snapshot_load.add_clicked_callback(G_CALLBACK(&Callbacks::on_snapshot_load), &_application);
+        _self.insert(_snapshot_load, -1);
     };
 
     auto build_save_snapshot = [&]() -> void
     {
-        _save_snapshot.create_tool_button();
-        _save_snapshot.set_icon_name(IconTraits::ico_save_snapshot);
-        _save_snapshot.add_clicked_callback(G_CALLBACK(&Callbacks::on_snapshot_save), &_application);
-        _self.insert(_save_snapshot, -1);
+        _snapshot_save.create_tool_button();
+        _snapshot_save.set_icon_name(IconTraits::ico_save_snapshot);
+        _snapshot_save.add_clicked_callback(G_CALLBACK(&Callbacks::on_snapshot_save), &_application);
+        _self.insert(_snapshot_save, -1);
     };
 
     auto build_separator1 = [&]() -> void
@@ -1485,26 +1570,26 @@ void ToolBar::build()
 
     auto build_play_emulator = [&]() -> void
     {
-        _play_emulator.create_tool_button();
-        _play_emulator.set_icon_name(IconTraits::ico_play_emulator);
-        _play_emulator.add_clicked_callback(G_CALLBACK(&Callbacks::on_emulator_play), &_application);
-        _self.insert(_play_emulator, -1);
+        _emulator_play.create_tool_button();
+        _emulator_play.set_icon_name(IconTraits::ico_play_emulator);
+        _emulator_play.add_clicked_callback(G_CALLBACK(&Callbacks::on_emulator_play), &_application);
+        _self.insert(_emulator_play, -1);
     };
 
     auto build_pause_emulator = [&]() -> void
     {
-        _pause_emulator.create_tool_button();
-        _pause_emulator.set_icon_name(IconTraits::ico_pause_emulator);
-        _pause_emulator.add_clicked_callback(G_CALLBACK(&Callbacks::on_emulator_pause), &_application);
-        _self.insert(_pause_emulator, -1);
+        _emulator_pause.create_tool_button();
+        _emulator_pause.set_icon_name(IconTraits::ico_pause_emulator);
+        _emulator_pause.add_clicked_callback(G_CALLBACK(&Callbacks::on_emulator_pause), &_application);
+        _self.insert(_emulator_pause, -1);
     };
 
     auto build_reset_emulator = [&]() -> void
     {
-        _reset_emulator.create_tool_button();
-        _reset_emulator.set_icon_name(IconTraits::ico_reset_emulator);
-        _reset_emulator.add_clicked_callback(G_CALLBACK(&Callbacks::on_emulator_reset), &_application);
-        _self.insert(_reset_emulator, -1);
+        _emulator_reset.create_tool_button();
+        _emulator_reset.set_icon_name(IconTraits::ico_reset_emulator);
+        _emulator_reset.add_clicked_callback(G_CALLBACK(&Callbacks::on_emulator_reset), &_application);
+        _self.insert(_emulator_reset, -1);
     };
 
     auto build_separator2 = [&]() -> void
@@ -1531,7 +1616,7 @@ void ToolBar::build()
 
     auto build_all = [&]() -> void
     {
-        build_toolbar();
+        build_self();
         build_load_snapshot();
         build_save_snapshot();
         build_separator1();
@@ -1548,32 +1633,32 @@ void ToolBar::build()
 
 void ToolBar::show_play()
 {
-    _play_emulator.show();
+    _emulator_play.show();
 }
 
 void ToolBar::hide_play()
 {
-    _play_emulator.hide();
+    _emulator_play.hide();
 }
 
 void ToolBar::show_pause()
 {
-    _pause_emulator.show();
+    _emulator_pause.show();
 }
 
 void ToolBar::hide_pause()
 {
-    _pause_emulator.hide();
+    _emulator_pause.hide();
 }
 
 void ToolBar::show_reset()
 {
-    _reset_emulator.show();
+    _emulator_reset.show();
 }
 
 void ToolBar::hide_reset()
 {
-    _reset_emulator.hide();
+    _emulator_reset.hide();
 }
 
 }
@@ -1584,31 +1669,30 @@ void ToolBar::hide_reset()
 
 namespace impl {
 
-InfoBar::InfoBar(xcpc::Application& application)
-    : impl::AppWidget(application)
+InfoBar::InfoBar(Application& application)
+    : AppWidget(application)
     , gtk3::HBox(nullptr)
-    , _status(nullptr)
+    , _self(*this)
+    , _state(nullptr)
     , _drive0(nullptr)
     , _drive1(nullptr)
     , _system(nullptr)
     , _volume(nullptr)
-    , _fps(nullptr)
+    , _stats(nullptr)
 {
 }
 
 void InfoBar::build()
 {
-    auto& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_hbox();
     };
 
-    auto build_status = [&]() -> void
+    auto build_state = [&]() -> void
     {
-        _status.create_label(_("Status"));
-        _self.pack_start(_status, false, true, 2);
+        _state.create_label(_("State"));
+        _self.pack_start(_state, false, true, 2);
     };
 
     auto build_drive0 = [&]() -> void
@@ -1634,205 +1718,193 @@ void InfoBar::build()
 
     auto build_volume = [&]() -> void
     {
-        _volume.create_label(_("---"));
+        _volume.create_label(_("Volume"));
         _self.pack_start(_volume, false, true, 2);
     };
 
-    auto build_fps = [&]() -> void
+    auto build_stats = [&]() -> void
     {
-        _fps.create_label(_("---"));
-        _self.pack_end(_fps, false, true, 2);
+        _stats.create_label(_("Stats"));
+        _self.pack_end(_stats, false, true, 2);
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
-        build_status();
+        build_state();
         build_drive0();
         build_drive1();
         build_system();
         build_volume();
-        build_fps();
+        build_stats();
     };
 
     return build_all();
 }
 
-void InfoBar::update_status(const std::string& status)
+void InfoBar::set_state(const std::string& state)
 {
-    const char* format = "<span foreground='grey90' background='darkgreen'> %s </span>";
-    char*       string = nullptr;
+    std::string label(_("{unknown}"));
 
     auto format_label = [&]() -> void
     {
-        string = ::g_markup_printf_escaped(format, status.c_str());
+        const char* format = "<span foreground='grey90' background='darkgreen'> %s </span>";
+        char*       string = ::g_markup_printf_escaped(format, state.c_str());
+        if(string != nullptr) {
+            std::string(string).swap(label);
+            string = (::g_free(string), nullptr);
+        }
     };
 
     auto update_label = [&]() -> void
     {
-        _status.set_markup(string);
-    };
-
-    auto delete_label = [&]() -> void
-    {
-        string = (::g_free(string), nullptr);
+        _state.set_markup(label);
     };
 
     auto update = [&]() -> void
     {
         format_label();
         update_label();
-        delete_label();
     };
 
     return update();
 }
 
-void InfoBar::update_drive0(const std::string& filename)
+void InfoBar::set_drive0(const std::string& drive0)
 {
-    const char* format = "<span foreground='yellow' background='darkblue'> A: %s </span>";
-    char*       string = nullptr;
+    std::string label(_("{unknown}"));
 
     auto format_label = [&]() -> void
     {
-        string = ::g_markup_printf_escaped(format, filename.c_str());
+        const char* format = "<span foreground='yellow' background='darkblue'> A: %s </span>";
+        char*       string = ::g_markup_printf_escaped(format, drive0.c_str());
+        if(string != nullptr) {
+            std::string(string).swap(label);
+            string = (::g_free(string), nullptr);
+        }
     };
 
     auto update_label = [&]() -> void
     {
-        _drive0.set_markup(string);
-    };
-
-    auto delete_label = [&]() -> void
-    {
-        string = (::g_free(string), nullptr);
+        _drive0.set_markup(label);
     };
 
     auto update = [&]() -> void
     {
         format_label();
         update_label();
-        delete_label();
     };
 
     return update();
 }
 
-void InfoBar::update_drive1(const std::string& filename)
+void InfoBar::set_drive1(const std::string& drive1)
 {
-    const char* format = "<span foreground='yellow' background='darkblue'> B: %s </span>";
-    char*       string = nullptr;
+    std::string label(_("{unknown}"));
 
     auto format_label = [&]() -> void
     {
-        string = ::g_markup_printf_escaped(format, filename.c_str());
+        const char* format = "<span foreground='yellow' background='darkblue'> B: %s </span>";
+        char*       string = ::g_markup_printf_escaped(format, drive1.c_str());
+        if(string != nullptr) {
+            std::string(string).swap(label);
+            string = (::g_free(string), nullptr);
+        }
     };
 
     auto update_label = [&]() -> void
     {
-        _drive1.set_markup(string);
-    };
-
-    auto delete_label = [&]() -> void
-    {
-        string = (::g_free(string), nullptr);
+        _drive1.set_markup(label);
     };
 
     auto update = [&]() -> void
     {
         format_label();
         update_label();
-        delete_label();
     };
 
     return update();
 }
 
-void InfoBar::update_system(const std::string& system)
+void InfoBar::set_system(const std::string& system)
 {
-    const char* format = "<span> %s </span>";
-    char*       string = nullptr;
+    std::string label(_("{unknown}"));
 
     auto format_label = [&]() -> void
     {
-        string = ::g_markup_printf_escaped(format, system.c_str());
+        const char* format = "<span> %s </span>";
+        char*       string = ::g_markup_printf_escaped(format, system.c_str());
+        if(string != nullptr) {
+            std::string(string).swap(label);
+            string = (::g_free(string), nullptr);
+        }
     };
 
     auto update_label = [&]() -> void
     {
-        _system.set_markup(string);
-    };
-
-    auto delete_label = [&]() -> void
-    {
-        string = (::g_free(string), nullptr);
+        _system.set_markup(label);
     };
 
     auto update = [&]() -> void
     {
         format_label();
         update_label();
-        delete_label();
     };
 
     return update();
 }
 
-void InfoBar::update_volume(const std::string& volume)
+void InfoBar::set_volume(const std::string& volume)
 {
-    const char* format = "%s";
-    char*       string = nullptr;
+    std::string label(_("{unknown}"));
 
     auto format_label = [&]() -> void
     {
-        string = ::g_markup_printf_escaped(format, volume.c_str());
+        const char* format = "%s";
+        char*       string = ::g_markup_printf_escaped(format, volume.c_str());
+        if(string != nullptr) {
+            std::string(string).swap(label);
+            string = (::g_free(string), nullptr);
+        }
     };
 
     auto update_label = [&]() -> void
     {
-        _volume.set_markup(string);
-    };
-
-    auto delete_label = [&]() -> void
-    {
-        string = (::g_free(string), nullptr);
+        _volume.set_markup(label);
     };
 
     auto update = [&]() -> void
     {
         format_label();
         update_label();
-        delete_label();
     };
 
     return update();
 }
 
-void InfoBar::update_fps(const std::string& fps)
+void InfoBar::set_stats(const std::string& stats)
 {
-    const char* format = "%s";
-    char*       string = nullptr;
+    std::string label(_("{unknown}"));
 
     auto format_label = [&]() -> void
     {
-        string = ::g_markup_printf_escaped(format, fps.c_str());
+        const char* format = "%s";
+        char*       string = ::g_markup_printf_escaped(format, stats.c_str());
+        if(string != nullptr) {
+            std::string(string).swap(label);
+            string = (::g_free(string), nullptr);
+        }
     };
 
     auto update_label = [&]() -> void
     {
-        _fps.set_markup(string);
-    };
-
-    auto delete_label = [&]() -> void
-    {
-        string = (::g_free(string), nullptr);
+        _stats.set_markup(label);
     };
 
     auto update = [&]() -> void
     {
         format_label();
         update_label();
-        delete_label();
     };
 
     return update();
@@ -1846,8 +1918,8 @@ void InfoBar::update_fps(const std::string& fps)
 
 namespace impl {
 
-WorkWnd::WorkWnd(xcpc::Application& application)
-    : impl::AppWidget(application)
+WorkWnd::WorkWnd(Application& application)
+    : AppWidget(application)
     , gtk3::HBox(nullptr)
     , _emulator(nullptr)
     , _gl_area(nullptr)
@@ -1871,8 +1943,8 @@ void WorkWnd::build()
         };
         _emulator.create_emulator();
         _emulator.set_backend(_application.get_backend());
-        _emulator.set_joystick(0, xcpc::Utils::get_joystick0());
-        _emulator.set_joystick(1, xcpc::Utils::get_joystick0());
+        _emulator.set_joystick(0, Utils::get_joystick0());
+        _emulator.set_joystick(1, Utils::get_joystick0());
         _emulator.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
         _emulator.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
         _emulator.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
@@ -1907,23 +1979,23 @@ void WorkWnd::build()
 }
 
 // ---------------------------------------------------------------------------
-// impl::MainWindow
+// impl::AppWindow
 // ---------------------------------------------------------------------------
 
 namespace impl {
 
-MainWindow::MainWindow(xcpc::Application& application)
-    : impl::AppWidget(application)
+AppWindow::AppWindow(Application& application)
+    : AppWidget(application)
     , gtk3::ApplicationWindow(nullptr)
     , _layout(nullptr)
-    , _menu_bar(application)
-    , _tool_bar(application)
-    , _work_wnd(application)
-    , _info_bar(application)
+    , _menu_bar(_application)
+    , _tool_bar(_application)
+    , _work_wnd(_application)
+    , _info_bar(_application)
 {
 }
 
-void MainWindow::build()
+void AppWindow::build()
 {
     auto& _app_context(_application.app_context());
     auto& _app_title(_application.app_title());
@@ -1993,37 +2065,37 @@ void MainWindow::build()
     return build_all();
 }
 
-void MainWindow::show_play()
+void AppWindow::show_play()
 {
     _menu_bar.show_play();
     _tool_bar.show_play();
 }
 
-void MainWindow::hide_play()
+void AppWindow::hide_play()
 {
     _menu_bar.hide_play();
     _tool_bar.hide_play();
 }
 
-void MainWindow::show_pause()
+void AppWindow::show_pause()
 {
     _menu_bar.show_pause();
     _tool_bar.show_pause();
 }
 
-void MainWindow::hide_pause()
+void AppWindow::hide_pause()
 {
     _menu_bar.hide_pause();
     _tool_bar.hide_pause();
 }
 
-void MainWindow::show_reset()
+void AppWindow::show_reset()
 {
     _menu_bar.show_reset();
     _tool_bar.show_reset();
 }
 
-void MainWindow::hide_reset()
+void AppWindow::hide_reset()
 {
     _menu_bar.hide_reset();
     _tool_bar.hide_reset();
@@ -2043,7 +2115,7 @@ Application::Application(int& argc, char**& argv)
     , _app_title(_("Xcpc - Amstrad CPC emulator"))
     , _app_state(_("Unknown"))
     , _app_icon(nullptr)
-    , _main_window(*this)
+    , _app_window(*this)
     , _timer(0)
 {
     Environ::initialize();
@@ -2065,33 +2137,29 @@ int Application::main()
 auto Application::load_snapshot(const std::string& filename) -> void
 {
     try {
-        ::xcpc_log_debug("load-snapshot <%s>", filename.c_str());
         _machine->load_snapshot(filename);
-        ::xcpc_log_debug("load-snapshot has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("load-snapshot has failed (%s)", e.what());
     }
+    update_all();
 }
 
 auto Application::save_snapshot(const std::string& filename) -> void
 {
     try {
-        ::xcpc_log_debug("save-snapshot <%s>", filename.c_str());
         _machine->save_snapshot(filename);
-        ::xcpc_log_debug("save-snapshot has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("save-snapshot has failed (%s)", e.what());
     }
+    update_all();
 }
 
 auto Application::exit() -> void
 {
     try {
-        ::xcpc_log_debug("exit-emulator");
-        _main_window.destroy();
-        ::xcpc_log_debug("exit-emulator has succeeded");
+        _app_window.destroy();
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("exit-emulator has failed (%s)", e.what());
@@ -2101,246 +2169,194 @@ auto Application::exit() -> void
 auto Application::play_emulator() -> void
 {
     try {
-        ::xcpc_log_debug("play-emulator");
-        show_pause();
-        hide_play();
         _machine->play();
         set_state(_("Playing"));
-        ::xcpc_log_debug("play-emulator has succeeded");
+        show_pause();
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("play-emulator has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::pause_emulator() -> void
 {
     try {
-        ::xcpc_log_debug("pause-emulator");
-        show_play();
-        hide_pause();
         _machine->pause();
         set_state(_("Paused"));
-        ::xcpc_log_debug("pause-emulator has succeeded");
+        show_play();
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("pause-emulator has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::reset_emulator() -> void
 {
-    auto play = [&]() -> void
-    {
-        play_emulator();
-    };
-
-    auto pause = [&]() -> void
-    {
-        pause_emulator();
-    };
-
-    auto reset = [&]() -> void
-    {
-        _machine->reset();
-        set_state(_("Reset"));
-    };
-
     try {
-        ::xcpc_log_debug("reset-emulator");
-        pause();
-        reset();
-        play();
-        ::xcpc_log_debug("reset-emulator has succeeded");
+        pause_emulator();
+        _machine->reset();
+        play_emulator();
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("reset-emulator has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::create_disk_into_drive0(const std::string& filename) -> void
 {
     try {
-        ::xcpc_log_debug("create-disk-into-drive0 <%s>", filename.c_str());
         _machine->create_disk_into_drive0(filename);
-        ::xcpc_log_debug("create-disk-into-drive0 has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("create-disk-into-drive0 has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::insert_disk_into_drive0(const std::string& filename) -> void
 {
     try {
-        ::xcpc_log_debug("insert-disk-into-drive0 <%s>", filename.c_str());
         _machine->insert_disk_into_drive0(filename);
-        ::xcpc_log_debug("insert-disk-into-drive0 has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("insert-disk-into-drive0 has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::remove_disk_from_drive0() -> void
 {
     try {
-        ::xcpc_log_debug("remove-disk-from-drive0");
         _machine->remove_disk_from_drive0();
-        ::xcpc_log_debug("remove-disk-from-drive0 has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("remove-disk-from-drive0 has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::create_disk_into_drive1(const std::string& filename) -> void
 {
     try {
-        ::xcpc_log_debug("create-disk-into-drive1 <%s>", filename.c_str());
         _machine->create_disk_into_drive1(filename);
-        ::xcpc_log_debug("create-disk-into-drive1 has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("create-disk-into-drive1 has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::insert_disk_into_drive1(const std::string& filename) -> void
 {
     try {
-        ::xcpc_log_debug("insert-disk-into-drive1 <%s>", filename.c_str());
         _machine->insert_disk_into_drive1(filename);
-        ::xcpc_log_debug("insert-disk-into-drive1 has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("insert-disk-into-drive1 has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::remove_disk_from_drive1() -> void
 {
     try {
-        ::xcpc_log_debug("remove-disk-from-drive1");
         _machine->remove_disk_from_drive1();
-        ::xcpc_log_debug("remove-disk-from-drive1 has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("remove-disk-from-drive1 has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::set_volume(const float volume) -> void
 {
     try {
-        ::xcpc_log_debug("increase-volume <%d>", static_cast<int>(volume * 100.0f));
         _machine->set_volume(volume);
-        ::xcpc_log_debug("increase-volume has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("increase-volume has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::set_scanlines(const bool scanlines) -> void
 {
     try {
-        ::xcpc_log_debug("set-scanlines <%d>", scanlines);
         _machine->set_scanlines(scanlines);
-        ::xcpc_log_debug("set-scanlines has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-scanlines has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::set_company_name(const std::string& company_name) -> void
 {
     try {
-        ::xcpc_log_debug("set-company-name <%s>", company_name.c_str());
         _machine->set_company_name(company_name);
-        ::xcpc_log_debug("set-company-name has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-company-name has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::set_monitor_type(const std::string& monitor_type) -> void
 {
     try {
-        ::xcpc_log_debug("set-monitor-type <%s>", monitor_type.c_str());
         _machine->set_monitor_type(monitor_type);
-        ::xcpc_log_debug("set-monitor-type has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-monitor-type has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::set_refresh_rate(const std::string& refresh_rate) -> void
 {
     try {
-        ::xcpc_log_debug("set-refresh-rate <%s>", refresh_rate.c_str());
         _machine->set_refresh_rate(refresh_rate);
-        ::xcpc_log_debug("set-refresh-rate has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-refresh-rate has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::set_keyboard_type(const std::string& keyboard_type) -> void
 {
     try {
-        ::xcpc_log_debug("set-keyboard-type <%s>", keyboard_type.c_str());
         _machine->set_keyboard_type(keyboard_type);
-        ::xcpc_log_debug("set-keyboard-type has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-keyboard-type has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::set_joystick0(const std::string& device) -> void
 {
     try {
-        ::xcpc_log_debug("set-joystick0 <%s>", device.c_str());
         work_wnd().emulator().set_joystick(0, device);
-        ::xcpc_log_debug("set-joystick0 has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-joystick0 has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::set_joystick1(const std::string& device) -> void
 {
     try {
-        ::xcpc_log_debug("set-joystick1 <%s>", device.c_str());
         work_wnd().emulator().set_joystick(1, device);
-        ::xcpc_log_debug("set-joystick1 has succeeded");
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-joystick1 has failed (%s)", e.what());
     }
-    update_gui();
+    update_all();
 }
 
 auto Application::on_open(GFile** files, int num_files) -> void
@@ -2348,8 +2364,10 @@ auto Application::on_open(GFile** files, int num_files) -> void
     const int count = num_files;
     for(int index = 0; index < count; ++index) {
         char* path = ::g_file_get_path(files[index]);
-        Callbacks::open_file(*this, path);
-        path = (::g_free(path), nullptr);
+        if(path != nullptr) {
+            Callbacks::open_file(*this, path);
+            path = (::g_free(path), nullptr);
+        }
     }
 }
 
@@ -2362,17 +2380,17 @@ auto Application::on_startup() -> void
 
     auto create_main_window = [&]() -> void
     {
-        _main_window.build();
+        _app_window.build();
     };
 
-    auto execute = [&]() -> void
+    auto do_startup = [&]() -> void
     {
-        create_app_icon(xcpc::Utils::get_datdir(), "pixmaps", "xcpc.png");
+        create_app_icon(Utils::get_datdir(), "pixmaps", "xcpc.png");
         create_main_window();
         start_timer();
     };
 
-    return execute();
+    return do_startup();
 }
 
 auto Application::on_shutdown() -> void
@@ -2384,21 +2402,21 @@ auto Application::on_shutdown() -> void
 
     auto destroy_main_window = [&]() -> void
     {
-        _main_window.destroy();
+        _app_window.destroy();
     };
 
-    auto execute = [&]() -> void
+    auto do_shutdown = [&]() -> void
     {
         destroy_main_window();
         destroy_app_icon();
     };
 
-    return execute();
+    return do_shutdown();
 }
 
 auto Application::on_statistics() -> void
 {
-    update_fps_label();
+    update_stats();
 }
 
 auto Application::on_snapshot_load() -> void
@@ -2595,12 +2613,12 @@ auto Application::on_scanlines_disable() -> void
 
 auto Application::on_joystick0() -> void
 {
-    set_joystick0(xcpc::Utils::get_joystick0());
+    set_joystick0(Utils::get_joystick0());
 }
 
 auto Application::on_joystick1() -> void
 {
-    set_joystick1(xcpc::Utils::get_joystick1());
+    set_joystick1(Utils::get_joystick1());
 }
 
 auto Application::on_help() -> void
@@ -2638,106 +2656,97 @@ auto Application::stop_timer() -> void
 
 auto Application::show_play() -> void
 {
-    _main_window.show_play();
+    _app_window.show_play();
+    _app_window.hide_pause();
 }
 
 auto Application::hide_play() -> void
 {
-    _main_window.hide_play();
+    _app_window.show_pause();
+    _app_window.hide_play();
 }
 
 auto Application::show_pause() -> void
 {
-    _main_window.show_pause();
+    _app_window.show_pause();
+    _app_window.hide_play();
 }
 
 auto Application::hide_pause() -> void
 {
-    _main_window.hide_pause();
+    _app_window.show_play();
+    _app_window.hide_pause();
 }
 
 auto Application::show_reset() -> void
 {
-    _main_window.show_reset();
+    _app_window.show_reset();
 }
 
 auto Application::hide_reset() -> void
 {
-    _main_window.hide_reset();
+    _app_window.hide_reset();
 }
 
 auto Application::set_state(const std::string& state) -> void
 {
     _app_state = state;
-    update_gui();
+    update_state();
 }
 
-auto Application::update_gui() -> void
+auto Application::update_title() -> void
 {
-    update_window_title();
-    update_status_label();
-    update_drive0_label();
-    update_drive1_label();
-    update_system_label();
-    update_volume_label();
-    update_fps_label();
-}
-
-auto Application::update_window_title() -> void
-{
-    char buffer[256];
+    std::string title;
 
     auto format_title = [&]() -> void
     {
-        const int rc = snprintf ( buffer, sizeof(buffer)
-                                , "%s - %s"
-                                , _app_title.c_str()
-                                , _app_state.c_str() );
-        if(rc <= 0) {
-            buffer[0] = '\0';
-        }
+        title += _app_title;
+        title += ' ';
+        title += '-';
+        title += ' ';
+        title += _app_state;
     };
 
     auto update_title = [&]() -> void
     {
-        _main_window.set_title(buffer);
+        _app_window.set_title(title);
     };
 
-    auto execute = [&]() -> void
+    auto do_update = [&]() -> void
     {
         format_title();
         update_title();
     };
 
-    return execute();
+    return do_update();
 }
 
-auto Application::update_status_label() -> void
+auto Application::update_state() -> void
 {
     std::string label(_app_state);
 
     auto format_label = [&]() -> void
     {
         if(label.empty()) {
-            std::string("{unknown}").swap(label);
+            std::string(_("{unknown}")).swap(label);
         }
     };
 
     auto update_label = [&]() -> void
     {
-        info_bar().update_status(label);
+        info_bar().set_state(label);
     };
 
-    auto execute = [&]() -> void
+    auto do_update = [&]() -> void
     {
         format_label();
         update_label();
     };
 
-    return execute();
+    return do_update();
 }
 
-auto Application::update_drive0_label() -> void
+auto Application::update_drive0() -> void
 {
     std::string label(_machine->get_drive0_filename());
 
@@ -2749,25 +2758,25 @@ auto Application::update_drive0_label() -> void
             std::string(slash + 1).swap(label);
         }
         if(label.empty()) {
-            std::string("{empty}").swap(label);
+            std::string(_("{empty}")).swap(label);
         }
     };
 
     auto update_label = [&]() -> void
     {
-        info_bar().update_drive0(label);
+        info_bar().set_drive0(label);
     };
 
-    auto execute = [&]() -> void
+    auto do_update = [&]() -> void
     {
         format_label();
         update_label();
     };
 
-    return execute();
+    return do_update();
 }
 
-auto Application::update_drive1_label() -> void
+auto Application::update_drive1() -> void
 {
     std::string label(_machine->get_drive1_filename());
 
@@ -2779,58 +2788,78 @@ auto Application::update_drive1_label() -> void
             std::string(slash + 1).swap(label);
         }
         if(label.empty()) {
-            std::string("{empty}").swap(label);
+            std::string(_("{empty}")).swap(label);
         }
     };
 
     auto update_label = [&]() -> void
     {
-        info_bar().update_drive1(label);
+        info_bar().set_drive1(label);
     };
 
-    auto execute = [&]() -> void
+    auto do_update = [&]() -> void
     {
         format_label();
         update_label();
     };
 
-    return execute();
+    return do_update();
 }
 
-auto Application::update_system_label() -> void
+auto Application::update_system() -> void
 {
-    auto execute = [&]() -> void
+    auto do_update = [&]() -> void
     {
-        info_bar().update_system(_machine->get_system_info());
+        info_bar().set_system(_machine->get_system_info());
     };
 
-    return execute();
+    return do_update();
 }
 
-auto Application::update_volume_label() -> void
+auto Application::update_volume() -> void
 {
-    char buffer[64];
+    std::string label(_("Vol:"));
 
-    const int rc = ::snprintf(buffer, sizeof(buffer), "Vol: %d%% ", static_cast<int>((_machine->get_volume() + 0.005f) * 100.0f));
-
-    auto execute = [&]() -> void
+    auto format_label = [&]() -> void
     {
-        if(rc > 0) {
-            info_bar().update_volume(buffer);
-        }
+        label += ' ';
+        label += std::to_string(static_cast<int>((_machine->get_volume() + 0.005f) * 100.0f));
+        label += '%';
     };
 
-    return execute();
+    auto update_label = [&]() -> void
+    {
+        info_bar().set_volume(label);
+    };
+
+    auto do_update = [&]() -> void
+    {
+        format_label();
+        update_label();
+    };
+
+    return do_update();
 }
 
-auto Application::update_fps_label() -> void
+auto Application::update_stats() -> void
 {
-    auto execute = [&]() -> void
+    auto do_update = [&]() -> void
     {
-        info_bar().update_fps(_machine->get_statistics());
+        info_bar().set_stats(_machine->get_statistics());
     };
 
-    return execute();
+    return do_update();
+}
+
+auto Application::update_all() -> void
+{
+    update_title();
+    update_state();
+    update_drive0();
+    update_drive1();
+    update_system();
+    update_volume();
+    update_stats();
 }
 
 }
@@ -2841,9 +2870,9 @@ auto Application::update_fps_label() -> void
 
 int xcpc_main(int* argc, char*** argv)
 {
-    xcpc::Application application(*argc, *argv);
+    const auto application(std::make_unique<xcpc::Application>(*argc, *argv));
 
-    return application.main();
+    return application->main();
 }
 
 // ---------------------------------------------------------------------------

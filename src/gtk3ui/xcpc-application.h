@@ -21,7 +21,33 @@
 #include "xcpc.h"
 
 // ---------------------------------------------------------------------------
-// forward declarations
+// impl forward declarations
+// ---------------------------------------------------------------------------
+
+namespace impl {
+
+using namespace xcpc;
+
+class AppWidget;
+class AppWindow;
+class FileMenu;
+class ControlsMenu;
+class MachineMenu;
+class Drive0Menu;
+class Drive1Menu;
+class AudioMenu;
+class VideoMenu;
+class InputMenu;
+class HelpMenu;
+class MenuBar;
+class ToolBar;
+class InfoBar;
+class WorkWnd;
+
+}
+
+// ---------------------------------------------------------------------------
+// xcpc forward declarations
 // ---------------------------------------------------------------------------
 
 namespace xcpc {
@@ -38,40 +64,6 @@ class AboutDialog;
 }
 
 // ---------------------------------------------------------------------------
-// posix_traits
-// ---------------------------------------------------------------------------
-
-struct posix_traits
-{
-    static auto file_exists(const std::string& filename) -> bool
-    {
-        const int rc = ::access(filename.c_str(), F_OK);
-        if(rc == 0) {
-            return true;
-        }
-        return false;
-    };
-
-    static auto file_readable(const std::string& filename) -> bool
-    {
-        const int rc = ::access(filename.c_str(), R_OK);
-        if(rc == 0) {
-            return true;
-        }
-        return false;
-    };
-
-    static auto file_writable(const std::string& filename) -> bool
-    {
-        const int rc = ::access(filename.c_str(), W_OK);
-        if(rc == 0) {
-            return true;
-        }
-        return false;
-    };
-};
-
-// ---------------------------------------------------------------------------
 // impl::AppWidget
 // ---------------------------------------------------------------------------
 
@@ -80,7 +72,7 @@ namespace impl {
 class AppWidget
 {
 public: // public interface
-    AppWidget(xcpc::Application&);
+    AppWidget(Application&);
 
     AppWidget(const AppWidget&) = delete;
 
@@ -91,7 +83,7 @@ public: // public interface
     virtual void build() = 0;
 
 protected: // protected data
-    xcpc::Application& _application;
+    Application& _application;
 };
 
 }
@@ -103,11 +95,11 @@ protected: // protected data
 namespace impl {
 
 class FileMenu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    FileMenu(xcpc::Application&);
+    FileMenu(Application&);
 
     FileMenu(const FileMenu&) = delete;
 
@@ -115,12 +107,13 @@ public: // public interface
 
     virtual ~FileMenu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
 private: // private data
+    gtk3::MenuItem&         _self;
     gtk3::Menu              _menu;
-    gtk3::MenuItem          _load_snapshot;
-    gtk3::MenuItem          _save_snapshot;
+    gtk3::MenuItem          _snapshot_load;
+    gtk3::MenuItem          _snapshot_save;
     gtk3::SeparatorMenuItem _separator;
     gtk3::MenuItem          _exit;
 };
@@ -134,11 +127,11 @@ private: // private data
 namespace impl {
 
 class ControlsMenu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    ControlsMenu(xcpc::Application&);
+    ControlsMenu(Application&);
 
     ControlsMenu(const ControlsMenu&) = delete;
 
@@ -146,7 +139,7 @@ public: // public interface
 
     virtual ~ControlsMenu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
     void show_play();
 
@@ -161,11 +154,12 @@ public: // public interface
     void hide_reset();
 
 private: // private data
+    gtk3::MenuItem&         _self;
     gtk3::Menu              _menu;
-    gtk3::MenuItem          _play_emulator;
-    gtk3::MenuItem          _pause_emulator;
+    gtk3::MenuItem          _emulator_play;
+    gtk3::MenuItem          _emulator_pause;
     gtk3::SeparatorMenuItem _separator;
-    gtk3::MenuItem          _reset_emulator;
+    gtk3::MenuItem          _emulator_reset;
 };
 
 }
@@ -177,11 +171,11 @@ private: // private data
 namespace impl {
 
 class MachineMenu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    MachineMenu(xcpc::Application&);
+    MachineMenu(Application&);
 
     MachineMenu(const MachineMenu&) = delete;
 
@@ -189,36 +183,37 @@ public: // public interface
 
     virtual ~MachineMenu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
 private: // private data
-    gtk3::Menu     _menu;
-    gtk3::MenuItem _company;
-    gtk3::Menu     _company_menu;
-    gtk3::MenuItem _company_isp;
-    gtk3::MenuItem _company_triumph;
-    gtk3::MenuItem _company_saisho;
-    gtk3::MenuItem _company_solavox;
-    gtk3::MenuItem _company_awa;
-    gtk3::MenuItem _company_schneider;
-    gtk3::MenuItem _company_orion;
-    gtk3::MenuItem _company_amstrad;
-    gtk3::MenuItem _monitor;
-    gtk3::Menu     _monitor_menu;
-    gtk3::MenuItem _monitor_color;
-    gtk3::MenuItem _monitor_green;
-    gtk3::MenuItem _monitor_gray;
-    gtk3::MenuItem _refresh;
-    gtk3::Menu     _refresh_menu;
-    gtk3::MenuItem _refresh_50hz;
-    gtk3::MenuItem _refresh_60hz;
-    gtk3::MenuItem _keyboard;
-    gtk3::Menu     _keyboard_menu;
-    gtk3::MenuItem _keyboard_english;
-    gtk3::MenuItem _keyboard_french;
-    gtk3::MenuItem _keyboard_german;
-    gtk3::MenuItem _keyboard_spanish;
-    gtk3::MenuItem _keyboard_danish;
+    gtk3::MenuItem& _self;
+    gtk3::Menu      _menu;
+    gtk3::MenuItem  _company;
+    gtk3::Menu      _company_menu;
+    gtk3::MenuItem  _company_isp;
+    gtk3::MenuItem  _company_triumph;
+    gtk3::MenuItem  _company_saisho;
+    gtk3::MenuItem  _company_solavox;
+    gtk3::MenuItem  _company_awa;
+    gtk3::MenuItem  _company_schneider;
+    gtk3::MenuItem  _company_orion;
+    gtk3::MenuItem  _company_amstrad;
+    gtk3::MenuItem  _monitor;
+    gtk3::Menu      _monitor_menu;
+    gtk3::MenuItem  _monitor_color;
+    gtk3::MenuItem  _monitor_green;
+    gtk3::MenuItem  _monitor_gray;
+    gtk3::MenuItem  _refresh;
+    gtk3::Menu      _refresh_menu;
+    gtk3::MenuItem  _refresh_50hz;
+    gtk3::MenuItem  _refresh_60hz;
+    gtk3::MenuItem  _keyboard;
+    gtk3::Menu      _keyboard_menu;
+    gtk3::MenuItem  _keyboard_english;
+    gtk3::MenuItem  _keyboard_french;
+    gtk3::MenuItem  _keyboard_german;
+    gtk3::MenuItem  _keyboard_spanish;
+    gtk3::MenuItem  _keyboard_danish;
 };
 
 }
@@ -230,11 +225,11 @@ private: // private data
 namespace impl {
 
 class Drive0Menu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    Drive0Menu(xcpc::Application&);
+    Drive0Menu(Application&);
 
     Drive0Menu(const Drive0Menu&) = delete;
 
@@ -242,9 +237,10 @@ public: // public interface
 
     virtual ~Drive0Menu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
 private: // private data
+    gtk3::MenuItem&         _self;
     gtk3::Menu              _menu;
     gtk3::MenuItem          _create_disk;
     gtk3::SeparatorMenuItem _separator;
@@ -261,11 +257,11 @@ private: // private data
 namespace impl {
 
 class Drive1Menu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    Drive1Menu(xcpc::Application&);
+    Drive1Menu(Application&);
 
     Drive1Menu(const Drive1Menu&) = delete;
 
@@ -273,9 +269,10 @@ public: // public interface
 
     virtual ~Drive1Menu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
 private: // private data
+    gtk3::MenuItem&         _self;
     gtk3::Menu              _menu;
     gtk3::MenuItem          _create_disk;
     gtk3::SeparatorMenuItem _separator;
@@ -292,11 +289,11 @@ private: // private data
 namespace impl {
 
 class AudioMenu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    AudioMenu(xcpc::Application&);
+    AudioMenu(Application&);
 
     AudioMenu(const AudioMenu&) = delete;
 
@@ -304,9 +301,10 @@ public: // public interface
 
     virtual ~AudioMenu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
 private: // private data
+    gtk3::MenuItem& _self;
     gtk3::Menu      _menu;
     gtk3::MenuItem  _volume_increase;
     gtk3::MenuItem  _volume_decrease;
@@ -321,11 +319,11 @@ private: // private data
 namespace impl {
 
 class VideoMenu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    VideoMenu(xcpc::Application&);
+    VideoMenu(Application&);
 
     VideoMenu(const VideoMenu&) = delete;
 
@@ -333,12 +331,13 @@ public: // public interface
 
     virtual ~VideoMenu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
 private: // private data
-    gtk3::Menu     _menu;
-    gtk3::MenuItem _scanlines_enable;
-    gtk3::MenuItem _scanlines_disable;
+    gtk3::MenuItem& _self;
+    gtk3::Menu      _menu;
+    gtk3::MenuItem  _scanlines_enable;
+    gtk3::MenuItem  _scanlines_disable;
 };
 
 }
@@ -350,11 +349,11 @@ private: // private data
 namespace impl {
 
 class InputMenu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    InputMenu(xcpc::Application&);
+    InputMenu(Application&);
 
     InputMenu(const InputMenu&) = delete;
 
@@ -362,12 +361,13 @@ public: // public interface
 
     virtual ~InputMenu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
 private: // private data
-    gtk3::Menu     _menu;
-    gtk3::MenuItem _joystick0;
-    gtk3::MenuItem _joystick1;
+    gtk3::MenuItem& _self;
+    gtk3::Menu      _menu;
+    gtk3::MenuItem  _joystick0;
+    gtk3::MenuItem  _joystick1;
 };
 
 }
@@ -379,11 +379,11 @@ private: // private data
 namespace impl {
 
 class HelpMenu final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuItem
 {
 public: // public interface
-    HelpMenu(xcpc::Application&);
+    HelpMenu(Application&);
 
     HelpMenu(const HelpMenu&) = delete;
 
@@ -391,9 +391,10 @@ public: // public interface
 
     virtual ~HelpMenu() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
 private: // private data
+    gtk3::MenuItem&         _self;
     gtk3::Menu              _menu;
     gtk3::MenuItem          _help;
     gtk3::SeparatorMenuItem _separator;
@@ -409,11 +410,11 @@ private: // private data
 namespace impl {
 
 class MenuBar final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::MenuBar
 {
 public: // public interface
-    MenuBar(xcpc::Application&);
+    MenuBar(Application&);
 
     MenuBar(const MenuBar&) = delete;
 
@@ -421,7 +422,7 @@ public: // public interface
 
     virtual ~MenuBar() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
     void show_play();
 
@@ -436,15 +437,16 @@ public: // public interface
     void hide_reset();
 
 private: // private data
-    impl::FileMenu     _file_menu;
-    impl::ControlsMenu _controls_menu;
-    impl::MachineMenu  _machine_menu;
-    impl::Drive0Menu   _drive0_menu;
-    impl::Drive1Menu   _drive1_menu;
-    impl::AudioMenu    _audio_menu;
-    impl::VideoMenu    _video_menu;
-    impl::InputMenu    _input_menu;
-    impl::HelpMenu     _help_menu;
+    gtk3::MenuBar& _self;
+    FileMenu       _file_menu;
+    ControlsMenu   _controls_menu;
+    MachineMenu    _machine_menu;
+    Drive0Menu     _drive0_menu;
+    Drive1Menu     _drive1_menu;
+    AudioMenu      _audio_menu;
+    VideoMenu      _video_menu;
+    InputMenu      _input_menu;
+    HelpMenu       _help_menu;
 };
 
 }
@@ -456,11 +458,11 @@ private: // private data
 namespace impl {
 
 class ToolBar final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::Toolbar
 {
 public: // public interface
-    ToolBar(xcpc::Application&);
+    ToolBar(Application&);
 
     ToolBar(const ToolBar&) = delete;
 
@@ -468,7 +470,7 @@ public: // public interface
 
     virtual ~ToolBar() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
     void show_play();
 
@@ -483,12 +485,13 @@ public: // public interface
     void hide_reset();
 
 private: // private data
-    gtk3::ToolButton        _load_snapshot;
-    gtk3::ToolButton        _save_snapshot;
+    gtk3::Toolbar&          _self;
+    gtk3::ToolButton        _snapshot_load;
+    gtk3::ToolButton        _snapshot_save;
     gtk3::SeparatorToolItem _separator1;
-    gtk3::ToolButton        _play_emulator;
-    gtk3::ToolButton        _pause_emulator;
-    gtk3::ToolButton        _reset_emulator;
+    gtk3::ToolButton        _emulator_play;
+    gtk3::ToolButton        _emulator_pause;
+    gtk3::ToolButton        _emulator_reset;
     gtk3::SeparatorToolItem _separator2;
     gtk3::ToolButton        _volume_decrease;
     gtk3::ToolButton        _volume_increase;
@@ -503,11 +506,11 @@ private: // private data
 namespace impl {
 
 class InfoBar final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::HBox
 {
 public: // public interface
-    InfoBar(xcpc::Application&);
+    InfoBar(Application&);
 
     InfoBar(const InfoBar&) = delete;
 
@@ -515,27 +518,28 @@ public: // public interface
 
     virtual ~InfoBar() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
-    void update_status(const std::string& status);
+    void set_state(const std::string& state);
 
-    void update_drive0(const std::string& filename);
+    void set_drive0(const std::string& drive0);
 
-    void update_drive1(const std::string& filename);
+    void set_drive1(const std::string& drive1);
 
-    void update_system(const std::string& system);
+    void set_system(const std::string& system);
 
-    void update_volume(const std::string& volume);
+    void set_volume(const std::string& volume);
 
-    void update_fps(const std::string& fps);
+    void set_stats(const std::string& stats);
 
 private: // private data
-    gtk3::Label _status;
+    gtk3::HBox& _self;
+    gtk3::Label _state;
     gtk3::Label _drive0;
     gtk3::Label _drive1;
     gtk3::Label _system;
     gtk3::Label _volume;
-    gtk3::Label _fps;
+    gtk3::Label _stats;
 };
 
 }
@@ -547,11 +551,11 @@ private: // private data
 namespace impl {
 
 class WorkWnd final
-    : public impl::AppWidget
+    : public AppWidget
     , public gtk3::HBox
 {
 public: // public interface
-    WorkWnd(xcpc::Application&);
+    WorkWnd(Application&);
 
     WorkWnd(const WorkWnd&) = delete;
 
@@ -559,7 +563,7 @@ public: // public interface
 
     virtual ~WorkWnd() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
     auto emulator() -> gtk3::Emulator&
     {
@@ -574,42 +578,42 @@ private: // private data
 }
 
 // ---------------------------------------------------------------------------
-// impl::MainWindow
+// impl::AppWindow
 // ---------------------------------------------------------------------------
 
 namespace impl {
 
-class MainWindow final
-    : public impl::AppWidget
+class AppWindow final
+    : public AppWidget
     , public gtk3::ApplicationWindow
 {
 public: // public interface
-    MainWindow(xcpc::Application&);
+    AppWindow(Application&);
 
-    MainWindow(const MainWindow&) = delete;
+    AppWindow(const AppWindow&) = delete;
 
-    MainWindow& operator=(const MainWindow&) = delete;
+    AppWindow& operator=(const AppWindow&) = delete;
 
-    virtual ~MainWindow() = default;
+    virtual ~AppWindow() = default;
 
-    virtual void build() override;
+    virtual void build() override final;
 
-    auto menu_bar() -> impl::MenuBar&
+    auto menu_bar() -> auto&
     {
         return _menu_bar;
     }
 
-    auto tool_bar() -> impl::ToolBar&
+    auto tool_bar() -> auto&
     {
         return _tool_bar;
     }
 
-    auto work_wnd() -> impl::WorkWnd&
+    auto work_wnd() -> auto&
     {
         return _work_wnd;
     }
 
-    auto info_bar() -> impl::InfoBar&
+    auto info_bar() -> auto&
     {
         return _info_bar;
     }
@@ -627,17 +631,17 @@ public: // public interface
     void hide_reset();
 
 private: // private data
-    gtk3::VBox    _layout;
-    impl::MenuBar _menu_bar;
-    impl::ToolBar _tool_bar;
-    impl::WorkWnd _work_wnd;
-    impl::InfoBar _info_bar;
+    gtk3::VBox _layout;
+    MenuBar    _menu_bar;
+    ToolBar    _tool_bar;
+    WorkWnd    _work_wnd;
+    InfoBar    _info_bar;
 };
 
 }
 
 // ---------------------------------------------------------------------------
-// xcpc::Application
+// Application
 // ---------------------------------------------------------------------------
 
 namespace xcpc {
@@ -655,7 +659,7 @@ public: // public interface
 
     virtual ~Application();
 
-    virtual int main() override;
+    virtual int main() override final;
 
 public: // public accessors
     auto app_context() -> gtk3::Application&
@@ -678,29 +682,29 @@ public: // public accessors
         return _app_icon;
     }
 
-    auto main_window() -> impl::MainWindow&
+    auto main_window() -> auto&
     {
-        return _main_window;
+        return _app_window;
     }
 
-    auto menu_bar() -> impl::MenuBar&
+    auto menu_bar() -> auto&
     {
-        return _main_window.menu_bar();
+        return _app_window.menu_bar();
     }
 
-    auto tool_bar() -> impl::ToolBar&
+    auto tool_bar() -> auto&
     {
-        return _main_window.tool_bar();
+        return _app_window.tool_bar();
     }
 
-    auto work_wnd() -> impl::WorkWnd&
+    auto work_wnd() -> auto&
     {
-        return _main_window.work_wnd();
+        return _app_window.work_wnd();
     }
 
-    auto info_bar() -> impl::InfoBar&
+    auto info_bar() -> auto&
     {
-        return _main_window.info_bar();
+        return _app_window.info_bar();
     }
 
 public: // public methods
@@ -848,28 +852,28 @@ private: // private interface
 
     auto set_state(const std::string& state) -> void;
 
-    auto update_gui() -> void;
+    auto update_title() -> void;
 
-    auto update_window_title() -> void;
+    auto update_state() -> void;
 
-    auto update_status_label() -> void;
+    auto update_drive0() -> void;
 
-    auto update_drive0_label() -> void;
+    auto update_drive1() -> void;
 
-    auto update_drive1_label() -> void;
+    auto update_system() -> void;
 
-    auto update_system_label() -> void;
+    auto update_volume() -> void;
 
-    auto update_volume_label() -> void;
+    auto update_stats() -> void;
 
-    auto update_fps_label() -> void;
+    auto update_all() -> void;
 
 private: // private data
-    std::string      _app_title;
-    std::string      _app_state;
-    gdk3::Pixbuf     _app_icon;
-    impl::MainWindow _main_window;
-    guint            _timer;
+    std::string     _app_title;
+    std::string     _app_state;
+    gdk3::Pixbuf    _app_icon;
+    impl::AppWindow _app_window;
+    guint           _timer;
 };
 
 }

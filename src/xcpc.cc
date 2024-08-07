@@ -23,6 +23,8 @@
 #include <cstring>
 #include <cstdint>
 #include <climits>
+#include <cassert>
+#include <unistd.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -32,6 +34,46 @@
 #include <iostream>
 #include <stdexcept>
 #include "xcpc.h"
+
+// ---------------------------------------------------------------------------
+// TranslationTraits
+// ---------------------------------------------------------------------------
+
+auto TranslationTraits::translate(const char* string) -> const char*
+{
+    return string;
+}
+
+// ---------------------------------------------------------------------------
+// PosixTraits
+// ---------------------------------------------------------------------------
+
+auto PosixTraits::file_exists(const std::string& filename) -> bool
+{
+    const int rc = ::access(filename.c_str(), F_OK);
+    if(rc == 0) {
+        return true;
+    }
+    return false;
+}
+
+auto PosixTraits::file_readable(const std::string& filename) -> bool
+{
+    const int rc = ::access(filename.c_str(), R_OK);
+    if(rc == 0) {
+        return true;
+    }
+    return false;
+}
+
+auto PosixTraits::file_writable(const std::string& filename) -> bool
+{
+    const int rc = ::access(filename.c_str(), W_OK);
+    if(rc == 0) {
+        return true;
+    }
+    return false;
+}
 
 // ---------------------------------------------------------------------------
 // base::Application
@@ -49,7 +91,7 @@ Application::Application(int& argc, char**& argv)
 
 void Application::run_dialog(Dialog& dialog)
 {
-    const base::ScopedPause pause(*this);
+    const ScopedPause pause(*this);
 
     return dialog.run();
 }
@@ -318,6 +360,57 @@ namespace base {
 AboutDialog::AboutDialog(Application& application)
     : Dialog(application, _("About Xcpc"))
 {
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// base::ScopedOperation
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+ScopedOperation::ScopedOperation(Application& application)
+    : _application(application)
+{
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// base::ScopedPause
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+ScopedPause::ScopedPause(Application& application)
+    : ScopedOperation(application)
+{
+    _application.pause_emulator();
+}
+
+ScopedPause::~ScopedPause()
+{
+    _application.play_emulator();
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// base::ScopedReset
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+ScopedReset::ScopedReset(Application& application)
+    : ScopedOperation(application)
+{
+    _application.reset_emulator();
+}
+
+ScopedReset::~ScopedReset()
+{
+    _application.reset_emulator();
 }
 
 }

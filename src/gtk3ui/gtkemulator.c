@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <glib-unix.h>
 #ifdef HAVE_LINUX_JOYSTICK_H
 #include <linux/joystick.h>
 #include <sys/ioctl.h>

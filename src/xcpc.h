@@ -21,16 +21,12 @@
 #include <xcpc/amstrad/cpc/cpc-machine.h>
 
 // ---------------------------------------------------------------------------
-// translation_traits
+// TranslationTraits
 // ---------------------------------------------------------------------------
 
-struct translation_traits
+struct TranslationTraits
 {
-    static const char* translate(const char* string)
-    {
-        return string;
-    }
-
+    static auto translate(const char* string) -> const char*;
 };
 
 // ---------------------------------------------------------------------------
@@ -38,8 +34,21 @@ struct translation_traits
 // ---------------------------------------------------------------------------
 
 #ifndef _
-#define _(string) translation_traits::translate(string)
+#define _(string) TranslationTraits::translate(string)
 #endif
+
+// ---------------------------------------------------------------------------
+// PosixTraits
+// ---------------------------------------------------------------------------
+
+struct PosixTraits
+{
+    static auto file_exists(const std::string& filename) -> bool;
+
+    static auto file_readable(const std::string& filename) -> bool;
+
+    static auto file_writable(const std::string& filename) -> bool;
+};
 
 // ---------------------------------------------------------------------------
 // forward declarations
@@ -494,10 +503,7 @@ namespace base {
 class ScopedOperation
 {
 public: // public interface
-    ScopedOperation(Application& application)
-        : _application(application)
-    {
-    }
+    ScopedOperation(Application&);
 
     ScopedOperation(const ScopedOperation&) = delete;
 
@@ -521,27 +527,13 @@ class ScopedPause final
     : public ScopedOperation
 {
 public: // public interface
-    ScopedPause(Application& application)
-        : ScopedOperation(application)
-    {
-        enter_pause();
-    }
+    ScopedPause(Application&);
 
-    virtual ~ScopedPause()
-    {
-        leave_pause();
-    }
+    ScopedPause(const ScopedPause&) = delete;
 
-protected: // protected interface
-    auto enter_pause() -> void
-    {
-        return _application.pause_emulator();
-    };
+    ScopedPause& operator=(const ScopedPause&) = delete;
 
-    auto leave_pause() -> void
-    {
-        return _application.play_emulator();
-    };
+    virtual ~ScopedPause();
 };
 
 }
@@ -556,27 +548,13 @@ class ScopedReset final
     : public ScopedOperation
 {
 public: // public interface
-    ScopedReset(Application& application)
-        : ScopedOperation(application)
-    {
-        enter_reset();
-    }
+    ScopedReset(Application&);
 
-    virtual ~ScopedReset()
-    {
-        leave_reset();
-    }
+    ScopedReset(const ScopedReset&) = delete;
 
-protected: // protected interface
-    auto enter_reset() -> void
-    {
-        return _application.reset_emulator();
-    };
+    ScopedReset& operator=(const ScopedReset&) = delete;
 
-    auto leave_reset() -> void
-    {
-        return _application.reset_emulator();
-    };
+    virtual ~ScopedReset();
 };
 
 }

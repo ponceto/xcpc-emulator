@@ -18,7 +18,6 @@
 #define __GTK_EMULATOR_TYPES_H__
 
 #include <gtk/gtkx.h>
-#include <glib-unix.h>
 #include <xcpc/libxcpc.h>
 
 G_BEGIN_DECLS

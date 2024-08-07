@@ -23,6 +23,7 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdarg>
+#include <cmath>
 #include <memory>
 #include <string>
 #include <vector>
@@ -2089,10 +2090,10 @@ auto Mainboard::update_stats() -> void
         }
     }
     /* compute and print the statistics */ {
-        const double stats_frames  = static_cast<double>(_stats.frame_drawn * 1000000UL);
-        const double stats_elapsed = static_cast<double>(elapsed_us);
-        const double stats_fps     = (stats_frames / stats_elapsed);
-        const int rc = ::snprintf ( _stats.buffer, sizeof(_stats.buffer), "%.f fps", stats_fps);
+        const float stats_frames  = static_cast<float>(_stats.frame_drawn * 1000000UL);
+        const float stats_elapsed = static_cast<float>(elapsed_us);
+        const float stats_fps     = ::rintf(stats_frames / stats_elapsed);
+        const int rc = ::snprintf ( _stats.buffer, sizeof(_stats.buffer), "%d fps", static_cast<int>(stats_fps));
         static_cast<void>(rc);
     }
     /* set the new reference */ {
