@@ -30,6 +30,7 @@ using namespace xcpc;
 
 class AppWidget;
 class AppWindow;
+class Canvas;
 class FileMenu;
 class ControlsMenu;
 class MachineMenu;
@@ -84,6 +85,52 @@ public: // public interface
 
 protected: // protected data
     Application& _application;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// impl::Canvas
+// ---------------------------------------------------------------------------
+
+namespace impl {
+
+class Canvas final
+    : public AppWidget
+    , public gtk3::GLArea
+{
+public: // public interface
+    Canvas(Application&);
+
+    Canvas(const Canvas&) = delete;
+
+    Canvas& operator=(const Canvas&) = delete;
+
+    virtual ~Canvas() = default;
+
+    virtual void build() override final;
+
+public: // public signals
+    auto on_canvas_realize() -> void;
+
+    auto on_canvas_unrealize() -> void;
+
+    auto on_canvas_render(GdkGLContext& context) -> void;
+
+    auto on_canvas_resize(gint width, gint height) -> void;
+
+    auto on_canvas_key_press(GdkEventKey& event) -> void;
+
+    auto on_canvas_key_release(GdkEventKey& event) -> void;
+
+    auto on_canvas_button_press(GdkEventButton& event) -> void;
+
+    auto on_canvas_button_release(GdkEventButton& event) -> void;
+
+    auto on_canvas_motion_notify(GdkEventMotion& event) -> void;
+
+private: // private data
+    gtk3::GLArea& _self;
 };
 
 }
@@ -576,8 +623,9 @@ public: // public interface
     }
 
 private: // private data
+    gtk3::HBox&    _self;
     gtk3::Emulator _emulator;
-    gtk3::GLArea   _gl_area;
+    Canvas         _canvas;
 };
 
 }

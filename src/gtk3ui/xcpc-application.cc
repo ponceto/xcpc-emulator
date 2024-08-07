@@ -108,6 +108,7 @@ namespace {
 struct Callbacks
 {
     using Application = xcpc::Application;
+    using Canvas      = impl::Canvas;
 
     static auto on_statistics(Application* application) -> gboolean
     {
@@ -460,55 +461,77 @@ struct Callbacks
         }
     }
 
-    static auto on_gl_key_press(GtkWidget* widget, GdkEventKey* event, Application* application) -> gboolean
+    static auto on_canvas_realize(GtkWidget* widget, Canvas* canvas) -> void
     {
-        if(application != nullptr) {
+        if(canvas != nullptr) {
+            canvas->on_canvas_realize();
+        }
+    }
+
+    static auto on_canvas_unrealize(GtkWidget* widget, Canvas* canvas) -> void
+    {
+        if(canvas != nullptr) {
+            canvas->on_canvas_unrealize();
+        }
+    }
+
+    static auto on_canvas_render(GtkWidget* widget, GdkGLContext* context, Canvas* canvas) -> gboolean
+    {
+        if(canvas != nullptr) {
+            canvas->on_canvas_render(*context);
+        }
+        return TRUE;
+    }
+
+    static auto on_canvas_resize(GtkWidget* widget, gint width, gint height, Canvas* canvas) -> void
+    {
+        if(canvas != nullptr) {
+            canvas->on_canvas_resize(width, height);
+        }
+    }
+
+    static auto on_canvas_key_press(GtkWidget* widget, GdkEventKey* event, Canvas* canvas) -> gboolean
+    {
+        if(canvas != nullptr) {
             ::gtk_widget_grab_focus(widget);
-            ::xcpc_log_debug("on_gl_key_press");
+            canvas->on_canvas_key_press(*event);
         }
         return TRUE;
     }
 
-    static auto on_gl_key_release(GtkWidget* widget, GdkEventKey* event, Application* application) -> gboolean
+    static auto on_canvas_key_release(GtkWidget* widget, GdkEventKey* event, Canvas* canvas) -> gboolean
     {
-        if(application != nullptr) {
+        if(canvas != nullptr) {
             ::gtk_widget_grab_focus(widget);
-            ::xcpc_log_debug("on_gl_key_release");
+            canvas->on_canvas_key_release(*event);
         }
         return TRUE;
     }
 
-    static auto on_gl_button_press(GtkWidget* widget, GdkEventButton* event, Application* application) -> gboolean
+    static auto on_canvas_button_press(GtkWidget* widget, GdkEventButton* event, Canvas* canvas) -> gboolean
     {
-        if(application != nullptr) {
+        if(canvas != nullptr) {
             ::gtk_widget_grab_focus(widget);
-            ::xcpc_log_debug("on_gl_button_press");
+            canvas->on_canvas_button_press(*event);
         }
         return TRUE;
     }
 
-    static auto on_gl_button_release(GtkWidget* widget, GdkEventButton* event, Application* application) -> gboolean
+    static auto on_canvas_button_release(GtkWidget* widget, GdkEventButton* event, Canvas* canvas) -> gboolean
     {
-        if(application != nullptr) {
+        if(canvas != nullptr) {
             ::gtk_widget_grab_focus(widget);
-            ::xcpc_log_debug("on_gl_button_release");
+            canvas->on_canvas_button_release(*event);
         }
         return TRUE;
     }
 
-    static auto on_gl_render(GtkWidget* widget, GdkGLContext* context, Application* application) -> gboolean
+    static auto on_canvas_motion_notify(GtkWidget* widget, GdkEventMotion* event, Canvas* canvas) -> gboolean
     {
-        if(application != nullptr) {
-            ::xcpc_log_debug("on_gl_render()");
+        if(canvas != nullptr) {
+            canvas->on_canvas_motion_notify(*event);
         }
         return TRUE;
-    }
-
-    static auto on_gl_resize(GtkWidget* widget, gint width, gint height, Application* application) -> void
-    {
-        if(application != nullptr) {
-            ::xcpc_log_debug("on_gl_resize(%d, %d)", width, height);
-        }
     }
 
     static auto has_extension(const char* filename, const char* extension) -> bool
@@ -583,6 +606,93 @@ namespace impl {
 AppWidget::AppWidget(Application& application)
     : _application(application)
 {
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// impl::Canvas
+// ---------------------------------------------------------------------------
+
+namespace impl {
+
+Canvas::Canvas(Application& application)
+    : AppWidget(application)
+    , gtk3::GLArea(nullptr)
+    , _self(*this)
+{
+}
+
+void Canvas::build()
+{
+    auto build_self = [&]() -> void
+    {
+#ifdef XCPC_ENABLE_GL_AREA
+        _self.create_gl_area();
+        _self.set_can_focus(true);
+        _self.add_realize_callback(G_CALLBACK(&Callbacks::on_canvas_realize), this);
+        _self.add_unrealize_callback(G_CALLBACK(&Callbacks::on_canvas_unrealize), this);
+        _self.add_render_callback(G_CALLBACK(&Callbacks::on_canvas_render), this);
+        _self.add_resize_callback(G_CALLBACK(&Callbacks::on_canvas_resize), this);
+        _self.add_key_press_event_callback(G_CALLBACK(&Callbacks::on_canvas_key_press), this);
+        _self.add_key_release_event_callback(G_CALLBACK(&Callbacks::on_canvas_key_release), this);
+        _self.add_button_press_event_callback(G_CALLBACK(&Callbacks::on_canvas_button_press), this);
+        _self.add_button_release_event_callback(G_CALLBACK(&Callbacks::on_canvas_button_release), this);
+        _self.add_motion_notify_event_callback(G_CALLBACK(&Callbacks::on_canvas_motion_notify), this);
+#endif
+    };
+
+    auto build_all = [&]() -> void
+    {
+        build_self();
+    };
+
+    return build_all();
+}
+
+auto Canvas::on_canvas_realize() -> void
+{
+    ::xcpc_log_debug("on_canvas_realize");
+}
+
+auto Canvas::on_canvas_unrealize() -> void
+{
+    ::xcpc_log_debug("on_canvas_unrealize");
+}
+
+auto Canvas::on_canvas_render(GdkGLContext& context) -> void
+{
+    ::xcpc_log_debug("on_canvas_render");
+}
+
+auto Canvas::on_canvas_resize(gint width, gint height) -> void
+{
+    ::xcpc_log_debug("on_canvas_resize(%d, %d)", width, height);
+}
+
+auto Canvas::on_canvas_key_press(GdkEventKey& event) -> void
+{
+    ::xcpc_log_debug("on_canvas_key_press");
+}
+
+auto Canvas::on_canvas_key_release(GdkEventKey& event) -> void
+{
+    ::xcpc_log_debug("on_canvas_key_release");
+}
+
+auto Canvas::on_canvas_button_press(GdkEventButton& event) -> void
+{
+    ::xcpc_log_debug("on_canvas_button_press");
+}
+
+auto Canvas::on_canvas_button_release(GdkEventButton& event) -> void
+{
+    ::xcpc_log_debug("on_canvas_button_release");
+}
+
+auto Canvas::on_canvas_motion_notify(GdkEventMotion& event) -> void
+{
+    ::xcpc_log_debug("on_canvas_motion_notify");
 }
 
 }
@@ -1980,15 +2090,14 @@ namespace impl {
 WorkWnd::WorkWnd(Application& application)
     : AppWidget(application)
     , gtk3::HBox(nullptr)
+    , _self(*this)
     , _emulator(nullptr)
-    , _gl_area(nullptr)
+    , _canvas(application)
 {
 }
 
 void WorkWnd::build()
 {
-    auto& _self(*this);
-
     auto build_self = [&]() -> void
     {
         _self.create_hbox();
@@ -2010,26 +2119,17 @@ void WorkWnd::build()
         _self.pack_start(_emulator, true, true, 0);
     };
 
-    auto build_gl_area = [&]() -> void
+    auto build_canvas = [&]() -> void
     {
-#ifdef XCPC_ENABLE_GL_AREA
-        _gl_area.create_gl_area();
-        _gl_area.set_can_focus(true);
-        _gl_area.add_key_press_event_callback(G_CALLBACK(&Callbacks::on_gl_key_press), &_application);
-        _gl_area.add_key_release_event_callback(G_CALLBACK(&Callbacks::on_gl_key_release), &_application);
-        _gl_area.add_button_press_event_callback(G_CALLBACK(&Callbacks::on_gl_button_press), &_application);
-        _gl_area.add_button_release_event_callback(G_CALLBACK(&Callbacks::on_gl_button_release), &_application);
-        _gl_area.add_render_callback(G_CALLBACK(&Callbacks::on_gl_render), &_application);
-        _gl_area.add_resize_callback(G_CALLBACK(&Callbacks::on_gl_resize), &_application);
-        _self.pack_start(_gl_area, true, true, 0);
-#endif
+        _canvas.build();
+        _self.pack_start(_canvas, true, true, 0);
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
         build_emulator();
-        build_gl_area();
+        build_canvas();
     };
 
     return build_all();

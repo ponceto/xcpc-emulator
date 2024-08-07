@@ -253,6 +253,8 @@ void Widget::add_button_release_event_callback(GCallback callback, void* data)
 
 void Widget::add_motion_notify_event_callback(GCallback callback, void* data)
 {
+    traits::add_events(*this, GDK_POINTER_MOTION_MASK);
+
     return signal_connect(sig_motion_notify_event, callback, data);
 }
 
