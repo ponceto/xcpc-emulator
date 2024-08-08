@@ -1,6 +1,7 @@
 2024-00-00	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Full support for french keyboard
+	* Better joystick handling
 	* Refactoring, better machine setup
 	* Machine selectable from GUI
 	* Manufacturer selectable from GUI

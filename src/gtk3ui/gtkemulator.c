@@ -1107,12 +1107,13 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                         /* check for special button */ {
                             if(event.value != 0) {
                                 unsigned short code = joystick->js_mapping[event.number];
-                                if(code == BTN_MODE) {
+                                if(code == BTN_SELECT) {
                                     return TRUE;
                                 }
-                                else if((code == BTN_SELECT) || (code == BTN_START)) {
-                                    KeySym keysym = XK_Pause;
-                                    g_signal_emit(G_OBJECT(widget), emulator_signals[SIG_HOTKEY], 0, &keysym);
+                                if(code == BTN_START) {
+                                    return TRUE;
+                                }
+                                if(code == BTN_MODE) {
                                     return TRUE;
                                 }
                             }

@@ -67,8 +67,8 @@ struct Environ
     }
 };
 
-char Environ::GTK_DEBUG[]   = "GDK_DEBUG=none";
-char Environ::GDK_DEBUG[]   = "GDK_DEBUG=none";
+char Environ::GTK_DEBUG[]   = "GDK_DEBUG=true";
+char Environ::GDK_DEBUG[]   = "GDK_DEBUG=true";
 char Environ::GDK_BACKEND[] = "GDK_BACKEND=x11";
 
 }
@@ -2170,7 +2170,7 @@ void WorkWnd::build()
         _emulator.create_emulator();
         _emulator.set_backend(_application.get_backend());
         _emulator.set_joystick(0, Utils::get_joystick0());
-        _emulator.set_joystick(1, Utils::get_joystick0());
+        _emulator.set_joystick(1, Utils::get_joystick1());
         _emulator.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
         _emulator.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
         _emulator.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
