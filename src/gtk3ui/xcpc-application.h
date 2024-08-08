@@ -294,10 +294,10 @@ public: // public interface
 private: // private data
     gtk3::MenuItem&         _self;
     gtk3::Menu              _menu;
-    gtk3::MenuItem          _create_disk;
+    gtk3::MenuItem          _disk_create;
     gtk3::SeparatorMenuItem _separator;
-    gtk3::MenuItem          _insert_disk;
-    gtk3::MenuItem          _remove_disk;
+    gtk3::MenuItem          _disk_insert;
+    gtk3::MenuItem          _disk_remove;
 };
 
 }
@@ -326,10 +326,10 @@ public: // public interface
 private: // private data
     gtk3::MenuItem&         _self;
     gtk3::Menu              _menu;
-    gtk3::MenuItem          _create_disk;
+    gtk3::MenuItem          _disk_create;
     gtk3::SeparatorMenuItem _separator;
-    gtk3::MenuItem          _insert_disk;
-    gtk3::MenuItem          _remove_disk;
+    gtk3::MenuItem          _disk_insert;
+    gtk3::MenuItem          _disk_remove;
 };
 
 }
@@ -419,7 +419,13 @@ private: // private data
     gtk3::MenuItem& _self;
     gtk3::Menu      _menu;
     gtk3::MenuItem  _joystick0;
+    gtk3::Menu      _joystick0_menu;
+    gtk3::MenuItem  _joystick0_connect;
+    gtk3::MenuItem  _joystick0_disconnect;
     gtk3::MenuItem  _joystick1;
+    gtk3::Menu      _joystick1_menu;
+    gtk3::MenuItem  _joystick1_connect;
+    gtk3::MenuItem  _joystick1_disconnect;
 };
 
 }
@@ -866,17 +872,17 @@ public: // public signals
 
     virtual auto on_keyboard_danish() -> void override final;
 
-    virtual auto on_drive0_create_disk() -> void override final;
+    virtual auto on_drive0_disk_create() -> void override final;
 
-    virtual auto on_drive0_insert_disk() -> void override final;
+    virtual auto on_drive0_disk_insert() -> void override final;
 
-    virtual auto on_drive0_remove_disk() -> void override final;
+    virtual auto on_drive0_disk_remove() -> void override final;
 
-    virtual auto on_drive1_create_disk() -> void override final;
+    virtual auto on_drive1_disk_create() -> void override final;
 
-    virtual auto on_drive1_insert_disk() -> void override final;
+    virtual auto on_drive1_disk_insert() -> void override final;
 
-    virtual auto on_drive1_remove_disk() -> void override final;
+    virtual auto on_drive1_disk_remove() -> void override final;
 
     virtual auto on_volume_increase() -> void override final;
 
@@ -886,9 +892,13 @@ public: // public signals
 
     virtual auto on_scanlines_disable() -> void override final;
 
-    virtual auto on_joystick0() -> void override final;
+    virtual auto on_joystick0_connect() -> void override final;
 
-    virtual auto on_joystick1() -> void override final;
+    virtual auto on_joystick0_disconnect() -> void override final;
+
+    virtual auto on_joystick1_connect() -> void override final;
+
+    virtual auto on_joystick1_disconnect() -> void override final;
 
     virtual auto on_help() -> void override final;
 

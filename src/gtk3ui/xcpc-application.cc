@@ -315,45 +315,45 @@ struct Callbacks
         }
     }
 
-    static auto on_drive0_create_disk(GtkWidget* widget, Application* application) -> void
+    static auto on_drive0_disk_create(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_drive0_create_disk();
+            application->on_drive0_disk_create();
         }
     }
 
-    static auto on_drive0_insert_disk(GtkWidget* widget, Application* application) -> void
+    static auto on_drive0_disk_insert(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_drive0_insert_disk();
+            application->on_drive0_disk_insert();
         }
     }
 
-    static auto on_drive0_remove_disk(GtkWidget* widget, Application* application) -> void
+    static auto on_drive0_disk_remove(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_drive0_remove_disk();
+            application->on_drive0_disk_remove();
         }
     }
 
-    static auto on_drive1_create_disk(GtkWidget* widget, Application* application) -> void
+    static auto on_drive1_disk_create(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_drive1_create_disk();
+            application->on_drive1_disk_create();
         }
     }
 
-    static auto on_drive1_insert_disk(GtkWidget* widget, Application* application) -> void
+    static auto on_drive1_disk_insert(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_drive1_insert_disk();
+            application->on_drive1_disk_insert();
         }
     }
 
-    static auto on_drive1_remove_disk(GtkWidget* widget, Application* application) -> void
+    static auto on_drive1_disk_remove(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_drive1_remove_disk();
+            application->on_drive1_disk_remove();
         }
     }
 
@@ -385,17 +385,31 @@ struct Callbacks
         }
     }
 
-    static auto on_joystick0(GtkWidget* widget, Application* application) -> void
+    static auto on_joystick0_connect(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_joystick0();
+            application->on_joystick0_connect();
         }
     }
 
-    static auto on_joystick1(GtkWidget* widget, Application* application) -> void
+    static auto on_joystick0_disconnect(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_joystick1();
+            application->on_joystick0_disconnect();
+        }
+    }
+
+    static auto on_joystick1_connect(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_joystick1_connect();
+        }
+    }
+
+    static auto on_joystick1_disconnect(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_joystick1_disconnect();
         }
     }
 
@@ -436,16 +450,16 @@ struct Callbacks
                     on_emulator_reset(widget, application);
                     break;
                 case XK_F6:
-                    on_drive0_insert_disk(widget, application);
+                    on_drive0_disk_insert(widget, application);
                     break;
                 case XK_F7:
-                    on_drive0_remove_disk(widget, application);
+                    on_drive0_disk_remove(widget, application);
                     break;
                 case XK_F8:
-                    on_drive1_insert_disk(widget, application);
+                    on_drive1_disk_insert(widget, application);
                     break;
                 case XK_F9:
-                    on_drive1_remove_disk(widget, application);
+                    on_drive1_disk_remove(widget, application);
                     break;
                 case XK_F10:
                     on_ignore(widget, application);
@@ -732,7 +746,7 @@ void FileMenu::build()
         _self.set_submenu(_menu);
     };
 
-    auto build_load_snapshot = [&]() -> void
+    auto build_snapshot_load = [&]() -> void
     {
         _snapshot_load.create_menu_item_with_label(_("Load snapshot..."));
         _snapshot_load.set_accel(GDK_KEY_F2, GdkModifierType(0));
@@ -740,7 +754,7 @@ void FileMenu::build()
         _menu.append(_snapshot_load);
     };
 
-    auto build_save_snapshot = [&]() -> void
+    auto build_snapshot_save = [&]() -> void
     {
         _snapshot_save.create_menu_item_with_label(_("Save snapshot..."));
         _snapshot_save.set_accel(GDK_KEY_F3, GdkModifierType(0));
@@ -765,8 +779,8 @@ void FileMenu::build()
     {
         build_self();
         build_menu();
-        build_load_snapshot();
-        build_save_snapshot();
+        build_snapshot_load();
+        build_snapshot_save();
         build_separator();
         build_exit();
     };
@@ -807,14 +821,14 @@ void ControlsMenu::build()
         _self.set_submenu(_menu);
     };
 
-    auto build_play = [&]() -> void
+    auto build_emulator_play = [&]() -> void
     {
         _emulator_play.create_menu_item_with_label(_("Play"));
         _emulator_play.add_activate_callback(G_CALLBACK(&Callbacks::on_emulator_play), &_application);
         _menu.append(_emulator_play);
     };
 
-    auto build_pause = [&]() -> void
+    auto build_emulator_pause = [&]() -> void
     {
         _emulator_pause.create_menu_item_with_label(_("Pause"));
         _emulator_pause.add_activate_callback(G_CALLBACK(&Callbacks::on_emulator_pause), &_application);
@@ -827,7 +841,7 @@ void ControlsMenu::build()
         _menu.append(_separator);
     };
 
-    auto build_reset = [&]() -> void
+    auto build_emulator_reset = [&]() -> void
     {
         _emulator_reset.create_menu_item_with_label(_("Reset"));
         _emulator_reset.set_accel(GDK_KEY_F5, GdkModifierType(0));
@@ -839,10 +853,10 @@ void ControlsMenu::build()
     {
         build_self();
         build_menu();
-        build_play();
-        build_pause();
+        build_emulator_play();
+        build_emulator_pause();
         build_separator();
-        build_reset();
+        build_emulator_reset();
     };
 
     return build_all();
@@ -1176,10 +1190,10 @@ Drive0Menu::Drive0Menu(Application& application)
     , gtk3::MenuItem(nullptr)
     , _self(*this)
     , _menu(nullptr)
-    , _create_disk(nullptr)
+    , _disk_create(nullptr)
     , _separator(nullptr)
-    , _insert_disk(nullptr)
-    , _remove_disk(nullptr)
+    , _disk_insert(nullptr)
+    , _disk_remove(nullptr)
 {
 }
 
@@ -1196,11 +1210,11 @@ void Drive0Menu::build()
         _self.set_submenu(_menu);
     };
 
-    auto build_create_disk = [&]() -> void
+    auto build_disk_create = [&]() -> void
     {
-        _create_disk.create_menu_item_with_label(_("Create disk..."));
-        _create_disk.add_activate_callback(G_CALLBACK(&Callbacks::on_drive0_create_disk), &_application);
-        _menu.append(_create_disk);
+        _disk_create.create_menu_item_with_label(_("Create disk..."));
+        _disk_create.add_activate_callback(G_CALLBACK(&Callbacks::on_drive0_disk_create), &_application);
+        _menu.append(_disk_create);
     };
 
     auto build_separator = [&]() -> void
@@ -1209,30 +1223,30 @@ void Drive0Menu::build()
         _menu.append(_separator);
     };
 
-    auto build_insert_disk = [&]() -> void
+    auto build_disk_insert = [&]() -> void
     {
-        _insert_disk.create_menu_item_with_label(_("Insert disk..."));
-        _insert_disk.set_accel(GDK_KEY_F6, GdkModifierType(0));
-        _insert_disk.add_activate_callback(G_CALLBACK(&Callbacks::on_drive0_insert_disk), &_application);
-        _menu.append(_insert_disk);
+        _disk_insert.create_menu_item_with_label(_("Insert disk..."));
+        _disk_insert.set_accel(GDK_KEY_F6, GdkModifierType(0));
+        _disk_insert.add_activate_callback(G_CALLBACK(&Callbacks::on_drive0_disk_insert), &_application);
+        _menu.append(_disk_insert);
     };
 
-    auto build_remove_disk = [&]() -> void
+    auto build_disk_remove = [&]() -> void
     {
-        _remove_disk.create_menu_item_with_label(_("Remove disk..."));
-        _remove_disk.set_accel(GDK_KEY_F7, GdkModifierType(0));
-        _remove_disk.add_activate_callback(G_CALLBACK(&Callbacks::on_drive0_remove_disk), &_application);
-        _menu.append(_remove_disk);
+        _disk_remove.create_menu_item_with_label(_("Remove disk..."));
+        _disk_remove.set_accel(GDK_KEY_F7, GdkModifierType(0));
+        _disk_remove.add_activate_callback(G_CALLBACK(&Callbacks::on_drive0_disk_remove), &_application);
+        _menu.append(_disk_remove);
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
         build_menu();
-        build_create_disk();
+        build_disk_create();
         build_separator();
-        build_insert_disk();
-        build_remove_disk();
+        build_disk_insert();
+        build_disk_remove();
     };
 
     return build_all();
@@ -1251,10 +1265,10 @@ Drive1Menu::Drive1Menu(Application& application)
     , gtk3::MenuItem(nullptr)
     , _self(*this)
     , _menu(nullptr)
-    , _create_disk(nullptr)
+    , _disk_create(nullptr)
     , _separator(nullptr)
-    , _insert_disk(nullptr)
-    , _remove_disk(nullptr)
+    , _disk_insert(nullptr)
+    , _disk_remove(nullptr)
 {
 }
 
@@ -1271,11 +1285,11 @@ void Drive1Menu::build()
         _self.set_submenu(_menu);
     };
 
-    auto build_create_disk = [&]() -> void
+    auto build_disk_create = [&]() -> void
     {
-        _create_disk.create_menu_item_with_label(_("Create disk..."));
-        _create_disk.add_activate_callback(G_CALLBACK(&Callbacks::on_drive1_create_disk), &_application);
-        _menu.append(_create_disk);
+        _disk_create.create_menu_item_with_label(_("Create disk..."));
+        _disk_create.add_activate_callback(G_CALLBACK(&Callbacks::on_drive1_disk_create), &_application);
+        _menu.append(_disk_create);
     };
 
     auto build_separator = [&]() -> void
@@ -1284,30 +1298,30 @@ void Drive1Menu::build()
         _menu.append(_separator);
     };
 
-    auto build_insert_disk = [&]() -> void
+    auto build_disk_insert = [&]() -> void
     {
-        _insert_disk.create_menu_item_with_label(_("Insert disk..."));
-        _insert_disk.set_accel(GDK_KEY_F8, GdkModifierType(0));
-        _insert_disk.add_activate_callback(G_CALLBACK(&Callbacks::on_drive1_insert_disk), &_application);
-        _menu.append(_insert_disk);
+        _disk_insert.create_menu_item_with_label(_("Insert disk..."));
+        _disk_insert.set_accel(GDK_KEY_F8, GdkModifierType(0));
+        _disk_insert.add_activate_callback(G_CALLBACK(&Callbacks::on_drive1_disk_insert), &_application);
+        _menu.append(_disk_insert);
     };
 
-    auto build_remove_disk = [&]() -> void
+    auto build_disk_remove = [&]() -> void
     {
-        _remove_disk.create_menu_item_with_label(_("Remove disk..."));
-        _remove_disk.set_accel(GDK_KEY_F9, GdkModifierType(0));
-        _remove_disk.add_activate_callback(G_CALLBACK(&Callbacks::on_drive1_remove_disk), &_application);
-        _menu.append(_remove_disk);
+        _disk_remove.create_menu_item_with_label(_("Remove disk..."));
+        _disk_remove.set_accel(GDK_KEY_F9, GdkModifierType(0));
+        _disk_remove.add_activate_callback(G_CALLBACK(&Callbacks::on_drive1_disk_remove), &_application);
+        _menu.append(_disk_remove);
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
         build_menu();
-        build_create_disk();
+        build_disk_create();
         build_separator();
-        build_insert_disk();
-        build_remove_disk();
+        build_disk_insert();
+        build_disk_remove();
     };
 
     return build_all();
@@ -1439,7 +1453,13 @@ InputMenu::InputMenu(Application& application)
     , _self(*this)
     , _menu(nullptr)
     , _joystick0(nullptr)
+    , _joystick0_menu(nullptr)
+    , _joystick0_connect(nullptr)
+    , _joystick0_disconnect(nullptr)
     , _joystick1(nullptr)
+    , _joystick1_menu(nullptr)
+    , _joystick1_connect(nullptr)
+    , _joystick1_disconnect(nullptr)
 {
 }
 
@@ -1464,8 +1484,23 @@ void InputMenu::build()
         label += Utils::get_joystick0();
         label += ')';
         _joystick0.create_menu_item_with_label(label);
-        _joystick0.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick0), &_application);
         _menu.append(_joystick0);
+        _joystick0_menu.create_menu();
+        _joystick0.set_submenu(_joystick0_menu);
+    };
+
+    auto build_joystick0_connect = [&]() -> void
+    {
+        _joystick0_connect.create_menu_item_with_label(_("Connect"));
+        _joystick0_connect.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick0_connect), &_application);
+        _joystick0_menu.append(_joystick0_connect);
+    };
+
+    auto build_joystick0_disconnect = [&]() -> void
+    {
+        _joystick0_disconnect.create_menu_item_with_label(_("Disconnect"));
+        _joystick0_disconnect.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick0_disconnect), &_application);
+        _joystick0_menu.append(_joystick0_disconnect);
     };
 
     auto build_joystick1 = [&]() -> void
@@ -1476,8 +1511,23 @@ void InputMenu::build()
         label += Utils::get_joystick1();
         label += ')';
         _joystick1.create_menu_item_with_label(label);
-        _joystick1.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick1), &_application);
         _menu.append(_joystick1);
+        _joystick1_menu.create_menu();
+        _joystick1.set_submenu(_joystick1_menu);
+    };
+
+    auto build_joystick1_connect = [&]() -> void
+    {
+        _joystick1_connect.create_menu_item_with_label(_("Connect"));
+        _joystick1_connect.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick1_connect), &_application);
+        _joystick1_menu.append(_joystick1_connect);
+    };
+
+    auto build_joystick1_disconnect = [&]() -> void
+    {
+        _joystick1_disconnect.create_menu_item_with_label(_("Disconnect"));
+        _joystick1_disconnect.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick1_disconnect), &_application);
+        _joystick1_menu.append(_joystick1_disconnect);
     };
 
     auto build_all = [&]() -> void
@@ -1485,7 +1535,11 @@ void InputMenu::build()
         build_self();
         build_menu();
         build_joystick0();
+        build_joystick0_connect();
+        build_joystick0_disconnect();
         build_joystick1();
+        build_joystick1_connect();
+        build_joystick1_disconnect();
     };
 
     return build_all();
@@ -2732,42 +2786,42 @@ auto Application::on_keyboard_danish() -> void
     set_keyboard_type("danish");
 }
 
-auto Application::on_drive0_create_disk() -> void
+auto Application::on_drive0_disk_create() -> void
 {
     CreateDiskDialog dialog(*this, CreateDiskDialog::DRIVE_A);
 
     run_dialog(dialog);
 }
 
-auto Application::on_drive0_insert_disk() -> void
+auto Application::on_drive0_disk_insert() -> void
 {
     InsertDiskDialog dialog(*this, InsertDiskDialog::DRIVE_A);
 
     run_dialog(dialog);
 }
 
-auto Application::on_drive0_remove_disk() -> void
+auto Application::on_drive0_disk_remove() -> void
 {
     RemoveDiskDialog dialog(*this, RemoveDiskDialog::DRIVE_A);
 
     run_dialog(dialog);
 }
 
-auto Application::on_drive1_create_disk() -> void
+auto Application::on_drive1_disk_create() -> void
 {
     CreateDiskDialog dialog(*this, CreateDiskDialog::DRIVE_B);
 
     run_dialog(dialog);
 }
 
-auto Application::on_drive1_insert_disk() -> void
+auto Application::on_drive1_disk_insert() -> void
 {
     InsertDiskDialog dialog(*this, InsertDiskDialog::DRIVE_B);
 
     run_dialog(dialog);
 }
 
-auto Application::on_drive1_remove_disk() -> void
+auto Application::on_drive1_disk_remove() -> void
 {
     RemoveDiskDialog dialog(*this, RemoveDiskDialog::DRIVE_B);
 
@@ -2800,14 +2854,24 @@ auto Application::on_scanlines_disable() -> void
     set_scanlines(false);
 }
 
-auto Application::on_joystick0() -> void
+auto Application::on_joystick0_connect() -> void
 {
     set_joystick0(Utils::get_joystick0());
 }
 
-auto Application::on_joystick1() -> void
+auto Application::on_joystick0_disconnect() -> void
+{
+    set_joystick0("");
+}
+
+auto Application::on_joystick1_connect() -> void
 {
     set_joystick1(Utils::get_joystick1());
+}
+
+auto Application::on_joystick1_disconnect() -> void
+{
+    set_joystick1("");
 }
 
 auto Application::on_help() -> void

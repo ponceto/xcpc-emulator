@@ -201,17 +201,17 @@ public: // public signals
 
     virtual auto on_keyboard_danish() -> void = 0;
 
-    virtual auto on_drive0_create_disk() -> void = 0;
+    virtual auto on_drive0_disk_create() -> void = 0;
 
-    virtual auto on_drive0_insert_disk() -> void = 0;
+    virtual auto on_drive0_disk_insert() -> void = 0;
 
-    virtual auto on_drive0_remove_disk() -> void = 0;
+    virtual auto on_drive0_disk_remove() -> void = 0;
 
-    virtual auto on_drive1_create_disk() -> void = 0;
+    virtual auto on_drive1_disk_create() -> void = 0;
 
-    virtual auto on_drive1_insert_disk() -> void = 0;
+    virtual auto on_drive1_disk_insert() -> void = 0;
 
-    virtual auto on_drive1_remove_disk() -> void = 0;
+    virtual auto on_drive1_disk_remove() -> void = 0;
 
     virtual auto on_volume_increase() -> void = 0;
 
@@ -221,9 +221,13 @@ public: // public signals
 
     virtual auto on_scanlines_disable() -> void = 0;
 
-    virtual auto on_joystick0() -> void = 0;
+    virtual auto on_joystick0_connect() -> void = 0;
 
-    virtual auto on_joystick1() -> void = 0;
+    virtual auto on_joystick0_disconnect() -> void = 0;
+
+    virtual auto on_joystick1_connect() -> void = 0;
+
+    virtual auto on_joystick1_disconnect() -> void = 0;
 
     virtual auto on_help() -> void = 0;
 
