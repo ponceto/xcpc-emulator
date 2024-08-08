@@ -47,17 +47,17 @@ Machine::Machine(Settings& settings)
     , _mainboard(*this, settings)
 {
     _backend.instance            = this;
-    _backend.reset_func          = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*closure);          };
-    _backend.clock_func          = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*closure);          };
-    _backend.create_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*closure);  };
-    _backend.delete_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_delete_window(*closure);  };
-    _backend.resize_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_resize_window(*closure);  };
-    _backend.expose_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_expose_window(*closure);  };
-    _backend.key_press_func      = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_press(*closure);      };
-    _backend.key_release_func    = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_release(*closure);    };
-    _backend.button_press_func   = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_press(*closure);   };
-    _backend.button_release_func = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_release(*closure); };
-    _backend.motion_notify_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_motion_notify(*closure);  };
+    _backend.reset_func          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*event);          };
+    _backend.clock_func          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*event);          };
+    _backend.create_window_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*event);  };
+    _backend.delete_window_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_delete_window(*event);  };
+    _backend.resize_window_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_resize_window(*event);  };
+    _backend.expose_window_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_expose_window(*event);  };
+    _backend.key_press_func      = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_press(*event);      };
+    _backend.key_release_func    = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_release(*event);    };
+    _backend.button_press_func   = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_press(*event);   };
+    _backend.button_release_func = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_release(*event); };
+    _backend.motion_notify_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_motion_notify(*event);  };
     _audio.start();
 }
 

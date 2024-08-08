@@ -28,6 +28,7 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include <xcpc/libxcpc-priv.h>
 #include "psg-device.h"
 
 // ---------------------------------------------------------------------------

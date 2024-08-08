@@ -134,27 +134,27 @@ public: // public interface
     auto get_statistics() const -> std::string;
 
 public: // backend interface
-    auto on_reset(BackendClosure& closure) -> unsigned long;
+    auto on_reset(Event& event) -> unsigned long;
 
-    auto on_clock(BackendClosure& closure) -> unsigned long;
+    auto on_clock(Event& event) -> unsigned long;
 
-    auto on_create_window(BackendClosure& closure) -> unsigned long;
+    auto on_create_window(Event& event) -> unsigned long;
 
-    auto on_delete_window(BackendClosure& closure) -> unsigned long;
+    auto on_delete_window(Event& event) -> unsigned long;
 
-    auto on_resize_window(BackendClosure& closure) -> unsigned long;
+    auto on_resize_window(Event& event) -> unsigned long;
 
-    auto on_expose_window(BackendClosure& closure) -> unsigned long;
+    auto on_expose_window(Event& event) -> unsigned long;
 
-    auto on_key_press(BackendClosure& closure) -> unsigned long;
+    auto on_key_press(Event& event) -> unsigned long;
 
-    auto on_key_release(BackendClosure& closure) -> unsigned long;
+    auto on_key_release(Event& event) -> unsigned long;
 
-    auto on_button_press(BackendClosure& closure) -> unsigned long;
+    auto on_button_press(Event& event) -> unsigned long;
 
-    auto on_button_release(BackendClosure& closure) -> unsigned long;
+    auto on_button_release(Event& event) -> unsigned long;
 
-    auto on_motion_notify(BackendClosure& closure) -> unsigned long;
+    auto on_motion_notify(Event& event) -> unsigned long;
 
 public: // public types
     static constexpr uint32_t FLAG_RESET  = 0x01;

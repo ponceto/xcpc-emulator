@@ -942,7 +942,7 @@ auto Mainboard::get_statistics() const -> std::string
     return _stats.buffer;
 }
 
-auto Mainboard::on_reset(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_reset(Event& event) -> unsigned long
 {
     /* reset the mainboard */ {
         reset();
@@ -950,7 +950,7 @@ auto Mainboard::on_reset(BackendClosure& closure) -> unsigned long
     return 0UL;
 }
 
-auto Mainboard::on_clock(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_clock(Event& event) -> unsigned long
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;
@@ -1021,12 +1021,12 @@ auto Mainboard::on_clock(BackendClosure& closure) -> unsigned long
     return timeout;
 }
 
-auto Mainboard::on_create_window(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_create_window(Event& event) -> unsigned long
 {
     auto& dpy(*_dpy);
     /* realize */ {
-        dpy.realize ( closure.u.create_window.event->xany.display
-                    , closure.u.create_window.event->xany.window
+        dpy.realize ( event.u.create_window.x11_event->xany.display
+                    , event.u.create_window.x11_event->xany.window
                     , _setup.xshm );
     }
     /* update gate-array */ {
@@ -1062,7 +1062,7 @@ auto Mainboard::on_create_window(BackendClosure& closure) -> unsigned long
     return 0UL;
 }
 
-auto Mainboard::on_delete_window(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_delete_window(Event& event) -> unsigned long
 {
     if(_dpy != nullptr) {
         _dpy->unrealize();
@@ -1070,68 +1070,72 @@ auto Mainboard::on_delete_window(BackendClosure& closure) -> unsigned long
     return 0UL;
 }
 
-auto Mainboard::on_resize_window(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_resize_window(Event& event) -> unsigned long
 {
+    XEvent* x11_event = event.u.resize_window.x11_event;
+
+    if((_dpy != nullptr) && (x11_event != nullptr)) {
+        _dpy->resize(x11_event->xconfigure);
+    }
+    return 0UL;
+}
+
+auto Mainboard::on_expose_window(Event& event) -> unsigned long
+{
+    XEvent* x11_event = event.u.expose_window.x11_event;
+
     if(_dpy != nullptr) {
-        _dpy->resize(closure.u.resize_window.event->xconfigure);
+        _dpy->expose(x11_event->xexpose);
     }
     return 0UL;
 }
 
-auto Mainboard::on_expose_window(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_key_press(Event& event) -> unsigned long
 {
-    if(_dpy != nullptr) {
-        _dpy->expose(closure.u.expose_window.event->xexpose);
+    XEvent* x11_event = event.u.key_press.x11_event;
+
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->key_press(x11_event->xkey);
     }
     return 0UL;
 }
 
-auto Mainboard::on_key_press(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_key_release(Event& event) -> unsigned long
 {
-    XEvent* event = closure.u.key_press.event;
+    XEvent* x11_event = event.u.key_release.x11_event;
 
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->key_press(event->xkey);
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->key_release(x11_event->xkey);
     }
     return 0UL;
 }
 
-auto Mainboard::on_key_release(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_button_press(Event& event) -> unsigned long
 {
-    XEvent* event = closure.u.key_release.event;
+    XEvent* x11_event = event.u.button_press.x11_event;
 
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->key_release(event->xkey);
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->button_press(x11_event->xbutton);
     }
     return 0UL;
 }
 
-auto Mainboard::on_button_press(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_button_release(Event& event) -> unsigned long
 {
-    XEvent* event = closure.u.button_press.event;
+    XEvent* x11_event = event.u.button_release.x11_event;
 
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->button_press(event->xbutton);
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->button_release(x11_event->xbutton);
     }
     return 0UL;
 }
 
-auto Mainboard::on_button_release(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_motion_notify(Event& event) -> unsigned long
 {
-    XEvent* event = closure.u.button_release.event;
+    XEvent* x11_event = event.u.motion_notify.x11_event;
 
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->button_release(event->xbutton);
-    }
-    return 0UL;
-}
-
-auto Mainboard::on_motion_notify(BackendClosure& closure) -> unsigned long
-{
-    XEvent* event = closure.u.motion_notify.event;
-
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->motion_notify(event->xmotion);
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->motion_notify(x11_event->xmotion);
     }
     return 0UL;
 }

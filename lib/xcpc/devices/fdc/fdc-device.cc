@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include <libdsk/libdsk.h>
 #include <lib765/765.h>
+#include <xcpc/libxcpc-priv.h>
 #include "fdc-device.h"
 
 // ---------------------------------------------------------------------------

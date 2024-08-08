@@ -26,32 +26,33 @@
 
 namespace xcpc {
 
-using LogLevel                  = XcpcLogLevel;
-using CompanyName               = XcpcCompanyName;
-using MachineType               = XcpcMachineType;
-using MonitorType               = XcpcMonitorType;
-using RefreshRate               = XcpcRefreshRate;
-using KeyboardType              = XcpcKeyboardType;
-using MemorySize                = XcpcMemorySize;
-using Backend                   = XcpcBackend;
-using BackendHandler            = XcpcBackendHandler;
-using BackendClosure            = XcpcBackendClosure;
-using BackendAnyEvent           = XcpcBackendAnyEvent;
-using BackendClockEvent         = XcpcBackendClockEvent;
-using BackendCreateWindowEvent  = XcpcBackendCreateWindowEvent;
-using BackendDeleteWindowEvent  = XcpcBackendDeleteWindowEvent;
-using BackendResizeWindowEvent  = XcpcBackendResizeWindowEvent;
-using BackendExposeWindowEvent  = XcpcBackendExposeWindowEvent;
-using BackendKeyPressEvent      = XcpcBackendKeyPressEvent;
-using BackendKeyReleaseEvent    = XcpcBackendKeyReleaseEvent;
-using BackendButtonPressEvent   = XcpcBackendButtonPressEvent;
-using BackendButtonReleaseEvent = XcpcBackendButtonReleaseEvent;
-using BackendMotionNotifyEvent  = XcpcBackendMotionNotifyEvent;
-using AudioDeviceType           = ma_device_type;
-using MiniAudioConfig           = ma_device_config;
-using MiniAudioDevice           = ma_device;
-using Mutex                     = std::mutex;
-using MutexLock                 = std::unique_lock<std::mutex>;
+using LogLevel           = XcpcLogLevel;
+using CompanyName        = XcpcCompanyName;
+using MachineType        = XcpcMachineType;
+using MonitorType        = XcpcMonitorType;
+using RefreshRate        = XcpcRefreshRate;
+using KeyboardType       = XcpcKeyboardType;
+using MemorySize         = XcpcMemorySize;
+using EventType          = XcpcEventType;
+using ModifierType       = XcpcModifierType;
+using AnyEvent           = XcpcAnyEvent;
+using CreateWindowEvent  = XcpcCreateWindowEvent;
+using DeleteWindowEvent  = XcpcDeleteWindowEvent;
+using ResizeWindowEvent  = XcpcResizeWindowEvent;
+using ExposeWindowEvent  = XcpcExposeWindowEvent;
+using KeyPressEvent      = XcpcKeyPressEvent;
+using KeyReleaseEvent    = XcpcKeyReleaseEvent;
+using ButtonPressEvent   = XcpcButtonPressEvent;
+using ButtonReleaseEvent = XcpcButtonReleaseEvent;
+using MotionNotifyEvent  = XcpcMotionNotifyEvent;
+using Event              = XcpcEvent;
+using Backend            = XcpcBackend;
+using BackendHandler     = XcpcBackendHandler;
+using AudioDeviceType    = ma_device_type;
+using MiniAudioConfig    = ma_device_config;
+using MiniAudioDevice    = ma_device;
+using Mutex              = std::mutex;
+using MutexLock          = std::unique_lock<std::mutex>;
 
 }
 

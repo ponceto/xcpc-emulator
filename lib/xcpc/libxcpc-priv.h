@@ -17,6 +17,10 @@
 #ifndef __XCPC_LIBXCPC_PRIV_H__
 #define __XCPC_LIBXCPC_PRIV_H__
 
+// ---------------------------------------------------------------------------
+// common includes
+// ---------------------------------------------------------------------------
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -56,8 +60,16 @@
 #include <mutex>
 #include <iostream>
 #include <stdexcept>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xatom.h>
+#include <X11/keysym.h>
 #include <xcpc/libxcpc.h>
 #include <xcpc/libxcpc-cxx.h>
+
+// ---------------------------------------------------------------------------
+// some useful macros
+// ---------------------------------------------------------------------------
 
 #ifndef countof
 #define countof(array) (sizeof(array) / sizeof(array[0]))
