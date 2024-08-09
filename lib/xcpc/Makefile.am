@@ -40,7 +40,8 @@ libxcpc_la_SOURCES = \
 	libxcpc.h \
 	libxcpc-cxx.h \
 	libxcpc-priv.h \
-	keysyms.h \
+	libxcpc-events.h \
+	libxcpc-keysyms.h \
 	xlib/xlib.cc \
 	xlib/xlib.h \
 	amstrad/cpc/cpc-machine.cc \

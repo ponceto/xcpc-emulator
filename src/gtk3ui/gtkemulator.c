@@ -50,11 +50,11 @@ static gboolean timer_handler(GtkWidget* widget)
     /* acknowledge timer */ {
         self->timer = 0;
     }
-    /* call clock_func */ {
+    /* call on_clock */ {
         GemBackend* backend = &self->backend;
         GemEvent    closure;
         closure.u.any.x11_event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        timeout = (*backend->clock_func)(backend->instance, &closure);
+        timeout = (*backend->on_clock)(backend->instance, &closure);
     }
     /* restart timer */ {
         self->timer = g_timeout_add(timeout, G_SOURCE_FUNC(&timer_handler), self);
@@ -616,7 +616,7 @@ GemVideo* gem_video_realize(GtkWidget* widget, GemVideo* video)
         GemBackend* backend = &self->backend;
         GemEvent    closure;
         closure.u.any.x11_event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*backend->create_window_func)(backend->instance, &closure);
+        (void) (*backend->on_create_window)(backend->instance, &closure);
     }
     return video;
 }
@@ -629,7 +629,7 @@ GemVideo* gem_video_unrealize(GtkWidget* widget, GemVideo* video)
         GemBackend* backend = &self->backend;
         GemEvent    closure;
         closure.u.any.x11_event = gem_events_copy_or_fill(widget, &self->events, NULL);
-        (void) (*backend->delete_window_func)(backend->instance, &closure);
+        (void) (*backend->on_delete_window)(backend->instance, &closure);
     }
     if(video->display != NULL) {
         video->display = NULL;
@@ -693,37 +693,37 @@ GemEvents* gem_events_dispatch(GtkWidget* widget, GemEvents* events, XEvent* x11
         switch(x11_event->type) {
             case ConfigureNotify:
                 {
-                    (void) (*backend->resize_window_func)(backend->instance, &closure);
+                    (void) (*backend->on_resize_window)(backend->instance, &closure);
                 }
                 break;
             case Expose:
                 {
-                    (void) (*backend->expose_window_func)(backend->instance, &closure);
+                    (void) (*backend->on_expose_window)(backend->instance, &closure);
                 }
                 break;
             case KeyPress:
                 {
-                    (void) (*backend->key_press_func)(backend->instance, &closure);
+                    (void) (*backend->on_key_press)(backend->instance, &closure);
                 }
                 break;
             case KeyRelease:
                 {
-                    (void) (*backend->key_release_func)(backend->instance, &closure);
+                    (void) (*backend->on_key_release)(backend->instance, &closure);
                 }
                 break;
             case ButtonPress:
                 {
-                    (void) (*backend->button_press_func)(backend->instance, &closure);
+                    (void) (*backend->on_button_press)(backend->instance, &closure);
                 }
                 break;
             case ButtonRelease:
                 {
-                    (void) (*backend->button_release_func)(backend->instance, &closure);
+                    (void) (*backend->on_button_release)(backend->instance, &closure);
                 }
                 break;
             case MotionNotify:
                 {
-                    (void) (*backend->motion_notify_func)(backend->instance, &closure);
+                    (void) (*backend->on_motion_notify)(backend->instance, &closure);
                 }
                 break;
             default:
@@ -1200,18 +1200,18 @@ unsigned long gem_backend_default_handler(void* instance, GemEvent* closure)
 GemBackend* gem_backend_construct(GtkWidget* widget, GemBackend* backend)
 {
     /* construct backend */ {
-        backend->instance            = NULL;
-        backend->reset_func          = &gem_backend_default_handler;
-        backend->clock_func          = &gem_backend_default_handler;
-        backend->create_window_func  = &gem_backend_default_handler;
-        backend->delete_window_func  = &gem_backend_default_handler;
-        backend->resize_window_func  = &gem_backend_default_handler;
-        backend->expose_window_func  = &gem_backend_default_handler;
-        backend->key_press_func      = &gem_backend_default_handler;
-        backend->key_release_func    = &gem_backend_default_handler;
-        backend->button_press_func   = &gem_backend_default_handler;
-        backend->button_release_func = &gem_backend_default_handler;
-        backend->motion_notify_func  = &gem_backend_default_handler;
+        backend->instance          = NULL;
+        backend->on_reset          = &gem_backend_default_handler;
+        backend->on_clock          = &gem_backend_default_handler;
+        backend->on_create_window  = &gem_backend_default_handler;
+        backend->on_delete_window  = &gem_backend_default_handler;
+        backend->on_resize_window  = &gem_backend_default_handler;
+        backend->on_expose_window  = &gem_backend_default_handler;
+        backend->on_key_press      = &gem_backend_default_handler;
+        backend->on_key_release    = &gem_backend_default_handler;
+        backend->on_button_press   = &gem_backend_default_handler;
+        backend->on_button_release = &gem_backend_default_handler;
+        backend->on_motion_notify  = &gem_backend_default_handler;
     }
     return backend;
 }
@@ -1219,18 +1219,18 @@ GemBackend* gem_backend_construct(GtkWidget* widget, GemBackend* backend)
 GemBackend* gem_backend_destruct(GtkWidget* widget, GemBackend* backend)
 {
     /* destruct backend */ {
-        backend->instance            = NULL;
-        backend->reset_func          = &gem_backend_default_handler;
-        backend->clock_func          = &gem_backend_default_handler;
-        backend->create_window_func  = &gem_backend_default_handler;
-        backend->delete_window_func  = &gem_backend_default_handler;
-        backend->resize_window_func  = &gem_backend_default_handler;
-        backend->expose_window_func  = &gem_backend_default_handler;
-        backend->key_press_func      = &gem_backend_default_handler;
-        backend->key_release_func    = &gem_backend_default_handler;
-        backend->button_press_func   = &gem_backend_default_handler;
-        backend->button_release_func = &gem_backend_default_handler;
-        backend->motion_notify_func  = &gem_backend_default_handler;
+        backend->instance          = NULL;
+        backend->on_reset          = &gem_backend_default_handler;
+        backend->on_clock          = &gem_backend_default_handler;
+        backend->on_create_window  = &gem_backend_default_handler;
+        backend->on_delete_window  = &gem_backend_default_handler;
+        backend->on_resize_window  = &gem_backend_default_handler;
+        backend->on_expose_window  = &gem_backend_default_handler;
+        backend->on_key_press      = &gem_backend_default_handler;
+        backend->on_key_release    = &gem_backend_default_handler;
+        backend->on_button_press   = &gem_backend_default_handler;
+        backend->on_button_release = &gem_backend_default_handler;
+        backend->on_motion_notify  = &gem_backend_default_handler;
     }
     return backend;
 }
@@ -1238,18 +1238,18 @@ GemBackend* gem_backend_destruct(GtkWidget* widget, GemBackend* backend)
 GemBackend* gem_backend_copy(GtkWidget* widget, GemBackend* backend, GemBackend* source)
 {
     /* setup backend */ {
-        backend->instance            = source->instance;
-        backend->reset_func          = (source->reset_func          != NULL ? source->reset_func          : &gem_backend_default_handler);
-        backend->clock_func          = (source->clock_func          != NULL ? source->clock_func          : &gem_backend_default_handler);
-        backend->create_window_func  = (source->create_window_func  != NULL ? source->create_window_func  : &gem_backend_default_handler);
-        backend->delete_window_func  = (source->delete_window_func  != NULL ? source->delete_window_func  : &gem_backend_default_handler);
-        backend->resize_window_func  = (source->resize_window_func  != NULL ? source->resize_window_func  : &gem_backend_default_handler);
-        backend->expose_window_func  = (source->expose_window_func  != NULL ? source->expose_window_func  : &gem_backend_default_handler);
-        backend->key_press_func      = (source->key_press_func      != NULL ? source->key_press_func      : &gem_backend_default_handler);
-        backend->key_release_func    = (source->key_release_func    != NULL ? source->key_release_func    : &gem_backend_default_handler);
-        backend->button_press_func   = (source->button_press_func   != NULL ? source->button_press_func   : &gem_backend_default_handler);
-        backend->button_release_func = (source->button_release_func != NULL ? source->button_release_func : &gem_backend_default_handler);
-        backend->motion_notify_func  = (source->motion_notify_func  != NULL ? source->motion_notify_func  : &gem_backend_default_handler);
+        backend->instance          = source->instance;
+        backend->on_reset          = (source->on_reset          != NULL ? source->on_reset          : &gem_backend_default_handler);
+        backend->on_clock          = (source->on_clock          != NULL ? source->on_clock          : &gem_backend_default_handler);
+        backend->on_create_window  = (source->on_create_window  != NULL ? source->on_create_window  : &gem_backend_default_handler);
+        backend->on_delete_window  = (source->on_delete_window  != NULL ? source->on_delete_window  : &gem_backend_default_handler);
+        backend->on_resize_window  = (source->on_resize_window  != NULL ? source->on_resize_window  : &gem_backend_default_handler);
+        backend->on_expose_window  = (source->on_expose_window  != NULL ? source->on_expose_window  : &gem_backend_default_handler);
+        backend->on_key_press      = (source->on_key_press      != NULL ? source->on_key_press      : &gem_backend_default_handler);
+        backend->on_key_release    = (source->on_key_release    != NULL ? source->on_key_release    : &gem_backend_default_handler);
+        backend->on_button_press   = (source->on_button_press   != NULL ? source->on_button_press   : &gem_backend_default_handler);
+        backend->on_button_release = (source->on_button_release != NULL ? source->on_button_release : &gem_backend_default_handler);
+        backend->on_motion_notify  = (source->on_motion_notify  != NULL ? source->on_motion_notify  : &gem_backend_default_handler);
     }
     return backend;
 }

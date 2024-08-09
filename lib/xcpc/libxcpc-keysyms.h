@@ -1,5 +1,5 @@
 /*
- * libxcpc-keysyms.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * keysyms.h - Copyright (c) 2001-2024 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@
 #ifndef __XCPC_LIBXCPC_KEYSYMS_H__
 #define __XCPC_LIBXCPC_KEYSYMS_H__
 
-// ---------------------------------------------------------------------------
-// keysyms
-// ---------------------------------------------------------------------------
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define XCPC_KEY_VoidSymbol 0xffffff
 #define XCPC_KEY_BackSpace 0xff08
@@ -1225,6 +1225,10 @@
 #define XCPC_KEY_Prev_VMode 0x1008fe23
 #define XCPC_KEY_LogWindowTree 0x1008fe24
 #define XCPC_KEY_LogGrabInfo 0x1008fe25
+
+#ifdef __cplusplus
+}
+#endif
 
 // ---------------------------------------------------------------------------
 // End-Of-File

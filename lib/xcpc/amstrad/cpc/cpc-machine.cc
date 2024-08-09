@@ -46,36 +46,36 @@ Machine::Machine(Settings& settings)
     , _backend()
     , _mainboard(*this, settings)
 {
-    _backend.instance            = this;
-    _backend.reset_func          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*event);          };
-    _backend.clock_func          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*event);          };
-    _backend.create_window_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*event);  };
-    _backend.delete_window_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_delete_window(*event);  };
-    _backend.resize_window_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_resize_window(*event);  };
-    _backend.expose_window_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_expose_window(*event);  };
-    _backend.key_press_func      = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_press(*event);      };
-    _backend.key_release_func    = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_release(*event);    };
-    _backend.button_press_func   = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_press(*event);   };
-    _backend.button_release_func = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_release(*event); };
-    _backend.motion_notify_func  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_motion_notify(*event);  };
+    _backend.instance          = this;
+    _backend.on_reset          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*event);          };
+    _backend.on_clock          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*event);          };
+    _backend.on_create_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*event);  };
+    _backend.on_delete_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_delete_window(*event);  };
+    _backend.on_resize_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_resize_window(*event);  };
+    _backend.on_expose_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_expose_window(*event);  };
+    _backend.on_key_press      = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_press(*event);      };
+    _backend.on_key_release    = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_release(*event);    };
+    _backend.on_button_press   = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_press(*event);   };
+    _backend.on_button_release = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_release(*event); };
+    _backend.on_motion_notify  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_motion_notify(*event);  };
     _audio.start();
 }
 
 Machine::~Machine()
 {
     _audio.stop();
-    _backend.instance            = nullptr;
-    _backend.reset_func          = nullptr;
-    _backend.clock_func          = nullptr;
-    _backend.create_window_func  = nullptr;
-    _backend.delete_window_func  = nullptr;
-    _backend.resize_window_func  = nullptr;
-    _backend.expose_window_func  = nullptr;
-    _backend.key_press_func      = nullptr;
-    _backend.key_release_func    = nullptr;
-    _backend.button_press_func   = nullptr;
-    _backend.button_release_func = nullptr;
-    _backend.motion_notify_func  = nullptr;
+    _backend.instance          = nullptr;
+    _backend.on_reset          = nullptr;
+    _backend.on_clock          = nullptr;
+    _backend.on_create_window  = nullptr;
+    _backend.on_delete_window  = nullptr;
+    _backend.on_resize_window  = nullptr;
+    _backend.on_expose_window  = nullptr;
+    _backend.on_key_press      = nullptr;
+    _backend.on_key_release    = nullptr;
+    _backend.on_button_press   = nullptr;
+    _backend.on_button_release = nullptr;
+    _backend.on_motion_notify  = nullptr;
 }
 
 auto Machine::play() -> void

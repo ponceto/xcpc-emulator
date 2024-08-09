@@ -47,7 +47,6 @@ using ButtonReleaseEvent = XcpcButtonReleaseEvent;
 using MotionNotifyEvent  = XcpcMotionNotifyEvent;
 using Event              = XcpcEvent;
 using Backend            = XcpcBackend;
-using BackendHandler     = XcpcBackendHandler;
 using AudioDeviceType    = ma_device_type;
 using MiniAudioConfig    = ma_device_config;
 using MiniAudioDevice    = ma_device;
