@@ -40,40 +40,6 @@
 #include "xcpc-about-dialog.h"
 
 // ---------------------------------------------------------------------------
-// <anonymous>::Environ
-// ---------------------------------------------------------------------------
-
-namespace {
-
-struct Environ
-{
-    static char GTK_DEBUG[];
-    static char GDK_DEBUG[];
-    static char GDK_BACKEND[];
-
-    static void set(char* variable)
-    {
-        const int rc = ::putenv(variable);
-        if(rc != 0) {
-            throw std::runtime_error("putenv() has failed");
-        }
-    }
-
-    static void initialize()
-    {
-        set(GTK_DEBUG);
-        set(GDK_DEBUG);
-        set(GDK_BACKEND);
-    }
-};
-
-char Environ::GTK_DEBUG[]   = "GDK_DEBUG=true";
-char Environ::GDK_DEBUG[]   = "GDK_DEBUG=true";
-char Environ::GDK_BACKEND[] = "GDK_BACKEND=x11";
-
-}
-
-// ---------------------------------------------------------------------------
 // <anonymous>::IconTraits
 // ---------------------------------------------------------------------------
 
@@ -2321,6 +2287,20 @@ void AppWindow::hide_reset()
 }
 
 // ---------------------------------------------------------------------------
+// xcpc::Environ
+// ---------------------------------------------------------------------------
+
+namespace xcpc {
+
+Environ::Environ()
+    : base::Environ()
+{
+    setenv("GDK_BACKEND", "x11");
+}
+
+}
+
+// ---------------------------------------------------------------------------
 // xcpc::Application
 // ---------------------------------------------------------------------------
 
@@ -2335,7 +2315,6 @@ Application::Application(int& argc, char**& argv)
     , _app_window(*this)
     , _timer(0)
 {
-    Environ::initialize();
 }
 
 Application::~Application()
@@ -3123,6 +3102,7 @@ auto Application::update_all() -> void
 
 int xcpc_main(int* argc, char*** argv)
 {
+    const xcpc::Environ environ;
     const auto application(std::make_unique<xcpc::Application>(*argc, *argv));
 
     return application->main();

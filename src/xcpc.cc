@@ -76,6 +76,23 @@ auto PosixTraits::file_writable(const std::string& filename) -> bool
 }
 
 // ---------------------------------------------------------------------------
+// base::Environ
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+void Environ::setenv(const std::string& variable, const std::string& value)
+{
+    const int rc = ::setenv(variable.c_str(), value.c_str(), 1);
+
+    if(rc != 0) {
+        throw std::runtime_error("setenv() has failed");
+    }
+}
+
+}
+
+// ---------------------------------------------------------------------------
 // base::Application
 // ---------------------------------------------------------------------------
 

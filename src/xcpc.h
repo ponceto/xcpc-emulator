@@ -56,6 +56,7 @@ struct PosixTraits
 
 namespace base {
 
+class Environ;
 class Application;
 class Dialog;
 class SnapshotDialog;
@@ -70,6 +71,28 @@ class AboutDialog;
 class ScopedOperation;
 class ScopedPause;
 class ScopedReset;
+
+}
+
+// ---------------------------------------------------------------------------
+// base::Environ
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class Environ
+{
+public: // public interface
+    Environ() = default;
+
+    Environ(const Environ&) = delete;
+
+    Environ& operator=(const Environ&) = delete;
+
+    virtual ~Environ() = default;
+
+    static void setenv(const std::string& variable, const std::string& value);
+};
 
 }
 

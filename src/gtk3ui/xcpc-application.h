@@ -53,6 +53,7 @@ class WorkWnd;
 
 namespace xcpc {
 
+class Environ;
 class Application;
 class LoadSnapshotDialog;
 class SaveSnapshotDialog;
@@ -695,6 +696,27 @@ private: // private data
     ToolBar    _tool_bar;
     WorkWnd    _work_wnd;
     InfoBar    _info_bar;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// Environ
+// ---------------------------------------------------------------------------
+
+namespace xcpc {
+
+class Environ
+    : public base::Environ
+{
+public: // public interface
+    Environ();
+
+    Environ(const Environ&) = delete;
+
+    Environ& operator=(const Environ&) = delete;
+
+    virtual ~Environ() = default;
 };
 
 }
