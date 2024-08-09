@@ -1,3 +1,15 @@
+xcpc (0.52.0-1) unstable; urgency=medium
+
+  * Full support for french keyboard
+  * Better joystick handling
+  * Refactoring, better machine setup
+  * Machine selectable from GUI
+  * Manufacturer selectable from GUI
+  * GUI code cleanup/refactoring
+  * Desktop integration and mime types
+
+ -- Olivier Poncet <ponceto@free.fr>  Tue, 09 Aug 2024 00:00:00 +0200
+
 xcpc (0.51.0-1) unstable; urgency=medium
 
   * Z80 unofficial flags fixed for BIT r,n
