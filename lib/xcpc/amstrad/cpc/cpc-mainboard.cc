@@ -23,6 +23,7 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdarg>
+#include <cmath>
 #include <memory>
 #include <string>
 #include <vector>
@@ -62,12 +63,12 @@ struct Traits
 
     static auto construct(Setup& setup) -> void
     {
-        setup.company_name  = XCPC_COMPANY_NAME_DEFAULT;
-        setup.machine_type  = XCPC_MACHINE_TYPE_DEFAULT;
-        setup.monitor_type  = XCPC_MONITOR_TYPE_DEFAULT;
-        setup.refresh_rate  = XCPC_REFRESH_RATE_DEFAULT;
-        setup.keyboard_type = XCPC_KEYBOARD_TYPE_DEFAULT;
-        setup.memory_size   = XCPC_MEMORY_SIZE_DEFAULT;
+        setup.company_name  = XCPC_COMPANY_NAME_UNKNOWN;
+        setup.machine_type  = XCPC_MACHINE_TYPE_UNKNOWN;
+        setup.monitor_type  = XCPC_MONITOR_TYPE_UNKNOWN;
+        setup.refresh_rate  = XCPC_REFRESH_RATE_UNKNOWN;
+        setup.keyboard_type = XCPC_KEYBOARD_TYPE_UNKNOWN;
+        setup.memory_size   = XCPC_MEMORY_SIZE_UNKNOWN;
         setup.speedup       = 1;
         setup.xshm          = true;
         setup.scanlines     = true;
@@ -94,6 +95,7 @@ struct Traits
 
     static auto construct(State& state) -> void
     {
+        state.cpc_flags   = 0;
         state.cpc_clock   = 4000000;
         state.cpc_ticks   = 0;
         state.cpu_clock   = 4000000;
@@ -211,6 +213,7 @@ struct Traits
 
     static auto reset(State& state) -> void
     {
+        state.cpc_flags   &= 0;
         state.cpc_clock   |= 0;
         state.cpc_ticks   &= 0;
         state.cpu_clock   |= 0;
@@ -394,7 +397,7 @@ Mainboard::Mainboard(Machine& machine, const Settings& settings)
     try {
         configure(settings);
     }
-    catch(const std::runtime_error& e) {
+    catch(const std::exception& e) {
         ::xcpc_log_error("error while initializing machine: %s", e.what());
     }
 }
@@ -419,6 +422,16 @@ Mainboard::~Mainboard()
     Traits::destruct(_clock);
     Traits::destruct(_stats);
     Traits::destruct(_setup);
+}
+
+auto Mainboard::play() -> void
+{
+    _state.cpc_flags &= ~FLAG_PAUSE;
+}
+
+auto Mainboard::pause() -> void
+{
+    _state.cpc_flags |= FLAG_PAUSE;
 }
 
 auto Mainboard::reset() -> void
@@ -490,6 +503,9 @@ auto Mainboard::clock() -> void
 
     auto emulate = [&]() -> void
     {
+        if((_state.cpc_flags & FLAG_PAUSE) != 0) {
+            return;
+        }
         while(_state.cpc_ticks < _state.cpc_clock) {
             _state.cpc_ticks += _video.frame_rate;
             clock_vdc();
@@ -512,7 +528,7 @@ auto Mainboard::load_snapshot(const std::string& filename) -> void
         load_cpc(snapshot);
     }
     catch(...) {
-        reset_cpc();
+        reset();
         throw;
     }
 }
@@ -526,7 +542,7 @@ auto Mainboard::save_snapshot(const std::string& filename) -> void
         snapshot.save(filename);
     }
     catch(...) {
-    //  reset_cpc();
+    //  reset();
         throw;
     }
 }
@@ -604,135 +620,246 @@ auto Mainboard::set_scanlines(const bool scanlines) -> void
     }
 }
 
-auto Mainboard::set_monitor_type(const std::string& monitor_type) -> void
+auto Mainboard::set_company_name(const std::string& string) -> void
 {
-    const auto prev_monitor_type = _setup.monitor_type;
+    auto company_name = Utils::company_name_from_string(string);
 
-    auto set_type = [&](const dpy::Type type) -> void
+    auto set = [&](const uint8_t lnk_lk3, const uint8_t lnk_lk2, const uint8_t lnk_lk1) -> void
     {
-        if(_dpy != nullptr) {
-            auto& dpy(*_dpy);
-            dpy.set_type(type);
-            update_vga();
+        if(company_name != _setup.company_name) {
+            _setup.company_name = company_name;
+            _state.lnk_lk1      = lnk_lk1;
+            _state.lnk_lk2      = lnk_lk2;
+            _state.lnk_lk3      = lnk_lk3;
+            reset();
         }
     };
 
-    if((_setup.monitor_type = Utils::monitor_type_from_string(monitor_type)) != prev_monitor_type) {
-        switch(_setup.monitor_type) {
-            case XCPC_MONITOR_TYPE_DEFAULT:
-                set_type(dpy::Type::TYPE_DEFAULT);
-                break;
-            case XCPC_MONITOR_TYPE_COLOR:
-                set_type(dpy::Type::TYPE_COLOR);
-                break;
-            case XCPC_MONITOR_TYPE_GREEN:
-                set_type(dpy::Type::TYPE_GREEN);
-                break;
-            case XCPC_MONITOR_TYPE_GRAY:
-                set_type(dpy::Type::TYPE_GRAY);
-                break;
-            case XCPC_MONITOR_TYPE_CTM640:
-                set_type(dpy::Type::TYPE_CTM640);
-                break;
-            case XCPC_MONITOR_TYPE_CTM644:
-                set_type(dpy::Type::TYPE_CTM644);
-                break;
-            case XCPC_MONITOR_TYPE_GT64:
-                set_type(dpy::Type::TYPE_GT64);
-                break;
-            case XCPC_MONITOR_TYPE_GT65:
-                set_type(dpy::Type::TYPE_GT65);
-                break;
-            case XCPC_MONITOR_TYPE_CM14:
-                set_type(dpy::Type::TYPE_CM14);
-                break;
-            case XCPC_MONITOR_TYPE_MM12:
-                set_type(dpy::Type::TYPE_MM12);
-                break;
-            default:
-                throw std::runtime_error("unsupported monitor type");
-                break;
-        }
+    if(company_name == XCPC_COMPANY_NAME_DEFAULT) {
+        company_name = XCPC_COMPANY_NAME_AMSTRAD;
+    }
+    switch(company_name) {
+        case XCPC_COMPANY_NAME_ISP:
+            set(0, 0, 0);
+            break;
+        case XCPC_COMPANY_NAME_TRIUMPH:
+            set(0, 0, 1);
+            break;
+        case XCPC_COMPANY_NAME_SAISHO:
+            set(0, 1, 0);
+            break;
+        case XCPC_COMPANY_NAME_SOLAVOX:
+            set(0, 1, 1);
+            break;
+        case XCPC_COMPANY_NAME_AWA:
+            set(1, 0, 0);
+            break;
+        case XCPC_COMPANY_NAME_SCHNEIDER:
+            set(1, 0, 1);
+            break;
+        case XCPC_COMPANY_NAME_ORION:
+            set(1, 1, 0);
+            break;
+        case XCPC_COMPANY_NAME_AMSTRAD:
+            set(1, 1, 1);
+            break;
+        default:
+            throw std::runtime_error("unsupported company name");
+            break;
     }
 }
 
-auto Mainboard::set_refresh_rate(const std::string& refresh_rate) -> void
+auto Mainboard::set_machine_type(const std::string& string) -> void
 {
-    const auto prev_refresh_rate = _setup.refresh_rate;
+    auto machine_type = Utils::machine_type_from_string(string);
 
-    auto set_rate = [&](const uint8_t rate) -> void
+    auto set_lower_rom = [&](const std::string& filename) -> void
     {
-        if(_dpy != nullptr) {
-            auto& dpy(*_dpy);
-            dpy.set_rate(rate);
-            update_vga();
-            reset_cpc();
+        try {
+            load_lower_rom(filename);
+        }
+        catch(const std::exception& e) {
+            ::xcpc_log_error("error while loading lower rom: %s", e.what());
         }
     };
 
-    if((_setup.refresh_rate = Utils::refresh_rate_from_string(refresh_rate)) != prev_refresh_rate) {
-        switch(_setup.refresh_rate) {
-            case XCPC_REFRESH_RATE_DEFAULT:
-                _state.lnk_lk4        = 1;
-                _video.frame_rate     = 50;
-                _video.frame_duration = 20000;
-                set_rate(50);
-                break;
-            case XCPC_REFRESH_RATE_50HZ:
-                _state.lnk_lk4        = 1;
-                _video.frame_rate     = 50;
-                _video.frame_duration = 20000;
-                set_rate(50);
-                break;
-            case XCPC_REFRESH_RATE_60HZ:
-                _state.lnk_lk4        = 0;
-                _video.frame_rate     = 60;
-                _video.frame_duration = 16667;
-                set_rate(60);
-                break;
-            default:
-                throw std::runtime_error("unsupported refresh rate");
-                break;
+    auto set_upper_rom = [&](const std::string& filename) -> void
+    {
+        try {
+            load_upper_rom(filename);
         }
+        catch(const std::exception& e) {
+            ::xcpc_log_error("error while loading upper rom: %s", e.what());
+        }
+    };
+
+    auto set_amsdos_rom = [&](const std::string& filename) -> void
+    {
+        try {
+            load_expansion(filename, 7);
+        }
+        catch(const std::exception& e) {
+            ::xcpc_log_error("error while loading amsdos rom: %s", e.what());
+        }
+    };
+
+    auto set = [&](const MemorySize memory_size, const std::string& firmware, const std::string& amsdos) -> void
+    {
+        if(machine_type != _setup.machine_type) {
+            _setup.machine_type = machine_type;
+            if(_setup.memory_size < memory_size) {
+                _setup.memory_size = memory_size;
+            }
+            set_lower_rom(firmware);
+            set_upper_rom(firmware);
+            set_amsdos_rom(amsdos);
+            reset();
+        }
+    };
+
+    if(machine_type == XCPC_MACHINE_TYPE_DEFAULT) {
+        machine_type = XCPC_MACHINE_TYPE_CPC6128;
+    }
+    switch(machine_type) {
+        case XCPC_MACHINE_TYPE_CPC464:
+            set(XCPC_MEMORY_SIZE_64K, "cpc464en.rom", "amsdos.rom");
+            break;
+        case XCPC_MACHINE_TYPE_CPC664:
+            set(XCPC_MEMORY_SIZE_64K, "cpc664en.rom", "amsdos.rom");
+            break;
+        case XCPC_MACHINE_TYPE_CPC6128:
+            set(XCPC_MEMORY_SIZE_128K, "cpc6128en.rom", "amsdos.rom");
+            break;
+        default:
+            throw std::runtime_error("unsupported machine type");
+            break;
     }
 }
 
-auto Mainboard::set_keyboard_type(const std::string& keyboard_type) -> void
+auto Mainboard::set_monitor_type(const std::string& string) -> void
 {
-    const auto prev_keyboard_type = _setup.keyboard_type;
+    auto monitor_type = Utils::monitor_type_from_string(string);
 
-    auto set_type = [&](const kbd::Type type) -> void
+    auto set = [&](const dpy::Type type) -> void
     {
-        if(_kbd != nullptr) {
-            auto& kbd(*_kbd);
-            kbd.set_type(type);
+        if(monitor_type != _setup.monitor_type) {
+            _setup.monitor_type = monitor_type;
+            if(_dpy != nullptr) {
+                _dpy->set_type(type);
+                update_vga();
+            }
         }
     };
 
-    if((_setup.keyboard_type = Utils::keyboard_type_from_string(keyboard_type)) != prev_keyboard_type) {
-        switch(prev_keyboard_type) {
-            case XCPC_KEYBOARD_TYPE_DEFAULT:
-                set_type(kbd::Type::TYPE_DEFAULT);
-                break;
-            case XCPC_KEYBOARD_TYPE_ENGLISH:
-                set_type(kbd::Type::TYPE_ENGLISH);
-                break;
-            case XCPC_KEYBOARD_TYPE_FRENCH:
-                set_type(kbd::Type::TYPE_FRENCH);
-                break;
-            case XCPC_KEYBOARD_TYPE_GERMAN:
-                set_type(kbd::Type::TYPE_GERMAN);
-                break;
-            case XCPC_KEYBOARD_TYPE_SPANISH:
-                set_type(kbd::Type::TYPE_SPANISH);
-                break;
-            case XCPC_KEYBOARD_TYPE_DANISH:
-                set_type(kbd::Type::TYPE_DANISH);
-                break;
-            default:
-                throw std::runtime_error("unsupported keyboard type");
-                break;
+    if(monitor_type == XCPC_MONITOR_TYPE_DEFAULT) {
+        monitor_type = XCPC_MONITOR_TYPE_COLOR;
+    }
+    switch(monitor_type) {
+        case XCPC_MONITOR_TYPE_COLOR:
+            set(dpy::Type::TYPE_COLOR);
+            break;
+        case XCPC_MONITOR_TYPE_GREEN:
+            set(dpy::Type::TYPE_GREEN);
+            break;
+        case XCPC_MONITOR_TYPE_GRAY:
+            set(dpy::Type::TYPE_GRAY);
+            break;
+        case XCPC_MONITOR_TYPE_CTM640:
+            set(dpy::Type::TYPE_CTM640);
+            break;
+        case XCPC_MONITOR_TYPE_CTM644:
+            set(dpy::Type::TYPE_CTM644);
+            break;
+        case XCPC_MONITOR_TYPE_GT64:
+            set(dpy::Type::TYPE_GT64);
+            break;
+        case XCPC_MONITOR_TYPE_GT65:
+            set(dpy::Type::TYPE_GT65);
+            break;
+        case XCPC_MONITOR_TYPE_CM14:
+            set(dpy::Type::TYPE_CM14);
+            break;
+        case XCPC_MONITOR_TYPE_MM12:
+            set(dpy::Type::TYPE_MM12);
+            break;
+        default:
+            throw std::runtime_error("unsupported monitor type");
+            break;
+    }
+}
+
+auto Mainboard::set_refresh_rate(const std::string& string) -> void
+{
+    auto refresh_rate = Utils::refresh_rate_from_string(string);
+
+    auto set = [&](const uint32_t frame_rate, const uint32_t frame_duration, const uint8_t lnk_lk4) -> void
+    {
+        if(refresh_rate != _setup.refresh_rate) {
+            _setup.refresh_rate   = refresh_rate;
+            _video.frame_rate     = frame_rate;
+            _video.frame_duration = frame_duration;
+            _state.lnk_lk4        = lnk_lk4;
+            if(_dpy != nullptr) {
+                _dpy->set_rate(frame_rate);
+                update_vga();
+                reset();
+            }
         }
+    };
+
+    if(refresh_rate == XCPC_REFRESH_RATE_DEFAULT) {
+        refresh_rate = XCPC_REFRESH_RATE_50HZ;
+    }
+    switch(refresh_rate) {
+        case XCPC_REFRESH_RATE_50HZ:
+            set(50, 20000, 1);
+            break;
+        case XCPC_REFRESH_RATE_60HZ:
+            set(60, 16667, 0);
+            break;
+        default:
+            throw std::runtime_error("unsupported refresh rate");
+            break;
+    }
+}
+
+auto Mainboard::set_keyboard_type(const std::string& string) -> void
+{
+    auto keyboard_type = Utils::keyboard_type_from_string(string);
+
+    auto set = [&](const kbd::Type type) -> void
+    {
+        if(keyboard_type != _setup.keyboard_type) {
+            _setup.keyboard_type = keyboard_type;
+            if(_kbd != nullptr) {
+                auto& kbd(*_kbd);
+                kbd.set_type(type);
+            }
+        }
+    };
+
+    if(keyboard_type == XCPC_KEYBOARD_TYPE_DEFAULT) {
+        keyboard_type = XCPC_KEYBOARD_TYPE_ENGLISH;
+    }
+    switch(keyboard_type) {
+        case XCPC_KEYBOARD_TYPE_ENGLISH:
+            set(kbd::Type::TYPE_ENGLISH);
+            break;
+        case XCPC_KEYBOARD_TYPE_FRENCH:
+            set(kbd::Type::TYPE_FRENCH);
+            break;
+        case XCPC_KEYBOARD_TYPE_GERMAN:
+            set(kbd::Type::TYPE_GERMAN);
+            break;
+        case XCPC_KEYBOARD_TYPE_SPANISH:
+            set(kbd::Type::TYPE_SPANISH);
+            break;
+        case XCPC_KEYBOARD_TYPE_DANISH:
+            set(kbd::Type::TYPE_DANISH);
+            break;
+        default:
+            throw std::runtime_error("unsupported keyboard type");
+            break;
     }
 }
 
@@ -815,57 +942,7 @@ auto Mainboard::get_statistics() const -> std::string
     return _stats.buffer;
 }
 
-auto Mainboard::on_idle(BackendClosure& closure) -> unsigned long
-{
-    unsigned long timeout   = 0UL;
-    unsigned long timedrift = 0UL;
-
-    /* compute the next deadline */ {
-        if((_clock.deadline.tv_usec += _video.frame_duration) >= 1000000) {
-            _clock.deadline.tv_usec -= 1000000;
-            _clock.deadline.tv_sec  += 1;
-        }
-    }
-    /* get the current time */ {
-        Traits::gettimeofday(_clock.currtime);
-    }
-    /* compute the next deadline timeout in us */ {
-        const long long currtime = XCPC_TIMESTAMP_OF(&_clock.currtime);
-        const long long deadline = XCPC_TIMESTAMP_OF(&_clock.deadline);
-        if(currtime <= deadline) {
-            timeout   = static_cast<unsigned long>(deadline - currtime);
-        }
-        else {
-            timedrift = static_cast<unsigned long>(currtime - deadline);
-        }
-    }
-    /* compute stats */ {
-        if(++_stats.frame_count == _video.frame_rate) {
-            update_stats();
-        }
-    }
-    /* check if the time has drifted for more than a second */ {
-        if(timedrift >= 1000000UL) {
-            timeout = _video.frame_duration;
-            _clock.deadline = _clock.currtime;
-            if((_clock.deadline.tv_usec += timeout) >= 1000000) {
-                _clock.deadline.tv_usec -= 1000000;
-                _clock.deadline.tv_sec  += 1;
-            }
-        }
-    }
-    /* schedule the next frame in ms */ {
-        timeout /= 1000UL;
-    }
-    /* adjust timeout if needed and only for the first frame */ {
-        if((timeout == 0UL) && (_stats.frame_count == 0)) {
-            timeout = 1UL;
-        }
-    }
-    return timeout;
-}
-
-auto Mainboard::on_reset(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_reset(Event& event) -> unsigned long
 {
     /* reset the mainboard */ {
         reset();
@@ -873,7 +950,7 @@ auto Mainboard::on_reset(BackendClosure& closure) -> unsigned long
     return 0UL;
 }
 
-auto Mainboard::on_clock(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_clock(Event& event) -> unsigned long
 {
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;
@@ -944,12 +1021,12 @@ auto Mainboard::on_clock(BackendClosure& closure) -> unsigned long
     return timeout;
 }
 
-auto Mainboard::on_create_window(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_create_window(Event& event) -> unsigned long
 {
     auto& dpy(*_dpy);
     /* realize */ {
-        dpy.realize ( closure.u.create_window.event->xany.display
-                    , closure.u.create_window.event->xany.window
+        dpy.realize ( event.u.create_window.x11_event->xany.display
+                    , event.u.create_window.x11_event->xany.window
                     , _setup.xshm );
     }
     /* update gate-array */ {
@@ -985,7 +1062,7 @@ auto Mainboard::on_create_window(BackendClosure& closure) -> unsigned long
     return 0UL;
 }
 
-auto Mainboard::on_delete_window(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_delete_window(Event& event) -> unsigned long
 {
     if(_dpy != nullptr) {
         _dpy->unrealize();
@@ -993,68 +1070,72 @@ auto Mainboard::on_delete_window(BackendClosure& closure) -> unsigned long
     return 0UL;
 }
 
-auto Mainboard::on_resize_window(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_resize_window(Event& event) -> unsigned long
 {
+    XEvent* x11_event = event.u.resize_window.x11_event;
+
+    if((_dpy != nullptr) && (x11_event != nullptr)) {
+        _dpy->resize(x11_event->xconfigure);
+    }
+    return 0UL;
+}
+
+auto Mainboard::on_expose_window(Event& event) -> unsigned long
+{
+    XEvent* x11_event = event.u.expose_window.x11_event;
+
     if(_dpy != nullptr) {
-        _dpy->resize(closure.u.resize_window.event->xconfigure);
+        _dpy->expose(x11_event->xexpose);
     }
     return 0UL;
 }
 
-auto Mainboard::on_expose_window(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_key_press(Event& event) -> unsigned long
 {
-    if(_dpy != nullptr) {
-        _dpy->expose(closure.u.expose_window.event->xexpose);
+    XEvent* x11_event = event.u.key_press.x11_event;
+
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->key_press(x11_event->xkey);
     }
     return 0UL;
 }
 
-auto Mainboard::on_key_press(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_key_release(Event& event) -> unsigned long
 {
-    XEvent* event = closure.u.key_press.event;
+    XEvent* x11_event = event.u.key_release.x11_event;
 
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->key_press(event->xkey);
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->key_release(x11_event->xkey);
     }
     return 0UL;
 }
 
-auto Mainboard::on_key_release(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_button_press(Event& event) -> unsigned long
 {
-    XEvent* event = closure.u.key_release.event;
+    XEvent* x11_event = event.u.button_press.x11_event;
 
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->key_release(event->xkey);
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->button_press(x11_event->xbutton);
     }
     return 0UL;
 }
 
-auto Mainboard::on_button_press(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_button_release(Event& event) -> unsigned long
 {
-    XEvent* event = closure.u.button_press.event;
+    XEvent* x11_event = event.u.button_release.x11_event;
 
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->button_press(event->xbutton);
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->button_release(x11_event->xbutton);
     }
     return 0UL;
 }
 
-auto Mainboard::on_button_release(BackendClosure& closure) -> unsigned long
+auto Mainboard::on_motion_notify(Event& event) -> unsigned long
 {
-    XEvent* event = closure.u.button_release.event;
+    XEvent* x11_event = event.u.motion_notify.x11_event;
 
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->button_release(event->xbutton);
-    }
-    return 0UL;
-}
-
-auto Mainboard::on_motion_notify(BackendClosure& closure) -> unsigned long
-{
-    XEvent* event = closure.u.motion_notify.event;
-
-    if((_kbd != nullptr) && (event != nullptr)) {
-        _kbd->motion_notify(event->xmotion);
+    if((_kbd != nullptr) && (x11_event != nullptr)) {
+        _kbd->motion_notify(x11_event->xmotion);
     }
     return 0UL;
 }
@@ -1310,37 +1391,8 @@ auto Mainboard::reset_exp() -> void
     }
 };
 
-auto Mainboard::reset_cpc() -> void
-{
-    _machine.reset();
-}
-
 auto Mainboard::configure(const Settings& settings) -> void
 {
-    auto& setup(_setup);
-    auto& state(_state);
-    auto& video(_video);
-    std::string system_rom(settings.opt_sysrom);
-    std::string amsdos_rom(settings.opt_rom007);
-    std::string expansions[16] = {
-        settings.opt_rom000,
-        settings.opt_rom001,
-        settings.opt_rom002,
-        settings.opt_rom003,
-        settings.opt_rom004,
-        settings.opt_rom005,
-        settings.opt_rom006,
-        settings.opt_rom007,
-        settings.opt_rom008,
-        settings.opt_rom009,
-        settings.opt_rom010,
-        settings.opt_rom011,
-        settings.opt_rom012,
-        settings.opt_rom013,
-        settings.opt_rom014,
-        settings.opt_rom015,
-    };
-
     auto clamp_int = [](const int value, const int min, const int max) -> int
     {
         if(value < min) {
@@ -1363,271 +1415,88 @@ auto Mainboard::configure(const Settings& settings) -> void
         return true;
     };
 
-    auto build_filename = [](const std::string& directory, const std::string& filename) -> std::string
+    auto init_machine = [&]() -> void
     {
-        char buffer[PATH_MAX + 1];
-        const int rc = ::snprintf(buffer, sizeof(buffer), "%s/%s", directory.c_str(), filename.c_str());
-        if(rc <= 0) {
-            throw std::runtime_error("snprintf() has failed");
-        }
-        return buffer;
+        set_company_name(settings.opt_company);
+        set_machine_type(settings.opt_machine);
+    //  set_memory_size(settings.opt_memory);
+        set_monitor_type(settings.opt_monitor);
+        set_refresh_rate(settings.opt_refresh);
+        set_keyboard_type(settings.opt_keyboard);
+
+        _setup.speedup   = clamp_int(::atoi(settings.opt_speedup.c_str()), 1, 100);
+        _setup.xshm      = settings.opt_xshm;
+        _setup.scanlines = settings.opt_scanlines;
+        _state.snd_clock = _device->sampleRate;
     };
 
-    auto load_sys_rom = [&](const std::string& filename, const int index, const int offset) -> void
+    auto load_roms = [&]() -> void
     {
-        auto* rom = _rom[index];
-        try {
-            if(rom != nullptr) {
-                rom->load(filename, offset);
+        std::string firmware(settings.opt_sysrom);
+        std::string expansions[16] = {
+            settings.opt_rom000,
+            settings.opt_rom001,
+            settings.opt_rom002,
+            settings.opt_rom003,
+            settings.opt_rom004,
+            settings.opt_rom005,
+            settings.opt_rom006,
+            settings.opt_rom007,
+            settings.opt_rom008,
+            settings.opt_rom009,
+            settings.opt_rom010,
+            settings.opt_rom011,
+            settings.opt_rom012,
+            settings.opt_rom013,
+            settings.opt_rom014,
+            settings.opt_rom015,
+        };
+
+        /* load lower rom */ {
+            try {
+                if(is_set(firmware)) {
+                    load_lower_rom(firmware);
+                }
+            }
+            catch(const std::exception& e) {
+                ::xcpc_log_error("error while loading lower rom: %s", e.what());
             }
         }
-        catch(...) {
-            throw std::runtime_error("error while loading rom");
-        }
-    };
-
-    auto load_exp_rom = [&](const std::string& filename, const int index, const int offset) -> void
-    {
-        auto* exp = _exp[index];
-        try {
-            if(exp != nullptr) {
-                exp->load(filename, offset);
+        /* load upper rom */ {
+            try {
+                if(is_set(firmware)) {
+                    load_upper_rom(firmware);
+                }
+            }
+            catch(const std::exception& e) {
+                ::xcpc_log_error("error while loading upper rom: %s", e.what());
             }
         }
-        catch(...) {
-            throw std::runtime_error("error while loading expansion");
-        }
-    };
-
-    auto load_lower_rom = [&]() -> void
-    {
-        try {
-            load_sys_rom(system_rom, 0, 0x0000);
-        }
-        catch(...) {
-            throw std::runtime_error("error while loading lower rom");
-        }
-    };
-
-    auto load_upper_rom = [&]() -> void
-    {
-        try {
-            load_sys_rom(system_rom, 1, 0x4000);
-        }
-        catch(...) {
-            throw std::runtime_error("error while loading upper rom");
-        }
-    };
-
-    auto load_expansion = [&](const std::string& filename, const int index) -> void
-    {
-        try {
-            load_exp_rom(filename, index, 0x0000);
-        }
-        catch(...) {
-            throw std::runtime_error("error while loading expansion");
-        }
-    };
-
-    auto load_expansions = [&]() -> void
-    {
-        unsigned int index = 0;
-        unsigned int count = countof(_exp);
-        for(index = 0; index < count; ++index) {
-            std::string expansion;
-            if(index < countof(expansions)) {
-                if((index == 7) && is_set(amsdos_rom)) {
-                    expansion = amsdos_rom;
+        /* load expansions */ {
+            unsigned int index = 0;
+            for(auto& exp : _exp) {
+                std::string expansion;
+                if(index < countof(expansions)) {
+                    expansion = expansions[index];
+                    if((index == 7) && !is_set(expansion)) {
+                        continue;
+                    }
+                }
+                if(is_set(expansion)) {
+                    try {
+                        load_expansion(expansion, index);
+                    }
+                    catch(const std::exception& e) {
+                        ::xcpc_log_error("error while loading expansion: %s", e.what());
+                    }
                 }
                 else {
-                    expansion = expansions[index];
+                    if(exp != nullptr) {
+                        exp = (delete exp, nullptr);
+                    }
                 }
+                ++index;
             }
-            if(is_set(expansion)) {
-                if(_exp[index] == nullptr) {
-                    _exp[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
-                }
-                load_expansion(expansion, index);
-            }
-            else {
-                if(_exp[index] != nullptr) {
-                    _exp[index] = (delete _exp[index], nullptr);
-                }
-            }
-        }
-    };
-
-    auto prepare_setup = [&]() -> void
-    {
-        setup.company_name  = Utils::company_name_from_string(settings.opt_company);
-        setup.machine_type  = Utils::machine_type_from_string(settings.opt_machine);
-        setup.monitor_type  = Utils::monitor_type_from_string(settings.opt_monitor);
-        setup.refresh_rate  = Utils::refresh_rate_from_string(settings.opt_refresh);
-        setup.keyboard_type = Utils::keyboard_type_from_string(settings.opt_keyboard);
-        setup.memory_size   = Utils::memory_size_from_string(settings.opt_memory);
-        setup.speedup       = clamp_int(::atoi(settings.opt_speedup.c_str()), 1, 100);
-        setup.xshm          = settings.opt_xshm;
-        setup.scanlines     = settings.opt_scanlines;
-
-        if(setup.company_name <= XCPC_COMPANY_NAME_DEFAULT) {
-            setup.company_name = XCPC_COMPANY_NAME_AMSTRAD;
-        }
-        if(setup.machine_type <= XCPC_MACHINE_TYPE_DEFAULT) {
-            setup.machine_type = XCPC_MACHINE_TYPE_CPC6128;
-        }
-        if(setup.monitor_type <= XCPC_MONITOR_TYPE_DEFAULT) {
-            setup.monitor_type = XCPC_MONITOR_TYPE_COLOR;
-        }
-        if(setup.refresh_rate <= XCPC_REFRESH_RATE_DEFAULT) {
-            setup.refresh_rate = XCPC_REFRESH_RATE_50HZ;
-        }
-        if(setup.keyboard_type <= XCPC_KEYBOARD_TYPE_DEFAULT) {
-            setup.keyboard_type = XCPC_KEYBOARD_TYPE_ENGLISH;
-        }
-        if(setup.memory_size <= XCPC_MEMORY_SIZE_DEFAULT) {
-            if(setup.machine_type == XCPC_MACHINE_TYPE_CPC6128) {
-                setup.memory_size = XCPC_MEMORY_SIZE_128K;
-            }
-            else {
-                setup.memory_size = XCPC_MEMORY_SIZE_64K;
-            }
-        }
-    };
-
-    auto prepare_state = [&]() -> void
-    {
-        switch(setup.refresh_rate) {
-            case XCPC_REFRESH_RATE_50HZ:
-                {
-                    state.lnk_lk1        = (((setup.company_name - 1) & 7) >> 0) & 1;
-                    state.lnk_lk2        = (((setup.company_name - 1) & 7) >> 1) & 1;
-                    state.lnk_lk3        = (((setup.company_name - 1) & 7) >> 2) & 1;
-                    state.lnk_lk4        = 1;
-                    state.snd_clock      = _device->sampleRate;
-                    video.frame_rate     = 50;
-                    video.frame_duration = 20000;
-                }
-                break;
-            case XCPC_REFRESH_RATE_60HZ:
-                {
-                    state.lnk_lk1        = (((setup.company_name - 1) & 7) >> 0) & 1;
-                    state.lnk_lk2        = (((setup.company_name - 1) & 7) >> 1) & 1;
-                    state.lnk_lk3        = (((setup.company_name - 1) & 7) >> 2) & 1;
-                    state.lnk_lk4        = 0;
-                    state.snd_clock      = _device->sampleRate;
-                    video.frame_rate     = 60;
-                    video.frame_duration = 16667;
-                }
-                break;
-            default:
-                throw std::runtime_error("unsupported refresh rate");
-                break;
-        }
-    };
-
-    auto prepare_dpy = [&]() -> void
-    {
-        auto& dpy(*_dpy);
-        switch(setup.monitor_type) {
-            case XCPC_MONITOR_TYPE_DEFAULT:
-                dpy->type = dpy::Type::TYPE_DEFAULT;
-                break;
-            case XCPC_MONITOR_TYPE_COLOR:
-                dpy->type = dpy::Type::TYPE_COLOR;
-                break;
-            case XCPC_MONITOR_TYPE_GREEN:
-                dpy->type = dpy::Type::TYPE_GREEN;
-                break;
-            case XCPC_MONITOR_TYPE_GRAY:
-                dpy->type = dpy::Type::TYPE_GRAY;
-                break;
-            case XCPC_MONITOR_TYPE_CTM640:
-                dpy->type = dpy::Type::TYPE_CTM640;
-                break;
-            case XCPC_MONITOR_TYPE_CTM644:
-                dpy->type = dpy::Type::TYPE_CTM644;
-                break;
-            case XCPC_MONITOR_TYPE_GT64:
-                dpy->type = dpy::Type::TYPE_GT64;
-                break;
-            case XCPC_MONITOR_TYPE_GT65:
-                dpy->type = dpy::Type::TYPE_GT65;
-                break;
-            case XCPC_MONITOR_TYPE_CM14:
-                dpy->type = dpy::Type::TYPE_CM14;
-                break;
-            case XCPC_MONITOR_TYPE_MM12:
-                dpy->type = dpy::Type::TYPE_MM12;
-                break;
-            default:
-                throw std::runtime_error("unsupported monitor type");
-                break;
-        }
-        switch(setup.refresh_rate) {
-            case XCPC_REFRESH_RATE_50HZ:
-                dpy->rate = 50;
-                break;
-            case XCPC_REFRESH_RATE_60HZ:
-                dpy->rate = 60;
-                break;
-            default:
-                throw std::runtime_error("unsupported refresh rate");
-                break;
-        }
-    };
-
-    auto prepare_kbd = [&]() -> void
-    {
-        auto& kbd(*_kbd);
-        switch(setup.keyboard_type) {
-            case XCPC_KEYBOARD_TYPE_DEFAULT:
-                kbd->type = kbd::Type::TYPE_DEFAULT;
-                break;
-            case XCPC_KEYBOARD_TYPE_ENGLISH:
-                kbd->type = kbd::Type::TYPE_ENGLISH;
-                break;
-            case XCPC_KEYBOARD_TYPE_FRENCH:
-                kbd->type = kbd::Type::TYPE_FRENCH;
-                break;
-            case XCPC_KEYBOARD_TYPE_GERMAN:
-                kbd->type = kbd::Type::TYPE_GERMAN;
-                break;
-            case XCPC_KEYBOARD_TYPE_SPANISH:
-                kbd->type = kbd::Type::TYPE_SPANISH;
-                break;
-            case XCPC_KEYBOARD_TYPE_DANISH:
-                kbd->type = kbd::Type::TYPE_DANISH;
-                break;
-            default:
-                throw std::runtime_error("unsupported keyboard type");
-                break;
-        }
-    };
-
-    auto prepare_roms = [&]() -> void
-    {
-        switch(setup.machine_type) {
-            case XCPC_MACHINE_TYPE_CPC464:
-                {
-                    system_rom = (is_set(system_rom) ? system_rom : build_filename(Utils::get_romdir(), "cpc464.rom"));
-                    amsdos_rom = (is_set(amsdos_rom) ? amsdos_rom : ""                                               );
-                }
-                break;
-            case XCPC_MACHINE_TYPE_CPC664:
-                {
-                    system_rom = (is_set(system_rom) ? system_rom : build_filename(Utils::get_romdir(), "cpc664.rom"));
-                    amsdos_rom = (is_set(amsdos_rom) ? amsdos_rom : build_filename(Utils::get_romdir(), "amsdos.rom"));
-                }
-                break;
-            case XCPC_MACHINE_TYPE_CPC6128:
-                {
-                    system_rom = (is_set(system_rom) ? system_rom : build_filename(Utils::get_romdir(), "cpc6128.rom"));
-                    amsdos_rom = (is_set(amsdos_rom) ? amsdos_rom : build_filename(Utils::get_romdir(), "amsdos.rom" ));
-                }
-                break;
-            default:
-                throw std::runtime_error("unknown machine type");
-                break;
         }
     };
 
@@ -1638,7 +1507,7 @@ auto Mainboard::configure(const Settings& settings) -> void
                 _machine.load_snapshot(settings.opt_snapshot);
             }
         }
-        catch(const std::runtime_error& e) {
+        catch(const std::exception& e) {
             ::xcpc_log_error("error while loading initial snapshot: %s", e.what());
         }
     };
@@ -1650,7 +1519,7 @@ auto Mainboard::configure(const Settings& settings) -> void
                 _machine.insert_disk_into_drive0(settings.opt_drive0);
             }
         }
-        catch(const std::runtime_error& e) {
+        catch(const std::exception& e) {
             ::xcpc_log_error("error while loading initial drive0: %s", e.what());
         }
     };
@@ -1662,28 +1531,78 @@ auto Mainboard::configure(const Settings& settings) -> void
                 _machine.insert_disk_into_drive1(settings.opt_drive1);
             }
         }
-        catch(const std::runtime_error& e) {
+        catch(const std::exception& e) {
             ::xcpc_log_error("error while loading initial drive1: %s", e.what());
         }
     };
 
     auto initialize = [&]() -> void
     {
-        prepare_setup();
-        prepare_state();
-        prepare_dpy();
-        prepare_kbd();
-        prepare_roms();
-        load_lower_rom();
-        load_upper_rom();
-        load_expansions();
-        reset_cpc();
-        load_initial_snapshot();
-        load_initial_drive0();
-        load_initial_drive1();
+        try {
+            init_machine();
+            load_roms();
+            reset();
+            load_initial_snapshot();
+            load_initial_drive0();
+            load_initial_drive1();
+        }
+        catch(const std::exception& e) {
+            reset();
+            throw;
+        }
     };
 
     return initialize();
+}
+
+auto Mainboard::load_lower_rom(const std::string& filename) -> void
+{
+    constexpr int index = 0;
+    auto*         rom   = _rom[index];
+
+    if(rom == nullptr) {
+        rom = _rom[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+    }
+    if(rom != nullptr) {
+        std::string path(filename);
+        if((path.size() > 0) && (path[0] != '.') && (path[0] != '/')) {
+            path = Utils::get_romdir() + '/' + path;
+        }
+        rom->load(path, 0x0000);
+    }
+}
+
+auto Mainboard::load_upper_rom(const std::string& filename) -> void
+{
+    constexpr int index = 1;
+    auto*         rom   = _rom[index];
+
+    if(rom == nullptr) {
+        rom = _rom[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+    }
+    if(rom != nullptr) {
+        std::string path(filename);
+        if((path.size() > 0) && (path[0] != '.') && (path[0] != '/')) {
+            path = Utils::get_romdir() + '/' + path;
+        }
+        rom->load(path, 0x4000);
+    }
+}
+
+auto Mainboard::load_expansion(const std::string& filename, const int index) -> void
+{
+    auto* rom = _exp[index];
+
+    if(rom == nullptr) {
+        rom = _exp[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+    }
+    if(rom != nullptr) {
+        std::string path(filename);
+        if((path.size() > 0) && (path[0] != '.') && (path[0] != '/')) {
+            path = Utils::get_romdir() + '/' + path;
+        }
+        rom->load(path, 0x0000);
+    }
 }
 
 auto Mainboard::load_cpc(sna::Snapshot& snapshot) -> void
@@ -1866,7 +1785,7 @@ auto Mainboard::load_cpc(sna::Snapshot& snapshot) -> void
 
     auto load_all = [&]() -> void
     {
-        reset_cpc();
+        reset();
         load_cpu();
         load_vga();
         load_vdc();
@@ -2190,10 +2109,10 @@ auto Mainboard::update_stats() -> void
         }
     }
     /* compute and print the statistics */ {
-        const double stats_frames  = static_cast<double>(_stats.frame_drawn * 1000000UL);
-        const double stats_elapsed = static_cast<double>(elapsed_us);
-        const double stats_fps     = (stats_frames / stats_elapsed);
-        const int rc = ::snprintf ( _stats.buffer, sizeof(_stats.buffer), "%.f fps", stats_fps);
+        const float stats_frames  = static_cast<float>(_stats.frame_drawn * 1000000UL);
+        const float stats_elapsed = static_cast<float>(elapsed_us);
+        const float stats_fps     = ::rintf(stats_frames / stats_elapsed);
+        const int rc = ::snprintf ( _stats.buffer, sizeof(_stats.buffer), "%d fps", static_cast<int>(stats_fps));
         static_cast<void>(rc);
     }
     /* set the new reference */ {

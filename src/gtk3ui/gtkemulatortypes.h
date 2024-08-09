@@ -18,7 +18,6 @@
 #define __GTK_EMULATOR_TYPES_H__
 
 #include <gtk/gtkx.h>
-#include <glib-unix.h>
 #include <xcpc/libxcpc.h>
 
 G_BEGIN_DECLS
@@ -35,7 +34,7 @@ typedef struct _GemEvents          GemEvents;
 typedef struct _GemKeyboard        GemKeyboard;
 typedef struct _GemJoystick        GemJoystick;
 typedef struct _XcpcBackend        GemBackend;
-typedef struct _XcpcBackendClosure GemBackendClosure;
+typedef struct _XcpcEvent          GemEvent;
 
 struct _GemVideo
 {

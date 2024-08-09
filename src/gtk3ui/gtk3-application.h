@@ -36,7 +36,7 @@ public: // public interface
 
     virtual ~ApplicationListener() = default;
 
-    virtual void on_open();
+    virtual void on_open(GFile** files, int num_files);
 
     virtual void on_startup();
 

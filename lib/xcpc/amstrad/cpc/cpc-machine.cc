@@ -46,38 +46,46 @@ Machine::Machine(Settings& settings)
     , _backend()
     , _mainboard(*this, settings)
 {
-    _backend.instance            = this;
-    _backend.idle_func           = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_idle(*closure);           };
-    _backend.reset_func          = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*closure);          };
-    _backend.clock_func          = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*closure);          };
-    _backend.create_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*closure);  };
-    _backend.delete_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_delete_window(*closure);  };
-    _backend.resize_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_resize_window(*closure);  };
-    _backend.expose_window_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_expose_window(*closure);  };
-    _backend.key_press_func      = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_press(*closure);      };
-    _backend.key_release_func    = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_release(*closure);    };
-    _backend.button_press_func   = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_press(*closure);   };
-    _backend.button_release_func = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_release(*closure); };
-    _backend.motion_notify_func  = [](void* instance, BackendClosure* closure) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_motion_notify(*closure);  };
+    _backend.instance          = this;
+    _backend.on_reset          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*event);          };
+    _backend.on_clock          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*event);          };
+    _backend.on_create_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*event);  };
+    _backend.on_delete_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_delete_window(*event);  };
+    _backend.on_resize_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_resize_window(*event);  };
+    _backend.on_expose_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_expose_window(*event);  };
+    _backend.on_key_press      = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_press(*event);      };
+    _backend.on_key_release    = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_release(*event);    };
+    _backend.on_button_press   = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_press(*event);   };
+    _backend.on_button_release = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_release(*event); };
+    _backend.on_motion_notify  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_motion_notify(*event);  };
     _audio.start();
 }
 
 Machine::~Machine()
 {
     _audio.stop();
-    _backend.instance            = nullptr;
-    _backend.idle_func           = nullptr;
-    _backend.reset_func          = nullptr;
-    _backend.clock_func          = nullptr;
-    _backend.create_window_func  = nullptr;
-    _backend.delete_window_func  = nullptr;
-    _backend.resize_window_func  = nullptr;
-    _backend.expose_window_func  = nullptr;
-    _backend.key_press_func      = nullptr;
-    _backend.key_release_func    = nullptr;
-    _backend.button_press_func   = nullptr;
-    _backend.button_release_func = nullptr;
-    _backend.motion_notify_func  = nullptr;
+    _backend.instance          = nullptr;
+    _backend.on_reset          = nullptr;
+    _backend.on_clock          = nullptr;
+    _backend.on_create_window  = nullptr;
+    _backend.on_delete_window  = nullptr;
+    _backend.on_resize_window  = nullptr;
+    _backend.on_expose_window  = nullptr;
+    _backend.on_key_press      = nullptr;
+    _backend.on_key_release    = nullptr;
+    _backend.on_button_press   = nullptr;
+    _backend.on_button_release = nullptr;
+    _backend.on_motion_notify  = nullptr;
+}
+
+auto Machine::play() -> void
+{
+    _mainboard.play();
+}
+
+auto Machine::pause() -> void
+{
+    _mainboard.pause();
 }
 
 auto Machine::reset() -> void
@@ -138,6 +146,16 @@ auto Machine::set_volume(const float volume) -> void
 auto Machine::set_scanlines(const bool scanlines) -> void
 {
     return _mainboard.set_scanlines(scanlines);
+}
+
+auto Machine::set_company_name(const std::string& company_name) -> void
+{
+    return _mainboard.set_company_name(company_name);
+}
+
+auto Machine::set_machine_type(const std::string& machine_type) -> void
+{
+    return _mainboard.set_machine_type(machine_type);
 }
 
 auto Machine::set_monitor_type(const std::string& monitor_type) -> void

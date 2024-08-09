@@ -23,22 +23,12 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdarg>
-#ifdef HAVE_SYS_IPC_H
-#include <sys/ipc.h>
-#endif
-#ifdef HAVE_SYS_SHM_H
-#include <sys/shm.h>
-#endif
 #include <memory>
 #include <string>
 #include <vector>
 #include <iostream>
 #include <stdexcept>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#include <X11/keysym.h>
-#include <xcpc/xlib/xlib.h>
+#include <xcpc/libxcpc-priv.h>
 #include "dpy-device.h"
 
 #define MONITOR_50HZ_TOTAL_WIDTH    1024

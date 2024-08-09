@@ -18,6 +18,8 @@
 #define __XCPC_LIBXCPC_H__
 
 #include <xcpc/xlib/xlib.h>
+#include <xcpc/libxcpc-events.h>
+#include <xcpc/libxcpc-keysyms.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -105,131 +107,30 @@ enum _XcpcMemorySize
     XCPC_MEMORY_SIZE_512K    = (512 * 1024),
 };
 
-struct _XcpcBackendAnyEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendIdleEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendResetEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendClockEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendCreateWindowEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendDeleteWindowEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendResizeWindowEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendExposeWindowEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendKeyPressEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendKeyReleaseEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendButtonPressEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendButtonReleaseEvent
-{
-    XEvent* event;
-};
-
-struct _XcpcBackendMotionNotifyEvent
-{
-    XEvent* event;
-};
-
-typedef enum   _XcpcLogLevel                  XcpcLogLevel;
-typedef enum   _XcpcCompanyName               XcpcCompanyName;
-typedef enum   _XcpcMachineType               XcpcMachineType;
-typedef enum   _XcpcMonitorType               XcpcMonitorType;
-typedef enum   _XcpcRefreshRate               XcpcRefreshRate;
-typedef enum   _XcpcKeyboardType              XcpcKeyboardType;
-typedef enum   _XcpcMemorySize                XcpcMemorySize;
-typedef struct _XcpcBackend                   XcpcBackend;
-typedef struct _XcpcBackendClosure            XcpcBackendClosure;
-typedef struct _XcpcBackendAnyEvent           XcpcBackendAnyEvent;
-typedef struct _XcpcBackendIdleEvent          XcpcBackendIdleEvent;
-typedef struct _XcpcBackendResetEvent         XcpcBackendResetEvent;
-typedef struct _XcpcBackendClockEvent         XcpcBackendClockEvent;
-typedef struct _XcpcBackendCreateWindowEvent  XcpcBackendCreateWindowEvent;
-typedef struct _XcpcBackendDeleteWindowEvent  XcpcBackendDeleteWindowEvent;
-typedef struct _XcpcBackendResizeWindowEvent  XcpcBackendResizeWindowEvent;
-typedef struct _XcpcBackendExposeWindowEvent  XcpcBackendExposeWindowEvent;
-typedef struct _XcpcBackendKeyPressEvent      XcpcBackendKeyPressEvent;
-typedef struct _XcpcBackendKeyReleaseEvent    XcpcBackendKeyReleaseEvent;
-typedef struct _XcpcBackendButtonPressEvent   XcpcBackendButtonPressEvent;
-typedef struct _XcpcBackendButtonReleaseEvent XcpcBackendButtonReleaseEvent;
-typedef struct _XcpcBackendMotionNotifyEvent  XcpcBackendMotionNotifyEvent;
-
-struct _XcpcBackendClosure
-{
-    union {
-        XcpcBackendAnyEvent           any;
-        XcpcBackendIdleEvent          idle;
-        XcpcBackendResetEvent         reset;
-        XcpcBackendClockEvent         clock;
-        XcpcBackendCreateWindowEvent  create_window;
-        XcpcBackendDeleteWindowEvent  delete_window;
-        XcpcBackendResizeWindowEvent  resize_window;
-        XcpcBackendExposeWindowEvent  expose_window;
-        XcpcBackendKeyPressEvent      key_press;
-        XcpcBackendKeyReleaseEvent    key_release;
-        XcpcBackendButtonPressEvent   button_press;
-        XcpcBackendButtonReleaseEvent button_release;
-        XcpcBackendMotionNotifyEvent  motion_notify;
-    } u;
-};
+typedef enum   _XcpcLogLevel     XcpcLogLevel;
+typedef enum   _XcpcCompanyName  XcpcCompanyName;
+typedef enum   _XcpcMachineType  XcpcMachineType;
+typedef enum   _XcpcMonitorType  XcpcMonitorType;
+typedef enum   _XcpcRefreshRate  XcpcRefreshRate;
+typedef enum   _XcpcKeyboardType XcpcKeyboardType;
+typedef enum   _XcpcMemorySize   XcpcMemorySize;
+typedef struct _XcpcBackend      XcpcBackend;
 
 struct _XcpcBackend
 {
     void* instance;
-    unsigned long (*idle_func)           (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*reset_func)          (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*clock_func)          (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*create_window_func)  (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*delete_window_func)  (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*resize_window_func)  (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*expose_window_func)  (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*key_press_func)      (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*key_release_func)    (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*button_press_func)   (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*button_release_func) (void* instance, XcpcBackendClosure* closure);
-    unsigned long (*motion_notify_func)  (void* instance, XcpcBackendClosure* closure);
+    unsigned long (*on_reset)          (void* instance, XcpcEvent* event);
+    unsigned long (*on_clock)          (void* instance, XcpcEvent* event);
+    unsigned long (*on_create_window)  (void* instance, XcpcEvent* event);
+    unsigned long (*on_delete_window)  (void* instance, XcpcEvent* event);
+    unsigned long (*on_resize_window)  (void* instance, XcpcEvent* event);
+    unsigned long (*on_expose_window)  (void* instance, XcpcEvent* event);
+    unsigned long (*on_key_press)      (void* instance, XcpcEvent* event);
+    unsigned long (*on_key_release)    (void* instance, XcpcEvent* event);
+    unsigned long (*on_button_press)   (void* instance, XcpcEvent* event);
+    unsigned long (*on_button_release) (void* instance, XcpcEvent* event);
+    unsigned long (*on_motion_notify)  (void* instance, XcpcEvent* event);
 };
-
-typedef unsigned long (*XcpcBackendHandler)(void* instance, XcpcBackendClosure* closure);
 
 extern void        xcpc_begin             (void);
 extern int         xcpc_main              (int* argc, char*** argv);

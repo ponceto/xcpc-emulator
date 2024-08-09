@@ -30,8 +30,8 @@ class Mainboard;
 class Settings;
 
 using Utils            = xcpc::Utils;
+using Event            = xcpc::Event;
 using Backend          = xcpc::Backend;
-using BackendClosure   = xcpc::BackendClosure;
 using CompanyName      = xcpc::CompanyName;
 using MachineType      = xcpc::MachineType;
 using MonitorType      = xcpc::MonitorType;

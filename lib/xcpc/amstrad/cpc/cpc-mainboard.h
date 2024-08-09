@@ -72,6 +72,10 @@ public: // public interface
 
     virtual ~Mainboard();
 
+    virtual auto play() -> void override final;
+
+    virtual auto pause() -> void override final;
+
     virtual auto reset() -> void override final;
 
     virtual auto clock() -> void override final;
@@ -96,6 +100,10 @@ public: // public interface
     auto set_volume(const float volume) -> void;
 
     auto set_scanlines(const bool scanlines) -> void;
+
+    auto set_company_name(const std::string& company_name) -> void;
+
+    auto set_machine_type(const std::string& machine_type) -> void;
 
     auto set_monitor_type(const std::string& monitor_type) -> void;
 
@@ -126,31 +134,33 @@ public: // public interface
     auto get_statistics() const -> std::string;
 
 public: // backend interface
-    auto on_idle(BackendClosure& closure) -> unsigned long;
+    auto on_reset(Event& event) -> unsigned long;
 
-    auto on_reset(BackendClosure& closure) -> unsigned long;
+    auto on_clock(Event& event) -> unsigned long;
 
-    auto on_clock(BackendClosure& closure) -> unsigned long;
+    auto on_create_window(Event& event) -> unsigned long;
 
-    auto on_create_window(BackendClosure& closure) -> unsigned long;
+    auto on_delete_window(Event& event) -> unsigned long;
 
-    auto on_delete_window(BackendClosure& closure) -> unsigned long;
+    auto on_resize_window(Event& event) -> unsigned long;
 
-    auto on_resize_window(BackendClosure& closure) -> unsigned long;
+    auto on_expose_window(Event& event) -> unsigned long;
 
-    auto on_expose_window(BackendClosure& closure) -> unsigned long;
+    auto on_key_press(Event& event) -> unsigned long;
 
-    auto on_key_press(BackendClosure& closure) -> unsigned long;
+    auto on_key_release(Event& event) -> unsigned long;
 
-    auto on_key_release(BackendClosure& closure) -> unsigned long;
+    auto on_button_press(Event& event) -> unsigned long;
 
-    auto on_button_press(BackendClosure& closure) -> unsigned long;
+    auto on_button_release(Event& event) -> unsigned long;
 
-    auto on_button_release(BackendClosure& closure) -> unsigned long;
-
-    auto on_motion_notify(BackendClosure& closure) -> unsigned long;
+    auto on_motion_notify(Event& event) -> unsigned long;
 
 public: // public types
+    static constexpr uint32_t FLAG_RESET  = 0x01;
+    static constexpr uint32_t FLAG_PAUSE  = 0x02;
+    static constexpr uint32_t SND_BUFSIZE = 16384;
+
     struct Setup
     {
         CompanyName  company_name;
@@ -185,6 +195,7 @@ public: // public types
 
     struct State
     {
+        uint32_t cpc_flags;   /* cpc flags                 */
         uint32_t cpc_clock;   /* cpc clock                 */
         uint32_t cpc_ticks;   /* cpc ticks                 */
         uint32_t cpu_clock;   /* cpu clock                 */
@@ -216,8 +227,6 @@ public: // public types
         uint8_t* pal_rd[4];   /* pal ram/rom read banking  */
         uint8_t* pal_wr[4];   /* pal ram/rom write banking */
     };
-
-    static constexpr uint32_t SND_BUFSIZE = 16384;
 
     struct Audio
     {
@@ -271,9 +280,11 @@ private: // private interface
     auto reset_ram() -> void;
     auto reset_rom() -> void;
     auto reset_exp() -> void;
-    auto reset_cpc() -> void;
 
     auto configure(const Settings& settings) -> void;
+    auto load_lower_rom(const std::string& filename) -> void;
+    auto load_upper_rom(const std::string& filename) -> void;
+    auto load_expansion(const std::string& filename, const int index) -> void;
     auto load_cpc(sna::Snapshot& snapshot) -> void;
     auto save_cpc(sna::Snapshot& snapshot) -> void;
 

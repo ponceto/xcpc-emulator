@@ -63,6 +63,10 @@ public: // public interface
 
     void grab_focus();
 
+    void set_can_focus(bool can_focus);
+
+    void set_focus_on_click(bool focus_on_click);
+
     void set_sensitive(bool sensitive);
 
     bool is_sensitive();
@@ -70,6 +74,20 @@ public: // public interface
     void drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions);
 
     void signal_connect(const char* signal, GCallback callback, void* data);
+
+    void add_realize_callback(GCallback callback, void* data);
+
+    void add_unrealize_callback(GCallback callback, void* data);
+
+    void add_key_press_event_callback(GCallback callback, void* data);
+
+    void add_key_release_event_callback(GCallback callback, void* data);
+
+    void add_button_press_event_callback(GCallback callback, void* data);
+
+    void add_button_release_event_callback(GCallback callback, void* data);
+
+    void add_motion_notify_event_callback(GCallback callback, void* data);
 
     void add_drag_data_received_callback(GCallback callback, void* data);
 

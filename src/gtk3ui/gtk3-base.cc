@@ -37,16 +37,29 @@
 
 namespace gtk3 {
 
-const char sig_destroy[]            = "destroy";
-const char sig_open[]               = "open";
-const char sig_startup[]            = "startup";
-const char sig_shutdown[]           = "shutdown";
-const char sig_activate[]           = "activate";
-const char sig_clicked[]            = "clicked";
-const char sig_select[]             = "select";
-const char sig_deselect[]           = "deselect";
-const char sig_drag_data_received[] = "drag-data-received";
-const char sig_hotkey[]             = "hotkey";
+const char sig_destroy[]              = "destroy";
+const char sig_open[]                 = "open";
+const char sig_startup[]              = "startup";
+const char sig_shutdown[]             = "shutdown";
+const char sig_activate[]             = "activate";
+const char sig_clicked[]              = "clicked";
+const char sig_enter[]                = "enter";
+const char sig_leave[]                = "leave";
+const char sig_pressed[]              = "pressed";
+const char sig_released[]             = "released";
+const char sig_select[]               = "select";
+const char sig_deselect[]             = "deselect";
+const char sig_drag_data_received[]   = "drag-data-received";
+const char sig_hotkey[]               = "hotkey";
+const char sig_render[]               = "render";
+const char sig_resize[]               = "resize";
+const char sig_realize[]              = "realize";
+const char sig_unrealize[]            = "unrealize";
+const char sig_key_press_event[]      = "key-press-event";
+const char sig_key_release_event[]    = "key-release-event";
+const char sig_button_press_event[]   = "button-press-event";
+const char sig_button_release_event[] = "button-release-event";
+const char sig_motion_notify_event[]  = "motion-notify-event";
 
 }
 

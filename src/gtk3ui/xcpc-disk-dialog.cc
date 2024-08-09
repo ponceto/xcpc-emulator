@@ -83,7 +83,7 @@ void CreateDiskDialog::run()
 
     auto confirm_create = [&]() -> bool
     {
-        if(posix_traits::file_exists(_filename)) {
+        if(PosixTraits::file_exists(_filename)) {
             gtk3::MessageQuestionDialog dialog;
 
             return run_confirm_dialog(dialog);
@@ -136,7 +136,7 @@ void InsertDiskDialog::run()
 {
     auto confirm_insert = [&]() -> bool
     {
-        if(posix_traits::file_exists(_filename)) {
+        if(PosixTraits::file_exists(_filename)) {
             return true;
         }
         return false;

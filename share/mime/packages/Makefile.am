@@ -16,18 +16,21 @@
 #
 
 # ----------------------------------------------------------------------------
-# roms resources
+# mimepackages resources
 # ----------------------------------------------------------------------------
 
-romsdir = $(datadir)/@PACKAGE@/roms
+mimepackagesdir = $(datadir)/mime/packages
 
-dist_roms_DATA = \
-	README.md \
-	cpc464en.rom \
-	cpc664en.rom \
-	cpc6128en.rom \
-	cpc6128fr.rom \
-	amsdos.rom \
+dist_mimepackages_DATA = \
+	x-amstrad-cpc-disk-image.xml \
+	x-amstrad-cpc-snapshot.xml \
+	$(NULL)
+
+# ----------------------------------------------------------------------------
+# EXTRA_DIST
+# ----------------------------------------------------------------------------
+
+EXTRA_DIST = \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

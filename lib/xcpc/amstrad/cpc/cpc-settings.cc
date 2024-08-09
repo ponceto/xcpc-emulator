@@ -162,12 +162,12 @@ namespace cpc {
 Settings::Settings()
     : xcpc::Settings()
     , opt_program(not_set)
-    , opt_company(not_set)
-    , opt_machine(not_set)
-    , opt_monitor(not_set)
-    , opt_refresh(not_set)
-    , opt_keyboard(not_set)
-    , opt_memory(not_set)
+    , opt_company("default")
+    , opt_machine("default")
+    , opt_monitor("default")
+    , opt_refresh("default")
+    , opt_keyboard("default")
+    , opt_memory("default")
     , opt_sysrom(not_set)
     , opt_rom000(not_set)
     , opt_rom001(not_set)
@@ -364,7 +364,7 @@ void Settings::usage()
 
     auto print_cmd = [&](const char* string) -> void
     {
-        ::xcpc_println("Usage: %s [toolkit-options] [program-options]", basename_of(string));
+        ::xcpc_println("Usage: %s [toolkit-options] [xcpc-options] [files...]", basename_of(string));
     };
 
     auto print_str = [&](const char* string) -> void

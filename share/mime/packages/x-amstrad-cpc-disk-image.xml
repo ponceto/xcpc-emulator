@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-amstrad-cpc-disk-image">
+    <comment>Amstrad CPC disk</comment>
+    <glob pattern="*.dsk"/>
+  </mime-type>
+  <mime-type type="application/x-amstrad-cpc-gz-disk-image">
+    <comment>Amstrad CPC disk (gzipped)</comment>
+    <sub-class-of type="application/x-gzip"/>
+    <glob pattern="*.dsk.gz"/>
+  </mime-type>
+  <mime-type type="application/x-amstrad-cpc-bz2-disk-image">
+    <comment>Amstrad CPC disk (bzipped)</comment>
+    <sub-class-of type="application/x-bzip"/>
+    <glob pattern="*.dsk.bz2"/>
+  </mime-type>
+</mime-info>

@@ -21,6 +21,7 @@
 
 SUBDIRS = \
 	applications \
+	mime \
 	pixmaps \
 	xcpc \
 	$(NULL)

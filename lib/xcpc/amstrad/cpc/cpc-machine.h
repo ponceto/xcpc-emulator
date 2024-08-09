@@ -38,6 +38,10 @@ public: // public interface
 
     virtual ~Machine();
 
+    virtual auto play() -> void override final;
+
+    virtual auto pause() -> void override final;
+
     virtual auto reset() -> void override final;
 
     virtual auto clock() -> void override final;
@@ -62,6 +66,10 @@ public: // public interface
     auto set_volume(const float volume) -> void;
 
     auto set_scanlines(const bool scanlines) -> void;
+
+    auto set_company_name(const std::string& company_name) -> void;
+
+    auto set_machine_type(const std::string& machine_type) -> void;
 
     auto set_monitor_type(const std::string& monitor_type) -> void;
 

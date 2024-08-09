@@ -24,3 +24,4 @@ Exec=@XCPC_BINDIR@/xcpc
 Icon=@XCPC_DATDIR@/pixmaps/xcpc.png
 Terminal=false
 Type=Application
+MimeType=application/x-amstrad-cpc-snapshot;application/x-amstrad-cpc-disk-image;application/x-amstrad-cpc-gz-disk-image;application/x-amstrad-cpc-bz2-disk-image

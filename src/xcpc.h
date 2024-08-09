@@ -21,16 +21,12 @@
 #include <xcpc/amstrad/cpc/cpc-machine.h>
 
 // ---------------------------------------------------------------------------
-// translation_traits
+// TranslationTraits
 // ---------------------------------------------------------------------------
 
-struct translation_traits
+struct TranslationTraits
 {
-    static const char* translate(const char* string)
-    {
-        return string;
-    }
-
+    static auto translate(const char* string) -> const char*;
 };
 
 // ---------------------------------------------------------------------------
@@ -38,8 +34,21 @@ struct translation_traits
 // ---------------------------------------------------------------------------
 
 #ifndef _
-#define _(string) translation_traits::translate(string)
+#define _(string) TranslationTraits::translate(string)
 #endif
+
+// ---------------------------------------------------------------------------
+// PosixTraits
+// ---------------------------------------------------------------------------
+
+struct PosixTraits
+{
+    static auto file_exists(const std::string& filename) -> bool;
+
+    static auto file_readable(const std::string& filename) -> bool;
+
+    static auto file_writable(const std::string& filename) -> bool;
+};
 
 // ---------------------------------------------------------------------------
 // forward declarations
@@ -47,7 +56,7 @@ struct translation_traits
 
 namespace base {
 
-class Emulator;
+class Environ;
 class Application;
 class Dialog;
 class SnapshotDialog;
@@ -66,84 +75,23 @@ class ScopedReset;
 }
 
 // ---------------------------------------------------------------------------
-// base::Emulator
+// base::Environ
 // ---------------------------------------------------------------------------
 
 namespace base {
 
-class Emulator
+class Environ
 {
 public: // public interface
-    Emulator(int& argc, char**& argv);
+    Environ() = default;
 
-    Emulator(const Emulator&) = delete;
+    Environ(const Environ&) = delete;
 
-    Emulator& operator=(const Emulator&) = delete;
+    Environ& operator=(const Environ&) = delete;
 
-    virtual ~Emulator() = default;
+    virtual ~Environ() = default;
 
-    auto ready() -> bool;
-
-    auto reset() -> void;
-
-public: // public interface
-    auto load_snapshot(const std::string& filename) const -> void;
-
-    auto save_snapshot(const std::string& filename) const -> void;
-
-    auto create_disk_into_drive0(const std::string& filename) const -> void;
-
-    auto insert_disk_into_drive0(const std::string& filename) const -> void;
-
-    auto remove_disk_from_drive0() const -> void;
-
-    auto create_disk_into_drive1(const std::string& filename) const -> void;
-
-    auto insert_disk_into_drive1(const std::string& filename) const -> void;
-
-    auto remove_disk_from_drive1() const -> void;
-
-    auto set_volume(const float volume) const -> void;
-
-    auto set_scanlines(const bool scanlines) const -> void;
-
-    auto set_monitor_type(const std::string& monitor_type) const -> void;
-
-    auto set_refresh_rate(const std::string& refresh_rate) const -> void;
-
-    auto set_keyboard_type(const std::string& keyboard_type) const -> void;
-
-    auto get_volume() const -> float;
-
-    auto get_system_info() const -> std::string;
-
-    auto get_company_name() const -> std::string;
-
-    auto get_machine_type() const -> std::string;
-
-    auto get_memory_size() const -> std::string;
-
-    auto get_monitor_type() const -> std::string;
-
-    auto get_refresh_rate() const -> std::string;
-
-    auto get_keyboard_type() const -> std::string;
-
-    auto get_drive0_filename() const -> std::string;
-
-    auto get_drive1_filename() const -> std::string;
-
-    auto get_statistics() const -> std::string;
-
-    auto get_backend() const -> const xcpc::Backend*;
-
-private: // private declarations
-    using SettingsPtr = std::unique_ptr<cpc::Settings>;
-    using MachinePtr  = std::unique_ptr<cpc::Machine>;
-
-private: // private data
-    const SettingsPtr _settings;
-    const MachinePtr  _machine;
+    static void setenv(const std::string& variable, const std::string& value);
 };
 
 }
@@ -167,20 +115,10 @@ public: // public interface
 
     virtual auto main() ->int = 0;
 
-    auto argc() -> int&
+    auto get_backend() const -> const xcpc::Backend*
     {
-        return _argc;
-    };
-
-    auto argv() -> char**&
-    {
-        return _argv;
-    };
-
-    auto ready() -> bool
-    {
-        return _emulator.ready();
-    };
+        return _machine->get_backend();
+    }
 
 public: // public methods
     virtual auto load_snapshot(const std::string& filename) -> void = 0;
@@ -211,6 +149,10 @@ public: // public methods
 
     virtual auto set_scanlines(const bool scanlines) -> void = 0;
 
+    virtual auto set_machine_type(const std::string& machine_type) -> void = 0;
+
+    virtual auto set_company_name(const std::string& company_name) -> void = 0;
+
     virtual auto set_monitor_type(const std::string& monitor_type) -> void = 0;
 
     virtual auto set_refresh_rate(const std::string& refresh_rate) -> void = 0;
@@ -228,73 +170,103 @@ public: // public signals
 
     virtual auto on_statistics() -> void = 0;
 
-    virtual auto on_load_snapshot() -> void = 0;
+    virtual auto on_snapshot_load() -> void = 0;
 
-    virtual auto on_save_snapshot() -> void = 0;
+    virtual auto on_snapshot_save() -> void = 0;
 
     virtual auto on_exit() -> void = 0;
 
-    virtual auto on_play_emulator() -> void = 0;
+    virtual auto on_emulator_play() -> void = 0;
 
-    virtual auto on_pause_emulator() -> void = 0;
+    virtual auto on_emulator_pause() -> void = 0;
 
-    virtual auto on_reset_emulator() -> void = 0;
+    virtual auto on_emulator_reset() -> void = 0;
 
-    virtual auto on_color_monitor() -> void = 0;
+    virtual auto on_machine_cpc464() -> void = 0;
 
-    virtual auto on_green_monitor() -> void = 0;
+    virtual auto on_machine_cpc664() -> void = 0;
 
-    virtual auto on_gray_monitor() -> void = 0;
+    virtual auto on_machine_cpc6128() -> void = 0;
+
+    virtual auto on_company_isp() -> void = 0;
+
+    virtual auto on_company_triumph() -> void = 0;
+
+    virtual auto on_company_saisho() -> void = 0;
+
+    virtual auto on_company_solavox() -> void = 0;
+
+    virtual auto on_company_awa() -> void = 0;
+
+    virtual auto on_company_schneider() -> void = 0;
+
+    virtual auto on_company_orion() -> void = 0;
+
+    virtual auto on_company_amstrad() -> void = 0;
+
+    virtual auto on_monitor_color() -> void = 0;
+
+    virtual auto on_monitor_green() -> void = 0;
+
+    virtual auto on_monitor_gray() -> void = 0;
 
     virtual auto on_refresh_50hz() -> void = 0;
 
     virtual auto on_refresh_60hz() -> void = 0;
 
-    virtual auto on_english_keyboard() -> void = 0;
+    virtual auto on_keyboard_english() -> void = 0;
 
-    virtual auto on_french_keyboard() -> void = 0;
+    virtual auto on_keyboard_french() -> void = 0;
 
-    virtual auto on_german_keyboard() -> void = 0;
+    virtual auto on_keyboard_german() -> void = 0;
 
-    virtual auto on_spanish_keyboard() -> void = 0;
+    virtual auto on_keyboard_spanish() -> void = 0;
 
-    virtual auto on_danish_keyboard() -> void = 0;
+    virtual auto on_keyboard_danish() -> void = 0;
 
-    virtual auto on_create_disk_into_drive0() -> void = 0;
+    virtual auto on_drive0_disk_create() -> void = 0;
 
-    virtual auto on_insert_disk_into_drive0() -> void = 0;
+    virtual auto on_drive0_disk_insert() -> void = 0;
 
-    virtual auto on_remove_disk_from_drive0() -> void = 0;
+    virtual auto on_drive0_disk_remove() -> void = 0;
 
-    virtual auto on_create_disk_into_drive1() -> void = 0;
+    virtual auto on_drive1_disk_create() -> void = 0;
 
-    virtual auto on_insert_disk_into_drive1() -> void = 0;
+    virtual auto on_drive1_disk_insert() -> void = 0;
 
-    virtual auto on_remove_disk_from_drive1() -> void = 0;
+    virtual auto on_drive1_disk_remove() -> void = 0;
 
-    virtual auto on_increase_volume() -> void = 0;
+    virtual auto on_volume_increase() -> void = 0;
 
-    virtual auto on_decrease_volume() -> void = 0;
+    virtual auto on_volume_decrease() -> void = 0;
 
-    virtual auto on_enable_scanlines() -> void = 0;
+    virtual auto on_scanlines_enable() -> void = 0;
 
-    virtual auto on_disable_scanlines() -> void = 0;
+    virtual auto on_scanlines_disable() -> void = 0;
 
-    virtual auto on_joystick0() -> void = 0;
+    virtual auto on_joystick0_connect() -> void = 0;
 
-    virtual auto on_joystick1() -> void = 0;
+    virtual auto on_joystick0_disconnect() -> void = 0;
+
+    virtual auto on_joystick1_connect() -> void = 0;
+
+    virtual auto on_joystick1_disconnect() -> void = 0;
 
     virtual auto on_help() -> void = 0;
 
     virtual auto on_about() -> void = 0;
 
 protected: // protected interface
+    using SettingsPtr = std::unique_ptr<cpc::Settings>;
+    using MachinePtr  = std::unique_ptr<cpc::Machine>;
+
     virtual auto run_dialog(Dialog&) -> void;
 
 protected: // protected data
-    Emulator _emulator;
-    int&     _argc;
-    char**&  _argv;
+    int&              _argc;
+    char**&           _argv;
+    const SettingsPtr _settings;
+    const MachinePtr  _machine;
 };
 
 }
@@ -566,10 +538,7 @@ namespace base {
 class ScopedOperation
 {
 public: // public interface
-    ScopedOperation(Application& application)
-        : _application(application)
-    {
-    }
+    ScopedOperation(Application&);
 
     ScopedOperation(const ScopedOperation&) = delete;
 
@@ -593,27 +562,13 @@ class ScopedPause final
     : public ScopedOperation
 {
 public: // public interface
-    ScopedPause(Application& application)
-        : ScopedOperation(application)
-    {
-        enter_pause();
-    }
+    ScopedPause(Application&);
 
-    virtual ~ScopedPause()
-    {
-        leave_pause();
-    }
+    ScopedPause(const ScopedPause&) = delete;
 
-protected: // protected interface
-    auto enter_pause() -> void
-    {
-        return _application.pause_emulator();
-    };
+    ScopedPause& operator=(const ScopedPause&) = delete;
 
-    auto leave_pause() -> void
-    {
-        return _application.play_emulator();
-    };
+    virtual ~ScopedPause();
 };
 
 }
@@ -628,27 +583,13 @@ class ScopedReset final
     : public ScopedOperation
 {
 public: // public interface
-    ScopedReset(Application& application)
-        : ScopedOperation(application)
-    {
-        enter_reset();
-    }
+    ScopedReset(Application&);
 
-    virtual ~ScopedReset()
-    {
-        leave_reset();
-    }
+    ScopedReset(const ScopedReset&) = delete;
 
-protected: // protected interface
-    auto enter_reset() -> void
-    {
-        return _application.reset_emulator();
-    };
+    ScopedReset& operator=(const ScopedReset&) = delete;
 
-    auto leave_reset() -> void
-    {
-        return _application.reset_emulator();
-    };
+    virtual ~ScopedReset();
 };
 
 }
