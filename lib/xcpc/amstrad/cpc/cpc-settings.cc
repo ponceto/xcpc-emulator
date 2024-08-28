@@ -274,7 +274,7 @@ void Settings::parse(int& argc, char**& argv)
         ::xcpc_log_debug("xcpc.settings.drive0    = %s", opt_drive0.c_str()  );
         ::xcpc_log_debug("xcpc.settings.drive1    = %s", opt_drive1.c_str()  );
         ::xcpc_log_debug("xcpc.settings.snapshot  = %s", opt_snapshot.c_str());
-        ::xcpc_log_debug("xcpc.settings.speedup   = %d", opt_speedup         );
+        ::xcpc_log_debug("xcpc.settings.speedup   = %s", opt_speedup.c_str() );
         ::xcpc_log_debug("xcpc.settings.xshm      = %d", opt_xshm            );
         ::xcpc_log_debug("xcpc.settings.scanlines = %d", opt_scanlines       );
         ::xcpc_log_debug("xcpc.settings.help      = %d", opt_help            );
