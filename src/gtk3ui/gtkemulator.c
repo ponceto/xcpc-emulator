@@ -981,6 +981,7 @@ GemJoystick* gem_joystick_construct(GtkWidget* widget, GemJoystick* joystick, co
         joystick->js_axis_y  = 0;
         joystick->js_button0 = 0;
         joystick->js_button1 = 0;
+        joystick->js_axes    = 0;
         joystick->js_buttons = 0;
     }
     /* check device name */ {
@@ -1008,17 +1009,23 @@ GemJoystick* gem_joystick_construct(GtkWidget* widget, GemJoystick* joystick, co
             }
         }
     }
-    /* get the joystick mapping */ {
-        unsigned char count = 0;
+    /* get the joystick axis count and mapping */ {
         if(joystick->fd != -1) {
-            if(ioctl(joystick->fd, JSIOCGBUTTONS, &count) == -1) {
-                (void) memset(joystick->js_mapping, 0, sizeof(joystick->js_mapping));
+            if(ioctl(joystick->fd, JSIOCGAXES, &joystick->js_axes) == -1) {
+                joystick->js_axes = 0;
             }
-            if(ioctl(joystick->fd, JSIOCGBTNMAP, joystick->js_mapping) == -1) {
-                (void) memset(joystick->js_mapping, 0, sizeof(joystick->js_mapping));
+            if(ioctl(joystick->fd, JSIOCGAXMAP, joystick->js_axmap) == -1) {
+                (void) memset(joystick->js_axmap, 0, sizeof(joystick->js_axmap));
             }
-            if(count != 0) {
-                joystick->js_buttons = count;
+        }
+    }
+    /* get the joystick buttons count and mapping */ {
+        if(joystick->fd != -1) {
+            if(ioctl(joystick->fd, JSIOCGBUTTONS, &joystick->js_buttons) == -1) {
+                joystick->js_buttons = 0;
+            }
+            if(ioctl(joystick->fd, JSIOCGBTNMAP, joystick->js_btnmap) == -1) {
+                (void) memset(joystick->js_btnmap, 0, sizeof(joystick->js_btnmap));
             }
         }
     }
@@ -1030,10 +1037,12 @@ GemJoystick* gem_joystick_destruct(GtkWidget* widget, GemJoystick* joystick)
 {
     /* finalize */ {
         joystick->js_id      = 0;
+        joystick->js_axes    = 0;
         joystick->js_axis_x  = 0;
         joystick->js_axis_y  = 0;
         joystick->js_button0 = 0;
         joystick->js_button1 = 0;
+        joystick->js_axes    = 0;
         joystick->js_buttons = 0;
     }
     /* destroy input_id */ {
@@ -1102,26 +1111,23 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                 case JS_EVENT_BUTTON:
                     {
                         XEvent x11_event;
-                        /* check for special button */ {
-                            if(js_event.value != 0) {
-                                unsigned short code = joystick->js_mapping[js_event.number];
-                                if(code == BTN_SELECT) {
-                                    return TRUE;
-                                }
-                                if(code == BTN_START) {
-                                    return TRUE;
-                                }
-                                if(code == BTN_MODE) {
-                                    return TRUE;
-                                }
-                            }
-                        }
                         /* update joystick */ {
-                            if((js_event.number &= 1) == 0) {
-                                joystick->js_button0 = js_event.value;
-                            }
-                            else {
-                                joystick->js_button1 = js_event.value;
+                            switch(joystick->js_btnmap[js_event.number]) {
+                                case BTN_A:
+                                case BTN_X:
+                                case BTN_TL:
+                                case BTN_THUMBL:
+                                    joystick->js_button0 = js_event.value;
+                                    break;
+                                case BTN_B:
+                                case BTN_Y:
+                                case BTN_TR:
+                                case BTN_THUMBR:
+                                    joystick->js_button1 = js_event.value;
+                                    break;
+                                default:
+                                    return TRUE;
+                                    break;
                             }
                         }
                         /* initialize button event */ {
@@ -1150,11 +1156,26 @@ gboolean gem_joystick_handler(gint fd, GIOCondition condition, GtkWidget* widget
                     {
                         XEvent x11_event;
                         /* update joystick */ {
-                            if((js_event.number &= 1) == 0) {
-                                joystick->js_axis_x = js_event.value;
-                            }
-                            else {
-                                joystick->js_axis_y = js_event.value;
+                            switch(joystick->js_axmap[js_event.number]) {
+                                case ABS_X:
+                                case ABS_RX:
+                                case ABS_HAT0X:
+                                case ABS_HAT1X:
+                                case ABS_HAT2X:
+                                case ABS_HAT3X:
+                                    joystick->js_axis_x = js_event.value;
+                                    break;
+                                case ABS_Y:
+                                case ABS_RY:
+                                case ABS_HAT0Y:
+                                case ABS_HAT1Y:
+                                case ABS_HAT2Y:
+                                case ABS_HAT3Y:
+                                    joystick->js_axis_y = js_event.value;
+                                    break;
+                                default:
+                                    return TRUE;
+                                    break;
                             }
                         }
                         /* initialize motion event */ {
