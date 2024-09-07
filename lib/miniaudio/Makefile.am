@@ -41,7 +41,7 @@ libminiaudio_la_LDFLAGS = \
 	$(NULL)
 
 libminiaudio_la_LIBADD = \
-	-ldl -lpthread -lm \
+	-lm \
 	$(NULL)
 
 # ----------------------------------------------------------------------------
