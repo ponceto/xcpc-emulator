@@ -72,8 +72,10 @@ struct _GemJoystick
     int            js_axis_y;
     int            js_button0;
     int            js_button1;
-    int            js_buttons;
-    unsigned short js_mapping[1024];
+    uint8_t        js_axes;
+    uint8_t        js_axmap[128];
+    uint8_t        js_buttons;
+    uint16_t       js_btnmap[512];
 };
 
 extern GemVideo*    gem_video_construct       (GtkWidget* widget, GemVideo* video);
