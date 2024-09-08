@@ -1,3 +1,8 @@
+2024-09-08	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+
+	* Better Linux joystick support
+	* BSD compilation fixed
+
 2024-08-09	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Full support for french keyboard
