@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# ci-prepare.sh - Copyright (c) 2001-2024 - Olivier Poncet
+# ci-build-tar.sh - Copyright (c) 2001-2024 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,12 +27,6 @@ arg_prefix="/usr/local"
 # ----------------------------------------------------------------------------
 
 set -x
-
-# ----------------------------------------------------------------------------
-# print environment
-# ----------------------------------------------------------------------------
-
-printenv                                                             || exit 1
 
 # ----------------------------------------------------------------------------
 # autoreconf

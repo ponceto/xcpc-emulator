@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------------
 
 stages:
-  - prepare
+  - build-tar
   - build-bin
   - build-deb
 
@@ -29,7 +29,7 @@ stages:
 # ----------------------------------------------------------------------------
 
 tarball:
-  stage: prepare
+  stage: build-tar
   when: on_success
   tags:
     - debian-11
@@ -38,7 +38,7 @@ tarball:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
   script:
-    - ./.ci/ci-prepare.sh
+    - ./.ci/ci-build-tar.sh
   artifacts:
     name: "xcpc-sources"
     paths:
@@ -86,9 +86,12 @@ build-deb_amd64:
   artifacts:
     name: "xcpc-deb_amd64"
     paths:
-      - ./*.buildinfo
-      - ./*.changes
-      - ./*.deb
+      - ./_build/*.tar.gz
+      - ./_build/*.tar.xz
+      - ./_build/*.buildinfo
+      - ./_build/*.changes
+      - ./_build/*.dsc
+      - ./_build/*.deb
 
 # ----------------------------------------------------------------------------
 # build-deb_arm64
@@ -110,9 +113,12 @@ build-deb_arm64:
   artifacts:
     name: "xcpc-deb_arm64"
     paths:
-      - ./*.buildinfo
-      - ./*.changes
-      - ./*.deb
+      - ./_build/*.tar.gz
+      - ./_build/*.tar.xz
+      - ./_build/*.buildinfo
+      - ./_build/*.changes
+      - ./_build/*.dsc
+      - ./_build/*.deb
 
 # ----------------------------------------------------------------------------
 # End-Of-File

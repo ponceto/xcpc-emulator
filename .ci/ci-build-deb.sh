@@ -57,11 +57,7 @@ cd "${arg_pkgname}"                                                  || exit 1
 dh_make --yes --single --file "../../${arg_tarball}"                 || exit 1
 rm -rf "debian"                                                      || exit 1
 cp -rf "../../debian" "./debian"                                     || exit 1
-dpkg-buildpackage --no-sign                                          || exit 1
-cd "../"                                                             || exit 1
-cp -f *.buildinfo "${arg_topdir}"                                    || exit 1
-cp -f *.changes "${arg_topdir}"                                      || exit 1
-cp -f *.deb "${arg_topdir}"                                          || exit 1
+dpkg-buildpackage --build=full --no-sign                             || exit 1
 cd "${arg_topdir}"                                                   || exit 1
 
 # ----------------------------------------------------------------------------
