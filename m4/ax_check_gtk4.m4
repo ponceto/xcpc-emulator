@@ -22,7 +22,7 @@
 AC_DEFUN([AX_CHECK_GTK4], [
 AC_ARG_ENABLE([gtk4], [AS_HELP_STRING([--enable-gtk4], [add the support of gtk4 (if available) [default=yes]])], [], [enable_gtk4='yes'])
 if test "x${enable_gtk4}" = 'xyes'; then
-    PKG_CHECK_MODULES([gtk4], [gtk4], [have_gtk4='unsupported'], [have_gtk4='no'])
+    PKG_CHECK_MODULES([gtk4], [gtk4 epoxy], [have_gtk4='unsupported'], [have_gtk4='no'])
 else
     have_gtk4='no'
 fi
