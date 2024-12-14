@@ -416,9 +416,6 @@ auto Device::clock() -> void
 
 prolog:
     m_backup_pc();
-    goto check_aei;
-
-check_aei:
     if(m_after_ei()) {
         goto check_hlt;
     }
@@ -458,6 +455,7 @@ check_int:
         }
         goto epilog;
     }
+    goto check_hlt;
 
 check_hlt:
     if(m_halted()) {
