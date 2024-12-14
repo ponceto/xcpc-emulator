@@ -288,12 +288,12 @@ constexpr uint16_t VECTOR_66H = 0x0066;
 }
 
 // ---------------------------------------------------------------------------
-// <anonymous>::PZSTable
+// <anonymous>::PZS - Parity / Zero / Sign
 // ---------------------------------------------------------------------------
 
 namespace {
 
-const uint8_t PZSTable[256] = {
+const uint8_t PZS[256] = {
     0x44, 0x00, 0x00, 0x04, 0x00, 0x04, 0x04, 0x00, 0x08, 0x0c, 0x0c, 0x08, 0x0c, 0x08, 0x08, 0x0c,
     0x00, 0x04, 0x04, 0x00, 0x04, 0x00, 0x00, 0x04, 0x0c, 0x08, 0x08, 0x0c, 0x08, 0x0c, 0x0c, 0x08,
     0x20, 0x24, 0x24, 0x20, 0x24, 0x20, 0x20, 0x24, 0x2c, 0x28, 0x28, 0x2c, 0x28, 0x2c, 0x2c, 0x28,
@@ -351,9 +351,6 @@ struct StateTraits final
 
     static inline auto reset(State& state) -> void
     {
-        state.m_cycles &= 0;
-        state.t_states &= 0;
-        state.i_period &= 0;
         state.af.l.r   &= 0;
         state.bc.l.r   &= 0;
         state.de.l.r   &= 0;
@@ -364,6 +361,9 @@ struct StateTraits final
         state.pc.l.r   &= 0;
         state.ir.l.r   &= 0;
         state.st.l.r   &= 0;
+        state.m_cycles &= 0;
+        state.t_states &= 0;
+        state.i_period &= 0;
     }
 };
 

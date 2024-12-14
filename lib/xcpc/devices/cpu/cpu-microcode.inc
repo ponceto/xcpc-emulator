@@ -1,113 +1,108 @@
 // ---------------------------------------------------------------------------
-// pseudo micro-instructions
+// low-level pseudo micro-instructions
 // ---------------------------------------------------------------------------
-
-/*
- * mreq_m1
- */
 
 #define m_mreq_m1(addr, data) \
     do { \
         static_cast<void>(data = MREQ_M1((SELF), (addr), (0x00))); \
     } while(0)
 
-/*
- * mreq_rd
- */
-
 #define m_mreq_rd(addr, data) \
     do { \
         static_cast<void>(data = MREQ_RD((SELF), (addr), (0x00))); \
     } while(0)
-
-/*
- * mreq_wr
- */
 
 #define m_mreq_wr(addr, data) \
     do { \
         static_cast<void>(MREQ_WR((SELF), (addr), (data))); \
     } while(0)
 
-/*
- * iorq_m1
- */
-
 #define m_iorq_m1(port, data) \
     do { \
         static_cast<void>(data = IORQ_M1((SELF), (port), (0x00))); \
     } while(0)
-
-/*
- * iorq_rd
- */
 
 #define m_iorq_rd(port, data) \
     do { \
         static_cast<void>(data = IORQ_RD((SELF), (port), (0x00))); \
     } while(0)
 
-/*
- * iorq_wr
- */
-
 #define m_iorq_wr(port, data) \
     do { \
         static_cast<void>(IORQ_WR((SELF), (port), (data))); \
     } while(0)
 
-/*
- * load_rg
- */
-
-#define m_load_rg(dst, src) \
+#define m_load_rg(dest, data) \
     do { \
-        dst = src; \
+        static_cast<void>(dest = (data)); \
     } while(0)
 
-/*
- * addu_rg
- */
-
-#define m_addu_rg(reg, opd) \
+#define m_addu_rg(reg, data) \
     do { \
-        reg += opd; \
+        static_cast<void>(reg += (data)); \
     } while(0)
 
-/*
- * subu_rg
- */
-
-#define m_subu_rg(reg, opd) \
+#define m_subu_rg(reg, data) \
     do { \
-        reg -= opd; \
+        static_cast<void>(reg -= (data)); \
     } while(0)
 
-/*
- * set_bit
- */
-
-#define m_set_bit(dst, bit) \
+#define m_andu_rg(reg, data) \
     do { \
-        dst |= (bit); \
+        static_cast<void>(reg &= (data)); \
     } while(0)
 
-/*
- * clr_bit
- */
-
-#define m_clr_bit(dst, bit) \
+#define m_ioru_rg(reg, data) \
     do { \
-        dst &= ~(bit); \
+        static_cast<void>(reg |= (data)); \
+    } while(0)
+
+#define m_xoru_rg(reg, data) \
+    do { \
+        static_cast<void>(reg ^= (data)); \
+    } while(0)
+
+#define m_setu_bit(dest, mask) \
+    do { \
+        static_cast<void>(dest |= (mask)); \
+    } while(0)
+
+#define m_clru_bit(dest, mask) \
+    do { \
+        static_cast<void>(dest &= ~(mask)); \
     } while(0)
 
 // ---------------------------------------------------------------------------
-// fetch pseudo instructions
+// miscellaneous pseudo micro-instructions
 // ---------------------------------------------------------------------------
 
-/*
- * fetch opcode
- */
+#define m_backup_pc() \
+    do { \
+        m_load_rg(OP_P, PC_W); \
+    } while(0)
+
+#define m_restore_pc() \
+    do { \
+        m_load_rg(PC_W, OP_P); \
+    } while(0)
+
+#define m_refresh_dram() \
+    do { \
+        IR_L = ((IR_L + 0) & 0x80) \
+             | ((IR_L + 1) & 0x7f) \
+             ; \
+    } while(0)
+
+#define m_consume(cycles, states) \
+    do { \
+        m_addu_rg(M_CYCLES, cycles); \
+        m_addu_rg(T_STATES, states); \
+        m_addu_rg(I_PERIOD, states); \
+    } while(0)
+
+// ---------------------------------------------------------------------------
+// fetch pseudo micro-instructions
+// ---------------------------------------------------------------------------
 
 #define m_fetch_opcode() \
     do { \
@@ -115,19 +110,11 @@
         m_addu_rg(PC_W, 0x01); \
     } while(0)
 
-/*
- * fetch cb opcode
- */
-
 #define m_fetch_cb_opcode() \
     do { \
         m_mreq_m1(PC_W, OP_L); \
         m_addu_rg(PC_W, 0x01); \
     } while(0)
-
-/*
- * fetch dd opcode
- */
 
 #define m_fetch_dd_opcode() \
     do { \
@@ -135,19 +122,11 @@
         m_addu_rg(PC_W, 0x01); \
     } while(0)
 
-/*
- * fetch ed opcode
- */
-
 #define m_fetch_ed_opcode() \
     do { \
         m_mreq_m1(PC_W, OP_L); \
         m_addu_rg(PC_W, 0x01); \
     } while(0)
-
-/*
- * fetch fd opcode
- */
 
 #define m_fetch_fd_opcode() \
     do { \
@@ -155,172 +134,129 @@
         m_addu_rg(PC_W, 0x01); \
     } while(0)
 
-/*
- * fetch ddcb opcode
- */
-
 #define m_fetch_ddcb_opcode() \
     do { \
-        WZ_W = IX_W + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = IX_W + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         m_mreq_rd(PC_W, OP_L); \
         m_addu_rg(PC_W, 0x01); \
     } while(0)
-
-/*
- * fetch fdcb opcode
- */
 
 #define m_fetch_fdcb_opcode() \
     do { \
-        WZ_W = IY_W + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = IY_W + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         m_mreq_rd(PC_W, OP_L); \
         m_addu_rg(PC_W, 0x01); \
     } while(0)
 
 // ---------------------------------------------------------------------------
-// pseudo instructions
+// illegal pseudo micro-instructions
 // ---------------------------------------------------------------------------
 
-auto m_prefix = [&]() -> void
-{
-};
+#define m_illegal() \
+    do { \
+    } while(0)
 
-auto m_illegal = [&]() -> void
-{
-};
+#define m_illegal_cb() \
+    do { \
+    } while(0)
 
-auto m_illegal_cb = [&]() -> void
-{
-};
+#define m_illegal_dd() \
+    do { \
+    } while(0)
 
-auto m_illegal_dd = [&]() -> void
-{
-};
+#define m_illegal_ed() \
+    do { \
+    } while(0)
 
-auto m_illegal_ed = [&]() -> void
-{
-};
+#define m_illegal_fd() \
+    do { \
+    } while(0)
 
-auto m_illegal_fd = [&]() -> void
-{
-};
+#define m_illegal_ddcb() \
+    do { \
+    } while(0)
 
-auto m_illegal_ddcb = [&]() -> void
-{
-};
-
-auto m_illegal_fdcb = [&]() -> void
-{
-};
+#define m_illegal_fdcb() \
+    do { \
+    } while(0)
 
 // ---------------------------------------------------------------------------
-// miscellaneous pseudo instructions
+// nop - no operation
 // ---------------------------------------------------------------------------
-
-auto m_refresh_dram = [&]() -> void
-{
-    IR_L = ((IR_L + 0) & 0x80)
-         | ((IR_L + 1) & 0x7f)
-         ;
-};
-
-auto m_consume = [&](const uint32_t cycles, const uint32_t states) -> void
-{
-    M_CYCLES += cycles;
-    T_STATES += states;
-    I_PERIOD += states;
-};
-
-auto m_backup_pc = [&]() -> void
-{
-    OP_P = PC_W;
-};
-
-auto m_restore_pc = [&]() -> void
-{
-    PC_W = OP_P;
-};
-
-// ---------------------------------------------------------------------------
-// cpu control group
-// ---------------------------------------------------------------------------
-
-/*
- * nop
- */
 
 #define m_nop() \
     do { \
     } while(0)
 
-/*
- * halt
- */
-
-#define m_halt() \
-    do { \
-        m_set_bit(ST_L, (ST_HLT)); \
-    } while(0)
-
-/*
- * di
- */
+// ---------------------------------------------------------------------------
+// di - disable interrupts
+// ---------------------------------------------------------------------------
 
 #define m_di() \
     do { \
-        m_clr_bit(ST_L, (ST_IFF1)); \
-        m_clr_bit(ST_L, (ST_IFF2)); \
+        m_clru_bit(ST_L, (ST_IFF1)); \
+        m_clru_bit(ST_L, (ST_IFF2)); \
+        m_clru_bit(ST_L, (ST_AEI)); \
     } while(0)
 
-/*
- * ei
- */
+// ---------------------------------------------------------------------------
+// ei - enable interrupts
+// ---------------------------------------------------------------------------
 
 #define m_ei() \
     do { \
-        m_set_bit(ST_L, (ST_IFF1)); \
-        m_set_bit(ST_L, (ST_IFF2)); \
-        m_set_bit(ST_L, (ST_AEI)); \
+        m_setu_bit(ST_L, (ST_IFF1)); \
+        m_setu_bit(ST_L, (ST_IFF2)); \
+        m_setu_bit(ST_L, (ST_AEI)); \
     } while(0)
 
-/*
- * im 0
- */
+// ---------------------------------------------------------------------------
+// halt - halt processor
+// ---------------------------------------------------------------------------
+
+#define m_halt() \
+    do { \
+        m_setu_bit(ST_L, (ST_HLT)); \
+    } while(0)
+
+// ---------------------------------------------------------------------------
+// im 0 - interrupt mode 0
+// ---------------------------------------------------------------------------
 
 #define m_im_0() \
     do { \
-        m_clr_bit(ST_L, (ST_IM1)); \
-        m_clr_bit(ST_L, (ST_IM2)); \
+        m_clru_bit(ST_L, (ST_IM1)); \
+        m_clru_bit(ST_L, (ST_IM2)); \
     } while(0)
 
-/*
- * im 1
- */
+// ---------------------------------------------------------------------------
+// im 1 - interrupt mode 1
+// ---------------------------------------------------------------------------
 
 #define m_im_1() \
     do { \
-        m_set_bit(ST_L, (ST_IM1)); \
-        m_clr_bit(ST_L, (ST_IM2)); \
+        m_setu_bit(ST_L, (ST_IM1)); \
+        m_clru_bit(ST_L, (ST_IM2)); \
     } while(0)
 
-/*
- * im 2
- */
+// ---------------------------------------------------------------------------
+// im 2 - interrupt mode 2
+// ---------------------------------------------------------------------------
 
 #define m_im_2() \
     do { \
-        m_clr_bit(ST_L, (ST_IM1)); \
-        m_set_bit(ST_L, (ST_IM2)); \
+        m_clru_bit(ST_L, (ST_IM1)); \
+        m_setu_bit(ST_L, (ST_IM2)); \
     } while(0)
 
-/*
- * im 3
- */
+// ---------------------------------------------------------------------------
+// im 3 - interrupt mode 3
+// ---------------------------------------------------------------------------
 
 #define m_im_3() \
     do { \
-        m_set_bit(ST_L, (ST_IM1)); \
-        m_set_bit(ST_L, (ST_IM2)); \
+        m_setu_bit(ST_L, (ST_IM1)); \
+        m_setu_bit(ST_L, (ST_IM2)); \
     } while(0)
 
 // ---------------------------------------------------------------------------
@@ -337,7 +273,7 @@ auto m_restore_pc = [&]() -> void
         m_load_rg(R1_L, port); \
         m_iorq_rd(R1_W, R0_L); \
         m_load_rg(data, R0_L); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -372,7 +308,7 @@ auto m_restore_pc = [&]() -> void
         m_load_rg(WZ_W, BC_W); \
         m_subu_rg(BC_H, 0x01); \
         m_addu_rg(HL_W, 0x01); \
-        R3_L = PZSTable[BC_H]; \
+        R3_L = PZS[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -399,7 +335,7 @@ auto m_restore_pc = [&]() -> void
             m_restore_pc(); \
             m_consume(1, 5); \
         } \
-        R3_L = PZSTable[BC_H]; \
+        R3_L = PZS[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -422,7 +358,7 @@ auto m_restore_pc = [&]() -> void
         m_load_rg(WZ_W, BC_W); \
         m_subu_rg(BC_H, 0x01); \
         m_subu_rg(HL_W, 0x01); \
-        R3_L = PZSTable[BC_H]; \
+        R3_L = PZS[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -449,7 +385,7 @@ auto m_restore_pc = [&]() -> void
             m_restore_pc(); \
             m_consume(1, 5); \
         } \
-        R3_L = PZSTable[BC_H]; \
+        R3_L = PZS[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -499,7 +435,7 @@ auto m_restore_pc = [&]() -> void
         m_addu_rg(HL_W, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, R0_L); \
-        R3_L = PZSTable[BC_H]; \
+        R3_L = PZS[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -526,7 +462,7 @@ auto m_restore_pc = [&]() -> void
             m_restore_pc(); \
             m_consume(1, 5); \
         } \
-        R3_L = PZSTable[BC_H]; \
+        R3_L = PZS[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -549,7 +485,7 @@ auto m_restore_pc = [&]() -> void
         m_subu_rg(HL_W, 0x01); \
         m_load_rg(WZ_W, BC_W); \
         m_iorq_wr(BC_W, R0_L); \
-        R3_L = PZSTable[BC_H]; \
+        R3_L = PZS[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -576,7 +512,7 @@ auto m_restore_pc = [&]() -> void
             m_restore_pc(); \
             m_consume(1, 5); \
         } \
-        R3_L = PZSTable[BC_H]; \
+        R3_L = PZS[BC_H]; \
         AF_L = /* SF is unknown      */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -672,7 +608,7 @@ auto m_restore_pc = [&]() -> void
 
 #define m_ld_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         m_mreq_rd(WZ_W, reg1); \
     } while(0)
 
@@ -682,7 +618,7 @@ auto m_restore_pc = [&]() -> void
 
 #define m_ld_ind_r16_plus_i08_r08(reg1, reg2) \
     do { \
-        WZ_W = reg1 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg1 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         m_mreq_wr(WZ_W, reg2); \
     } while(0)
 
@@ -692,7 +628,7 @@ auto m_restore_pc = [&]() -> void
 
 #define m_ld_ind_r16_plus_i08_i08(reg1) \
     do { \
-        WZ_W = reg1 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg1 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         m_mreq_rd(PC_W, R0_L); \
         m_addu_rg(PC_W, 0x01); \
         m_mreq_wr(WZ_W, R0_L); \
@@ -705,7 +641,7 @@ auto m_restore_pc = [&]() -> void
 #define m_ld_a_i() \
     do { \
         m_load_rg(AF_H, IR_H); \
-        R3_L = PZSTable[AF_H]; \
+        R3_L = PZS[AF_H]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -733,7 +669,7 @@ auto m_restore_pc = [&]() -> void
 #define m_ld_a_r() \
     do { \
         m_load_rg(AF_H, IR_L); \
-        R3_L = PZSTable[AF_H]; \
+        R3_L = PZS[AF_H]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -865,7 +801,7 @@ auto m_restore_pc = [&]() -> void
         else { \
             R0_R = R1_R - R2_R; \
         } \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -905,7 +841,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = 0x00; \
         R2_L = AF_H; \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -965,7 +901,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = reg2; \
         R0_W = R1_L + R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -985,9 +921,9 @@ auto m_restore_pc = [&]() -> void
 #define m_add_r08_i08(reg1) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00); \
+        R2_L = MREQ_RD(SELF, PC_W++, 0x00); \
         R0_W = R1_L + R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1007,9 +943,9 @@ auto m_restore_pc = [&]() -> void
 #define m_add_r08_ind_r16(reg1, reg2) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, reg2, 0x00); \
+        R2_L = MREQ_RD(SELF, reg2, 0x00); \
         R0_W = R1_L + R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1028,9 +964,9 @@ auto m_restore_pc = [&]() -> void
 
 #define m_add_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, WZ_W, 0x00); \
+        R2_L = MREQ_RD(SELF, WZ_W, 0x00); \
         m_add_r08_r08(R1_L, R2_L); \
     } while(0)
 
@@ -1047,7 +983,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = reg2; \
         R0_W = R1_L + R2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1067,9 +1003,9 @@ auto m_restore_pc = [&]() -> void
 #define m_adc_r08_i08(reg1) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00); \
+        R2_L = MREQ_RD(SELF, PC_W++, 0x00); \
         R0_W = R1_L + R2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1089,9 +1025,9 @@ auto m_restore_pc = [&]() -> void
 #define m_adc_r08_ind_r16(reg1, reg2) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, reg2, 0x00); \
+        R2_L = MREQ_RD(SELF, reg2, 0x00); \
         R0_W = R1_L + R2_L + ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1110,9 +1046,9 @@ auto m_restore_pc = [&]() -> void
 
 #define m_adc_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, WZ_W, 0x00); \
+        R2_L = MREQ_RD(SELF, WZ_W, 0x00); \
         m_adc_r08_r08(R1_L, R2_L); \
     } while(0)
 
@@ -1129,7 +1065,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = reg2; \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1149,9 +1085,9 @@ auto m_restore_pc = [&]() -> void
 #define m_sub_r08_i08(reg1) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00); \
+        R2_L = MREQ_RD(SELF, PC_W++, 0x00); \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1171,9 +1107,9 @@ auto m_restore_pc = [&]() -> void
 #define m_sub_r08_ind_r16(reg1, reg2) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, reg2, 0x00); \
+        R2_L = MREQ_RD(SELF, reg2, 0x00); \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1192,9 +1128,9 @@ auto m_restore_pc = [&]() -> void
 
 #define m_sub_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, WZ_W, 0x00); \
+        R2_L = MREQ_RD(SELF, WZ_W, 0x00); \
         m_sub_r08_r08(R1_L, R2_L); \
     } while(0)
 
@@ -1211,7 +1147,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = reg2; \
         R0_W = R1_L - R2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1231,9 +1167,9 @@ auto m_restore_pc = [&]() -> void
 #define m_sbc_r08_i08(reg1) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00); \
+        R2_L = MREQ_RD(SELF, PC_W++, 0x00); \
         R0_W = R1_L - R2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1253,9 +1189,9 @@ auto m_restore_pc = [&]() -> void
 #define m_sbc_r08_ind_r16(reg1, reg2) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, reg2, 0x00); \
+        R2_L = MREQ_RD(SELF, reg2, 0x00); \
         R0_W = R1_L - R2_L - ((AF_L & CF) != 0 ? 0x01 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1274,9 +1210,9 @@ auto m_restore_pc = [&]() -> void
 
 #define m_sbc_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, WZ_W, 0x00); \
+        R2_L = MREQ_RD(SELF, WZ_W, 0x00); \
         m_sbc_r08_r08(R1_L, R2_L); \
     } while(0)
 
@@ -1293,7 +1229,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = reg2; \
         R0_L = R1_L & R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1313,9 +1249,9 @@ auto m_restore_pc = [&]() -> void
 #define m_and_r08_i08(reg1) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00); \
+        R2_L = MREQ_RD(SELF, PC_W++, 0x00); \
         R0_L = R1_L & R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1335,9 +1271,9 @@ auto m_restore_pc = [&]() -> void
 #define m_and_r08_ind_r16(reg1, reg2) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, reg2, 0x00); \
+        R2_L = MREQ_RD(SELF, reg2, 0x00); \
         R0_L = R1_L & R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1356,9 +1292,9 @@ auto m_restore_pc = [&]() -> void
 
 #define m_and_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, WZ_W, 0x00); \
+        R2_L = MREQ_RD(SELF, WZ_W, 0x00); \
         m_and_r08_r08(R1_L, R2_L); \
     } while(0)
 
@@ -1375,7 +1311,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = reg2; \
         R0_L = R1_L ^ R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1395,9 +1331,9 @@ auto m_restore_pc = [&]() -> void
 #define m_xor_r08_i08(reg1) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00); \
+        R2_L = MREQ_RD(SELF, PC_W++, 0x00); \
         R0_L = R1_L ^ R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1417,9 +1353,9 @@ auto m_restore_pc = [&]() -> void
 #define m_xor_r08_ind_r16(reg1, reg2) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, reg2, 0x00); \
+        R2_L = MREQ_RD(SELF, reg2, 0x00); \
         R0_L = R1_L ^ R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1438,9 +1374,9 @@ auto m_restore_pc = [&]() -> void
 
 #define m_xor_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, WZ_W, 0x00); \
+        R2_L = MREQ_RD(SELF, WZ_W, 0x00); \
         m_xor_r08_r08(R1_L, R2_L); \
     } while(0)
 
@@ -1457,7 +1393,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = reg2; \
         R0_L = R1_L | R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1477,9 +1413,9 @@ auto m_restore_pc = [&]() -> void
 #define m_or_r08_i08(reg1) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00); \
+        R2_L = MREQ_RD(SELF, PC_W++, 0x00); \
         R0_L = R1_L | R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1499,9 +1435,9 @@ auto m_restore_pc = [&]() -> void
 #define m_or_r08_ind_r16(reg1, reg2) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, reg2, 0x00); \
+        R2_L = MREQ_RD(SELF, reg2, 0x00); \
         R0_L = R1_L | R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_H = R0_L; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
@@ -1520,9 +1456,9 @@ auto m_restore_pc = [&]() -> void
 
 #define m_or_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, WZ_W, 0x00); \
+        R2_L = MREQ_RD(SELF, WZ_W, 0x00); \
         m_or_r08_r08(R1_L, R2_L); \
     } while(0)
 
@@ -1539,7 +1475,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = reg2; \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R2_L)) \
@@ -1558,9 +1494,9 @@ auto m_restore_pc = [&]() -> void
 #define m_cp_r08_i08(reg1) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00); \
+        R2_L = MREQ_RD(SELF, PC_W++, 0x00); \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R2_L)) \
@@ -1579,9 +1515,9 @@ auto m_restore_pc = [&]() -> void
 #define m_cp_r08_ind_r16(reg1, reg2) \
     do { \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, reg2, 0x00); \
+        R2_L = MREQ_RD(SELF, reg2, 0x00); \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R2_L)) \
@@ -1599,9 +1535,9 @@ auto m_restore_pc = [&]() -> void
 
 #define m_cp_r08_ind_r16_plus_i08(reg1, reg2) \
     do { \
-        WZ_W = reg2 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg2 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         R1_L = reg1; \
-        R2_L = IFACE.cpu_mreq_rd(SELF, WZ_W, 0x00); \
+        R2_L = MREQ_RD(SELF, WZ_W, 0x00); \
         m_cp_r08_r08(R1_L, R2_L); \
     } while(0)
 
@@ -1618,7 +1554,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = 1; \
         R0_W = R1_L + R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -1640,7 +1576,7 @@ auto m_restore_pc = [&]() -> void
         m_mreq_rd(reg1, R1_L); \
         R2_L = 1; \
         R0_W = R1_L + R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -1659,7 +1595,7 @@ auto m_restore_pc = [&]() -> void
 
 #define m_inc_ind_r16_plus_i08(reg1) \
     do { \
-        WZ_W = reg1 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg1 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         m_mreq_rd(WZ_W, R1_L); \
         m_inc_r08(R1_L); \
         m_mreq_wr(WZ_W, R1_L); \
@@ -1678,7 +1614,7 @@ auto m_restore_pc = [&]() -> void
         R1_L = reg1; \
         R2_L = 1; \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -1700,7 +1636,7 @@ auto m_restore_pc = [&]() -> void
         m_mreq_rd(reg1, R1_L); \
         R2_L = 1; \
         R0_W = R1_L - R2_L; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -1719,7 +1655,7 @@ auto m_restore_pc = [&]() -> void
 
 #define m_dec_ind_r16_plus_i08(reg1) \
     do { \
-        WZ_W = reg1 + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W++, 0x00)); \
+        WZ_W = reg1 + SBYTE(MREQ_RD(SELF, PC_W++, 0x00)); \
         m_mreq_rd(WZ_W, R1_L); \
         m_dec_r08(R1_L); \
         m_mreq_wr(WZ_W, R1_L); \
@@ -1840,7 +1776,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         --BC_H; \
         if(BC_H != 0) { \
-            WZ_W = PC_W + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SBYTE(MREQ_RD(SELF, PC_W, 0x00)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2011,7 +1947,7 @@ auto m_restore_pc = [&]() -> void
 
 #define m_jr_i08() \
     do { \
-        WZ_W = PC_W + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W, 0x00)) + 1; \
+        WZ_W = PC_W + SBYTE(MREQ_RD(SELF, PC_W, 0x00)) + 1; \
         PC_W = WZ_W; \
     } while(0)
 
@@ -2022,7 +1958,7 @@ auto m_restore_pc = [&]() -> void
 #define m_jr_nz_i08() \
     do { \
         if((AF_L & ZF) == 0) { \
-            WZ_W = PC_W + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SBYTE(MREQ_RD(SELF, PC_W, 0x00)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2038,7 +1974,7 @@ auto m_restore_pc = [&]() -> void
 #define m_jr_z_i08() \
     do { \
         if((AF_L & ZF) != 0) { \
-            WZ_W = PC_W + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SBYTE(MREQ_RD(SELF, PC_W, 0x00)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2054,7 +1990,7 @@ auto m_restore_pc = [&]() -> void
 #define m_jr_nc_i08() \
     do { \
         if((AF_L & CF) == 0) { \
-            WZ_W = PC_W + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SBYTE(MREQ_RD(SELF, PC_W, 0x00)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2070,7 +2006,7 @@ auto m_restore_pc = [&]() -> void
 #define m_jr_c_i08() \
     do { \
         if((AF_L & CF) != 0) { \
-            WZ_W = PC_W + SBYTE(IFACE.cpu_mreq_rd(SELF, PC_W, 0x00)) + 1; \
+            WZ_W = PC_W + SBYTE(MREQ_RD(SELF, PC_W, 0x00)) + 1; \
             PC_W = WZ_W; \
             m_consume(1, 5); \
         } \
@@ -2421,10 +2357,10 @@ auto m_restore_pc = [&]() -> void
 #define m_retn() \
     do { \
         if((ST_L & ST_IFF2) != 0) { \
-            m_set_bit(ST_L, (ST_IFF1)); \
+            m_setu_bit(ST_L, (ST_IFF1)); \
         } \
         else { \
-            m_clr_bit(ST_L, (ST_IFF1)); \
+            m_clru_bit(ST_L, (ST_IFF1)); \
         } \
         m_mreq_rd(SP_W++, WZ_L); \
         m_mreq_rd(SP_W++, WZ_H); \
@@ -2607,7 +2543,7 @@ auto m_restore_pc = [&]() -> void
         R0_L = R1_L - R2_L; \
         ++HL_W; \
         --BC_W; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (0x00)) \
@@ -2635,7 +2571,7 @@ auto m_restore_pc = [&]() -> void
         R0_L = R1_L - R2_L; \
         --HL_W; \
         --BC_W; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (0x00)) \
@@ -2663,7 +2599,7 @@ auto m_restore_pc = [&]() -> void
         R0_L = R1_L - R2_L; \
         ++HL_W; \
         --BC_W; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (0x00)) \
@@ -2695,7 +2631,7 @@ auto m_restore_pc = [&]() -> void
         R0_L = R1_L - R2_L; \
         --HL_W; \
         --BC_W; \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (0x00)) \
@@ -2809,7 +2745,7 @@ auto m_restore_pc = [&]() -> void
         m_mreq_rd(HL_W, R1_L); \
         R0_L = ((LO_NIBBLE(R1_L) << 4) | (LO_NIBBLE(AF_H) >> 0)); \
         AF_H = ((HI_NIBBLE(AF_H) << 0) | (HI_NIBBLE(R1_L) >> 4)); \
-        R3_L = PZSTable[AF_H]; \
+        R3_L = PZS[AF_H]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (AF_H)) \
@@ -2831,7 +2767,7 @@ auto m_restore_pc = [&]() -> void
         m_mreq_rd(HL_W, R1_L); \
         R0_L = ((LO_NIBBLE(AF_H) << 4) | (HI_NIBBLE(R1_L) >> 4)); \
         AF_H = ((HI_NIBBLE(AF_H) << 0) | (LO_NIBBLE(R1_L) >> 0)); \
-        R3_L = PZSTable[AF_H]; \
+        R3_L = PZS[AF_H]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (AF_H)) \
@@ -2856,7 +2792,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (UBYTE(R1_L) << 1) | (UBYTE(R1_L) >> 7); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -2877,7 +2813,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         m_mreq_rd(addr, R1_L); \
         R0_L = (UBYTE(R1_L) << 1) | (UBYTE(R1_L) >> 7); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -2898,7 +2834,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (UBYTE(R1_L) >> 1) | (UBYTE(R1_L) << 7); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -2919,7 +2855,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         m_mreq_rd(addr, R1_L); \
         R0_L = (UBYTE(R1_L) >> 1) | (UBYTE(R1_L) << 7); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -2940,7 +2876,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (UBYTE(R1_L) << 1) | (AF_L & CF ? BIT0 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -2961,7 +2897,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         m_mreq_rd(addr, R1_L); \
         R0_L = (UBYTE(R1_L) << 1) | (AF_L & CF ? BIT0 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -2982,7 +2918,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (UBYTE(R1_L) >> 1) | (AF_L & CF ? BIT7 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3003,7 +2939,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         m_mreq_rd(addr, R1_L); \
         R0_L = (UBYTE(R1_L) >> 1) | (AF_L & CF ? BIT7 : 0x00); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3024,7 +2960,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (SBYTE(R1_L) << 1); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3045,7 +2981,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         m_mreq_rd(addr, R1_L); \
         R0_L = (SBYTE(R1_L) << 1); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3066,7 +3002,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (SBYTE(R1_L) >> 1); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3087,7 +3023,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         m_mreq_rd(addr, R1_L); \
         R0_L = (SBYTE(R1_L) >> 1); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3108,7 +3044,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (UBYTE(R1_L) << 1) | (BIT0); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3129,7 +3065,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         m_mreq_rd(addr, R1_L); \
         R0_L = (UBYTE(R1_L) << 1) | (BIT0); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3150,7 +3086,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (UBYTE(R1_L) >> 1) & (~BIT7); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3171,7 +3107,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         m_mreq_rd(addr, R1_L); \
         R0_L = (UBYTE(R1_L) >> 1) & (~BIT7); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is affected     */ (SF & (R3_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R3_L)) \
@@ -3196,7 +3132,7 @@ auto m_restore_pc = [&]() -> void
     do { \
         R1_L = data; \
         R0_L = (R1_L & mask); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is undocumented */ (SF & (R0_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (R1_L)) \
@@ -3217,7 +3153,7 @@ auto m_restore_pc = [&]() -> void
         m_load_rg(WZ_W, addr); \
         m_mreq_rd(WZ_W, R1_L); \
         R0_L = (R1_L & mask); \
-        R3_L = PZSTable[R0_L]; \
+        R3_L = PZS[R0_L]; \
         AF_L = /* SF is undocumented */ (SF & (R0_L)) \
              | /* ZF is affected     */ (ZF & (R3_L)) \
              | /* YF is undocumented */ (YF & (WZ_H)) \

@@ -1626,7 +1626,7 @@
             {
                 constexpr uint32_t m_cycles = (2 - 1);
                 constexpr uint32_t t_states = (8 - 4);
-                m_prefix();
+                m_nop();
                 m_consume(m_cycles, t_states);
             }
             goto fetch_fdcb_opcode;
@@ -1770,7 +1770,7 @@
             {
                 constexpr uint32_t m_cycles = (2 - 1);
                 constexpr uint32_t t_states = (8 - 4);
-                m_prefix();
+                m_nop();
                 m_consume(m_cycles, t_states);
             }
             break;
@@ -1898,7 +1898,7 @@
             {
                 constexpr uint32_t m_cycles = (2 - 1);
                 constexpr uint32_t t_states = (8 - 4);
-                m_prefix();
+                m_nop();
                 m_consume(m_cycles, t_states);
             }
             break;
@@ -2026,7 +2026,7 @@
             {
                 constexpr uint32_t m_cycles = (2 - 1);
                 constexpr uint32_t t_states = (8 - 4);
-                m_prefix();
+                m_nop();
                 m_consume(m_cycles, t_states);
             }
             break;

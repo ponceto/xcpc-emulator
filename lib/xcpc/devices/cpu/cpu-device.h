@@ -95,9 +95,6 @@ namespace cpu {
 struct State
 {
     uint8_t  type;
-    uint32_t m_cycles;
-    uint32_t t_states;
-    uint32_t i_period;
     Register af; /* AF & AF'            */
     Register bc; /* BC & BC'            */
     Register de; /* DE & DE'            */
@@ -108,6 +105,9 @@ struct State
     Register pc; /* Program Counter     */
     Register ir; /* Interrupt & Refresh */
     Register st; /* IFF, IM & Control   */
+    uint32_t m_cycles;
+    uint32_t t_states;
+    uint32_t i_period;
 };
 
 }
