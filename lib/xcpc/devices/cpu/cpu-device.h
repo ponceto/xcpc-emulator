@@ -98,7 +98,6 @@ struct State
     uint32_t m_cycles;
     uint32_t t_states;
     uint32_t i_period;
-    Register wz; /* WZ & WZ'            */
     Register af; /* AF & AF'            */
     Register bc; /* BC & BC'            */
     Register de; /* DE & DE'            */
