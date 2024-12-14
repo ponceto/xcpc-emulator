@@ -95,16 +95,16 @@ namespace cpu {
 struct State
 {
     uint8_t  type;
-    Register af; /* AF & AF'            */
-    Register bc; /* BC & BC'            */
-    Register de; /* DE & DE'            */
-    Register hl; /* HL & HL'            */
-    Register ix; /* IX Index            */
-    Register iy; /* IY Index            */
-    Register sp; /* Stack Pointer       */
-    Register pc; /* Program Counter     */
-    Register ir; /* Interrupt & Refresh */
-    Register st; /* IFF, IM & Control   */
+    Register r_af; /* AF & AF'            */
+    Register r_bc; /* BC & BC'            */
+    Register r_de; /* DE & DE'            */
+    Register r_hl; /* HL & HL'            */
+    Register r_ix; /* IX Index            */
+    Register r_iy; /* IY Index            */
+    Register r_sp; /* Stack Pointer       */
+    Register r_pc; /* Program Counter     */
+    Register r_ir; /* Interrupt & Refresh */
+    Register r_st; /* IFF, IM & Control   */
     uint32_t m_cycles;
     uint32_t t_states;
     uint32_t i_period;

@@ -48,133 +48,133 @@
 #define IORQ_RD IFACE.cpu_iorq_rd
 #define IORQ_WR IFACE.cpu_iorq_wr
 
-#define AF_R STATE.af.l.r
-#define AF_P STATE.af.w.h
-#define AF_W STATE.af.w.l
-#define AF_X STATE.af.b.x
-#define AF_Y STATE.af.b.y
-#define AF_H STATE.af.b.h
-#define AF_L STATE.af.b.l
+#define AF_R STATE.r_af.l.r
+#define AF_P STATE.r_af.w.h
+#define AF_W STATE.r_af.w.l
+#define AF_X STATE.r_af.b.x
+#define AF_Y STATE.r_af.b.y
+#define AF_H STATE.r_af.b.h
+#define AF_L STATE.r_af.b.l
 
-#define BC_R STATE.bc.l.r
-#define BC_P STATE.bc.w.h
-#define BC_W STATE.bc.w.l
-#define BC_X STATE.bc.b.x
-#define BC_Y STATE.bc.b.y
-#define BC_H STATE.bc.b.h
-#define BC_L STATE.bc.b.l
+#define BC_R STATE.r_bc.l.r
+#define BC_P STATE.r_bc.w.h
+#define BC_W STATE.r_bc.w.l
+#define BC_X STATE.r_bc.b.x
+#define BC_Y STATE.r_bc.b.y
+#define BC_H STATE.r_bc.b.h
+#define BC_L STATE.r_bc.b.l
 
-#define DE_R STATE.de.l.r
-#define DE_P STATE.de.w.h
-#define DE_W STATE.de.w.l
-#define DE_X STATE.de.b.x
-#define DE_Y STATE.de.b.y
-#define DE_H STATE.de.b.h
-#define DE_L STATE.de.b.l
+#define DE_R STATE.r_de.l.r
+#define DE_P STATE.r_de.w.h
+#define DE_W STATE.r_de.w.l
+#define DE_X STATE.r_de.b.x
+#define DE_Y STATE.r_de.b.y
+#define DE_H STATE.r_de.b.h
+#define DE_L STATE.r_de.b.l
 
-#define HL_R STATE.hl.l.r
-#define HL_P STATE.hl.w.h
-#define HL_W STATE.hl.w.l
-#define HL_X STATE.hl.b.x
-#define HL_Y STATE.hl.b.y
-#define HL_H STATE.hl.b.h
-#define HL_L STATE.hl.b.l
+#define HL_R STATE.r_hl.l.r
+#define HL_P STATE.r_hl.w.h
+#define HL_W STATE.r_hl.w.l
+#define HL_X STATE.r_hl.b.x
+#define HL_Y STATE.r_hl.b.y
+#define HL_H STATE.r_hl.b.h
+#define HL_L STATE.r_hl.b.l
 
-#define IX_R STATE.ix.l.r
-#define IX_P STATE.ix.w.h
-#define IX_W STATE.ix.w.l
-#define IX_X STATE.ix.b.x
-#define IX_Y STATE.ix.b.y
-#define IX_H STATE.ix.b.h
-#define IX_L STATE.ix.b.l
+#define IX_R STATE.r_ix.l.r
+#define IX_P STATE.r_ix.w.h
+#define IX_W STATE.r_ix.w.l
+#define IX_X STATE.r_ix.b.x
+#define IX_Y STATE.r_ix.b.y
+#define IX_H STATE.r_ix.b.h
+#define IX_L STATE.r_ix.b.l
 
-#define IY_R STATE.iy.l.r
-#define IY_P STATE.iy.w.h
-#define IY_W STATE.iy.w.l
-#define IY_X STATE.iy.b.x
-#define IY_Y STATE.iy.b.y
-#define IY_H STATE.iy.b.h
-#define IY_L STATE.iy.b.l
+#define IY_R STATE.r_iy.l.r
+#define IY_P STATE.r_iy.w.h
+#define IY_W STATE.r_iy.w.l
+#define IY_X STATE.r_iy.b.x
+#define IY_Y STATE.r_iy.b.y
+#define IY_H STATE.r_iy.b.h
+#define IY_L STATE.r_iy.b.l
 
-#define SP_R STATE.sp.l.r
-#define SP_P STATE.sp.w.h
-#define SP_W STATE.sp.w.l
-#define SP_X STATE.sp.b.x
-#define SP_Y STATE.sp.b.y
-#define SP_H STATE.sp.b.h
-#define SP_L STATE.sp.b.l
+#define SP_R STATE.r_sp.l.r
+#define SP_P STATE.r_sp.w.h
+#define SP_W STATE.r_sp.w.l
+#define SP_X STATE.r_sp.b.x
+#define SP_Y STATE.r_sp.b.y
+#define SP_H STATE.r_sp.b.h
+#define SP_L STATE.r_sp.b.l
 
-#define PC_R STATE.pc.l.r
-#define PC_P STATE.pc.w.h
-#define PC_W STATE.pc.w.l
-#define PC_X STATE.pc.b.x
-#define PC_Y STATE.pc.b.y
-#define PC_H STATE.pc.b.h
-#define PC_L STATE.pc.b.l
+#define PC_R STATE.r_pc.l.r
+#define PC_P STATE.r_pc.w.h
+#define PC_W STATE.r_pc.w.l
+#define PC_X STATE.r_pc.b.x
+#define PC_Y STATE.r_pc.b.y
+#define PC_H STATE.r_pc.b.h
+#define PC_L STATE.r_pc.b.l
 
-#define IR_R STATE.ir.l.r
-#define IR_P STATE.ir.w.h
-#define IR_W STATE.ir.w.l
-#define IR_X STATE.ir.b.x
-#define IR_Y STATE.ir.b.y
-#define IR_H STATE.ir.b.h
-#define IR_L STATE.ir.b.l
+#define IR_R STATE.r_ir.l.r
+#define IR_P STATE.r_ir.w.h
+#define IR_W STATE.r_ir.w.l
+#define IR_X STATE.r_ir.b.x
+#define IR_Y STATE.r_ir.b.y
+#define IR_H STATE.r_ir.b.h
+#define IR_L STATE.r_ir.b.l
 
-#define ST_R STATE.st.l.r
-#define ST_P STATE.st.w.h
-#define ST_W STATE.st.w.l
-#define ST_X STATE.st.b.x
-#define ST_Y STATE.st.b.y
-#define ST_H STATE.st.b.h
-#define ST_L STATE.st.b.l
+#define ST_R STATE.r_st.l.r
+#define ST_P STATE.r_st.w.h
+#define ST_W STATE.r_st.w.l
+#define ST_X STATE.r_st.b.x
+#define ST_Y STATE.r_st.b.y
+#define ST_H STATE.r_st.b.h
+#define ST_L STATE.r_st.b.l
 
-#define OP_R STACK.op.l.r
-#define OP_P STACK.op.w.h
-#define OP_W STACK.op.w.l
-#define OP_X STACK.op.b.x
-#define OP_Y STACK.op.b.y
-#define OP_H STACK.op.b.h
-#define OP_L STACK.op.b.l
+#define OP_R STACK.r_op.l.r
+#define OP_P STACK.r_op.w.h
+#define OP_W STACK.r_op.w.l
+#define OP_X STACK.r_op.b.x
+#define OP_Y STACK.r_op.b.y
+#define OP_H STACK.r_op.b.h
+#define OP_L STACK.r_op.b.l
 
-#define WZ_R STACK.wz.l.r
-#define WZ_P STACK.wz.w.h
-#define WZ_W STACK.wz.w.l
-#define WZ_X STACK.wz.b.x
-#define WZ_Y STACK.wz.b.y
-#define WZ_H STACK.wz.b.h
-#define WZ_L STACK.wz.b.l
+#define WZ_R STACK.r_wz.l.r
+#define WZ_P STACK.r_wz.w.h
+#define WZ_W STACK.r_wz.w.l
+#define WZ_X STACK.r_wz.b.x
+#define WZ_Y STACK.r_wz.b.y
+#define WZ_H STACK.r_wz.b.h
+#define WZ_L STACK.r_wz.b.l
 
-#define R0_R STACK.r0.l.r
-#define R0_P STACK.r0.w.h
-#define R0_W STACK.r0.w.l
-#define R0_X STACK.r0.b.x
-#define R0_Y STACK.r0.b.y
-#define R0_H STACK.r0.b.h
-#define R0_L STACK.r0.b.l
+#define R0_R STACK.r_r0.l.r
+#define R0_P STACK.r_r0.w.h
+#define R0_W STACK.r_r0.w.l
+#define R0_X STACK.r_r0.b.x
+#define R0_Y STACK.r_r0.b.y
+#define R0_H STACK.r_r0.b.h
+#define R0_L STACK.r_r0.b.l
 
-#define R1_R STACK.r1.l.r
-#define R1_P STACK.r1.w.h
-#define R1_W STACK.r1.w.l
-#define R1_X STACK.r1.b.x
-#define R1_Y STACK.r1.b.y
-#define R1_H STACK.r1.b.h
-#define R1_L STACK.r1.b.l
+#define R1_R STACK.r_r1.l.r
+#define R1_P STACK.r_r1.w.h
+#define R1_W STACK.r_r1.w.l
+#define R1_X STACK.r_r1.b.x
+#define R1_Y STACK.r_r1.b.y
+#define R1_H STACK.r_r1.b.h
+#define R1_L STACK.r_r1.b.l
 
-#define R2_R STACK.r2.l.r
-#define R2_P STACK.r2.w.h
-#define R2_W STACK.r2.w.l
-#define R2_X STACK.r2.b.x
-#define R2_Y STACK.r2.b.y
-#define R2_H STACK.r2.b.h
-#define R2_L STACK.r2.b.l
+#define R2_R STACK.r_r2.l.r
+#define R2_P STACK.r_r2.w.h
+#define R2_W STACK.r_r2.w.l
+#define R2_X STACK.r_r2.b.x
+#define R2_Y STACK.r_r2.b.y
+#define R2_H STACK.r_r2.b.h
+#define R2_L STACK.r_r2.b.l
 
-#define R3_R STACK.r3.l.r
-#define R3_P STACK.r3.w.h
-#define R3_W STACK.r3.w.l
-#define R3_X STACK.r3.b.x
-#define R3_Y STACK.r3.b.y
-#define R3_H STACK.r3.b.h
-#define R3_L STACK.r3.b.l
+#define R3_R STACK.r_r3.l.r
+#define R3_P STACK.r_r3.w.h
+#define R3_W STACK.r_r3.w.l
+#define R3_X STACK.r_r3.b.x
+#define R3_Y STACK.r_r3.b.y
+#define R3_H STACK.r_r3.b.h
+#define R3_L STACK.r_r3.b.l
 
 #define M_CYCLES STATE.m_cycles
 #define T_STATES STATE.t_states
@@ -351,16 +351,16 @@ struct StateTraits final
 
     static inline auto reset(State& state) -> void
     {
-        state.af.l.r   &= 0;
-        state.bc.l.r   &= 0;
-        state.de.l.r   &= 0;
-        state.hl.l.r   &= 0;
-        state.ix.l.r   &= 0;
-        state.iy.l.r   &= 0;
-        state.sp.l.r   &= 0;
-        state.pc.l.r   &= 0;
-        state.ir.l.r   &= 0;
-        state.st.l.r   &= 0;
+        state.r_af.l.r &= 0;
+        state.r_bc.l.r &= 0;
+        state.r_de.l.r &= 0;
+        state.r_hl.l.r &= 0;
+        state.r_ix.l.r &= 0;
+        state.r_iy.l.r &= 0;
+        state.r_sp.l.r &= 0;
+        state.r_pc.l.r &= 0;
+        state.r_ir.l.r &= 0;
+        state.r_st.l.r &= 0;
         state.m_cycles &= 0;
         state.t_states &= 0;
         state.i_period &= 0;
@@ -397,12 +397,12 @@ auto Device::reset() -> void
 auto Device::clock() -> void
 {
     struct Stack {
-        Register op;
-        Register wz;
-        Register r0;
-        Register r1;
-        Register r2;
-        Register r3;
+        Register r_op;
+        Register r_wz;
+        Register r_r0;
+        Register r_r1;
+        Register r_r2;
+        Register r_r3;
     } stack;
 
 #include "cpu-microcode.inc"
