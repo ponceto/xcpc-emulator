@@ -1,5 +1,5 @@
 /*
- * vdc-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * vdc-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
-#include "vdc-device.h"
+#include "vdc-core.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::BasicTraits
@@ -41,7 +41,7 @@ struct BasicTraits
 {
     using Type      = vdc::Type;
     using State     = vdc::State;
-    using Device    = vdc::Device;
+    using Instance  = vdc::Instance;
     using Interface = vdc::Interface;
 
     static constexpr uint8_t ADDRESS_REGISTER         = -1;
@@ -177,12 +177,12 @@ struct StateTraits final
 }
 
 // ---------------------------------------------------------------------------
-// vdc::Device
+// vdc::Instance
 // ---------------------------------------------------------------------------
 
 namespace vdc {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
 {
@@ -191,12 +191,12 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset_caps(_state);
     StateTraits::reset_mask(_state);
@@ -204,7 +204,7 @@ auto Device::reset() -> void
     StateTraits::reset_core(_state);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     uint8_t const horizontal_total         = (_state.regs.named.horizontal_total         + 1);
 //  uint8_t const horizontal_displayed     = (_state.regs.named.horizontal_displayed     + 0);
@@ -280,7 +280,7 @@ auto Device::clock() -> void
     }
 }
 
-auto Device::get_index(uint8_t index) -> uint8_t 
+auto Instance::get_index(uint8_t index) -> uint8_t 
 {
     uint8_t const is_readable   = (_state.caps.addr & StateTraits::REG_READABLE);
     uint8_t const register_mask = (_state.mask.addr);
@@ -292,7 +292,7 @@ auto Device::get_index(uint8_t index) -> uint8_t
     return index;
 }
 
-auto Device::set_index(uint8_t index) -> uint8_t 
+auto Instance::set_index(uint8_t index) -> uint8_t 
 {
     uint8_t const is_writable   = (_state.caps.addr & StateTraits::REG_WRITABLE);
     uint8_t const register_mask = (_state.mask.addr);
@@ -304,7 +304,7 @@ auto Device::set_index(uint8_t index) -> uint8_t
     return index;
 }
 
-auto Device::get_value(uint8_t value) -> uint8_t 
+auto Instance::get_value(uint8_t value) -> uint8_t 
 {
     const uint8_t address_register = _state.regs.named.address_register;
 
@@ -319,7 +319,7 @@ auto Device::get_value(uint8_t value) -> uint8_t
     return value;
 }
 
-auto Device::set_value(uint8_t value) -> uint8_t 
+auto Instance::set_value(uint8_t value) -> uint8_t 
 {
     const uint8_t address_register = _state.regs.named.address_register;
 

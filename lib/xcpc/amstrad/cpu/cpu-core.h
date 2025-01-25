@@ -1,5 +1,5 @@
 /*
- * cpu-device.h - Copyright (c) 2001-2025 - Olivier Poncet
+ * cpu-core.h - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_CPU_DEVICE_H__
-#define __XCPC_CPU_DEVICE_H__
+#ifndef __XCPC_CPU_CORE_H__
+#define __XCPC_CPU_CORE_H__
 
 // ---------------------------------------------------------------------------
 // forward declarations
@@ -23,7 +23,8 @@
 
 namespace cpu {
 
-class Device;
+class State;
+class Instance;
 class Interface;
 
 }
@@ -113,21 +114,21 @@ struct State
 }
 
 // ---------------------------------------------------------------------------
-// cpu::Device
+// cpu::Instance
 // ---------------------------------------------------------------------------
 
 namespace cpu {
 
-class Device
+class Instance
 {
 public: // public interface
-    Device(const Type type, Interface& interface);
+    Instance(const Type type, Interface& interface);
 
-    Device(const Device&) = delete;
+    Instance(const Instance&) = delete;
 
-    Device& operator=(const Device&) = delete;
+    Instance& operator=(const Instance&) = delete;
 
-    virtual ~Device();
+    virtual ~Instance();
 
     auto reset() -> void;
 
@@ -226,17 +227,17 @@ public: // public interface
 
     virtual ~Interface() = default;
 
-    virtual auto cpu_mreq_m1(Device& device, uint16_t addr, uint8_t data) -> uint8_t = 0;
+    virtual auto cpu_mreq_m1(Instance& instance, uint16_t addr, uint8_t data) -> uint8_t = 0;
 
-    virtual auto cpu_mreq_rd(Device& device, uint16_t addr, uint8_t data) -> uint8_t = 0;
+    virtual auto cpu_mreq_rd(Instance& instance, uint16_t addr, uint8_t data) -> uint8_t = 0;
 
-    virtual auto cpu_mreq_wr(Device& device, uint16_t addr, uint8_t data) -> uint8_t = 0;
+    virtual auto cpu_mreq_wr(Instance& instance, uint16_t addr, uint8_t data) -> uint8_t = 0;
 
-    virtual auto cpu_iorq_m1(Device& device, uint16_t port, uint8_t data) -> uint8_t = 0;
+    virtual auto cpu_iorq_m1(Instance& instance, uint16_t port, uint8_t data) -> uint8_t = 0;
 
-    virtual auto cpu_iorq_rd(Device& device, uint16_t port, uint8_t data) -> uint8_t = 0;
+    virtual auto cpu_iorq_rd(Instance& instance, uint16_t port, uint8_t data) -> uint8_t = 0;
 
-    virtual auto cpu_iorq_wr(Device& device, uint16_t port, uint8_t data) -> uint8_t = 0;
+    virtual auto cpu_iorq_wr(Instance& instance, uint16_t port, uint8_t data) -> uint8_t = 0;
 };
 
 }
@@ -245,4 +246,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __XCPC_CPU_DEVICE_H__ */
+#endif /* __XCPC_CPU_CORE_H__ */

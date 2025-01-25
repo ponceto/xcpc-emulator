@@ -1,5 +1,5 @@
 /*
- * mem-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * mem-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
-#include "mem-device.h"
+#include "mem-core.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::BasicTraits
@@ -41,7 +41,7 @@ struct BasicTraits
 {
     using Type      = mem::Type;
     using State     = mem::State;
-    using Device    = mem::Device;
+    using Instance  = mem::Instance;
     using Interface = mem::Interface;
 };
 
@@ -108,12 +108,12 @@ struct StateTraits final
 }
 
 // ---------------------------------------------------------------------------
-// mem::Device
+// mem::Instance
 // ---------------------------------------------------------------------------
 
 namespace mem {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
 {
@@ -122,22 +122,22 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset(_state);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     StateTraits::clock(_state);
 }
 
-auto Device::load(const std::string& filename, size_t offset) -> void
+auto Instance::load(const std::string& filename, size_t offset) -> void
 {
     FILE*            file = nullptr;
     void*            data = _state.data;
@@ -184,7 +184,7 @@ auto Device::load(const std::string& filename, size_t offset) -> void
     }
 }
 
-auto Device::fetch(uint8_t* data, const size_t size) -> void
+auto Instance::fetch(uint8_t* data, const size_t size) -> void
 {
     if((data != nullptr) && (size == sizeof(_state.data))) {
         static_cast<void>(::memcpy(data, _state.data, size));
@@ -194,7 +194,7 @@ auto Device::fetch(uint8_t* data, const size_t size) -> void
     }
 }
 
-auto Device::store(uint8_t* data, const size_t size) -> void
+auto Instance::store(uint8_t* data, const size_t size) -> void
 {
     if((data != nullptr) && (size == sizeof(_state.data))) {
         static_cast<void>(::memcpy(_state.data, data, size));

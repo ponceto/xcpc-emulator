@@ -1,5 +1,5 @@
 /*
- * vdc-device.h - Copyright (c) 2001-2025 - Olivier Poncet
+ * vdc-core.h - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_VDC_DEVICE_H__
-#define __XCPC_VDC_DEVICE_H__
+#ifndef __XCPC_VDC_CORE_H__
+#define __XCPC_VDC_CORE_H__
 
 // ---------------------------------------------------------------------------
 // forward declarations
@@ -23,7 +23,8 @@
 
 namespace vdc {
 
-class Device;
+class State;
+class Instance;
 class Interface;
 
 }
@@ -107,21 +108,21 @@ struct State
 }
 
 // ---------------------------------------------------------------------------
-// vdc::Device
+// vdc::Instance
 // ---------------------------------------------------------------------------
 
 namespace vdc {
 
-class Device
+class Instance
 {
 public: // public interface
-    Device(const Type type, Interface& interface);
+    Instance(const Type type, Interface& interface);
 
-    Device(const Device&) = delete;
+    Instance(const Instance&) = delete;
 
-    Device& operator=(const Device&) = delete;
+    Instance& operator=(const Instance&) = delete;
 
-    virtual ~Device();
+    virtual ~Instance();
 
     auto reset() -> void;
 
@@ -164,9 +165,9 @@ public: // public interface
 
     virtual ~Interface() = default;
 
-    virtual auto vdc_hsync(Device& device, uint8_t hsync) -> uint8_t = 0;
+    virtual auto vdc_hsync(Instance& instance, uint8_t hsync) -> uint8_t = 0;
 
-    virtual auto vdc_vsync(Device& device, uint8_t vsync) -> uint8_t = 0;
+    virtual auto vdc_vsync(Instance& instance, uint8_t vsync) -> uint8_t = 0;
 };
 
 }
@@ -175,4 +176,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __XCPC_VDC_DEVICE_H__ */
+#endif /* __XCPC_VDC_CORE_H__ */

@@ -1143,56 +1143,56 @@ auto Mainboard::on_motion_notify(Event& event) -> unsigned long
 auto Mainboard::construct_dpy() -> void
 {
     if(_dpy == nullptr) {
-        _dpy = new dpy::Device(dpy::Type::TYPE_DEFAULT, *this);
+        _dpy = new dpy::Instance(dpy::Type::TYPE_DEFAULT, *this);
     }
 };
 
 auto Mainboard::construct_kbd() -> void
 {
     if(_kbd == nullptr) {
-        _kbd = new kbd::Device(kbd::Type::TYPE_DEFAULT, *this);
+        _kbd = new kbd::Instance(kbd::Type::TYPE_DEFAULT, *this);
     }
 };
 
 auto Mainboard::construct_cpu() -> void
 {
     if(_cpu == nullptr) {
-        _cpu = new cpu::Device(cpu::Type::TYPE_DEFAULT, *this);
+        _cpu = new cpu::Instance(cpu::Type::TYPE_DEFAULT, *this);
     }
 };
 
 auto Mainboard::construct_vga() -> void
 {
     if(_vga == nullptr) {
-        _vga = new vga::Device(vga::Type::TYPE_DEFAULT, *this);
+        _vga = new vga::Instance(vga::Type::TYPE_DEFAULT, *this);
     }
 };
 
 auto Mainboard::construct_vdc() -> void
 {
     if(_vdc == nullptr) {
-        _vdc = new vdc::Device(vdc::Type::TYPE_DEFAULT, *this);
+        _vdc = new vdc::Instance(vdc::Type::TYPE_DEFAULT, *this);
     }
 };
 
 auto Mainboard::construct_ppi() -> void
 {
     if(_ppi == nullptr) {
-        _ppi = new ppi::Device(ppi::Type::TYPE_DEFAULT, *this);
+        _ppi = new ppi::Instance(ppi::Type::TYPE_DEFAULT, *this);
     }
 };
 
 auto Mainboard::construct_psg() -> void
 {
     if(_psg == nullptr) {
-        _psg = new psg::Device(psg::Type::TYPE_AY8912, *this);
+        _psg = new psg::Instance(psg::Type::TYPE_AY8912, *this);
     }
 };
 
 auto Mainboard::construct_fdc() -> void
 {
     if(_fdc == nullptr) {
-        _fdc = new fdc::Device(fdc::Type::TYPE_DEFAULT, *this);
+        _fdc = new fdc::Instance(fdc::Type::TYPE_DEFAULT, *this);
         _fdc->attach_drive(fdc::Drive::FDC_DRIVE0);
         _fdc->attach_drive(fdc::Drive::FDC_DRIVE1);
     }
@@ -1202,7 +1202,7 @@ auto Mainboard::construct_ram() -> void
 {
     for(auto& ram : _ram) {
         if(ram == nullptr) {
-            ram = new mem::Device(mem::Type::TYPE_RAM, *this);
+            ram = new mem::Instance(mem::Type::TYPE_RAM, *this);
         }
     }
 };
@@ -1211,7 +1211,7 @@ auto Mainboard::construct_rom() -> void
 {
     for(auto& rom : _rom) {
         if(rom == nullptr) {
-            rom = new mem::Device(mem::Type::TYPE_ROM, *this);
+            rom = new mem::Instance(mem::Type::TYPE_ROM, *this);
         }
     }
 };
@@ -1561,7 +1561,7 @@ auto Mainboard::load_lower_rom(const std::string& filename) -> void
     auto*         rom   = _rom[index];
 
     if(rom == nullptr) {
-        rom = _rom[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+        rom = _rom[index] = new mem::Instance(mem::Type::TYPE_ROM, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);
@@ -1578,7 +1578,7 @@ auto Mainboard::load_upper_rom(const std::string& filename) -> void
     auto*         rom   = _rom[index];
 
     if(rom == nullptr) {
-        rom = _rom[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+        rom = _rom[index] = new mem::Instance(mem::Type::TYPE_ROM, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);
@@ -1594,7 +1594,7 @@ auto Mainboard::load_expansion(const std::string& filename, const int index) -> 
     auto* rom = _exp[index];
 
     if(rom == nullptr) {
-        rom = _exp[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+        rom = _exp[index] = new mem::Instance(mem::Type::TYPE_ROM, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);
@@ -3384,7 +3384,7 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
     return render();
 }
 
-auto Mainboard::cpu_mreq_m1(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t
+auto Mainboard::cpu_mreq_m1(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t
 {
     /* mreq m1 */ {
         const uint16_t bank   = ((addr >> 14) & 0x0003);
@@ -3402,7 +3402,7 @@ auto Mainboard::cpu_mreq_m1(cpu::Device& device, uint16_t addr, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_mreq_rd(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t
+auto Mainboard::cpu_mreq_rd(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t
 {
     /* mreq rd */ {
         const uint16_t bank   = ((addr >> 14) & 0x0003);
@@ -3412,7 +3412,7 @@ auto Mainboard::cpu_mreq_rd(cpu::Device& device, uint16_t addr, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_mreq_wr(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t
+auto Mainboard::cpu_mreq_wr(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t
 {
     /* mreq wr */ {
         const uint16_t bank   = ((addr >> 14) & 0x0003);
@@ -3422,7 +3422,7 @@ auto Mainboard::cpu_mreq_wr(cpu::Device& device, uint16_t addr, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_iorq_m1(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t
+auto Mainboard::cpu_iorq_m1(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t
 {
     /* clear data */ {
         data = 0xff;
@@ -3433,7 +3433,7 @@ auto Mainboard::cpu_iorq_m1(cpu::Device& device, uint16_t port, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_iorq_rd(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t
+auto Mainboard::cpu_iorq_rd(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t
 {
     /* clear data */ {
         data = 0x00;
@@ -3544,7 +3544,7 @@ auto Mainboard::cpu_iorq_rd(cpu::Device& device, uint16_t port, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_iorq_wr(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t
+auto Mainboard::cpu_iorq_wr(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t
 {
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
@@ -3650,21 +3650,21 @@ auto Mainboard::cpu_iorq_wr(cpu::Device& device, uint16_t port, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::vga_raise_nmi(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_raise_nmi(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     _cpu->pulse_nmi();
 
     return value;
 }
 
-auto Mainboard::vga_raise_int(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_raise_int(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     _cpu->pulse_int();
 
     return value;
 }
 
-auto Mainboard::vga_setup_ram(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_setup_ram(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     _state.ram_conf = (value & 0x3f);
 
@@ -3673,7 +3673,7 @@ auto Mainboard::vga_setup_ram(vga::Device& device, uint8_t value) -> uint8_t
     return value;
 }
 
-auto Mainboard::vga_setup_rom(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_setup_rom(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     _state.rom_conf = (value & 0xff);
 
@@ -3682,14 +3682,14 @@ auto Mainboard::vga_setup_rom(vga::Device& device, uint8_t value) -> uint8_t
     return value;
 }
 
-auto Mainboard::vga_setup_rmr(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_setup_rmr(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     update_pal();
 
     return value;
 }
 
-auto Mainboard::vdc_hsync(vdc::Device& device, uint8_t hsync) -> uint8_t
+auto Mainboard::vdc_hsync(vdc::Instance& instance, uint8_t hsync) -> uint8_t
 {
     auto& vga(*_vga);
 
@@ -3712,7 +3712,7 @@ auto Mainboard::vdc_hsync(vdc::Device& device, uint8_t hsync) -> uint8_t
     return 0x00;
 }
 
-auto Mainboard::vdc_vsync(vdc::Device& device, uint8_t vsync) -> uint8_t
+auto Mainboard::vdc_vsync(vdc::Instance& instance, uint8_t vsync) -> uint8_t
 {
     auto& vga(*_vga);
 
@@ -3735,7 +3735,7 @@ auto Mainboard::vdc_vsync(vdc::Device& device, uint8_t vsync) -> uint8_t
     return 0x00;
 }
 
-auto Mainboard::ppi_port_a_rd(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_a_rd(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto psg_get_value = [&]() -> uint8_t
     {
@@ -3787,7 +3787,7 @@ auto Mainboard::ppi_port_a_rd(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_a_wr(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_a_wr(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto psg_get_value = [&]() -> uint8_t
     {
@@ -3842,7 +3842,7 @@ auto Mainboard::ppi_port_a_wr(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_b_rd(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_b_rd(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3860,7 +3860,7 @@ auto Mainboard::ppi_port_b_rd(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_b_wr(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_b_wr(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3870,7 +3870,7 @@ auto Mainboard::ppi_port_b_wr(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_c_rd(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_c_rd(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3880,7 +3880,7 @@ auto Mainboard::ppi_port_c_rd(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_c_wr(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_c_wr(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto psg_get_value = [&]() -> uint8_t
     {
@@ -3941,7 +3941,7 @@ auto Mainboard::ppi_port_c_wr(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::psg_port_a_rd(psg::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::psg_port_a_rd(psg::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3951,7 +3951,7 @@ auto Mainboard::psg_port_a_rd(psg::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::psg_port_a_wr(psg::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::psg_port_a_wr(psg::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3961,7 +3961,7 @@ auto Mainboard::psg_port_a_wr(psg::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::psg_port_b_rd(psg::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::psg_port_b_rd(psg::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3971,7 +3971,7 @@ auto Mainboard::psg_port_b_rd(psg::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::psg_port_b_wr(psg::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::psg_port_b_wr(psg::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {

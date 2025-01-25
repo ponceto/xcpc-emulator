@@ -1,5 +1,5 @@
 /*
- * ppi-device.h - Copyright (c) 2001-2025 - Olivier Poncet
+ * fdc-core.h - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,25 +14,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_PPI_DEVICE_H__
-#define __XCPC_PPI_DEVICE_H__
+#ifndef __XCPC_FDC_CORE_H__
+#define __XCPC_FDC_CORE_H__
+
+// ---------------------------------------------------------------------------
+// lib765/libdsk forward declarations
+// ---------------------------------------------------------------------------
+
+struct fdc_765;
+struct floppy_drive;
 
 // ---------------------------------------------------------------------------
 // forward declarations
 // ---------------------------------------------------------------------------
 
-namespace ppi {
+namespace fdc {
 
-class Device;
+class State;
+class Instance;
 class Interface;
+
+using FdcImpl = fdc_765;
+using FddImpl = floppy_drive;
 
 }
 
 // ---------------------------------------------------------------------------
-// ppi::Type
+// fdc::Type
 // ---------------------------------------------------------------------------
 
-namespace ppi {
+namespace fdc {
 
 enum Type
 {
@@ -43,63 +54,81 @@ enum Type
 }
 
 // ---------------------------------------------------------------------------
-// ppi::State
+// fdc::Drive
 // ---------------------------------------------------------------------------
 
-namespace ppi {
+namespace fdc {
 
-struct State
+enum Drive
 {
-    uint8_t type;
-    uint8_t port_a;
-    uint8_t port_b;
-    uint8_t port_c;
-    uint8_t ctrl_p;
-    uint8_t grp_a;
-    uint8_t grp_b;
-    uint8_t dir_a;
-    uint8_t dir_b;
-    uint8_t dir_c;
+    FDC_DRIVE0 = 0,
+    FDC_DRIVE1 = 1,
+    FDC_DRIVE2 = 2,
+    FDC_DRIVE3 = 3,
 };
 
 }
 
 // ---------------------------------------------------------------------------
-// ppi::Device
+// fdc::State
 // ---------------------------------------------------------------------------
 
-namespace ppi {
+namespace fdc {
 
-class Device
+struct State
+{
+    uint8_t  type;
+    FdcImpl* fdc;
+    FddImpl* fd0;
+    FddImpl* fd1;
+    FddImpl* fd2;
+    FddImpl* fd3;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// fdc::Instance
+// ---------------------------------------------------------------------------
+
+namespace fdc {
+
+class Instance
 {
 public: // public interface
-    Device(const Type type, Interface& interface);
+    Instance(const Type type, Interface& interface);
 
-    Device(const Device&) = delete;
+    Instance(const Instance&) = delete;
 
-    Device& operator=(const Device&) = delete;
+    Instance& operator=(const Instance&) = delete;
 
-    virtual ~Device();
+    virtual ~Instance();
 
     auto reset() -> void;
 
     auto clock() -> void;
 
-    auto rd_port_a(uint8_t value) -> uint8_t;
+    auto attach_drive(const int drive) -> void;
 
-    auto wr_port_a(uint8_t value) -> uint8_t;
+    auto detach_drive(const int drive) -> void;
 
-    auto rd_port_b(uint8_t value) -> uint8_t;
+    auto create_disk(const int drive, const std::string& filename) -> void;
 
-    auto wr_port_b(uint8_t value) -> uint8_t;
+    auto insert_disk(const int drive, const std::string& filename) -> void;
 
-    auto rd_port_c(uint8_t value) -> uint8_t;
+    auto remove_disk(const int drive) -> void;
 
-    auto wr_port_c(uint8_t value) -> uint8_t;
+    auto get_filename(const int drive) -> std::string;
 
-    auto rd_ctrl_p(uint8_t value) -> uint8_t;
+    auto set_motor(uint8_t data) -> uint8_t;
 
-    auto wr_ctrl_p(uint8_t value) -> uint8_t;
+    auto rd_stat(uint8_t data) -> uint8_t;
+
+    auto wr_stat(uint8_t data) -> uint8_t;
+
+    auto rd_data(uint8_t data) -> uint8_t;
+
+    auto wr_data(uint8_t data) -> uint8_t;
 
     auto operator->() -> State*
     {
@@ -114,10 +143,10 @@ protected: // protected data
 }
 
 // ---------------------------------------------------------------------------
-// ppi::Interface
+// fdc::Interface
 // ---------------------------------------------------------------------------
 
-namespace ppi {
+namespace fdc {
 
 class Interface
 {
@@ -129,18 +158,6 @@ public: // public interface
     Interface& operator=(const Interface&) = default;
 
     virtual ~Interface() = default;
-
-    virtual auto ppi_port_a_rd(Device& device, uint8_t data) -> uint8_t = 0;
-
-    virtual auto ppi_port_a_wr(Device& device, uint8_t data) -> uint8_t = 0;
-
-    virtual auto ppi_port_b_rd(Device& device, uint8_t data) -> uint8_t = 0;
-
-    virtual auto ppi_port_b_wr(Device& device, uint8_t data) -> uint8_t = 0;
-
-    virtual auto ppi_port_c_rd(Device& device, uint8_t data) -> uint8_t = 0;
-
-    virtual auto ppi_port_c_wr(Device& device, uint8_t data) -> uint8_t = 0;
 };
 
 }
@@ -149,4 +166,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __XCPC_PPI_DEVICE_H__ */
+#endif /* __XCPC_FDC_CORE_H__ */

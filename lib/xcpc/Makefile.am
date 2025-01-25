@@ -50,32 +50,32 @@ libxcpc_la_SOURCES = \
 	amstrad/cpc/cpc-mainboard.h \
 	amstrad/cpc/cpc-settings.cc \
 	amstrad/cpc/cpc-settings.h \
-	devices/dpy/dpy-device.cc \
-	devices/dpy/dpy-device.h \
-	devices/kbd/kbd-device.cc \
-	devices/kbd/kbd-device.h \
-	devices/cpu/cpu-device.cc \
-	devices/cpu/cpu-device.h \
-	devices/cpu/cpu-microcode.inc \
-	devices/cpu/cpu-opcodes.inc \
-	devices/cpu/cpu-opcodes-cb.inc \
-	devices/cpu/cpu-opcodes-ed.inc \
-	devices/cpu/cpu-opcodes-dd.inc \
-	devices/cpu/cpu-opcodes-fd.inc \
-	devices/cpu/cpu-opcodes-ddcb.inc \
-	devices/cpu/cpu-opcodes-fdcb.inc \
-	devices/vga/vga-device.cc \
-	devices/vga/vga-device.h \
-	devices/vdc/vdc-device.cc \
-	devices/vdc/vdc-device.h \
-	devices/ppi/ppi-device.cc \
-	devices/ppi/ppi-device.h \
-	devices/psg/psg-device.cc \
-	devices/psg/psg-device.h \
-	devices/fdc/fdc-device.cc \
-	devices/fdc/fdc-device.h \
-	devices/mem/mem-device.cc \
-	devices/mem/mem-device.h \
+	amstrad/dpy/dpy-core.cc \
+	amstrad/dpy/dpy-core.h \
+	amstrad/kbd/kbd-core.cc \
+	amstrad/kbd/kbd-core.h \
+	amstrad/cpu/cpu-core.cc \
+	amstrad/cpu/cpu-core.h \
+	amstrad/cpu/cpu-microcode.inc \
+	amstrad/cpu/cpu-opcodes.inc \
+	amstrad/cpu/cpu-opcodes-cb.inc \
+	amstrad/cpu/cpu-opcodes-ed.inc \
+	amstrad/cpu/cpu-opcodes-dd.inc \
+	amstrad/cpu/cpu-opcodes-fd.inc \
+	amstrad/cpu/cpu-opcodes-ddcb.inc \
+	amstrad/cpu/cpu-opcodes-fdcb.inc \
+	amstrad/vga/vga-core.cc \
+	amstrad/vga/vga-core.h \
+	amstrad/vdc/vdc-core.cc \
+	amstrad/vdc/vdc-core.h \
+	amstrad/ppi/ppi-core.cc \
+	amstrad/ppi/ppi-core.h \
+	amstrad/psg/psg-core.cc \
+	amstrad/psg/psg-core.h \
+	amstrad/fdc/fdc-core.cc \
+	amstrad/fdc/fdc-core.h \
+	amstrad/mem/mem-core.cc \
+	amstrad/mem/mem-core.h \
 	formats/cdt/cdt-format.cc \
 	formats/cdt/cdt-format.h \
 	formats/dsk/dsk-format.cc \

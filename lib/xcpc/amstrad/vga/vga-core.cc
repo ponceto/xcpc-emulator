@@ -1,5 +1,5 @@
 /*
- * vga-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * vga-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
-#include "vga-device.h"
+#include "vga-core.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::BasicTraits
@@ -43,7 +43,7 @@ struct BasicTraits
     using State     = vga::State;
     using Colormap  = vga::Colormap;
     using Scanline  = vga::Scanline;
-    using Device    = vga::Device;
+    using Instance  = vga::Instance;
     using Interface = vga::Interface;
 
     static constexpr uint8_t BIT0 = 0x01;
@@ -157,12 +157,12 @@ struct StateTraits final
 }
 
 // ---------------------------------------------------------------------------
-// vga::Device
+// vga::Instance
 // ---------------------------------------------------------------------------
 
 namespace vga {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
 {
@@ -171,27 +171,27 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset(_state);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     StateTraits::clock(_state);
 }
 
-auto Device::get_value(uint8_t value) -> uint8_t
+auto Instance::get_value(uint8_t value) -> uint8_t
 {
     return 0xff;
 }
 
-auto Device::set_value(uint8_t value) -> uint8_t
+auto Instance::set_value(uint8_t value) -> uint8_t
 {
     const uint8_t function = ((value >> 6) & 0x03);
 
@@ -216,12 +216,12 @@ auto Device::set_value(uint8_t value) -> uint8_t
     return value;
 }
 
-auto Device::ack_interrupt() -> void
+auto Instance::ack_interrupt() -> void
 {
     _state.r52 &= 0b11011111;
 }
 
-auto Device::assert_hsync(uint8_t hsync) -> void
+auto Instance::assert_hsync(uint8_t hsync) -> void
 {
     auto on_rising_edge = [&]() -> void
     {
@@ -266,7 +266,7 @@ auto Device::assert_hsync(uint8_t hsync) -> void
     }
 }
 
-auto Device::assert_vsync(uint8_t vsync) -> void
+auto Instance::assert_vsync(uint8_t vsync) -> void
 {
     auto on_rising_edge = [&]() -> void
     {

@@ -1,5 +1,5 @@
 /*
- * ppi-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * ppi-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
-#include "ppi-device.h"
+#include "ppi-core.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::BasicTraits
@@ -41,7 +41,7 @@ struct BasicTraits
 {
     using Type      = ppi::Type;
     using State     = ppi::State;
-    using Device    = ppi::Device;
+    using Instance  = ppi::Instance;
     using Interface = ppi::Interface;
 };
 
@@ -87,12 +87,12 @@ struct StateTraits final
 }
 
 // ---------------------------------------------------------------------------
-// ppi::Device
+// ppi::Instance
 // ---------------------------------------------------------------------------
 
 namespace ppi {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
 {
@@ -101,22 +101,22 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset(_state);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     StateTraits::clock(_state);
 }
 
-auto Device::rd_port_a(uint8_t value) -> uint8_t
+auto Instance::rd_port_a(uint8_t value) -> uint8_t
 {
     if(_state.dir_a != 0) {
         _state.port_a = _interface.ppi_port_a_rd(*this, value);
@@ -124,7 +124,7 @@ auto Device::rd_port_a(uint8_t value) -> uint8_t
     return _state.port_a;
 }
 
-auto Device::wr_port_a(uint8_t value) -> uint8_t
+auto Instance::wr_port_a(uint8_t value) -> uint8_t
 {
     _state.port_a = value;
 
@@ -134,7 +134,7 @@ auto Device::wr_port_a(uint8_t value) -> uint8_t
     return _state.port_a;
 }
 
-auto Device::rd_port_b(uint8_t value) -> uint8_t
+auto Instance::rd_port_b(uint8_t value) -> uint8_t
 {
     if(_state.dir_b != 0) {
         _state.port_b = _interface.ppi_port_b_rd(*this, value);
@@ -142,7 +142,7 @@ auto Device::rd_port_b(uint8_t value) -> uint8_t
     return _state.port_b;
 }
 
-auto Device::wr_port_b(uint8_t value) -> uint8_t
+auto Instance::wr_port_b(uint8_t value) -> uint8_t
 {
     _state.port_b = value;
 
@@ -152,7 +152,7 @@ auto Device::wr_port_b(uint8_t value) -> uint8_t
     return _state.port_b;
 }
 
-auto Device::rd_port_c(uint8_t value) -> uint8_t
+auto Instance::rd_port_c(uint8_t value) -> uint8_t
 {
     if(_state.dir_c != 0) {
         _state.port_c = _interface.ppi_port_c_rd(*this, value);
@@ -160,7 +160,7 @@ auto Device::rd_port_c(uint8_t value) -> uint8_t
     return _state.port_c;
 }
 
-auto Device::wr_port_c(uint8_t value) -> uint8_t
+auto Instance::wr_port_c(uint8_t value) -> uint8_t
 {
     _state.port_c = value;
 
@@ -170,12 +170,12 @@ auto Device::wr_port_c(uint8_t value) -> uint8_t
     return _state.port_c;
 }
 
-auto Device::rd_ctrl_p(uint8_t value) -> uint8_t
+auto Instance::rd_ctrl_p(uint8_t value) -> uint8_t
 {
     return _state.ctrl_p;
 }
 
-auto Device::wr_ctrl_p(uint8_t value) -> uint8_t
+auto Instance::wr_ctrl_p(uint8_t value) -> uint8_t
 {
     if(((_state.ctrl_p = value) & 0x80) != 0) {
         /* I/O mode */ {

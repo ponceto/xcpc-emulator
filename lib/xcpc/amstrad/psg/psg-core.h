@@ -1,5 +1,5 @@
 /*
- * psg-device.h - Copyright (c) 2001-2025 - Olivier Poncet
+ * psg-core.h - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_PSG_DEVICE_H__
-#define __XCPC_PSG_DEVICE_H__
+#ifndef __XCPC_PSG_CORE_H__
+#define __XCPC_PSG_CORE_H__
 
 // ---------------------------------------------------------------------------
 // forward declarations
@@ -23,7 +23,8 @@
 
 namespace psg {
 
-class Device;
+class State;
+class Instance;
 class Interface;
 
 }
@@ -131,21 +132,21 @@ struct Output
 }
 
 // ---------------------------------------------------------------------------
-// psg::Device
+// psg::Instance
 // ---------------------------------------------------------------------------
 
 namespace psg {
 
-class Device
+class Instance
 {
 public: // public interface
-    Device(const Type type, Interface& interface);
+    Instance(const Type type, Interface& interface);
 
-    Device(const Device&) = delete;
+    Instance(const Instance&) = delete;
 
-    Device& operator=(const Device&) = delete;
+    Instance& operator=(const Instance&) = delete;
 
-    virtual ~Device();
+    virtual ~Instance();
 
     auto reset() -> void;
 
@@ -197,13 +198,13 @@ public: // public interface
 
     virtual ~Interface() = default;
 
-    virtual auto psg_port_a_rd(Device& device, uint8_t data) -> uint8_t = 0;
+    virtual auto psg_port_a_rd(Instance& instance, uint8_t data) -> uint8_t = 0;
 
-    virtual auto psg_port_a_wr(Device& device, uint8_t data) -> uint8_t = 0;
+    virtual auto psg_port_a_wr(Instance& instance, uint8_t data) -> uint8_t = 0;
 
-    virtual auto psg_port_b_rd(Device& device, uint8_t data) -> uint8_t = 0;
+    virtual auto psg_port_b_rd(Instance& instance, uint8_t data) -> uint8_t = 0;
 
-    virtual auto psg_port_b_wr(Device& device, uint8_t data) -> uint8_t = 0;
+    virtual auto psg_port_b_wr(Instance& instance, uint8_t data) -> uint8_t = 0;
 };
 
 }
@@ -212,4 +213,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __XCPC_PSG_DEVICE_H__ */
+#endif /* __XCPC_PSG_CORE_H__ */

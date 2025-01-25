@@ -1,5 +1,5 @@
 /*
- * fdc-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * fdc-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include <libdsk/libdsk.h>
 #include <lib765/765.h>
 #include <xcpc/libxcpc-priv.h>
-#include "fdc-device.h"
+#include "fdc-core.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::BasicTraits
@@ -44,7 +44,7 @@ struct BasicTraits
     using Type      = fdc::Type;
     using Drive     = fdc::Drive;
     using State     = fdc::State;
-    using Device    = fdc::Device;
+    using Instance  = fdc::Instance;
     using Interface = fdc::Interface;
     using FdcImpl   = fdc::FdcImpl;
     using FddImpl   = fdc::FddImpl;
@@ -285,12 +285,12 @@ struct StateTraits final
 }
 
 // ---------------------------------------------------------------------------
-// fdc::Device
+// fdc::Instance
 // ---------------------------------------------------------------------------
 
 namespace fdc {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
 {
@@ -299,22 +299,22 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset(_state);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     StateTraits::clock(_state);
 }
 
-auto Device::attach_drive(const int drive) -> void
+auto Instance::attach_drive(const int drive) -> void
 {
     switch(drive) {
         case Drive::FDC_DRIVE0:
@@ -334,7 +334,7 @@ auto Device::attach_drive(const int drive) -> void
     }
 }
 
-auto Device::detach_drive(const int drive) -> void
+auto Instance::detach_drive(const int drive) -> void
 {
     switch(drive) {
         case Drive::FDC_DRIVE0:
@@ -354,7 +354,7 @@ auto Device::detach_drive(const int drive) -> void
     }
 }
 
-auto Device::create_disk(const int drive, const std::string& filename) -> void
+auto Instance::create_disk(const int drive, const std::string& filename) -> void
 {
     switch(drive) {
         case Drive::FDC_DRIVE0:
@@ -374,7 +374,7 @@ auto Device::create_disk(const int drive, const std::string& filename) -> void
     }
 }
 
-auto Device::insert_disk(const int drive, const std::string& filename) -> void
+auto Instance::insert_disk(const int drive, const std::string& filename) -> void
 {
     switch(drive) {
         case Drive::FDC_DRIVE0:
@@ -394,7 +394,7 @@ auto Device::insert_disk(const int drive, const std::string& filename) -> void
     }
 }
 
-auto Device::remove_disk(const int drive) -> void
+auto Instance::remove_disk(const int drive) -> void
 {
     switch(drive) {
         case Drive::FDC_DRIVE0:
@@ -414,7 +414,7 @@ auto Device::remove_disk(const int drive) -> void
     }
 }
 
-auto Device::get_filename(const int drive) -> std::string
+auto Instance::get_filename(const int drive) -> std::string
 {
     std::string filename;
 
@@ -437,27 +437,27 @@ auto Device::get_filename(const int drive) -> std::string
     return filename;
 }
 
-auto Device::set_motor(uint8_t data) -> uint8_t
+auto Instance::set_motor(uint8_t data) -> uint8_t
 {
     return FdcTraits::set_motor(_state.fdc, data);
 }
 
-auto Device::rd_stat(uint8_t data) -> uint8_t
+auto Instance::rd_stat(uint8_t data) -> uint8_t
 {
     return FdcTraits::rd_stat(_state.fdc, data);
 }
 
-auto Device::wr_stat(uint8_t data) -> uint8_t
+auto Instance::wr_stat(uint8_t data) -> uint8_t
 {
     return FdcTraits::wr_stat(_state.fdc, data);
 }
 
-auto Device::rd_data(uint8_t data) -> uint8_t
+auto Instance::rd_data(uint8_t data) -> uint8_t
 {
     return FdcTraits::rd_data(_state.fdc, data);
 }
 
-auto Device::wr_data(uint8_t data) -> uint8_t
+auto Instance::wr_data(uint8_t data) -> uint8_t
 {
     return FdcTraits::wr_data(_state.fdc, data);
 }

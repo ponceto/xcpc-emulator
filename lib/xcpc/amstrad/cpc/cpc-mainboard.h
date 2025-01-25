@@ -18,15 +18,15 @@
 #define __XCPC_CPC_MAINBOARD_H__
 
 #include <xcpc/amstrad/cpc/cpc-settings.h>
-#include <xcpc/devices/dpy/dpy-device.h>
-#include <xcpc/devices/kbd/kbd-device.h>
-#include <xcpc/devices/cpu/cpu-device.h>
-#include <xcpc/devices/vga/vga-device.h>
-#include <xcpc/devices/vdc/vdc-device.h>
-#include <xcpc/devices/ppi/ppi-device.h>
-#include <xcpc/devices/psg/psg-device.h>
-#include <xcpc/devices/fdc/fdc-device.h>
-#include <xcpc/devices/mem/mem-device.h>
+#include <xcpc/amstrad/dpy/dpy-core.h>
+#include <xcpc/amstrad/kbd/kbd-core.h>
+#include <xcpc/amstrad/cpu/cpu-core.h>
+#include <xcpc/amstrad/vga/vga-core.h>
+#include <xcpc/amstrad/vdc/vdc-core.h>
+#include <xcpc/amstrad/ppi/ppi-core.h>
+#include <xcpc/amstrad/psg/psg-core.h>
+#include <xcpc/amstrad/fdc/fdc-core.h>
+#include <xcpc/amstrad/mem/mem-core.h>
 #include <xcpc/formats/cdt/cdt-format.h>
 #include <xcpc/formats/dsk/dsk-format.h>
 #include <xcpc/formats/sna/sna-format.h>
@@ -299,58 +299,58 @@ public: // audio interface
     virtual void process(const void* input, void* output, const uint32_t count) override final;
 
 private: // cpu interface
-    virtual auto cpu_mreq_m1(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_mreq_rd(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_mreq_wr(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_iorq_m1(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_iorq_rd(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_iorq_wr(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_mreq_m1(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_mreq_rd(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_mreq_wr(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_iorq_m1(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_iorq_rd(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_iorq_wr(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t override final;
 
 private: // vga interface
-    virtual auto vga_raise_nmi(vga::Device& device, uint8_t value) -> uint8_t override final;
-    virtual auto vga_raise_int(vga::Device& device, uint8_t value) -> uint8_t override final;
-    virtual auto vga_setup_ram(vga::Device& device, uint8_t value) -> uint8_t override final;
-    virtual auto vga_setup_rom(vga::Device& device, uint8_t value) -> uint8_t override final;
-    virtual auto vga_setup_rmr(vga::Device& device, uint8_t value) -> uint8_t override final;
+    virtual auto vga_raise_nmi(vga::Instance& instance, uint8_t value) -> uint8_t override final;
+    virtual auto vga_raise_int(vga::Instance& instance, uint8_t value) -> uint8_t override final;
+    virtual auto vga_setup_ram(vga::Instance& instance, uint8_t value) -> uint8_t override final;
+    virtual auto vga_setup_rom(vga::Instance& instance, uint8_t value) -> uint8_t override final;
+    virtual auto vga_setup_rmr(vga::Instance& instance, uint8_t value) -> uint8_t override final;
 
 private: // vdc interface
-    virtual auto vdc_hsync(vdc::Device& device, uint8_t hsync) -> uint8_t override final;
-    virtual auto vdc_vsync(vdc::Device& device, uint8_t vsync) -> uint8_t override final;
+    virtual auto vdc_hsync(vdc::Instance& instance, uint8_t hsync) -> uint8_t override final;
+    virtual auto vdc_vsync(vdc::Instance& instance, uint8_t vsync) -> uint8_t override final;
 
 private: // ppi interface
-    virtual auto ppi_port_a_rd(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_a_wr(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_b_rd(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_b_wr(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_c_rd(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_c_wr(ppi::Device& device, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_a_rd(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_a_wr(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_b_rd(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_b_wr(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_c_rd(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_c_wr(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
 
 private: // psg interface
-    virtual auto psg_port_a_rd(psg::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto psg_port_a_wr(psg::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto psg_port_b_rd(psg::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto psg_port_b_wr(psg::Device& device, uint8_t data) -> uint8_t override final;
+    virtual auto psg_port_a_rd(psg::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto psg_port_a_wr(psg::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto psg_port_b_rd(psg::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto psg_port_b_wr(psg::Instance& instance, uint8_t data) -> uint8_t override final;
 
 private: // private data
-    Machine&     _machine;
-    Setup        _setup;
-    Stats        _stats;
-    Clock        _clock;
-    Funcs        _funcs;
-    State        _state;
-    Audio        _audio;
-    Video        _video;
-    dpy::Device* _dpy;
-    kbd::Device* _kbd;
-    cpu::Device* _cpu;
-    vga::Device* _vga;
-    vdc::Device* _vdc;
-    ppi::Device* _ppi;
-    psg::Device* _psg;
-    fdc::Device* _fdc;
-    mem::Device* _ram[8];
-    mem::Device* _rom[2];
-    mem::Device* _exp[256];
+    Machine&       _machine;
+    Setup          _setup;
+    Stats          _stats;
+    Clock          _clock;
+    Funcs          _funcs;
+    State          _state;
+    Audio          _audio;
+    Video          _video;
+    dpy::Instance* _dpy;
+    kbd::Instance* _kbd;
+    cpu::Instance* _cpu;
+    vga::Instance* _vga;
+    vdc::Instance* _vdc;
+    ppi::Instance* _ppi;
+    psg::Instance* _psg;
+    fdc::Instance* _fdc;
+    mem::Instance* _ram[8];
+    mem::Instance* _rom[2];
+    mem::Instance* _exp[256];
 };
 
 }

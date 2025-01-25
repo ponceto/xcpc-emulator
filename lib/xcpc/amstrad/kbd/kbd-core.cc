@@ -1,5 +1,5 @@
 /*
- * kbd-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * kbd-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
-#include "kbd-device.h"
+#include "kbd-core.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::BasicTraits
@@ -41,7 +41,7 @@ struct BasicTraits
 {
     using Type      = kbd::Type;
     using State     = kbd::State;
-    using Device    = kbd::Device;
+    using Instance  = kbd::Instance;
     using Interface = kbd::Interface;
 
     static const unsigned int Joystick0Modifier = (AnyModifier << 1);
@@ -1159,12 +1159,12 @@ struct StateTraits final
 }
 
 // ---------------------------------------------------------------------------
-// kbd::Device
+// kbd::Instance
 // ---------------------------------------------------------------------------
 
 namespace kbd {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
 {
@@ -1173,57 +1173,57 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset(_state);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     StateTraits::clock(_state);
 }
 
-auto Device::set_type(const Type type) -> void
+auto Instance::set_type(const Type type) -> void
 {
     StateTraits::set_type(_state, type);
 }
 
-auto Device::set_line(uint8_t line) -> uint8_t
+auto Instance::set_line(uint8_t line) -> uint8_t
 {
     return StateTraits::set_line(_state, line);
 }
 
-auto Device::get_data(uint8_t data) -> uint8_t
+auto Instance::get_data(uint8_t data) -> uint8_t
 {
     return StateTraits::get_data(_state, data);
 }
 
-auto Device::key_press(const XKeyEvent& event) -> void
+auto Instance::key_press(const XKeyEvent& event) -> void
 {
     return StateTraits::on_key_press(_state, event);
 }
 
-auto Device::key_release(const XKeyEvent& event) -> void
+auto Instance::key_release(const XKeyEvent& event) -> void
 {
     return StateTraits::on_key_release(_state, event);
 }
 
-auto Device::button_press(const XButtonEvent& event) -> void
+auto Instance::button_press(const XButtonEvent& event) -> void
 {
     return StateTraits::on_button_press(_state, event);
 }
 
-auto Device::button_release(const XButtonEvent& event) -> void
+auto Instance::button_release(const XButtonEvent& event) -> void
 {
     return StateTraits::on_button_release(_state, event);
 }
 
-auto Device::motion_notify(const XMotionEvent& event) -> void
+auto Instance::motion_notify(const XMotionEvent& event) -> void
 {
     return StateTraits::on_motion_notify(_state, event);
 }

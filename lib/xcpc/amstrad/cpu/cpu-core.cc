@@ -1,5 +1,5 @@
 /*
- * cpu-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * cpu-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
-#include "cpu-device.h"
+#include "cpu-core.h"
 
 // ---------------------------------------------------------------------------
 // some useful macros
@@ -324,7 +324,7 @@ struct BasicTraits
 {
     using Type      = cpu::Type;
     using State     = cpu::State;
-    using Device    = cpu::Device;
+    using Instance  = cpu::Instance;
     using Interface = cpu::Interface;
 };
 
@@ -370,12 +370,12 @@ struct StateTraits final
 }
 
 // ---------------------------------------------------------------------------
-// cpu::Device
+// cpu::Instance
 // ---------------------------------------------------------------------------
 
 namespace cpu {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
 {
@@ -384,17 +384,17 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset(_state);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     struct Stack {
         Register r_op;
@@ -600,147 +600,147 @@ epilog:
     --I_PERIOD;
 }
 
-auto Device::pulse_nmi() -> void
+auto Instance::pulse_nmi() -> void
 {
     ST_L |= ST_NMI;
 }
 
-auto Device::pulse_int() -> void
+auto Instance::pulse_int() -> void
 {
     ST_L |= ST_INT;
 }
 
-auto Device::get_af_h() -> uint8_t
+auto Instance::get_af_h() -> uint8_t
 {
     return AF_H;
 }
 
-auto Device::get_af_l() -> uint8_t
+auto Instance::get_af_l() -> uint8_t
 {
     return AF_L;
 }
 
-auto Device::get_bc_h() -> uint8_t
+auto Instance::get_bc_h() -> uint8_t
 {
     return BC_H;
 }
 
-auto Device::get_bc_l() -> uint8_t
+auto Instance::get_bc_l() -> uint8_t
 {
     return BC_L;
 }
 
-auto Device::get_de_h() -> uint8_t
+auto Instance::get_de_h() -> uint8_t
 {
     return DE_H;
 }
 
-auto Device::get_de_l() -> uint8_t
+auto Instance::get_de_l() -> uint8_t
 {
     return DE_L;
 }
 
-auto Device::get_hl_h() -> uint8_t
+auto Instance::get_hl_h() -> uint8_t
 {
     return HL_H;
 }
 
-auto Device::get_hl_l() -> uint8_t
+auto Instance::get_hl_l() -> uint8_t
 {
     return HL_L;
 }
 
-auto Device::get_ix_h() -> uint8_t
+auto Instance::get_ix_h() -> uint8_t
 {
     return IX_H;
 }
 
-auto Device::get_ix_l() -> uint8_t
+auto Instance::get_ix_l() -> uint8_t
 {
     return IX_L;
 }
 
-auto Device::get_iy_h() -> uint8_t
+auto Instance::get_iy_h() -> uint8_t
 {
     return IY_H;
 }
 
-auto Device::get_iy_l() -> uint8_t
+auto Instance::get_iy_l() -> uint8_t
 {
     return IY_L;
 }
 
-auto Device::get_sp_h() -> uint8_t
+auto Instance::get_sp_h() -> uint8_t
 {
     return SP_H;
 }
 
-auto Device::get_sp_l() -> uint8_t
+auto Instance::get_sp_l() -> uint8_t
 {
     return SP_L;
 }
 
-auto Device::get_pc_h() -> uint8_t
+auto Instance::get_pc_h() -> uint8_t
 {
     return PC_H;
 }
 
-auto Device::get_pc_l() -> uint8_t
+auto Instance::get_pc_l() -> uint8_t
 {
     return PC_L;
 }
 
-auto Device::get_ir_h() -> uint8_t
+auto Instance::get_ir_h() -> uint8_t
 {
     return IR_H;
 }
 
-auto Device::get_ir_l() -> uint8_t
+auto Instance::get_ir_l() -> uint8_t
 {
     return IR_L;
 }
 
-auto Device::get_af_x() -> uint8_t
+auto Instance::get_af_x() -> uint8_t
 {
     return AF_X;
 }
 
-auto Device::get_af_y() -> uint8_t
+auto Instance::get_af_y() -> uint8_t
 {
     return AF_Y;
 }
 
-auto Device::get_bc_x() -> uint8_t
+auto Instance::get_bc_x() -> uint8_t
 {
     return BC_X;
 }
 
-auto Device::get_bc_y() -> uint8_t
+auto Instance::get_bc_y() -> uint8_t
 {
     return BC_Y;
 }
 
-auto Device::get_de_x() -> uint8_t
+auto Instance::get_de_x() -> uint8_t
 {
     return DE_X;
 }
 
-auto Device::get_de_y() -> uint8_t
+auto Instance::get_de_y() -> uint8_t
 {
     return DE_Y;
 }
 
-auto Device::get_hl_x() -> uint8_t
+auto Instance::get_hl_x() -> uint8_t
 {
     return HL_X;
 }
 
-auto Device::get_hl_y() -> uint8_t
+auto Instance::get_hl_y() -> uint8_t
 {
     return HL_Y;
 }
 
-auto Device::get_im_l() -> uint8_t
+auto Instance::get_im_l() -> uint8_t
 {
     const uint8_t im = (HAS_IM1 ? 1 : 0)
                      | (HAS_IM2 ? 2 : 0)
@@ -748,151 +748,151 @@ auto Device::get_im_l() -> uint8_t
     return im;
 }
 
-auto Device::get_iff1() -> uint8_t
+auto Instance::get_iff1() -> uint8_t
 {
     const uint8_t iff1 = (HAS_IFF1 ? 1 : 0);
 
     return iff1;
 }
 
-auto Device::get_iff2() -> uint8_t
+auto Instance::get_iff2() -> uint8_t
 {
     const uint8_t iff2 = (HAS_IFF2 ? 1 : 0);
 
     return iff2;
 }
 
-auto Device::set_af_h(uint8_t data) -> void
+auto Instance::set_af_h(uint8_t data) -> void
 {
     AF_H = data;
 }
 
-auto Device::set_af_l(uint8_t data) -> void
+auto Instance::set_af_l(uint8_t data) -> void
 {
     AF_L = data;
 }
 
-auto Device::set_bc_h(uint8_t data) -> void
+auto Instance::set_bc_h(uint8_t data) -> void
 {
     BC_H = data;
 }
 
-auto Device::set_bc_l(uint8_t data) -> void
+auto Instance::set_bc_l(uint8_t data) -> void
 {
     BC_L = data;
 }
 
-auto Device::set_de_h(uint8_t data) -> void
+auto Instance::set_de_h(uint8_t data) -> void
 {
     DE_H = data;
 }
 
-auto Device::set_de_l(uint8_t data) -> void
+auto Instance::set_de_l(uint8_t data) -> void
 {
     DE_L = data;
 }
 
-auto Device::set_hl_h(uint8_t data) -> void
+auto Instance::set_hl_h(uint8_t data) -> void
 {
     HL_H = data;
 }
 
-auto Device::set_hl_l(uint8_t data) -> void
+auto Instance::set_hl_l(uint8_t data) -> void
 {
     HL_L = data;
 }
 
-auto Device::set_ix_h(uint8_t data) -> void
+auto Instance::set_ix_h(uint8_t data) -> void
 {
     IX_H = data;
 }
 
-auto Device::set_ix_l(uint8_t data) -> void
+auto Instance::set_ix_l(uint8_t data) -> void
 {
     IX_L = data;
 }
 
-auto Device::set_iy_h(uint8_t data) -> void
+auto Instance::set_iy_h(uint8_t data) -> void
 {
     IY_H = data;
 }
 
-auto Device::set_iy_l(uint8_t data) -> void
+auto Instance::set_iy_l(uint8_t data) -> void
 {
     IY_L = data;
 }
 
-auto Device::set_sp_h(uint8_t data) -> void
+auto Instance::set_sp_h(uint8_t data) -> void
 {
     SP_H = data;
 }
 
-auto Device::set_sp_l(uint8_t data) -> void
+auto Instance::set_sp_l(uint8_t data) -> void
 {
     SP_L = data;
 }
 
-auto Device::set_pc_h(uint8_t data) -> void
+auto Instance::set_pc_h(uint8_t data) -> void
 {
     PC_H = data;
 }
 
-auto Device::set_pc_l(uint8_t data) -> void
+auto Instance::set_pc_l(uint8_t data) -> void
 {
     PC_L = data;
 }
 
-auto Device::set_ir_h(uint8_t data) -> void
+auto Instance::set_ir_h(uint8_t data) -> void
 {
     IR_H = data;
 }
 
-auto Device::set_ir_l(uint8_t data) -> void
+auto Instance::set_ir_l(uint8_t data) -> void
 {
     IR_L = data;
 }
 
-auto Device::set_af_x(uint8_t data) -> void
+auto Instance::set_af_x(uint8_t data) -> void
 {
     AF_X = data;
 }
 
-auto Device::set_af_y(uint8_t data) -> void
+auto Instance::set_af_y(uint8_t data) -> void
 {
     AF_Y = data;
 }
 
-auto Device::set_bc_x(uint8_t data) -> void
+auto Instance::set_bc_x(uint8_t data) -> void
 {
     BC_X = data;
 }
 
-auto Device::set_bc_y(uint8_t data) -> void
+auto Instance::set_bc_y(uint8_t data) -> void
 {
     BC_Y = data;
 }
 
-auto Device::set_de_x(uint8_t data) -> void
+auto Instance::set_de_x(uint8_t data) -> void
 {
     DE_X = data;
 }
 
-auto Device::set_de_y(uint8_t data) -> void
+auto Instance::set_de_y(uint8_t data) -> void
 {
     DE_Y = data;
 }
 
-auto Device::set_hl_x(uint8_t data) -> void
+auto Instance::set_hl_x(uint8_t data) -> void
 {
     HL_X = data;
 }
 
-auto Device::set_hl_y(uint8_t data) -> void
+auto Instance::set_hl_y(uint8_t data) -> void
 {
     HL_Y = data;
 }
 
-auto Device::set_im_l(uint8_t data) -> void
+auto Instance::set_im_l(uint8_t data) -> void
 {
     switch(data) {
         case 1:
@@ -914,7 +914,7 @@ auto Device::set_im_l(uint8_t data) -> void
     }
 }
 
-auto Device::set_iff1(uint8_t iff1) -> void
+auto Instance::set_iff1(uint8_t iff1) -> void
 {
     if(iff1 != 0) {
         SET_IFF1();
@@ -924,7 +924,7 @@ auto Device::set_iff1(uint8_t iff1) -> void
     }
 }
 
-auto Device::set_iff2(uint8_t iff2) -> void
+auto Instance::set_iff2(uint8_t iff2) -> void
 {
     if(iff2 != 0) {
         SET_IFF2();

@@ -1,5 +1,5 @@
 /*
- * kbd-device.h - Copyright (c) 2001-2025 - Olivier Poncet
+ * ppi-core.h - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,91 +14,93 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_KBD_DEVICE_H__
-#define __XCPC_KBD_DEVICE_H__
+#ifndef __XCPC_PPI_CORE_H__
+#define __XCPC_PPI_CORE_H__
 
 // ---------------------------------------------------------------------------
 // forward declarations
 // ---------------------------------------------------------------------------
 
-namespace kbd {
+namespace ppi {
 
-class Device;
+class State;
+class Instance;
 class Interface;
 
 }
 
 // ---------------------------------------------------------------------------
-// kbd::Type
+// ppi::Type
 // ---------------------------------------------------------------------------
 
-namespace kbd {
+namespace ppi {
 
 enum Type
 {
     TYPE_INVALID = -1,
     TYPE_DEFAULT =  0,
-    TYPE_ENGLISH =  1,
-    TYPE_FRENCH  =  2,
-    TYPE_GERMAN  =  3,
-    TYPE_SPANISH =  4,
-    TYPE_DANISH  =  5,
 };
 
 }
 
 // ---------------------------------------------------------------------------
-// kbd::State
+// ppi::State
 // ---------------------------------------------------------------------------
 
-namespace kbd {
+namespace ppi {
 
 struct State
 {
     uint8_t type;
-    uint8_t mode;
-    uint8_t line;
-    uint8_t keys[16];
+    uint8_t port_a;
+    uint8_t port_b;
+    uint8_t port_c;
+    uint8_t ctrl_p;
+    uint8_t grp_a;
+    uint8_t grp_b;
+    uint8_t dir_a;
+    uint8_t dir_b;
+    uint8_t dir_c;
 };
 
 }
 
 // ---------------------------------------------------------------------------
-// kbd::Device
+// ppi::Instance
 // ---------------------------------------------------------------------------
 
-namespace kbd {
+namespace ppi {
 
-class Device
+class Instance
 {
 public: // public interface
-    Device(const Type type, Interface& interface);
+    Instance(const Type type, Interface& interface);
 
-    Device(const Device&) = delete;
+    Instance(const Instance&) = delete;
 
-    Device& operator=(const Device&) = delete;
+    Instance& operator=(const Instance&) = delete;
 
-    virtual ~Device();
+    virtual ~Instance();
 
     auto reset() -> void;
 
     auto clock() -> void;
 
-    auto set_type(const Type type) -> void;
+    auto rd_port_a(uint8_t value) -> uint8_t;
 
-    auto set_line(uint8_t line = 0xff) -> uint8_t;
+    auto wr_port_a(uint8_t value) -> uint8_t;
 
-    auto get_data(uint8_t data = 0xff) -> uint8_t;
+    auto rd_port_b(uint8_t value) -> uint8_t;
 
-    auto key_press(const XKeyEvent& event) -> void;
+    auto wr_port_b(uint8_t value) -> uint8_t;
 
-    auto key_release(const XKeyEvent& event) -> void;
+    auto rd_port_c(uint8_t value) -> uint8_t;
 
-    auto button_press(const XButtonEvent& event) -> void;
+    auto wr_port_c(uint8_t value) -> uint8_t;
 
-    auto button_release(const XButtonEvent& event) -> void;
+    auto rd_ctrl_p(uint8_t value) -> uint8_t;
 
-    auto motion_notify(const XMotionEvent& event) -> void;
+    auto wr_ctrl_p(uint8_t value) -> uint8_t;
 
     auto operator->() -> State*
     {
@@ -113,10 +115,10 @@ protected: // protected data
 }
 
 // ---------------------------------------------------------------------------
-// kbd::Interface
+// ppi::Interface
 // ---------------------------------------------------------------------------
 
-namespace kbd {
+namespace ppi {
 
 class Interface
 {
@@ -128,6 +130,18 @@ public: // public interface
     Interface& operator=(const Interface&) = default;
 
     virtual ~Interface() = default;
+
+    virtual auto ppi_port_a_rd(Instance& instance, uint8_t data) -> uint8_t = 0;
+
+    virtual auto ppi_port_a_wr(Instance& instance, uint8_t data) -> uint8_t = 0;
+
+    virtual auto ppi_port_b_rd(Instance& instance, uint8_t data) -> uint8_t = 0;
+
+    virtual auto ppi_port_b_wr(Instance& instance, uint8_t data) -> uint8_t = 0;
+
+    virtual auto ppi_port_c_rd(Instance& instance, uint8_t data) -> uint8_t = 0;
+
+    virtual auto ppi_port_c_wr(Instance& instance, uint8_t data) -> uint8_t = 0;
 };
 
 }
@@ -136,4 +150,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __XCPC_KBD_DEVICE_H__ */
+#endif /* __XCPC_PPI_CORE_H__ */

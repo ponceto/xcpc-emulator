@@ -1,5 +1,5 @@
 /*
- * dpy-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * dpy-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
-#include "dpy-device.h"
+#include "dpy-core.h"
 
 #define MONITOR_50HZ_TOTAL_WIDTH    1024
 #define MONITOR_50HZ_TOTAL_HEIGHT    768
@@ -115,7 +115,7 @@ struct BasicTraits
 {
     using Type      = dpy::Type;
     using State     = dpy::State;
-    using Device    = dpy::Device;
+    using Instance  = dpy::Instance;
     using Interface = dpy::Interface;
 };
 
@@ -586,12 +586,12 @@ struct StateTraits final
 }
 
 // ---------------------------------------------------------------------------
-// dpy::Device
+// dpy::Instance
 // ---------------------------------------------------------------------------
 
 namespace dpy {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
 {
@@ -600,52 +600,52 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset(_state);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     StateTraits::clock(_state);
 }
 
-auto Device::set_type(const Type type) -> void
+auto Instance::set_type(const Type type) -> void
 {
     StateTraits::set_type(_state, type);
 }
 
-auto Device::set_rate(const uint8_t rate) -> void
+auto Instance::set_rate(const uint8_t rate) -> void
 {
     StateTraits::set_rate(_state, rate);
 }
 
-auto Device::realize(Display* display, Window window, bool try_xshm) -> void
+auto Instance::realize(Display* display, Window window, bool try_xshm) -> void
 {
     StateTraits::realize(_state, display, window, try_xshm);
 }
 
-auto Device::unrealize() -> void
+auto Instance::unrealize() -> void
 {
     StateTraits::unrealize(_state);
 }
 
-auto Device::expose(const XExposeEvent& event) -> void
+auto Instance::expose(const XExposeEvent& event) -> void
 {
     StateTraits::expose(_state, event);
 }
 
-auto Device::resize(const XConfigureEvent& event) -> void
+auto Instance::resize(const XConfigureEvent& event) -> void
 {
     StateTraits::resize(_state, event);
 }
 
-auto Device::put_image() -> void
+auto Instance::put_image() -> void
 {
     StateTraits::put_image(_state);
 }

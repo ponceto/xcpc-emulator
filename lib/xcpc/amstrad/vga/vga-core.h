@@ -1,5 +1,5 @@
 /*
- * vga-device.h - Copyright (c) 2001-2025 - Olivier Poncet
+ * vga-core.h - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_VGA_DEVICE_H__
-#define __XCPC_VGA_DEVICE_H__
+#ifndef __XCPC_VGA_CORE_H__
+#define __XCPC_VGA_CORE_H__
 
 // ---------------------------------------------------------------------------
 // forward declarations
@@ -23,7 +23,8 @@
 
 namespace vga {
 
-class Device;
+class State;
+class Instance;
 class Interface;
 
 }
@@ -101,21 +102,21 @@ struct State
 }
 
 // ---------------------------------------------------------------------------
-// vga::Device
+// vga::Instance
 // ---------------------------------------------------------------------------
 
 namespace vga {
 
-class Device
+class Instance
 {
 public: // public interface
-    Device(const Type type, Interface& interface);
+    Instance(const Type type, Interface& interface);
 
-    Device(const Device&) = delete;
+    Instance(const Instance&) = delete;
 
-    Device& operator=(const Device&) = delete;
+    Instance& operator=(const Instance&) = delete;
 
-    virtual ~Device();
+    virtual ~Instance();
 
     auto reset() -> void;
 
@@ -160,15 +161,15 @@ public: // public interface
 
     virtual ~Interface() = default;
 
-    virtual auto vga_raise_nmi(Device& device, uint8_t value) -> uint8_t = 0;
+    virtual auto vga_raise_nmi(Instance& instance, uint8_t value) -> uint8_t = 0;
 
-    virtual auto vga_raise_int(Device& device, uint8_t value) -> uint8_t = 0;
+    virtual auto vga_raise_int(Instance& instance, uint8_t value) -> uint8_t = 0;
 
-    virtual auto vga_setup_ram(Device& device, uint8_t value) -> uint8_t = 0;
+    virtual auto vga_setup_ram(Instance& instance, uint8_t value) -> uint8_t = 0;
 
-    virtual auto vga_setup_rom(Device& device, uint8_t value) -> uint8_t = 0;
+    virtual auto vga_setup_rom(Instance& instance, uint8_t value) -> uint8_t = 0;
 
-    virtual auto vga_setup_rmr(Device& device, uint8_t value) -> uint8_t = 0;
+    virtual auto vga_setup_rmr(Instance& instance, uint8_t value) -> uint8_t = 0;
 };
 
 }
@@ -177,4 +178,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __XCPC_VGA_DEVICE_H__ */
+#endif /* __XCPC_VGA_CORE_H__ */

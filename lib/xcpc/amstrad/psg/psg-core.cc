@@ -1,5 +1,5 @@
 /*
- * psg-device.cc - Copyright (c) 2001-2025 - Olivier Poncet
+ * psg-core.cc - Copyright (c) 2001-2025 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
-#include "psg-device.h"
+#include "psg-core.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::BasicTraits
@@ -45,7 +45,7 @@ struct BasicTraits
     using Noise     = psg::Noise;
     using Envelope  = psg::Envelope;
     using Output    = psg::Output;
-    using Device    = psg::Device;
+    using Instance  = psg::Instance;
     using Interface = psg::Interface;
 
     static constexpr uint8_t ADDRESS_REGISTER      = -1;
@@ -192,34 +192,34 @@ struct StateTraits final
         return value;
     }
 
-    static inline auto get_port0(State& state, Device& device, Interface& interface, const uint8_t value) -> uint8_t
+    static inline auto get_port0(State& state, Instance& instance, Interface& interface, const uint8_t value) -> uint8_t
     {
         if(state.dir_port[PORT0] == 0) {
-            return interface.psg_port_a_rd(device, value);
+            return interface.psg_port_a_rd(instance, value);
         }
         return value;
     }
 
-    static inline auto set_port0(State& state, Device& device, Interface& interface, const uint8_t value) -> uint8_t
+    static inline auto set_port0(State& state, Instance& instance, Interface& interface, const uint8_t value) -> uint8_t
     {
         if(state.dir_port[PORT0] != 0) {
-            return interface.psg_port_a_wr(device, value);
+            return interface.psg_port_a_wr(instance, value);
         }
         return value;
     }
 
-    static inline auto get_port1(State& state, Device& device, Interface& interface, const uint8_t value) -> uint8_t
+    static inline auto get_port1(State& state, Instance& instance, Interface& interface, const uint8_t value) -> uint8_t
     {
         if(state.dir_port[PORT1] == 0) {
-            return interface.psg_port_b_rd(device, value);
+            return interface.psg_port_b_rd(instance, value);
         }
         return value;
     }
 
-    static inline auto set_port1(State& state, Device& device, Interface& interface, const uint8_t value) -> uint8_t
+    static inline auto set_port1(State& state, Instance& instance, Interface& interface, const uint8_t value) -> uint8_t
     {
         if(state.dir_port[PORT1] != 0) {
-            return interface.psg_port_b_wr(device, value);
+            return interface.psg_port_b_wr(instance, value);
         }
         return value;
     }
@@ -484,12 +484,12 @@ struct OutputTraits final
 }
 
 // ---------------------------------------------------------------------------
-// psg::Device
+// psg::Instance
 // ---------------------------------------------------------------------------
 
 namespace psg {
 
-Device::Device(const Type type, Interface& interface)
+Instance::Instance(const Type type, Interface& interface)
     : _interface(interface)
     , _state()
     , _sound()
@@ -502,12 +502,12 @@ Device::Device(const Type type, Interface& interface)
     reset();
 }
 
-Device::~Device()
+Instance::~Instance()
 {
     StateTraits::destruct(_state);
 }
 
-auto Device::reset() -> void
+auto Instance::reset() -> void
 {
     StateTraits::reset(_state);
     SoundTraits::reset(_sound[BasicTraits::SOUND0]);
@@ -518,7 +518,7 @@ auto Device::reset() -> void
     OutputTraits::reset(_output);
 }
 
-auto Device::clock() -> void
+auto Instance::clock() -> void
 {
     auto fixup = [&](Sound& lhs, Sound& rhs) -> void
     {
@@ -593,17 +593,17 @@ auto Device::clock() -> void
     return update();
 }
 
-auto Device::get_index(uint8_t index) -> uint8_t
+auto Instance::get_index(uint8_t index) -> uint8_t
 {
     return (index = _state.index);
 }
 
-auto Device::set_index(uint8_t index) -> uint8_t
+auto Instance::set_index(uint8_t index) -> uint8_t
 {
     return (_state.index = index);
 }
 
-auto Device::get_value(uint8_t value) -> uint8_t
+auto Instance::get_value(uint8_t value) -> uint8_t
 {
     const auto index = _state.index;
     auto&      array = _state.array[index & 0x0f];
@@ -663,7 +663,7 @@ auto Device::get_value(uint8_t value) -> uint8_t
     return value;
 }
 
-auto Device::set_value(uint8_t value) -> uint8_t
+auto Instance::set_value(uint8_t value) -> uint8_t
 {
     const auto index = _state.index;
     auto&      array = _state.array[index & 0x0f];
