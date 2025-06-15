@@ -46,14 +46,14 @@ ROM and DISK images at your own risk and responsibility.
 
 ### MINIAUDIO
 
-miniaudio v0.11.21, a single file audio playback and capture library written in C.
+miniaudio v0.11.22, a single file audio playback and capture library written in C.
 
 This library is embedded into this projet in split form.
 
   - https://miniaud.io/
 
 ```
-Copyright 2023 David Reid
+Copyright 2025 David Reid
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
