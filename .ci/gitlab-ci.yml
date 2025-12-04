@@ -16,72 +16,85 @@
 #
 
 # ----------------------------------------------------------------------------
+# default
+# ----------------------------------------------------------------------------
+
+default:
+  image: debian:stable
+
+# ----------------------------------------------------------------------------
 # stages
 # ----------------------------------------------------------------------------
 
 stages:
-  - build-tar
-  - build-bin
-  - build-deb
+  - tarball
+  - build
 
 # ----------------------------------------------------------------------------
-# tarball
+# build-tarball
 # ----------------------------------------------------------------------------
 
-tarball:
-  stage: build-tar
-  when: on_success
+build-tarball:
+  stage: tarball
   tags:
-    - debian-11-amd64
+    - docker
+    - amd64
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
   script:
-    - ./.ci/ci-build-tar.sh
+    - ./.ci/ci-build-tarball.sh
   artifacts:
     name: "xcpc-sources"
     paths:
       - ./*.tar.gz
 
 # ----------------------------------------------------------------------------
-# build-bin_amd64
+# build-binary-amd64
 # ----------------------------------------------------------------------------
 
-build-bin_amd64:
-  stage: build-bin
-  when: on_success
-  tags:
-    - debian-11-amd64
+build-binary-amd64:
+  stage: build
   dependencies:
-    - tarball
+    - build-tarball
+  tags:
+    - docker
+    - amd64
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
   script:
-    - ./.ci/ci-build-bin.sh
+    - ./.ci/ci-build-binary.sh
   artifacts:
-    name: "xcpc-bin_amd64"
+    name: "xcpc-binary-amd64"
     paths:
       - ./*.tar.gz
 
 # ----------------------------------------------------------------------------
-# build-deb_amd64
+# build-debian-amd64
 # ----------------------------------------------------------------------------
 
-build-deb_amd64:
-  stage: build-deb
-  when: on_success
-  tags:
-    - debian-11-amd64
+build-debian-amd64:
+  image: debian:bookworm
+  stage: build
   dependencies:
-    - tarball
+    - build-tarball
+  tags:
+    - docker
+    - amd64
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
   script:
-    - ./.ci/ci-build-deb.sh
+    - ./.ci/ci-build-debian.sh
   artifacts:
-    name: "xcpc-deb_amd64"
+    name: "xcpc-debian-amd64"
     paths:
       - ./_build/*.tar.gz
       - ./_build/*.tar.xz
@@ -91,23 +104,26 @@ build-deb_amd64:
       - ./_build/*.deb
 
 # ----------------------------------------------------------------------------
-# build-deb_arm64
+# build-debian-arm64
 # ----------------------------------------------------------------------------
 
-build-deb_arm64:
-  stage: build-deb
-  when: on_success
-  tags:
-    - debian-11-arm64
+build-debian-arm64:
+  image: debian:bookworm
+  stage: build
   dependencies:
-    - tarball
+    - build-tarball
+  tags:
+    - docker
+    - arm64
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
   script:
-    - ./.ci/ci-build-deb.sh
+    - ./.ci/ci-build-debian.sh
   artifacts:
-    name: "xcpc-deb_arm64"
+    name: "xcpc-debian-arm64"
     paths:
       - ./_build/*.tar.gz
       - ./_build/*.tar.xz

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# ci-build-deb.sh - Copyright (c) 2001-2025 - Olivier Poncet
+# ci-build-tarball.sh - Copyright (c) 2001-2025 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,45 +20,31 @@
 # settings
 # ----------------------------------------------------------------------------
 
-arg_topdir="$(pwd)"
 arg_prefix="/usr/local"
-arg_jobs="$(cat /proc/cpuinfo | grep '^processor' | wc -l)"
-arg_builddir="_build"
-arg_distdir="_dist"
-arg_tarball="$(ls xcpc-*.tar.gz 2>/dev/null | grep '^xcpc-[0-9]\+.[0-9]\+.[0-9]\+.tar.gz')"
-arg_pkgname="$(echo "${arg_tarball:-not-set}" | sed -e 's/\.tar\.gz//g')"
-arg_system="unknown"
 
 # ----------------------------------------------------------------------------
-# sanity checks
-# ----------------------------------------------------------------------------
-
-if [ ! -f "${arg_tarball}" ]
-then
-    echo "*** tarball not found ***"
-    exit 1
-fi
-
-# ----------------------------------------------------------------------------
-# debug
+# enable/disable debug mode
 # ----------------------------------------------------------------------------
 
 set -x
 
 # ----------------------------------------------------------------------------
-# build the debian package
+# autoreconf
 # ----------------------------------------------------------------------------
 
-rm -rf "${arg_builddir}"                                             || exit 1
-mkdir "${arg_builddir}"                                              || exit 1
-cd "${arg_builddir}"                                                 || exit 1
-tar xf "../${arg_tarball}"                                           || exit 1
-cd "${arg_pkgname}"                                                  || exit 1
-dh_make --yes --single --file "../../${arg_tarball}"                 || exit 1
-rm -rf "debian"                                                      || exit 1
-cp -rf "../../debian" "./debian"                                     || exit 1
-dpkg-buildpackage --build=full --no-sign                             || exit 1
-cd "${arg_topdir}"                                                   || exit 1
+autoreconf -v -i -f                                                  || exit 1
+
+# ----------------------------------------------------------------------------
+# configure the build system
+# ----------------------------------------------------------------------------
+
+./configure --prefix="${arg_prefix}"                                 || exit 1
+
+# ----------------------------------------------------------------------------
+# create the tarball
+# ----------------------------------------------------------------------------
+
+make dist                                                            || exit 1
 
 # ----------------------------------------------------------------------------
 # End-Of-File
