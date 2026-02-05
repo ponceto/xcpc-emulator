@@ -40,7 +40,7 @@ namespace gtk3 {
 struct ApplicationTraits
     : BasicTraits
 {
-    static GtkApplication* create_application(const std::string& app_id)
+    static auto create_application(const std::string& app_id) -> GtkApplication*
     {
 #if 1
         constexpr auto flags = G_APPLICATION_HANDLES_OPEN;

@@ -1,5 +1,5 @@
 /*
- * xlib.h - Copyright (c) 2001-2026 - Olivier Poncet
+ * x11-wrapper.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_XLIB_H__
-#define __XCPC_XLIB_H__
+#ifndef __XCPC_X11_WRAPPER_H__
+#define __XCPC_X11_WRAPPER_H__
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -31,14 +31,14 @@
 // Xlib utilities
 // ---------------------------------------------------------------------------
 
-extern XImage* XcpcCreateImage       ( Display*     display
+extern XImage* XcpcCreateStdImage    ( Display*     display
                                      , Visual*      visual
                                      , unsigned int depth
                                      , int          format
                                      , unsigned int width
                                      , unsigned int height );
 
-extern int     XcpcDestroyImage      ( XImage *image );
+extern int     XcpcDestroyStdImage   ( XImage *image );
 
 extern XImage* XcpcCreateShmImage    ( Display*     display
                                      , Visual*      visual
@@ -74,4 +74,4 @@ extern int     XcpcPutImage          ( Display*     display
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __XCPC_XLIB_H__ */
+#endif /* __XCPC_X11_WRAPPER_H__ */

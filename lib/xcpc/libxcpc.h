@@ -17,7 +17,6 @@
 #ifndef __XCPC_LIBXCPC_H__
 #define __XCPC_LIBXCPC_H__
 
-#include <xcpc/xlib/xlib.h>
 #include <xcpc/libxcpc-events.h>
 #include <xcpc/libxcpc-keysyms.h>
 
@@ -107,6 +106,14 @@ enum _XcpcMemorySize
     XCPC_MEMORY_SIZE_512K    = (512 * 1024),
 };
 
+enum _XcpcRendererType
+{
+    XCPC_RENDERER_TYPE_UNKNOWN = -1,
+    XCPC_RENDERER_TYPE_DEFAULT =  0,
+    XCPC_RENDERER_TYPE_XIMAGE  =  1,
+    XCPC_RENDERER_TYPE_OPENGL  =  2,
+};
+
 typedef enum   _XcpcLogLevel     XcpcLogLevel;
 typedef enum   _XcpcCompanyName  XcpcCompanyName;
 typedef enum   _XcpcMachineType  XcpcMachineType;
@@ -114,6 +121,7 @@ typedef enum   _XcpcMonitorType  XcpcMonitorType;
 typedef enum   _XcpcRefreshRate  XcpcRefreshRate;
 typedef enum   _XcpcKeyboardType XcpcKeyboardType;
 typedef enum   _XcpcMemorySize   XcpcMemorySize;
+typedef enum   _XcpcRendererType XcpcRendererType;
 typedef struct _XcpcBackend      XcpcBackend;
 
 struct _XcpcBackend
@@ -169,6 +177,7 @@ extern XcpcMonitorType  xcpc_monitor_type_from_string  (const char* label);
 extern XcpcRefreshRate  xcpc_refresh_rate_from_string  (const char* label);
 extern XcpcKeyboardType xcpc_keyboard_type_from_string (const char* label);
 extern XcpcMemorySize   xcpc_memory_size_from_string   (const char* label);
+extern XcpcRendererType xcpc_renderer_type_from_string (const char* label);
 
 extern const char*      xcpc_company_name_to_string    (XcpcCompanyName  value);
 extern const char*      xcpc_machine_type_to_string    (XcpcMachineType  value);
@@ -176,6 +185,7 @@ extern const char*      xcpc_monitor_type_to_string    (XcpcMonitorType  value);
 extern const char*      xcpc_refresh_rate_to_string    (XcpcRefreshRate  value);
 extern const char*      xcpc_keyboard_type_to_string   (XcpcKeyboardType value);
 extern const char*      xcpc_memory_size_to_string     (XcpcMemorySize   value);
+extern const char*      xcpc_renderer_type_to_string   (XcpcRendererType value);
 
 #ifdef __cplusplus
 }

@@ -42,42 +42,43 @@ namespace {
 
 enum OptionEnum
 {
-    OPT_COMPANY      =  0,
-    OPT_MACHINE      =  1,
-    OPT_MONITOR      =  2,
-    OPT_REFRESH      =  3,
-    OPT_KEYBOARD     =  4,
-    OPT_MEMORY       =  5,
-    OPT_SYSROM       =  6,
-    OPT_ROM000       =  7,
-    OPT_ROM001       =  8,
-    OPT_ROM002       =  9,
-    OPT_ROM003       = 10,
-    OPT_ROM004       = 11,
-    OPT_ROM005       = 12,
-    OPT_ROM006       = 13,
-    OPT_ROM007       = 14,
-    OPT_ROM008       = 15,
-    OPT_ROM009       = 16,
-    OPT_ROM010       = 17,
-    OPT_ROM011       = 18,
-    OPT_ROM012       = 19,
-    OPT_ROM013       = 20,
-    OPT_ROM014       = 21,
-    OPT_ROM015       = 22,
-    OPT_DRIVE0       = 23,
-    OPT_DRIVE1       = 24,
-    OPT_SNAPSHOT     = 25,
-    OPT_SPEEDUP      = 26,
-    OPT_XSHM         = 27,
-    OPT_NO_XSHM      = 28,
-    OPT_SCANLINES    = 29,
-    OPT_NO_SCANLINES = 30,
-    OPT_HELP         = 31,
-    OPT_VERSION      = 32,
-    OPT_QUIET        = 33,
-    OPT_TRACE        = 34,
-    OPT_DEBUG        = 35,
+    OPT_COMPANY          =  0,
+    OPT_MACHINE          =  1,
+    OPT_MONITOR          =  2,
+    OPT_REFRESH          =  3,
+    OPT_KEYBOARD         =  4,
+    OPT_MEMORY           =  5,
+    OPT_RENDERER         =  6,
+    OPT_SYSROM           =  7,
+    OPT_ROM000           =  8,
+    OPT_ROM001           =  9,
+    OPT_ROM002           = 10,
+    OPT_ROM003           = 11,
+    OPT_ROM004           = 12,
+    OPT_ROM005           = 13,
+    OPT_ROM006           = 14,
+    OPT_ROM007           = 15,
+    OPT_ROM008           = 16,
+    OPT_ROM009           = 17,
+    OPT_ROM010           = 18,
+    OPT_ROM011           = 19,
+    OPT_ROM012           = 20,
+    OPT_ROM013           = 21,
+    OPT_ROM014           = 22,
+    OPT_ROM015           = 23,
+    OPT_DRIVE0           = 24,
+    OPT_DRIVE1           = 25,
+    OPT_SNAPSHOT         = 26,
+    OPT_SPEEDUP          = 27,
+    OPT_XSHM             = 28,
+    OPT_NO_XSHM          = 29,
+    OPT_CRT_EMULATION    = 30,
+    OPT_NO_CRT_EMULATION = 31,
+    OPT_HELP             = 32,
+    OPT_VERSION          = 33,
+    OPT_QUIET            = 34,
+    OPT_TRACE            = 35,
+    OPT_DEBUG            = 36,
 };
 
 }
@@ -119,6 +120,7 @@ const OptionType options[] = {
     { "--refresh={value}"    , "50Hz, 60Hz"                                                    },
     { "--keyboard={value}"   , "english, french, german, spanish, danish"                      },
     { "--memory={value}"     , "64kb, 128kb, 192kb, 256kb, 320kb, 384kb, 448kb, 512kb"         },
+    { "--renderer={value}"   , "default, ximage, opengl"                                       },
     { "--sysrom={filename}"  , "32Kb system rom"                                               },
     { "--rom000={filename}"  , "16Kb expansion rom #00"                                        },
     { "--rom001={filename}"  , "16Kb expansion rom #01"                                        },
@@ -142,8 +144,8 @@ const OptionType options[] = {
     { "--speedup={factor}"   , "speeds up emulation by an integer factor"                      },
     { "--xshm"               , "use the XShm extension"                                        },
     { "--no-xshm"            , "don't use the XShm extension"                                  },
-    { "--scanlines"          , "simulate crt scanlines"                                        },
-    { "--no-scanlines"       , "don't simulate crt scanlines"                                  },
+    { "--crt-emulation"      , "simulate crt monitor"                                          },
+    { "--no-crt-emulation"   , "don't simulate crt monitor"                                    },
     { "--help"               , "display this help and exit"                                    },
     { "--version"            , "display the version and exit"                                  },
     { "--quiet"              , "set the loglevel to quiet mode"                                },
@@ -168,6 +170,7 @@ Settings::Settings()
     , opt_refresh("default")
     , opt_keyboard("default")
     , opt_memory("default")
+    , opt_renderer("default")
     , opt_sysrom(not_set)
     , opt_rom000(not_set)
     , opt_rom001(not_set)
@@ -188,8 +191,9 @@ Settings::Settings()
     , opt_drive0(not_set)
     , opt_drive1(not_set)
     , opt_snapshot(not_set)
+    , opt_speedup(not_set)
     , opt_xshm(true)
-    , opt_scanlines(true)
+    , opt_crt_emulation(true)
     , opt_help(false)
     , opt_version(false)
     , opt_loglevel(Utils::get_loglevel())
@@ -247,39 +251,40 @@ void Settings::parse(int& argc, char**& argv)
 
     auto do_dump_all = [&]() -> void
     {
-        ::xcpc_log_debug("xcpc.settings.program   = %s", opt_program.c_str() );
-        ::xcpc_log_debug("xcpc.settings.company   = %s", opt_company.c_str() );
-        ::xcpc_log_debug("xcpc.settings.machine   = %s", opt_machine.c_str() );
-        ::xcpc_log_debug("xcpc.settings.monitor   = %s", opt_monitor.c_str() );
-        ::xcpc_log_debug("xcpc.settings.refresh   = %s", opt_refresh.c_str() );
-        ::xcpc_log_debug("xcpc.settings.keyboard  = %s", opt_keyboard.c_str());
-        ::xcpc_log_debug("xcpc.settings.memory    = %s", opt_memory.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.sysrom    = %s", opt_sysrom.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom000    = %s", opt_rom000.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom001    = %s", opt_rom001.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom002    = %s", opt_rom002.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom003    = %s", opt_rom003.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom004    = %s", opt_rom004.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom005    = %s", opt_rom005.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom006    = %s", opt_rom006.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom007    = %s", opt_rom007.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom008    = %s", opt_rom008.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom009    = %s", opt_rom009.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom010    = %s", opt_rom010.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom011    = %s", opt_rom011.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom012    = %s", opt_rom012.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom013    = %s", opt_rom013.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom014    = %s", opt_rom014.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.rom015    = %s", opt_rom015.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.drive0    = %s", opt_drive0.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.drive1    = %s", opt_drive1.c_str()  );
-        ::xcpc_log_debug("xcpc.settings.snapshot  = %s", opt_snapshot.c_str());
-        ::xcpc_log_debug("xcpc.settings.speedup   = %s", opt_speedup.c_str() );
-        ::xcpc_log_debug("xcpc.settings.xshm      = %d", opt_xshm            );
-        ::xcpc_log_debug("xcpc.settings.scanlines = %d", opt_scanlines       );
-        ::xcpc_log_debug("xcpc.settings.help      = %d", opt_help            );
-        ::xcpc_log_debug("xcpc.settings.version   = %d", opt_version         );
-        ::xcpc_log_debug("xcpc.settings.loglevel  = %d", opt_loglevel        );
+        ::xcpc_log_debug("xcpc.settings.program       = %s", opt_program.c_str() );
+        ::xcpc_log_debug("xcpc.settings.company       = %s", opt_company.c_str() );
+        ::xcpc_log_debug("xcpc.settings.machine       = %s", opt_machine.c_str() );
+        ::xcpc_log_debug("xcpc.settings.monitor       = %s", opt_monitor.c_str() );
+        ::xcpc_log_debug("xcpc.settings.refresh       = %s", opt_refresh.c_str() );
+        ::xcpc_log_debug("xcpc.settings.keyboard      = %s", opt_keyboard.c_str());
+        ::xcpc_log_debug("xcpc.settings.memory        = %s", opt_memory.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.renderer      = %s", opt_renderer.c_str());
+        ::xcpc_log_debug("xcpc.settings.sysrom        = %s", opt_sysrom.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom000        = %s", opt_rom000.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom001        = %s", opt_rom001.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom002        = %s", opt_rom002.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom003        = %s", opt_rom003.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom004        = %s", opt_rom004.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom005        = %s", opt_rom005.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom006        = %s", opt_rom006.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom007        = %s", opt_rom007.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom008        = %s", opt_rom008.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom009        = %s", opt_rom009.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom010        = %s", opt_rom010.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom011        = %s", opt_rom011.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom012        = %s", opt_rom012.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom013        = %s", opt_rom013.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom014        = %s", opt_rom014.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.rom015        = %s", opt_rom015.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.drive0        = %s", opt_drive0.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.drive1        = %s", opt_drive1.c_str()  );
+        ::xcpc_log_debug("xcpc.settings.snapshot      = %s", opt_snapshot.c_str());
+        ::xcpc_log_debug("xcpc.settings.speedup       = %s", opt_speedup.c_str() );
+        ::xcpc_log_debug("xcpc.settings.xshm          = %d", opt_xshm            );
+        ::xcpc_log_debug("xcpc.settings.crt_emulation = %d", opt_crt_emulation   );
+        ::xcpc_log_debug("xcpc.settings.help          = %d", opt_help            );
+        ::xcpc_log_debug("xcpc.settings.version       = %d", opt_version         );
+        ::xcpc_log_debug("xcpc.settings.loglevel      = %d", opt_loglevel        );
     };
 
     auto do_parse = [&]() -> void
@@ -294,42 +299,43 @@ void Settings::parse(int& argc, char**& argv)
                 argc = 0;
                 argv[argc++] = argument;
             }
-            else if(is_option(OPT_COMPANY     , argument)) { opt_company   = value_of(argument);  }
-            else if(is_option(OPT_MACHINE     , argument)) { opt_machine   = value_of(argument);  }
-            else if(is_option(OPT_MONITOR     , argument)) { opt_monitor   = value_of(argument);  }
-            else if(is_option(OPT_REFRESH     , argument)) { opt_refresh   = value_of(argument);  }
-            else if(is_option(OPT_KEYBOARD    , argument)) { opt_keyboard  = value_of(argument);  }
-            else if(is_option(OPT_MEMORY      , argument)) { opt_memory    = value_of(argument);  }
-            else if(is_option(OPT_SYSROM      , argument)) { opt_sysrom    = value_of(argument);  }
-            else if(is_option(OPT_ROM000      , argument)) { opt_rom000    = value_of(argument);  }
-            else if(is_option(OPT_ROM001      , argument)) { opt_rom001    = value_of(argument);  }
-            else if(is_option(OPT_ROM002      , argument)) { opt_rom002    = value_of(argument);  }
-            else if(is_option(OPT_ROM003      , argument)) { opt_rom003    = value_of(argument);  }
-            else if(is_option(OPT_ROM004      , argument)) { opt_rom004    = value_of(argument);  }
-            else if(is_option(OPT_ROM005      , argument)) { opt_rom005    = value_of(argument);  }
-            else if(is_option(OPT_ROM006      , argument)) { opt_rom006    = value_of(argument);  }
-            else if(is_option(OPT_ROM007      , argument)) { opt_rom007    = value_of(argument);  }
-            else if(is_option(OPT_ROM008      , argument)) { opt_rom008    = value_of(argument);  }
-            else if(is_option(OPT_ROM009      , argument)) { opt_rom009    = value_of(argument);  }
-            else if(is_option(OPT_ROM010      , argument)) { opt_rom010    = value_of(argument);  }
-            else if(is_option(OPT_ROM011      , argument)) { opt_rom011    = value_of(argument);  }
-            else if(is_option(OPT_ROM012      , argument)) { opt_rom012    = value_of(argument);  }
-            else if(is_option(OPT_ROM013      , argument)) { opt_rom013    = value_of(argument);  }
-            else if(is_option(OPT_ROM014      , argument)) { opt_rom014    = value_of(argument);  }
-            else if(is_option(OPT_ROM015      , argument)) { opt_rom015    = value_of(argument);  }
-            else if(is_option(OPT_DRIVE0      , argument)) { opt_drive0    = value_of(argument);  }
-            else if(is_option(OPT_DRIVE1      , argument)) { opt_drive1    = value_of(argument);  }
-            else if(is_option(OPT_SNAPSHOT    , argument)) { opt_snapshot  = value_of(argument);  }
-            else if(is_option(OPT_SPEEDUP     , argument)) { opt_speedup   = value_of(argument);  }
-            else if(is_option(OPT_XSHM        , argument)) { opt_xshm      = true;                }
-            else if(is_option(OPT_NO_XSHM     , argument)) { opt_xshm      = false;               }
-            else if(is_option(OPT_SCANLINES   , argument)) { opt_scanlines = true;                }
-            else if(is_option(OPT_NO_SCANLINES, argument)) { opt_scanlines = false;               }
-            else if(is_option(OPT_HELP        , argument)) { opt_help      = true;                }
-            else if(is_option(OPT_VERSION     , argument)) { opt_version   = true;                }
-            else if(is_option(OPT_QUIET       , argument)) { opt_loglevel  = XCPC_LOGLEVEL_QUIET; }
-            else if(is_option(OPT_TRACE       , argument)) { opt_loglevel  = XCPC_LOGLEVEL_TRACE; }
-            else if(is_option(OPT_DEBUG       , argument)) { opt_loglevel  = XCPC_LOGLEVEL_DEBUG; }
+            else if(is_option(OPT_COMPANY         , argument)) { opt_company       = value_of(argument);  }
+            else if(is_option(OPT_MACHINE         , argument)) { opt_machine       = value_of(argument);  }
+            else if(is_option(OPT_MONITOR         , argument)) { opt_monitor       = value_of(argument);  }
+            else if(is_option(OPT_REFRESH         , argument)) { opt_refresh       = value_of(argument);  }
+            else if(is_option(OPT_KEYBOARD        , argument)) { opt_keyboard      = value_of(argument);  }
+            else if(is_option(OPT_MEMORY          , argument)) { opt_memory        = value_of(argument);  }
+            else if(is_option(OPT_RENDERER        , argument)) { opt_renderer      = value_of(argument);  }
+            else if(is_option(OPT_SYSROM          , argument)) { opt_sysrom        = value_of(argument);  }
+            else if(is_option(OPT_ROM000          , argument)) { opt_rom000        = value_of(argument);  }
+            else if(is_option(OPT_ROM001          , argument)) { opt_rom001        = value_of(argument);  }
+            else if(is_option(OPT_ROM002          , argument)) { opt_rom002        = value_of(argument);  }
+            else if(is_option(OPT_ROM003          , argument)) { opt_rom003        = value_of(argument);  }
+            else if(is_option(OPT_ROM004          , argument)) { opt_rom004        = value_of(argument);  }
+            else if(is_option(OPT_ROM005          , argument)) { opt_rom005        = value_of(argument);  }
+            else if(is_option(OPT_ROM006          , argument)) { opt_rom006        = value_of(argument);  }
+            else if(is_option(OPT_ROM007          , argument)) { opt_rom007        = value_of(argument);  }
+            else if(is_option(OPT_ROM008          , argument)) { opt_rom008        = value_of(argument);  }
+            else if(is_option(OPT_ROM009          , argument)) { opt_rom009        = value_of(argument);  }
+            else if(is_option(OPT_ROM010          , argument)) { opt_rom010        = value_of(argument);  }
+            else if(is_option(OPT_ROM011          , argument)) { opt_rom011        = value_of(argument);  }
+            else if(is_option(OPT_ROM012          , argument)) { opt_rom012        = value_of(argument);  }
+            else if(is_option(OPT_ROM013          , argument)) { opt_rom013        = value_of(argument);  }
+            else if(is_option(OPT_ROM014          , argument)) { opt_rom014        = value_of(argument);  }
+            else if(is_option(OPT_ROM015          , argument)) { opt_rom015        = value_of(argument);  }
+            else if(is_option(OPT_DRIVE0          , argument)) { opt_drive0        = value_of(argument);  }
+            else if(is_option(OPT_DRIVE1          , argument)) { opt_drive1        = value_of(argument);  }
+            else if(is_option(OPT_SNAPSHOT        , argument)) { opt_snapshot      = value_of(argument);  }
+            else if(is_option(OPT_SPEEDUP         , argument)) { opt_speedup       = value_of(argument);  }
+            else if(is_option(OPT_XSHM            , argument)) { opt_xshm          = true;                }
+            else if(is_option(OPT_NO_XSHM         , argument)) { opt_xshm          = false;               }
+            else if(is_option(OPT_CRT_EMULATION   , argument)) { opt_crt_emulation = true;                }
+            else if(is_option(OPT_NO_CRT_EMULATION, argument)) { opt_crt_emulation = false;               }
+            else if(is_option(OPT_HELP            , argument)) { opt_help          = true;                }
+            else if(is_option(OPT_VERSION         , argument)) { opt_version       = true;                }
+            else if(is_option(OPT_QUIET           , argument)) { opt_loglevel      = XCPC_LOGLEVEL_QUIET; }
+            else if(is_option(OPT_TRACE           , argument)) { opt_loglevel      = XCPC_LOGLEVEL_TRACE; }
+            else if(is_option(OPT_DEBUG           , argument)) { opt_loglevel      = XCPC_LOGLEVEL_DEBUG; }
             else {
                 argv[argc++] = argument;
             }
@@ -390,6 +396,7 @@ void Settings::usage()
     print_opt(OPT_REFRESH         );
     print_opt(OPT_KEYBOARD        );
     print_opt(OPT_MEMORY          );
+    print_opt(OPT_RENDERER        );
     print_opt(OPT_SYSROM          );
     print_opt(OPT_ROM000          );
     print_opt(OPT_ROM001          );
@@ -415,8 +422,8 @@ void Settings::usage()
     print_opt(OPT_SPEEDUP         );
     print_opt(OPT_XSHM            );
     print_opt(OPT_NO_XSHM         );
-    print_opt(OPT_SCANLINES       );
-    print_opt(OPT_NO_SCANLINES    );
+    print_opt(OPT_CRT_EMULATION   );
+    print_opt(OPT_NO_CRT_EMULATION);
     print_str(""                  );
     print_str("Debug options:"    );
     print_opt(OPT_QUIET           );

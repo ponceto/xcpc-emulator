@@ -1,5 +1,5 @@
 /*
- * xlib.cc - Copyright (c) 2001-2026 - Olivier Poncet
+ * x11-wrapper.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,17 +21,21 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cstdarg>
 #include <cstdint>
-#include <climits>
+#include <cstdarg>
 #ifdef HAVE_SYS_IPC_H
 #include <sys/ipc.h>
 #endif
 #ifdef HAVE_SYS_SHM_H
 #include <sys/shm.h>
 #endif
+#include <memory>
+#include <string>
+#include <vector>
+#include <iostream>
 #include <stdexcept>
-#include "xlib.h"
+#include <xcpc/libxcpc-priv.h>
+#include "x11-wrapper.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::heap
@@ -118,12 +122,12 @@ struct x11_traits
         static_cast<void>(XSync(display, False));
     }
 
-    static XImage* create_image ( Display*     display
-                                , Visual*      visual
-                                , unsigned int depth
-                                , int          format
-                                , unsigned int width
-                                , unsigned int height )
+    static XImage* create_std_image ( Display*     display
+                                    , Visual*      visual
+                                    , unsigned int depth
+                                    , int          format
+                                    , unsigned int width
+                                    , unsigned int height )
     {
         XImage* image = nullptr;
 
@@ -142,7 +146,7 @@ struct x11_traits
         if(image != nullptr) {
             image->data = heap::alloc<char>(image->height * image->bytes_per_line);
             if(image->data != nullptr) {
-                image->f.destroy_image = &destroy_image;
+                image->f.destroy_image = &destroy_std_image;
             }
             else {
                 image = (static_cast<void>(XDestroyImage(image)), nullptr);
@@ -151,7 +155,7 @@ struct x11_traits
         return image;
     }
 
-    static int destroy_image(XImage *image)
+    static int destroy_std_image(XImage *image)
     {
         if(image != nullptr) {
             image->obdata = heap::dealloc(image->obdata);
@@ -289,23 +293,23 @@ struct x11_traits
 // XcpcCreateImage
 // ---------------------------------------------------------------------------
 
-XImage* XcpcCreateImage ( Display*     display
-                        , Visual*      visual
-                        , unsigned int depth
-                        , int          format
-                        , unsigned int width
-                        , unsigned int height )
+XImage* XcpcCreateStdImage ( Display*     display
+                           , Visual*      visual
+                           , unsigned int depth
+                           , int          format
+                           , unsigned int width
+                           , unsigned int height )
 {
-    return x11_traits::create_image(display, visual, depth, format, width, height);
+    return x11_traits::create_std_image(display, visual, depth, format, width, height);
 }
 
 // ---------------------------------------------------------------------------
 // XcpcDestroyImage
 // ---------------------------------------------------------------------------
 
-int XcpcDestroyImage(XImage *image)
+int XcpcDestroyStdImage(XImage *image)
 {
-    return x11_traits::destroy_image(image);
+    return x11_traits::destroy_std_image(image);
 }
 
 // ---------------------------------------------------------------------------

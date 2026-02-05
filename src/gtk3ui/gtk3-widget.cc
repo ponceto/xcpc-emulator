@@ -109,6 +109,13 @@ struct WidgetTraits
         return false;
     }
 
+    static auto set_size_request(Widget& widget, int width, int height) -> void
+    {
+        if(widget) {
+            return ::gtk_widget_set_size_request(widget, width, height);
+        }
+    }
+
     static auto drag_dest_set(Widget& widget, GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void
     {
         if(widget) {
@@ -201,6 +208,11 @@ auto Widget::set_sensitive(bool sensitive) -> void
 auto Widget::is_sensitive() -> bool
 {
     return traits::is_sensitive(*this);
+}
+
+auto Widget::set_size_request(int width, int height) -> void
+{
+    return traits::set_size_request(*this, width, height);
 }
 
 auto Widget::drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void

@@ -1,5 +1,5 @@
 /*
- * all.h - Copyright (c) 2001-2026 - Olivier Poncet
+ * gtk3-emulator-x11.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,40 +14,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __GTK3_CXX_ALL_H__
-#define __GTK3_CXX_ALL_H__
+#ifndef __GTK3_CXX_EMULATOR_X11_H__
+#define __GTK3_CXX_EMULATOR_X11_H__
 
-// ---------------------------------------------------------------------------
-// includes
-// ---------------------------------------------------------------------------
-
-#include <gtk3ui/gtk3-base.h>
-#include <gtk3ui/gdk3-pixbuf.h>
-#include <gtk3ui/gtk3-application.h>
 #include <gtk3ui/gtk3-widget.h>
-#include <gtk3ui/gtk3-container.h>
-#include <gtk3ui/gtk3-bin.h>
-#include <gtk3ui/gtk3-box.h>
-#include <gtk3ui/gtk3-frame.h>
-#include <gtk3ui/gtk3-window.h>
-#include <gtk3ui/gtk3-application-window.h>
-#include <gtk3ui/gtk3-dialog.h>
-#include <gtk3ui/gtk3-about-dialog.h>
-#include <gtk3ui/gtk3-message-dialog.h>
-#include <gtk3ui/gtk3-file-chooser-dialog.h>
-#include <gtk3ui/gtk3-gl-area.h>
-#include <gtk3ui/gtk3-menu-shell.h>
-#include <gtk3ui/gtk3-menu-bar.h>
-#include <gtk3ui/gtk3-menu.h>
-#include <gtk3ui/gtk3-menu-item.h>
-#include <gtk3ui/gtk3-toolbar.h>
-#include <gtk3ui/gtk3-tool-item.h>
-#include <gtk3ui/gtk3-label.h>
-#include <gtk3ui/gtk3-emulator-x11.h>
-#include <gtk3ui/gtk3-emulator-ogl.h>
+
+// ---------------------------------------------------------------------------
+// gtk3::EmulatorX11
+// ---------------------------------------------------------------------------
+
+namespace gtk3 {
+
+class EmulatorX11
+    : public Widget
+{
+public: // public interface
+    EmulatorX11();
+
+    EmulatorX11(GtkWidget*);
+
+    EmulatorX11(const EmulatorX11&) = delete;
+
+    EmulatorX11& operator=(const EmulatorX11&) = delete;
+
+    virtual ~EmulatorX11() = default;
+
+    operator GtkEmulatorX11*() const
+    {
+        return GTK_EMULATOR_X11(_instance);
+    }
+
+    auto create_emulator_x11() -> void;
+
+    auto shutdown() -> void;
+
+    auto set_backend(const GemBackend* backend) -> void;
+
+    auto set_joystick(int id, const std::string& device) -> void;
+
+    auto add_hotkey_callback(GCallback callback, void* data) -> void;
+};
+
+}
 
 // ---------------------------------------------------------------------------
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __GTK3_CXX_ALL_H__ */
+#endif /* __GTK3_CXX_EMULATOR_X11_H__ */

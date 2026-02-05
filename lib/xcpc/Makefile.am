@@ -42,8 +42,6 @@ libxcpc_la_SOURCES = \
 	libxcpc-priv.h \
 	libxcpc-events.h \
 	libxcpc-keysyms.h \
-	xlib/xlib.cc \
-	xlib/xlib.h \
 	amstrad/cpc/cpc-machine.cc \
 	amstrad/cpc/cpc-machine.h \
 	amstrad/cpc/cpc-mainboard.cc \
@@ -52,6 +50,14 @@ libxcpc_la_SOURCES = \
 	amstrad/cpc/cpc-settings.h \
 	amstrad/dpy/dpy-core.cc \
 	amstrad/dpy/dpy-core.h \
+	amstrad/dpy/ogl-renderer.cc \
+	amstrad/dpy/ogl-renderer.h \
+	amstrad/dpy/ogl-wrapper.cc \
+	amstrad/dpy/ogl-wrapper.h \
+	amstrad/dpy/x11-renderer.cc \
+	amstrad/dpy/x11-renderer.h \
+	amstrad/dpy/x11-wrapper.cc \
+	amstrad/dpy/x11-wrapper.h \
 	amstrad/kbd/kbd-core.cc \
 	amstrad/kbd/kbd-core.h \
 	amstrad/cpu/cpu-core.cc \

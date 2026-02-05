@@ -1,5 +1,5 @@
 /*
- * gtk3-emulator.h - Copyright (c) 2001-2026 - Olivier Poncet
+ * gtk3-emulator-ogl.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,37 +14,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __GTK3_CXX_EMULATOR_H__
-#define __GTK3_CXX_EMULATOR_H__
+#ifndef __GTK3_CXX_EMULATOR_OGL_H__
+#define __GTK3_CXX_EMULATOR_OGL_H__
 
-#include <gtk3ui/gtk3-widget.h>
+#include <gtk3ui/gtk3-gl-area.h>
 
 // ---------------------------------------------------------------------------
-// gtk3::Emulator
+// gtk3::EmulatorOGL
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-class Emulator
-    : public Widget
+class EmulatorOGL
+    : public GLArea
 {
 public: // public interface
-    Emulator();
+    EmulatorOGL();
 
-    Emulator(GtkWidget*);
+    EmulatorOGL(GtkWidget*);
 
-    Emulator(const Emulator&) = delete;
+    EmulatorOGL(const EmulatorOGL&) = delete;
 
-    Emulator& operator=(const Emulator&) = delete;
+    EmulatorOGL& operator=(const EmulatorOGL&) = delete;
 
-    virtual ~Emulator() = default;
+    virtual ~EmulatorOGL() = default;
 
-    operator GtkEmulator*() const
+    operator GtkEmulatorOGL*() const
     {
-        return GTK_EMULATOR(_instance);
+        return GTK_EMULATOR_OGL(_instance);
     }
 
-    auto create_emulator() -> void;
+    auto create_emulator_ogl() -> void;
+
+    auto shutdown() -> void;
 
     auto set_backend(const GemBackend* backend) -> void;
 
@@ -59,4 +61,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __GTK3_CXX_EMULATOR_H__ */
+#endif /* __GTK3_CXX_EMULATOR_OGL_H__ */

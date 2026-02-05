@@ -38,6 +38,7 @@ using MonitorType      = xcpc::MonitorType;
 using RefreshRate      = xcpc::RefreshRate;
 using KeyboardType     = xcpc::KeyboardType;
 using MemorySize       = xcpc::MemorySize;
+using RendererType     = xcpc::RendererType;
 using Mutex            = xcpc::Mutex;
 using MutexLock        = xcpc::MutexLock;
 using AudioConfig      = xcpc::AudioConfig;
@@ -88,6 +89,7 @@ public: // public data
     std::string opt_refresh;
     std::string opt_keyboard;
     std::string opt_memory;
+    std::string opt_renderer;
     std::string opt_sysrom;
     std::string opt_rom000;
     std::string opt_rom001;
@@ -110,7 +112,7 @@ public: // public data
     std::string opt_snapshot;
     std::string opt_speedup;
     bool        opt_xshm;
-    bool        opt_scanlines;
+    bool        opt_crt_emulation;
     bool        opt_help;
     bool        opt_version;
     int         opt_loglevel;

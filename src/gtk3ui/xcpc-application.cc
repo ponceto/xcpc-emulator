@@ -75,7 +75,6 @@ namespace {
 struct Callbacks
 {
     using Application = xcpc::Application;
-    using Canvas      = impl::Canvas;
 
     static auto on_statistics(Application* application) -> gboolean
     {
@@ -281,6 +280,20 @@ struct Callbacks
         }
     }
 
+    static auto on_renderer_ximage(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_renderer_ximage();
+        }
+    }
+
+    static auto on_renderer_opengl(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_renderer_opengl();
+        }
+    }
+
     static auto on_drive0_disk_create(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
@@ -337,17 +350,17 @@ struct Callbacks
         }
     }
 
-    static auto on_scanlines_enable(GtkWidget* widget, Application* application) -> void
+    static auto on_crt_emulation_enable(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_scanlines_enable();
+            application->on_crt_emulation_enable();
         }
     }
 
-    static auto on_scanlines_disable(GtkWidget* widget, Application* application) -> void
+    static auto on_crt_emulation_disable(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_scanlines_disable();
+            application->on_crt_emulation_disable();
         }
     }
 
@@ -442,79 +455,6 @@ struct Callbacks
         }
     }
 
-    static auto on_canvas_realize(GtkWidget* widget, Canvas* canvas) -> void
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_realize();
-        }
-    }
-
-    static auto on_canvas_unrealize(GtkWidget* widget, Canvas* canvas) -> void
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_unrealize();
-        }
-    }
-
-    static auto on_canvas_render(GtkWidget* widget, GdkGLContext* context, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_render(*context);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_resize(GtkWidget* widget, gint width, gint height, Canvas* canvas) -> void
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_resize(width, height);
-        }
-    }
-
-    static auto on_canvas_key_press(GtkWidget* widget, GdkEventKey* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            ::gtk_widget_grab_focus(widget);
-            canvas->on_canvas_key_press(*event);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_key_release(GtkWidget* widget, GdkEventKey* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            ::gtk_widget_grab_focus(widget);
-            canvas->on_canvas_key_release(*event);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_button_press(GtkWidget* widget, GdkEventButton* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            ::gtk_widget_grab_focus(widget);
-            canvas->on_canvas_button_press(*event);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_button_release(GtkWidget* widget, GdkEventButton* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            ::gtk_widget_grab_focus(widget);
-            canvas->on_canvas_button_release(*event);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_motion_notify(GtkWidget* widget, GdkEventMotion* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_motion_notify(*event);
-        }
-        return TRUE;
-    }
-
     static auto has_extension(const char* filename, const char* extension) -> bool
     {
         if((filename != nullptr) && (extension != nullptr)) {
@@ -587,96 +527,6 @@ namespace impl {
 AppWidget::AppWidget(Application& application)
     : _application(application)
 {
-}
-
-}
-
-// ---------------------------------------------------------------------------
-// impl::Canvas
-// ---------------------------------------------------------------------------
-
-namespace impl {
-
-Canvas::Canvas(Application& application)
-    : AppWidget(application)
-    , gtk3::GLArea(nullptr)
-    , _self(*this)
-{
-}
-
-auto Canvas::build() -> void
-{
-    auto build_self = [&]() -> void
-    {
-#ifdef XCPC_ENABLE_GL_AREA
-        _self.create_gl_area();
-        _self.set_can_focus(true);
-        _self.add_realize_callback(G_CALLBACK(&Callbacks::on_canvas_realize), this);
-        _self.add_unrealize_callback(G_CALLBACK(&Callbacks::on_canvas_unrealize), this);
-        _self.add_render_callback(G_CALLBACK(&Callbacks::on_canvas_render), this);
-        _self.add_resize_callback(G_CALLBACK(&Callbacks::on_canvas_resize), this);
-        _self.add_key_press_event_callback(G_CALLBACK(&Callbacks::on_canvas_key_press), this);
-        _self.add_key_release_event_callback(G_CALLBACK(&Callbacks::on_canvas_key_release), this);
-        _self.add_button_press_event_callback(G_CALLBACK(&Callbacks::on_canvas_button_press), this);
-        _self.add_button_release_event_callback(G_CALLBACK(&Callbacks::on_canvas_button_release), this);
-        _self.add_motion_notify_event_callback(G_CALLBACK(&Callbacks::on_canvas_motion_notify), this);
-#endif
-    };
-
-    auto build_all = [&]() -> void
-    {
-        build_self();
-    };
-
-    return build_all();
-}
-
-auto Canvas::on_canvas_realize() -> void
-{
-    ::xcpc_log_debug("on_canvas_realize");
-}
-
-auto Canvas::on_canvas_unrealize() -> void
-{
-    ::xcpc_log_debug("on_canvas_unrealize");
-}
-
-auto Canvas::on_canvas_render(GdkGLContext& context) -> void
-{
-    ::xcpc_log_debug("on_canvas_render");
-    ::glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    ::glClear(GL_COLOR_BUFFER_BIT);
-    ::glFlush();
-}
-
-auto Canvas::on_canvas_resize(gint width, gint height) -> void
-{
-    ::xcpc_log_debug("on_canvas_resize(%d, %d)", width, height);
-}
-
-auto Canvas::on_canvas_key_press(GdkEventKey& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_key_press");
-}
-
-auto Canvas::on_canvas_key_release(GdkEventKey& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_key_release");
-}
-
-auto Canvas::on_canvas_button_press(GdkEventButton& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_button_press");
-}
-
-auto Canvas::on_canvas_button_release(GdkEventButton& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_button_release");
-}
-
-auto Canvas::on_canvas_motion_notify(GdkEventMotion& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_motion_notify");
 }
 
 }
@@ -902,6 +752,10 @@ MachineMenu::MachineMenu(Application& application)
     , _keyboard_german(nullptr)
     , _keyboard_spanish(nullptr)
     , _keyboard_danish(nullptr)
+    , _renderer(nullptr)
+    , _renderer_menu(nullptr)
+    , _renderer_ximage(nullptr)
+    , _renderer_opengl(nullptr)
 {
 }
 
@@ -1108,6 +962,28 @@ auto MachineMenu::build() -> void
         _keyboard_danish.set_sensitive(false);
     };
 
+    auto build_renderer = [&]() -> void
+    {
+        _renderer.create_menu_item_with_label(_("Renderer"));
+        _menu.append(_renderer);
+        _renderer_menu.create_menu();
+        _renderer.set_submenu(_renderer_menu);
+    };
+
+    auto build_renderer_ximage = [&]() -> void
+    {
+        _renderer_ximage.create_menu_item_with_label(_("XImage"));
+        _renderer_ximage.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_ximage), &_application);
+        _renderer_menu.append(_renderer_ximage);
+    };
+
+    auto build_renderer_opengl = [&]() -> void
+    {
+        _renderer_opengl.create_menu_item_with_label(_("OpenGL"));
+        _renderer_opengl.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_opengl), &_application);
+        _renderer_menu.append(_renderer_opengl);
+    };
+
     auto build_all = [&]() -> void
     {
         build_self();
@@ -1138,6 +1014,9 @@ auto MachineMenu::build() -> void
         build_keyboard_german();
         build_keyboard_spanish();
         build_keyboard_danish();
+        build_renderer();
+        build_renderer_ximage();
+        build_renderer_opengl();
     };
 
     return build_all();
@@ -1362,8 +1241,8 @@ VideoMenu::VideoMenu(Application& application)
     , gtk3::MenuItem(nullptr)
     , _self(*this)
     , _menu(nullptr)
-    , _scanlines_enable(nullptr)
-    , _scanlines_disable(nullptr)
+    , _crt_emulation_enable(nullptr)
+    , _crt_emulation_disable(nullptr)
 {
 }
 
@@ -1380,26 +1259,26 @@ auto VideoMenu::build() -> void
         _self.set_submenu(_menu);
     };
 
-    auto build_scanlines_enable = [&]() -> void
+    auto build_crt_emulation_enable = [&]() -> void
     {
-        _scanlines_enable.create_menu_item_with_label(_("Enable scanlines"));
-        _scanlines_enable.add_activate_callback(G_CALLBACK(&Callbacks::on_scanlines_enable), &_application);
-        _menu.append(_scanlines_enable);
+        _crt_emulation_enable.create_menu_item_with_label(_("Enable CRT emulation"));
+        _crt_emulation_enable.add_activate_callback(G_CALLBACK(&Callbacks::on_crt_emulation_enable), &_application);
+        _menu.append(_crt_emulation_enable);
     };
 
-    auto build_scanlines_disable = [&]() -> void
+    auto build_crt_emulation_disable = [&]() -> void
     {
-        _scanlines_disable.create_menu_item_with_label(_("Disable scanlines"));
-        _scanlines_disable.add_activate_callback(G_CALLBACK(&Callbacks::on_scanlines_disable), &_application);
-        _menu.append(_scanlines_disable);
+        _crt_emulation_disable.create_menu_item_with_label(_("Disable CRT emulation"));
+        _crt_emulation_disable.add_activate_callback(G_CALLBACK(&Callbacks::on_crt_emulation_disable), &_application);
+        _menu.append(_crt_emulation_disable);
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
         build_menu();
-        build_scanlines_enable();
-        build_scanlines_disable();
+        build_crt_emulation_enable();
+        build_crt_emulation_disable();
     };
 
     return build_all();
@@ -2115,48 +1994,84 @@ WorkWnd::WorkWnd(Application& application)
     : AppWidget(application)
     , gtk3::HBox(nullptr)
     , _self(*this)
-    , _emulator(nullptr)
-    , _canvas(application)
+    , _emulator_x11(nullptr)
+    , _emulator_ogl(nullptr)
 {
 }
 
 auto WorkWnd::build() -> void
 {
+    const std::string renderer_type = _application.get_renderer_type();
+
     auto build_self = [&]() -> void
     {
-        _self.create_hbox();
+        if(bool(_self) == false) {
+            _self.create_hbox();
+        }
     };
 
-    auto build_emulator = [&]() -> void
+    auto build_emulator_x11 = [&]() -> void
     {
         static gchar target[] = "text/uri-list";
         static const GtkTargetEntry target_entries[] = {
             { target, 0, 1 },
         };
-        _emulator.create_emulator();
-        _emulator.set_backend(_application.get_backend());
-        _emulator.set_joystick(0, Utils::get_joystick0());
-        _emulator.set_joystick(1, Utils::get_joystick1());
-        _emulator.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
-        _emulator.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
-        _emulator.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
-        _self.pack_start(_emulator, true, true, 0);
+        if(renderer_type == "ximage") {
+            if(bool(_emulator_x11) == false) {
+                _emulator_x11.create_emulator_x11();
+                _emulator_x11.set_backend(_application.get_backend());
+                _emulator_x11.set_joystick(0, Utils::get_joystick0());
+                _emulator_x11.set_joystick(1, Utils::get_joystick1());
+                _emulator_x11.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
+                _emulator_x11.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
+                _emulator_x11.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
+                _self.pack_start(_emulator_x11, true, true, 0);
+                _emulator_x11.show();
+            }
+        }
     };
 
-    auto build_canvas = [&]() -> void
+    auto build_emulator_ogl = [&]() -> void
     {
-        _canvas.build();
-        _self.pack_start(_canvas, true, true, 0);
+        static gchar target[] = "text/uri-list";
+        static const GtkTargetEntry target_entries[] = {
+            { target, 0, 1 },
+        };
+        if(renderer_type == "opengl") {
+            if(bool(_emulator_ogl) == false) {
+                _emulator_ogl.create_emulator_ogl();
+                _emulator_ogl.set_backend(_application.get_backend());
+                _emulator_ogl.set_joystick(0, Utils::get_joystick0());
+                _emulator_ogl.set_joystick(1, Utils::get_joystick1());
+                _emulator_ogl.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
+                _emulator_ogl.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
+                _emulator_ogl.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
+                _self.pack_start(_emulator_ogl, true, true, 0);
+                _emulator_ogl.show();
+            }
+        }
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
-        build_emulator();
-        build_canvas();
+        build_emulator_x11();
+        build_emulator_ogl();
     };
 
     return build_all();
+}
+
+auto WorkWnd::destroy() -> void
+{
+    if(bool(_emulator_x11) != false) {
+        _emulator_x11.shutdown();
+        _emulator_x11.destroy();
+    }
+    if(bool(_emulator_ogl) != false) {
+        _emulator_ogl.shutdown();
+        _emulator_ogl.destroy();
+    }
 }
 
 }
@@ -2478,13 +2393,13 @@ auto Application::set_volume(const float volume) -> void
     update_all();
 }
 
-auto Application::set_scanlines(const bool scanlines) -> void
+auto Application::set_crt_emulation(const bool crt_emulation) -> void
 {
     try {
-        _machine->set_scanlines(scanlines);
+        _machine->set_parameterb("video.crt_emulation", crt_emulation);
     }
     catch(const std::exception& e) {
-        ::xcpc_log_error("set-scanlines has failed (%s)", e.what());
+        ::xcpc_log_error("set-crt_emulation has failed (%s)", e.what());
     }
     update_all();
 }
@@ -2544,10 +2459,25 @@ auto Application::set_keyboard_type(const std::string& keyboard_type) -> void
     update_all();
 }
 
+auto Application::set_renderer_type(const std::string& renderer_type) -> void
+{
+    try {
+        if(renderer_type != _machine->get_renderer_type()) {
+            work_wnd().destroy();
+            _machine->set_renderer_type(renderer_type);
+            work_wnd().build();
+        }
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_error("set-renderer-type has failed (%s)", e.what());
+    }
+    update_all();
+}
+
 auto Application::set_joystick0(const std::string& device) -> void
 {
     try {
-        work_wnd().emulator().set_joystick(0, device);
+        work_wnd().set_joystick(0, device);
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-joystick0 has failed (%s)", e.what());
@@ -2558,7 +2488,7 @@ auto Application::set_joystick0(const std::string& device) -> void
 auto Application::set_joystick1(const std::string& device) -> void
 {
     try {
-        work_wnd().emulator().set_joystick(1, device);
+        work_wnd().set_joystick(1, device);
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-joystick1 has failed (%s)", e.what());
@@ -2765,6 +2695,16 @@ auto Application::on_keyboard_danish() -> void
     set_keyboard_type("danish");
 }
 
+auto Application::on_renderer_ximage() -> void
+{
+    set_renderer_type("ximage");
+}
+
+auto Application::on_renderer_opengl() -> void
+{
+    set_renderer_type("opengl");
+}
+
 auto Application::on_drive0_disk_create() -> void
 {
     CreateDiskDialog dialog(*this, CreateDiskDialog::DRIVE_A);
@@ -2823,14 +2763,14 @@ auto Application::on_volume_decrease() -> void
     set_volume(volume);
 }
 
-auto Application::on_scanlines_enable() -> void
+auto Application::on_crt_emulation_enable() -> void
 {
-    set_scanlines(true);
+    set_crt_emulation(true);
 }
 
-auto Application::on_scanlines_disable() -> void
+auto Application::on_crt_emulation_disable() -> void
 {
-    set_scanlines(false);
+    set_crt_emulation(false);
 }
 
 auto Application::on_joystick0_connect() -> void

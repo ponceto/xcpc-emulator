@@ -38,7 +38,7 @@
 namespace cpc {
 
 using TimeVal   = struct timeval;
-using PaintFunc = void (*)(Mainboard*);
+using RenderFunc = void (*)(Mainboard*);
 
 }
 
@@ -97,9 +97,13 @@ public: // public interface
 
     auto remove_disk_from_drive1() -> void;
 
-    auto set_volume(const float volume) -> void;
+    auto set_parameterb(const std::string& parameter, bool value) -> void;
 
-    auto set_scanlines(const bool scanlines) -> void;
+    auto set_parameteri(const std::string& parameter, int value) -> void;
+
+    auto set_parameterf(const std::string& parameter, float value) -> void;
+
+    auto set_volume(const float volume) -> void;
 
     auto set_company_name(const std::string& company_name) -> void;
 
@@ -110,6 +114,8 @@ public: // public interface
     auto set_refresh_rate(const std::string& refresh_rate) -> void;
 
     auto set_keyboard_type(const std::string& keyboard_type) -> void;
+
+    auto set_renderer_type(const std::string& renderer_type) -> void;
 
     auto get_volume() const -> float;
 
@@ -126,6 +132,8 @@ public: // public interface
     auto get_refresh_rate() const -> std::string;
 
     auto get_keyboard_type() const -> std::string;
+
+    auto get_renderer_type() const -> std::string;
 
     auto get_drive0_filename() const -> std::string;
 
@@ -169,9 +177,10 @@ public: // public types
         RefreshRate  refresh_rate;
         KeyboardType keyboard_type;
         MemorySize   memory_size;
+        RendererType renderer_type;
         uint32_t     speedup;
         bool         xshm;
-        bool         scanlines;
+        bool         crt_emulation;
     };
 
     struct Stats
@@ -190,7 +199,7 @@ public: // public types
 
     struct Funcs
     {
-        PaintFunc paint_func;
+        RenderFunc render_func;
     };
 
     struct State
@@ -241,7 +250,7 @@ public: // public types
     struct Video
     {
         uint32_t frame_rate;
-        uint32_t frame_duration;
+        uint32_t frame_time;
     };
 
 private: // private interface
@@ -291,9 +300,10 @@ private: // private interface
     auto update_vga() -> void;
     auto update_pal() -> void;
     auto update_stats() -> void;
-    auto paint_08bpp() -> void;
-    auto paint_16bpp() -> void;
-    auto paint_32bpp() -> void;
+    auto render_08bpp() -> void;
+    auto render_16bpp() -> void;
+    auto render_32bpp() -> void;
+    auto render_rgba() -> void;
 
 public: // audio interface
     virtual void process(const void* input, void* output, const uint32_t count) override final;

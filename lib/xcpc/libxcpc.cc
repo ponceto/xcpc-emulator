@@ -252,6 +252,20 @@ const XcpcValueEntry memory_size_table[] = {
 }
 
 // ---------------------------------------------------------------------------
+// <anonymous>::renderer_type_table
+// ---------------------------------------------------------------------------
+
+namespace {
+
+const XcpcValueEntry renderer_type_table[] = {
+    { "default", XCPC_RENDERER_TYPE_DEFAULT },
+    { "ximage" , XCPC_RENDERER_TYPE_XIMAGE  },
+    { "opengl" , XCPC_RENDERER_TYPE_OPENGL  },
+};
+
+}
+
+// ---------------------------------------------------------------------------
 // <anonymous>::constants
 // ---------------------------------------------------------------------------
 
@@ -681,6 +695,18 @@ struct libxcpc_traits
         return XCPC_MEMORY_SIZE_UNKNOWN;
     }
 
+    static auto renderer_type_from_string(const char* label) -> XcpcRendererType
+    {
+        if((label != nullptr) && (*label != '\0')) {
+            for(auto& entry : renderer_type_table) {
+                if(::strcasecmp(entry.label, label) == 0) {
+                    return static_cast<XcpcRendererType>(entry.value);
+                }
+            }
+        }
+        return XCPC_RENDERER_TYPE_UNKNOWN;
+    }
+
     static auto company_name_to_string(const XcpcCompanyName value) -> const char*
     {
         for(auto& entry : company_name_table) {
@@ -735,6 +761,16 @@ struct libxcpc_traits
     {
         for(auto& entry : memory_size_table) {
             if(static_cast<XcpcMemorySize>(entry.value) == value) {
+                return entry.label;
+            }
+        }
+        return "unknown";
+    }
+
+    static auto renderer_type_to_string(const XcpcRendererType value) -> const char*
+    {
+        for(auto& entry : renderer_type_table) {
+            if(static_cast<XcpcRendererType>(entry.value) == value) {
                 return entry.label;
             }
         }
@@ -1002,6 +1038,11 @@ XcpcMemorySize xcpc_memory_size_from_string(const char* label)
     return libxcpc_traits::memory_size_from_string(label);
 }
 
+XcpcRendererType xcpc_renderer_type_from_string(const char* label)
+{
+    return libxcpc_traits::renderer_type_from_string(label);
+}
+
 // ---------------------------------------------------------------------------
 // enums to string
 // ---------------------------------------------------------------------------
@@ -1034,6 +1075,11 @@ const char* xcpc_keyboard_type_to_string(XcpcKeyboardType value)
 const char* xcpc_memory_size_to_string(XcpcMemorySize value)
 {
     return libxcpc_traits::memory_size_to_string(value);
+}
+
+const char* xcpc_renderer_type_to_string(XcpcRendererType value)
+{
+    return libxcpc_traits::renderer_type_to_string(value);
 }
 
 // ---------------------------------------------------------------------------
@@ -1172,6 +1218,11 @@ auto Utils::memory_size_from_string(const std::string& string) -> MemorySize
     return ::xcpc_memory_size_from_string(string.c_str());
 }
 
+auto Utils::renderer_type_from_string(const std::string& string) -> RendererType
+{
+    return ::xcpc_renderer_type_from_string(string.c_str());
+}
+
 auto Utils::company_name_to_string(const CompanyName value) -> std::string
 {
     return ::xcpc_company_name_to_string(value);
@@ -1200,6 +1251,11 @@ auto Utils::keyboard_type_to_string(const KeyboardType value) -> std::string
 auto Utils::memory_size_to_string(const MemorySize value) -> std::string
 {
     return ::xcpc_memory_size_to_string(value);
+}
+
+auto Utils::renderer_type_to_string(const RendererType value) -> std::string
+{
+    return ::xcpc_renderer_type_to_string(value);
 }
 
 }

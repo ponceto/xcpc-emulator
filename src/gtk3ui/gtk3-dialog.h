@@ -85,7 +85,7 @@ public: // public interface
         return GTK_DIALOG(_instance);
     }
 
-    DialogListener& dialog_listener() const
+    auto dialog_listener() const -> DialogListener&
     {
         return _dialog_listener;
     }

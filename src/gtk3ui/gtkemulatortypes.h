@@ -78,30 +78,59 @@ struct _GemJoystick
     uint16_t       js_btnmap[512];
 };
 
-extern GemVideo*    gem_video_construct       (GtkWidget* widget, GemVideo* video);
-extern GemVideo*    gem_video_destruct        (GtkWidget* widget, GemVideo* video);
-extern GemVideo*    gem_video_realize         (GtkWidget* widget, GemVideo* video);
-extern GemVideo*    gem_video_unrealize       (GtkWidget* widget, GemVideo* video);
+#if 1 /* X11 */
+extern GemVideo*    gem_video_x11_construct       (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_x11_destruct        (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_x11_realize         (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_x11_unrealize       (GtkWidget* widget, GemVideo* video);
 
-extern GemEvents*   gem_events_construct      (GtkWidget* widget, GemEvents* events);
-extern GemEvents*   gem_events_destruct       (GtkWidget* widget, GemEvents* events);
-extern GemEvents*   gem_events_dispatch       (GtkWidget* widget, GemEvents* events, XEvent* event);
-extern GemEvents*   gem_events_throttle       (GtkWidget* widget, GemEvents* events, XEvent* event);
-extern GemEvents*   gem_events_process        (GtkWidget* widget, GemEvents* events);
-extern XEvent*      gem_events_copy_or_fill   (GtkWidget* widget, GemEvents* events, XEvent* event);
+extern GemEvents*   gem_events_x11_construct      (GtkWidget* widget, GemEvents* events);
+extern GemEvents*   gem_events_x11_destruct       (GtkWidget* widget, GemEvents* events);
+extern GemEvents*   gem_events_x11_dispatch       (GtkWidget* widget, GemEvents* events, XEvent* event);
+extern GemEvents*   gem_events_x11_throttle       (GtkWidget* widget, GemEvents* events, XEvent* event);
+extern GemEvents*   gem_events_x11_process        (GtkWidget* widget, GemEvents* events);
+extern XEvent*      gem_events_x11_copy_or_fill   (GtkWidget* widget, GemEvents* events, XEvent* event);
 
-extern GemKeyboard* gem_keyboard_construct    (GtkWidget* widget, GemKeyboard* keyboard, int id);
-extern GemKeyboard* gem_keyboard_destruct     (GtkWidget* widget, GemKeyboard* keyboard);
-extern gboolean     gem_keyboard_preprocess   (GtkWidget* widget, GemKeyboard* keyboard, XEvent* event);
+extern GemKeyboard* gem_keyboard_x11_construct    (GtkWidget* widget, GemKeyboard* keyboard, int id);
+extern GemKeyboard* gem_keyboard_x11_destruct     (GtkWidget* widget, GemKeyboard* keyboard);
+extern gboolean     gem_keyboard_x11_preprocess   (GtkWidget* widget, GemKeyboard* keyboard, XEvent* event);
 
-extern GemJoystick* gem_joystick_construct    (GtkWidget* widget, GemJoystick* joystick, const char* device, int id);
-extern GemJoystick* gem_joystick_destruct     (GtkWidget* widget, GemJoystick* joystick);
-extern GemJoystick* gem_joystick_lookup_by_fd (GtkWidget* widget, int fd);
-extern gboolean     gem_joystick_handler      (gint fd, GIOCondition condition, GtkWidget* widget);
+extern GemJoystick* gem_joystick_x11_construct    (GtkWidget* widget, GemJoystick* joystick, const char* device, int id);
+extern GemJoystick* gem_joystick_x11_destruct     (GtkWidget* widget, GemJoystick* joystick);
+extern GemJoystick* gem_joystick_x11_lookup_by_fd (GtkWidget* widget, int fd);
+extern gboolean     gem_joystick_x11_handler      (gint fd, GIOCondition condition, GtkWidget* widget);
 
-extern GemBackend*  gem_backend_construct     (GtkWidget* widget, GemBackend* backend);
-extern GemBackend*  gem_backend_destruct      (GtkWidget* widget, GemBackend* backend);
-extern GemBackend*  gem_backend_copy          (GtkWidget* widget, GemBackend* backend, GemBackend* source);
+extern GemBackend*  gem_backend_x11_construct     (GtkWidget* widget, GemBackend* backend);
+extern GemBackend*  gem_backend_x11_destruct      (GtkWidget* widget, GemBackend* backend);
+extern GemBackend*  gem_backend_x11_copy          (GtkWidget* widget, GemBackend* backend, GemBackend* source);
+#endif /* X11 */
+
+#if 1 /* OpenGL */
+extern GemVideo*    gem_video_ogl_construct       (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_ogl_destruct        (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_ogl_realize         (GtkWidget* widget, GemVideo* video);
+extern GemVideo*    gem_video_ogl_unrealize       (GtkWidget* widget, GemVideo* video);
+
+extern GemEvents*   gem_events_ogl_construct      (GtkWidget* widget, GemEvents* events);
+extern GemEvents*   gem_events_ogl_destruct       (GtkWidget* widget, GemEvents* events);
+extern GemEvents*   gem_events_ogl_dispatch       (GtkWidget* widget, GemEvents* events, XEvent* event);
+extern GemEvents*   gem_events_ogl_throttle       (GtkWidget* widget, GemEvents* events, XEvent* event);
+extern GemEvents*   gem_events_ogl_process        (GtkWidget* widget, GemEvents* events);
+extern XEvent*      gem_events_ogl_copy_or_fill   (GtkWidget* widget, GemEvents* events, XEvent* event);
+
+extern GemKeyboard* gem_keyboard_ogl_construct    (GtkWidget* widget, GemKeyboard* keyboard, int id);
+extern GemKeyboard* gem_keyboard_ogl_destruct     (GtkWidget* widget, GemKeyboard* keyboard);
+extern gboolean     gem_keyboard_ogl_preprocess   (GtkWidget* widget, GemKeyboard* keyboard, XEvent* event);
+
+extern GemJoystick* gem_joystick_ogl_construct    (GtkWidget* widget, GemJoystick* joystick, const char* device, int id);
+extern GemJoystick* gem_joystick_ogl_destruct     (GtkWidget* widget, GemJoystick* joystick);
+extern GemJoystick* gem_joystick_ogl_lookup_by_fd (GtkWidget* widget, int fd);
+extern gboolean     gem_joystick_ogl_handler      (gint fd, GIOCondition condition, GtkWidget* widget);
+
+extern GemBackend*  gem_backend_ogl_construct     (GtkWidget* widget, GemBackend* backend);
+extern GemBackend*  gem_backend_ogl_destruct      (GtkWidget* widget, GemBackend* backend);
+extern GemBackend*  gem_backend_ogl_copy          (GtkWidget* widget, GemBackend* backend, GemBackend* source);
+#endif /* OpenGL */
 
 G_END_DECLS
 

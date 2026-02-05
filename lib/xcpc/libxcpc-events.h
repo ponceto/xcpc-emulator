@@ -17,6 +17,8 @@
 #ifndef __XCPC_LIBXCPC_EVENTS_H__
 #define __XCPC_LIBXCPC_EVENTS_H__
 
+#include <X11/Xlib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

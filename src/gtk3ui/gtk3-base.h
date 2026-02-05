@@ -18,7 +18,8 @@
 #define __GTK3_CXX_BASE_H__
 
 #include <gtk/gtk.h>
-#include <gtk3ui/gtkemulator.h>
+#include <gtk3ui/gtkemulatorx11.h>
+#include <gtk3ui/gtkemulatorogl.h>
 
 // ---------------------------------------------------------------------------
 // gtk3::signals

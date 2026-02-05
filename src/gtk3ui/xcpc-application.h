@@ -30,7 +30,6 @@ using namespace xcpc;
 
 class AppWidget;
 class AppWindow;
-class Canvas;
 class FileMenu;
 class ControlsMenu;
 class MachineMenu;
@@ -86,52 +85,6 @@ public: // public interface
 
 protected: // protected data
     Application& _application;
-};
-
-}
-
-// ---------------------------------------------------------------------------
-// impl::Canvas
-// ---------------------------------------------------------------------------
-
-namespace impl {
-
-class Canvas final
-    : public AppWidget
-    , public gtk3::GLArea
-{
-public: // public interface
-    Canvas(Application&);
-
-    Canvas(const Canvas&) = delete;
-
-    Canvas& operator=(const Canvas&) = delete;
-
-    virtual ~Canvas() = default;
-
-    virtual auto build() -> void override final;
-
-public: // public signals
-    auto on_canvas_realize() -> void;
-
-    auto on_canvas_unrealize() -> void;
-
-    auto on_canvas_render(GdkGLContext& context) -> void;
-
-    auto on_canvas_resize(gint width, gint height) -> void;
-
-    auto on_canvas_key_press(GdkEventKey& event) -> void;
-
-    auto on_canvas_key_release(GdkEventKey& event) -> void;
-
-    auto on_canvas_button_press(GdkEventButton& event) -> void;
-
-    auto on_canvas_button_release(GdkEventButton& event) -> void;
-
-    auto on_canvas_motion_notify(GdkEventMotion& event) -> void;
-
-private: // private data
-    gtk3::GLArea& _self;
 };
 
 }
@@ -267,6 +220,10 @@ private: // private data
     gtk3::MenuItem  _keyboard_german;
     gtk3::MenuItem  _keyboard_spanish;
     gtk3::MenuItem  _keyboard_danish;
+    gtk3::MenuItem  _renderer;
+    gtk3::Menu      _renderer_menu;
+    gtk3::MenuItem  _renderer_ximage;
+    gtk3::MenuItem  _renderer_opengl;
 };
 
 }
@@ -389,8 +346,8 @@ public: // public interface
 private: // private data
     gtk3::MenuItem& _self;
     gtk3::Menu      _menu;
-    gtk3::MenuItem  _scanlines_enable;
-    gtk3::MenuItem  _scanlines_disable;
+    gtk3::MenuItem  _crt_emulation_enable;
+    gtk3::MenuItem  _crt_emulation_disable;
 };
 
 }
@@ -624,15 +581,30 @@ public: // public interface
 
     virtual auto build() -> void override final;
 
-    auto emulator() -> gtk3::Emulator&
+    virtual auto destroy() -> void;
+
+    auto emulator() -> gtk3::Widget&
     {
-        return _emulator;
+        if(_emulator_ogl != false) {
+            return _emulator_ogl;
+        }
+        return _emulator_x11;
+    }
+
+    auto set_joystick(int id, const std::string& device) -> void
+    {
+        if(_emulator_ogl != false) {
+            _emulator_ogl.set_joystick(id, device);
+        }
+        else {
+            _emulator_x11.set_joystick(id, device);
+        }
     }
 
 private: // private data
-    gtk3::HBox&    _self;
-    gtk3::Emulator _emulator;
-    Canvas         _canvas;
+    gtk3::HBox&       _self;
+    gtk3::EmulatorX11 _emulator_x11;
+    gtk3::EmulatorOGL _emulator_ogl;
 };
 
 }
@@ -815,7 +787,7 @@ public: // public methods
 
     virtual auto set_volume(const float value) -> void override final;
 
-    virtual auto set_scanlines(const bool scanlines) -> void override final;
+    virtual auto set_crt_emulation(const bool crt_emulation) -> void override final;
 
     virtual auto set_machine_type(const std::string& machine_type) -> void override final;
 
@@ -826,6 +798,8 @@ public: // public methods
     virtual auto set_refresh_rate(const std::string& refresh_rate) -> void override final;
 
     virtual auto set_keyboard_type(const std::string& keyboard_type) -> void override final;
+
+    virtual auto set_renderer_type(const std::string& renderer_type) -> void override final;
 
     virtual auto set_joystick0(const std::string& device) -> void override final;
 
@@ -894,6 +868,10 @@ public: // public signals
 
     virtual auto on_keyboard_danish() -> void override final;
 
+    virtual auto on_renderer_ximage() -> void override final;
+
+    virtual auto on_renderer_opengl() -> void override final;
+
     virtual auto on_drive0_disk_create() -> void override final;
 
     virtual auto on_drive0_disk_insert() -> void override final;
@@ -910,9 +888,9 @@ public: // public signals
 
     virtual auto on_volume_decrease() -> void override final;
 
-    virtual auto on_scanlines_enable() -> void override final;
+    virtual auto on_crt_emulation_enable() -> void override final;
 
-    virtual auto on_scanlines_disable() -> void override final;
+    virtual auto on_crt_emulation_disable() -> void override final;
 
     virtual auto on_joystick0_connect() -> void override final;
 

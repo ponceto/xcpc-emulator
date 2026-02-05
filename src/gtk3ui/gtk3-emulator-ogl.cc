@@ -1,5 +1,5 @@
 /*
- * gtk3-emulator.cc - Copyright (c) 2001-2026 - Olivier Poncet
+ * gtk3-emulator-ogl.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,33 +29,40 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
-#include "gtk3-emulator.h"
+#include "gtk3-emulator-ogl.h"
 
 // ---------------------------------------------------------------------------
-// gtk3::EmulatorTraits
+// gtk3::EmulatorOGLTraits
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-struct EmulatorTraits
+struct EmulatorOGLTraits
     : BasicTraits
 {
-    static auto create_emulator() -> GtkWidget*
+    static auto create_emulator_ogl() -> GtkWidget*
     {
-        return ::gtk_emulator_new();
+        return ::gtk_emulator_ogl_new();
     }
 
-    static auto set_backend(Emulator& emulator, const GemBackend* backend) -> void
+    static auto shutdown(EmulatorOGL& emulator) -> void
     {
         if(emulator) {
-            ::gtk_emulator_set_backend(emulator, backend);
+            ::gtk_emulator_ogl_shutdown(emulator);
         }
     }
 
-    static auto set_joystick(Emulator& emulator, int id, const std::string& device) -> void
+    static auto set_backend(EmulatorOGL& emulator, const GemBackend* backend) -> void
     {
         if(emulator) {
-            ::gtk_emulator_set_joystick(emulator, id, device.c_str());
+            ::gtk_emulator_ogl_set_backend(emulator, backend);
+        }
+    }
+
+    static auto set_joystick(EmulatorOGL& emulator, int id, const std::string& device) -> void
+    {
+        if(emulator) {
+            ::gtk_emulator_ogl_set_joystick(emulator, id, device.c_str());
         }
     }
 };
@@ -68,45 +75,50 @@ struct EmulatorTraits
 
 namespace {
 
-using traits = gtk3::EmulatorTraits;
+using traits = gtk3::EmulatorOGLTraits;
 
 }
 
 // ---------------------------------------------------------------------------
-// gtk3::Emulator
+// gtk3::EmulatorOGL
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-Emulator::Emulator()
-    : Emulator(traits::create_emulator())
+EmulatorOGL::EmulatorOGL()
+    : EmulatorOGL(traits::create_emulator_ogl())
 {
 }
 
-Emulator::Emulator(GtkWidget* instance)
-    : Widget(instance)
+EmulatorOGL::EmulatorOGL(GtkWidget* instance)
+    : GLArea(instance)
 {
 }
 
-auto Emulator::create_emulator() -> void
+auto EmulatorOGL::create_emulator_ogl() -> void
 {
     if(_instance == nullptr) {
-        _instance = traits::create_emulator();
+        _instance = traits::create_emulator_ogl();
         traits::register_widget_instance(_instance);
     }
 }
 
-auto Emulator::set_backend(const GemBackend* backend) -> void
+auto EmulatorOGL::shutdown() -> void
+{
+    return traits::shutdown(*this);
+}
+
+auto EmulatorOGL::set_backend(const GemBackend* backend) -> void
 {
     return traits::set_backend(*this, backend);
 }
 
-auto Emulator::set_joystick(int id, const std::string& device) -> void
+auto EmulatorOGL::set_joystick(int id, const std::string& device) -> void
 {
     return traits::set_joystick(*this, id, device);
 }
 
-auto Emulator::add_hotkey_callback(GCallback callback, void* data) -> void
+auto EmulatorOGL::add_hotkey_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_hotkey, callback, data);
 }

@@ -71,6 +71,8 @@ public: // public interface
 
     auto is_sensitive() -> bool;
 
+    auto set_size_request(int width, int height) -> void;
+
     auto drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void;
 
     auto signal_connect(const char* signal, GCallback callback, void* data) -> void;

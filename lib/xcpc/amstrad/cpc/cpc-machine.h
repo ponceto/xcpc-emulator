@@ -63,9 +63,13 @@ public: // public interface
 
     auto remove_disk_from_drive1() -> void;
 
-    auto set_volume(const float volume) -> void;
+    auto set_parameterb(const std::string& parameter, bool value) -> void;
 
-    auto set_scanlines(const bool scanlines) -> void;
+    auto set_parameteri(const std::string& parameter, int value) -> void;
+
+    auto set_parameterf(const std::string& parameter, float value) -> void;
+
+    auto set_volume(const float volume) -> void;
 
     auto set_company_name(const std::string& company_name) -> void;
 
@@ -76,6 +80,8 @@ public: // public interface
     auto set_refresh_rate(const std::string& refresh_rate) -> void;
 
     auto set_keyboard_type(const std::string& keyboard_type) -> void;
+
+    auto set_renderer_type(const std::string& renderer_type) -> void;
 
     auto get_volume() const -> float;
 
@@ -92,6 +98,8 @@ public: // public interface
     auto get_refresh_rate() const -> std::string;
 
     auto get_keyboard_type() const -> std::string;
+
+    auto get_renderer_type() const -> std::string;
 
     auto get_drive0_filename() const -> std::string;
 

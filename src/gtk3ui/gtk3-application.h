@@ -87,7 +87,7 @@ public: // public interface
         return _instance;
     }
 
-    ApplicationListener& listener() const
+    auto listener() const -> ApplicationListener&
     {
         return _listener;
     }

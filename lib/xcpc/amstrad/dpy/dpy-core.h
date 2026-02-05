@@ -26,29 +26,20 @@ namespace dpy {
 struct State;
 class  Instance;
 class  Interface;
+class  Renderer;
 
 }
 
 // ---------------------------------------------------------------------------
-// dpy::Type
+// type aliases
 // ---------------------------------------------------------------------------
 
 namespace dpy {
 
-enum Type
-{
-    TYPE_INVALID = -1,
-    TYPE_DEFAULT =  0,
-    TYPE_COLOR   =  1,
-    TYPE_GREEN   =  2,
-    TYPE_GRAY    =  3,
-    TYPE_CTM640  =  4,
-    TYPE_CTM644  =  5,
-    TYPE_GT64    =  6,
-    TYPE_GT65    =  7,
-    TYPE_CM14    =  8,
-    TYPE_MM12    =  9,
-};
+using MonitorType  = xcpc::MonitorType;
+using RefreshRate  = xcpc::RefreshRate;
+using RendererType = xcpc::RendererType;
+using RendererPtr  = std::unique_ptr<Renderer>;
 
 }
 
@@ -60,29 +51,12 @@ namespace dpy {
 
 struct State
 {
-    uint8_t  type;
-    uint8_t  rate;
-    Display* display;
-    Screen*  screen;
-    Visual*  visual;
-    XImage*  image;
-    GC       gc;
-    Window   window;
-    Colormap colormap;
-    int      depth;
-    int      image_x;
-    int      image_y;
-    int      total_w;
-    int      total_h;
-    int      visible_x;
-    int      visible_y;
-    int      visible_w;
-    int      visible_h;
-    bool     try_xshm;
-    bool     has_xshm;
-    bool     use_xshm;
-    XColor   palette0[32];
-    XColor   palette1[32];
+    MonitorType monitor_type;
+    RefreshRate refresh_rate;
+    int         viewport_w;
+    int         viewport_h;
+    uint32_t    palette0[32];
+    uint32_t    palette1[32];
 };
 
 }
@@ -96,7 +70,7 @@ namespace dpy {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(const MonitorType monitor_type, const RefreshRate refresh_rate, Interface& interface);
 
     Instance(const Instance&) = delete;
 
@@ -108,28 +82,49 @@ public: // public interface
 
     auto clock() -> void;
 
-    auto set_type(const Type type) -> void;
+    auto set_monitor_type(const MonitorType monitor_type) -> void;
 
-    auto set_rate(const uint8_t rate) -> void;
+    auto set_refresh_rate(const RefreshRate refresh_rate) -> void;
 
-    auto realize(Display* display, Window window, bool try_xshm) -> void;
+    auto realize(const RendererType renderer_type, Display* display, Window window, bool xshm) -> void;
 
     auto unrealize() -> void;
 
+    auto resize(int width, int height) -> void;
+
     auto expose(const XExposeEvent& event) -> void;
 
-    auto resize(const XConfigureEvent& event) -> void;
+    auto render() -> void;
 
-    auto put_image() -> void;
+    auto set_parameterb(const std::string& parameter, bool value) -> void;
+
+    auto set_parameteri(const std::string& parameter, int value) -> void;
+
+    auto set_parameterf(const std::string& parameter, float value) -> void;
+
+    auto get_image_width() const -> int;
+
+    auto get_image_height() const -> int;
+
+    auto get_image_bpp() const -> int;
+
+    auto get_image_bpl() const -> int;
+
+    auto get_image_data() -> uint8_t*;
 
     auto operator->() -> State*
     {
         return &_state;
     }
 
+public: // public types
+    static constexpr int DISPLAY_WIDTH  = 1024;
+    static constexpr int DISPLAY_HEIGHT =  768;
+
 protected: // protected data
-    Interface& _interface;
-    State      _state;
+    Interface&  _interface;
+    State       _state;
+    RendererPtr _renderer;
 };
 
 }
@@ -150,6 +145,77 @@ public: // public interface
     Interface& operator=(const Interface&) = default;
 
     virtual ~Interface() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// dpy::Renderer
+// ---------------------------------------------------------------------------
+
+namespace dpy {
+
+class Renderer
+{
+public: // public interface
+    Renderer();
+
+    Renderer(const Renderer&) = default;
+
+    Renderer& operator=(const Renderer&) = default;
+
+    virtual ~Renderer() = default;
+
+    virtual auto realize() -> void = 0;
+
+    virtual auto unrealize() -> void = 0;
+
+    virtual auto resize(int width, int height) -> void = 0;
+
+    virtual auto expose(int x, int y, int width, int height) -> void = 0;
+
+    virtual auto render() -> void = 0;
+
+    virtual auto set_visible_area(int x, int y, int w, int h) -> void = 0;
+
+    virtual auto alloc_color(uint16_t r, uint16_t g, uint16_t b) -> uint32_t = 0;
+
+    virtual auto dealloc_color(uint32_t color) -> uint32_t = 0;
+
+    virtual auto set_parameterb(const std::string& parameter, bool value) -> void = 0;
+
+    virtual auto set_parameteri(const std::string& parameter, int value) -> void = 0;
+
+    virtual auto set_parameterf(const std::string& parameter, float value) -> void = 0;
+
+public: // public interface
+    static constexpr int DISPLAY_WIDTH  = Instance::DISPLAY_WIDTH;
+    static constexpr int DISPLAY_HEIGHT = Instance::DISPLAY_HEIGHT;
+
+    struct State
+    {
+        int      image_x;
+        int      image_y;
+        int      image_width;
+        int      image_height;
+        int      image_bpp;
+        int      image_bpl;
+        uint8_t* image_data;
+        int      visible_x;
+        int      visible_y;
+        int      visible_w;
+        int      visible_h;
+        int      viewport_w;
+        int      viewport_h;
+    };
+
+    auto operator->() -> State*
+    {
+        return &_state;
+    }
+
+protected: // protected data
+    State _state;
 };
 
 }

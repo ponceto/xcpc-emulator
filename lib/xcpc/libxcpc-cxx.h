@@ -33,6 +33,7 @@ using MonitorType        = XcpcMonitorType;
 using RefreshRate        = XcpcRefreshRate;
 using KeyboardType       = XcpcKeyboardType;
 using MemorySize         = XcpcMemorySize;
+using RendererType       = XcpcRendererType;
 using EventType          = XcpcEventType;
 using ModifierType       = XcpcModifierType;
 using AnyEvent           = XcpcAnyEvent;
@@ -132,6 +133,8 @@ struct Utils
 
     static auto memory_size_from_string(const std::string& string) -> MemorySize;
 
+    static auto renderer_type_from_string(const std::string& string) -> RendererType;
+
     static auto company_name_to_string(const CompanyName value) -> std::string;
 
     static auto machine_type_to_string(const MachineType value) -> std::string;
@@ -143,6 +146,8 @@ struct Utils
     static auto keyboard_type_to_string(const KeyboardType value) -> std::string;
 
     static auto memory_size_to_string(const MemorySize value) -> std::string;
+
+    static auto renderer_type_to_string(const RendererType value) -> std::string;
 };
 
 }

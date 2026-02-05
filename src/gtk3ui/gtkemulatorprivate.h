@@ -17,7 +17,13 @@
 #ifndef __GTK_EMULATOR_PRIVATE_H__
 #define __GTK_EMULATOR_PRIVATE_H__
 
-#include <gtk3ui/gtkemulator.h>
+#ifndef G_DISABLE_CAST_CHECKS
+#define G_DISABLE_CAST_CHECKS
+#endif
+
+#include <epoxy/gl.h>
+#include <gtk3ui/gtkemulatorx11.h>
+#include <gtk3ui/gtkemulatorogl.h>
 
 G_BEGIN_DECLS
 
@@ -25,36 +31,24 @@ G_BEGIN_DECLS
 #define countof(array) (sizeof(array) / sizeof(array[0]))
 #endif
 
-#ifndef CAST_WIDGET
-#define CAST_WIDGET(widget) ((GtkWidget*)(widget))
-#endif
-
-#ifndef CAST_EMULATOR
-#define CAST_EMULATOR(widget) ((GtkEmulator*)(widget))
-#endif
-
-#ifndef CAST_XEVENT
-#define CAST_XEVENT(event) ((XEvent*)(event))
-#endif
-
 #ifndef EMULATOR_DEFAULT_TIMEOUT
 #define EMULATOR_DEFAULT_TIMEOUT 100UL
 #endif
 
-#ifndef EMULATOR_DEFAULT_WIDTH
-#define EMULATOR_DEFAULT_WIDTH  768
+#ifndef EMULATOR_MINIMUM_WIDTH
+#define EMULATOR_MINIMUM_WIDTH 320
 #endif
 
-#ifndef EMULATOR_DEFAULT_HEIGHT
-#define EMULATOR_DEFAULT_HEIGHT 576
+#ifndef EMULATOR_MINIMUM_HEIGHT
+#define EMULATOR_MINIMUM_HEIGHT 200
 #endif
 
-#ifndef EMULATOR_MIN_WIDTH
-#define EMULATOR_MIN_WIDTH  320
+#ifndef EMULATOR_NATURAL_WIDTH
+#define EMULATOR_NATURAL_WIDTH 768
 #endif
 
-#ifndef EMULATOR_MIN_HEIGHT
-#define EMULATOR_MIN_HEIGHT 200
+#ifndef EMULATOR_NATURAL_HEIGHT
+#define EMULATOR_NATURAL_HEIGHT 576
 #endif
 
 #ifndef KEY_DELAY_THRESHOLD

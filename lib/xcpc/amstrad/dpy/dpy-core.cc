@@ -30,6 +30,8 @@
 #include <stdexcept>
 #include <xcpc/libxcpc-priv.h>
 #include "dpy-core.h"
+#include "ogl-renderer.h"
+#include "x11-renderer.h"
 
 #define MONITOR_50HZ_TOTAL_WIDTH    1024
 #define MONITOR_50HZ_TOTAL_HEIGHT    768
@@ -46,61 +48,54 @@
 #define MONITOR_60HZ_VISIBLE_HEIGHT  480
 
 // ---------------------------------------------------------------------------
-// <anonymous>::BasicTraits
+// <anonymous>::ColorEntry
 // ---------------------------------------------------------------------------
 
 namespace {
 
-struct MonitorArea
-{
-    int x1;
-    int y1;
-    int x2;
-    int y2;
-};
-
 struct ColorEntry
 {
     const char* label;
-    uint16_t    red;
-    uint16_t    green;
-    uint16_t    blue;
-    uint16_t    luminance;
+    uint32_t    pixel;
+    uint16_t    r;
+    uint16_t    g;
+    uint16_t    b;
+    uint16_t    l;
 };
 
 const ColorEntry color_table[] = {
-    { "white"                       , 0x8000, 0x8000, 0x8000, 0x8000 },
-    { "white (not official)"        , 0x8000, 0x8000, 0x8000, 0x8000 },
-    { "sea green"                   , 0x0000, 0xffff, 0x8000, 0xa4dd },
-    { "pastel yellow"               , 0xffff, 0xffff, 0x8000, 0xf168 },
-    { "blue"                        , 0x0000, 0x0000, 0x8000, 0x0e97 },
-    { "purple"                      , 0xffff, 0x0000, 0x8000, 0x5b22 },
-    { "cyan"                        , 0x0000, 0x8000, 0x8000, 0x59ba },
-    { "pink"                        , 0xffff, 0x8000, 0x8000, 0xa645 },
-    { "purple (not official)"       , 0xffff, 0x0000, 0x8000, 0x5b22 },
-    { "pastel yellow (not official)", 0xffff, 0xffff, 0x8000, 0xf168 },
-    { "bright yellow"               , 0xffff, 0xffff, 0x0000, 0xe2d0 },
-    { "bright white"                , 0xffff, 0xffff, 0xffff, 0xffff },
-    { "bright red"                  , 0xffff, 0x0000, 0x0000, 0x4c8b },
-    { "bright magenta"              , 0xffff, 0x0000, 0xffff, 0x69ba },
-    { "orange"                      , 0xffff, 0x8000, 0x0000, 0x97ad },
-    { "pastel magenta"              , 0xffff, 0x8000, 0xffff, 0xb4dc },
-    { "blue (not official)"         , 0x0000, 0x0000, 0x8000, 0x0e97 },
-    { "sea green (not official)"    , 0x0000, 0xffff, 0x8000, 0xa4dd },
-    { "bright green"                , 0x0000, 0xffff, 0x0000, 0x9645 },
-    { "bright cyan"                 , 0x0000, 0xffff, 0xffff, 0xb374 },
-    { "black"                       , 0x0000, 0x0000, 0x0000, 0x0000 },
-    { "bright blue"                 , 0x0000, 0x0000, 0xffff, 0x1d2f },
-    { "green"                       , 0x0000, 0x8000, 0x0000, 0x4b23 },
-    { "sky blue"                    , 0x0000, 0x8000, 0xffff, 0x6852 },
-    { "magenta"                     , 0x8000, 0x0000, 0x8000, 0x34dd },
-    { "pastel green"                , 0x8000, 0xffff, 0x8000, 0xcb22 },
-    { "lime"                        , 0x8000, 0xffff, 0x0000, 0xbc8b },
-    { "pastel cyan"                 , 0x8000, 0xffff, 0xffff, 0xd9ba },
-    { "red"                         , 0x8000, 0x0000, 0x0000, 0x2645 },
-    { "mauve"                       , 0x8000, 0x0000, 0xffff, 0x4374 },
-    { "yellow"                      , 0x8000, 0x8000, 0x0000, 0x7168 },
-    { "pastel blue"                 , 0x8000, 0x8000, 0xffff, 0x8e97 }
+    { "white"                       , 0, 0x8000, 0x8000, 0x8000, 0x8000 },
+    { "white (not official)"        , 0, 0x8000, 0x8000, 0x8000, 0x8000 },
+    { "sea green"                   , 0, 0x0000, 0xffff, 0x8000, 0xa4dd },
+    { "pastel yellow"               , 0, 0xffff, 0xffff, 0x8000, 0xf168 },
+    { "blue"                        , 0, 0x0000, 0x0000, 0x8000, 0x0e97 },
+    { "purple"                      , 0, 0xffff, 0x0000, 0x8000, 0x5b22 },
+    { "cyan"                        , 0, 0x0000, 0x8000, 0x8000, 0x59ba },
+    { "pink"                        , 0, 0xffff, 0x8000, 0x8000, 0xa645 },
+    { "purple (not official)"       , 0, 0xffff, 0x0000, 0x8000, 0x5b22 },
+    { "pastel yellow (not official)", 0, 0xffff, 0xffff, 0x8000, 0xf168 },
+    { "bright yellow"               , 0, 0xffff, 0xffff, 0x0000, 0xe2d0 },
+    { "bright white"                , 0, 0xffff, 0xffff, 0xffff, 0xffff },
+    { "bright red"                  , 0, 0xffff, 0x0000, 0x0000, 0x4c8b },
+    { "bright magenta"              , 0, 0xffff, 0x0000, 0xffff, 0x69ba },
+    { "orange"                      , 0, 0xffff, 0x8000, 0x0000, 0x97ad },
+    { "pastel magenta"              , 0, 0xffff, 0x8000, 0xffff, 0xb4dc },
+    { "blue (not official)"         , 0, 0x0000, 0x0000, 0x8000, 0x0e97 },
+    { "sea green (not official)"    , 0, 0x0000, 0xffff, 0x8000, 0xa4dd },
+    { "bright green"                , 0, 0x0000, 0xffff, 0x0000, 0x9645 },
+    { "bright cyan"                 , 0, 0x0000, 0xffff, 0xffff, 0xb374 },
+    { "black"                       , 0, 0x0000, 0x0000, 0x0000, 0x0000 },
+    { "bright blue"                 , 0, 0x0000, 0x0000, 0xffff, 0x1d2f },
+    { "green"                       , 0, 0x0000, 0x8000, 0x0000, 0x4b23 },
+    { "sky blue"                    , 0, 0x0000, 0x8000, 0xffff, 0x6852 },
+    { "magenta"                     , 0, 0x8000, 0x0000, 0x8000, 0x34dd },
+    { "pastel green"                , 0, 0x8000, 0xffff, 0x8000, 0xcb22 },
+    { "lime"                        , 0, 0x8000, 0xffff, 0x0000, 0xbc8b },
+    { "pastel cyan"                 , 0, 0x8000, 0xffff, 0xffff, 0xd9ba },
+    { "red"                         , 0, 0x8000, 0x0000, 0x0000, 0x2645 },
+    { "mauve"                       , 0, 0x8000, 0x0000, 0xffff, 0x4374 },
+    { "yellow"                      , 0, 0x8000, 0x8000, 0x0000, 0x7168 },
+    { "pastel blue"                 , 0, 0x8000, 0x8000, 0xffff, 0x8e97 }
 };
 
 }
@@ -113,10 +108,12 @@ namespace {
 
 struct BasicTraits
 {
-    using Type      = dpy::Type;
-    using State     = dpy::State;
-    using Instance  = dpy::Instance;
-    using Interface = dpy::Interface;
+    using MonitorType = dpy::MonitorType;
+    using RefreshRate = dpy::RefreshRate;
+    using State       = dpy::State;
+    using Instance    = dpy::Instance;
+    using Interface   = dpy::Interface;
+    using Renderer    = dpy::Renderer;
 };
 
 }
@@ -130,14 +127,16 @@ namespace {
 struct StateTraits final
     : public BasicTraits
 {
-    static inline auto construct(State& state, const Type type) -> void
+    static inline auto construct(State& state, const MonitorType monitor_type, const RefreshRate refresh_rate) -> void
     {
-        state.type = type;
+        state.monitor_type = monitor_type;
+        state.refresh_rate = refresh_rate;
     }
 
     static inline auto destruct(State& state) -> void
     {
-        state.type = Type::TYPE_INVALID;
+        state.monitor_type = XCPC_MONITOR_TYPE_DEFAULT;
+        state.refresh_rate = XCPC_REFRESH_RATE_DEFAULT;
     }
 
     static inline auto reset(State& state) -> void
@@ -148,438 +147,176 @@ struct StateTraits final
     {
     }
 
-    static inline auto set_type(State& state, const Type type) -> void
+    static inline auto set_monitor_type(State& state, Renderer* renderer, const MonitorType monitor_type) -> void
     {
-        state.type = type;
-        if((state.display != nullptr) && (state.window != None)) {
-            fini_palette(state, 1);
-            fini_palette(state, 0);
-            init_palette(state, 0);
-            init_palette(state, 1);
+        dealloc_palette1(state, renderer);
+        dealloc_palette0(state, renderer);
+        state.monitor_type = monitor_type;
+        recompute_visible_area(state, renderer);
+        alloc_palette0(state, renderer);
+        alloc_palette1(state, renderer);
+    }
+
+    static inline auto set_refresh_rate(State& state, Renderer* renderer, const RefreshRate refresh_rate) -> void
+    {
+        dealloc_palette1(state, renderer);
+        dealloc_palette0(state, renderer);
+        state.refresh_rate = refresh_rate;
+        recompute_visible_area(state, renderer);
+        alloc_palette0(state, renderer);
+        alloc_palette1(state, renderer);
+    }
+
+    static inline auto realize(State& state, Renderer* renderer) -> void
+    {
+        if(renderer != nullptr) {
+            renderer->realize();
+        }
+        recompute_visible_area(state, renderer);
+        alloc_palette0(state, renderer);
+        alloc_palette1(state, renderer);
+    }
+
+    static inline auto unrealize(State& state, Renderer* renderer) -> void
+    {
+        dealloc_palette1(state, renderer);
+        dealloc_palette0(state, renderer);
+        recompute_visible_area(state, renderer);
+        if(renderer != nullptr) {
+            renderer->unrealize();
         }
     }
 
-    static inline auto set_rate(State& state, const uint8_t rate) -> void
+    static inline auto resize(State& state, Renderer* renderer, int width, int height) -> void
     {
-        state.rate = rate;
-        if((state.display != nullptr) && (state.window != None)) {
-            realize(state, state.display, state.window, state.try_xshm);
+        state.viewport_w = width;
+        state.viewport_h = height;
+        if(renderer != nullptr) {
+            renderer->resize(state.viewport_w, state.viewport_h);
         }
     }
 
-    static inline auto realize(State& state, Display* display, Window window, bool try_xshm) -> void
+    static inline auto recompute_visible_area(State& state, Renderer* renderer) -> void
     {
-        unrealize(state);
-        if((state.display == nullptr) && (state.window == None)) {
-            init_attributes(state, display, window, try_xshm);
-            init_palette(state, 0);
-            init_palette(state, 1);
-            init_image(state);
-        }
-    }
+        int visible_x = 0;
+        int visible_y = 0;
+        int visible_w = 0;
+        int visible_h = 0;
 
-    static inline auto unrealize(State& state) -> void
-    {
-        if((state.display != nullptr) && (state.window != None)) {
-            fini_image(state);
-            fini_palette(state, 1);
-            fini_palette(state, 0);
-            fini_attributes(state);
-        }
-    }
-
-    static inline auto expose(State& state, const XExposeEvent& event) -> void
-    {
-        Display* display = state.display;
-        Window   window  = state.window;
-        XImage*  image   = state.image;
-        GC       gc      = state.gc;
-
-        if((display == nullptr) || (window == None) || (image == nullptr)) {
-            return;
-        }
-        MonitorArea monitor;
-        MonitorArea refresh;
-        /* init monitor area */ {
-            monitor.x1 = state.image_x;
-            monitor.y1 = state.image_y;
-            monitor.x2 = ((monitor.x1 + state.visible_w) - 1);
-            monitor.y2 = ((monitor.y1 + state.visible_h) - 1);
-        }
-        /* init refresh area */ {
-            refresh.x1 = event.x;
-            refresh.y1 = event.y;
-            refresh.x2 = ((refresh.x1 + event.width ) - 1);
-            refresh.y2 = ((refresh.y1 + event.height) - 1);
-        }
-        /* intersect both areas */ {
-            if((refresh.x1 > monitor.x2)
-            || (refresh.x2 < monitor.x1)
-            || (refresh.y1 > monitor.y2)
-            || (refresh.y2 < monitor.y1)) {
-                return;
-            }
-            if(refresh.x1 < monitor.x1) {
-                refresh.x1 = monitor.x1;
-            }
-            if(refresh.x2 > monitor.x2) {
-                refresh.x2 = monitor.x2;
-            }
-            if(refresh.y1 < monitor.y1) {
-                refresh.y1 = monitor.y1;
-            }
-            if(refresh.y2 > monitor.y2) {
-                refresh.y2 = monitor.y2;
-            }
-        }
-        /* put image */ {
-            const int src_x = state.visible_x + (refresh.x1 - state.image_x);
-            const int src_y = state.visible_y + (refresh.y1 - state.image_y);
-            const int dst_x = refresh.x1;
-            const int dst_y = refresh.y1;
-            const int dst_w = ((refresh.x2 - refresh.x1) + 1);
-            const int dst_h = ((refresh.y2 - refresh.y1) + 1);
-            (void) XSync(display, False);
-            (void) XcpcPutImage ( display
-                                , window
-                                , gc
-                                , image
-                                , src_x
-                                , src_y
-                                , dst_x
-                                , dst_y
-                                , dst_w
-                                , dst_h
-                                , state.use_xshm ? True : False
-                                , False );
-            (void) XFlush(display);
-        }
-    }
-
-    static inline auto resize(State& state, const XConfigureEvent& event) -> void
-    {
-        /* compute image_x */ {
-            const int event_width   = event.width;
-            const int visible_width = state.visible_w;
-            if(event_width >= visible_width) {
-                state.image_x = +((event_width - visible_width) / 2);
-            }
-            else {
-                state.image_x = -((visible_width - event_width) / 2);
-            }
-        }
-        /* compute image_y */ {
-            const int event_height   = event.height;
-            const int visible_height = state.visible_h;
-            if(event_height >= visible_height) {
-                state.image_y = +((event_height - visible_height) / 2);
-            }
-            else {
-                state.image_y = -((visible_height - event_height) / 2);
-            }
-        }
-    }
-
-    static inline auto put_image(State& state) -> void
-    {
-        Display* display = state.display;
-        Window   window  = state.window;
-        XImage*  image   = state.image;
-        GC       gc      = state.gc;
-
-        if((display == nullptr) || (window == None) || (image == nullptr)) {
-            return;
-        }
-        /* put image */ {
-            const int src_x = state.visible_x;
-            const int src_y = state.visible_y;
-            const int dst_x = state.image_x;
-            const int dst_y = state.image_y;
-            const int dst_w = state.visible_w;
-            const int dst_h = state.visible_h;
-            (void) XSync(display, False);
-            (void) XcpcPutImage ( display
-                                , window
-                                , gc
-                                , image
-                                , src_x
-                                , src_y
-                                , dst_x
-                                , dst_y
-                                , dst_w
-                                , dst_h
-                                , state.use_xshm ? True : False
-                                , False );
-            (void) XFlush(display);
-        }
-    }
-
-    static inline auto init_attributes(State& state, Display* display, Window window, bool try_xshm) -> void
-    {
-        XWindowAttributes attributes;
-        Status status = XGetWindowAttributes(display, window, &attributes);
-        if(status != 0) {
-            state.display   = display;
-            state.screen    = attributes.screen;
-            state.visual    = attributes.visual;
-            state.image     = nullptr;
-            state.gc        = DefaultGCOfScreen(attributes.screen);
-            state.window    = window;
-            state.colormap  = attributes.colormap;
-            state.depth     = attributes.depth;
-            state.image_x   = 0;
-            state.image_y   = 0;
-            state.total_w   = 0;
-            state.total_h   = 0;
-            state.visible_x = 0;
-            state.visible_y = 0;
-            state.visible_w = 0;
-            state.visible_h = 0;
-            state.try_xshm  = try_xshm;
-            state.has_xshm  = false;
-            state.use_xshm  = false;
-            switch(state.rate) {
-                case 50:
-                    state.total_w   = MONITOR_50HZ_TOTAL_WIDTH;
-                    state.total_h   = MONITOR_50HZ_TOTAL_HEIGHT;
-                    state.visible_x = MONITOR_50HZ_VISIBLE_X;
-                    state.visible_y = MONITOR_50HZ_VISIBLE_Y;
-                    state.visible_w = MONITOR_50HZ_VISIBLE_WIDTH;
-                    state.visible_h = MONITOR_50HZ_VISIBLE_HEIGHT;
-                    break;
-                case 60:
-                    state.total_w   = MONITOR_60HZ_TOTAL_WIDTH;
-                    state.total_h   = MONITOR_60HZ_TOTAL_HEIGHT;
-                    state.visible_x = MONITOR_60HZ_VISIBLE_X;
-                    state.visible_y = MONITOR_60HZ_VISIBLE_Y;
-                    state.visible_w = MONITOR_60HZ_VISIBLE_WIDTH;
-                    state.visible_h = MONITOR_60HZ_VISIBLE_HEIGHT;
-                    break;
-                default:
-                    state.total_w   = MONITOR_50HZ_TOTAL_WIDTH;
-                    state.total_h   = MONITOR_50HZ_TOTAL_HEIGHT;
-                    state.visible_x = MONITOR_50HZ_VISIBLE_X;
-                    state.visible_y = MONITOR_50HZ_VISIBLE_Y;
-                    state.visible_w = MONITOR_50HZ_VISIBLE_WIDTH;
-                    state.visible_h = MONITOR_50HZ_VISIBLE_HEIGHT;
-                    break;
-            }
-            if(state.try_xshm != false) {
-                state.has_xshm = (XcpcQueryShmExtension(state.display) != False ? true : false);
-            }
-            /* compute image_x */ {
-                const int window_width  = attributes.width;
-                const int visible_width = state.visible_w;
-                if(window_width >= visible_width) {
-                    state.image_x = +((window_width - visible_width) / 2);
-                }
-                else {
-                    state.image_x = -((visible_width - window_width) / 2);
-                }
-            }
-            /* compute image_y */ {
-                const int window_height  = attributes.height;
-                const int visible_height = state.visible_h;
-                if(window_height >= visible_height) {
-                    state.image_y = +((window_height - visible_height) / 2);
-                }
-                else {
-                    state.image_y = -((visible_height - window_height) / 2);
-                }
-            }
-            /* resize window */ {
-                (void) XClearArea(state.display, state.window, 0, 0, 32767, 32767, True);
-                (void) XFlush(state.display);
-            }
-        }
-    }
-
-    static inline auto fini_attributes(State& state) -> void
-    {
-        state.display   = nullptr;
-        state.screen    = nullptr;
-        state.visual    = nullptr;
-        state.image     = nullptr;
-        state.gc        = nullptr;
-        state.window    = None;
-        state.colormap  = None;
-        state.depth     = 0;
-        state.image_x   = 0;
-        state.image_y   = 0;
-        state.total_w   = 0;
-        state.total_h   = 0;
-        state.visible_x = 0;
-        state.visible_y = 0;
-        state.visible_w = 0;
-        state.visible_h = 0;
-        state.try_xshm  = false;
-        state.has_xshm  = false;
-        state.use_xshm  = false;
-    }
-
-    static inline auto init_image(State& state) -> void
-    {
-        /* create xshm image */ {
-            if(state.image == nullptr) {
-                if(state.has_xshm != false) {
-                    state.image = XcpcCreateShmImage ( state.display
-                                                     , state.visual
-                                                     , state.depth
-                                                     , ZPixmap
-                                                     , state.total_w
-                                                     , state.total_h );
-                    if(state.image != nullptr) {
-                        state.use_xshm = XcpcAttachShmImage(state.display, state.image);
-                        if(state.use_xshm == false) {
-                            state.image = (XDestroyImage(state.image), nullptr);
-                        }
-                    }
-                }
-            }
-        }
-        /* create normal image */ {
-            if(state.image == nullptr) {
-                state.image = XcpcCreateImage ( state.display
-                                              , state.visual
-                                              , state.depth
-                                              , ZPixmap
-                                              , state.total_w
-                                              , state.total_h );
-            }
-        }
-#if 0
-        /* resize window */ {
-            if(state.image != nullptr) {
-                (void) XResizeWindow(state.display, state.window, state.visible_w, state.visible_h);
-            }
-        }
-#endif
-    }
-
-    static inline auto fini_image(State& state) -> void
-    {
-        if(state.use_xshm != false) {
-            state.use_xshm = (XcpcDetachShmImage(state.display, state.image), false);
-        }
-        state.image = (XDestroyImage(state.image), nullptr);
-    }
-
-    static inline auto init_palette(State& state, const int palette) -> void
-    {
-        auto alloc_palette0 = [&]() -> void
-        {
-            int index = 0;
-            for(auto& color : state.palette0) {
-                setup_color(state, color, index, palette);
-                alloc_color(state, color);
-                ++index;
-            }
-        };
-
-        auto alloc_palette1 = [&]() -> void
-        {
-            int index = 0;
-            for(auto& color : state.palette1) {
-                setup_color(state, color, index, palette);
-                alloc_color(state, color);
-                ++index;
-            }
-        };
-
-        switch(palette) {
-            case 0:
-                alloc_palette0();
+        switch(state.refresh_rate) {
+            case XCPC_REFRESH_RATE_50HZ:
+                visible_x = MONITOR_50HZ_VISIBLE_X;
+                visible_y = MONITOR_50HZ_VISIBLE_Y;
+                visible_w = MONITOR_50HZ_VISIBLE_WIDTH;
+                visible_h = MONITOR_50HZ_VISIBLE_HEIGHT;
                 break;
-            case 1:
-                alloc_palette1();
+            case XCPC_REFRESH_RATE_60HZ:
+                visible_x = MONITOR_60HZ_VISIBLE_X;
+                visible_y = MONITOR_60HZ_VISIBLE_Y;
+                visible_w = MONITOR_60HZ_VISIBLE_WIDTH;
+                visible_h = MONITOR_60HZ_VISIBLE_HEIGHT;
                 break;
             default:
+                visible_x = MONITOR_50HZ_VISIBLE_X;
+                visible_y = MONITOR_50HZ_VISIBLE_Y;
+                visible_w = MONITOR_50HZ_VISIBLE_WIDTH;
+                visible_h = MONITOR_50HZ_VISIBLE_HEIGHT;
                 break;
+        }
+        if(renderer != nullptr) {
+            renderer->set_visible_area(visible_x, visible_y, visible_w, visible_h);
+        }
+        if(renderer != nullptr) {
+            renderer->resize(state.viewport_w, state.viewport_h);
         }
     }
 
-    static inline auto fini_palette(State& state, const int palette) -> void
+    static inline auto alloc_palette0(State& state, Renderer* renderer) -> void
     {
-        auto dealloc_palette0 = [&]() -> void
-        {
-            for(auto& color : state.palette0) {
-                dealloc_color(state, color);
+        int index = 0;
+        for(auto& pixel : state.palette0) {
+            ColorEntry color = {};
+            setup_color(state, color, index, 0);
+            if(renderer != nullptr) {
+                pixel = renderer->alloc_color(color.r, color.g, color.b);
             }
-        };
-
-        auto dealloc_palette1 = [&]() -> void
-        {
-            for(auto& color : state.palette1) {
-                dealloc_color(state, color);
-            }
-        };
-
-        switch(palette) {
-            case 0:
-                dealloc_palette0();
-                break;
-            case 1:
-                dealloc_palette1();
-                break;
-            default:
-                break;
+            ++index;
         }
     }
 
-    static inline auto setup_color(State& state, XColor& color, const int index, const int palette) -> void
+    static inline auto alloc_palette1(State& state, Renderer* renderer) -> void
+    {
+        int index = 0;
+        for(auto& pixel : state.palette1) {
+            ColorEntry color = {};
+            setup_color(state, color, index, 1);
+            if(renderer != nullptr) {
+                pixel = renderer->alloc_color(color.r, color.g, color.b);
+            }
+            ++index;
+        }
+    }
+
+    static inline auto dealloc_palette0(State& state, Renderer* renderer) -> void
+    {
+        for(auto& pixel : state.palette0) {
+            if(renderer != nullptr) {
+                pixel = renderer->dealloc_color(pixel);
+            }
+        }
+    }
+
+    static inline auto dealloc_palette1(State& state, Renderer* renderer) -> void
+    {
+        for(auto& pixel : state.palette1) {
+            if(renderer != nullptr) {
+                pixel = renderer->dealloc_color(pixel);
+            }
+        }
+    }
+
+    static inline auto setup_color(State& state, ColorEntry& color, const int index, const int palette) -> void
     {
         constexpr int min_index = 0;
         constexpr int max_index = 31;
 
         if((index >= min_index) && (index <= max_index)) {
             const auto& entry = color_table[index];
-            color.pixel = 0UL;
-            color.flags = (DoRed | DoGreen | DoBlue);
-            color.pad   = 0;
-            switch(state.type) {
-                case Type::TYPE_COLOR:
-                case Type::TYPE_CTM640:
-                case Type::TYPE_CTM644:
-                case Type::TYPE_CM14:
-                    color.red   = (entry.red   | 0);
-                    color.green = (entry.green | 0);
-                    color.blue  = (entry.blue  | 0);
+            color = entry;
+            switch(state.monitor_type) {
+                case XCPC_MONITOR_TYPE_COLOR:
+                case XCPC_MONITOR_TYPE_CTM640:
+                case XCPC_MONITOR_TYPE_CTM644:
+                case XCPC_MONITOR_TYPE_CM14:
+                    color.r = (entry.r | 0);
+                    color.g = (entry.g | 0);
+                    color.b = (entry.b | 0);
                     break;
-                case Type::TYPE_GREEN:
-                case Type::TYPE_GT64:
-                case Type::TYPE_GT65:
-                    color.red   = (entry.luminance & 0);
-                    color.green = (entry.luminance | 0);
-                    color.blue  = (entry.luminance & 0);
+                case XCPC_MONITOR_TYPE_GREEN:
+                case XCPC_MONITOR_TYPE_GT64:
+                case XCPC_MONITOR_TYPE_GT65:
+                    color.r = (entry.l & 0);
+                    color.g = (entry.l | 0);
+                    color.b = (entry.l & 0);
                     break;
-                case Type::TYPE_GRAY:
-                case Type::TYPE_MM12:
-                    color.red   = (entry.luminance | 0);
-                    color.green = (entry.luminance | 0);
-                    color.blue  = (entry.luminance | 0);
+                case XCPC_MONITOR_TYPE_GRAY:
+                case XCPC_MONITOR_TYPE_MM12:
+                    color.r = (entry.l | 0);
+                    color.g = (entry.l | 0);
+                    color.b = (entry.l | 0);
                     break;
                 default:
-                    color.red   = (entry.red   | 0);
-                    color.green = (entry.green | 0);
-                    color.blue  = (entry.blue  | 0);
+                    color.r = (entry.r | 0);
+                    color.g = (entry.g | 0);
+                    color.b = (entry.b | 0);
                     break;
             }
             if(palette == 1) {
-                color.red   = ((static_cast<uint32_t>(color.red  ) * 5) / 8);
-                color.green = ((static_cast<uint32_t>(color.green) * 5) / 8);
-                color.blue  = ((static_cast<uint32_t>(color.blue ) * 5) / 8);
+                color.r = ((static_cast<uint32_t>(color.r) * 5) / 8);
+                color.g = ((static_cast<uint32_t>(color.g) * 5) / 8);
+                color.b = ((static_cast<uint32_t>(color.b) * 5) / 8);
             }
         }
-    }
-
-    static inline auto alloc_color(State& state, XColor& color) -> void
-    {
-        static_cast<void>(XAllocColor(state.display, state.colormap, &color));
-    }
-
-    static inline auto dealloc_color(State& state, XColor& color) -> void
-    {
-        static_cast<void>(XFreeColors(state.display, state.colormap, &color.pixel, 1, 0));
     }
 };
 
@@ -591,17 +328,20 @@ struct StateTraits final
 
 namespace dpy {
 
-Instance::Instance(const Type type, Interface& interface)
+Instance::Instance(const MonitorType monitor_type, const RefreshRate refresh_rate, Interface& interface)
     : _interface(interface)
     , _state()
+    , _renderer()
 {
-    StateTraits::construct(_state, type);
+    StateTraits::construct(_state, monitor_type, refresh_rate);
 
     reset();
 }
 
 Instance::~Instance()
 {
+    unrealize();
+
     StateTraits::destruct(_state);
 }
 
@@ -615,39 +355,132 @@ auto Instance::clock() -> void
     StateTraits::clock(_state);
 }
 
-auto Instance::set_type(const Type type) -> void
+auto Instance::set_monitor_type(const MonitorType monitor_type) -> void
 {
-    StateTraits::set_type(_state, type);
+    StateTraits::set_monitor_type(_state, _renderer.get(), monitor_type);
 }
 
-auto Instance::set_rate(const uint8_t rate) -> void
+auto Instance::set_refresh_rate(const RefreshRate refresh_rate) -> void
 {
-    StateTraits::set_rate(_state, rate);
+    StateTraits::set_refresh_rate(_state, _renderer.get(), refresh_rate);
 }
 
-auto Instance::realize(Display* display, Window window, bool try_xshm) -> void
+auto Instance::realize(const RendererType renderer_type, Display* display, Window window, bool xshm) -> void
 {
-    StateTraits::realize(_state, display, window, try_xshm);
+    if(bool(_renderer) == false) {
+        switch(renderer_type) {
+            case XCPC_RENDERER_TYPE_XIMAGE:
+                _renderer = std::make_unique<x11::Renderer>(display, window, xshm);
+                break;
+            case XCPC_RENDERER_TYPE_OPENGL:
+                _renderer = std::make_unique<ogl::Renderer>();
+                break;
+            default:
+                break;
+        }
+        StateTraits::realize(_state, _renderer.get());
+    }
 }
 
 auto Instance::unrealize() -> void
 {
-    StateTraits::unrealize(_state);
+    if(bool(_renderer) != false) {
+        StateTraits::unrealize(_state, _renderer.get());
+        _renderer.reset();
+    }
+}
+
+auto Instance::resize(int width, int height) -> void
+{
+    StateTraits::resize(_state, _renderer.get(), width, height);
 }
 
 auto Instance::expose(const XExposeEvent& event) -> void
 {
-    StateTraits::expose(_state, event);
+    if(bool(_renderer) != false) {
+        _renderer->expose(event.x, event.y, event.width, event.height);
+    }
 }
 
-auto Instance::resize(const XConfigureEvent& event) -> void
+auto Instance::render() -> void
 {
-    StateTraits::resize(_state, event);
+    if(bool(_renderer) != false) {
+        _renderer->render();
+    }
 }
 
-auto Instance::put_image() -> void
+auto Instance::set_parameterb(const std::string& parameter, bool value) -> void
 {
-    StateTraits::put_image(_state);
+    if(bool(_renderer) != false) {
+        _renderer->set_parameterb(parameter, value);
+    }
+}
+
+auto Instance::set_parameteri(const std::string& parameter, int value) -> void
+{
+    if(bool(_renderer) != false) {
+        _renderer->set_parameteri(parameter, value);
+    }
+}
+
+auto Instance::set_parameterf(const std::string& parameter, float value) -> void
+{
+    if(bool(_renderer) != false) {
+        _renderer->set_parameterf(parameter, value);
+    }
+}
+
+auto Instance::get_image_width() const -> int
+{
+    if(bool(_renderer) != false) {
+        return (*_renderer)->image_width;
+    }
+    return 0;
+}
+
+auto Instance::get_image_height() const -> int
+{
+    if(bool(_renderer) != false) {
+        return (*_renderer)->image_height;
+    }
+    return 0;
+}
+
+auto Instance::get_image_bpp() const -> int
+{
+    if(bool(_renderer) != false) {
+        return (*_renderer)->image_bpp;
+    }
+    return 0;
+}
+
+auto Instance::get_image_bpl() const -> int
+{
+    if(bool(_renderer) != false) {
+        return (*_renderer)->image_bpl;
+    }
+    return 0;
+}
+
+auto Instance::get_image_data() -> uint8_t*
+{
+    if(bool(_renderer) != false) {
+        return (*_renderer)->image_data;
+    }
+    return nullptr;
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// dpy::Renderer
+// ---------------------------------------------------------------------------
+
+namespace dpy {
+
+Renderer::Renderer()
+    : _state()
+{
 }
 
 }

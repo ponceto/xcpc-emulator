@@ -138,14 +138,24 @@ auto Machine::remove_disk_from_drive1() -> void
     return _mainboard.remove_disk_from_drive1();
 }
 
+auto Machine::set_parameterb(const std::string& parameter, bool value) -> void
+{
+    return _mainboard.set_parameterb(parameter, value);
+}
+
+auto Machine::set_parameteri(const std::string& parameter, int value) -> void
+{
+    return _mainboard.set_parameteri(parameter, value);
+}
+
+auto Machine::set_parameterf(const std::string& parameter, float value) -> void
+{
+    return _mainboard.set_parameterf(parameter, value);
+}
+
 auto Machine::set_volume(const float volume) -> void
 {
     return _mainboard.set_volume(volume);
-}
-
-auto Machine::set_scanlines(const bool scanlines) -> void
-{
-    return _mainboard.set_scanlines(scanlines);
 }
 
 auto Machine::set_company_name(const std::string& company_name) -> void
@@ -171,6 +181,11 @@ auto Machine::set_refresh_rate(const std::string& refresh_rate) -> void
 auto Machine::set_keyboard_type(const std::string& keyboard_type) -> void
 {
     return _mainboard.set_keyboard_type(keyboard_type);
+}
+
+auto Machine::set_renderer_type(const std::string& renderer_type) -> void
+{
+    return _mainboard.set_renderer_type(renderer_type);
 }
 
 auto Machine::get_volume() const -> float
@@ -211,6 +226,11 @@ auto Machine::get_refresh_rate() const -> std::string
 auto Machine::get_keyboard_type() const -> std::string
 {
     return _mainboard.get_keyboard_type();
+}
+
+auto Machine::get_renderer_type() const -> std::string
+{
+    return _mainboard.get_renderer_type();
 }
 
 auto Machine::get_drive0_filename() const -> std::string

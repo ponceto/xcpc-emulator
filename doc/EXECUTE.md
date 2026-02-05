@@ -16,6 +16,7 @@ Emulation options:
     --refresh={value}           50Hz, 60Hz
     --keyboard={value}          english, french, german, spanish, danish
     --memory={value}            64kb, 128kb, 192kb, 256kb, 320kb, 384kb, 448kb, 512kb
+    --renderer={value}          default, ximage, opengl
     --sysrom={filename}         32Kb system rom
     --rom000={filename}         16Kb expansion rom #00
     --rom001={filename}         16Kb expansion rom #01
@@ -41,8 +42,8 @@ Misc. options:
     --speedup={factor}          speeds up emulation by an integer factor
     --xshm                      use the XShm extension
     --no-xshm                   don't use the XShm extension
-    --scanlines                 simulate crt scanlines
-    --no-scanlines              don't simulate crt scanlines
+    --crt-emulation             simulate crt monitor
+    --no-crt-emulation          don't simulate crt monitor
 
 Debug options:
     --quiet                     set the loglevel to quiet mode

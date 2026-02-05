@@ -147,7 +147,7 @@ public: // public methods
 
     virtual auto set_volume(const float volume) -> void = 0;
 
-    virtual auto set_scanlines(const bool scanlines) -> void = 0;
+    virtual auto set_crt_emulation(const bool crt_emulation) -> void = 0;
 
     virtual auto set_machine_type(const std::string& machine_type) -> void = 0;
 
@@ -159,9 +159,41 @@ public: // public methods
 
     virtual auto set_keyboard_type(const std::string& keyboard_type) -> void = 0;
 
+    virtual auto set_renderer_type(const std::string& renderer_type) -> void = 0;
+
     virtual auto set_joystick0(const std::string& device) -> void = 0;
 
     virtual auto set_joystick1(const std::string& device) -> void = 0;
+
+    auto get_machine_type() const -> const std::string
+    {
+        return _machine->get_machine_type();
+    }
+
+    auto get_company_name() const -> const std::string
+    {
+        return _machine->get_company_name();
+    }
+
+    auto get_monitor_type() const -> const std::string
+    {
+        return _machine->get_monitor_type();
+    }
+
+    auto get_refresh_rate() const -> const std::string
+    {
+        return _machine->get_refresh_rate();
+    }
+
+    auto get_keyboard_type() const -> const std::string
+    {
+        return _machine->get_keyboard_type();
+    }
+
+    auto get_renderer_type() const -> const std::string
+    {
+        return _machine->get_renderer_type();
+    }
 
 public: // public signals
     virtual auto on_startup() -> void = 0;
@@ -224,6 +256,10 @@ public: // public signals
 
     virtual auto on_keyboard_danish() -> void = 0;
 
+    virtual auto on_renderer_ximage() -> void = 0;
+
+    virtual auto on_renderer_opengl() -> void = 0;
+
     virtual auto on_drive0_disk_create() -> void = 0;
 
     virtual auto on_drive0_disk_insert() -> void = 0;
@@ -240,9 +276,9 @@ public: // public signals
 
     virtual auto on_volume_decrease() -> void = 0;
 
-    virtual auto on_scanlines_enable() -> void = 0;
+    virtual auto on_crt_emulation_enable() -> void = 0;
 
-    virtual auto on_scanlines_disable() -> void = 0;
+    virtual auto on_crt_emulation_disable() -> void = 0;
 
     virtual auto on_joystick0_connect() -> void = 0;
 

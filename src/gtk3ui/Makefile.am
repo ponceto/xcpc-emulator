@@ -36,8 +36,10 @@ noinst_LTLIBRARIES = \
 # ----------------------------------------------------------------------------
 
 libxcpcgtk3ui_la_SOURCES = \
-	gtkemulator.c \
-	gtkemulator.h \
+	gtkemulatorx11.c \
+	gtkemulatorx11.h \
+	gtkemulatorogl.c \
+	gtkemulatorogl.h \
 	gtkemulatortypes.h \
 	gtkemulatorprivate.h \
 	all.cc \
@@ -86,8 +88,10 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-toolbar.h \
 	gtk3-tool-item.cc \
 	gtk3-tool-item.h \
-	gtk3-emulator.cc \
-	gtk3-emulator.h \
+	gtk3-emulator-x11.cc \
+	gtk3-emulator-x11.h \
+	gtk3-emulator-ogl.cc \
+	gtk3-emulator-ogl.h \
 	gdk3-pixbuf.cc \
 	gdk3-pixbuf.h \
 	xcpc-application.cc \
