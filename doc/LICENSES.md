@@ -46,7 +46,7 @@ ROM and DISK images at your own risk and responsibility.
 
 ### MINIAUDIO
 
-miniaudio v0.11.22, a single file audio playback and capture library written in C.
+miniaudio v0.11.24, a single file audio playback and capture library written in C.
 
 This library is embedded into this projet in split form.
 
