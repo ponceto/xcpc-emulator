@@ -287,9 +287,9 @@ using MonoFrameInt16 = MonoFrame<int16_t>;
 using MonoFrameInt32 = MonoFrame<int32_t>;
 using MonoFrameFlt32 = MonoFrame<float>;
 
-static_assert(sizeof(MonoFrameInt16) == 2);
-static_assert(sizeof(MonoFrameInt32) == 4);
-static_assert(sizeof(MonoFrameFlt32) == 4);
+static_assert(sizeof(MonoFrameInt16) == 2, "MonoFrameInt16 has a bad size");
+static_assert(sizeof(MonoFrameInt32) == 4, "MonoFrameInt32 has a bad size");
+static_assert(sizeof(MonoFrameFlt32) == 4, "MonoFrameFlt32 has a bad size");
 
 }
 
@@ -310,9 +310,9 @@ using StereoFrameInt16 = StereoFrame<int16_t>;
 using StereoFrameInt32 = StereoFrame<int32_t>;
 using StereoFrameFlt32 = StereoFrame<float>;
 
-static_assert(sizeof(StereoFrameInt16) == 4);
-static_assert(sizeof(StereoFrameInt32) == 8);
-static_assert(sizeof(StereoFrameFlt32) == 8);
+static_assert(sizeof(StereoFrameInt16) == 4, "StereoFrameInt16 has a bad size");
+static_assert(sizeof(StereoFrameInt32) == 8, "StereoFrameInt32 has a bad size");
+static_assert(sizeof(StereoFrameFlt32) == 8, "StereoFrameFlt32 has a bad size");
 
 }
 

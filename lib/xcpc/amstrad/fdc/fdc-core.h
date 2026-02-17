@@ -30,9 +30,9 @@ struct floppy_drive;
 
 namespace fdc {
 
-class State;
-class Instance;
-class Interface;
+struct State;
+class  Instance;
+class  Interface;
 
 using FdcImpl = fdc_765;
 using FddImpl = floppy_drive;

@@ -23,9 +23,9 @@
 
 namespace dpy {
 
-class State;
-class Instance;
-class Interface;
+struct State;
+class  Instance;
+class  Interface;
 
 }
 

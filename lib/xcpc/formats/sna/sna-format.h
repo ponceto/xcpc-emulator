@@ -150,8 +150,8 @@ struct State
     Memory memory[32];
 };
 
-static_assert(sizeof(State::header) == 256UL);
-static_assert(sizeof(State::memory) == 512UL * 1024UL);
+static_assert(sizeof(State::header) == 256UL,          "State::header is invalid");
+static_assert(sizeof(State::memory) == 512UL * 1024UL, "State::memory is invalid");
 
 }
 
