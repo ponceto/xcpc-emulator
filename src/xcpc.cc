@@ -81,7 +81,7 @@ auto PosixTraits::file_writable(const std::string& filename) -> bool
 
 namespace base {
 
-void Environ::setenv(const std::string& variable, const std::string& value)
+auto Environ::setenv(const std::string& variable, const std::string& value) -> void
 {
     const int rc = ::setenv(variable.c_str(), value.c_str(), 1);
 
@@ -106,7 +106,7 @@ Application::Application(int& argc, char**& argv)
 {
 }
 
-void Application::run_dialog(Dialog& dialog)
+auto Application::run_dialog(Dialog& dialog) -> void
 {
     const ScopedPause pause(*this);
 

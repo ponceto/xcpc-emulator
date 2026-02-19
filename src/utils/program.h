@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~Program() = default;
 
-    virtual void main() = 0;
+    virtual auto main() -> void = 0;
 
 protected: // protected data
     ArgList& _arglist;

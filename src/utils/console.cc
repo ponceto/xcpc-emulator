@@ -39,7 +39,7 @@ namespace {
 
 struct ConsoleTraits
 {
-    static void println(std::ostream& stream, const char* format, va_list arguments)
+    static auto println(std::ostream& stream, const char* format, va_list arguments) -> void
     {
         if(stream.good()) {
             char* message = nullptr;
@@ -69,7 +69,7 @@ Console::Console ( std::istream& istream
 {
 }
 
-void Console::println(const char* format, ...)
+auto Console::println(const char* format, ...) -> void
 {
     va_list arguments;
     va_start(arguments, format);
@@ -77,7 +77,7 @@ void Console::println(const char* format, ...)
     va_end(arguments);
 }
 
-void Console::errorln(const char* format, ...)
+auto Console::errorln(const char* format, ...) -> void
 {
     va_list arguments;
     va_start(arguments, format);

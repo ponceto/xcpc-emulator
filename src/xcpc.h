@@ -91,7 +91,7 @@ public: // public interface
 
     virtual ~Environ() = default;
 
-    static void setenv(const std::string& variable, const std::string& value);
+    static auto setenv(const std::string& variable, const std::string& value) -> void;
 };
 
 }

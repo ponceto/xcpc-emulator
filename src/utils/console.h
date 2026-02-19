@@ -32,9 +32,9 @@ public: // public interface
 
     virtual ~Console() = default;
 
-    virtual void println(const char*, ...);
+    virtual auto println(const char*, ...) -> void;
 
-    virtual void errorln(const char*, ...);
+    virtual auto errorln(const char*, ...) -> void;
 
 protected: // protected data
     std::istream& _istream;
