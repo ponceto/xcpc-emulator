@@ -44,21 +44,21 @@ public: // public interface
         return GTK_MENU_ITEM(_instance);
     }
 
-    void create_menu_item();
+    auto create_menu_item() -> void;
 
-    void create_menu_item_with_label(const std::string& label);
+    auto create_menu_item_with_label(const std::string& label) -> void;
 
-    void create_menu_item_with_mnemonic(const std::string& label);
+    auto create_menu_item_with_mnemonic(const std::string& label) -> void;
 
-    void set_submenu(Widget&);
+    auto set_submenu(Widget&) -> void;
 
-    void set_accel(unsigned int accelerator_key, GdkModifierType accelerator_mods);
+    auto set_accel(unsigned int accelerator_key, GdkModifierType accelerator_mods) -> void;
 
-    void add_activate_callback(GCallback callback, void* data);
+    auto add_activate_callback(GCallback callback, void* data) -> void;
 
-    void add_select_callback(GCallback callback, void* data);
+    auto add_select_callback(GCallback callback, void* data) -> void;
 
-    void add_deselect_callback(GCallback callback, void* data);
+    auto add_deselect_callback(GCallback callback, void* data) -> void;
 };
 
 }
@@ -84,7 +84,7 @@ public: // public interface
         return GTK_SEPARATOR_MENU_ITEM(_instance);
     }
 
-    void create_separator_menu_item();
+    auto create_separator_menu_item() -> void;
 };
 
 }

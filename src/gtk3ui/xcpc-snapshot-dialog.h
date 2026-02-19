@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~LoadSnapshotDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }
@@ -52,7 +52,7 @@ public: // public interface
 
     virtual ~SaveSnapshotDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }

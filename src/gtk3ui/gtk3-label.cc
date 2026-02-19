@@ -40,26 +40,26 @@ namespace gtk3 {
 struct LabelTraits
     : BasicTraits
 {
-    static GtkWidget* create_label(const std::string& string = "label")
+    static auto create_label(const std::string& string = "label") -> GtkWidget*
     {
         return ::gtk_label_new(string.c_str());
     }
 
-    static void set_text(Label& label, const std::string& string)
+    static auto set_text(Label& label, const std::string& string) -> void
     {
         if(label) {
             ::gtk_label_set_text(label, string.c_str());
         }
     }
 
-    static void set_markup(Label& label, const std::string& string)
+    static auto set_markup(Label& label, const std::string& string) -> void
     {
         if(label) {
             ::gtk_label_set_markup(label, string.c_str());
         }
     }
 
-    static void set_ellipsize(Label& label, PangoEllipsizeMode mode)
+    static auto set_ellipsize(Label& label, PangoEllipsizeMode mode) -> void
     {
         if(label) {
             ::gtk_label_set_ellipsize(label, mode);
@@ -95,7 +95,7 @@ Label::Label(GtkWidget* instance)
 {
 }
 
-void Label::create_label(const std::string& string)
+auto Label::create_label(const std::string& string) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_label(string);
@@ -103,17 +103,17 @@ void Label::create_label(const std::string& string)
     }
 }
 
-void Label::set_text(const std::string& string)
+auto Label::set_text(const std::string& string) -> void
 {
     return traits::set_text(*this, string);
 }
 
-void Label::set_markup(const std::string& string)
+auto Label::set_markup(const std::string& string) -> void
 {
     return traits::set_markup(*this, string);
 }
 
-void Label::set_ellipsize(PangoEllipsizeMode mode)
+auto Label::set_ellipsize(PangoEllipsizeMode mode) -> void
 {
     return traits::set_ellipsize(*this, mode);
 }

@@ -40,7 +40,7 @@ namespace gtk3 {
 struct MenuTraits
     : BasicTraits
 {
-    static GtkWidget* create_menu()
+    static auto create_menu() -> GtkWidget*
     {
         return ::gtk_menu_new();
     }
@@ -74,7 +74,7 @@ Menu::Menu(GtkWidget* instance)
 {
 }
 
-void Menu::create_menu()
+auto Menu::create_menu() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_menu();

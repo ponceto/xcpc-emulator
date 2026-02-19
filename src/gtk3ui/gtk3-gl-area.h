@@ -44,11 +44,11 @@ public: // public interface
         return GTK_GL_AREA(_instance);
     }
 
-    void create_gl_area();
+    auto create_gl_area() -> void;
 
-    void add_render_callback(GCallback callback, void* data);
+    auto add_render_callback(GCallback callback, void* data) -> void;
 
-    void add_resize_callback(GCallback callback, void* data);
+    auto add_resize_callback(GCallback callback, void* data) -> void;
 };
 
 }

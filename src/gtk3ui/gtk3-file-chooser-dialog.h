@@ -49,7 +49,7 @@ public: // public interface
         return GTK_FILE_CHOOSER_DIALOG(_instance);
     }
 
-    std::string get_filename();
+    auto get_filename() -> std::string;
 };
 
 }
@@ -70,7 +70,7 @@ public: // public interface
 
     virtual ~FileChooserOpenDialog() = default;
 
-    void create_file_chooser_open_dialog();
+    auto create_file_chooser_open_dialog() -> void;
 };
 
 }
@@ -91,7 +91,7 @@ public: // public interface
 
     virtual ~FileChooserSaveDialog() = default;
 
-    void create_file_chooser_save_dialog();
+    auto create_file_chooser_save_dialog() -> void;
 };
 
 }

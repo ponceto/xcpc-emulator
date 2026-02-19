@@ -44,9 +44,9 @@ public: // public interface
         return GTK_TOOLBAR(_instance);
     }
 
-    void create_toolbar();
+    auto create_toolbar() -> void;
 
-    void insert(Widget&, int position);
+    auto insert(Widget&, int position) -> void;
 };
 
 }

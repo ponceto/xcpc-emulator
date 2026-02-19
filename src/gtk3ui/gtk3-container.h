@@ -44,9 +44,9 @@ public: // public interface
         return GTK_CONTAINER(_instance);
     }
 
-    void add(Widget&);
+    auto add(Widget&) -> void;
 
-    void remove(Widget&);
+    auto remove(Widget&) -> void;
 };
 
 }

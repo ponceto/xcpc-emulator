@@ -40,34 +40,34 @@ namespace gtk3 {
 struct MenuItemTraits
     : BasicTraits
 {
-    static GtkWidget* create_menu_item()
+    static auto create_menu_item() -> GtkWidget*
     {
         return ::gtk_menu_item_new();
     }
 
-    static GtkWidget* create_menu_item_with_label(const std::string& label)
+    static auto create_menu_item_with_label(const std::string& label) -> GtkWidget*
     {
         return ::gtk_menu_item_new_with_label(label.c_str());
     }
 
-    static GtkWidget* create_menu_item_with_mnemonic(const std::string& label)
+    static auto create_menu_item_with_mnemonic(const std::string& label) -> GtkWidget*
     {
         return ::gtk_menu_item_new_with_mnemonic(label.c_str());
     }
 
-    static GtkWidget* create_separator_menu_item()
+    static auto create_separator_menu_item() -> GtkWidget*
     {
         return ::gtk_separator_menu_item_new();
     }
 
-    static void set_submenu(MenuItem& menu_item, Widget& widget)
+    static auto set_submenu(MenuItem& menu_item, Widget& widget) -> void
     {
         if(menu_item && widget) {
             ::gtk_menu_item_set_submenu(menu_item, widget);
         }
     }
 
-    static void set_accel(MenuItem& menu_item, unsigned int accelerator_key, GdkModifierType accelerator_mods)
+    static auto set_accel(MenuItem& menu_item, unsigned int accelerator_key, GdkModifierType accelerator_mods) -> void
     {
         if(menu_item) {
             GtkWidget* accel_label = ::gtk_bin_get_child(menu_item);
@@ -104,7 +104,7 @@ MenuItem::MenuItem(GtkWidget* instance)
 {
 }
 
-void MenuItem::create_menu_item()
+auto MenuItem::create_menu_item() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_menu_item();
@@ -112,7 +112,7 @@ void MenuItem::create_menu_item()
     }
 }
 
-void MenuItem::create_menu_item_with_label(const std::string& label)
+auto MenuItem::create_menu_item_with_label(const std::string& label) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_menu_item_with_label(label);
@@ -120,7 +120,7 @@ void MenuItem::create_menu_item_with_label(const std::string& label)
     }
 }
 
-void MenuItem::create_menu_item_with_mnemonic(const std::string& label)
+auto MenuItem::create_menu_item_with_mnemonic(const std::string& label) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_menu_item_with_mnemonic(label);
@@ -128,27 +128,27 @@ void MenuItem::create_menu_item_with_mnemonic(const std::string& label)
     }
 }
 
-void MenuItem::set_submenu(Widget& widget)
+auto MenuItem::set_submenu(Widget& widget) -> void
 {
     return traits::set_submenu(*this, widget);
 }
 
-void MenuItem::set_accel(unsigned int accelerator_key, GdkModifierType accelerator_mods)
+auto MenuItem::set_accel(unsigned int accelerator_key, GdkModifierType accelerator_mods) -> void
 {
     return traits::set_accel(*this, accelerator_key, accelerator_mods);
 }
 
-void MenuItem::add_activate_callback(GCallback callback, void* data)
+auto MenuItem::add_activate_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_activate, callback, data);
 }
 
-void MenuItem::add_select_callback(GCallback callback, void* data)
+auto MenuItem::add_select_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_select, callback, data);
 }
 
-void MenuItem::add_deselect_callback(GCallback callback, void* data)
+auto MenuItem::add_deselect_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_deselect, callback, data);
 }
@@ -171,7 +171,7 @@ SeparatorMenuItem::SeparatorMenuItem(GtkWidget* instance)
 {
 }
 
-void SeparatorMenuItem::create_separator_menu_item()
+auto SeparatorMenuItem::create_separator_menu_item() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_separator_menu_item();

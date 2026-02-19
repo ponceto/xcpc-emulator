@@ -40,12 +40,12 @@ namespace gtk3 {
 struct MenuShellTraits
     : BasicTraits
 {
-    static GtkWidget* create_menu_shell()
+    static auto create_menu_shell() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static void append(MenuShell& menu_shell, Widget& widget)
+    static auto append(MenuShell& menu_shell, Widget& widget) -> void
     {
         if(menu_shell && widget) {
             ::gtk_menu_shell_append(menu_shell, widget);
@@ -81,7 +81,7 @@ MenuShell::MenuShell(GtkWidget* instance)
 {
 }
 
-void MenuShell::append(Widget& widget)
+auto MenuShell::append(Widget& widget) -> void
 {
     return traits::append(*this, widget);
 }

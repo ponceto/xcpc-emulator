@@ -40,50 +40,50 @@ namespace gtk3 {
 struct BoxTraits
     : BasicTraits
 {
-    static GtkWidget* create_box()
+    static auto create_box() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static GtkWidget* create_hbox(int spacing = 0)
+    static auto create_hbox(int spacing = 0) -> GtkWidget*
     {
         return ::gtk_box_new(GTK_ORIENTATION_HORIZONTAL, spacing);
     }
 
-    static GtkWidget* create_vbox(int spacing = 0)
+    static auto create_vbox(int spacing = 0) -> GtkWidget*
     {
         return ::gtk_box_new(GTK_ORIENTATION_VERTICAL, spacing);
     }
 
-    static void set_spacing(Box& box, int spacing)
+    static auto set_spacing(Box& box, int spacing) -> void
     {
         if(box) {
             ::gtk_box_set_spacing(box, spacing);
         }
     }
 
-    static void set_homogeneous(Box& box, bool homogeneous)
+    static auto set_homogeneous(Box& box, bool homogeneous) -> void
     {
         if(box) {
             ::gtk_box_set_homogeneous(box, homogeneous);
         }
     }
 
-    static void pack_start(Box& box, Widget& child, bool expand, bool fill, unsigned int padding)
+    static auto pack_start(Box& box, Widget& child, bool expand, bool fill, unsigned int padding) -> void
     {
         if(box && child) {
             ::gtk_box_pack_start(box, child, expand, fill, padding);
         }
     }
 
-    static void pack_end(Box& box, Widget& child, bool expand, bool fill, unsigned int padding)
+    static auto pack_end(Box& box, Widget& child, bool expand, bool fill, unsigned int padding) -> void
     {
         if(box && child) {
             ::gtk_box_pack_end(box, child, expand, fill, padding);
         }
     }
 
-    static void set_center_widget(Box& box, Widget& child)
+    static auto set_center_widget(Box& box, Widget& child) -> void
     {
         if(box && child) {
             ::gtk_box_set_center_widget(box, child);
@@ -119,27 +119,27 @@ Box::Box(GtkWidget* instance)
 {
 }
 
-void Box::set_spacing(int spacing)
+auto Box::set_spacing(int spacing) -> void
 {
     return traits::set_spacing(*this, spacing);
 }
 
-void Box::set_homogeneous(bool homogeneous)
+auto Box::set_homogeneous(bool homogeneous) -> void
 {
     return traits::set_homogeneous(*this, homogeneous);
 }
 
-void Box::pack_start(Widget& child, bool expand, bool fill, unsigned int padding)
+auto Box::pack_start(Widget& child, bool expand, bool fill, unsigned int padding) -> void
 {
     return traits::pack_start(*this, child, expand, fill, padding);
 }
 
-void Box::pack_end(Widget& child, bool expand, bool fill, unsigned int padding)
+auto Box::pack_end(Widget& child, bool expand, bool fill, unsigned int padding) -> void
 {
     return traits::pack_end(*this, child, expand, fill, padding);
 }
 
-void Box::set_center_widget(Widget& child)
+auto Box::set_center_widget(Widget& child) -> void
 {
     return traits::set_center_widget(*this, child);
 }
@@ -162,7 +162,7 @@ HBox::HBox(GtkWidget* instance)
 {
 }
 
-void HBox::create_hbox()
+auto HBox::create_hbox() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_hbox();
@@ -188,7 +188,7 @@ VBox::VBox(GtkWidget* instance)
 {
 }
 
-void VBox::create_vbox()
+auto VBox::create_vbox() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_vbox();

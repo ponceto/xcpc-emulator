@@ -44,7 +44,7 @@ public: // public interface
         return GTK_MENU_BAR(_instance);
     }
 
-    void create_menu_bar();
+    auto create_menu_bar() -> void;
 };
 
 }

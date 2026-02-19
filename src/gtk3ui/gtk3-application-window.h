@@ -45,7 +45,7 @@ public: // public interface
         return GTK_APPLICATION_WINDOW(_instance);
     }
 
-    void create_application_window(Application&);
+    auto create_application_window(Application&) -> void;
 };
 
 }

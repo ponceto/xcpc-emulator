@@ -44,7 +44,7 @@ public: // public interface
         return GTK_FRAME(_instance);
     }
 
-    void create_frame(const std::string& string);
+    auto create_frame(const std::string& string) -> void;
 };
 
 }

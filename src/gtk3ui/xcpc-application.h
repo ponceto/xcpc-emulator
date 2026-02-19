@@ -82,7 +82,7 @@ public: // public interface
 
     virtual ~AppWidget() = default;
 
-    virtual void build() = 0;
+    virtual auto build() -> void = 0;
 
 protected: // protected data
     Application& _application;
@@ -109,7 +109,7 @@ public: // public interface
 
     virtual ~Canvas() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 public: // public signals
     auto on_canvas_realize() -> void;
@@ -155,7 +155,7 @@ public: // public interface
 
     virtual ~FileMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -187,19 +187,19 @@ public: // public interface
 
     virtual ~ControlsMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -231,7 +231,7 @@ public: // public interface
 
     virtual ~MachineMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem& _self;
@@ -290,7 +290,7 @@ public: // public interface
 
     virtual ~Drive0Menu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -322,7 +322,7 @@ public: // public interface
 
     virtual ~Drive1Menu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -354,7 +354,7 @@ public: // public interface
 
     virtual ~AudioMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem& _self;
@@ -384,7 +384,7 @@ public: // public interface
 
     virtual ~VideoMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem& _self;
@@ -414,7 +414,7 @@ public: // public interface
 
     virtual ~InputMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem& _self;
@@ -450,7 +450,7 @@ public: // public interface
 
     virtual ~HelpMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -481,19 +481,19 @@ public: // public interface
 
     virtual ~MenuBar() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
 
 private: // private data
     gtk3::MenuBar& _self;
@@ -529,19 +529,19 @@ public: // public interface
 
     virtual ~ToolBar() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
 
 private: // private data
     gtk3::Toolbar&          _self;
@@ -577,19 +577,19 @@ public: // public interface
 
     virtual ~InfoBar() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    void set_state(const std::string& state);
+    auto set_state(const std::string& state) -> void;
 
-    void set_drive0(const std::string& drive0);
+    auto set_drive0(const std::string& drive0) -> void;
 
-    void set_drive1(const std::string& drive1);
+    auto set_drive1(const std::string& drive1) -> void;
 
-    void set_system(const std::string& system);
+    auto set_system(const std::string& system) -> void;
 
-    void set_volume(const std::string& volume);
+    auto set_volume(const std::string& volume) -> void;
 
-    void set_stats(const std::string& stats);
+    auto set_stats(const std::string& stats) -> void;
 
 private: // private data
     gtk3::HBox& _self;
@@ -622,7 +622,7 @@ public: // public interface
 
     virtual ~WorkWnd() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
     auto emulator() -> gtk3::Emulator&
     {
@@ -656,7 +656,7 @@ public: // public interface
 
     virtual ~AppWindow() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
     auto menu_bar() -> auto&
     {
@@ -678,17 +678,17 @@ public: // public interface
         return _info_bar;
     }
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
 
 private: // private data
     gtk3::VBox _layout;
@@ -740,7 +740,7 @@ public: // public interface
 
     virtual ~Application();
 
-    virtual int main() override final;
+    virtual auto main() -> int override final;
 
 public: // public accessors
     auto app_context() -> gtk3::Application&

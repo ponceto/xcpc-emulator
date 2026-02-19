@@ -36,13 +36,13 @@ public: // public interface
 
     virtual ~ApplicationListener() = default;
 
-    virtual void on_open(GFile** files, int num_files);
+    virtual auto on_open(GFile** files, int num_files) -> void;
 
-    virtual void on_startup();
+    virtual auto on_startup() -> void;
 
-    virtual void on_shutdown();
+    virtual auto on_shutdown() -> void;
 
-    virtual void on_activate();
+    virtual auto on_activate() -> void;
 };
 
 }
@@ -92,9 +92,9 @@ public: // public interface
         return _listener;
     }
 
-    void create_application(const std::string& app_id);
+    auto create_application(const std::string& app_id) -> void;
 
-    virtual int run(int argc, char* argv[]);
+    virtual auto run(int argc, char* argv[]) -> int;
 
 protected: // protected data
     GtkApplication*      _instance;

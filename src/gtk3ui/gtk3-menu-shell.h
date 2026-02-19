@@ -44,7 +44,7 @@ public: // public interface
         return GTK_MENU_SHELL(_instance);
     }
 
-    void append(Widget&);
+    auto append(Widget&) -> void;
 };
 
 }

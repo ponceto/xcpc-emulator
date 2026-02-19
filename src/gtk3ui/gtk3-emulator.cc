@@ -40,19 +40,19 @@ namespace gtk3 {
 struct EmulatorTraits
     : BasicTraits
 {
-    static GtkWidget* create_emulator()
+    static auto create_emulator() -> GtkWidget*
     {
         return ::gtk_emulator_new();
     }
 
-    static void set_backend(Emulator& emulator, const GemBackend* backend)
+    static auto set_backend(Emulator& emulator, const GemBackend* backend) -> void
     {
         if(emulator) {
             ::gtk_emulator_set_backend(emulator, backend);
         }
     }
 
-    static void set_joystick(Emulator& emulator, int id, const std::string& device)
+    static auto set_joystick(Emulator& emulator, int id, const std::string& device) -> void
     {
         if(emulator) {
             ::gtk_emulator_set_joystick(emulator, id, device.c_str());
@@ -88,7 +88,7 @@ Emulator::Emulator(GtkWidget* instance)
 {
 }
 
-void Emulator::create_emulator()
+auto Emulator::create_emulator() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_emulator();
@@ -96,17 +96,17 @@ void Emulator::create_emulator()
     }
 }
 
-void Emulator::set_backend(const GemBackend* backend)
+auto Emulator::set_backend(const GemBackend* backend) -> void
 {
     return traits::set_backend(*this, backend);
 }
 
-void Emulator::set_joystick(int id, const std::string& device)
+auto Emulator::set_joystick(int id, const std::string& device) -> void
 {
     return traits::set_joystick(*this, id, device);
 }
 
-void Emulator::add_hotkey_callback(GCallback callback, void* data)
+auto Emulator::add_hotkey_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_hotkey, callback, data);
 }

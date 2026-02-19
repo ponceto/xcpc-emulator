@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~HelpDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }

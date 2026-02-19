@@ -48,48 +48,48 @@ public: // public interface
         return GTK_WIDGET(_instance);
     }
 
-    GtkWidget* operator*() const
+    auto operator*() const -> GtkWidget*
     {
         return _instance;
     }
 
-    void destroy();
+    auto destroy() -> void;
 
-    void show_all();
+    auto show_all() -> void;
 
-    void show();
+    auto show() -> void;
 
-    void hide();
+    auto hide() -> void;
 
-    void grab_focus();
+    auto grab_focus() -> void;
 
-    void set_can_focus(bool can_focus);
+    auto set_can_focus(bool can_focus) -> void;
 
-    void set_focus_on_click(bool focus_on_click);
+    auto set_focus_on_click(bool focus_on_click) -> void;
 
-    void set_sensitive(bool sensitive);
+    auto set_sensitive(bool sensitive) -> void;
 
-    bool is_sensitive();
+    auto is_sensitive() -> bool;
 
-    void drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions);
+    auto drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void;
 
-    void signal_connect(const char* signal, GCallback callback, void* data);
+    auto signal_connect(const char* signal, GCallback callback, void* data) -> void;
 
-    void add_realize_callback(GCallback callback, void* data);
+    auto add_realize_callback(GCallback callback, void* data) -> void;
 
-    void add_unrealize_callback(GCallback callback, void* data);
+    auto add_unrealize_callback(GCallback callback, void* data) -> void;
 
-    void add_key_press_event_callback(GCallback callback, void* data);
+    auto add_key_press_event_callback(GCallback callback, void* data) -> void;
 
-    void add_key_release_event_callback(GCallback callback, void* data);
+    auto add_key_release_event_callback(GCallback callback, void* data) -> void;
 
-    void add_button_press_event_callback(GCallback callback, void* data);
+    auto add_button_press_event_callback(GCallback callback, void* data) -> void;
 
-    void add_button_release_event_callback(GCallback callback, void* data);
+    auto add_button_release_event_callback(GCallback callback, void* data) -> void;
 
-    void add_motion_notify_event_callback(GCallback callback, void* data);
+    auto add_motion_notify_event_callback(GCallback callback, void* data) -> void;
 
-    void add_drag_data_received_callback(GCallback callback, void* data);
+    auto add_drag_data_received_callback(GCallback callback, void* data) -> void;
 
 protected: // protected data
     GtkWidget* _instance;

@@ -40,7 +40,7 @@ namespace gtk3 {
 struct FrameTraits
     : BasicTraits
 {
-    static GtkWidget* create_frame(const std::string& string = "label")
+    static auto create_frame(const std::string& string = "label") -> GtkWidget*
     {
         return ::gtk_frame_new(string.c_str());
     }
@@ -74,7 +74,7 @@ Frame::Frame(GtkWidget* instance)
 {
 }
 
-void Frame::create_frame(const std::string& string)
+auto Frame::create_frame(const std::string& string) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_frame(string);

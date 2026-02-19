@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~CreateDiskDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }
@@ -52,7 +52,7 @@ public: // public interface
 
     virtual ~InsertDiskDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }
@@ -71,7 +71,7 @@ public: // public interface
 
     virtual ~RemoveDiskDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }

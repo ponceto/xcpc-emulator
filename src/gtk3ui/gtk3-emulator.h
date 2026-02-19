@@ -44,13 +44,13 @@ public: // public interface
         return GTK_EMULATOR(_instance);
     }
 
-    void create_emulator();
+    auto create_emulator() -> void;
 
-    void set_backend(const GemBackend* backend);
+    auto set_backend(const GemBackend* backend) -> void;
 
-    void set_joystick(int id, const std::string& device);
+    auto set_joystick(int id, const std::string& device) -> void;
 
-    void add_hotkey_callback(GCallback callback, void* data);
+    auto add_hotkey_callback(GCallback callback, void* data) -> void;
 };
 
 }

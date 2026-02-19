@@ -44,23 +44,23 @@ public: // public interface
         return GTK_ABOUT_DIALOG(_instance);
     }
 
-    void create_about_dialog();
+    auto create_about_dialog() -> void;
 
-    void set_logo(GdkPixbuf* logo);
+    auto set_logo(GdkPixbuf* logo) -> void;
 
-    void set_logo_icon_name(const std::string& icon_name);
+    auto set_logo_icon_name(const std::string& icon_name) -> void;
 
-    void set_program_name(const std::string& program_name);
+    auto set_program_name(const std::string& program_name) -> void;
 
-    void set_version(const std::string& version);
+    auto set_version(const std::string& version) -> void;
 
-    void set_copyright(const std::string& copyright);
+    auto set_copyright(const std::string& copyright) -> void;
 
-    void set_comments(const std::string& comments);
+    auto set_comments(const std::string& comments) -> void;
 
-    void set_website(const std::string& website);
+    auto set_website(const std::string& website) -> void;
 
-    void set_license(const std::string& license);
+    auto set_license(const std::string& license) -> void;
 };
 
 }

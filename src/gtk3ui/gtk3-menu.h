@@ -44,7 +44,7 @@ public: // public interface
         return GTK_MENU(_instance);
     }
 
-    void create_menu();
+    auto create_menu() -> void;
 };
 
 }

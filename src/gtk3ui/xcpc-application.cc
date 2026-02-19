@@ -604,7 +604,7 @@ Canvas::Canvas(Application& application)
 {
 }
 
-void Canvas::build()
+auto Canvas::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -699,7 +699,7 @@ FileMenu::FileMenu(Application& application)
 {
 }
 
-void FileMenu::build()
+auto FileMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -774,7 +774,7 @@ ControlsMenu::ControlsMenu(Application& application)
 {
 }
 
-void ControlsMenu::build()
+auto ControlsMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -828,32 +828,32 @@ void ControlsMenu::build()
     return build_all();
 }
 
-void ControlsMenu::show_play()
+auto ControlsMenu::show_play() -> void
 {
     _emulator_play.show();
 }
 
-void ControlsMenu::hide_play()
+auto ControlsMenu::hide_play() -> void
 {
     _emulator_play.hide();
 }
 
-void ControlsMenu::show_pause()
+auto ControlsMenu::show_pause() -> void
 {
     _emulator_pause.show();
 }
 
-void ControlsMenu::hide_pause()
+auto ControlsMenu::hide_pause() -> void
 {
     _emulator_pause.hide();
 }
 
-void ControlsMenu::show_reset()
+auto ControlsMenu::show_reset() -> void
 {
     _emulator_reset.show();
 }
 
-void ControlsMenu::hide_reset()
+auto ControlsMenu::hide_reset() -> void
 {
     _emulator_reset.hide();
 }
@@ -905,7 +905,7 @@ MachineMenu::MachineMenu(Application& application)
 {
 }
 
-void MachineMenu::build()
+auto MachineMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1163,7 +1163,7 @@ Drive0Menu::Drive0Menu(Application& application)
 {
 }
 
-void Drive0Menu::build()
+auto Drive0Menu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1238,7 +1238,7 @@ Drive1Menu::Drive1Menu(Application& application)
 {
 }
 
-void Drive1Menu::build()
+auto Drive1Menu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1311,7 +1311,7 @@ AudioMenu::AudioMenu(Application& application)
 {
 }
 
-void AudioMenu::build()
+auto AudioMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1367,7 +1367,7 @@ VideoMenu::VideoMenu(Application& application)
 {
 }
 
-void VideoMenu::build()
+auto VideoMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1429,7 +1429,7 @@ InputMenu::InputMenu(Application& application)
 {
 }
 
-void InputMenu::build()
+auto InputMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1530,7 +1530,7 @@ HelpMenu::HelpMenu(Application& application)
 {
 }
 
-void HelpMenu::build()
+auto HelpMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1600,7 +1600,7 @@ MenuBar::MenuBar(Application& application)
 {
 }
 
-void MenuBar::build()
+auto MenuBar::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1678,32 +1678,32 @@ void MenuBar::build()
     return build_all();
 }
 
-void MenuBar::show_play()
+auto MenuBar::show_play() -> void
 {
     _controls_menu.show_play();
 }
 
-void MenuBar::hide_play()
+auto MenuBar::hide_play() -> void
 {
     _controls_menu.hide_play();
 }
 
-void MenuBar::show_pause()
+auto MenuBar::show_pause() -> void
 {
     _controls_menu.show_pause();
 }
 
-void MenuBar::hide_pause()
+auto MenuBar::hide_pause() -> void
 {
     _controls_menu.hide_pause();
 }
 
-void MenuBar::show_reset()
+auto MenuBar::show_reset() -> void
 {
     _controls_menu.show_reset();
 }
 
-void MenuBar::hide_reset()
+auto MenuBar::hide_reset() -> void
 {
     _controls_menu.hide_reset();
 }
@@ -1732,7 +1732,7 @@ ToolBar::ToolBar(Application& application)
 {
 }
 
-void ToolBar::build()
+auto ToolBar::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1824,32 +1824,32 @@ void ToolBar::build()
     return build_all();
 }
 
-void ToolBar::show_play()
+auto ToolBar::show_play() -> void
 {
     _emulator_play.show();
 }
 
-void ToolBar::hide_play()
+auto ToolBar::hide_play() -> void
 {
     _emulator_play.hide();
 }
 
-void ToolBar::show_pause()
+auto ToolBar::show_pause() -> void
 {
     _emulator_pause.show();
 }
 
-void ToolBar::hide_pause()
+auto ToolBar::hide_pause() -> void
 {
     _emulator_pause.hide();
 }
 
-void ToolBar::show_reset()
+auto ToolBar::show_reset() -> void
 {
     _emulator_reset.show();
 }
 
-void ToolBar::hide_reset()
+auto ToolBar::hide_reset() -> void
 {
     _emulator_reset.hide();
 }
@@ -1875,7 +1875,7 @@ InfoBar::InfoBar(Application& application)
 {
 }
 
-void InfoBar::build()
+auto InfoBar::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1935,7 +1935,7 @@ void InfoBar::build()
     return build_all();
 }
 
-void InfoBar::set_state(const std::string& state)
+auto InfoBar::set_state(const std::string& state) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -1963,7 +1963,7 @@ void InfoBar::set_state(const std::string& state)
     return update();
 }
 
-void InfoBar::set_drive0(const std::string& drive0)
+auto InfoBar::set_drive0(const std::string& drive0) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -1991,7 +1991,7 @@ void InfoBar::set_drive0(const std::string& drive0)
     return update();
 }
 
-void InfoBar::set_drive1(const std::string& drive1)
+auto InfoBar::set_drive1(const std::string& drive1) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -2019,7 +2019,7 @@ void InfoBar::set_drive1(const std::string& drive1)
     return update();
 }
 
-void InfoBar::set_system(const std::string& system)
+auto InfoBar::set_system(const std::string& system) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -2047,7 +2047,7 @@ void InfoBar::set_system(const std::string& system)
     return update();
 }
 
-void InfoBar::set_volume(const std::string& volume)
+auto InfoBar::set_volume(const std::string& volume) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -2075,7 +2075,7 @@ void InfoBar::set_volume(const std::string& volume)
     return update();
 }
 
-void InfoBar::set_stats(const std::string& stats)
+auto InfoBar::set_stats(const std::string& stats) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -2120,7 +2120,7 @@ WorkWnd::WorkWnd(Application& application)
 {
 }
 
-void WorkWnd::build()
+auto WorkWnd::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -2178,7 +2178,7 @@ AppWindow::AppWindow(Application& application)
 {
 }
 
-void AppWindow::build()
+auto AppWindow::build() -> void
 {
     auto& _app_context(_application.app_context());
     auto& _app_title(_application.app_title());
@@ -2248,37 +2248,37 @@ void AppWindow::build()
     return build_all();
 }
 
-void AppWindow::show_play()
+auto AppWindow::show_play() -> void
 {
     _menu_bar.show_play();
     _tool_bar.show_play();
 }
 
-void AppWindow::hide_play()
+auto AppWindow::hide_play() -> void
 {
     _menu_bar.hide_play();
     _tool_bar.hide_play();
 }
 
-void AppWindow::show_pause()
+auto AppWindow::show_pause() -> void
 {
     _menu_bar.show_pause();
     _tool_bar.show_pause();
 }
 
-void AppWindow::hide_pause()
+auto AppWindow::hide_pause() -> void
 {
     _menu_bar.hide_pause();
     _tool_bar.hide_pause();
 }
 
-void AppWindow::show_reset()
+auto AppWindow::show_reset() -> void
 {
     _menu_bar.show_reset();
     _tool_bar.show_reset();
 }
 
-void AppWindow::hide_reset()
+auto AppWindow::hide_reset() -> void
 {
     _menu_bar.hide_reset();
     _tool_bar.hide_reset();
@@ -2322,7 +2322,7 @@ Application::~Application()
     stop_timer();
 }
 
-int Application::main()
+auto Application::main() -> int
 {
     if(_settings->quit() == false) {
         create_application("org.gtk.xcpc");
@@ -3100,7 +3100,7 @@ auto Application::update_all() -> void
 // xcpc_main
 // ---------------------------------------------------------------------------
 
-int xcpc_main(int* argc, char*** argv)
+auto xcpc_main(int* argc, char*** argv) -> int
 {
     const xcpc::Environ environ;
     const auto application(std::make_unique<xcpc::Application>(*argc, *argv));

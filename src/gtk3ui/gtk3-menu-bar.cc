@@ -40,7 +40,7 @@ namespace gtk3 {
 struct MenuBarTraits
     : BasicTraits
 {
-    static GtkWidget* create_menu_bar()
+    static auto create_menu_bar() -> GtkWidget*
     {
         return ::gtk_menu_bar_new();
     }
@@ -74,7 +74,7 @@ MenuBar::MenuBar(GtkWidget* instance)
 {
 }
 
-void MenuBar::create_menu_bar()
+auto MenuBar::create_menu_bar() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_menu_bar();

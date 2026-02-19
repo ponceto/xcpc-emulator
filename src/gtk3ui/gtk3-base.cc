@@ -69,7 +69,7 @@ const char sig_motion_notify_event[]  = "motion-notify-event";
 
 namespace {
 
-void on_destroy(GtkWidget* widget_ptr, GtkWidget** widget_ref)
+auto on_destroy(GtkWidget* widget_ptr, GtkWidget** widget_ref) -> void
 {
     if((widget_ref != nullptr) && (*widget_ref == widget_ptr)) {
         *widget_ref = nullptr;
@@ -84,7 +84,7 @@ void on_destroy(GtkWidget* widget_ptr, GtkWidget** widget_ref)
 
 namespace gtk3 {
 
-void BasicTraits::register_widget_instance(GtkWidget*& instance)
+auto BasicTraits::register_widget_instance(GtkWidget*& instance) -> void
 {
     if(instance != nullptr) {
         static_cast<void>(signal_connect(G_OBJECT(instance), sig_destroy, G_CALLBACK(&on_destroy), &instance));

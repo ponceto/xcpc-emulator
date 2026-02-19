@@ -44,11 +44,11 @@ public: // public interface
         return _instance;
     }
 
-    void create_from_file(const std::string& filename);
+    auto create_from_file(const std::string& filename) -> void;
 
-    void create_from_resource(const std::string& resource);
+    auto create_from_resource(const std::string& resource) -> void;
 
-    void unref();
+    auto unref() -> void;
 
 protected: // protected data
     GdkPixbuf* _instance;

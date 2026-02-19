@@ -44,11 +44,11 @@ public: // public interface
         return GTK_WINDOW(_instance);
     }
 
-    void set_title(const std::string& title);
+    auto set_title(const std::string& title) -> void;
 
-    void set_icon(GdkPixbuf* icon);
+    auto set_icon(GdkPixbuf* icon) -> void;
 
-    void set_skip_taskbar_hint(bool taskbar_hint);
+    auto set_skip_taskbar_hint(bool taskbar_hint) -> void;
 };
 
 }
@@ -69,7 +69,7 @@ public: // public interface
 
     virtual ~ToplevelWindow() = default;
 
-    void create_toplevel_window();
+    auto create_toplevel_window() -> void;
 };
 
 }
@@ -90,7 +90,7 @@ public: // public interface
 
     virtual ~PopupWindow() = default;
 
-    void create_popup_window();
+    auto create_popup_window() -> void;
 };
 
 }

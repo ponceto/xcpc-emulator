@@ -39,12 +39,12 @@ namespace gdk3 {
 
 struct PixbufTraits
 {
-    static GdkPixbuf* create_from_pixbuf(GdkPixbuf* pixbuf)
+    static auto create_from_pixbuf(GdkPixbuf* pixbuf) -> GdkPixbuf*
     {
         return pixbuf;
     }
 
-    static GdkPixbuf* create_from_file(const std::string& filename)
+    static auto create_from_file(const std::string& filename) -> GdkPixbuf*
     {
         GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file(filename.c_str(), nullptr);
 
@@ -54,7 +54,7 @@ struct PixbufTraits
         return pixbuf;
     }
 
-    static GdkPixbuf* create_from_resource(const std::string& resource)
+    static auto create_from_resource(const std::string& resource) -> GdkPixbuf*
     {
         GdkPixbuf* pixbuf = gdk_pixbuf_new_from_resource(resource.c_str(), nullptr);
 
@@ -64,7 +64,7 @@ struct PixbufTraits
         return pixbuf;
     }
 
-    static GdkPixbuf* unref(GdkPixbuf* pixbuf)
+    static auto unref(GdkPixbuf* pixbuf) -> GdkPixbuf*
     {
         if(pixbuf != nullptr) {
             pixbuf = (g_object_unref(G_OBJECT(pixbuf)), nullptr);
@@ -106,19 +106,19 @@ Pixbuf::~Pixbuf()
     _instance = traits::unref(_instance);
 }
 
-void Pixbuf::create_from_file(const std::string& filename)
+auto Pixbuf::create_from_file(const std::string& filename) -> void
 {
     _instance = traits::unref(_instance);
     _instance = traits::create_from_file(filename);
 }
 
-void Pixbuf::create_from_resource(const std::string& resource)
+auto Pixbuf::create_from_resource(const std::string& resource) -> void
 {
     _instance = traits::unref(_instance);
     _instance = traits::create_from_resource(resource);
 }
 
-void Pixbuf::unref()
+auto Pixbuf::unref() -> void
 {
     _instance = traits::unref(_instance);
 }

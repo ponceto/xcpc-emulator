@@ -40,12 +40,12 @@ namespace gtk3 {
 struct ButtonTraits
     : BasicTraits
 {
-    static GtkWidget* create_button()
+    static auto create_button() -> GtkWidget*
     {
         return ::gtk_button_new();
     }
 
-    static GtkWidget* create_button_with_label(const std::string& string = "button")
+    static auto create_button_with_label(const std::string& string = "button") -> GtkWidget*
     {
         return ::gtk_button_new_with_label(string.c_str());
     }
@@ -79,7 +79,7 @@ Button::Button(GtkWidget* instance)
 {
 }
 
-void Button::create_button()
+auto Button::create_button() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_button();
@@ -87,7 +87,7 @@ void Button::create_button()
     }
 }
 
-void Button::create_button_with_label(const std::string& string)
+auto Button::create_button_with_label(const std::string& string) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_button_with_label(string);
@@ -95,32 +95,32 @@ void Button::create_button_with_label(const std::string& string)
     }
 }
 
-void Button::add_activate_callback(GCallback callback, void* data)
+auto Button::add_activate_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_activate, callback, data);
 }
 
-void Button::add_clicked_callback(GCallback callback, void* data)
+auto Button::add_clicked_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_clicked, callback, data);
 }
 
-void Button::add_enter_callback(GCallback callback, void* data)
+auto Button::add_enter_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_enter, callback, data);
 }
 
-void Button::add_leave_callback(GCallback callback, void* data)
+auto Button::add_leave_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_leave, callback, data);
 }
 
-void Button::add_pressed_callback(GCallback callback, void* data)
+auto Button::add_pressed_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_pressed, callback, data);
 }
 
-void Button::add_released_callback(GCallback callback, void* data)
+auto Button::add_released_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_released, callback, data);
 }

@@ -61,14 +61,14 @@ namespace gtk3 {
 struct BasicTraits
 {
     template <typename T>
-    static void signal_connect(T* instance, const char* signal, GCallback callback, void* data)
+    static auto signal_connect(T* instance, const char* signal, GCallback callback, void* data) -> void
     {
         if(instance != nullptr) {
             static_cast<void>(::g_signal_connect(G_OBJECT(instance), signal, callback, data));
         }
     }
 
-    static void register_widget_instance(GtkWidget*& instance);
+    static auto register_widget_instance(GtkWidget*& instance) -> void;
 };
 
 }

@@ -40,7 +40,7 @@ namespace gtk3 {
 struct BinTraits
     : BasicTraits
 {
-    static GtkWidget* create_bin()
+    static auto create_bin() -> GtkWidget*
     {
         return nullptr;
     }

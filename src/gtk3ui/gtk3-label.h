@@ -44,13 +44,13 @@ public: // public interface
         return GTK_LABEL(_instance);
     }
 
-    void create_label(const std::string& string);
+    auto create_label(const std::string& string) -> void;
 
-    void set_text(const std::string& string);
+    auto set_text(const std::string& string) -> void;
 
-    void set_markup(const std::string& string);
+    auto set_markup(const std::string& string) -> void;
 
-    void set_ellipsize(PangoEllipsizeMode mode);
+    auto set_ellipsize(PangoEllipsizeMode mode) -> void;
 };
 
 }

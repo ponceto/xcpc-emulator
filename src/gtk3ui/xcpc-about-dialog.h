@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~AboutDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }

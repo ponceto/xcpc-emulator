@@ -53,7 +53,7 @@ HelpCmd::HelpCmd(base::Console& console, const std::string& program)
 {
 }
 
-void HelpCmd::run()
+auto HelpCmd::run() -> void
 {
     _console.println("Usage: %s <command> [OPTIONS] [FILES]...", _program.c_str());
     _console.println("");
@@ -74,7 +74,7 @@ DumpCmd::DumpCmd(base::Console& console, const std::string& program)
 {
 }
 
-void DumpCmd::run()
+auto DumpCmd::run() -> void
 {
     auto begin = [&](const std::string& filename)
     {
@@ -118,7 +118,7 @@ CreateCmd::CreateCmd(base::Console& console, const std::string& program)
 {
 }
 
-void CreateCmd::run()
+auto CreateCmd::run() -> void
 {
     auto begin = [&](const std::string& filename)
     {
@@ -164,7 +164,7 @@ Program::Program(base::ArgList& arglist, base::Console& console)
 {
 }
 
-void Program::main()
+auto Program::main() -> void
 {
     auto set_program = [&](const std::string& argument) -> void
     {

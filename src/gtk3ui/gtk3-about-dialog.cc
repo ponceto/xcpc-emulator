@@ -40,61 +40,61 @@ namespace gtk3 {
 struct AboutDialogTraits
     : BasicTraits
 {
-    static GtkWidget* create_about_dialog()
+    static auto create_about_dialog() -> GtkWidget*
     {
         return ::gtk_about_dialog_new();
     }
 
-    static void set_logo(AboutDialog& about_dialog, GdkPixbuf* logo)
+    static auto set_logo(AboutDialog& about_dialog, GdkPixbuf* logo) -> void
     {
         if(about_dialog) {
             ::gtk_about_dialog_set_logo(about_dialog, logo);
         }
     }
 
-    static void set_logo_icon_name(AboutDialog& about_dialog, const std::string& icon_name)
+    static auto set_logo_icon_name(AboutDialog& about_dialog, const std::string& icon_name) -> void
     {
         if(about_dialog) {
             ::gtk_about_dialog_set_program_name(about_dialog, icon_name.c_str());
         }
     }
 
-    static void set_program_name(AboutDialog& about_dialog, const std::string& program_name)
+    static auto set_program_name(AboutDialog& about_dialog, const std::string& program_name) -> void
     {
         if(about_dialog) {
             ::gtk_about_dialog_set_program_name(about_dialog, program_name.c_str());
         }
     }
 
-    static void set_version(AboutDialog& about_dialog, const std::string& version)
+    static auto set_version(AboutDialog& about_dialog, const std::string& version) -> void
     {
         if(about_dialog) {
             ::gtk_about_dialog_set_version(about_dialog, version.c_str());
         }
     }
 
-    static void set_copyright(AboutDialog& about_dialog, const std::string& copyright)
+    static auto set_copyright(AboutDialog& about_dialog, const std::string& copyright) -> void
     {
         if(about_dialog) {
             ::gtk_about_dialog_set_copyright(about_dialog, copyright.c_str());
         }
     }
 
-    static void set_comments(AboutDialog& about_dialog, const std::string& comments)
+    static auto set_comments(AboutDialog& about_dialog, const std::string& comments) -> void
     {
         if(about_dialog) {
             ::gtk_about_dialog_set_comments(about_dialog, comments.c_str());
         }
     }
 
-    static void set_website(AboutDialog& about_dialog, const std::string& website)
+    static auto set_website(AboutDialog& about_dialog, const std::string& website) -> void
     {
         if(about_dialog) {
             ::gtk_about_dialog_set_website(about_dialog, website.c_str());
         }
     }
 
-    static void set_license(AboutDialog& about_dialog, const std::string& license)
+    static auto set_license(AboutDialog& about_dialog, const std::string& license) -> void
     {
         if(about_dialog) {
             ::gtk_about_dialog_set_license(about_dialog, license.c_str());
@@ -130,7 +130,7 @@ AboutDialog::AboutDialog(GtkWidget* instance)
 {
 }
 
-void AboutDialog::create_about_dialog()
+auto AboutDialog::create_about_dialog() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_about_dialog();
@@ -138,42 +138,42 @@ void AboutDialog::create_about_dialog()
     }
 }
 
-void AboutDialog::set_logo(GdkPixbuf* logo)
+auto AboutDialog::set_logo(GdkPixbuf* logo) -> void
 {
     return traits::set_logo(*this, logo);
 }
 
-void AboutDialog::set_logo_icon_name(const std::string& icon_name)
+auto AboutDialog::set_logo_icon_name(const std::string& icon_name) -> void
 {
     return traits::set_program_name(*this, icon_name);
 }
 
-void AboutDialog::set_program_name(const std::string& program_name)
+auto AboutDialog::set_program_name(const std::string& program_name) -> void
 {
     return traits::set_program_name(*this, program_name);
 }
 
-void AboutDialog::set_version(const std::string& version)
+auto AboutDialog::set_version(const std::string& version) -> void
 {
     return traits::set_version(*this, version);
 }
 
-void AboutDialog::set_copyright(const std::string& copyright)
+auto AboutDialog::set_copyright(const std::string& copyright) -> void
 {
     return traits::set_copyright(*this, copyright);
 }
 
-void AboutDialog::set_comments(const std::string& comments)
+auto AboutDialog::set_comments(const std::string& comments) -> void
 {
     return traits::set_comments(*this, comments);
 }
 
-void AboutDialog::set_website(const std::string& website)
+auto AboutDialog::set_website(const std::string& website) -> void
 {
     return traits::set_website(*this, website);
 }
 
-void AboutDialog::set_license(const std::string& license)
+auto AboutDialog::set_license(const std::string& license) -> void
 {
     return traits::set_license(*this, license);
 }

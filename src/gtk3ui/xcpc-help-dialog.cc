@@ -45,7 +45,7 @@ namespace {
 
 struct traits
 {
-    static void run_dialog(gtk3::Dialog& dialog)
+    static auto run_dialog(gtk3::Dialog& dialog) -> void
     {
         switch(dialog.run()) {
             default:
@@ -134,7 +134,7 @@ HelpDialog::HelpDialog(Application& application)
 {
 }
 
-void HelpDialog::run()
+auto HelpDialog::run() -> void
 {
     auto run_dialog = [&](gtk3::MessageOtherDialog& dialog) -> void
     {

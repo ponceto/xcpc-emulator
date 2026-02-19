@@ -40,12 +40,12 @@ namespace gtk3 {
 struct ToolbarTraits
     : BasicTraits
 {
-    static GtkWidget* create_toolbar()
+    static auto create_toolbar() -> GtkWidget*
     {
         return ::gtk_toolbar_new();
     }
 
-    static void insert(Toolbar& toolbar, Widget& widget, int position)
+    static auto insert(Toolbar& toolbar, Widget& widget, int position) -> void
     {
         if(toolbar && widget) {
             GtkWidget* tool_item = widget;
@@ -82,7 +82,7 @@ Toolbar::Toolbar(GtkWidget* instance)
 {
 }
 
-void Toolbar::create_toolbar()
+auto Toolbar::create_toolbar() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_toolbar();
@@ -90,7 +90,7 @@ void Toolbar::create_toolbar()
     }
 }
 
-void Toolbar::insert(Widget& widget, int position)
+auto Toolbar::insert(Widget& widget, int position) -> void
 {
     return traits::insert(*this, widget, position);
 }

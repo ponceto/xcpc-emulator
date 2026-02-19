@@ -44,9 +44,9 @@ public: // public interface
         return GTK_MESSAGE_DIALOG(_instance);
     }
 
-    void set_primary_markup(const std::string& text);
+    auto set_primary_markup(const std::string& text) -> void;
 
-    void set_secondary_markup(const std::string& text);
+    auto set_secondary_markup(const std::string& text) -> void;
 };
 
 }
@@ -67,7 +67,7 @@ public: // public interface
 
     virtual ~MessageInfoDialog() = default;
 
-    void create_message_info_dialog();
+    auto create_message_info_dialog() -> void;
 };
 
 }
@@ -88,7 +88,7 @@ public: // public interface
 
     virtual ~MessageWarningDialog() = default;
 
-    void create_message_warning_dialog();
+    auto create_message_warning_dialog() -> void;
 };
 
 }
@@ -109,7 +109,7 @@ public: // public interface
 
     virtual ~MessageQuestionDialog() = default;
 
-    void create_message_question_dialog();
+    auto create_message_question_dialog() -> void;
 };
 
 }
@@ -130,7 +130,7 @@ public: // public interface
 
     virtual ~MessageErrorDialog() = default;
 
-    void create_message_error_dialog();
+    auto create_message_error_dialog() -> void;
 };
 
 }
@@ -151,7 +151,7 @@ public: // public interface
 
     virtual ~MessageOtherDialog() = default;
 
-    void create_message_other_dialog();
+    auto create_message_other_dialog() -> void;
 };
 
 }

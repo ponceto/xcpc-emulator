@@ -44,21 +44,21 @@ public: // public interface
         return GTK_BUTTON(_instance);
     }
 
-    void create_button();
+    auto create_button() -> void;
 
-    void create_button_with_label(const std::string& string);
+    auto create_button_with_label(const std::string& string) -> void;
 
-    void add_activate_callback(GCallback callback, void* data);
+    auto add_activate_callback(GCallback callback, void* data) -> void;
 
-    void add_clicked_callback(GCallback callback, void* data);
+    auto add_clicked_callback(GCallback callback, void* data) -> void;
 
-    void add_enter_callback(GCallback callback, void* data);
+    auto add_enter_callback(GCallback callback, void* data) -> void;
 
-    void add_leave_callback(GCallback callback, void* data);
+    auto add_leave_callback(GCallback callback, void* data) -> void;
 
-    void add_pressed_callback(GCallback callback, void* data);
+    auto add_pressed_callback(GCallback callback, void* data) -> void;
 
-    void add_released_callback(GCallback callback, void* data);
+    auto add_released_callback(GCallback callback, void* data) -> void;
 };
 
 }

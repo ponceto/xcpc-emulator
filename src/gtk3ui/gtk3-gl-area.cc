@@ -40,7 +40,7 @@ namespace gtk3 {
 struct GLAreaTraits
     : BasicTraits
 {
-    static GtkWidget* create_gl_area()
+    static auto create_gl_area() -> GtkWidget*
     {
         return ::gtk_gl_area_new();
     }
@@ -74,7 +74,7 @@ GLArea::GLArea(GtkWidget* instance)
 {
 }
 
-void GLArea::create_gl_area()
+auto GLArea::create_gl_area() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_gl_area();
@@ -82,12 +82,12 @@ void GLArea::create_gl_area()
     }
 }
 
-void GLArea::add_render_callback(GCallback callback, void* data)
+auto GLArea::add_render_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_render, callback, data);
 }
 
-void GLArea::add_resize_callback(GCallback callback, void* data)
+auto GLArea::add_resize_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_resize, callback, data);
 }

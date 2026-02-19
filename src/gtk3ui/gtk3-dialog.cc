@@ -40,12 +40,12 @@ namespace gtk3 {
 struct DialogTraits
     : BasicTraits
 {
-    static GtkWidget* create_dialog()
+    static auto create_dialog() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static int dispatch(DialogListener& listener, const int response)
+    static auto dispatch(DialogListener& listener, const int response) -> int
     {
         switch(response) {
             case GTK_RESPONSE_NONE:
@@ -88,7 +88,7 @@ struct DialogTraits
         return response;
     }
 
-    static int run(Dialog& dialog)
+    static auto run(Dialog& dialog) -> int
     {
         if(dialog) {
             return ::gtk_dialog_run(dialog);
@@ -115,61 +115,61 @@ using traits = gtk3::DialogTraits;
 
 namespace gtk3 {
 
-void DialogListener::on_response(const int response)
+auto DialogListener::on_response(const int response) -> void
 {
 }
 
-void DialogListener::on_response_none()
+auto DialogListener::on_response_none() -> void
 {
     on_response(GTK_RESPONSE_NONE);
 }
 
-void DialogListener::on_response_reject()
+auto DialogListener::on_response_reject() -> void
 {
     on_response(GTK_RESPONSE_REJECT);
 }
 
-void DialogListener::on_response_accept()
+auto DialogListener::on_response_accept() -> void
 {
     on_response(GTK_RESPONSE_ACCEPT);
 }
 
-void DialogListener::on_response_delete_event()
+auto DialogListener::on_response_delete_event() -> void
 {
     on_response(GTK_RESPONSE_DELETE_EVENT);
 }
 
-void DialogListener::on_response_ok()
+auto DialogListener::on_response_ok() -> void
 {
     on_response(GTK_RESPONSE_OK);
 }
 
-void DialogListener::on_response_cancel()
+auto DialogListener::on_response_cancel() -> void
 {
     on_response(GTK_RESPONSE_CANCEL);
 }
 
-void DialogListener::on_response_close()
+auto DialogListener::on_response_close() -> void
 {
     on_response(GTK_RESPONSE_CLOSE);
 }
 
-void DialogListener::on_response_yes()
+auto DialogListener::on_response_yes() -> void
 {
     on_response(GTK_RESPONSE_YES);
 }
 
-void DialogListener::on_response_no()
+auto DialogListener::on_response_no() -> void
 {
     on_response(GTK_RESPONSE_NO);
 }
 
-void DialogListener::on_response_apply()
+auto DialogListener::on_response_apply() -> void
 {
     on_response(GTK_RESPONSE_APPLY);
 }
 
-void DialogListener::on_response_help()
+auto DialogListener::on_response_help() -> void
 {
     on_response(GTK_RESPONSE_HELP);
 }
@@ -194,7 +194,7 @@ Dialog::Dialog(GtkWidget* instance)
 {
 }
 
-int Dialog::run()
+auto Dialog::run() -> int
 {
     return traits::dispatch(_dialog_listener, traits::run(*this));
 }

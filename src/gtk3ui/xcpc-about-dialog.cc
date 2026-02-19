@@ -42,7 +42,7 @@ namespace {
 
 struct traits
 {
-    static void run_dialog(gtk3::Dialog& dialog)
+    static auto run_dialog(gtk3::Dialog& dialog) -> void
     {
         switch(dialog.run()) {
             default:
@@ -64,7 +64,7 @@ AboutDialog::AboutDialog(Application& application)
 {
 }
 
-void AboutDialog::run()
+auto AboutDialog::run() -> void
 {
     auto run_dialog = [&](gtk3::AboutDialog& dialog) -> void
     {

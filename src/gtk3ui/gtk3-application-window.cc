@@ -40,7 +40,7 @@ namespace gtk3 {
 struct ApplicationWindowTraits
     : BasicTraits
 {
-    static GtkWidget* create_application_window(Application& application)
+    static auto create_application_window(Application& application) -> GtkWidget*
     {
         return ::gtk_application_window_new(application);
     }
@@ -74,7 +74,7 @@ ApplicationWindow::ApplicationWindow(GtkWidget* instance)
 {
 }
 
-void ApplicationWindow::create_application_window(Application& application)
+auto ApplicationWindow::create_application_window(Application& application) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_application_window(application);
