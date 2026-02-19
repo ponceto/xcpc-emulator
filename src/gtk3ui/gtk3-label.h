@@ -1,5 +1,5 @@
 /*
- * gtk3-label.h - Copyright (c) 2001-2025 - Olivier Poncet
+ * gtk3-label.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
