@@ -1945,7 +1945,7 @@ auto InfoBar::set_state(const std::string& state) -> void
         char*       string = ::g_markup_printf_escaped(format, state.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -1973,7 +1973,7 @@ auto InfoBar::set_drive0(const std::string& drive0) -> void
         char*       string = ::g_markup_printf_escaped(format, drive0.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -2001,7 +2001,7 @@ auto InfoBar::set_drive1(const std::string& drive1) -> void
         char*       string = ::g_markup_printf_escaped(format, drive1.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -2029,7 +2029,7 @@ auto InfoBar::set_system(const std::string& system) -> void
         char*       string = ::g_markup_printf_escaped(format, system.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -2057,7 +2057,7 @@ auto InfoBar::set_volume(const std::string& volume) -> void
         char*       string = ::g_markup_printf_escaped(format, volume.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -2085,7 +2085,7 @@ auto InfoBar::set_stats(const std::string& stats) -> void
         char*       string = ::g_markup_printf_escaped(format, stats.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -2573,7 +2573,7 @@ auto Application::on_open(GFile** files, int num_files) -> void
         char* path = ::g_file_get_path(files[index]);
         if(path != nullptr) {
             Callbacks::open_file(*this, path);
-            path = (::g_free(path), nullptr);
+            path = (g_free(path), nullptr);
         }
     }
 }
