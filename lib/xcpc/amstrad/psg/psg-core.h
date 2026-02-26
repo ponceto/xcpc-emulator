@@ -30,24 +30,6 @@ class  Interface;
 }
 
 // ---------------------------------------------------------------------------
-// psg::Type
-// ---------------------------------------------------------------------------
-
-namespace psg {
-
-enum Type
-{
-    TYPE_INVALID = -1,
-    TYPE_DEFAULT =  0,
-    TYPE_AY8910  =  1,
-    TYPE_AY8912  =  2,
-    TYPE_AY8913  =  3,
-    TYPE_YM2149  =  4,
-};
-
-}
-
-// ---------------------------------------------------------------------------
 // psg::State
 // ---------------------------------------------------------------------------
 
@@ -55,7 +37,6 @@ namespace psg {
 
 struct State
 {
-    uint8_t  type;
     uint32_t ticks;
     uint8_t  index;
     uint8_t  array[16];
@@ -140,7 +121,7 @@ namespace psg {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(Interface& interface);
 
     Instance(const Instance&) = delete;
 

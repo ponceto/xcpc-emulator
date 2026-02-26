@@ -30,16 +30,15 @@ class  Interface;
 }
 
 // ---------------------------------------------------------------------------
-// mem::Type
+// mem::BankType
 // ---------------------------------------------------------------------------
 
 namespace mem {
 
-enum Type
+enum BankType
 {
-    TYPE_INVALID = -1,
-    TYPE_ROM     =  0,
-    TYPE_RAM     =  1,
+    ROM_BANK = 1,
+    RAM_BANK = 2,
 };
 
 }
@@ -52,7 +51,7 @@ namespace mem {
 
 struct State
 {
-    uint8_t type;
+    uint8_t bank_type;
     uint8_t data[16384];
 };
 
@@ -67,7 +66,7 @@ namespace mem {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(const BankType bank_type, Interface& interface);
 
     Instance(const Instance&) = delete;
 

@@ -30,21 +30,12 @@ class  Interface;
 }
 
 // ---------------------------------------------------------------------------
-// kbd::Type
+// type aliases
 // ---------------------------------------------------------------------------
 
 namespace kbd {
 
-enum Type
-{
-    TYPE_INVALID = -1,
-    TYPE_DEFAULT =  0,
-    TYPE_ENGLISH =  1,
-    TYPE_FRENCH  =  2,
-    TYPE_GERMAN  =  3,
-    TYPE_SPANISH =  4,
-    TYPE_DANISH  =  5,
-};
+using KeyboardType = xcpc::KeyboardType;
 
 }
 
@@ -56,10 +47,10 @@ namespace kbd {
 
 struct State
 {
-    uint8_t type;
-    uint8_t mode;
-    uint8_t line;
-    uint8_t keys[16];
+    KeyboardType keyboard_type;
+    uint8_t      mode;
+    uint8_t      line;
+    uint8_t      keys[16];
 };
 
 }
@@ -73,7 +64,7 @@ namespace kbd {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(Interface& interface);
 
     Instance(const Instance&) = delete;
 
@@ -85,7 +76,7 @@ public: // public interface
 
     auto clock() -> void;
 
-    auto set_type(const Type type) -> void;
+    auto set_keyboard_type(const KeyboardType keyboard_type) -> void;
 
     auto set_line(uint8_t line = 0xff) -> uint8_t;
 

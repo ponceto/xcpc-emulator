@@ -271,6 +271,69 @@ struct Traits
         video.frame_rate |= 0;
         video.frame_time |= 0;
     }
+
+    static auto reset(dpy::Instance* dpy)
+    {
+        if(dpy != nullptr) {
+            dpy->reset();
+        }
+    }
+
+    static auto reset(kbd::Instance* kbd)
+    {
+        if(kbd != nullptr) {
+            kbd->reset();
+        }
+    }
+
+    static auto reset(cpu::Instance* cpu)
+    {
+        if(cpu != nullptr) {
+            cpu->reset();
+        }
+    }
+
+    static auto reset(vga::Instance* vga)
+    {
+        if(vga != nullptr) {
+            vga->reset();
+        }
+    }
+
+    static auto reset(vdc::Instance* vdc)
+    {
+        if(vdc != nullptr) {
+            vdc->reset();
+        }
+    }
+
+    static auto reset(ppi::Instance* ppi)
+    {
+        if(ppi != nullptr) {
+            ppi->reset();
+        }
+    }
+
+    static auto reset(psg::Instance* psg)
+    {
+        if(psg != nullptr) {
+            psg->reset();
+        }
+    }
+
+    static auto reset(fdc::Instance* fdc)
+    {
+        if(fdc != nullptr) {
+            fdc->reset();
+        }
+    }
+
+    static auto reset(mem::Instance* mem)
+    {
+        if(mem != nullptr) {
+            mem->reset();
+        }
+    }
 };
 
 }
@@ -379,17 +442,47 @@ Mainboard::Mainboard(Machine& machine)
     Traits::construct(_state);
     Traits::construct(_audio);
     Traits::construct(_video);
-    construct_dpy();
-    construct_kbd();
-    construct_cpu();
-    construct_vga();
-    construct_vdc();
-    construct_ppi();
-    construct_psg();
-    construct_fdc();
-    construct_ram();
-    construct_rom();
-    construct_exp();
+    if(_dpy == nullptr) {
+        _dpy = new dpy::Instance(*this);
+    }
+    if(_kbd == nullptr) {
+        _kbd = new kbd::Instance(*this);
+    }
+    if(_cpu == nullptr) {
+        _cpu = new cpu::Instance(*this);
+    }
+    if(_vga == nullptr) {
+        _vga = new vga::Instance(*this);
+    }
+    if(_vdc == nullptr) {
+        _vdc = new vdc::Instance(*this);
+    }
+    if(_ppi == nullptr) {
+        _ppi = new ppi::Instance(*this);
+    }
+    if(_psg == nullptr) {
+        _psg = new psg::Instance(*this);
+    }
+    if(_fdc == nullptr) {
+        _fdc = new fdc::Instance(*this);
+        _fdc->attach_drive(fdc::FDC_DRIVE0);
+        _fdc->attach_drive(fdc::FDC_DRIVE1);
+    }
+    for(auto& ram : _ram) {
+        if(ram == nullptr) {
+            ram = new mem::Instance(mem::RAM_BANK, *this);
+        }
+    }
+    for(auto& rom : _rom) {
+        if(rom == nullptr) {
+            rom = new mem::Instance(mem::ROM_BANK, *this);
+        }
+    }
+    for(auto& exp : _exp) {
+        if(exp == nullptr) {
+            exp = nullptr;
+        }
+    }
 }
 
 Mainboard::Mainboard(Machine& machine, const Settings& settings)
@@ -405,17 +498,45 @@ Mainboard::Mainboard(Machine& machine, const Settings& settings)
 
 Mainboard::~Mainboard()
 {
-    destruct_exp();
-    destruct_rom();
-    destruct_ram();
-    destruct_fdc();
-    destruct_psg();
-    destruct_ppi();
-    destruct_vdc();
-    destruct_vga();
-    destruct_cpu();
-    destruct_kbd();
-    destruct_dpy();
+    for(auto& exp : _exp) {
+        if(exp != nullptr) {
+            exp = (delete exp, nullptr);
+        }
+    }
+    for(auto& rom : _rom) {
+        if(rom != nullptr) {
+            rom = (delete rom, nullptr);
+        }
+    }
+    for(auto& ram : _ram) {
+        if(ram != nullptr) {
+            ram = (delete ram, nullptr);
+        }
+    }
+    if(_fdc != nullptr) {
+        _fdc = (delete _fdc, nullptr);
+    }
+    if(_psg != nullptr) {
+        _psg = (delete _psg, nullptr);
+    }
+    if(_ppi != nullptr) {
+        _ppi = (delete _ppi, nullptr);
+    }
+    if(_vdc != nullptr) {
+        _vdc = (delete _vdc, nullptr);
+    }
+    if(_vga != nullptr) {
+        _vga = (delete _vga, nullptr);
+    }
+    if(_cpu != nullptr) {
+        _cpu = (delete _cpu, nullptr);
+    }
+    if(_kbd != nullptr) {
+        _kbd = (delete _kbd, nullptr);
+    }
+    if(_dpy != nullptr) {
+        _dpy = (delete _dpy, nullptr);
+    }
     Traits::destruct(_video);
     Traits::destruct(_audio);
     Traits::destruct(_state);
@@ -444,17 +565,23 @@ auto Mainboard::reset() -> void
     Traits::reset(_state);
     Traits::reset(_audio);
     Traits::reset(_video);
-    reset_dpy();
-    reset_kbd();
-    reset_cpu();
-    reset_vga();
-    reset_vdc();
-    reset_ppi();
-    reset_psg();
-    reset_fdc();
-    reset_ram();
-    reset_rom();
-    reset_exp();
+    Traits::reset(_dpy);
+    Traits::reset(_kbd);
+    Traits::reset(_cpu);
+    Traits::reset(_vga);
+    Traits::reset(_vdc);
+    Traits::reset(_ppi);
+    Traits::reset(_psg);
+    Traits::reset(_fdc);
+    for(auto& ram : _ram) {
+        Traits::reset(ram);
+    }
+    for(auto& rom : _rom) {
+        Traits::reset(rom);
+    }
+    for(auto& exp : _exp) {
+        Traits::reset(exp);
+    }
     update_pal();
 }
 
@@ -555,21 +682,21 @@ auto Mainboard::create_disk_into_drive0(const std::string& filename) -> void
         disk.create();
     }
     if(_fdc != nullptr) {
-        _fdc->insert_disk(fdc::Drive::FDC_DRIVE0, filename);
+        _fdc->insert_disk(fdc::FDC_DRIVE0, filename);
     }
 }
 
 auto Mainboard::insert_disk_into_drive0(const std::string& filename) -> void
 {
     if(_fdc != nullptr) {
-        _fdc->insert_disk(fdc::Drive::FDC_DRIVE0, filename);
+        _fdc->insert_disk(fdc::FDC_DRIVE0, filename);
     }
 }
 
 auto Mainboard::remove_disk_from_drive0() -> void
 {
     if(_fdc != nullptr) {
-        _fdc->remove_disk(fdc::Drive::FDC_DRIVE0);
+        _fdc->remove_disk(fdc::FDC_DRIVE0);
     }
 }
 
@@ -580,21 +707,21 @@ auto Mainboard::create_disk_into_drive1(const std::string& filename) -> void
         disk.create();
     }
     if(_fdc != nullptr) {
-        _fdc->insert_disk(fdc::Drive::FDC_DRIVE1, filename);
+        _fdc->insert_disk(fdc::FDC_DRIVE1, filename);
     }
 }
 
 auto Mainboard::insert_disk_into_drive1(const std::string& filename) -> void
 {
     if(_fdc != nullptr) {
-        _fdc->insert_disk(fdc::Drive::FDC_DRIVE1, filename);
+        _fdc->insert_disk(fdc::FDC_DRIVE1, filename);
     }
 }
 
 auto Mainboard::remove_disk_from_drive1() -> void
 {
     if(_fdc != nullptr) {
-        _fdc->remove_disk(fdc::Drive::FDC_DRIVE1);
+        _fdc->remove_disk(fdc::FDC_DRIVE1);
     }
 }
 
@@ -650,7 +777,7 @@ auto Mainboard::set_company_name(const std::string& string) -> void
 {
     auto company_name = Utils::company_name_from_string(string);
 
-    auto set = [&](const uint8_t lnk_lk3, const uint8_t lnk_lk2, const uint8_t lnk_lk1) -> void
+    auto update = [&](const uint8_t lnk_lk3, const uint8_t lnk_lk2, const uint8_t lnk_lk1) -> void
     {
         if(company_name != _setup.company_name) {
             _setup.company_name = company_name;
@@ -666,28 +793,28 @@ auto Mainboard::set_company_name(const std::string& string) -> void
     }
     switch(company_name) {
         case XCPC_COMPANY_NAME_ISP:
-            set(0, 0, 0);
+            update(0, 0, 0);
             break;
         case XCPC_COMPANY_NAME_TRIUMPH:
-            set(0, 0, 1);
+            update(0, 0, 1);
             break;
         case XCPC_COMPANY_NAME_SAISHO:
-            set(0, 1, 0);
+            update(0, 1, 0);
             break;
         case XCPC_COMPANY_NAME_SOLAVOX:
-            set(0, 1, 1);
+            update(0, 1, 1);
             break;
         case XCPC_COMPANY_NAME_AWA:
-            set(1, 0, 0);
+            update(1, 0, 0);
             break;
         case XCPC_COMPANY_NAME_SCHNEIDER:
-            set(1, 0, 1);
+            update(1, 0, 1);
             break;
         case XCPC_COMPANY_NAME_ORION:
-            set(1, 1, 0);
+            update(1, 1, 0);
             break;
         case XCPC_COMPANY_NAME_AMSTRAD:
-            set(1, 1, 1);
+            update(1, 1, 1);
             break;
         default:
             throw std::runtime_error("unsupported company name");
@@ -729,7 +856,7 @@ auto Mainboard::set_machine_type(const std::string& string) -> void
         }
     };
 
-    auto set = [&](const MemorySize memory_size, const std::string& firmware, const std::string& amsdos) -> void
+    auto update = [&](const MemorySize memory_size, const std::string& firmware, const std::string& amsdos) -> void
     {
         if(machine_type != _setup.machine_type) {
             _setup.machine_type = machine_type;
@@ -748,13 +875,13 @@ auto Mainboard::set_machine_type(const std::string& string) -> void
     }
     switch(machine_type) {
         case XCPC_MACHINE_TYPE_CPC464:
-            set(XCPC_MEMORY_SIZE_64K, "cpc464en.rom", "amsdos.rom");
+            update(XCPC_MEMORY_SIZE_64K, "cpc464en.rom", "amsdos.rom");
             break;
         case XCPC_MACHINE_TYPE_CPC664:
-            set(XCPC_MEMORY_SIZE_64K, "cpc664en.rom", "amsdos.rom");
+            update(XCPC_MEMORY_SIZE_64K, "cpc664en.rom", "amsdos.rom");
             break;
         case XCPC_MACHINE_TYPE_CPC6128:
-            set(XCPC_MEMORY_SIZE_128K, "cpc6128en.rom", "amsdos.rom");
+            update(XCPC_MEMORY_SIZE_128K, "cpc6128en.rom", "amsdos.rom");
             break;
         default:
             throw std::runtime_error("unsupported machine type");
@@ -768,33 +895,33 @@ auto Mainboard::set_monitor_type(const std::string& string) -> void
 
     auto update = [&]() -> void
     {
-        _setup.monitor_type = monitor_type;
-        if(_dpy != nullptr) {
-            _dpy->set_monitor_type(monitor_type);
+        if(monitor_type != _setup.monitor_type) {
+            _setup.monitor_type = monitor_type;
+            if(_dpy != nullptr) {
+                _dpy->set_monitor_type(monitor_type);
+            }
+            update_vga();
         }
-        update_vga();
     };
 
     if(monitor_type == XCPC_MONITOR_TYPE_DEFAULT) {
         monitor_type = XCPC_MONITOR_TYPE_COLOR;
     }
-    if(monitor_type != _setup.monitor_type) {
-        switch(monitor_type) {
-            case XCPC_MONITOR_TYPE_COLOR:
-            case XCPC_MONITOR_TYPE_GREEN:
-            case XCPC_MONITOR_TYPE_GRAY:
-            case XCPC_MONITOR_TYPE_CTM640:
-            case XCPC_MONITOR_TYPE_CTM644:
-            case XCPC_MONITOR_TYPE_GT64:
-            case XCPC_MONITOR_TYPE_GT65:
-            case XCPC_MONITOR_TYPE_CM14:
-            case XCPC_MONITOR_TYPE_MM12:
-                update();
-                break;
-            default:
-                throw std::runtime_error("unsupported monitor type");
-                break;
-        }
+    switch(monitor_type) {
+        case XCPC_MONITOR_TYPE_COLOR:
+        case XCPC_MONITOR_TYPE_GREEN:
+        case XCPC_MONITOR_TYPE_GRAY:
+        case XCPC_MONITOR_TYPE_CTM640:
+        case XCPC_MONITOR_TYPE_CTM644:
+        case XCPC_MONITOR_TYPE_GT64:
+        case XCPC_MONITOR_TYPE_GT65:
+        case XCPC_MONITOR_TYPE_CM14:
+        case XCPC_MONITOR_TYPE_MM12:
+            update();
+            break;
+        default:
+            throw std::runtime_error("unsupported monitor type");
+            break;
     }
 }
 
@@ -804,32 +931,32 @@ auto Mainboard::set_refresh_rate(const std::string& string) -> void
 
     auto update = [&](const uint32_t frame_rate, const uint32_t frame_time, const uint8_t lnk_lk4) -> void
     {
-        _setup.refresh_rate = refresh_rate;
-        _video.frame_rate   = frame_rate;
-        _video.frame_time   = frame_time;
-        _state.lnk_lk4      = lnk_lk4;
-        if(_dpy != nullptr) {
-            _dpy->set_refresh_rate(refresh_rate);
+        if(refresh_rate != _setup.refresh_rate) {
+            _setup.refresh_rate = refresh_rate;
+            _video.frame_rate   = frame_rate;
+            _video.frame_time   = frame_time;
+            _state.lnk_lk4      = lnk_lk4;
+            if(_dpy != nullptr) {
+                _dpy->set_refresh_rate(refresh_rate);
+            }
+            update_vga();
+            reset();
         }
-        update_vga();
-        reset();
     };
 
     if(refresh_rate == XCPC_REFRESH_RATE_DEFAULT) {
         refresh_rate = XCPC_REFRESH_RATE_50HZ;
     }
-    if(refresh_rate != _setup.refresh_rate) {
-        switch(refresh_rate) {
-            case XCPC_REFRESH_RATE_50HZ:
-                update(50, 20000, 1);
-                break;
-            case XCPC_REFRESH_RATE_60HZ:
-                update(60, 16667, 0);
-                break;
-            default:
-                throw std::runtime_error("unsupported refresh rate");
-                break;
-        }
+    switch(refresh_rate) {
+        case XCPC_REFRESH_RATE_50HZ:
+            update(50, 20000, 1);
+            break;
+        case XCPC_REFRESH_RATE_60HZ:
+            update(60, 16667, 0);
+            break;
+        default:
+            throw std::runtime_error("unsupported refresh rate");
+            break;
     }
 }
 
@@ -837,12 +964,12 @@ auto Mainboard::set_keyboard_type(const std::string& string) -> void
 {
     auto keyboard_type = Utils::keyboard_type_from_string(string);
 
-    auto set = [&](const kbd::Type type) -> void
+    auto update = [&]() -> void
     {
         if(keyboard_type != _setup.keyboard_type) {
             _setup.keyboard_type = keyboard_type;
             if(_kbd != nullptr) {
-                _kbd->set_type(type);
+                _kbd->set_keyboard_type(keyboard_type);
             }
         }
     };
@@ -852,19 +979,11 @@ auto Mainboard::set_keyboard_type(const std::string& string) -> void
     }
     switch(keyboard_type) {
         case XCPC_KEYBOARD_TYPE_ENGLISH:
-            set(kbd::Type::TYPE_ENGLISH);
-            break;
         case XCPC_KEYBOARD_TYPE_FRENCH:
-            set(kbd::Type::TYPE_FRENCH);
-            break;
         case XCPC_KEYBOARD_TYPE_GERMAN:
-            set(kbd::Type::TYPE_GERMAN);
-            break;
         case XCPC_KEYBOARD_TYPE_SPANISH:
-            set(kbd::Type::TYPE_SPANISH);
-            break;
         case XCPC_KEYBOARD_TYPE_DANISH:
-            set(kbd::Type::TYPE_DANISH);
+            update();
             break;
         default:
             throw std::runtime_error("unsupported keyboard type");
@@ -876,19 +995,24 @@ auto Mainboard::set_renderer_type(const std::string& string) -> void
 {
     auto renderer_type = Utils::renderer_type_from_string(string);
 
+    auto update = [&]() -> void
+    {
+        if(renderer_type != _setup.renderer_type) {
+            _setup.renderer_type = renderer_type;
+        }
+    };
+
     if(renderer_type == XCPC_RENDERER_TYPE_DEFAULT) {
         renderer_type = XCPC_RENDERER_TYPE_XIMAGE;
     }
-    if(renderer_type != _setup.renderer_type) {
-        switch(renderer_type) {
-            case XCPC_RENDERER_TYPE_XIMAGE:
-            case XCPC_RENDERER_TYPE_OPENGL:
-                _setup.renderer_type = renderer_type;
-                break;
-            default:
-                throw std::runtime_error("unsupported renderer type");
-                break;
-        }
+    switch(renderer_type) {
+        case XCPC_RENDERER_TYPE_XIMAGE:
+        case XCPC_RENDERER_TYPE_OPENGL:
+            update();
+            break;
+        default:
+            throw std::runtime_error("unsupported renderer type");
+            break;
     }
 }
 
@@ -958,7 +1082,7 @@ auto Mainboard::get_renderer_type() const -> std::string
 auto Mainboard::get_drive0_filename() const -> std::string
 {
     if(_fdc != nullptr) {
-        return _fdc->get_filename(fdc::Drive::FDC_DRIVE0);
+        return _fdc->get_filename(fdc::FDC_DRIVE0);
     }
     return "";
 }
@@ -966,7 +1090,7 @@ auto Mainboard::get_drive0_filename() const -> std::string
 auto Mainboard::get_drive1_filename() const -> std::string
 {
     if(_fdc != nullptr) {
-        return _fdc->get_filename(fdc::Drive::FDC_DRIVE1);
+        return _fdc->get_filename(fdc::FDC_DRIVE1);
     }
     return "";
 }
@@ -1224,266 +1348,15 @@ auto Mainboard::on_motion_notify(Event& event) -> unsigned long
     return 0UL;
 }
 
-auto Mainboard::construct_dpy() -> void
-{
-    if(_dpy == nullptr) {
-        _dpy = new dpy::Instance(XCPC_MONITOR_TYPE_DEFAULT, XCPC_REFRESH_RATE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_kbd() -> void
-{
-    if(_kbd == nullptr) {
-        _kbd = new kbd::Instance(kbd::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_cpu() -> void
-{
-    if(_cpu == nullptr) {
-        _cpu = new cpu::Instance(cpu::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_vga() -> void
-{
-    if(_vga == nullptr) {
-        _vga = new vga::Instance(vga::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_vdc() -> void
-{
-    if(_vdc == nullptr) {
-        _vdc = new vdc::Instance(vdc::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_ppi() -> void
-{
-    if(_ppi == nullptr) {
-        _ppi = new ppi::Instance(ppi::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_psg() -> void
-{
-    if(_psg == nullptr) {
-        _psg = new psg::Instance(psg::Type::TYPE_AY8912, *this);
-    }
-};
-
-auto Mainboard::construct_fdc() -> void
-{
-    if(_fdc == nullptr) {
-        _fdc = new fdc::Instance(fdc::Type::TYPE_DEFAULT, *this);
-        _fdc->attach_drive(fdc::Drive::FDC_DRIVE0);
-        _fdc->attach_drive(fdc::Drive::FDC_DRIVE1);
-    }
-};
-
-auto Mainboard::construct_ram() -> void
-{
-    for(auto& ram : _ram) {
-        if(ram == nullptr) {
-            ram = new mem::Instance(mem::Type::TYPE_RAM, *this);
-        }
-    }
-};
-
-auto Mainboard::construct_rom() -> void
-{
-    for(auto& rom : _rom) {
-        if(rom == nullptr) {
-            rom = new mem::Instance(mem::Type::TYPE_ROM, *this);
-        }
-    }
-};
-
-auto Mainboard::construct_exp() -> void
-{
-    for(auto& exp : _exp) {
-        if(exp == nullptr) {
-            exp = nullptr;
-        }
-    }
-};
-
-auto Mainboard::destruct_dpy() -> void
-{
-    if(_dpy != nullptr) {
-        _dpy = (delete _dpy, nullptr);
-    }
-};
-
-auto Mainboard::destruct_kbd() -> void
-{
-    if(_kbd != nullptr) {
-        _kbd = (delete _kbd, nullptr);
-    }
-};
-
-auto Mainboard::destruct_cpu() -> void
-{
-    if(_cpu != nullptr) {
-        _cpu = (delete _cpu, nullptr);
-    }
-};
-
-auto Mainboard::destruct_vga() -> void
-{
-    if(_vga != nullptr) {
-        _vga = (delete _vga, nullptr);
-    }
-};
-
-auto Mainboard::destruct_vdc() -> void
-{
-    if(_vdc != nullptr) {
-        _vdc = (delete _vdc, nullptr);
-    }
-};
-
-auto Mainboard::destruct_ppi() -> void
-{
-    if(_ppi != nullptr) {
-        _ppi = (delete _ppi, nullptr);
-    }
-};
-
-auto Mainboard::destruct_psg() -> void
-{
-    if(_psg != nullptr) {
-        _psg = (delete _psg, nullptr);
-    }
-};
-
-auto Mainboard::destruct_fdc() -> void
-{
-    if(_fdc != nullptr) {
-        _fdc = (delete _fdc, nullptr);
-    }
-};
-
-auto Mainboard::destruct_ram() -> void
-{
-    for(auto& ram : _ram) {
-        if(ram != nullptr) {
-            ram = (delete ram, nullptr);
-        }
-    }
-};
-
-auto Mainboard::destruct_rom() -> void
-{
-    for(auto& rom : _rom) {
-        if(rom != nullptr) {
-            rom = (delete rom, nullptr);
-        }
-    }
-};
-
-auto Mainboard::destruct_exp() -> void
-{
-    for(auto& exp : _exp) {
-        if(exp != nullptr) {
-            exp = (delete exp, nullptr);
-        }
-    }
-};
-
-auto Mainboard::reset_dpy() -> void
-{
-    if(_dpy != nullptr) {
-        _dpy->reset();
-    }
-};
-
-auto Mainboard::reset_kbd() -> void
-{
-    if(_kbd != nullptr) {
-        _kbd->reset();
-    }
-};
-
-auto Mainboard::reset_cpu() -> void
-{
-    if(_cpu != nullptr) {
-        _cpu->reset();
-    }
-};
-
-auto Mainboard::reset_vga() -> void
-{
-    if(_vga != nullptr) {
-        _vga->reset();
-    }
-};
-
-auto Mainboard::reset_vdc() -> void
-{
-    if(_vdc != nullptr) {
-        _vdc->reset();
-    }
-};
-
-auto Mainboard::reset_ppi() -> void
-{
-    if(_ppi != nullptr) {
-        _ppi->reset();
-    }
-};
-
-auto Mainboard::reset_psg() -> void
-{
-    if(_psg != nullptr) {
-        _psg->reset();
-    }
-};
-
-auto Mainboard::reset_fdc() -> void
-{
-    if(_fdc != nullptr) {
-        _fdc->reset();
-    }
-};
-
-auto Mainboard::reset_ram() -> void
-{
-    for(auto& ram : _ram) {
-        if(ram != nullptr) {
-            ram->reset();
-        }
-    }
-};
-
-auto Mainboard::reset_rom() -> void
-{
-    for(auto& rom : _rom) {
-        if(rom != nullptr) {
-            rom->reset();
-        }
-    }
-};
-
-auto Mainboard::reset_exp() -> void
-{
-    for(auto& exp : _exp) {
-        if(exp != nullptr) {
-            exp->reset();
-        }
-    }
-};
-
 auto Mainboard::configure(const Settings& settings) -> void
 {
-    auto clamp_int = [](const int value, const int min, const int max) -> int
+    auto clamp_int = [](int value, const int min, const int max) -> int
     {
         if(value < min) {
-            return min;
+            value = min;
         }
         if(value > max) {
-            return max;
+            value = max;
         }
         return value;
     };
@@ -1515,27 +1388,9 @@ auto Mainboard::configure(const Settings& settings) -> void
         _state.snd_clock     = _device->sampleRate;
     };
 
-    auto load_roms = [&]() -> void
+    auto load_system_roms = [&]() -> void
     {
-        std::string firmware(settings.opt_sysrom);
-        std::string expansions[16] = {
-            settings.opt_rom000,
-            settings.opt_rom001,
-            settings.opt_rom002,
-            settings.opt_rom003,
-            settings.opt_rom004,
-            settings.opt_rom005,
-            settings.opt_rom006,
-            settings.opt_rom007,
-            settings.opt_rom008,
-            settings.opt_rom009,
-            settings.opt_rom010,
-            settings.opt_rom011,
-            settings.opt_rom012,
-            settings.opt_rom013,
-            settings.opt_rom014,
-            settings.opt_rom015,
-        };
+        const std::string firmware(settings.opt_sysrom);
 
         /* load lower rom */ {
             try {
@@ -1557,6 +1412,29 @@ auto Mainboard::configure(const Settings& settings) -> void
                 ::xcpc_log_error("error while loading upper rom: %s", e.what());
             }
         }
+    };
+
+    auto load_expansions_roms = [&]() -> void
+    {
+        const std::string expansions[16] = {
+            settings.opt_rom000,
+            settings.opt_rom001,
+            settings.opt_rom002,
+            settings.opt_rom003,
+            settings.opt_rom004,
+            settings.opt_rom005,
+            settings.opt_rom006,
+            settings.opt_rom007,
+            settings.opt_rom008,
+            settings.opt_rom009,
+            settings.opt_rom010,
+            settings.opt_rom011,
+            settings.opt_rom012,
+            settings.opt_rom013,
+            settings.opt_rom014,
+            settings.opt_rom015,
+        };
+
         /* load expansions */ {
             unsigned int index = 0;
             for(auto& exp : _exp) {
@@ -1625,7 +1503,8 @@ auto Mainboard::configure(const Settings& settings) -> void
     {
         try {
             init_machine();
-            load_roms();
+            load_system_roms();
+            load_expansions_roms();
             reset();
             load_initial_snapshot();
             load_initial_drive0();
@@ -1646,7 +1525,7 @@ auto Mainboard::load_lower_rom(const std::string& filename) -> void
     auto*         rom   = _rom[index];
 
     if(rom == nullptr) {
-        rom = _rom[index] = new mem::Instance(mem::Type::TYPE_ROM, *this);
+        rom = _rom[index] = new mem::Instance(mem::ROM_BANK, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);
@@ -1663,7 +1542,7 @@ auto Mainboard::load_upper_rom(const std::string& filename) -> void
     auto*         rom   = _rom[index];
 
     if(rom == nullptr) {
-        rom = _rom[index] = new mem::Instance(mem::Type::TYPE_ROM, *this);
+        rom = _rom[index] = new mem::Instance(mem::ROM_BANK, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);
@@ -1679,7 +1558,7 @@ auto Mainboard::load_expansion(const std::string& filename, const int index) -> 
     auto* rom = _exp[index];
 
     if(rom == nullptr) {
-        rom = _exp[index] = new mem::Instance(mem::Type::TYPE_ROM, *this);
+        rom = _exp[index] = new mem::Instance(mem::ROM_BANK, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);

@@ -30,20 +30,6 @@ class  Interface;
 }
 
 // ---------------------------------------------------------------------------
-// vga::Type
-// ---------------------------------------------------------------------------
-
-namespace vga {
-
-enum Type
-{
-    TYPE_INVALID = -1,
-    TYPE_DEFAULT =  0,
-};
-
-}
-
-// ---------------------------------------------------------------------------
 // vga::Colormap
 // ---------------------------------------------------------------------------
 
@@ -83,7 +69,6 @@ namespace vga {
 
 struct State
 {
-    uint8_t  type;
     uint8_t  pen;
     uint8_t  ink[17];
     uint8_t  rmr;
@@ -110,7 +95,7 @@ namespace vga {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(Interface& interface);
 
     Instance(const Instance&) = delete;
 

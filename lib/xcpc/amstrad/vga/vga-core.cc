@@ -39,7 +39,6 @@ namespace {
 
 struct BasicTraits
 {
-    using Type      = vga::Type;
     using State     = vga::State;
     using Colormap  = vga::Colormap;
     using Scanline  = vga::Scanline;
@@ -67,9 +66,8 @@ namespace {
 struct StateTraits final
     : public BasicTraits
 {
-    static inline auto construct(State& state, const Type type) -> void
+    static inline auto construct(State& state) -> void
     {
-        state.type = type;
         setup_mode0(state);
         setup_mode1(state);
         setup_mode2(state);
@@ -78,7 +76,6 @@ struct StateTraits final
 
     static inline auto destruct(State& state) -> void
     {
-        state.type = Type::TYPE_INVALID;
     }
 
     static inline auto setup_mode0(State& state) -> void
@@ -162,11 +159,11 @@ struct StateTraits final
 
 namespace vga {
 
-Instance::Instance(const Type type, Interface& interface)
+Instance::Instance(Interface& interface)
     : _interface(interface)
     , _state()
 {
-    StateTraits::construct(_state, type);
+    StateTraits::construct(_state);
 
     reset();
 }

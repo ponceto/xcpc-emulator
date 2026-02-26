@@ -39,7 +39,7 @@ namespace {
 
 struct BasicTraits
 {
-    using Type      = mem::Type;
+    using BankType  = mem::BankType;
     using State     = mem::State;
     using Instance  = mem::Instance;
     using Interface = mem::Interface;
@@ -56,14 +56,13 @@ namespace {
 struct StateTraits final
     : public BasicTraits
 {
-    static inline auto construct(State& state, const Type type) -> void
+    static inline auto construct(State& state, const BankType bank_type) -> void
     {
-        state.type = type;
+        state.bank_type = bank_type;
     }
 
     static inline auto destruct(State& state) -> void
     {
-        state.type = Type::TYPE_INVALID;
     }
 
     static inline auto reset(State& state) -> void
@@ -84,15 +83,15 @@ struct StateTraits final
 
         auto reset_data = [&]() -> void
         {
-            switch(state.type) {
-                case Type::TYPE_ROM:
+            switch(state.bank_type) {
+                case BankType::ROM_BANK:
                     reset_rom();
                     break;
-                case Type::TYPE_RAM:
+                case BankType::RAM_BANK:
                     reset_ram();
                     break;
                 default:
-                    throw std::runtime_error("invalid memory type");
+                    throw std::runtime_error("invalid bank type");
                     break;
             }
         };
@@ -113,11 +112,11 @@ struct StateTraits final
 
 namespace mem {
 
-Instance::Instance(const Type type, Interface& interface)
+Instance::Instance(const BankType bank_type, Interface& interface)
     : _interface(interface)
     , _state()
 {
-    StateTraits::construct(_state, type);
+    StateTraits::construct(_state, bank_type);
 
     reset();
 }

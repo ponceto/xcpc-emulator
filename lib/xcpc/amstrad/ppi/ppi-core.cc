@@ -39,7 +39,6 @@ namespace {
 
 struct BasicTraits
 {
-    using Type      = ppi::Type;
     using State     = ppi::State;
     using Instance  = ppi::Instance;
     using Interface = ppi::Interface;
@@ -56,14 +55,12 @@ namespace {
 struct StateTraits final
     : public BasicTraits
 {
-    static inline auto construct(State& state, const Type type) -> void
+    static inline auto construct(State& state) -> void
     {
-        state.type = type;
     }
 
     static inline auto destruct(State& state) -> void
     {
-        state.type = Type::TYPE_INVALID;
     }
 
     static inline auto reset(State& state) -> void
@@ -92,11 +89,11 @@ struct StateTraits final
 
 namespace ppi {
 
-Instance::Instance(const Type type, Interface& interface)
+Instance::Instance(Interface& interface)
     : _interface(interface)
     , _state()
 {
-    StateTraits::construct(_state, type);
+    StateTraits::construct(_state);
 
     reset();
 }

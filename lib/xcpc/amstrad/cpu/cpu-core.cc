@@ -322,7 +322,6 @@ namespace {
 
 struct BasicTraits
 {
-    using Type      = cpu::Type;
     using State     = cpu::State;
     using Instance  = cpu::Instance;
     using Interface = cpu::Interface;
@@ -339,14 +338,12 @@ namespace {
 struct StateTraits final
     : public BasicTraits
 {
-    static inline auto construct(State& state, const Type type) -> void
+    static inline auto construct(State& state) -> void
     {
-        state.type = type;
     }
 
     static inline auto destruct(State& state) -> void
     {
-        state.type = Type::TYPE_INVALID;
     }
 
     static inline auto reset(State& state) -> void
@@ -375,11 +372,11 @@ struct StateTraits final
 
 namespace cpu {
 
-Instance::Instance(const Type type, Interface& interface)
+Instance::Instance(Interface& interface)
     : _interface(interface)
     , _state()
 {
-    StateTraits::construct(_state, type);
+    StateTraits::construct(_state);
 
     reset();
 }

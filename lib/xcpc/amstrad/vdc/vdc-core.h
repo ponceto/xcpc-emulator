@@ -30,20 +30,6 @@ class  Interface;
 }
 
 // ---------------------------------------------------------------------------
-// vdc::Type
-// ---------------------------------------------------------------------------
-
-namespace vdc {
-
-enum Type
-{
-    TYPE_INVALID = -1,
-    TYPE_DEFAULT =  0,
-};
-
-}
-
-// ---------------------------------------------------------------------------
 // vdc::State
 // ---------------------------------------------------------------------------
 
@@ -51,7 +37,6 @@ namespace vdc {
 
 struct State
 {
-    uint8_t type;
     struct
     {
         uint8_t addr;
@@ -116,7 +101,7 @@ namespace vdc {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(Interface& interface);
 
     Instance(const Instance&) = delete;
 

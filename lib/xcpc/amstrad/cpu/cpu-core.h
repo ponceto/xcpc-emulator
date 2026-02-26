@@ -30,20 +30,6 @@ class  Interface;
 }
 
 // ---------------------------------------------------------------------------
-// cpu::Type
-// ---------------------------------------------------------------------------
-
-namespace cpu {
-
-enum Type
-{
-    TYPE_INVALID = -1,
-    TYPE_DEFAULT =  0,
-};
-
-}
-
-// ---------------------------------------------------------------------------
 // cpu::Register
 // ---------------------------------------------------------------------------
 
@@ -95,7 +81,6 @@ namespace cpu {
 
 struct State
 {
-    uint8_t  type;
     Register r_af; /* AF & AF'            */
     Register r_bc; /* BC & BC'            */
     Register r_de; /* DE & DE'            */
@@ -122,7 +107,7 @@ namespace cpu {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(Interface& interface);
 
     Instance(const Instance&) = delete;
 

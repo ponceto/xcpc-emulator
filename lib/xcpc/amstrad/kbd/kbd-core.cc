@@ -39,10 +39,10 @@ namespace {
 
 struct BasicTraits
 {
-    using Type      = kbd::Type;
-    using State     = kbd::State;
-    using Instance  = kbd::Instance;
-    using Interface = kbd::Interface;
+    using KeyboardType = kbd::KeyboardType;
+    using State        = kbd::State;
+    using Instance     = kbd::Instance;
+    using Interface    = kbd::Interface;
 
     static const unsigned int Joystick0Modifier = (AnyModifier << 1);
     static const unsigned int Joystick1Modifier = (AnyModifier << 2);
@@ -79,14 +79,14 @@ namespace {
 struct StateTraits final
     : public BasicTraits
 {
-    static inline auto construct(State& state, const Type type) -> void
+    static inline auto construct(State& state) -> void
     {
-        state.type = type;
+        state.keyboard_type = XCPC_KEYBOARD_TYPE_DEFAULT;
     }
 
     static inline auto destruct(State& state) -> void
     {
-        state.type = Type::TYPE_INVALID;
+        state.keyboard_type = XCPC_KEYBOARD_TYPE_DEFAULT;
     }
 
     static inline auto reset(State& state) -> void
@@ -102,9 +102,9 @@ struct StateTraits final
     {
     }
 
-    static inline auto set_type(State& state, const Type type) -> void
+    static inline auto set_keyboard_type(State& state, const KeyboardType keyboard_type) -> void
     {
-        state.type = type;
+        state.keyboard_type = keyboard_type;
     }
 
     static inline auto set_line(State& state, uint8_t line) -> uint8_t
@@ -1021,11 +1021,11 @@ struct StateTraits final
         uint8_t data = 0x00;
         uint8_t mods = ~(state.keys[0x0f]);
 
-        switch(state.type) {
-            case Type::TYPE_ENGLISH:
+        switch(state.keyboard_type) {
+            case XCPC_KEYBOARD_TYPE_ENGLISH:
                 decode_english(state, event, line, data, mods);
                 break;
-            case Type::TYPE_FRENCH:
+            case XCPC_KEYBOARD_TYPE_FRENCH:
                 decode_french(state, event, line, data, mods);
                 break;
             default:
@@ -1050,11 +1050,11 @@ struct StateTraits final
         uint8_t data = 0x00;
         uint8_t mods = ~(state.keys[0x0f]);
 
-        switch(state.type) {
-            case Type::TYPE_ENGLISH:
+        switch(state.keyboard_type) {
+            case XCPC_KEYBOARD_TYPE_ENGLISH:
                 decode_english(state, event, line, data, mods);
                 break;
-            case Type::TYPE_FRENCH:
+            case XCPC_KEYBOARD_TYPE_FRENCH:
                 decode_french(state, event, line, data, mods);
                 break;
             default:
@@ -1164,11 +1164,11 @@ struct StateTraits final
 
 namespace kbd {
 
-Instance::Instance(const Type type, Interface& interface)
+Instance::Instance(Interface& interface)
     : _interface(interface)
     , _state()
 {
-    StateTraits::construct(_state, type);
+    StateTraits::construct(_state);
 
     reset();
 }
@@ -1188,9 +1188,9 @@ auto Instance::clock() -> void
     StateTraits::clock(_state);
 }
 
-auto Instance::set_type(const Type type) -> void
+auto Instance::set_keyboard_type(const KeyboardType keyboard_type) -> void
 {
-    StateTraits::set_type(_state, type);
+    StateTraits::set_keyboard_type(_state, keyboard_type);
 }
 
 auto Instance::set_line(uint8_t line) -> uint8_t

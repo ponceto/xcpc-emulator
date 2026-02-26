@@ -70,7 +70,7 @@ namespace dpy {
 class Instance
 {
 public: // public interface
-    Instance(const MonitorType monitor_type, const RefreshRate refresh_rate, Interface& interface);
+    Instance(Interface& interface);
 
     Instance(const Instance&) = delete;
 

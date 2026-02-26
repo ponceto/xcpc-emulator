@@ -30,20 +30,6 @@ class  Interface;
 }
 
 // ---------------------------------------------------------------------------
-// ppi::Type
-// ---------------------------------------------------------------------------
-
-namespace ppi {
-
-enum Type
-{
-    TYPE_INVALID = -1,
-    TYPE_DEFAULT =  0,
-};
-
-}
-
-// ---------------------------------------------------------------------------
 // ppi::State
 // ---------------------------------------------------------------------------
 
@@ -51,7 +37,6 @@ namespace ppi {
 
 struct State
 {
-    uint8_t type;
     uint8_t port_a;
     uint8_t port_b;
     uint8_t port_c;
@@ -74,7 +59,7 @@ namespace ppi {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(Interface& interface);
 
     Instance(const Instance&) = delete;
 

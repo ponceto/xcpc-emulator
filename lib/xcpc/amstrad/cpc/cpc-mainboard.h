@@ -254,42 +254,6 @@ public: // public types
     };
 
 private: // private interface
-    auto construct_dpy() -> void;
-    auto construct_kbd() -> void;
-    auto construct_cpu() -> void;
-    auto construct_vga() -> void;
-    auto construct_vdc() -> void;
-    auto construct_ppi() -> void;
-    auto construct_psg() -> void;
-    auto construct_fdc() -> void;
-    auto construct_ram() -> void;
-    auto construct_rom() -> void;
-    auto construct_exp() -> void;
-
-    auto destruct_dpy() -> void;
-    auto destruct_kbd() -> void;
-    auto destruct_cpu() -> void;
-    auto destruct_vga() -> void;
-    auto destruct_vdc() -> void;
-    auto destruct_ppi() -> void;
-    auto destruct_psg() -> void;
-    auto destruct_fdc() -> void;
-    auto destruct_ram() -> void;
-    auto destruct_rom() -> void;
-    auto destruct_exp() -> void;
-
-    auto reset_dpy() -> void;
-    auto reset_kbd() -> void;
-    auto reset_cpu() -> void;
-    auto reset_vga() -> void;
-    auto reset_vdc() -> void;
-    auto reset_ppi() -> void;
-    auto reset_psg() -> void;
-    auto reset_fdc() -> void;
-    auto reset_ram() -> void;
-    auto reset_rom() -> void;
-    auto reset_exp() -> void;
-
     auto configure(const Settings& settings) -> void;
     auto load_lower_rom(const std::string& filename) -> void;
     auto load_upper_rom(const std::string& filename) -> void;

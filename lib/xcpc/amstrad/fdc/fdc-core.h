@@ -40,20 +40,6 @@ using FddImpl = floppy_drive;
 }
 
 // ---------------------------------------------------------------------------
-// fdc::Type
-// ---------------------------------------------------------------------------
-
-namespace fdc {
-
-enum Type
-{
-    TYPE_INVALID = -1,
-    TYPE_DEFAULT =  0,
-};
-
-}
-
-// ---------------------------------------------------------------------------
 // fdc::Drive
 // ---------------------------------------------------------------------------
 
@@ -77,7 +63,6 @@ namespace fdc {
 
 struct State
 {
-    uint8_t  type;
     FdcImpl* fdc;
     FddImpl* fd0;
     FddImpl* fd1;
@@ -96,7 +81,7 @@ namespace fdc {
 class Instance
 {
 public: // public interface
-    Instance(const Type type, Interface& interface);
+    Instance(Interface& interface);
 
     Instance(const Instance&) = delete;
 

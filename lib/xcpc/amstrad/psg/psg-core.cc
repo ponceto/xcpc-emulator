@@ -39,7 +39,6 @@ namespace {
 
 struct BasicTraits
 {
-    using Type      = psg::Type;
     using State     = psg::State;
     using Sound     = psg::Sound;
     using Noise     = psg::Noise;
@@ -77,7 +76,6 @@ struct BasicTraits
     static constexpr uint8_t PORT1                 = 1;
 
     static const float   ay_dac[32];
-    static const float   ym_dac[32];
     static const uint8_t cycles[16][2];
 };
 
@@ -90,17 +88,6 @@ const float BasicTraits::ay_dac[32] = {
     0.2922103f, 0.2922103f, 0.3728389f, 0.3728389f,
     0.4925307f, 0.4925307f, 0.6353246f, 0.6353246f,
     0.8055848f, 0.8055848f, 1.0000000f, 1.0000000f
-};
-
-const float BasicTraits::ym_dac[32] = {
-    0.0000000f, 0.0000000f, 0.0046540f, 0.0077211f,
-    0.0109560f, 0.0139620f, 0.0169986f, 0.0200198f,
-    0.0243687f, 0.0296941f, 0.0350652f, 0.0403906f,
-    0.0485389f, 0.0583352f, 0.0680552f, 0.0777752f,
-    0.0925154f, 0.1110857f, 0.1297475f, 0.1484855f,
-    0.1766690f, 0.2115511f, 0.2463874f, 0.2811017f,
-    0.3337301f, 0.4004273f, 0.4673838f, 0.5344320f,
-    0.6351720f, 0.7580072f, 0.8799268f, 1.0000000f
 };
 
 const uint8_t BasicTraits::cycles[16][2] = {
@@ -133,26 +120,13 @@ namespace {
 struct StateTraits final
     : public BasicTraits
 {
-    static inline auto construct(State& state, const Type type) -> void
+    static inline auto construct(State& state) -> void
     {
-        switch(state.type = type) {
-            case Type::TYPE_AY8910:
-            case Type::TYPE_AY8912:
-            case Type::TYPE_AY8913:
-                static_cast<void>(::memcpy(state.dac, ay_dac, sizeof(state.dac)));
-                break;
-            case Type::TYPE_YM2149:
-                static_cast<void>(::memcpy(state.dac, ym_dac, sizeof(state.dac)));
-                break;
-            default:
-                static_cast<void>(::memcpy(state.dac, ay_dac, sizeof(state.dac)));
-                break;
-        }
+        static_cast<void>(::memcpy(state.dac, ay_dac, sizeof(state.dac)));
     }
 
     static inline auto destruct(State& state) -> void
     {
-        state.type = Type::TYPE_INVALID;
     }
 
     static inline auto reset(State& state) -> void
@@ -489,7 +463,7 @@ struct OutputTraits final
 
 namespace psg {
 
-Instance::Instance(const Type type, Interface& interface)
+Instance::Instance(Interface& interface)
     : _interface(interface)
     , _state()
     , _sound()
@@ -497,7 +471,7 @@ Instance::Instance(const Type type, Interface& interface)
     , _envelope()
     , _output()
 {
-    StateTraits::construct(_state, type);
+    StateTraits::construct(_state);
 
     reset();
 }

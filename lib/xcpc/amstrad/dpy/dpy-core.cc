@@ -33,20 +33,6 @@
 #include "ogl-renderer.h"
 #include "x11-renderer.h"
 
-#define MONITOR_50HZ_TOTAL_WIDTH    1024
-#define MONITOR_50HZ_TOTAL_HEIGHT    768
-#define MONITOR_50HZ_VISIBLE_X       224
-#define MONITOR_50HZ_VISIBLE_Y        48
-#define MONITOR_50HZ_VISIBLE_WIDTH   768
-#define MONITOR_50HZ_VISIBLE_HEIGHT  576
-
-#define MONITOR_60HZ_TOTAL_WIDTH    1024
-#define MONITOR_60HZ_TOTAL_HEIGHT    768
-#define MONITOR_60HZ_VISIBLE_X       224
-#define MONITOR_60HZ_VISIBLE_Y        44
-#define MONITOR_60HZ_VISIBLE_WIDTH   768
-#define MONITOR_60HZ_VISIBLE_HEIGHT  480
-
 // ---------------------------------------------------------------------------
 // <anonymous>::ColorEntry
 // ---------------------------------------------------------------------------
@@ -61,41 +47,6 @@ struct ColorEntry
     uint16_t    g;
     uint16_t    b;
     uint16_t    l;
-};
-
-const ColorEntry color_table[] = {
-    { "white"                       , 0, 0x8000, 0x8000, 0x8000, 0x8000 },
-    { "white (not official)"        , 0, 0x8000, 0x8000, 0x8000, 0x8000 },
-    { "sea green"                   , 0, 0x0000, 0xffff, 0x8000, 0xa4dd },
-    { "pastel yellow"               , 0, 0xffff, 0xffff, 0x8000, 0xf168 },
-    { "blue"                        , 0, 0x0000, 0x0000, 0x8000, 0x0e97 },
-    { "purple"                      , 0, 0xffff, 0x0000, 0x8000, 0x5b22 },
-    { "cyan"                        , 0, 0x0000, 0x8000, 0x8000, 0x59ba },
-    { "pink"                        , 0, 0xffff, 0x8000, 0x8000, 0xa645 },
-    { "purple (not official)"       , 0, 0xffff, 0x0000, 0x8000, 0x5b22 },
-    { "pastel yellow (not official)", 0, 0xffff, 0xffff, 0x8000, 0xf168 },
-    { "bright yellow"               , 0, 0xffff, 0xffff, 0x0000, 0xe2d0 },
-    { "bright white"                , 0, 0xffff, 0xffff, 0xffff, 0xffff },
-    { "bright red"                  , 0, 0xffff, 0x0000, 0x0000, 0x4c8b },
-    { "bright magenta"              , 0, 0xffff, 0x0000, 0xffff, 0x69ba },
-    { "orange"                      , 0, 0xffff, 0x8000, 0x0000, 0x97ad },
-    { "pastel magenta"              , 0, 0xffff, 0x8000, 0xffff, 0xb4dc },
-    { "blue (not official)"         , 0, 0x0000, 0x0000, 0x8000, 0x0e97 },
-    { "sea green (not official)"    , 0, 0x0000, 0xffff, 0x8000, 0xa4dd },
-    { "bright green"                , 0, 0x0000, 0xffff, 0x0000, 0x9645 },
-    { "bright cyan"                 , 0, 0x0000, 0xffff, 0xffff, 0xb374 },
-    { "black"                       , 0, 0x0000, 0x0000, 0x0000, 0x0000 },
-    { "bright blue"                 , 0, 0x0000, 0x0000, 0xffff, 0x1d2f },
-    { "green"                       , 0, 0x0000, 0x8000, 0x0000, 0x4b23 },
-    { "sky blue"                    , 0, 0x0000, 0x8000, 0xffff, 0x6852 },
-    { "magenta"                     , 0, 0x8000, 0x0000, 0x8000, 0x34dd },
-    { "pastel green"                , 0, 0x8000, 0xffff, 0x8000, 0xcb22 },
-    { "lime"                        , 0, 0x8000, 0xffff, 0x0000, 0xbc8b },
-    { "pastel cyan"                 , 0, 0x8000, 0xffff, 0xffff, 0xd9ba },
-    { "red"                         , 0, 0x8000, 0x0000, 0x0000, 0x2645 },
-    { "mauve"                       , 0, 0x8000, 0x0000, 0xffff, 0x4374 },
-    { "yellow"                      , 0, 0x8000, 0x8000, 0x0000, 0x7168 },
-    { "pastel blue"                 , 0, 0x8000, 0x8000, 0xffff, 0x8e97 }
 };
 
 }
@@ -127,10 +78,22 @@ namespace {
 struct StateTraits final
     : public BasicTraits
 {
-    static inline auto construct(State& state, const MonitorType monitor_type, const RefreshRate refresh_rate) -> void
+    static const ColorEntry color_table[];
+
+    static constexpr int MONITOR_50HZ_VISIBLE_X      = 224;
+    static constexpr int MONITOR_50HZ_VISIBLE_Y      =  48;
+    static constexpr int MONITOR_50HZ_VISIBLE_WIDTH  = 768;
+    static constexpr int MONITOR_50HZ_VISIBLE_HEIGHT = 576;
+
+    static constexpr int MONITOR_60HZ_VISIBLE_X      = 224;
+    static constexpr int MONITOR_60HZ_VISIBLE_Y      =  44;
+    static constexpr int MONITOR_60HZ_VISIBLE_WIDTH  = 768;
+    static constexpr int MONITOR_60HZ_VISIBLE_HEIGHT = 480;
+
+    static inline auto construct(State& state) -> void
     {
-        state.monitor_type = monitor_type;
-        state.refresh_rate = refresh_rate;
+        state.monitor_type = XCPC_MONITOR_TYPE_DEFAULT;
+        state.refresh_rate = XCPC_REFRESH_RATE_DEFAULT;
     }
 
     static inline auto destruct(State& state) -> void
@@ -320,6 +283,41 @@ struct StateTraits final
     }
 };
 
+const ColorEntry StateTraits::color_table[] = {
+    { "white"                       , 0, 0x8000, 0x8000, 0x8000, 0x8000 },
+    { "white (not official)"        , 0, 0x8000, 0x8000, 0x8000, 0x8000 },
+    { "sea green"                   , 0, 0x0000, 0xffff, 0x8000, 0xa4dd },
+    { "pastel yellow"               , 0, 0xffff, 0xffff, 0x8000, 0xf168 },
+    { "blue"                        , 0, 0x0000, 0x0000, 0x8000, 0x0e97 },
+    { "purple"                      , 0, 0xffff, 0x0000, 0x8000, 0x5b22 },
+    { "cyan"                        , 0, 0x0000, 0x8000, 0x8000, 0x59ba },
+    { "pink"                        , 0, 0xffff, 0x8000, 0x8000, 0xa645 },
+    { "purple (not official)"       , 0, 0xffff, 0x0000, 0x8000, 0x5b22 },
+    { "pastel yellow (not official)", 0, 0xffff, 0xffff, 0x8000, 0xf168 },
+    { "bright yellow"               , 0, 0xffff, 0xffff, 0x0000, 0xe2d0 },
+    { "bright white"                , 0, 0xffff, 0xffff, 0xffff, 0xffff },
+    { "bright red"                  , 0, 0xffff, 0x0000, 0x0000, 0x4c8b },
+    { "bright magenta"              , 0, 0xffff, 0x0000, 0xffff, 0x69ba },
+    { "orange"                      , 0, 0xffff, 0x8000, 0x0000, 0x97ad },
+    { "pastel magenta"              , 0, 0xffff, 0x8000, 0xffff, 0xb4dc },
+    { "blue (not official)"         , 0, 0x0000, 0x0000, 0x8000, 0x0e97 },
+    { "sea green (not official)"    , 0, 0x0000, 0xffff, 0x8000, 0xa4dd },
+    { "bright green"                , 0, 0x0000, 0xffff, 0x0000, 0x9645 },
+    { "bright cyan"                 , 0, 0x0000, 0xffff, 0xffff, 0xb374 },
+    { "black"                       , 0, 0x0000, 0x0000, 0x0000, 0x0000 },
+    { "bright blue"                 , 0, 0x0000, 0x0000, 0xffff, 0x1d2f },
+    { "green"                       , 0, 0x0000, 0x8000, 0x0000, 0x4b23 },
+    { "sky blue"                    , 0, 0x0000, 0x8000, 0xffff, 0x6852 },
+    { "magenta"                     , 0, 0x8000, 0x0000, 0x8000, 0x34dd },
+    { "pastel green"                , 0, 0x8000, 0xffff, 0x8000, 0xcb22 },
+    { "lime"                        , 0, 0x8000, 0xffff, 0x0000, 0xbc8b },
+    { "pastel cyan"                 , 0, 0x8000, 0xffff, 0xffff, 0xd9ba },
+    { "red"                         , 0, 0x8000, 0x0000, 0x0000, 0x2645 },
+    { "mauve"                       , 0, 0x8000, 0x0000, 0xffff, 0x4374 },
+    { "yellow"                      , 0, 0x8000, 0x8000, 0x0000, 0x7168 },
+    { "pastel blue"                 , 0, 0x8000, 0x8000, 0xffff, 0x8e97 }
+};
+
 }
 
 // ---------------------------------------------------------------------------
@@ -328,12 +326,12 @@ struct StateTraits final
 
 namespace dpy {
 
-Instance::Instance(const MonitorType monitor_type, const RefreshRate refresh_rate, Interface& interface)
+Instance::Instance(Interface& interface)
     : _interface(interface)
     , _state()
     , _renderer()
 {
-    StateTraits::construct(_state, monitor_type, refresh_rate);
+    StateTraits::construct(_state);
 
     reset();
 }
