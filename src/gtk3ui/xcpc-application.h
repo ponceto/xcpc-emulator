@@ -311,10 +311,12 @@ public: // public interface
     virtual auto build() -> void override final;
 
 private: // private data
-    gtk3::MenuItem& _self;
-    gtk3::Menu      _menu;
-    gtk3::MenuItem  _volume_increase;
-    gtk3::MenuItem  _volume_decrease;
+    gtk3::MenuItem&         _self;
+    gtk3::Menu              _menu;
+    gtk3::MenuItem          _volume_increase;
+    gtk3::MenuItem          _volume_decrease;
+    gtk3::SeparatorMenuItem _separator;
+    gtk3::MenuItem          _audio_settings;
 };
 
 }
@@ -765,27 +767,6 @@ public: // public accessors
         return _app_window.info_bar();
     }
 
-public: // public types
-    struct VideoSettings
-    {
-        float u_curvature  = 0.05f;
-        float u_corner     = 0.10f;
-        float u_dotline    = 0.30f;
-        float u_dotmask    = 0.10f;
-        float u_vignetting = 1.00f;
-        float u_brightness = 1.20f;
-    };
-
-    auto video_settings() -> VideoSettings&
-    {
-        return _video_settings;
-    }
-
-    auto video_settings() const -> const VideoSettings&
-    {
-        return _video_settings;
-    }
-
 public: // public methods
     virtual auto load_snapshot(const std::string& filename) -> void override final;
 
@@ -894,10 +875,6 @@ public: // public signals
 
     virtual auto on_keyboard_danish() -> void override final;
 
-    virtual auto on_renderer_ximage() -> void override final;
-
-    virtual auto on_renderer_opengl() -> void override final;
-
     virtual auto on_drive0_disk_create() -> void override final;
 
     virtual auto on_drive0_disk_insert() -> void override final;
@@ -913,6 +890,12 @@ public: // public signals
     virtual auto on_volume_increase() -> void override final;
 
     virtual auto on_volume_decrease() -> void override final;
+
+    virtual auto on_audio_settings() -> void override final;
+
+    virtual auto on_renderer_ximage() -> void override final;
+
+    virtual auto on_renderer_opengl() -> void override final;
 
     virtual auto on_crt_emulation_enable() -> void override final;
 
@@ -972,7 +955,6 @@ private: // private data
     std::string     _app_state;
     gdk3::Pixbuf    _app_icon;
     impl::AppWindow _app_window;
-    VideoSettings   _video_settings;
     guint           _timer;
 };
 

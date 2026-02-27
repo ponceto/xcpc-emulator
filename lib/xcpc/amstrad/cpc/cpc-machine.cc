@@ -153,11 +153,6 @@ auto Machine::set_parameterf(const std::string& parameter, float value) -> void
     return _mainboard.set_parameterf(parameter, value);
 }
 
-auto Machine::set_volume(const float volume) -> void
-{
-    return _mainboard.set_volume(volume);
-}
-
 auto Machine::set_company_name(const std::string& company_name) -> void
 {
     return _mainboard.set_company_name(company_name);
@@ -186,16 +181,6 @@ auto Machine::set_keyboard_type(const std::string& keyboard_type) -> void
 auto Machine::set_renderer_type(const std::string& renderer_type) -> void
 {
     return _mainboard.set_renderer_type(renderer_type);
-}
-
-auto Machine::get_volume() const -> float
-{
-    return _mainboard.get_volume();
-}
-
-auto Machine::get_system_info() const -> std::string
-{
-    return _mainboard.get_system_info();
 }
 
 auto Machine::get_company_name() const -> std::string
@@ -243,9 +228,19 @@ auto Machine::get_drive1_filename() const -> std::string
     return _mainboard.get_drive1_filename();
 }
 
+auto Machine::get_system_info() const -> std::string
+{
+    return _mainboard.get_system_info();
+}
+
 auto Machine::get_statistics() const -> std::string
 {
     return _mainboard.get_statistics();
+}
+
+auto Machine::get_volume() const -> float
+{
+    return _mainboard.get_volume();
 }
 
 auto Machine::get_backend() const -> const Backend*

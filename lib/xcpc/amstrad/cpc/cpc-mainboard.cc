@@ -752,24 +752,26 @@ auto Mainboard::set_parameteri(const std::string& parameter, int value) -> void
 
 auto Mainboard::set_parameterf(const std::string& parameter, float value) -> void
 {
+    auto set_volume = [&](float volume) -> void
+    {
+        _audio.volume = volume;
+        if(_audio.volume < 0.0f) {
+            _audio.volume = 0.0f;
+        }
+        if(_audio.volume > 1.0f) {
+            _audio.volume = 1.0f;
+        }
+    };
+
+    if(parameter.compare(0, 6, "audio.") == 0) {
+        if(parameter == "audio.volume") {
+            set_volume(value);
+        }
+    }
     if(parameter.compare(0, 6, "video.") == 0) {
         if(_dpy != nullptr) {
             _dpy->set_parameterf(parameter, value);
         }
-    }
-}
-
-auto Mainboard::set_volume(const float volume) -> void
-{
-    constexpr float min_volume = 0.0f;
-    constexpr float max_volume = 1.0f;
-
-    _audio.volume = volume;
-    if(_audio.volume < min_volume) {
-        _audio.volume = min_volume;
-    }
-    if(_audio.volume > max_volume) {
-        _audio.volume = max_volume;
     }
 }
 
@@ -1016,34 +1018,6 @@ auto Mainboard::set_renderer_type(const std::string& string) -> void
     }
 }
 
-auto Mainboard::get_volume() const -> float
-{
-    return _audio.volume;
-}
-
-auto Mainboard::get_system_info() const -> std::string
-{
-    std::string system_info;
-
-    system_info += get_company_name();
-    system_info += ' ';
-    system_info += get_machine_type();
-    system_info += ' ';
-    system_info += get_memory_size();
-    system_info += ',';
-    system_info += ' ';
-    system_info += get_monitor_type();
-    system_info += ' ';
-    system_info += '@';
-    system_info += ' ';
-    system_info += get_refresh_rate();
-    system_info += ',';
-    system_info += ' ';
-    system_info += get_keyboard_type();
-
-    return system_info;
-}
-
 auto Mainboard::get_company_name() const -> std::string
 {
     return Utils::company_name_to_string(_setup.company_name);
@@ -1095,9 +1069,37 @@ auto Mainboard::get_drive1_filename() const -> std::string
     return "";
 }
 
+auto Mainboard::get_system_info() const -> std::string
+{
+    std::string system_info;
+
+    system_info += get_company_name();
+    system_info += ' ';
+    system_info += get_machine_type();
+    system_info += ' ';
+    system_info += get_memory_size();
+    system_info += ',';
+    system_info += ' ';
+    system_info += get_monitor_type();
+    system_info += ' ';
+    system_info += '@';
+    system_info += ' ';
+    system_info += get_refresh_rate();
+    system_info += ',';
+    system_info += ' ';
+    system_info += get_keyboard_type();
+
+    return system_info;
+}
+
 auto Mainboard::get_statistics() const -> std::string
 {
     return _stats.buffer;
+}
+
+auto Mainboard::get_volume() const -> float
+{
+    return _audio.volume;
 }
 
 auto Mainboard::on_reset(Event& event) -> unsigned long

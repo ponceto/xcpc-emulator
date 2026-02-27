@@ -103,6 +103,8 @@ Application::Application(int& argc, char**& argv)
     , _argv(argv)
     , _settings(new cpc::Settings(argc, argv))
     , _machine(new cpc::Machine(*_settings))
+    , _audio_settings()
+    , _video_settings()
 {
 }
 
@@ -363,6 +365,45 @@ namespace base {
 
 SettingsDialog::SettingsDialog(Application& application, const std::string& title)
     : Dialog(application, title)
+{
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// base::AudioSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+AudioSettingsDialog::AudioSettingsDialog(Application& application)
+    : SettingsDialog(application, _("Audio settings"))
+{
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// base::VideoSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+VideoSettingsDialog::VideoSettingsDialog(Application& application)
+    : SettingsDialog(application, _("Video settings"))
+{
+}
+
+}
+
+// ---------------------------------------------------------------------------
+// base::InputSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+InputSettingsDialog::InputSettingsDialog(Application& application)
+    : SettingsDialog(application, _("Input settings"))
 {
 }
 

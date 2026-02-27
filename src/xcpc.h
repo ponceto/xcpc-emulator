@@ -76,6 +76,49 @@ class ScopedReset;
 }
 
 // ---------------------------------------------------------------------------
+// base::AudioSettings
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+struct AudioSettings
+{
+    float volume = 0.50f;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::VideoSettings
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+struct VideoSettings
+{
+    float u_curvature  = 0.05f;
+    float u_corner     = 0.10f;
+    float u_dotline    = 0.30f;
+    float u_dotmask    = 0.10f;
+    float u_vignetting = 1.00f;
+    float u_brightness = 1.20f;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::InputSettings
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+struct InputSettings
+{
+};
+
+}
+
+// ---------------------------------------------------------------------------
 // base::Environ
 // ---------------------------------------------------------------------------
 
@@ -119,6 +162,26 @@ public: // public interface
     auto get_backend() const -> const xcpc::Backend*
     {
         return _machine->get_backend();
+    }
+
+    auto audio_settings() -> AudioSettings&
+    {
+        return _audio_settings;
+    }
+
+    auto audio_settings() const -> const AudioSettings&
+    {
+        return _audio_settings;
+    }
+
+    auto video_settings() -> VideoSettings&
+    {
+        return _video_settings;
+    }
+
+    auto video_settings() const -> const VideoSettings&
+    {
+        return _video_settings;
     }
 
 public: // public methods
@@ -257,10 +320,6 @@ public: // public signals
 
     virtual auto on_keyboard_danish() -> void = 0;
 
-    virtual auto on_renderer_ximage() -> void = 0;
-
-    virtual auto on_renderer_opengl() -> void = 0;
-
     virtual auto on_drive0_disk_create() -> void = 0;
 
     virtual auto on_drive0_disk_insert() -> void = 0;
@@ -276,6 +335,12 @@ public: // public signals
     virtual auto on_volume_increase() -> void = 0;
 
     virtual auto on_volume_decrease() -> void = 0;
+
+    virtual auto on_audio_settings() -> void = 0;
+
+    virtual auto on_renderer_ximage() -> void = 0;
+
+    virtual auto on_renderer_opengl() -> void = 0;
 
     virtual auto on_crt_emulation_enable() -> void = 0;
 
@@ -306,6 +371,9 @@ protected: // protected data
     char**&           _argv;
     const SettingsPtr _settings;
     const MachinePtr  _machine;
+    AudioSettings     _audio_settings;
+    VideoSettings     _video_settings;
+    InputSettings     _input_settings;
 };
 
 }
@@ -543,6 +611,69 @@ public: // public interface
     SettingsDialog& operator=(const SettingsDialog&) = delete;
 
     virtual ~SettingsDialog() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::AudioSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class AudioSettingsDialog
+    : public SettingsDialog
+{
+public: // public interface
+    AudioSettingsDialog(Application&);
+
+    AudioSettingsDialog(const AudioSettingsDialog&) = delete;
+
+    AudioSettingsDialog& operator=(const AudioSettingsDialog&) = delete;
+
+    virtual ~AudioSettingsDialog() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::VideoSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class VideoSettingsDialog
+    : public SettingsDialog
+{
+public: // public interface
+    VideoSettingsDialog(Application&);
+
+    VideoSettingsDialog(const VideoSettingsDialog&) = delete;
+
+    VideoSettingsDialog& operator=(const VideoSettingsDialog&) = delete;
+
+    virtual ~VideoSettingsDialog() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::InputSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class InputSettingsDialog
+    : public SettingsDialog
+{
+public: // public interface
+    InputSettingsDialog(Application&);
+
+    InputSettingsDialog(const InputSettingsDialog&) = delete;
+
+    InputSettingsDialog& operator=(const InputSettingsDialog&) = delete;
+
+    virtual ~InputSettingsDialog() = default;
 };
 
 }

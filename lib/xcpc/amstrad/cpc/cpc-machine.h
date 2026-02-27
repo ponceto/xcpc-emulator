@@ -69,8 +69,6 @@ public: // public interface
 
     auto set_parameterf(const std::string& parameter, float value) -> void;
 
-    auto set_volume(const float volume) -> void;
-
     auto set_company_name(const std::string& company_name) -> void;
 
     auto set_machine_type(const std::string& machine_type) -> void;
@@ -82,10 +80,6 @@ public: // public interface
     auto set_keyboard_type(const std::string& keyboard_type) -> void;
 
     auto set_renderer_type(const std::string& renderer_type) -> void;
-
-    auto get_volume() const -> float;
-
-    auto get_system_info() const -> std::string;
 
     auto get_company_name() const -> std::string;
 
@@ -105,7 +99,11 @@ public: // public interface
 
     auto get_drive1_filename() const -> std::string;
 
+    auto get_system_info() const -> std::string;
+
     auto get_statistics() const -> std::string;
+
+    auto get_volume() const -> float;
 
     auto get_backend() const -> const Backend*;
 

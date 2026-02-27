@@ -36,9 +36,10 @@
 #include "xcpc-application.h"
 #include "xcpc-snapshot-dialog.h"
 #include "xcpc-disk-dialog.h"
+#include "xcpc-audio-settings-dialog.h"
+#include "xcpc-video-settings-dialog.h"
 #include "xcpc-help-dialog.h"
 #include "xcpc-about-dialog.h"
-#include "xcpc-video-settings-dialog.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::IconTraits
@@ -281,20 +282,6 @@ struct Callbacks
         }
     }
 
-    static auto on_renderer_ximage(GtkWidget* widget, Application* application) -> void
-    {
-        if(application != nullptr) {
-            application->on_renderer_ximage();
-        }
-    }
-
-    static auto on_renderer_opengl(GtkWidget* widget, Application* application) -> void
-    {
-        if(application != nullptr) {
-            application->on_renderer_opengl();
-        }
-    }
-
     static auto on_drive0_disk_create(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
@@ -348,6 +335,27 @@ struct Callbacks
     {
         if(application != nullptr) {
             application->on_volume_decrease();
+        }
+    }
+
+    static auto on_audio_settings(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_audio_settings();
+        }
+    }
+
+    static auto on_renderer_ximage(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_renderer_ximage();
+        }
+    }
+
+    static auto on_renderer_opengl(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_renderer_opengl();
         }
     }
 
@@ -1166,6 +1174,8 @@ AudioMenu::AudioMenu(Application& application)
     , _menu(nullptr)
     , _volume_increase(nullptr)
     , _volume_decrease(nullptr)
+    , _separator(nullptr)
+    , _audio_settings(nullptr)
 {
 }
 
@@ -1196,12 +1206,27 @@ auto AudioMenu::build() -> void
         _menu.append(_volume_decrease);
     };
 
+    auto build_separator = [&]() -> void
+    {
+        _separator.create_separator_menu_item();
+        _menu.append(_separator);
+    };
+
+    auto build_audio_settings = [&]() -> void
+    {
+        _audio_settings.create_menu_item_with_label(_("Settings..."));
+        _audio_settings.add_activate_callback(G_CALLBACK(&Callbacks::on_audio_settings), &_application);
+        _menu.append(_audio_settings);
+    };
+
     auto build_all = [&]() -> void
     {
         build_self();
         build_menu();
         build_volume_increase();
         build_volume_decrease();
+        build_separator();
+        build_audio_settings();
     };
 
     return build_all();
@@ -2421,7 +2446,7 @@ auto Application::remove_disk_from_drive1() -> void
 auto Application::set_volume(const float volume) -> void
 {
     try {
-        _machine->set_volume(volume);
+        _machine->set_parameterf("audio.volume", volume);
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("increase-volume has failed (%s)", e.what());
@@ -2731,16 +2756,6 @@ auto Application::on_keyboard_danish() -> void
     set_keyboard_type("danish");
 }
 
-auto Application::on_renderer_ximage() -> void
-{
-    set_renderer_type("ximage");
-}
-
-auto Application::on_renderer_opengl() -> void
-{
-    set_renderer_type("opengl");
-}
-
 auto Application::on_drive0_disk_create() -> void
 {
     CreateDiskDialog dialog(*this, CreateDiskDialog::DRIVE_A);
@@ -2785,18 +2800,43 @@ auto Application::on_drive1_disk_remove() -> void
 
 auto Application::on_volume_increase() -> void
 {
-    constexpr float increment = 0.05f;
-    const     float volume    = _machine->get_volume() + increment;
-
-    set_volume(volume);
+    if((_audio_settings.volume += 0.05f) > 1.0f) {
+        _audio_settings.volume = 1.0f;
+    }
+    set_volume(_audio_settings.volume);
 }
 
 auto Application::on_volume_decrease() -> void
 {
-    constexpr float increment = 0.05f;
-    const     float volume    = _machine->get_volume() - increment;
+    if((_audio_settings.volume -= 0.05f) < 0.0f) {
+        _audio_settings.volume = 0.0f;
+    }
+    set_volume(_audio_settings.volume);
+}
 
-    set_volume(volume);
+auto Application::on_audio_settings() -> void
+{
+    AudioSettingsDialog dialog(*this);
+
+    run_dialog(dialog);
+
+    try {
+        set_volume(_audio_settings.volume);
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_error("set-audio-parameters has failed (%s)", e.what());
+    }
+    update_all();
+}
+
+auto Application::on_renderer_ximage() -> void
+{
+    set_renderer_type("ximage");
+}
+
+auto Application::on_renderer_opengl() -> void
+{
+    set_renderer_type("opengl");
 }
 
 auto Application::on_crt_emulation_enable() -> void

@@ -106,6 +106,8 @@ libxcpcgtk3ui_la_SOURCES = \
 	xcpc-snapshot-dialog.h \
 	xcpc-disk-dialog.cc \
 	xcpc-disk-dialog.h \
+	xcpc-audio-settings-dialog.cc \
+	xcpc-audio-settings-dialog.h \
 	xcpc-video-settings-dialog.cc \
 	xcpc-video-settings-dialog.h \
 	xcpc-help-dialog.cc \

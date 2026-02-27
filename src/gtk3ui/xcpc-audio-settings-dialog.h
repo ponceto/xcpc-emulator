@@ -1,5 +1,5 @@
 /*
- * xcpc-video-settings-dialog.h - Copyright (c) 2001-2026 - Olivier Poncet
+ * xcpc-audio-settings-dialog.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,24 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __XCPC_GTK3UI_VIDEO_SETTINGS_DIALOG_H__
-#define __XCPC_GTK3UI_VIDEO_SETTINGS_DIALOG_H__
+#ifndef __XCPC_GTK3UI_AUDIO_SETTINGS_DIALOG_H__
+#define __XCPC_GTK3UI_AUDIO_SETTINGS_DIALOG_H__
 
 #include "xcpc-application.h"
 
 // ---------------------------------------------------------------------------
-// xcpc::VideoSettingsDialog
+// xcpc::AudioSettingsDialog
 // ---------------------------------------------------------------------------
 
 namespace xcpc {
 
-class VideoSettingsDialog final
-    : public base::VideoSettingsDialog
+class AudioSettingsDialog final
+    : public base::AudioSettingsDialog
 {
 public: // public interface
-    VideoSettingsDialog(Application&);
+    AudioSettingsDialog(Application&);
 
-    virtual ~VideoSettingsDialog() = default;
+    virtual ~AudioSettingsDialog() = default;
 
     virtual auto run() -> void override;
 
@@ -41,18 +41,8 @@ private: // private data
     gtk3::Dialog _dialog;
     gtk3::Frame  _frame;
     gtk3::Grid   _grid;
-    gtk3::Label  _label_curvature;
-    gtk3::Label  _label_corner;
-    gtk3::Label  _label_dotline;
-    gtk3::Label  _label_dotmask;
-    gtk3::Label  _label_vignetting;
-    gtk3::Label  _label_brightness;
-    gtk3::Scale  _scale_curvature;
-    gtk3::Scale  _scale_corner;
-    gtk3::Scale  _scale_dotline;
-    gtk3::Scale  _scale_dotmask;
-    gtk3::Scale  _scale_vignetting;
-    gtk3::Scale  _scale_brightness;
+    gtk3::Label  _label_volume;
+    gtk3::Scale  _scale_volume;
 };
 
 }
@@ -61,4 +51,4 @@ private: // private data
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __XCPC_GTK3UI_VIDEO_SETTINGS_DIALOG_H__ */
+#endif /* __XCPC_GTK3UI_AUDIO_SETTINGS_DIALOG_H__ */

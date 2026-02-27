@@ -41,7 +41,7 @@
 namespace xcpc {
 
 VideoSettingsDialog::VideoSettingsDialog(Application& application)
-    : base::SettingsDialog(application, _("Video settings"))
+    : base::VideoSettingsDialog(application)
     , _dialog(nullptr)
     , _frame(nullptr)
     , _grid(nullptr)
@@ -77,7 +77,7 @@ auto VideoSettingsDialog::build() -> void
 
     auto build_frame = [&]() -> void
     {
-        _frame.create_frame(_("CRT emulation settings (OpenGL only)"));
+        _frame.create_frame(_("Video emulation settings (OpenGL)"));
         _frame.set_margin_start(8);
         _frame.set_margin_end(8);
         _frame.set_margin_top(8);
