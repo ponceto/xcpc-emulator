@@ -752,10 +752,6 @@ MachineMenu::MachineMenu(Application& application)
     , _keyboard_german(nullptr)
     , _keyboard_spanish(nullptr)
     , _keyboard_danish(nullptr)
-    , _renderer(nullptr)
-    , _renderer_menu(nullptr)
-    , _renderer_ximage(nullptr)
-    , _renderer_opengl(nullptr)
 {
 }
 
@@ -962,28 +958,6 @@ auto MachineMenu::build() -> void
         _keyboard_danish.set_sensitive(false);
     };
 
-    auto build_renderer = [&]() -> void
-    {
-        _renderer.create_menu_item_with_label(_("Renderer"));
-        _menu.append(_renderer);
-        _renderer_menu.create_menu();
-        _renderer.set_submenu(_renderer_menu);
-    };
-
-    auto build_renderer_ximage = [&]() -> void
-    {
-        _renderer_ximage.create_menu_item_with_label(_("XImage"));
-        _renderer_ximage.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_ximage), &_application);
-        _renderer_menu.append(_renderer_ximage);
-    };
-
-    auto build_renderer_opengl = [&]() -> void
-    {
-        _renderer_opengl.create_menu_item_with_label(_("OpenGL"));
-        _renderer_opengl.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_opengl), &_application);
-        _renderer_menu.append(_renderer_opengl);
-    };
-
     auto build_all = [&]() -> void
     {
         build_self();
@@ -1014,9 +988,6 @@ auto MachineMenu::build() -> void
         build_keyboard_german();
         build_keyboard_spanish();
         build_keyboard_danish();
-        build_renderer();
-        build_renderer_ximage();
-        build_renderer_opengl();
     };
 
     return build_all();
@@ -1241,6 +1212,12 @@ VideoMenu::VideoMenu(Application& application)
     , gtk3::MenuItem(nullptr)
     , _self(*this)
     , _menu(nullptr)
+    , _renderer(nullptr)
+    , _renderer_menu(nullptr)
+    , _renderer_ximage(nullptr)
+    , _renderer_opengl(nullptr)
+    , _crt_emulation(nullptr)
+    , _crt_emulation_menu(nullptr)
     , _crt_emulation_enable(nullptr)
     , _crt_emulation_disable(nullptr)
 {
@@ -1259,24 +1236,58 @@ auto VideoMenu::build() -> void
         _self.set_submenu(_menu);
     };
 
+    auto build_renderer = [&]() -> void
+    {
+        _renderer.create_menu_item_with_label(_("Renderer"));
+        _menu.append(_renderer);
+        _renderer_menu.create_menu();
+        _renderer.set_submenu(_renderer_menu);
+    };
+
+    auto build_renderer_ximage = [&]() -> void
+    {
+        _renderer_ximage.create_menu_item_with_label(_("XImage"));
+        _renderer_ximage.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_ximage), &_application);
+        _renderer_menu.append(_renderer_ximage);
+    };
+
+    auto build_renderer_opengl = [&]() -> void
+    {
+        _renderer_opengl.create_menu_item_with_label(_("OpenGL"));
+        _renderer_opengl.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_opengl), &_application);
+        _renderer_menu.append(_renderer_opengl);
+    };
+
+    auto build_crt_emulation = [&]() -> void
+    {
+        _crt_emulation.create_menu_item_with_label(_("CRT emulation"));
+        _menu.append(_crt_emulation);
+        _crt_emulation_menu.create_menu();
+        _crt_emulation.set_submenu(_crt_emulation_menu);
+    };
+
     auto build_crt_emulation_enable = [&]() -> void
     {
-        _crt_emulation_enable.create_menu_item_with_label(_("Enable CRT emulation"));
+        _crt_emulation_enable.create_menu_item_with_label(_("Enable"));
         _crt_emulation_enable.add_activate_callback(G_CALLBACK(&Callbacks::on_crt_emulation_enable), &_application);
-        _menu.append(_crt_emulation_enable);
+        _crt_emulation_menu.append(_crt_emulation_enable);
     };
 
     auto build_crt_emulation_disable = [&]() -> void
     {
-        _crt_emulation_disable.create_menu_item_with_label(_("Disable CRT emulation"));
+        _crt_emulation_disable.create_menu_item_with_label(_("Disable"));
         _crt_emulation_disable.add_activate_callback(G_CALLBACK(&Callbacks::on_crt_emulation_disable), &_application);
-        _menu.append(_crt_emulation_disable);
+        _crt_emulation_menu.append(_crt_emulation_disable);
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
         build_menu();
+        build_renderer();
+        build_renderer_ximage();
+        build_renderer_opengl();
+        build_crt_emulation();
         build_crt_emulation_enable();
         build_crt_emulation_disable();
     };

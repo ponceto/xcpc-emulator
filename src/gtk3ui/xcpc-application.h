@@ -220,10 +220,6 @@ private: // private data
     gtk3::MenuItem  _keyboard_german;
     gtk3::MenuItem  _keyboard_spanish;
     gtk3::MenuItem  _keyboard_danish;
-    gtk3::MenuItem  _renderer;
-    gtk3::Menu      _renderer_menu;
-    gtk3::MenuItem  _renderer_ximage;
-    gtk3::MenuItem  _renderer_opengl;
 };
 
 }
@@ -346,6 +342,12 @@ public: // public interface
 private: // private data
     gtk3::MenuItem& _self;
     gtk3::Menu      _menu;
+    gtk3::MenuItem  _renderer;
+    gtk3::Menu      _renderer_menu;
+    gtk3::MenuItem  _renderer_ximage;
+    gtk3::MenuItem  _renderer_opengl;
+    gtk3::MenuItem  _crt_emulation;
+    gtk3::Menu      _crt_emulation_menu;
     gtk3::MenuItem  _crt_emulation_enable;
     gtk3::MenuItem  _crt_emulation_disable;
 };
