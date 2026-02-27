@@ -1,5 +1,5 @@
 #
-# xcpc.desktop - Copyright (c) 2001-2026 - Olivier Poncet
+# xcpc-x11.desktop - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Xcpc emulator
+Name=Xcpc emulator (X11)
 GenericName=Amstrad CPC emulator
 Comment=Playing with an Amstrad CPC like in the 80's
 Categories=Game;
 Icon=@XCPC_DATDIR@/pixmaps/xcpc.png
-Exec=@XCPC_BINDIR@/xcpc
+Exec=@XCPC_BINDIR@/xcpc --renderer=ximage
 Terminal=false
 MimeType=application/x-amstrad-cpc-snapshot;application/x-amstrad-cpc-disk-image;application/x-amstrad-cpc-gz-disk-image;application/x-amstrad-cpc-bz2-disk-image
-NoDisplay=true
+NoDisplay=false

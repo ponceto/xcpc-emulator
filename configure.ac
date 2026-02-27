@@ -136,6 +136,8 @@ AC_CONFIG_FILES([
 	share/Makefile
 	share/applications/Makefile
 	share/applications/xcpc.desktop
+	share/applications/xcpc-x11.desktop
+	share/applications/xcpc-ogl.desktop
 	share/mime/Makefile
 	share/mime/packages/Makefile
 	share/pixmaps/Makefile

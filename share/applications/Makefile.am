@@ -23,6 +23,8 @@ applicationsdir = $(datadir)/applications
 
 dist_applications_DATA = \
 	xcpc.desktop \
+	xcpc-x11.desktop \
+	xcpc-ogl.desktop \
 	$(NULL)
 
 # ----------------------------------------------------------------------------
@@ -31,6 +33,8 @@ dist_applications_DATA = \
 
 EXTRA_DIST = \
 	xcpc.desktop.in \
+	xcpc-x11.desktop.in \
+	xcpc-ogl.desktop.in \
 	$(NULL)
 
 # ----------------------------------------------------------------------------
