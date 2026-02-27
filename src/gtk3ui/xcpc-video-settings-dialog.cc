@@ -75,6 +75,15 @@ auto VideoSettingsDialog::build() -> void
         _dialog.add_button(_("OK"),     GTK_RESPONSE_OK);
     };
 
+    auto build_frame = [&]() -> void
+    {
+        _frame.create_frame(_("CRT emulation settings (OpenGL only)"));
+        _frame.set_margin_start(8);
+        _frame.set_margin_end(8);
+        _frame.set_margin_top(8);
+        _frame.set_margin_bottom(8);
+    };
+
     auto build_grid = [&]() -> void
     {
         _grid.create_grid();
@@ -86,6 +95,7 @@ auto VideoSettingsDialog::build() -> void
         _grid.set_margin_end(8);
         _grid.set_margin_top(8);
         _grid.set_margin_bottom(8);
+        _frame.add(_grid);
 
     };
 
@@ -191,26 +201,15 @@ auto VideoSettingsDialog::build() -> void
         _grid.attach(_scale_brightness, 1, 5, 1, 1);
     };
 
-    auto build_frame = [&]() -> void
-    {
-        _frame.create_frame(_("CRT emulation settings (OpenGL only)"));
-        _frame.set_margin_start(8);
-        _frame.set_margin_end(8);
-        _frame.set_margin_top(8);
-        _frame.set_margin_bottom(8);
-        _frame.add(_grid);
-    };
-
     auto build_content_area = [&]() -> void
     {
-        GtkWidget* content_area = ::gtk_dialog_get_content_area(_dialog);
-        ::gtk_box_pack_start(GTK_BOX(content_area), _frame, TRUE, TRUE, 0);
-        ::gtk_widget_show_all(content_area);
+        _dialog.pack_start(_frame, TRUE, TRUE, 0);
     };
 
     auto build_all = [&]() -> void
     {
         build_dialog();
+        build_frame();
         build_grid();
         build_label_curvature();
         build_scale_curvature();
@@ -224,7 +223,6 @@ auto VideoSettingsDialog::build() -> void
         build_scale_vignetting();
         build_label_brightness();
         build_scale_brightness();
-        build_frame();
         build_content_area();
     };
 

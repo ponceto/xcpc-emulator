@@ -57,6 +57,28 @@ struct DialogTraits
         }
     }
 
+    static auto pack_start(Dialog& dialog, Widget& child, bool expand, bool fill, unsigned int padding) -> void
+    {
+        if(dialog && child) {
+            GtkWidget* content_area = ::gtk_dialog_get_content_area(dialog);
+            if(content_area != nullptr) {
+                ::gtk_box_pack_start(GTK_BOX(content_area), child, expand, fill, padding);
+                child.show_all();
+            }
+        }
+    }
+
+    static auto pack_end(Dialog& dialog, Widget& child, bool expand, bool fill, unsigned int padding) -> void
+    {
+        if(dialog && child) {
+            GtkWidget* content_area = ::gtk_dialog_get_content_area(dialog);
+            if(content_area != nullptr) {
+                ::gtk_box_pack_end(GTK_BOX(content_area), child, expand, fill, padding);
+                child.show_all();
+            }
+        }
+    }
+
     static auto dispatch(DialogListener& listener, const int response) -> int
     {
         switch(response) {
@@ -217,6 +239,16 @@ auto Dialog::create_dialog() -> void
 auto Dialog::add_button(const std::string& label, int response_id) -> void
 {
     return traits::add_button(*this, label, response_id);
+}
+
+auto Dialog::pack_start(Widget& child, bool expand, bool fill, unsigned int padding) -> void
+{
+    return traits::pack_start(*this, child, expand, fill, padding);
+}
+
+auto Dialog::pack_end(Widget& child, bool expand, bool fill, unsigned int padding) -> void
+{
+    return traits::pack_end(*this, child, expand, fill, padding);
 }
 
 auto Dialog::run() -> int

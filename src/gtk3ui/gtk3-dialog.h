@@ -94,6 +94,10 @@ public: // public interface
 
     auto add_button(const std::string& label, int response_id) -> void;
 
+    auto pack_start(Widget& child, bool expand, bool fill, unsigned int padding) -> void;
+
+    auto pack_end(Widget& child, bool expand, bool fill, unsigned int padding) -> void;
+
     virtual auto run() -> int;
 
 protected: // protected data
