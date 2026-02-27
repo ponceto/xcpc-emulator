@@ -1,5 +1,5 @@
 /*
- * gtk3-label.h - Copyright (c) 2001-2026 - Olivier Poncet
+ * gtk3-range.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,47 +14,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __GTK3_CXX_LABEL_H__
-#define __GTK3_CXX_LABEL_H__
+#ifndef __GTK3_CXX_RANGE_H__
+#define __GTK3_CXX_RANGE_H__
 
 #include <gtk3ui/gtk3-widget.h>
 
 // ---------------------------------------------------------------------------
-// gtk3::Label
+// gtk3::Range
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-class Label
+class Range
     : public Widget
 {
 public: // public interface
-    Label();
+    Range();
 
-    Label(GtkWidget*);
+    Range(GtkWidget*);
 
-    Label(const Label&) = delete;
+    Range(const Range&) = delete;
 
-    Label& operator=(const Label&) = delete;
+    Range& operator=(const Range&) = delete;
 
-    virtual ~Label() = default;
+    virtual ~Range() = default;
 
-    operator GtkLabel*() const
+    operator GtkRange*() const
     {
-        return GTK_LABEL(_instance);
+        return GTK_RANGE(_instance);
     }
 
-    auto create_label(const std::string& string) -> void;
+    auto get_value() const -> double;
 
-    auto set_text(const std::string& string) -> void;
-
-    auto set_markup(const std::string& string) -> void;
-
-    auto set_ellipsize(PangoEllipsizeMode mode) -> void;
-
-    auto set_xalign(float xalign) -> void;
-
-    auto set_yalign(float yalign) -> void;
+    auto set_value(double value) -> void;
 };
 
 }
@@ -63,4 +55,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __GTK3_CXX_LABEL_H__ */
+#endif /* __GTK3_CXX_RANGE_H__ */

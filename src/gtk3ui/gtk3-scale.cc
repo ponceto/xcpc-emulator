@@ -1,5 +1,5 @@
 /*
- * gtk3-label.cc - Copyright (c) 2001-2026 - Olivier Poncet
+ * gtk3-scale.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,54 +29,38 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
-#include "gtk3-label.h"
+#include "gtk3-scale.h"
 
 // ---------------------------------------------------------------------------
-// gtk3::LabelTraits
+// gtk3::ScaleTraits
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-struct LabelTraits
+struct ScaleTraits
     : BasicTraits
 {
-    static auto create_label(const std::string& string = "label") -> GtkWidget*
+    static auto create_scale() -> GtkWidget*
     {
-        return ::gtk_label_new(string.c_str());
+        return nullptr;
     }
 
-    static auto set_text(Label& label, const std::string& string) -> void
+    static auto create_scale(GtkOrientation orientation, double min, double max, double step) -> GtkWidget*
     {
-        if(label) {
-            ::gtk_label_set_text(label, string.c_str());
+        return ::gtk_scale_new_with_range(orientation, min, max, step);
+    }
+
+    static auto set_digits(Scale& scale, int digits) -> void
+    {
+        if(scale) {
+            ::gtk_scale_set_digits(scale, digits);
         }
     }
 
-    static auto set_markup(Label& label, const std::string& string) -> void
+    static auto set_value_pos(Scale& scale, GtkPositionType pos) -> void
     {
-        if(label) {
-            ::gtk_label_set_markup(label, string.c_str());
-        }
-    }
-
-    static auto set_ellipsize(Label& label, PangoEllipsizeMode mode) -> void
-    {
-        if(label) {
-            ::gtk_label_set_ellipsize(label, mode);
-        }
-    }
-
-    static auto set_xalign(Label& label, float xalign) -> void
-    {
-        if(label) {
-            ::gtk_label_set_xalign(label, xalign);
-        }
-    }
-
-    static auto set_yalign(Label& label, float yalign) -> void
-    {
-        if(label) {
-            ::gtk_label_set_yalign(label, yalign);
+        if(scale) {
+            ::gtk_scale_set_value_pos(scale, pos);
         }
     }
 };
@@ -89,57 +73,42 @@ struct LabelTraits
 
 namespace {
 
-using traits = gtk3::LabelTraits;
+using traits = gtk3::ScaleTraits;
 
 }
 
 // ---------------------------------------------------------------------------
-// gtk3::Label
+// gtk3::Scale
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-Label::Label()
-    : Label(traits::create_label())
+Scale::Scale()
+    : Scale(traits::create_scale())
 {
 }
 
-Label::Label(GtkWidget* instance)
-    : Widget(instance)
+Scale::Scale(GtkWidget* instance)
+    : Range(instance)
 {
 }
 
-auto Label::create_label(const std::string& string) -> void
+auto Scale::create_scale(GtkOrientation orientation, double min, double max, double step) -> void
 {
     if(_instance == nullptr) {
-        _instance = traits::create_label(string);
+        _instance = traits::create_scale(orientation, min, max, step);
         traits::register_widget_instance(_instance);
     }
 }
 
-auto Label::set_text(const std::string& string) -> void
+auto Scale::set_digits(int digits) -> void
 {
-    return traits::set_text(*this, string);
+    return traits::set_digits(*this, digits);
 }
 
-auto Label::set_markup(const std::string& string) -> void
+auto Scale::set_value_pos(GtkPositionType pos) -> void
 {
-    return traits::set_markup(*this, string);
-}
-
-auto Label::set_ellipsize(PangoEllipsizeMode mode) -> void
-{
-    return traits::set_ellipsize(*this, mode);
-}
-
-auto Label::set_xalign(float xalign) -> void
-{
-    return traits::set_xalign(*this, xalign);
-}
-
-auto Label::set_yalign(float yalign) -> void
-{
-    return traits::set_yalign(*this, yalign);
+    return traits::set_value_pos(*this, pos);
 }
 
 }

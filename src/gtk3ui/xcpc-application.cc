@@ -38,6 +38,7 @@
 #include "xcpc-disk-dialog.h"
 #include "xcpc-help-dialog.h"
 #include "xcpc-about-dialog.h"
+#include "xcpc-video-settings-dialog.h"
 
 // ---------------------------------------------------------------------------
 // <anonymous>::IconTraits
@@ -361,6 +362,13 @@ struct Callbacks
     {
         if(application != nullptr) {
             application->on_crt_emulation_disable();
+        }
+    }
+
+    static auto on_video_settings(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_video_settings();
         }
     }
 
@@ -1220,6 +1228,8 @@ VideoMenu::VideoMenu(Application& application)
     , _crt_emulation_menu(nullptr)
     , _crt_emulation_enable(nullptr)
     , _crt_emulation_disable(nullptr)
+    , _separator(nullptr)
+    , _video_settings(nullptr)
 {
 }
 
@@ -1280,6 +1290,19 @@ auto VideoMenu::build() -> void
         _crt_emulation_menu.append(_crt_emulation_disable);
     };
 
+    auto build_separator = [&]() -> void
+    {
+        _separator.create_separator_menu_item();
+        _menu.append(_separator);
+    };
+
+    auto build_video_settings = [&]() -> void
+    {
+        _video_settings.create_menu_item_with_label(_("Settings..."));
+        _video_settings.add_activate_callback(G_CALLBACK(&Callbacks::on_video_settings), &_application);
+        _menu.append(_video_settings);
+    };
+
     auto build_all = [&]() -> void
     {
         build_self();
@@ -1290,6 +1313,8 @@ auto VideoMenu::build() -> void
         build_crt_emulation();
         build_crt_emulation_enable();
         build_crt_emulation_disable();
+        build_separator();
+        build_video_settings();
     };
 
     return build_all();
@@ -2782,6 +2807,26 @@ auto Application::on_crt_emulation_enable() -> void
 auto Application::on_crt_emulation_disable() -> void
 {
     set_crt_emulation(false);
+}
+
+auto Application::on_video_settings() -> void
+{
+    VideoSettingsDialog dialog(*this);
+
+    run_dialog(dialog);
+
+    try {
+        _machine->set_parameterf("video.ogl.u_curvature",  _video_settings.u_curvature);
+        _machine->set_parameterf("video.ogl.u_corner",     _video_settings.u_corner);
+        _machine->set_parameterf("video.ogl.u_dotline",    _video_settings.u_dotline);
+        _machine->set_parameterf("video.ogl.u_dotmask",    _video_settings.u_dotmask);
+        _machine->set_parameterf("video.ogl.u_vignetting", _video_settings.u_vignetting);
+        _machine->set_parameterf("video.ogl.u_brightness", _video_settings.u_brightness);
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_error("set-video-parameters has failed (%s)", e.what());
+    }
+    update_all();
 }
 
 auto Application::on_joystick0_connect() -> void

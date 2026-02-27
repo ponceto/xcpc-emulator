@@ -45,6 +45,18 @@ struct DialogTraits
         return nullptr;
     }
 
+    static auto create_new_dialog() -> GtkWidget*
+    {
+        return ::gtk_dialog_new();
+    }
+
+    static auto add_button(Dialog& dialog, const std::string& label, int response_id) -> void
+    {
+        if(dialog) {
+            ::gtk_dialog_add_button(dialog, label.c_str(), response_id);
+        }
+    }
+
     static auto dispatch(DialogListener& listener, const int response) -> int
     {
         switch(response) {
@@ -192,6 +204,19 @@ Dialog::Dialog(GtkWidget* instance)
     , DialogListener()
     , _dialog_listener(*this)
 {
+}
+
+auto Dialog::create_dialog() -> void
+{
+    if(_instance == nullptr) {
+        _instance = traits::create_new_dialog();
+        traits::register_widget_instance(_instance);
+    }
+}
+
+auto Dialog::add_button(const std::string& label, int response_id) -> void
+{
+    return traits::add_button(*this, label, response_id);
 }
 
 auto Dialog::run() -> int

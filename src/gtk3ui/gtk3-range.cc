@@ -1,5 +1,5 @@
 /*
- * gtk3-window.h - Copyright (c) 2001-2026 - Olivier Poncet
+ * gtk3-range.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,91 +14,93 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __GTK3_CXX_WINDOW_H__
-#define __GTK3_CXX_WINDOW_H__
-
-#include <gtk3ui/gtk3-bin.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstdint>
+#include <climits>
+#include <cassert>
+#include <memory>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <stdexcept>
+#include "gtk3-range.h"
 
 // ---------------------------------------------------------------------------
-// gtk3::Window
+// gtk3::RangeTraits
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-class Window
-    : public Bin
+struct RangeTraits
+    : BasicTraits
 {
-public: // public interface
-    Window();
-
-    Window(GtkWidget*);
-
-    Window(const Window&) = delete;
-
-    Window& operator=(const Window&) = delete;
-
-    virtual ~Window() = default;
-
-    operator GtkWindow*() const
+    static auto create_range() -> GtkWidget*
     {
-        return GTK_WINDOW(_instance);
+        return nullptr;
     }
 
-    auto set_title(const std::string& title) -> void;
+    static auto get_value(const Range& range) -> double
+    {
+        if(range) {
+            return ::gtk_range_get_value(range);
+        }
+        return 0.0;
+    }
 
-    auto set_icon(GdkPixbuf* icon) -> void;
-
-    auto set_modal(bool modal) -> void;
-
-    auto set_skip_taskbar_hint(bool taskbar_hint) -> void;
+    static auto set_value(Range& range, double value) -> void
+    {
+        if(range) {
+            ::gtk_range_set_value(range, value);
+        }
+    }
 };
 
 }
 
 // ---------------------------------------------------------------------------
-// gtk3::ToplevelWindow
+// <anonymous>::traits
 // ---------------------------------------------------------------------------
 
-namespace gtk3 {
+namespace {
 
-class ToplevelWindow
-    : public Window
-{
-public: // public interface
-    ToplevelWindow();
-
-    ToplevelWindow(GtkWidget*);
-
-    virtual ~ToplevelWindow() = default;
-
-    auto create_toplevel_window() -> void;
-};
+using traits = gtk3::RangeTraits;
 
 }
 
 // ---------------------------------------------------------------------------
-// gtk3::PopupWindow
+// gtk3::Range
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-class PopupWindow
-    : public Window
+Range::Range()
+    : Range(traits::create_range())
 {
-public: // public interface
-    PopupWindow();
+}
 
-    PopupWindow(GtkWidget*);
+Range::Range(GtkWidget* instance)
+    : Widget(instance)
+{
+}
 
-    virtual ~PopupWindow() = default;
+auto Range::get_value() const -> double
+{
+    return traits::get_value(*this);
+}
 
-    auto create_popup_window() -> void;
-};
+auto Range::set_value(double value) -> void
+{
+    return traits::set_value(*this, value);
+}
 
 }
 
 // ---------------------------------------------------------------------------
 // End-Of-File
 // ---------------------------------------------------------------------------
-
-#endif /* __GTK3_CXX_WINDOW_H__ */

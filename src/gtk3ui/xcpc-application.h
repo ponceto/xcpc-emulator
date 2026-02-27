@@ -59,6 +59,7 @@ class SaveSnapshotDialog;
 class CreateDiskDialog;
 class InsertDiskDialog;
 class RemoveDiskDialog;
+class VideoSettingsDialog;
 class HelpDialog;
 class AboutDialog;
 
@@ -340,16 +341,18 @@ public: // public interface
     virtual auto build() -> void override final;
 
 private: // private data
-    gtk3::MenuItem& _self;
-    gtk3::Menu      _menu;
-    gtk3::MenuItem  _renderer;
-    gtk3::Menu      _renderer_menu;
-    gtk3::MenuItem  _renderer_ximage;
-    gtk3::MenuItem  _renderer_opengl;
-    gtk3::MenuItem  _crt_emulation;
-    gtk3::Menu      _crt_emulation_menu;
-    gtk3::MenuItem  _crt_emulation_enable;
-    gtk3::MenuItem  _crt_emulation_disable;
+    gtk3::MenuItem&         _self;
+    gtk3::Menu              _menu;
+    gtk3::MenuItem          _renderer;
+    gtk3::Menu              _renderer_menu;
+    gtk3::MenuItem          _renderer_ximage;
+    gtk3::MenuItem          _renderer_opengl;
+    gtk3::MenuItem          _crt_emulation;
+    gtk3::Menu              _crt_emulation_menu;
+    gtk3::MenuItem          _crt_emulation_enable;
+    gtk3::MenuItem          _crt_emulation_disable;
+    gtk3::SeparatorMenuItem _separator;
+    gtk3::MenuItem          _video_settings;
 };
 
 }
@@ -762,6 +765,27 @@ public: // public accessors
         return _app_window.info_bar();
     }
 
+public: // public types
+    struct VideoSettings
+    {
+        float u_curvature  = 0.05f;
+        float u_corner     = 0.10f;
+        float u_dotline    = 0.30f;
+        float u_dotmask    = 0.10f;
+        float u_vignetting = 1.00f;
+        float u_brightness = 1.20f;
+    };
+
+    auto video_settings() -> VideoSettings&
+    {
+        return _video_settings;
+    }
+
+    auto video_settings() const -> const VideoSettings&
+    {
+        return _video_settings;
+    }
+
 public: // public methods
     virtual auto load_snapshot(const std::string& filename) -> void override final;
 
@@ -894,6 +918,8 @@ public: // public signals
 
     virtual auto on_crt_emulation_disable() -> void override final;
 
+    virtual auto on_video_settings() -> void override final;
+
     virtual auto on_joystick0_connect() -> void override final;
 
     virtual auto on_joystick0_disconnect() -> void override final;
@@ -946,6 +972,7 @@ private: // private data
     std::string     _app_state;
     gdk3::Pixbuf    _app_icon;
     impl::AppWindow _app_window;
+    VideoSettings   _video_settings;
     guint           _timer;
 };
 

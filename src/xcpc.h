@@ -66,6 +66,7 @@ class DiskDialog;
 class CreateDiskDialog;
 class InsertDiskDialog;
 class RemoveDiskDialog;
+class SettingsDialog;
 class HelpDialog;
 class AboutDialog;
 class ScopedOperation;
@@ -279,6 +280,8 @@ public: // public signals
     virtual auto on_crt_emulation_enable() -> void = 0;
 
     virtual auto on_crt_emulation_disable() -> void = 0;
+
+    virtual auto on_video_settings() -> void = 0;
 
     virtual auto on_joystick0_connect() -> void = 0;
 
@@ -519,6 +522,27 @@ public: // public interface
     RemoveDiskDialog& operator=(const RemoveDiskDialog&) = delete;
 
     virtual ~RemoveDiskDialog() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::SettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class SettingsDialog
+    : public Dialog
+{
+public: // public interface
+    SettingsDialog(Application&, const std::string& title);
+
+    SettingsDialog(const SettingsDialog&) = delete;
+
+    SettingsDialog& operator=(const SettingsDialog&) = delete;
+
+    virtual ~SettingsDialog() = default;
 };
 
 }

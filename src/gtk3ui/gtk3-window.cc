@@ -69,6 +69,13 @@ struct WindowTraits
         }
     }
 
+    static auto set_modal(Window& window, bool modal) -> void
+    {
+        if(window) {
+            ::gtk_window_set_modal(window, (modal != false ? TRUE : FALSE));
+        }
+    }
+
     static auto set_skip_taskbar_hint(Window& window, bool taskbar_hint) -> void
     {
         if(window) {
@@ -113,6 +120,11 @@ auto Window::set_title(const std::string& title) -> void
 auto Window::set_icon(GdkPixbuf* icon) -> void
 {
     return traits::set_icon(*this, icon);
+}
+
+auto Window::set_modal(bool modal) -> void
+{
+    return traits::set_modal(*this, modal);
 }
 
 auto Window::set_skip_taskbar_hint(bool taskbar_hint) -> void

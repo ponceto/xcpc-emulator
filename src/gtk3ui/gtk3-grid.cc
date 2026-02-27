@@ -1,5 +1,5 @@
 /*
- * gtk3-label.cc - Copyright (c) 2001-2026 - Olivier Poncet
+ * gtk3-grid.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,54 +29,54 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
-#include "gtk3-label.h"
+#include "gtk3-grid.h"
 
 // ---------------------------------------------------------------------------
-// gtk3::LabelTraits
+// gtk3::GridTraits
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-struct LabelTraits
+struct GridTraits
     : BasicTraits
 {
-    static auto create_label(const std::string& string = "label") -> GtkWidget*
+    static auto create_grid() -> GtkWidget*
     {
-        return ::gtk_label_new(string.c_str());
+        return ::gtk_grid_new();
     }
 
-    static auto set_text(Label& label, const std::string& string) -> void
+    static auto attach(Grid& grid, Widget& child, int left, int top, int width, int height) -> void
     {
-        if(label) {
-            ::gtk_label_set_text(label, string.c_str());
+        if(grid && child) {
+            ::gtk_grid_attach(grid, child, left, top, width, height);
         }
     }
 
-    static auto set_markup(Label& label, const std::string& string) -> void
+    static auto set_row_spacing(Grid& grid, unsigned int spacing) -> void
     {
-        if(label) {
-            ::gtk_label_set_markup(label, string.c_str());
+        if(grid) {
+            ::gtk_grid_set_row_spacing(grid, spacing);
         }
     }
 
-    static auto set_ellipsize(Label& label, PangoEllipsizeMode mode) -> void
+    static auto set_row_homogeneous(Grid& grid, bool homogeneous) -> void
     {
-        if(label) {
-            ::gtk_label_set_ellipsize(label, mode);
+        if(grid) {
+            ::gtk_grid_set_row_homogeneous(grid, homogeneous);
         }
     }
 
-    static auto set_xalign(Label& label, float xalign) -> void
+    static auto set_column_spacing(Grid& grid, unsigned int spacing) -> void
     {
-        if(label) {
-            ::gtk_label_set_xalign(label, xalign);
+        if(grid) {
+            ::gtk_grid_set_column_spacing(grid, spacing);
         }
     }
 
-    static auto set_yalign(Label& label, float yalign) -> void
+    static auto set_column_homogeneous(Grid& grid, bool homogeneous) -> void
     {
-        if(label) {
-            ::gtk_label_set_yalign(label, yalign);
+        if(grid) {
+            ::gtk_grid_set_column_homogeneous(grid, homogeneous);
         }
     }
 };
@@ -89,57 +89,57 @@ struct LabelTraits
 
 namespace {
 
-using traits = gtk3::LabelTraits;
+using traits = gtk3::GridTraits;
 
 }
 
 // ---------------------------------------------------------------------------
-// gtk3::Label
+// gtk3::Grid
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-Label::Label()
-    : Label(traits::create_label())
+Grid::Grid()
+    : Grid(traits::create_grid())
 {
 }
 
-Label::Label(GtkWidget* instance)
-    : Widget(instance)
+Grid::Grid(GtkWidget* instance)
+    : Container(instance)
 {
 }
 
-auto Label::create_label(const std::string& string) -> void
+auto Grid::create_grid() -> void
 {
     if(_instance == nullptr) {
-        _instance = traits::create_label(string);
+        _instance = traits::create_grid();
         traits::register_widget_instance(_instance);
     }
 }
 
-auto Label::set_text(const std::string& string) -> void
+auto Grid::attach(Widget& child, int left, int top, int width, int height) -> void
 {
-    return traits::set_text(*this, string);
+    return traits::attach(*this, child, left, top, width, height);
 }
 
-auto Label::set_markup(const std::string& string) -> void
+auto Grid::set_row_spacing(unsigned int spacing) -> void
 {
-    return traits::set_markup(*this, string);
+    return traits::set_row_spacing(*this, spacing);
 }
 
-auto Label::set_ellipsize(PangoEllipsizeMode mode) -> void
+auto Grid::set_row_homogeneous(bool homogeneous) -> void
 {
-    return traits::set_ellipsize(*this, mode);
+    return traits::set_row_homogeneous(*this, homogeneous);
 }
 
-auto Label::set_xalign(float xalign) -> void
+auto Grid::set_column_spacing(unsigned int spacing) -> void
 {
-    return traits::set_xalign(*this, xalign);
+    return traits::set_column_spacing(*this, spacing);
 }
 
-auto Label::set_yalign(float yalign) -> void
+auto Grid::set_column_homogeneous(bool homogeneous) -> void
 {
-    return traits::set_yalign(*this, yalign);
+    return traits::set_column_homogeneous(*this, homogeneous);
 }
 
 }

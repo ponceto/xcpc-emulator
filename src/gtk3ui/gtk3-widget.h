@@ -73,6 +73,18 @@ public: // public interface
 
     auto set_size_request(int width, int height) -> void;
 
+    auto set_hexpand(bool expand) -> void;
+
+    auto set_vexpand(bool expand) -> void;
+
+    auto set_margin_start(int margin) -> void;
+
+    auto set_margin_end(int margin) -> void;
+
+    auto set_margin_top(int margin) -> void;
+
+    auto set_margin_bottom(int margin) -> void;
+
     auto drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void;
 
     auto signal_connect(const char* signal, GCallback callback, void* data) -> void;

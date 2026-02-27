@@ -356,6 +356,19 @@ RemoveDiskDialog::RemoveDiskDialog(Application& application, const char drive)
 }
 
 // ---------------------------------------------------------------------------
+// base::SettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+SettingsDialog::SettingsDialog(Application& application, const std::string& title)
+    : Dialog(application, title)
+{
+}
+
+}
+
+// ---------------------------------------------------------------------------
 // base::HelpDialog
 // ---------------------------------------------------------------------------
 

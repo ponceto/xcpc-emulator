@@ -180,13 +180,15 @@ void main()
 
     /* apply CRT scanlines */
     float line_pos = mod(floor(gl_FragCoord.y), 2.0);
-    color.rgb *= mix(1.0, u_dotline, line_pos);
+    float line_mix = 1.0 - u_dotline;
+    color.rgb *= mix(1.0, line_mix, line_pos);
 
     /* apply CRT phosphor mask */
     float mask_pos = mod(floor(gl_FragCoord.x), 3.0);
-    if(mask_pos < 0.5)      color.rgb *= vec3(1.0, u_dotmask, u_dotmask);
-    else if(mask_pos < 1.5) color.rgb *= vec3(u_dotmask, 1.0, u_dotmask);
-    else                    color.rgb *= vec3(u_dotmask, u_dotmask, 1.0);
+    float mask_mix = 1.0 - u_dotmask;
+    if(mask_pos < 0.5)      color.rgb *= vec3(1.0, mask_mix, mask_mix);
+    else if(mask_pos < 1.5) color.rgb *= vec3(mask_mix, 1.0, mask_mix);
+    else                    color.rgb *= vec3(mask_mix, mask_mix, 1.0);
 
     /* apply CRT vignetting */
     vec2 vig = uv * (1.0 - uv);
@@ -491,9 +493,20 @@ auto Renderer::set_parameteri(const std::string& parameter, int value) -> void
 
 auto Renderer::set_parameterf(const std::string& parameter, float value) -> void
 {
+    auto clampf = [](float value, const float min, const float max) -> float
+    {
+        if(value < min) {
+            value = min;
+        }
+        if(value > max) {
+            value = max;
+        }
+        return value;
+    };
+
     if(parameter == "video.ogl.u_curvature") {
         const float old_curvature = _parameters.u_curvature;
-        const float new_curvature = _parameters.u_curvature = value;
+        const float new_curvature = _parameters.u_curvature = clampf(value, 0.0f, 1.0f);
         if(new_curvature != old_curvature) {
             _parameters.dirty_program  |= false;
             _parameters.dirty_uniforms |= true;
@@ -502,7 +515,7 @@ auto Renderer::set_parameterf(const std::string& parameter, float value) -> void
     }
     if(parameter == "video.ogl.u_corner") {
         const float old_corner = _parameters.u_corner;
-        const float new_corner = _parameters.u_corner = value;
+        const float new_corner = _parameters.u_corner = clampf(value, 0.0f, 1.0f);
         if(new_corner != old_corner) {
             _parameters.dirty_program  |= false;
             _parameters.dirty_uniforms |= true;
@@ -511,7 +524,7 @@ auto Renderer::set_parameterf(const std::string& parameter, float value) -> void
     }
     if(parameter == "video.ogl.u_dotline") {
         const float old_dotline = _parameters.u_dotline;
-        const float new_dotline = _parameters.u_dotline = value;
+        const float new_dotline = _parameters.u_dotline = clampf(value, 0.0f, 1.0f);
         if(new_dotline != old_dotline) {
             _parameters.dirty_program  |= false;
             _parameters.dirty_uniforms |= true;
@@ -520,7 +533,7 @@ auto Renderer::set_parameterf(const std::string& parameter, float value) -> void
     }
     if(parameter == "video.ogl.u_dotmask") {
         const float old_dotmask = _parameters.u_dotmask;
-        const float new_dotmask = _parameters.u_dotmask = value;
+        const float new_dotmask = _parameters.u_dotmask = clampf(value, 0.0f, 1.0f);
         if(new_dotmask != old_dotmask) {
             _parameters.dirty_program  |= false;
             _parameters.dirty_uniforms |= true;
@@ -529,7 +542,7 @@ auto Renderer::set_parameterf(const std::string& parameter, float value) -> void
     }
     if(parameter == "video.ogl.u_vignetting") {
         const float old_vignetting = _parameters.u_vignetting;
-        const float new_vignetting = _parameters.u_vignetting = value;
+        const float new_vignetting = _parameters.u_vignetting = clampf(value, 0.0f, 2.0f);
         if(new_vignetting != old_vignetting) {
             _parameters.dirty_program  |= false;
             _parameters.dirty_uniforms |= true;
@@ -538,7 +551,7 @@ auto Renderer::set_parameterf(const std::string& parameter, float value) -> void
     }
     if(parameter == "video.ogl.u_brightness") {
         const float old_brightness = _parameters.u_brightness;
-        const float new_brightness = _parameters.u_brightness = value;
+        const float new_brightness = _parameters.u_brightness = clampf(value, 0.0f, 2.0f);
         if(new_brightness != old_brightness) {
             _parameters.dirty_program  |= false;
             _parameters.dirty_uniforms |= true;

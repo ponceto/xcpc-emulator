@@ -90,6 +90,10 @@ public: // public interface
         return _dialog_listener;
     }
 
+    auto create_dialog() -> void;
+
+    auto add_button(const std::string& label, int response_id) -> void;
+
     virtual auto run() -> int;
 
 protected: // protected data

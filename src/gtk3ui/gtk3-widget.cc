@@ -123,6 +123,48 @@ struct WidgetTraits
         }
     }
 
+    static auto set_hexpand(Widget& widget, bool expand) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_hexpand(widget, expand);
+        }
+    }
+
+    static auto set_vexpand(Widget& widget, bool expand) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_vexpand(widget, expand);
+        }
+    }
+
+    static auto set_margin_start(Widget& widget, int margin) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_margin_start(widget, margin);
+        }
+    }
+
+    static auto set_margin_end(Widget& widget, int margin) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_margin_end(widget, margin);
+        }
+    }
+
+    static auto set_margin_top(Widget& widget, int margin) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_margin_top(widget, margin);
+        }
+    }
+
+    static auto set_margin_bottom(Widget& widget, int margin) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_margin_bottom(widget, margin);
+        }
+    }
+
     static auto add_events(Widget& widget, gint events) -> void
     {
         if(widget) {
@@ -213,6 +255,36 @@ auto Widget::is_sensitive() -> bool
 auto Widget::set_size_request(int width, int height) -> void
 {
     return traits::set_size_request(*this, width, height);
+}
+
+auto Widget::set_hexpand(bool expand) -> void
+{
+    return traits::set_hexpand(*this, expand);
+}
+
+auto Widget::set_vexpand(bool expand) -> void
+{
+    return traits::set_vexpand(*this, expand);
+}
+
+auto Widget::set_margin_start(int margin) -> void
+{
+    return traits::set_margin_start(*this, margin);
+}
+
+auto Widget::set_margin_end(int margin) -> void
+{
+    return traits::set_margin_end(*this, margin);
+}
+
+auto Widget::set_margin_top(int margin) -> void
+{
+    return traits::set_margin_top(*this, margin);
+}
+
+auto Widget::set_margin_bottom(int margin) -> void
+{
+    return traits::set_margin_bottom(*this, margin);
 }
 
 auto Widget::drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void

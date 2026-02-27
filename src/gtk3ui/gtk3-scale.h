@@ -1,5 +1,5 @@
 /*
- * gtk3-label.h - Copyright (c) 2001-2026 - Olivier Poncet
+ * gtk3-scale.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,47 +14,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __GTK3_CXX_LABEL_H__
-#define __GTK3_CXX_LABEL_H__
+#ifndef __GTK3_CXX_SCALE_H__
+#define __GTK3_CXX_SCALE_H__
 
-#include <gtk3ui/gtk3-widget.h>
+#include <gtk3ui/gtk3-range.h>
 
 // ---------------------------------------------------------------------------
-// gtk3::Label
+// gtk3::Scale
 // ---------------------------------------------------------------------------
 
 namespace gtk3 {
 
-class Label
-    : public Widget
+class Scale
+    : public Range
 {
 public: // public interface
-    Label();
+    Scale();
 
-    Label(GtkWidget*);
+    Scale(GtkWidget*);
 
-    Label(const Label&) = delete;
+    Scale(const Scale&) = delete;
 
-    Label& operator=(const Label&) = delete;
+    Scale& operator=(const Scale&) = delete;
 
-    virtual ~Label() = default;
+    virtual ~Scale() = default;
 
-    operator GtkLabel*() const
+    operator GtkScale*() const
     {
-        return GTK_LABEL(_instance);
+        return GTK_SCALE(_instance);
     }
 
-    auto create_label(const std::string& string) -> void;
+    auto create_scale(GtkOrientation orientation, double min, double max, double step) -> void;
 
-    auto set_text(const std::string& string) -> void;
+    auto set_digits(int digits) -> void;
 
-    auto set_markup(const std::string& string) -> void;
-
-    auto set_ellipsize(PangoEllipsizeMode mode) -> void;
-
-    auto set_xalign(float xalign) -> void;
-
-    auto set_yalign(float yalign) -> void;
+    auto set_value_pos(GtkPositionType pos) -> void;
 };
 
 }
@@ -63,4 +57,4 @@ public: // public interface
 // End-Of-File
 // ---------------------------------------------------------------------------
 
-#endif /* __GTK3_CXX_LABEL_H__ */
+#endif /* __GTK3_CXX_SCALE_H__ */

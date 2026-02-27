@@ -56,8 +56,8 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-bin.h \
 	gtk3-box.cc \
 	gtk3-box.h \
-	gtk3-button.cc \
-	gtk3-button.h \
+	gtk3-grid.cc \
+	gtk3-grid.h \
 	gtk3-frame.cc \
 	gtk3-frame.h \
 	gtk3-window.cc \
@@ -72,10 +72,16 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-message-dialog.h \
 	gtk3-file-chooser-dialog.cc \
 	gtk3-file-chooser-dialog.h \
-	gtk3-gl-area.cc \
-	gtk3-gl-area.h \
 	gtk3-label.cc \
 	gtk3-label.h \
+	gtk3-button.cc \
+	gtk3-button.h \
+	gtk3-range.cc \
+	gtk3-range.h \
+	gtk3-scale.cc \
+	gtk3-scale.h \
+	gtk3-gl-area.cc \
+	gtk3-gl-area.h \
 	gtk3-menu-shell.cc \
 	gtk3-menu-shell.h \
 	gtk3-menu-bar.cc \
@@ -100,6 +106,8 @@ libxcpcgtk3ui_la_SOURCES = \
 	xcpc-snapshot-dialog.h \
 	xcpc-disk-dialog.cc \
 	xcpc-disk-dialog.h \
+	xcpc-video-settings-dialog.cc \
+	xcpc-video-settings-dialog.h \
 	xcpc-help-dialog.cc \
 	xcpc-help-dialog.h \
 	xcpc-about-dialog.cc \
