@@ -33,7 +33,11 @@ public: // public interface
 
     Box(GtkWidget*);
 
+    Box(Box&&) = delete;
+
     Box(const Box&) = delete;
+
+    Box& operator=(Box&&) = delete;
 
     Box& operator=(const Box&) = delete;
 

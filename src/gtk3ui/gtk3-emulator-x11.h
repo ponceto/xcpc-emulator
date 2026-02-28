@@ -33,7 +33,11 @@ public: // public interface
 
     EmulatorX11(GtkWidget*);
 
+    EmulatorX11(EmulatorX11&&) = delete;
+
     EmulatorX11(const EmulatorX11&) = delete;
+
+    EmulatorX11& operator=(EmulatorX11&&) = delete;
 
     EmulatorX11& operator=(const EmulatorX11&) = delete;
 

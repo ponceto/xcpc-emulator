@@ -33,7 +33,11 @@ public: // public interface
 
     MessageDialog(GtkWidget*);
 
+    MessageDialog(MessageDialog&&) = delete;
+
     MessageDialog(const MessageDialog&) = delete;
+
+    MessageDialog& operator=(MessageDialog&&) = delete;
 
     MessageDialog& operator=(const MessageDialog&) = delete;
 

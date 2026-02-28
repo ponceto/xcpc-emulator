@@ -33,7 +33,11 @@ public: // public interface
 
     MenuItem(GtkWidget*);
 
+    MenuItem(MenuItem&&) = delete;
+
     MenuItem(const MenuItem&) = delete;
+
+    MenuItem& operator=(MenuItem&&) = delete;
 
     MenuItem& operator=(const MenuItem&) = delete;
 

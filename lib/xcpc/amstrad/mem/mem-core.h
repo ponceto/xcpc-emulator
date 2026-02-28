@@ -68,7 +68,11 @@ class Instance
 public: // public interface
     Instance(const BankType bank_type, Interface& interface);
 
+    Instance(Instance&&) = delete;
+
     Instance(const Instance&) = delete;
+
+    Instance& operator=(Instance&&) = delete;
 
     Instance& operator=(const Instance&) = delete;
 

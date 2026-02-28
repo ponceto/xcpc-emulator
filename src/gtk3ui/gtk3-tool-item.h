@@ -33,7 +33,11 @@ public: // public interface
 
     ToolItem(GtkWidget*);
 
+    ToolItem(ToolItem&&) = delete;
+
     ToolItem(const ToolItem&) = delete;
+
+    ToolItem& operator=(ToolItem&&) = delete;
 
     ToolItem& operator=(const ToolItem&) = delete;
 

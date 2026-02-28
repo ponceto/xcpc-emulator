@@ -33,7 +33,11 @@ public: // public interface
 
     EmulatorOGL(GtkWidget*);
 
+    EmulatorOGL(EmulatorOGL&&) = delete;
+
     EmulatorOGL(const EmulatorOGL&) = delete;
+
+    EmulatorOGL& operator=(EmulatorOGL&&) = delete;
 
     EmulatorOGL& operator=(const EmulatorOGL&) = delete;
 

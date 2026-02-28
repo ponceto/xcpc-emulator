@@ -34,7 +34,11 @@ public: // public interface
 
     ApplicationWindow(GtkWidget*);
 
+    ApplicationWindow(ApplicationWindow&&) = delete;
+
     ApplicationWindow(const ApplicationWindow&) = delete;
+
+    ApplicationWindow& operator=(ApplicationWindow&&) = delete;
 
     ApplicationWindow& operator=(const ApplicationWindow&) = delete;
 

@@ -163,7 +163,11 @@ class Machine
 public: // public interface
     Machine() = default;
 
+    Machine(Machine&&) = delete;
+
     Machine(const Machine&) = delete;
+
+    Machine& operator=(Machine&&) = delete;
 
     Machine& operator=(const Machine&) = delete;
 
@@ -191,7 +195,11 @@ class Mainboard
 public: // public interface
     Mainboard() = default;
 
+    Mainboard(Mainboard&&) = delete;
+
     Mainboard(const Mainboard&) = delete;
+
+    Mainboard& operator=(Mainboard&&) = delete;
 
     Mainboard& operator=(const Mainboard&) = delete;
 
@@ -219,7 +227,11 @@ class Device
 public: // public interface
     Device() = default;
 
+    Device(Device&&) = delete;
+
     Device(const Device&) = delete;
+
+    Device& operator=(Device&&) = delete;
 
     Device& operator=(const Device&) = delete;
 
@@ -243,7 +255,11 @@ class Peripheral
 public: // public interface
     Peripheral() = default;
 
+    Peripheral(Peripheral&&) = delete;
+
     Peripheral(const Peripheral&) = delete;
+
+    Peripheral& operator=(Peripheral&&) = delete;
 
     Peripheral& operator=(const Peripheral&) = delete;
 
@@ -267,7 +283,11 @@ class Settings
 public: // public interface
     Settings() = default;
 
+    Settings(Settings&&) = delete;
+
     Settings(const Settings&) = delete;
+
+    Settings& operator=(Settings&&) = delete;
 
     Settings& operator=(const Settings&) = delete;
 
@@ -363,7 +383,11 @@ public: // public interface
 
     AudioDevice(const AudioConfig& config);
 
+    AudioDevice(AudioDevice&&) = delete;
+
     AudioDevice(const AudioDevice&) = delete;
+
+    AudioDevice& operator=(AudioDevice&&) = delete;
 
     AudioDevice& operator=(const AudioDevice&) = delete;
 
@@ -405,7 +429,11 @@ class AudioProcessor
 public: // public interface
     AudioProcessor(AudioDevice& device);
 
+    AudioProcessor(AudioProcessor&&) = delete;
+
     AudioProcessor(const AudioProcessor&) = delete;
+
+    AudioProcessor& operator=(AudioProcessor&&) = delete;
 
     AudioProcessor& operator=(const AudioProcessor&) = delete;
 

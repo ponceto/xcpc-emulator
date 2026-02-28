@@ -33,7 +33,11 @@ public: // public interface
 
     GLArea(GtkWidget*);
 
+    GLArea(GLArea&&) = delete;
+
     GLArea(const GLArea&) = delete;
+
+    GLArea& operator=(GLArea&&) = delete;
 
     GLArea& operator=(const GLArea&) = delete;
 

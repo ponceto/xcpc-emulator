@@ -32,7 +32,11 @@ class Machine final
 public: // public interface
     Machine(Settings& settings);
 
+    Machine(Machine&&) = delete;
+
     Machine(const Machine&) = delete;
+
+    Machine& operator=(Machine&&) = delete;
 
     Machine& operator=(const Machine&) = delete;
 

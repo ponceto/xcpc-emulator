@@ -33,7 +33,11 @@ public: // public interface
 
     Grid(GtkWidget*);
 
+    Grid(Grid&&) = delete;
+
     Grid(const Grid&) = delete;
+
+    Grid& operator=(Grid&&) = delete;
 
     Grid& operator=(const Grid&) = delete;
 

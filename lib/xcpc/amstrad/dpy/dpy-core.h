@@ -72,7 +72,11 @@ class Instance
 public: // public interface
     Instance(Interface& interface);
 
+    Instance(Instance&&) = delete;
+
     Instance(const Instance&) = delete;
+
+    Instance& operator=(Instance&&) = delete;
 
     Instance& operator=(const Instance&) = delete;
 
@@ -160,9 +164,13 @@ class Renderer
 public: // public interface
     Renderer();
 
-    Renderer(const Renderer&) = default;
+    Renderer(Renderer&&) = delete;
 
-    Renderer& operator=(const Renderer&) = default;
+    Renderer(const Renderer&) = delete;
+
+    Renderer& operator=(Renderer&&) = delete;
+
+    Renderer& operator=(const Renderer&) = delete;
 
     virtual ~Renderer() = default;
 

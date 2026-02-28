@@ -33,7 +33,11 @@ public: // public interface
             , const std::string& program
             , const std::string& command );
 
+    Command(Command&&) = delete;
+
     Command(const Command&) = delete;
+
+    Command& operator=(Command&&) = delete;
 
     Command& operator=(const Command&) = delete;
 

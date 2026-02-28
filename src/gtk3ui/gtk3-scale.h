@@ -33,7 +33,11 @@ public: // public interface
 
     Scale(GtkWidget*);
 
+    Scale(Scale&&) = delete;
+
     Scale(const Scale&) = delete;
+
+    Scale& operator=(Scale&&) = delete;
 
     Scale& operator=(const Scale&) = delete;
 

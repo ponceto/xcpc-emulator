@@ -67,7 +67,11 @@ public: // public interface
 
     Settings(int& argc, char**& argv);
 
+    Settings(Settings&&) = delete;
+
     Settings(const Settings&) = delete;
+
+    Settings& operator=(Settings&&) = delete;
 
     Settings& operator=(const Settings&) = delete;
 

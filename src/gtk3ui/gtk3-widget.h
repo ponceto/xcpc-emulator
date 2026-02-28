@@ -32,7 +32,11 @@ public: // public interface
 
     Widget(GtkWidget*);
 
+    Widget(Widget&&) = delete;
+
     Widget(const Widget&) = delete;
+
+    Widget& operator=(Widget&&) = delete;
 
     Widget& operator=(const Widget&) = delete;
 

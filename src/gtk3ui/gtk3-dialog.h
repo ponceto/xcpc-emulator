@@ -30,7 +30,11 @@ class DialogListener
 public: // public interface
     DialogListener() = default;
 
+    DialogListener(DialogListener&&) = delete;
+
     DialogListener(const DialogListener&) = delete;
+
+    DialogListener& operator=(DialogListener&&) = delete;
 
     DialogListener& operator=(const DialogListener&) = delete;
 

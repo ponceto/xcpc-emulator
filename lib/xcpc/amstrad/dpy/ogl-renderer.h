@@ -32,7 +32,11 @@ class Renderer final
 public: // public interface
     Renderer();
 
+    Renderer(Renderer&&) = delete;
+
     Renderer(const Renderer&) = delete;
+
+    Renderer& operator=(Renderer&&) = delete;
 
     Renderer& operator=(const Renderer&) = delete;
 

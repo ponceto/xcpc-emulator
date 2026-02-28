@@ -132,7 +132,11 @@ class BaseAdapter
 public: // public interface
     BaseAdapter(const int file);
 
+    BaseAdapter(BaseAdapter&&) = delete;
+
     BaseAdapter(const BaseAdapter&) = delete;
+
+    BaseAdapter& operator=(BaseAdapter&&) = delete;
 
     BaseAdapter& operator=(const BaseAdapter&) = delete;
 
@@ -166,7 +170,11 @@ class DiskInfoAdapter final
 public: // public interface
     DiskInfoAdapter(DiskRecord& disk, const int file);
 
+    DiskInfoAdapter(DiskInfoAdapter&&) = delete;
+
     DiskInfoAdapter(const DiskInfoAdapter&) = delete;
+
+    DiskInfoAdapter& operator=(DiskInfoAdapter&&) = delete;
 
     DiskInfoAdapter& operator=(const DiskInfoAdapter&) = delete;
 
@@ -228,7 +236,11 @@ class TrackInfoAdapter final
 public: // public interface
     TrackInfoAdapter(DiskRecord& disk, TrackRecord& track, const int file);
 
+    TrackInfoAdapter(TrackInfoAdapter&&) = delete;
+
     TrackInfoAdapter(const TrackInfoAdapter&) = delete;
+
+    TrackInfoAdapter& operator=(TrackInfoAdapter&&) = delete;
 
     TrackInfoAdapter& operator=(const TrackInfoAdapter&) = delete;
 
@@ -315,7 +327,11 @@ class SectorInfoAdapter final
 public: // public interface
     SectorInfoAdapter(DiskRecord& disk, TrackRecord& track, SectorRecord& sector, const int file);
 
+    SectorInfoAdapter(SectorInfoAdapter&&) = delete;
+
     SectorInfoAdapter(const SectorInfoAdapter&) = delete;
+
+    SectorInfoAdapter& operator=(SectorInfoAdapter&&) = delete;
 
     SectorInfoAdapter& operator=(const SectorInfoAdapter&) = delete;
 
@@ -379,7 +395,11 @@ class SectorDataAdapter final
 public: // public interface
     SectorDataAdapter(DiskRecord& disk, TrackRecord& track, SectorRecord& sector, const int file);
 
+    SectorDataAdapter(SectorDataAdapter&&) = delete;
+
     SectorDataAdapter(const SectorDataAdapter&) = delete;
+
+    SectorDataAdapter& operator=(SectorDataAdapter&&) = delete;
 
     SectorDataAdapter& operator=(const SectorDataAdapter&) = delete;
 
@@ -415,7 +435,11 @@ class ImageAdapter final
 public: // public interface
     ImageAdapter(ImageRecord& image, const int file);
 
+    ImageAdapter(ImageAdapter&&) = delete;
+
     ImageAdapter(const ImageAdapter&) = delete;
+
+    ImageAdapter& operator=(ImageAdapter&&) = delete;
 
     ImageAdapter& operator=(const ImageAdapter&) = delete;
 
@@ -448,7 +472,11 @@ class Visitor
 public: // public interface
     Visitor();
 
+    Visitor(Visitor&&) = delete;
+
     Visitor(const Visitor&) = delete;
+
+    Visitor& operator=(Visitor&&) = delete;
 
     Visitor& operator=(const Visitor&) = delete;
 
@@ -476,7 +504,11 @@ class Disk
 public: // public interface
     Disk(const std::string& filename);
 
+    Disk(Disk&&) = delete;
+
     Disk(const Disk&) = delete;
+
+    Disk& operator=(Disk&&) = delete;
 
     Disk& operator=(const Disk&) = delete;
 

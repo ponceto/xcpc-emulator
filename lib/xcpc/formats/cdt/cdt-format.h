@@ -28,7 +28,11 @@ class Tape
 public: // public interface
     Tape(const std::string& filename);
 
+    Tape(Tape&&) = delete;
+
     Tape(const Tape&) = delete;
+
+    Tape& operator=(Tape&&) = delete;
 
     Tape& operator=(const Tape&) = delete;
 

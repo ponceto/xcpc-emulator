@@ -33,7 +33,11 @@ public: // public interface
 
     AboutDialog(GtkWidget*);
 
+    AboutDialog(AboutDialog&&) = delete;
+
     AboutDialog(const AboutDialog&) = delete;
+
+    AboutDialog& operator=(AboutDialog&&) = delete;
 
     AboutDialog& operator=(const AboutDialog&) = delete;
 

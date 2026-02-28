@@ -33,7 +33,11 @@ public: // public interface
 
     Range(GtkWidget*);
 
+    Range(Range&&) = delete;
+
     Range(const Range&) = delete;
+
+    Range& operator=(Range&&) = delete;
 
     Range& operator=(const Range&) = delete;
 

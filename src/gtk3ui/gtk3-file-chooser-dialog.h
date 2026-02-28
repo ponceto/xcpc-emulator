@@ -33,7 +33,11 @@ public: // public interface
 
     FileChooserDialog(GtkWidget*);
 
+    FileChooserDialog(FileChooserDialog&&) = delete;
+
     FileChooserDialog(const FileChooserDialog&) = delete;
+
+    FileChooserDialog& operator=(FileChooserDialog&&) = delete;
 
     FileChooserDialog& operator=(const FileChooserDialog&) = delete;
 

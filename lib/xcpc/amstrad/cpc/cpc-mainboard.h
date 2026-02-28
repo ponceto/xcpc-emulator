@@ -66,7 +66,11 @@ public: // public interface
 
     Mainboard(Machine& machine, const Settings& settings);
 
+    Mainboard(Mainboard&&) = delete;
+
     Mainboard(const Mainboard&) = delete;
+
+    Mainboard& operator=(Mainboard&&) = delete;
 
     Mainboard& operator=(const Mainboard&) = delete;
 

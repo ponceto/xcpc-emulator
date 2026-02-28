@@ -30,7 +30,11 @@ class ApplicationListener
 public: // public interface
     ApplicationListener() = default;
 
+    ApplicationListener(ApplicationListener&&) = delete;
+
     ApplicationListener(const ApplicationListener&) = delete;
+
+    ApplicationListener& operator=(ApplicationListener&&) = delete;
 
     ApplicationListener& operator=(const ApplicationListener&) = delete;
 

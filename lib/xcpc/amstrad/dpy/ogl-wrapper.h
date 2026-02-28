@@ -50,7 +50,11 @@ class Handle
 public: // public interface
     Handle(GLuint handle);
 
+    Handle(Handle&&) = delete;
+
     Handle(const Handle&) = delete;
+
+    Handle& operator=(Handle&&) = delete;
 
     Handle& operator=(const Handle&) = delete;
 
@@ -91,7 +95,11 @@ class Shader final
 public: // public interface
     Shader(GLuint handle = 0u);
 
+    Shader(Shader&&) = delete;
+
     Shader(const Shader&) = delete;
+
+    Shader& operator=(Shader&&) = delete;
 
     Shader& operator=(const Shader&) = delete;
 
@@ -118,7 +126,11 @@ class Program final
 public: // public interface
     Program(GLuint handle = 0u);
 
+    Program(Program&&) = delete;
+
     Program(const Program&) = delete;
+
+    Program& operator=(Program&&) = delete;
 
     Program& operator=(const Program&) = delete;
 
@@ -167,7 +179,11 @@ class Texture final
 public: // public interface
     Texture(GLuint handle = 0u);
 
+    Texture(Texture&&) = delete;
+
     Texture(const Texture&) = delete;
+
+    Texture& operator=(Texture&&) = delete;
 
     Texture& operator=(const Texture&) = delete;
 
@@ -206,7 +222,11 @@ class VertexArray final
 public: // public interface
     VertexArray(GLuint handle = 0u);
 
+    VertexArray(VertexArray&&) = delete;
+
     VertexArray(const VertexArray&) = delete;
+
+    VertexArray& operator=(VertexArray&&) = delete;
 
     VertexArray& operator=(const VertexArray&) = delete;
 
@@ -241,7 +261,11 @@ class VertexBuffer final
 public: // public interface
     VertexBuffer(GLuint handle = 0u);
 
+    VertexBuffer(VertexBuffer&&) = delete;
+
     VertexBuffer(const VertexBuffer&) = delete;
+
+    VertexBuffer& operator=(VertexBuffer&&) = delete;
 
     VertexBuffer& operator=(const VertexBuffer&) = delete;
 

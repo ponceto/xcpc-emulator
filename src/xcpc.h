@@ -131,7 +131,11 @@ class Environ
 public: // public interface
     Environ() = default;
 
+    Environ(Environ&&) = delete;
+
     Environ(const Environ&) = delete;
+
+    Environ& operator=(Environ&&) = delete;
 
     Environ& operator=(const Environ&) = delete;
 
@@ -153,7 +157,11 @@ class Application
 public: // public interface
     Application(int& argc, char**& argv);
 
+    Application(Application&&) = delete;
+
     Application(const Application&) = delete;
+
+    Application& operator=(Application&&) = delete;
 
     Application& operator=(const Application&) = delete;
 
@@ -391,7 +399,11 @@ class Dialog
 public: // public interface
     Dialog(Application&, const std::string& title);
 
+    Dialog(Dialog&&) = delete;
+
     Dialog(const Dialog&) = delete;
+
+    Dialog& operator=(Dialog&&) = delete;
 
     Dialog& operator=(const Dialog&) = delete;
 
@@ -443,7 +455,11 @@ class SnapshotDialog
 public: // public interface
     SnapshotDialog(Application&, const std::string& title);
 
+    SnapshotDialog(SnapshotDialog&&) = delete;
+
     SnapshotDialog(const SnapshotDialog&) = delete;
+
+    SnapshotDialog& operator=(SnapshotDialog&&) = delete;
 
     SnapshotDialog& operator=(const SnapshotDialog&) = delete;
 
@@ -467,7 +483,11 @@ class LoadSnapshotDialog
 public: // public interface
     LoadSnapshotDialog(Application&);
 
+    LoadSnapshotDialog(LoadSnapshotDialog&&) = delete;
+
     LoadSnapshotDialog(const LoadSnapshotDialog&) = delete;
+
+    LoadSnapshotDialog& operator=(LoadSnapshotDialog&&) = delete;
 
     LoadSnapshotDialog& operator=(const LoadSnapshotDialog&) = delete;
 
@@ -488,7 +508,11 @@ class SaveSnapshotDialog
 public: // public interface
     SaveSnapshotDialog(Application&);
 
+    SaveSnapshotDialog(SaveSnapshotDialog&&) = delete;
+
     SaveSnapshotDialog(const SaveSnapshotDialog&) = delete;
+
+    SaveSnapshotDialog& operator=(SaveSnapshotDialog&&) = delete;
 
     SaveSnapshotDialog& operator=(const SaveSnapshotDialog&) = delete;
 
@@ -509,7 +533,11 @@ class DiskDialog
 public: // public interface
     DiskDialog(Application&, const std::string& title, const char drive);
 
+    DiskDialog(DiskDialog&&) = delete;
+
     DiskDialog(const DiskDialog&) = delete;
+
+    DiskDialog& operator=(DiskDialog&&) = delete;
 
     DiskDialog& operator=(const DiskDialog&) = delete;
 
@@ -545,7 +573,11 @@ class CreateDiskDialog
 public: // public interface
     CreateDiskDialog(Application&, const char drive);
 
+    CreateDiskDialog(CreateDiskDialog&&) = delete;
+
     CreateDiskDialog(const CreateDiskDialog&) = delete;
+
+    CreateDiskDialog& operator=(CreateDiskDialog&&) = delete;
 
     CreateDiskDialog& operator=(const CreateDiskDialog&) = delete;
 
@@ -566,7 +598,11 @@ class InsertDiskDialog
 public: // public interface
     InsertDiskDialog(Application&, const char drive);
 
+    InsertDiskDialog(InsertDiskDialog&&) = delete;
+
     InsertDiskDialog(const InsertDiskDialog&) = delete;
+
+    InsertDiskDialog& operator=(InsertDiskDialog&&) = delete;
 
     InsertDiskDialog& operator=(const InsertDiskDialog&) = delete;
 
@@ -587,7 +623,11 @@ class RemoveDiskDialog
 public: // public interface
     RemoveDiskDialog(Application&, const char drive);
 
+    RemoveDiskDialog(RemoveDiskDialog&&) = delete;
+
     RemoveDiskDialog(const RemoveDiskDialog&) = delete;
+
+    RemoveDiskDialog& operator=(RemoveDiskDialog&&) = delete;
 
     RemoveDiskDialog& operator=(const RemoveDiskDialog&) = delete;
 
@@ -608,7 +648,11 @@ class SettingsDialog
 public: // public interface
     SettingsDialog(Application&, const std::string& title);
 
+    SettingsDialog(SettingsDialog&&) = delete;
+
     SettingsDialog(const SettingsDialog&) = delete;
+
+    SettingsDialog& operator=(SettingsDialog&&) = delete;
 
     SettingsDialog& operator=(const SettingsDialog&) = delete;
 
@@ -629,7 +673,11 @@ class AudioSettingsDialog
 public: // public interface
     AudioSettingsDialog(Application&);
 
+    AudioSettingsDialog(AudioSettingsDialog&&) = delete;
+
     AudioSettingsDialog(const AudioSettingsDialog&) = delete;
+
+    AudioSettingsDialog& operator=(AudioSettingsDialog&&) = delete;
 
     AudioSettingsDialog& operator=(const AudioSettingsDialog&) = delete;
 
@@ -650,7 +698,11 @@ class VideoSettingsDialog
 public: // public interface
     VideoSettingsDialog(Application&);
 
+    VideoSettingsDialog(VideoSettingsDialog&&) = delete;
+
     VideoSettingsDialog(const VideoSettingsDialog&) = delete;
+
+    VideoSettingsDialog& operator=(VideoSettingsDialog&&) = delete;
 
     VideoSettingsDialog& operator=(const VideoSettingsDialog&) = delete;
 
@@ -671,7 +723,11 @@ class InputSettingsDialog
 public: // public interface
     InputSettingsDialog(Application&);
 
+    InputSettingsDialog(InputSettingsDialog&&) = delete;
+
     InputSettingsDialog(const InputSettingsDialog&) = delete;
+
+    InputSettingsDialog& operator=(InputSettingsDialog&&) = delete;
 
     InputSettingsDialog& operator=(const InputSettingsDialog&) = delete;
 
@@ -692,7 +748,11 @@ class HelpDialog
 public: // public interface
     HelpDialog(Application&);
 
+    HelpDialog(HelpDialog&&) = delete;
+
     HelpDialog(const HelpDialog&) = delete;
+
+    HelpDialog& operator=(HelpDialog&&) = delete;
 
     HelpDialog& operator=(const HelpDialog&) = delete;
 
@@ -713,7 +773,11 @@ class AboutDialog
 public: // public interface
     AboutDialog(Application&);
 
+    AboutDialog(AboutDialog&&) = delete;
+
     AboutDialog(const AboutDialog&) = delete;
+
+    AboutDialog& operator=(AboutDialog&&) = delete;
 
     AboutDialog& operator=(const AboutDialog&) = delete;
 
@@ -733,7 +797,11 @@ class ScopedOperation
 public: // public interface
     ScopedOperation(Application&);
 
+    ScopedOperation(ScopedOperation&&) = delete;
+
     ScopedOperation(const ScopedOperation&) = delete;
+
+    ScopedOperation& operator=(ScopedOperation&&) = delete;
 
     ScopedOperation& operator=(const ScopedOperation&) = delete;
 
@@ -757,7 +825,11 @@ class ScopedPause final
 public: // public interface
     ScopedPause(Application&);
 
+    ScopedPause(ScopedPause&&) = delete;
+
     ScopedPause(const ScopedPause&) = delete;
+
+    ScopedPause& operator=(ScopedPause&&) = delete;
 
     ScopedPause& operator=(const ScopedPause&) = delete;
 
@@ -778,7 +850,11 @@ class ScopedReset final
 public: // public interface
     ScopedReset(Application&);
 
+    ScopedReset(ScopedReset&&) = delete;
+
     ScopedReset(const ScopedReset&) = delete;
+
+    ScopedReset& operator=(ScopedReset&&) = delete;
 
     ScopedReset& operator=(const ScopedReset&) = delete;
 
@@ -796,7 +872,11 @@ class Xcpc
 public: // public interface
     Xcpc(int& argc, char**& argv);
 
+    Xcpc(Xcpc&&) = delete;
+
     Xcpc(const Xcpc&) = delete;
+
+    Xcpc& operator=(Xcpc&&) = delete;
 
     Xcpc& operator=(const Xcpc&) = delete;
 

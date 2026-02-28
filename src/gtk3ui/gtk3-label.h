@@ -33,7 +33,11 @@ public: // public interface
 
     Label(GtkWidget*);
 
+    Label(Label&&) = delete;
+
     Label(const Label&) = delete;
+
+    Label& operator=(Label&&) = delete;
 
     Label& operator=(const Label&) = delete;
 

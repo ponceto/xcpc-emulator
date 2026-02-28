@@ -33,7 +33,11 @@ public: // public interface
 
     Bin(GtkWidget*);
 
+    Bin(Bin&&) = delete;
+
     Bin(const Bin&) = delete;
+
+    Bin& operator=(Bin&&) = delete;
 
     Bin& operator=(const Bin&) = delete;
 

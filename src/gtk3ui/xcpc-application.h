@@ -76,7 +76,11 @@ class AppWidget
 public: // public interface
     AppWidget(Application&);
 
+    AppWidget(AppWidget&&) = delete;
+
     AppWidget(const AppWidget&) = delete;
+
+    AppWidget& operator=(AppWidget&&) = delete;
 
     AppWidget& operator=(const AppWidget&) = delete;
 
@@ -103,7 +107,11 @@ class FileMenu final
 public: // public interface
     FileMenu(Application&);
 
+    FileMenu(FileMenu&&) = delete;
+
     FileMenu(const FileMenu&) = delete;
+
+    FileMenu& operator=(FileMenu&&) = delete;
 
     FileMenu& operator=(const FileMenu&) = delete;
 
@@ -135,7 +143,11 @@ class ControlsMenu final
 public: // public interface
     ControlsMenu(Application&);
 
+    ControlsMenu(ControlsMenu&&) = delete;
+
     ControlsMenu(const ControlsMenu&) = delete;
+
+    ControlsMenu& operator=(ControlsMenu&&) = delete;
 
     ControlsMenu& operator=(const ControlsMenu&) = delete;
 
@@ -179,7 +191,11 @@ class MachineMenu final
 public: // public interface
     MachineMenu(Application&);
 
+    MachineMenu(MachineMenu&&) = delete;
+
     MachineMenu(const MachineMenu&) = delete;
+
+    MachineMenu& operator=(MachineMenu&&) = delete;
 
     MachineMenu& operator=(const MachineMenu&) = delete;
 
@@ -238,7 +254,11 @@ class Drive0Menu final
 public: // public interface
     Drive0Menu(Application&);
 
+    Drive0Menu(Drive0Menu&&) = delete;
+
     Drive0Menu(const Drive0Menu&) = delete;
+
+    Drive0Menu& operator=(Drive0Menu&&) = delete;
 
     Drive0Menu& operator=(const Drive0Menu&) = delete;
 
@@ -270,7 +290,11 @@ class Drive1Menu final
 public: // public interface
     Drive1Menu(Application&);
 
+    Drive1Menu(Drive1Menu&&) = delete;
+
     Drive1Menu(const Drive1Menu&) = delete;
+
+    Drive1Menu& operator=(Drive1Menu&&) = delete;
 
     Drive1Menu& operator=(const Drive1Menu&) = delete;
 
@@ -302,7 +326,11 @@ class AudioMenu final
 public: // public interface
     AudioMenu(Application&);
 
+    AudioMenu(AudioMenu&&) = delete;
+
     AudioMenu(const AudioMenu&) = delete;
+
+    AudioMenu& operator=(AudioMenu&&) = delete;
 
     AudioMenu& operator=(const AudioMenu&) = delete;
 
@@ -334,7 +362,11 @@ class VideoMenu final
 public: // public interface
     VideoMenu(Application&);
 
+    VideoMenu(VideoMenu&&) = delete;
+
     VideoMenu(const VideoMenu&) = delete;
+
+    VideoMenu& operator=(VideoMenu&&) = delete;
 
     VideoMenu& operator=(const VideoMenu&) = delete;
 
@@ -372,7 +404,11 @@ class InputMenu final
 public: // public interface
     InputMenu(Application&);
 
+    InputMenu(InputMenu&&) = delete;
+
     InputMenu(const InputMenu&) = delete;
+
+    InputMenu& operator=(InputMenu&&) = delete;
 
     InputMenu& operator=(const InputMenu&) = delete;
 
@@ -408,7 +444,11 @@ class HelpMenu final
 public: // public interface
     HelpMenu(Application&);
 
+    HelpMenu(HelpMenu&&) = delete;
+
     HelpMenu(const HelpMenu&) = delete;
+
+    HelpMenu& operator=(HelpMenu&&) = delete;
 
     HelpMenu& operator=(const HelpMenu&) = delete;
 
@@ -439,7 +479,11 @@ class MenuBar final
 public: // public interface
     MenuBar(Application&);
 
+    MenuBar(MenuBar&&) = delete;
+
     MenuBar(const MenuBar&) = delete;
+
+    MenuBar& operator=(MenuBar&&) = delete;
 
     MenuBar& operator=(const MenuBar&) = delete;
 
@@ -487,7 +531,11 @@ class ToolBar final
 public: // public interface
     ToolBar(Application&);
 
+    ToolBar(ToolBar&&) = delete;
+
     ToolBar(const ToolBar&) = delete;
+
+    ToolBar& operator=(ToolBar&&) = delete;
 
     ToolBar& operator=(const ToolBar&) = delete;
 
@@ -535,7 +583,11 @@ class InfoBar final
 public: // public interface
     InfoBar(Application&);
 
+    InfoBar(InfoBar&&) = delete;
+
     InfoBar(const InfoBar&) = delete;
+
+    InfoBar& operator=(InfoBar&&) = delete;
 
     InfoBar& operator=(const InfoBar&) = delete;
 
@@ -580,7 +632,11 @@ class WorkWnd final
 public: // public interface
     WorkWnd(Application&);
 
+    WorkWnd(WorkWnd&&) = delete;
+
     WorkWnd(const WorkWnd&) = delete;
+
+    WorkWnd& operator=(WorkWnd&&) = delete;
 
     WorkWnd& operator=(const WorkWnd&) = delete;
 
@@ -629,7 +685,11 @@ class AppWindow final
 public: // public interface
     AppWindow(Application&);
 
+    AppWindow(AppWindow&&) = delete;
+
     AppWindow(const AppWindow&) = delete;
+
+    AppWindow& operator=(AppWindow&&) = delete;
 
     AppWindow& operator=(const AppWindow&) = delete;
 
@@ -691,7 +751,11 @@ class Environ
 public: // public interface
     Environ();
 
+    Environ(Environ&&) = delete;
+
     Environ(const Environ&) = delete;
+
+    Environ& operator=(Environ&&) = delete;
 
     Environ& operator=(const Environ&) = delete;
 
@@ -713,7 +777,11 @@ class Application final
 public: // public interface
     Application(int& argc, char**& argv);
 
+    Application(Application&&) = delete;
+
     Application(const Application&) = delete;
+
+    Application& operator=(Application&&) = delete;
 
     Application& operator=(const Application&) = delete;
 

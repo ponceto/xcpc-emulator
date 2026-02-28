@@ -33,7 +33,11 @@ public: // public interface
 
     Frame(GtkWidget*);
 
+    Frame(Frame&&) = delete;
+
     Frame(const Frame&) = delete;
+
+    Frame& operator=(Frame&&) = delete;
 
     Frame& operator=(const Frame&) = delete;
 

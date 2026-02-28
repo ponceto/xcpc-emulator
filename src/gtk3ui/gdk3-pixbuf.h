@@ -32,6 +32,14 @@ public: // public interface
 
     Pixbuf(GdkPixbuf*);
 
+    Pixbuf(Pixbuf&&) = delete;
+
+    Pixbuf(const Pixbuf&) = delete;
+
+    Pixbuf& operator=(Pixbuf&&) = delete;
+
+    Pixbuf& operator=(const Pixbuf&) = delete;
+
     virtual ~Pixbuf();
 
     operator GdkPixbuf*() const
