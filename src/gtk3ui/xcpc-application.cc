@@ -488,11 +488,6 @@ struct Callbacks
     static auto open_file(Application& application, const char* filename) -> void
     {
         if(filename != nullptr) {
-            const char* file_scheme_str = "file://";
-            const int   file_scheme_len = ::strlen(file_scheme_str);
-            if(::strncmp(filename, file_scheme_str, file_scheme_len) == 0) {
-                filename += file_scheme_len;
-            }
             if(has_extension(filename, ".sna") != false) {
                 application.load_snapshot(filename);
                 application.play_emulator();
@@ -525,7 +520,11 @@ struct Callbacks
 
         if(uris != nullptr) {
             for(int index = 0; uris[index] != nullptr; ++index) {
-                open_file(*application, uris[index]);
+                gchar* filename = ::g_filename_from_uri(uris[index], nullptr, nullptr);
+                if(filename != nullptr) {
+                    open_file(*application, filename);
+                    filename = (g_free(filename), nullptr);
+                }
             }
             uris = (::g_strfreev(uris), nullptr);
         }
