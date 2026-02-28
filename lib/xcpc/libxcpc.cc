@@ -406,7 +406,7 @@ namespace {
 
 struct libxcpc_traits
 {
-    static char* getenv(const char* variable, const char* fallback)
+    static char* get_variable(const char* variable, const char* fallback)
     {
         const char* value = ::getenv(variable);
 
@@ -464,14 +464,14 @@ struct libxcpc_traits
 
     static auto init_directories(XcpcLibrary& library) -> void
     {
-        if(library.bindir == nullptr) { library.bindir = getenv("XCPC_BINDIR", libxcpc_bindir); }
-        if(library.libdir == nullptr) { library.libdir = getenv("XCPC_LIBDIR", libxcpc_libdir); }
-        if(library.datdir == nullptr) { library.datdir = getenv("XCPC_DATDIR", libxcpc_datdir); }
-        if(library.docdir == nullptr) { library.docdir = getenv("XCPC_DOCDIR", libxcpc_docdir); }
-        if(library.resdir == nullptr) { library.resdir = getenv("XCPC_RESDIR", libxcpc_resdir); }
-        if(library.romdir == nullptr) { library.romdir = getenv("XCPC_ROMDIR", libxcpc_romdir); }
-        if(library.dskdir == nullptr) { library.dskdir = getenv("XCPC_DSKDIR", libxcpc_dskdir); }
-        if(library.snadir == nullptr) { library.snadir = getenv("XCPC_SNADIR", libxcpc_snadir); }
+        if(library.bindir == nullptr) { library.bindir = get_variable("XCPC_BINDIR", libxcpc_bindir); }
+        if(library.libdir == nullptr) { library.libdir = get_variable("XCPC_LIBDIR", libxcpc_libdir); }
+        if(library.datdir == nullptr) { library.datdir = get_variable("XCPC_DATDIR", libxcpc_datdir); }
+        if(library.docdir == nullptr) { library.docdir = get_variable("XCPC_DOCDIR", libxcpc_docdir); }
+        if(library.resdir == nullptr) { library.resdir = get_variable("XCPC_RESDIR", libxcpc_resdir); }
+        if(library.romdir == nullptr) { library.romdir = get_variable("XCPC_ROMDIR", libxcpc_romdir); }
+        if(library.dskdir == nullptr) { library.dskdir = get_variable("XCPC_DSKDIR", libxcpc_dskdir); }
+        if(library.snadir == nullptr) { library.snadir = get_variable("XCPC_SNADIR", libxcpc_snadir); }
     }
 
     static auto fini_directories(XcpcLibrary& library) -> void
@@ -488,8 +488,8 @@ struct libxcpc_traits
 
     static auto init_joysticks(XcpcLibrary& library) -> void
     {
-        if(library.joystick0 == nullptr) { library.joystick0 = getenv("XCPC_JOYSTICK0", libxcpc_joystick0); }
-        if(library.joystick1 == nullptr) { library.joystick1 = getenv("XCPC_JOYSTICK1", libxcpc_joystick1); }
+        if(library.joystick0 == nullptr) { library.joystick0 = get_variable("XCPC_JOYSTICK0", libxcpc_joystick0); }
+        if(library.joystick1 == nullptr) { library.joystick1 = get_variable("XCPC_JOYSTICK1", libxcpc_joystick1); }
     }
 
     static auto fini_joysticks(XcpcLibrary& library) -> void

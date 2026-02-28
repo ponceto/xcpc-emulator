@@ -54,7 +54,7 @@ Debug options:
 
 ### ENVIRONMENT VARIABLES
 
-#### LOGLEVEL
+#### Loglevel
 
 The default loglevel is overridden with the `--quiet`, `--trace`, `--debug` options.
 
@@ -73,6 +73,26 @@ The available loglevel values are:
 3 = print
 4 = trace
 5 = debug
+```
+
+#### Runtime
+
+When Xcpc is run in portable mode or installed in a location other than that configured during compilation, you must tell the emulator where to find some resources such as the logo and the original ROMs (firmware and base).
+ 
+You can set some environment variables to fix some paths:
+
+  - `XCPC_BINDIR`: optional, not currently used
+  - `XCPC_LIBDIR`: optional, not currently used
+  - `XCPC_DATDIR`: optional, not currently used
+  - `XCPC_DOCDIR`: optional, not currently used
+  - `XCPC_RESDIR`: mandatory, specifies the path where to find the emulator logo
+  - `XCPC_ROMDIR`: mandatory, specifies the path where to find the firmware and basic roms
+  - `XCPC_DSKDIR`: optional, not currently used
+  - `XCPC_SNADIR`: optional, not currently used
+
+```
+export XCPC_DATDIR="{path-to-dat-directory}"
+export XCPC_ROMDIR="{path-to-rom-directory}"
 ```
 
 #### Joysticks
