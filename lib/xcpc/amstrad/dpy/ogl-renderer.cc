@@ -130,6 +130,8 @@ uniform sampler2D u_texture;
 uniform vec2 u_texture_size;
 uniform vec2 u_visible_position;
 uniform vec2 u_visible_size;
+uniform float u_hsampling;
+uniform float u_vsampling;
 uniform float u_curvature;
 uniform float u_corner;
 uniform float u_dotline;
@@ -172,10 +174,13 @@ void main()
     visible_tc.y = (u_visible_position.y + uv.y * u_visible_size.y) / u_texture_size.y;
 
     /* sample texture with subtle horizontal phosphor spread */
-    float dx = 0.5 / u_texture_size.x;
+    float dx = u_hsampling / u_texture_size.x;
+    float dy = u_vsampling / u_texture_size.y;
     vec4 color = texture(u_texture, visible_tc) * 0.50
-               + texture(u_texture, visible_tc + vec2(dx, 0.0)) * 0.25
-               + texture(u_texture, visible_tc - vec2(dx, 0.0)) * 0.25
+               + texture(u_texture, visible_tc + vec2(dx, 0.0)) * 0.15
+               + texture(u_texture, visible_tc - vec2(dx, 0.0)) * 0.15
+               + texture(u_texture, visible_tc + vec2(0.0, dy)) * 0.10
+               + texture(u_texture, visible_tc - vec2(0.0, dy)) * 0.10
                ;
 
     /* apply CRT scanlines */
@@ -318,6 +323,24 @@ auto Renderer::expose(int x, int y, int width, int height) -> void
         }
     };
 
+    auto gl_set_u_hsampling = [&]() -> void
+    {
+        const GLint   u_hsampling = _program.get_uniform_location("u_hsampling");
+        const GLfloat v_hsampling = _parameters.u_hsampling;
+        if(u_hsampling >= 0) {
+            _program.set_uniform_1f(u_hsampling, v_hsampling);
+        }
+    };
+
+    auto gl_set_u_vsampling = [&]() -> void
+    {
+        const GLint   u_vsampling = _program.get_uniform_location("u_vsampling");
+        const GLfloat v_vsampling = _parameters.u_vsampling;
+        if(u_vsampling >= 0) {
+            _program.set_uniform_1f(u_vsampling, v_vsampling);
+        }
+    };
+
     auto gl_set_u_curvature = [&]() -> void
     {
         const GLint   u_curvature = _program.get_uniform_location("u_curvature");
@@ -393,6 +416,8 @@ auto Renderer::expose(int x, int y, int width, int height) -> void
                 gl_set_u_texture_size();
                 gl_set_u_visible_position();
                 gl_set_u_visible_size();
+                gl_set_u_hsampling();
+                gl_set_u_vsampling();
                 gl_set_u_curvature();
                 gl_set_u_corner();
                 gl_set_u_dotline();
@@ -504,6 +529,24 @@ auto Renderer::set_parameterf(const std::string& parameter, float value) -> void
         return value;
     };
 
+    if(parameter == "video.ogl.u_hsampling") {
+        const float old_hsampling = _parameters.u_hsampling;
+        const float new_hsampling = _parameters.u_hsampling = clampf(value, 0.0f, 5.0f);
+        if(new_hsampling != old_hsampling) {
+            _parameters.dirty_program  |= false;
+            _parameters.dirty_uniforms |= true;
+        }
+        return;
+    }
+    if(parameter == "video.ogl.u_vsampling") {
+        const float old_vsampling = _parameters.u_vsampling;
+        const float new_vsampling = _parameters.u_vsampling = clampf(value, 0.0f, 5.0f);
+        if(new_vsampling != old_vsampling) {
+            _parameters.dirty_program  |= false;
+            _parameters.dirty_uniforms |= true;
+        }
+        return;
+    }
     if(parameter == "video.ogl.u_curvature") {
         const float old_curvature = _parameters.u_curvature;
         const float new_curvature = _parameters.u_curvature = clampf(value, 0.0f, 1.0f);

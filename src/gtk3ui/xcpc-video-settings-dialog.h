@@ -41,12 +41,16 @@ private: // private data
     gtk3::Dialog _dialog;
     gtk3::Frame  _frame;
     gtk3::Grid   _grid;
+    gtk3::Label  _label_hsampling;
+    gtk3::Label  _label_vsampling;
     gtk3::Label  _label_curvature;
     gtk3::Label  _label_corner;
     gtk3::Label  _label_dotline;
     gtk3::Label  _label_dotmask;
     gtk3::Label  _label_vignetting;
     gtk3::Label  _label_brightness;
+    gtk3::Scale  _scale_hsampling;
+    gtk3::Scale  _scale_vsampling;
     gtk3::Scale  _scale_curvature;
     gtk3::Scale  _scale_corner;
     gtk3::Scale  _scale_dotline;

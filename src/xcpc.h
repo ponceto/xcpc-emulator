@@ -96,6 +96,8 @@ namespace base {
 
 struct VideoSettings
 {
+    float u_hsampling  = 0.75f;
+    float u_vsampling  = 0.25f;
     float u_curvature  = 0.10f;
     float u_corner     = 0.15f;
     float u_dotline    = 0.30f;

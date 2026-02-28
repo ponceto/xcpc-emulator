@@ -2855,10 +2855,12 @@ auto Application::on_video_settings() -> void
     run_dialog(dialog);
 
     try {
-        _machine->set_parameterf("video.ogl.u_curvature",  _video_settings.u_curvature);
-        _machine->set_parameterf("video.ogl.u_corner",     _video_settings.u_corner);
-        _machine->set_parameterf("video.ogl.u_dotline",    _video_settings.u_dotline);
-        _machine->set_parameterf("video.ogl.u_dotmask",    _video_settings.u_dotmask);
+        _machine->set_parameterf("video.ogl.u_hsampling" , _video_settings.u_hsampling );
+        _machine->set_parameterf("video.ogl.u_vsampling" , _video_settings.u_vsampling );
+        _machine->set_parameterf("video.ogl.u_curvature" , _video_settings.u_curvature );
+        _machine->set_parameterf("video.ogl.u_corner"    , _video_settings.u_corner    );
+        _machine->set_parameterf("video.ogl.u_dotline"   , _video_settings.u_dotline   );
+        _machine->set_parameterf("video.ogl.u_dotmask"   , _video_settings.u_dotmask   );
         _machine->set_parameterf("video.ogl.u_vignetting", _video_settings.u_vignetting);
         _machine->set_parameterf("video.ogl.u_brightness", _video_settings.u_brightness);
     }

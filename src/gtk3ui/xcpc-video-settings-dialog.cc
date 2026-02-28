@@ -45,12 +45,16 @@ VideoSettingsDialog::VideoSettingsDialog(Application& application)
     , _dialog(nullptr)
     , _frame(nullptr)
     , _grid(nullptr)
+    , _label_hsampling(nullptr)
+    , _label_vsampling(nullptr)
     , _label_curvature(nullptr)
     , _label_corner(nullptr)
     , _label_dotline(nullptr)
     , _label_dotmask(nullptr)
     , _label_vignetting(nullptr)
     , _label_brightness(nullptr)
+    , _scale_hsampling(nullptr)
+    , _scale_vsampling(nullptr)
     , _scale_curvature(nullptr)
     , _scale_corner(nullptr)
     , _scale_dotline(nullptr)
@@ -99,46 +103,80 @@ auto VideoSettingsDialog::build() -> void
 
     };
 
+    auto build_label_hsampling = [&]() -> void
+    {
+        _label_hsampling.create_label(_("Horizontal sampling factor"));
+        _label_hsampling.set_xalign(0.0f);
+        _grid.attach(_label_hsampling, 0, 0, 1, 1);
+    };
+
+    auto build_label_vsampling = [&]() -> void
+    {
+        _label_vsampling.create_label(_("Vertical sampling factor"));
+        _label_vsampling.set_xalign(0.0f);
+        _grid.attach(_label_vsampling, 0, 1, 1, 1);
+    };
+
     auto build_label_curvature = [&]() -> void
     {
         _label_curvature.create_label(_("Screen curvature"));
         _label_curvature.set_xalign(0.0f);
-        _grid.attach(_label_curvature, 0, 0, 1, 1);
+        _grid.attach(_label_curvature, 0, 2, 1, 1);
     };
 
     auto build_label_corner = [&]() -> void
     {
         _label_corner.create_label(_("Rounded corners"));
         _label_corner.set_xalign(0.0f);
-        _grid.attach(_label_corner, 0, 1, 1, 1);
+        _grid.attach(_label_corner, 0, 3, 1, 1);
     };
 
     auto build_label_dotline = [&]() -> void
     {
         _label_dotline.create_label(_("CRT scanline effect"));
         _label_dotline.set_xalign(0.0f);
-        _grid.attach(_label_dotline, 0, 2, 1, 1);
+        _grid.attach(_label_dotline, 0, 4, 1, 1);
     };
 
     auto build_label_dotmask = [&]() -> void
     {
         _label_dotmask.create_label(_("CRT phosphor mask effect"));
         _label_dotmask.set_xalign(0.0f);
-        _grid.attach(_label_dotmask, 0, 3, 1, 1);
+        _grid.attach(_label_dotmask, 0, 5, 1, 1);
     };
 
     auto build_label_vignetting = [&]() -> void
     {
         _label_vignetting.create_label(_("Vignetting effect"));
         _label_vignetting.set_xalign(0.0f);
-        _grid.attach(_label_vignetting, 0, 4, 1, 1);
+        _grid.attach(_label_vignetting, 0, 6, 1, 1);
     };
 
     auto build_label_brightness = [&]() -> void
     {
         _label_brightness.create_label(_("Brightness"));
         _label_brightness.set_xalign(0.0f);
-        _grid.attach(_label_brightness, 0, 5, 1, 1);
+        _grid.attach(_label_brightness, 0, 7, 1, 1);
+    };
+
+    auto build_scale_hsampling = [&]() -> void
+    {
+        _scale_hsampling.create_scale(GTK_ORIENTATION_HORIZONTAL, 0.00, 5.00, 0.01);
+        _scale_hsampling.set_digits(2);
+        _scale_hsampling.set_value_pos(GTK_POS_RIGHT);
+        _scale_hsampling.set_hexpand(true);
+        _scale_hsampling.set_value(settings.u_hsampling);
+        _grid.attach(_scale_hsampling, 1, 0, 1, 1);
+    };
+
+    auto build_scale_vsampling = [&]() -> void
+    {
+        _scale_vsampling.create_scale(GTK_ORIENTATION_HORIZONTAL, 0.00, 5.00, 0.01);
+        _scale_vsampling.set_digits(2);
+        _scale_vsampling.set_value_pos(GTK_POS_RIGHT);
+        _scale_vsampling.set_hexpand(true);
+        _scale_vsampling.set_value(settings.u_vsampling);
+        _grid.attach(_scale_vsampling, 1, 1, 1, 1);
     };
 
     auto build_scale_curvature = [&]() -> void
@@ -148,7 +186,7 @@ auto VideoSettingsDialog::build() -> void
         _scale_curvature.set_value_pos(GTK_POS_RIGHT);
         _scale_curvature.set_hexpand(true);
         _scale_curvature.set_value(settings.u_curvature);
-        _grid.attach(_scale_curvature, 1, 0, 1, 1);
+        _grid.attach(_scale_curvature, 1, 2, 1, 1);
     };
 
     auto build_scale_corner = [&]() -> void
@@ -158,7 +196,7 @@ auto VideoSettingsDialog::build() -> void
         _scale_corner.set_value_pos(GTK_POS_RIGHT);
         _scale_corner.set_hexpand(true);
         _scale_corner.set_value(settings.u_corner);
-        _grid.attach(_scale_corner, 1, 1, 1, 1);
+        _grid.attach(_scale_corner, 1, 3, 1, 1);
     };
 
     auto build_scale_dotline = [&]() -> void
@@ -168,7 +206,7 @@ auto VideoSettingsDialog::build() -> void
         _scale_dotline.set_value_pos(GTK_POS_RIGHT);
         _scale_dotline.set_hexpand(true);
         _scale_dotline.set_value(settings.u_dotline);
-        _grid.attach(_scale_dotline, 1, 2, 1, 1);
+        _grid.attach(_scale_dotline, 1, 4, 1, 1);
     };
 
     auto build_scale_dotmask = [&]() -> void
@@ -178,7 +216,7 @@ auto VideoSettingsDialog::build() -> void
         _scale_dotmask.set_value_pos(GTK_POS_RIGHT);
         _scale_dotmask.set_hexpand(true);
         _scale_dotmask.set_value(settings.u_dotmask);
-        _grid.attach(_scale_dotmask, 1, 3, 1, 1);
+        _grid.attach(_scale_dotmask, 1, 5, 1, 1);
     };
 
     auto build_scale_vignetting = [&]() -> void
@@ -188,7 +226,7 @@ auto VideoSettingsDialog::build() -> void
         _scale_vignetting.set_value_pos(GTK_POS_RIGHT);
         _scale_vignetting.set_hexpand(true);
         _scale_vignetting.set_value(settings.u_vignetting);
-        _grid.attach(_scale_vignetting, 1, 4, 1, 1);
+        _grid.attach(_scale_vignetting, 1, 6, 1, 1);
     };
 
     auto build_scale_brightness = [&]() -> void
@@ -198,7 +236,7 @@ auto VideoSettingsDialog::build() -> void
         _scale_brightness.set_value_pos(GTK_POS_RIGHT);
         _scale_brightness.set_hexpand(true);
         _scale_brightness.set_value(settings.u_brightness);
-        _grid.attach(_scale_brightness, 1, 5, 1, 1);
+        _grid.attach(_scale_brightness, 1, 7, 1, 1);
     };
 
     auto build_content_area = [&]() -> void
@@ -211,6 +249,10 @@ auto VideoSettingsDialog::build() -> void
         build_dialog();
         build_frame();
         build_grid();
+        build_label_hsampling();
+        build_scale_hsampling();
+        build_label_vsampling();
+        build_scale_vsampling();
         build_label_curvature();
         build_scale_curvature();
         build_label_corner();
@@ -243,12 +285,14 @@ auto VideoSettingsDialog::run() -> void
             const int response = _dialog.run();
 
             if(response == GTK_RESPONSE_OK) {
-                settings.u_curvature  = static_cast<float>(_scale_curvature.get_value());
-                settings.u_corner     = static_cast<float>(_scale_corner.get_value());
-                settings.u_dotline    = static_cast<float>(_scale_dotline.get_value());
-                settings.u_dotmask    = static_cast<float>(_scale_dotmask.get_value());
-                settings.u_vignetting = static_cast<float>(_scale_vignetting.get_value());
-                settings.u_brightness = static_cast<float>(_scale_brightness.get_value());
+                settings.u_hsampling  = _scale_hsampling.get_value();
+                settings.u_vsampling  = _scale_vsampling.get_value();
+                settings.u_curvature  = _scale_curvature.get_value();
+                settings.u_corner     = _scale_corner.get_value();
+                settings.u_dotline    = _scale_dotline.get_value();
+                settings.u_dotmask    = _scale_dotmask.get_value();
+                settings.u_vignetting = _scale_vignetting.get_value();
+                settings.u_brightness = _scale_brightness.get_value();
             }
         }
     };
