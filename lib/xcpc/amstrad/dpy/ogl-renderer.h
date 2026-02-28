@@ -131,12 +131,12 @@ private: // private types
         bool  crt_emulation  = false;
         bool  dirty_program  = false;
         bool  dirty_uniforms = false;
-        float u_curvature    = 0.05f;
-        float u_corner       = 0.10f;
+        float u_curvature    = 0.10f;
+        float u_corner       = 0.15f;
         float u_dotline      = 0.30f;
         float u_dotmask      = 0.10f;
         float u_vignetting   = 1.00f;
-        float u_brightness   = 1.20f;
+        float u_brightness   = 1.30f;
     };
 
 private: // private data
