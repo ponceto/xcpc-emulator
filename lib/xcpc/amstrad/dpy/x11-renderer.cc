@@ -260,19 +260,12 @@ auto Renderer::unrealize() -> void
         }
     };
 
-    auto do_clear_area = [&]() -> void
-    {
-        static_cast<void>(XClearArea(_display, _window, 0, 0, 32767, 32767, True));
-        static_cast<void>(XFlush(_display));
-    };
-
     auto do_unrealize = [&]() -> void
     {
         do_unrealize_state();
         do_unrealize_shm_image();
         do_unrealize_std_image();
         do_unrealize_renderer();
-        do_clear_area();
     };
 
     return do_unrealize();
