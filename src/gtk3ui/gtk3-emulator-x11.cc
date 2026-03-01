@@ -65,6 +65,13 @@ struct EmulatorX11Traits
             ::gtk_emulator_x11_set_joystick(emulator, id, device.c_str());
         }
     }
+
+    static auto set_joystick_emulation(EmulatorX11& emulator, bool enabled) -> void
+    {
+        if(emulator) {
+            ::gtk_emulator_x11_set_joystick_emulation(emulator, enabled ? TRUE : FALSE);
+        }
+    }
 };
 
 }
@@ -116,6 +123,11 @@ auto EmulatorX11::set_backend(const GemBackend* backend) -> void
 auto EmulatorX11::set_joystick(int id, const std::string& device) -> void
 {
     return traits::set_joystick(*this, id, device);
+}
+
+auto EmulatorX11::set_joystick_emulation(bool enabled) -> void
+{
+    return traits::set_joystick_emulation(*this, enabled);
 }
 
 auto EmulatorX11::add_hotkey_callback(GCallback callback, void* data) -> void

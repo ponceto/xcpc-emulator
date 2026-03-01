@@ -421,6 +421,10 @@ public: // public interface
 private: // private data
     gtk3::MenuItem& _self;
     gtk3::Menu      _menu;
+    gtk3::MenuItem  _joystick_emulation;
+    gtk3::Menu      _joystick_emulation_menu;
+    gtk3::MenuItem  _joystick_emulation_enable;
+    gtk3::MenuItem  _joystick_emulation_disable;
     gtk3::MenuItem  _joystick0;
     gtk3::Menu      _joystick0_menu;
     gtk3::MenuItem  _joystick0_connect;
@@ -650,19 +654,32 @@ public: // public interface
 
     auto emulator() -> gtk3::Widget&
     {
+        if(_emulator_x11 != false) {
+            return _emulator_x11;
+        }
         if(_emulator_ogl != false) {
             return _emulator_ogl;
         }
-        return _emulator_x11;
+        throw std::runtime_error("no valid emulator widget");
     }
 
     auto set_joystick(int id, const std::string& device) -> void
     {
+        if(_emulator_x11 != false) {
+            _emulator_x11.set_joystick(id, device);
+        }
         if(_emulator_ogl != false) {
             _emulator_ogl.set_joystick(id, device);
         }
-        else {
-            _emulator_x11.set_joystick(id, device);
+    }
+
+    auto set_joystick_emulation(bool enabled) -> void
+    {
+        if(_emulator_x11 != false) {
+            _emulator_x11.set_joystick_emulation(enabled);
+        }
+        if(_emulator_ogl != false) {
+            _emulator_ogl.set_joystick_emulation(enabled);
         }
     }
 
@@ -882,6 +899,8 @@ public: // public methods
 
     virtual auto set_renderer_type(const std::string& renderer_type) -> void override final;
 
+    virtual auto set_joystick_emulation(const bool enabled) -> void override final;
+
     virtual auto set_joystick0(const std::string& device) -> void override final;
 
     virtual auto set_joystick1(const std::string& device) -> void override final;
@@ -984,6 +1003,10 @@ public: // public signals
     virtual auto on_joystick1_connect() -> void override final;
 
     virtual auto on_joystick1_disconnect() -> void override final;
+
+    virtual auto on_joystick_emulation_enable() -> void override final;
+
+    virtual auto on_joystick_emulation_disable() -> void override final;
 
     virtual auto on_help() -> void override final;
 

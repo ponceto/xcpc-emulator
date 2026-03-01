@@ -488,6 +488,19 @@ void gtk_emulator_ogl_set_joystick(GtkWidget* widget, int id, const char* device
     }
 }
 
+void gtk_emulator_ogl_set_joystick_emulation(GtkWidget* widget, gboolean enabled)
+{
+    GtkEmulatorOGL* self = GTK_EMULATOR_OGL(widget);
+
+    /* set joystick emulation */ {
+        self->keyboard.js_enabled = enabled;
+        self->keyboard.js_axis_x  = 0;
+        self->keyboard.js_axis_y  = 0;
+        self->keyboard.js_button0 = 0;
+        self->keyboard.js_button1 = 0;
+    }
+}
+
 GemVideo* gem_video_ogl_construct(GtkWidget* widget, GemVideo* video)
 {
     /* initialize */ {

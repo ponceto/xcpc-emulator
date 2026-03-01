@@ -499,6 +499,19 @@ void gtk_emulator_x11_set_joystick(GtkWidget* widget, int id, const char* device
     }
 }
 
+void gtk_emulator_x11_set_joystick_emulation(GtkWidget* widget, gboolean enabled)
+{
+    GtkEmulatorX11* self = GTK_EMULATOR_X11(widget);
+
+    /* set joystick emulation */ {
+        self->keyboard.js_enabled = enabled;
+        self->keyboard.js_axis_x  = 0;
+        self->keyboard.js_axis_y  = 0;
+        self->keyboard.js_button0 = 0;
+        self->keyboard.js_button1 = 0;
+    }
+}
+
 GemVideo* gem_video_x11_construct(GtkWidget* widget, GemVideo* video)
 {
     /* initialize */ {

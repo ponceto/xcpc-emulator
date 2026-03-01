@@ -53,11 +53,12 @@ struct _GtkEmulatorOGLClass
     void (*sig_hotkey)(GtkEmulatorOGL*, KeySym keysym);
 };
 
-extern GType      gtk_emulator_ogl_get_type     (void) G_GNUC_CONST;
-extern GtkWidget* gtk_emulator_ogl_new          (void);
-extern void       gtk_emulator_ogl_shutdown     (GtkWidget* widget);
-extern void       gtk_emulator_ogl_set_backend  (GtkWidget* widget, const GemBackend* backend);
-extern void       gtk_emulator_ogl_set_joystick (GtkWidget* widget, int id, const char* device);
+extern GType      gtk_emulator_ogl_get_type               (void) G_GNUC_CONST;
+extern GtkWidget* gtk_emulator_ogl_new                    (void);
+extern void       gtk_emulator_ogl_shutdown               (GtkWidget* widget);
+extern void       gtk_emulator_ogl_set_backend            (GtkWidget* widget, const GemBackend* backend);
+extern void       gtk_emulator_ogl_set_joystick           (GtkWidget* widget, int id, const char* device);
+extern void       gtk_emulator_ogl_set_joystick_emulation (GtkWidget* widget, gboolean enabled);
 
 G_END_DECLS
 

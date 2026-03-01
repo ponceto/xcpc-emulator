@@ -239,6 +239,8 @@ public: // public methods
 
     virtual auto set_renderer_type(const std::string& renderer_type) -> void = 0;
 
+    virtual auto set_joystick_emulation(const bool enabled) -> void = 0;
+
     virtual auto set_joystick0(const std::string& device) -> void = 0;
 
     virtual auto set_joystick1(const std::string& device) -> void = 0;
@@ -369,6 +371,10 @@ public: // public signals
     virtual auto on_joystick1_connect() -> void = 0;
 
     virtual auto on_joystick1_disconnect() -> void = 0;
+
+    virtual auto on_joystick_emulation_enable() -> void = 0;
+
+    virtual auto on_joystick_emulation_disable() -> void = 0;
 
     virtual auto on_help() -> void = 0;
 

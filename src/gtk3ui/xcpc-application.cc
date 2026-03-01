@@ -503,6 +503,20 @@ struct Callbacks
         }
     }
 
+    static auto on_joystick_emulation_enable(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_joystick_emulation_enable();
+        }
+    }
+
+    static auto on_joystick_emulation_disable(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_joystick_emulation_disable();
+        }
+    }
+
     static auto on_help(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
@@ -1458,6 +1472,10 @@ InputMenu::InputMenu(Application& application)
     , gtk3::MenuItem(nullptr)
     , _self(*this)
     , _menu(nullptr)
+    , _joystick_emulation(nullptr)
+    , _joystick_emulation_menu(nullptr)
+    , _joystick_emulation_enable(nullptr)
+    , _joystick_emulation_disable(nullptr)
     , _joystick0(nullptr)
     , _joystick0_menu(nullptr)
     , _joystick0_connect(nullptr)
@@ -1480,6 +1498,28 @@ auto InputMenu::build() -> void
     {
         _menu.create_menu();
         _self.set_submenu(_menu);
+    };
+
+    auto build_joystick_emulation = [&]() -> void
+    {
+        _joystick_emulation.create_menu_item_with_label(_("Joystick emulation"));
+        _menu.append(_joystick_emulation);
+        _joystick_emulation_menu.create_menu();
+        _joystick_emulation.set_submenu(_joystick_emulation_menu);
+    };
+
+    auto build_joystick_emulation_enable = [&]() -> void
+    {
+        _joystick_emulation_enable.create_menu_item_with_label(_("Enable"));
+        _joystick_emulation_enable.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick_emulation_enable), &_application);
+        _joystick_emulation_menu.append(_joystick_emulation_enable);
+    };
+
+    auto build_joystick_emulation_disable = [&]() -> void
+    {
+        _joystick_emulation_disable.create_menu_item_with_label(_("Disable"));
+        _joystick_emulation_disable.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick_emulation_disable), &_application);
+        _joystick_emulation_menu.append(_joystick_emulation_disable);
     };
 
     auto build_joystick0 = [&]() -> void
@@ -1540,6 +1580,9 @@ auto InputMenu::build() -> void
     {
         build_self();
         build_menu();
+        build_joystick_emulation();
+        build_joystick_emulation_enable();
+        build_joystick_emulation_disable();
         build_joystick0();
         build_joystick0_connect();
         build_joystick0_disconnect();
@@ -2999,6 +3042,21 @@ auto Application::on_video_settings() -> void
         ::xcpc_log_error("set-video-parameters has failed (%s)", e.what());
     }
     update_all();
+}
+
+auto Application::set_joystick_emulation(const bool enabled) -> void
+{
+    work_wnd().set_joystick_emulation(enabled);
+}
+
+auto Application::on_joystick_emulation_enable() -> void
+{
+    set_joystick_emulation(true);
+}
+
+auto Application::on_joystick_emulation_disable() -> void
+{
+    set_joystick_emulation(false);
 }
 
 auto Application::on_joystick0_connect() -> void

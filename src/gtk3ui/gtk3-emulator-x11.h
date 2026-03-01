@@ -56,6 +56,8 @@ public: // public interface
 
     auto set_joystick(int id, const std::string& device) -> void;
 
+    auto set_joystick_emulation(bool enabled) -> void;
+
     auto add_hotkey_callback(GCallback callback, void* data) -> void;
 };
 

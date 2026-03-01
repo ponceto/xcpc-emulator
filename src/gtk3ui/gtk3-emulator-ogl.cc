@@ -65,6 +65,13 @@ struct EmulatorOGLTraits
             ::gtk_emulator_ogl_set_joystick(emulator, id, device.c_str());
         }
     }
+
+    static auto set_joystick_emulation(EmulatorOGL& emulator, bool enabled) -> void
+    {
+        if(emulator) {
+            ::gtk_emulator_ogl_set_joystick_emulation(emulator, enabled ? TRUE : FALSE);
+        }
+    }
 };
 
 }
@@ -116,6 +123,11 @@ auto EmulatorOGL::set_backend(const GemBackend* backend) -> void
 auto EmulatorOGL::set_joystick(int id, const std::string& device) -> void
 {
     return traits::set_joystick(*this, id, device);
+}
+
+auto EmulatorOGL::set_joystick_emulation(bool enabled) -> void
+{
+    return traits::set_joystick_emulation(*this, enabled);
 }
 
 auto EmulatorOGL::add_hotkey_callback(GCallback callback, void* data) -> void
