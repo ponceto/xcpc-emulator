@@ -60,6 +60,8 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-grid.h \
 	gtk3-frame.cc \
 	gtk3-frame.h \
+	gtk3-viewport.cc \
+	gtk3-viewport.h \
 	gtk3-window.cc \
 	gtk3-window.h \
 	gtk3-application-window.cc \

@@ -2215,6 +2215,7 @@ WorkWnd::WorkWnd(Application& application)
     : AppWidget(application)
     , gtk3::HBox(nullptr)
     , _self(*this)
+    , _viewport(nullptr)
     , _emulator_x11(nullptr)
     , _emulator_ogl(nullptr)
 {
@@ -2229,6 +2230,17 @@ auto WorkWnd::build() -> void
         if(bool(_self) == false) {
             _self.create_hbox();
         }
+    };
+
+    auto build_viewport = [&]() -> void
+    {
+#ifdef USE_VIEWPORT
+        if(bool(_viewport) == false) {
+            _viewport.create_viewport();
+            _self.pack_start(_viewport, true, true, 8);
+            _viewport.show();
+        }
+#endif
     };
 
     auto build_emulator_x11 = [&]() -> void
@@ -2246,7 +2258,11 @@ auto WorkWnd::build() -> void
                 _emulator_x11.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
                 _emulator_x11.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
                 _emulator_x11.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
+#ifdef USE_VIEWPORT
+                _viewport.add(_emulator_x11);
+#else
                 _self.pack_start(_emulator_x11, true, true, 0);
+#endif
                 _emulator_x11.show();
             }
         }
@@ -2267,7 +2283,11 @@ auto WorkWnd::build() -> void
                 _emulator_ogl.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
                 _emulator_ogl.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
                 _emulator_ogl.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
+#ifdef USE_VIEWPORT
+                _viewport.add(_emulator_ogl);
+#else
                 _self.pack_start(_emulator_ogl, true, true, 0);
+#endif
                 _emulator_ogl.show();
             }
         }
@@ -2276,6 +2296,7 @@ auto WorkWnd::build() -> void
     auto build_all = [&]() -> void
     {
         build_self();
+        build_viewport();
         build_emulator_x11();
         build_emulator_ogl();
     };
@@ -2788,6 +2809,11 @@ auto Application::on_startup() -> void
     auto check_ximage = [&]() -> void
     {
         if(has_ximage() != false) {
+            if(get_renderer_type() == "ximage") {
+                _machine->set_renderer_type("ximage");
+            }
+        }
+        else {
             _machine->set_renderer_type("ximage");
         }
     };
@@ -2795,7 +2821,12 @@ auto Application::on_startup() -> void
     auto check_opengl = [&]() -> void
     {
         if(has_opengl() != false) {
-            _machine->set_renderer_type("opengl");
+            if(get_renderer_type() == "opengl") {
+                _machine->set_renderer_type("opengl");
+            }
+        }
+        else {
+            _machine->set_renderer_type("ximage");
         }
     };
 

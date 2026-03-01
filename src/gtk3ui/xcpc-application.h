@@ -666,6 +666,7 @@ public: // public interface
 
 private: // private data
     gtk3::HBox&       _self;
+    gtk3::Viewport    _viewport;
     gtk3::EmulatorX11 _emulator_x11;
     gtk3::EmulatorOGL _emulator_ogl;
 };

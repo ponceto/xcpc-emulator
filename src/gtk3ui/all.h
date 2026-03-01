@@ -30,6 +30,7 @@
 #include <gtk3ui/gtk3-box.h>
 #include <gtk3ui/gtk3-grid.h>
 #include <gtk3ui/gtk3-frame.h>
+#include <gtk3ui/gtk3-viewport.h>
 #include <gtk3ui/gtk3-window.h>
 #include <gtk3ui/gtk3-application-window.h>
 #include <gtk3ui/gtk3-dialog.h>
