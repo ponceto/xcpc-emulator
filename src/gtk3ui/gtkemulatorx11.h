@@ -58,6 +58,7 @@ extern GtkWidget* gtk_emulator_x11_new                    (void);
 extern void       gtk_emulator_x11_shutdown               (GtkWidget* widget);
 extern void       gtk_emulator_x11_set_backend            (GtkWidget* widget, const GemBackend* backend);
 extern void       gtk_emulator_x11_set_joystick           (GtkWidget* widget, int id, const char* device);
+extern gboolean   gtk_emulator_x11_get_joystick_emulation (GtkWidget* widget);
 extern void       gtk_emulator_x11_set_joystick_emulation (GtkWidget* widget, gboolean enabled);
 
 G_END_DECLS

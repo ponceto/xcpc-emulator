@@ -418,6 +418,8 @@ public: // public interface
 
     virtual auto build() -> void override final;
 
+    auto set_joystick_emulation(bool enabled);
+
 private: // private data
     gtk3::MenuItem& _self;
     gtk3::Menu      _menu;
@@ -508,6 +510,8 @@ public: // public interface
     auto show_reset() -> void;
 
     auto hide_reset() -> void;
+
+    auto set_joystick_emulation(bool enabled) -> void;
 
 private: // private data
     gtk3::MenuBar& _self;
@@ -652,36 +656,13 @@ public: // public interface
 
     virtual auto destroy() -> void;
 
-    auto emulator() -> gtk3::Widget&
-    {
-        if(_emulator_x11 != false) {
-            return _emulator_x11;
-        }
-        if(_emulator_ogl != false) {
-            return _emulator_ogl;
-        }
-        throw std::runtime_error("no valid emulator widget");
-    }
+    auto get_emulator() -> gtk3::Widget&;
 
-    auto set_joystick(int id, const std::string& device) -> void
-    {
-        if(_emulator_x11 != false) {
-            _emulator_x11.set_joystick(id, device);
-        }
-        if(_emulator_ogl != false) {
-            _emulator_ogl.set_joystick(id, device);
-        }
-    }
+    auto get_joystick_emulation() -> bool;
 
-    auto set_joystick_emulation(bool enabled) -> void
-    {
-        if(_emulator_x11 != false) {
-            _emulator_x11.set_joystick_emulation(enabled);
-        }
-        if(_emulator_ogl != false) {
-            _emulator_ogl.set_joystick_emulation(enabled);
-        }
-    }
+    auto set_joystick_emulation(bool enabled) -> void;
+
+    auto set_joystick(int id, const std::string& device) -> void;
 
 private: // private data
     gtk3::HBox&       _self;
@@ -1044,6 +1025,8 @@ private: // private interface
     auto update_volume() -> void;
 
     auto update_stats() -> void;
+
+    auto update_input() -> void;
 
     auto update_all() -> void;
 

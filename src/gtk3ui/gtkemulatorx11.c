@@ -499,6 +499,13 @@ void gtk_emulator_x11_set_joystick(GtkWidget* widget, int id, const char* device
     }
 }
 
+gboolean gtk_emulator_x11_get_joystick_emulation(GtkWidget* widget)
+{
+    GtkEmulatorX11* self = GTK_EMULATOR_X11(widget);
+
+    return self->keyboard.js_enabled;
+}
+
 void gtk_emulator_x11_set_joystick_emulation(GtkWidget* widget, gboolean enabled)
 {
     GtkEmulatorX11* self = GTK_EMULATOR_X11(widget);

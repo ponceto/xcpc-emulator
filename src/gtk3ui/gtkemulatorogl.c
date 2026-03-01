@@ -488,6 +488,13 @@ void gtk_emulator_ogl_set_joystick(GtkWidget* widget, int id, const char* device
     }
 }
 
+gboolean gtk_emulator_ogl_get_joystick_emulation(GtkWidget* widget)
+{
+    GtkEmulatorOGL* self = GTK_EMULATOR_OGL(widget);
+
+    return self->keyboard.js_enabled;
+}
+
 void gtk_emulator_ogl_set_joystick_emulation(GtkWidget* widget, gboolean enabled)
 {
     GtkEmulatorOGL* self = GTK_EMULATOR_OGL(widget);

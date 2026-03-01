@@ -1594,6 +1594,18 @@ auto InputMenu::build() -> void
     return build_all();
 }
 
+auto InputMenu::set_joystick_emulation(bool enabled)
+{
+    if(enabled == false) {
+        _joystick_emulation_enable.set_sensitive(true);
+        _joystick_emulation_disable.set_sensitive(false);
+    }
+    else {
+        _joystick_emulation_enable.set_sensitive(false);
+        _joystick_emulation_disable.set_sensitive(true);
+    }
+}
+
 }
 
 // ---------------------------------------------------------------------------
@@ -1789,6 +1801,11 @@ auto MenuBar::show_reset() -> void
 auto MenuBar::hide_reset() -> void
 {
     _controls_menu.hide_reset();
+}
+
+auto MenuBar::set_joystick_emulation(bool enabled) -> void
+{
+    _input_menu.set_joystick_emulation(enabled);
 }
 
 }
@@ -2278,6 +2295,50 @@ auto WorkWnd::destroy() -> void
     }
 }
 
+auto WorkWnd::get_emulator() -> gtk3::Widget&
+{
+    if(_emulator_x11 != false) {
+        return _emulator_x11;
+    }
+    if(_emulator_ogl != false) {
+        return _emulator_ogl;
+    }
+    throw std::runtime_error("no valid emulator widget");
+}
+
+auto WorkWnd::get_joystick_emulation() -> bool
+{
+    bool enabled = false;
+
+    if(_emulator_x11 != false) {
+        enabled |= _emulator_x11.get_joystick_emulation();
+    }
+    if(_emulator_ogl != false) {
+        enabled |= _emulator_ogl.get_joystick_emulation();
+    }
+    return enabled;
+}
+
+auto WorkWnd::set_joystick_emulation(bool enabled) -> void
+{
+    if(_emulator_x11 != false) {
+        _emulator_x11.set_joystick_emulation(enabled);
+    }
+    if(_emulator_ogl != false) {
+        _emulator_ogl.set_joystick_emulation(enabled);
+    }
+}
+
+auto WorkWnd::set_joystick(int id, const std::string& device) -> void
+{
+    if(_emulator_x11 != false) {
+        _emulator_x11.set_joystick(id, device);
+    }
+    if(_emulator_ogl != false) {
+        _emulator_ogl.set_joystick(id, device);
+    }
+}
+
 }
 
 // ---------------------------------------------------------------------------
@@ -2349,7 +2410,7 @@ auto AppWindow::build() -> void
     auto play = [&]() -> void
     {
         _application.play_emulator();
-        _work_wnd.emulator().grab_focus();
+        _work_wnd.get_emulator().grab_focus();
     };
 
     auto build_all = [&]() -> void
@@ -3047,6 +3108,7 @@ auto Application::on_video_settings() -> void
 auto Application::set_joystick_emulation(const bool enabled) -> void
 {
     work_wnd().set_joystick_emulation(enabled);
+    update_input();
 }
 
 auto Application::on_joystick_emulation_enable() -> void
@@ -3309,6 +3371,16 @@ auto Application::update_stats() -> void
     return do_update();
 }
 
+auto Application::update_input() -> void
+{
+    auto do_update = [&]() -> void
+    {
+        menu_bar().set_joystick_emulation(work_wnd().get_joystick_emulation());
+    };
+
+    return do_update();
+}
+
 auto Application::update_all() -> void
 {
     update_title();
@@ -3318,6 +3390,7 @@ auto Application::update_all() -> void
     update_system();
     update_volume();
     update_stats();
+    update_input();
 }
 
 }
