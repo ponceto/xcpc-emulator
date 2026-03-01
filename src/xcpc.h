@@ -195,6 +195,10 @@ public: // public interface
     }
 
 public: // public methods
+    virtual auto has_ximage() -> bool = 0;
+
+    virtual auto has_opengl() -> bool = 0;
+
     virtual auto load_snapshot(const std::string& filename) -> void = 0;
 
     virtual auto save_snapshot(const std::string& filename) -> void = 0;

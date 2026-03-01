@@ -241,6 +241,9 @@ auto VideoSettingsDialog::build() -> void
 
     auto build_content_area = [&]() -> void
     {
+        if(_application.has_opengl() == false) {
+            _frame.set_sensitive(false);
+        }
         _dialog.pack_start(_frame, TRUE, TRUE, 0);
     };
 

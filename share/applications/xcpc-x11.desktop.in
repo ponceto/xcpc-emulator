@@ -25,4 +25,4 @@ Icon=@XCPC_DATDIR@/pixmaps/xcpc.png
 Exec=@XCPC_BINDIR@/xcpc --renderer=ximage
 Terminal=false
 MimeType=application/x-amstrad-cpc-snapshot;application/x-amstrad-cpc-disk-image;application/x-amstrad-cpc-gz-disk-image;application/x-amstrad-cpc-bz2-disk-image
-NoDisplay=false
+NoDisplay=true

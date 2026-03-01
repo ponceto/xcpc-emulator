@@ -69,6 +69,101 @@ const char IconTraits::ico_volume_decrease[] = "audio-volume-low-symbolic";
 }
 
 // ---------------------------------------------------------------------------
+// <anonymous>::XImageChecker
+// ---------------------------------------------------------------------------
+
+namespace {
+
+struct XImageChecker
+{
+public: // public interface
+    static auto check() -> bool
+    {
+        static const bool has_ximage = probe();
+
+        return has_ximage;
+    }
+
+private: // private interface
+    static auto probe() -> bool
+    {
+        bool result = true;
+
+        if(result != false) {
+            ::xcpc_log_debug("XImage is available");
+        }
+        else {
+            ::xcpc_log_debug("XImage is not available");
+        }
+        return result;
+    }
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// <anonymous>::OpenGLChecker
+// ---------------------------------------------------------------------------
+
+namespace {
+
+struct OpenGLChecker
+{
+public: // public interface
+    static auto check() -> bool
+    {
+        static const bool has_opengl = probe(3, 3);
+
+        return has_opengl;
+    }
+
+private: // private interface
+    static auto probe(const int req_major, const int req_minor) -> bool
+    {
+        const int req_version = ((req_major * 10) + (req_minor % 10));
+
+        auto check_version = [&](GtkWidget* widget) -> bool
+        {
+            const GError* error = ::gtk_gl_area_get_error(GTK_GL_AREA(widget));
+            if(error == nullptr) {
+                ::gtk_gl_area_make_current(GTK_GL_AREA(widget));
+                if(::epoxy_gl_version() >= req_version) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        auto probe_opengl = [&]() -> bool
+        {
+            bool result = false;
+
+            if(result == false) {
+                GtkWidget* window = ::gtk_window_new(GTK_WINDOW_TOPLEVEL);
+                GtkWidget* widget = ::gtk_gl_area_new();
+                ::gtk_gl_area_set_required_version(GTK_GL_AREA(widget), req_major, req_minor);
+                ::gtk_container_add(GTK_CONTAINER(window), widget);
+                ::gtk_widget_realize(window);
+                ::gtk_widget_realize(widget);
+                result = check_version(widget);
+                ::gtk_widget_destroy(window);
+            }
+            if(result != false) {
+                ::xcpc_log_debug("OpenGL is available");
+            }
+            else {
+                ::xcpc_log_debug("OpenGL is not available");
+            }
+            return result;
+        };
+
+        return probe_opengl();
+    }
+};
+
+}
+
+// ---------------------------------------------------------------------------
 // <anonymous>::Callbacks
 // ---------------------------------------------------------------------------
 
@@ -1283,6 +1378,9 @@ auto VideoMenu::build() -> void
         _renderer_ximage.create_menu_item_with_label(_("XImage"));
         _renderer_ximage.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_ximage), &_application);
         _renderer_menu.append(_renderer_ximage);
+        if(_application.has_ximage() == false) {
+            _renderer_ximage.set_sensitive(false);
+        }
     };
 
     auto build_renderer_opengl = [&]() -> void
@@ -1290,6 +1388,9 @@ auto VideoMenu::build() -> void
         _renderer_opengl.create_menu_item_with_label(_("OpenGL"));
         _renderer_opengl.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_opengl), &_application);
         _renderer_menu.append(_renderer_opengl);
+        if(_application.has_opengl() == false) {
+            _renderer_opengl.set_sensitive(false);
+        }
     };
 
     auto build_crt_emulation = [&]() -> void
@@ -2305,6 +2406,16 @@ auto Application::main() -> int
     return run(_argc, _argv);
 }
 
+auto Application::has_ximage() -> bool
+{
+    return XImageChecker::check();
+}
+
+auto Application::has_opengl() -> bool
+{
+    return OpenGLChecker::check();
+}
+
 auto Application::load_snapshot(const std::string& filename) -> void
 {
     try {
@@ -2570,6 +2681,20 @@ auto Application::on_open(GFile** files, int num_files) -> void
 
 auto Application::on_startup() -> void
 {
+    auto check_ximage = [&]() -> void
+    {
+        if(has_ximage() != false) {
+            _machine->set_renderer_type("ximage");
+        }
+    };
+
+    auto check_opengl = [&]() -> void
+    {
+        if(has_opengl() != false) {
+            _machine->set_renderer_type("opengl");
+        }
+    };
+
     auto create_app_icon = [&](const std::string& datadir, const std::string& directory, const std::string& filename) -> void
     {
         _app_icon.create_from_file(datadir + '/' + directory + '/' + filename);
@@ -2582,6 +2707,8 @@ auto Application::on_startup() -> void
 
     auto do_startup = [&]() -> void
     {
+        check_ximage();
+        check_opengl();
         create_app_icon(Utils::get_datdir(), "pixmaps", "xcpc.png");
         create_main_window();
         start_timer();
@@ -2830,12 +2957,16 @@ auto Application::on_audio_settings() -> void
 
 auto Application::on_renderer_ximage() -> void
 {
-    set_renderer_type("ximage");
+    if(has_ximage() != false) {
+        set_renderer_type("ximage");
+    }
 }
 
 auto Application::on_renderer_opengl() -> void
 {
-    set_renderer_type("opengl");
+    if(has_opengl() != false) {
+        set_renderer_type("opengl");
+    }
 }
 
 auto Application::on_crt_emulation_enable() -> void

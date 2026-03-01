@@ -1005,7 +1005,7 @@ auto Mainboard::set_renderer_type(const std::string& string) -> void
     };
 
     if(renderer_type == XCPC_RENDERER_TYPE_DEFAULT) {
-        renderer_type = XCPC_RENDERER_TYPE_XIMAGE;
+        renderer_type = XCPC_RENDERER_TYPE_OPENGL;
     }
     switch(renderer_type) {
         case XCPC_RENDERER_TYPE_XIMAGE:

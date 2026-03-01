@@ -59,7 +59,9 @@ class SaveSnapshotDialog;
 class CreateDiskDialog;
 class InsertDiskDialog;
 class RemoveDiskDialog;
+class AudioSettingsDialog;
 class VideoSettingsDialog;
+class InputSettingsDialog;
 class HelpDialog;
 class AboutDialog;
 
@@ -836,6 +838,10 @@ public: // public accessors
     }
 
 public: // public methods
+    virtual auto has_ximage() -> bool override final;
+
+    virtual auto has_opengl() -> bool override final;
+
     virtual auto load_snapshot(const std::string& filename) -> void override final;
 
     virtual auto save_snapshot(const std::string& filename) -> void override final;
