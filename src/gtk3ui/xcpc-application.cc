@@ -2223,6 +2223,11 @@ WorkWnd::WorkWnd(Application& application)
 
 auto WorkWnd::build() -> void
 {
+    constexpr bool use_viewport = true;
+    static gchar target[] = "text/uri-list";
+    static const GtkTargetEntry target_entries[] = {
+        { target, 0, 1 },
+    };
     const std::string renderer_type = _application.get_renderer_type();
 
     auto build_self = [&]() -> void
@@ -2234,21 +2239,17 @@ auto WorkWnd::build() -> void
 
     auto build_viewport = [&]() -> void
     {
-#ifdef USE_VIEWPORT
-        if(bool(_viewport) == false) {
-            _viewport.create_viewport();
-            _self.pack_start(_viewport, true, true, 8);
-            _viewport.show();
+        if(use_viewport != false) {
+            if(bool(_viewport) == false) {
+                _viewport.create_viewport();
+                _self.pack_start(_viewport, true, true, 8);
+                _viewport.show();
+            }
         }
-#endif
     };
 
     auto build_emulator_x11 = [&]() -> void
     {
-        static gchar target[] = "text/uri-list";
-        static const GtkTargetEntry target_entries[] = {
-            { target, 0, 1 },
-        };
         if(renderer_type == "ximage") {
             if(bool(_emulator_x11) == false) {
                 _emulator_x11.create_emulator_x11();
@@ -2258,11 +2259,13 @@ auto WorkWnd::build() -> void
                 _emulator_x11.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
                 _emulator_x11.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
                 _emulator_x11.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
-#ifdef USE_VIEWPORT
-                _viewport.add(_emulator_x11);
-#else
-                _self.pack_start(_emulator_x11, true, true, 0);
-#endif
+                _emulator_x11.grab_focus();
+                if(use_viewport != false) {
+                    _viewport.add(_emulator_x11);
+                }
+                else {
+                    _self.pack_start(_emulator_x11, true, true, 0);
+                }
                 _emulator_x11.show();
             }
         }
@@ -2270,10 +2273,6 @@ auto WorkWnd::build() -> void
 
     auto build_emulator_ogl = [&]() -> void
     {
-        static gchar target[] = "text/uri-list";
-        static const GtkTargetEntry target_entries[] = {
-            { target, 0, 1 },
-        };
         if(renderer_type == "opengl") {
             if(bool(_emulator_ogl) == false) {
                 _emulator_ogl.create_emulator_ogl();
@@ -2283,11 +2282,13 @@ auto WorkWnd::build() -> void
                 _emulator_ogl.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
                 _emulator_ogl.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
                 _emulator_ogl.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
-#ifdef USE_VIEWPORT
-                _viewport.add(_emulator_ogl);
-#else
-                _self.pack_start(_emulator_ogl, true, true, 0);
-#endif
+                _emulator_ogl.grab_focus();
+                if(use_viewport != false) {
+                    _viewport.add(_emulator_ogl);
+                }
+                else {
+                    _self.pack_start(_emulator_ogl, true, true, 0);
+                }
                 _emulator_ogl.show();
             }
         }
@@ -2431,7 +2432,6 @@ auto AppWindow::build() -> void
     auto play = [&]() -> void
     {
         _application.play_emulator();
-        _work_wnd.get_emulator().grab_focus();
     };
 
     auto build_all = [&]() -> void

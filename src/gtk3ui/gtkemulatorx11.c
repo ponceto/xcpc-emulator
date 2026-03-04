@@ -42,13 +42,13 @@ static guint emulator_x11_signals[LAST_SIGNAL] = {
     0, /* SIG_HOTKEY */
 };
 
-static gboolean timer_handler(GtkWidget* widget)
+static gboolean timeout_handler(GtkWidget* widget)
 {
     GtkEmulatorX11* self    = GTK_EMULATOR_X11(widget);
     unsigned long   timeout = 0UL;
 
-    /* acknowledge timer */ {
-        self->timer = 0;
+    /* acknowledge timeout */ {
+        self->timeout_id = 0;
     }
     /* call on_clock */ {
         GemBackend* backend = &self->backend;
@@ -56,8 +56,8 @@ static gboolean timer_handler(GtkWidget* widget)
         closure.u.any.x11_event = gem_events_x11_copy_or_fill(widget, &self->events, NULL);
         timeout = (*backend->on_clock)(backend->instance, &closure);
     }
-    /* restart timer */ {
-        self->timer = g_timeout_add(timeout, G_SOURCE_FUNC(&timer_handler), self);
+    /* restart timeout */ {
+        self->timeout_id = g_timeout_add(timeout, G_SOURCE_FUNC(&timeout_handler), self);
     }
     /* process throttled input event */ {
         (void) gem_events_x11_process(widget, &self->events);
@@ -69,8 +69,8 @@ static void schedule(GtkWidget* widget, unsigned long timeout)
 {
     GtkEmulatorX11* self = GTK_EMULATOR_X11(widget);
 
-    if(self->timer == 0) {
-        self->timer = g_timeout_add(timeout, G_SOURCE_FUNC(&timer_handler), self);
+    if(self->timeout_id == 0) {
+        self->timeout_id = g_timeout_add(timeout, G_SOURCE_FUNC(&timeout_handler), self);
     }
 }
 
@@ -78,8 +78,8 @@ static void unschedule(GtkWidget* widget)
 {
     GtkEmulatorX11* self = GTK_EMULATOR_X11(widget);
 
-    if(self->timer != 0) {
-        self->timer = ((void) g_source_remove(self->timer), 0U);
+    if(self->timeout_id != 0) {
+        self->timeout_id = ((void) g_source_remove(self->timeout_id), 0U);
     }
 }
 
@@ -87,7 +87,7 @@ static void impl_widget_destroy(GtkWidget* widget)
 {
     GtkEmulatorX11* self  = GTK_EMULATOR_X11(widget);
 
-    /* unschedule timer */ {
+    /* unschedule timeout */ {
         unschedule(widget);
     }
     /* destruct backend */ {
@@ -160,6 +160,9 @@ static void impl_widget_unrealize(GtkWidget* widget)
 {
     GtkEmulatorX11* self = GTK_EMULATOR_X11(widget);
 
+    /* unschedule timeout */ {
+        unschedule(widget);
+    }
     /* unrealize video */ {
         (void) gem_video_x11_unrealize(widget, &self->video);
     }
@@ -431,8 +434,8 @@ static void gtk_emulator_x11_init(GtkEmulatorX11* self)
         self->natural_width  = EMULATOR_NATURAL_WIDTH;
         self->natural_height = EMULATOR_NATURAL_HEIGHT;
     }
-    /* initialize timer */ {
-        self->timer = 0;
+    /* initialize timeout */ {
+        self->timeout_id = 0;
     }
     /* construct video */ {
         (void) gem_video_x11_construct(widget, &self->video);
@@ -450,7 +453,7 @@ static void gtk_emulator_x11_init(GtkEmulatorX11* self)
     /* construct backend */ {
         (void) gem_backend_x11_construct(widget, &self->backend);
     }
-    /* schedule timer */ {
+    /* schedule timeout */ {
         schedule(widget, 1UL);
     }
 }
@@ -552,6 +555,9 @@ GemVideo* gem_video_x11_realize(GtkWidget* widget, GemVideo* video)
         GemEvent    closure;
         closure.u.any.x11_event = gem_events_x11_copy_or_fill(widget, &self->events, NULL);
         (void) (*backend->on_create_window)(backend->instance, &closure);
+    }
+    /* schedule timeout */ {
+        schedule(widget, 100UL);
     }
     return video;
 }

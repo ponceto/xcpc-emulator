@@ -42,13 +42,13 @@ static guint emulator_ogl_signals[LAST_SIGNAL] = {
     0, /* SIG_HOTKEY */
 };
 
-static gboolean timer_handler(GtkWidget* widget)
+static gboolean timeout_handler(GtkWidget* widget)
 {
     GtkEmulatorOGL* self    = GTK_EMULATOR_OGL(widget);
     unsigned long   timeout = 0UL;
 
-    /* acknowledge timer */ {
-        self->timer = 0;
+    /* acknowledge timeout */ {
+        self->timeout_id = 0;
     }
     /* make GL context current */ {
         gtk_gl_area_make_current(GTK_GL_AREA(widget));
@@ -59,8 +59,8 @@ static gboolean timer_handler(GtkWidget* widget)
         closure.u.any.x11_event = gem_events_ogl_copy_or_fill(widget, &self->events, NULL);
         timeout = (*backend->on_clock)(backend->instance, &closure);
     }
-    /* restart timer */ {
-        self->timer = g_timeout_add(timeout, G_SOURCE_FUNC(&timer_handler), self);
+    /* restart timeout */ {
+        self->timeout_id = g_timeout_add(timeout, G_SOURCE_FUNC(&timeout_handler), self);
     }
     /* process throttled input event */ {
         (void) gem_events_ogl_process(widget, &self->events);
@@ -77,8 +77,8 @@ static void schedule(GtkWidget* widget, unsigned long timeout)
 {
     GtkEmulatorOGL* self = GTK_EMULATOR_OGL(widget);
 
-    if(self->timer == 0) {
-        self->timer = g_timeout_add(timeout, G_SOURCE_FUNC(&timer_handler), self);
+    if(self->timeout_id == 0) {
+        self->timeout_id = g_timeout_add(timeout, G_SOURCE_FUNC(&timeout_handler), self);
     }
 }
 
@@ -86,8 +86,8 @@ static void unschedule(GtkWidget* widget)
 {
     GtkEmulatorOGL* self = GTK_EMULATOR_OGL(widget);
 
-    if(self->timer != 0) {
-        self->timer = ((void) g_source_remove(self->timer), 0U);
+    if(self->timeout_id != 0) {
+        self->timeout_id = ((void) g_source_remove(self->timeout_id), 0U);
     }
 }
 
@@ -95,7 +95,7 @@ static void impl_widget_destroy(GtkWidget* widget)
 {
     GtkEmulatorOGL* self  = GTK_EMULATOR_OGL(widget);
 
-    /* unschedule timer */ {
+    /* unschedule timeout */ {
         unschedule(widget);
     }
     /* destruct backend */ {
@@ -138,6 +138,9 @@ static void impl_widget_unrealize(GtkWidget* widget)
 {
     GtkEmulatorOGL* self = GTK_EMULATOR_OGL(widget);
 
+    /* unschedule timeout */ {
+        unschedule(widget);
+    }
     /* make GL context current */ {
         gtk_gl_area_make_current(GTK_GL_AREA(widget));
     }
@@ -147,6 +150,11 @@ static void impl_widget_unrealize(GtkWidget* widget)
     /* call superclass method */ {
         GTK_WIDGET_CLASS(gtk_emulator_ogl_parent_class)->unrealize(widget);
     }
+}
+
+static gboolean impl_widget_draw(GtkWidget* widget, cairo_t* cr)
+{
+    return TRUE;
 }
 
 static gboolean impl_gl_area_render(GtkGLArea* area, GdkGLContext* context)
@@ -364,6 +372,7 @@ static void gtk_emulator_ogl_class_init(GtkEmulatorOGLClass* emulator_class)
         widget_class->destroy              = &impl_widget_destroy;
         widget_class->realize              = &impl_widget_realize;
         widget_class->unrealize            = &impl_widget_unrealize;
+        widget_class->draw                 = &impl_widget_draw;
         widget_class->draw                 = GTK_WIDGET_CLASS(gtk_emulator_ogl_parent_class)->draw;
         widget_class->get_preferred_width  = &impl_widget_get_preferred_width;
         widget_class->get_preferred_height = &impl_widget_get_preferred_height;
@@ -407,6 +416,7 @@ static void gtk_emulator_ogl_init(GtkEmulatorOGL* self)
         gtk_widget_add_events(widget, GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
     }
     /* initialize gl area */ {
+        gtk_gl_area_set_auto_render(GTK_GL_AREA(widget), FALSE);
         gtk_gl_area_set_has_alpha(GTK_GL_AREA(widget), FALSE);
         gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(widget), FALSE);
         gtk_gl_area_set_has_stencil_buffer(GTK_GL_AREA(widget), FALSE);
@@ -417,8 +427,8 @@ static void gtk_emulator_ogl_init(GtkEmulatorOGL* self)
         self->natural_width  = EMULATOR_NATURAL_WIDTH;
         self->natural_height = EMULATOR_NATURAL_HEIGHT;
     }
-    /* initialize timer */ {
-        self->timer = 0;
+    /* initialize timeout */ {
+        self->timeout_id = 0;
     }
     /* construct video */ {
         (void) gem_video_ogl_construct(widget, &self->video);
@@ -435,9 +445,6 @@ static void gtk_emulator_ogl_init(GtkEmulatorOGL* self)
     }
     /* construct backend */ {
         (void) gem_backend_ogl_construct(widget, &self->backend);
-    }
-    /* schedule timer */ {
-        schedule(widget, 1UL);
     }
 }
 
@@ -534,13 +541,16 @@ GemVideo* gem_video_ogl_realize(GtkWidget* widget, GemVideo* video)
 
     if(video->display == NULL) {
         video->display = GDK_DISPLAY_XDISPLAY(gdk_display);
-        video->window  = GDK_WINDOW_XID(gdk_window);
+        video->window  = None;
     }
     if(video->display != NULL) {
         GemBackend* backend = &self->backend;
         GemEvent    closure;
         closure.u.any.x11_event = gem_events_ogl_copy_or_fill(widget, &self->events, NULL);
         (void) (*backend->on_create_window)(backend->instance, &closure);
+    }
+    /* schedule timeout */ {
+        schedule(widget, 100UL);
     }
     return video;
 }

@@ -44,7 +44,7 @@ struct _GtkEmulatorOGL
     guint       minimum_height;
     guint       natural_width;
     guint       natural_height;
-    guint       timer;
+    guint       timeout_id;
 };
 
 struct _GtkEmulatorOGLClass
