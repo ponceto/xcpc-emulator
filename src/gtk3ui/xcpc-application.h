@@ -869,9 +869,9 @@ public: // public methods
 
     virtual auto set_crt_emulation(const bool crt_emulation) -> void override final;
 
-    virtual auto set_machine_type(const std::string& machine_type) -> void override final;
-
     virtual auto set_company_name(const std::string& company_name) -> void override final;
+
+    virtual auto set_machine_type(const std::string& machine_type) -> void override final;
 
     virtual auto set_monitor_type(const std::string& monitor_type) -> void override final;
 

@@ -2680,22 +2680,23 @@ auto Application::remove_disk_from_drive1() -> void
 
 auto Application::set_volume(const float volume) -> void
 {
-    try {
-        _machine->set_parameterf("audio.volume", volume);
-    }
-    catch(const std::exception& e) {
-        ::xcpc_log_error("increase-volume has failed (%s)", e.what());
-    }
+    set_parameterf("audio.volume", volume);
     update_all();
 }
 
 auto Application::set_crt_emulation(const bool crt_emulation) -> void
 {
+    set_parameterb("video.crt_emulation", crt_emulation);
+    update_all();
+}
+
+auto Application::set_company_name(const std::string& company_name) -> void
+{
     try {
-        _machine->set_parameterb("video.crt_emulation", crt_emulation);
+        _machine->set_company_name(company_name);
     }
     catch(const std::exception& e) {
-        ::xcpc_log_error("set-crt_emulation has failed (%s)", e.what());
+        ::xcpc_log_error("set-company-name has failed (%s)", e.what());
     }
     update_all();
 }
@@ -2707,17 +2708,6 @@ auto Application::set_machine_type(const std::string& machine_type) -> void
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-machine-type has failed (%s)", e.what());
-    }
-    update_all();
-}
-
-auto Application::set_company_name(const std::string& company_name) -> void
-{
-    try {
-        _machine->set_company_name(company_name);
-    }
-    catch(const std::exception& e) {
-        ::xcpc_log_error("set-company-name has failed (%s)", e.what());
     }
     update_all();
 }
@@ -2840,12 +2830,32 @@ auto Application::on_startup() -> void
         _app_window.build();
     };
 
+    auto apply_settings = [&]() -> void
+    {
+        if(_globals.video.renderer != "default") {
+            set_renderer_type(_globals.video.renderer);
+        }
+        set_crt_emulation(_globals.video.crt_emulation);
+        set_parameterf("video.ogl.u_hsampling" , _globals.video.u_hsampling );
+        set_parameterf("video.ogl.u_vsampling" , _globals.video.u_vsampling );
+        set_parameterf("video.ogl.u_curvature" , _globals.video.u_curvature );
+        set_parameterf("video.ogl.u_corner"    , _globals.video.u_corner    );
+        set_parameterf("video.ogl.u_dotline"   , _globals.video.u_dotline   );
+        set_parameterf("video.ogl.u_dotmask"   , _globals.video.u_dotmask   );
+        set_parameterf("video.ogl.u_vignetting", _globals.video.u_vignetting);
+        set_parameterf("video.ogl.u_brightness", _globals.video.u_brightness);
+        set_volume(_globals.audio.volume);
+        set_joystick_emulation(_globals.input.joystick_emulation);
+    };
+
     auto do_startup = [&]() -> void
     {
+        load_settings();
         check_ximage();
         check_opengl();
         create_app_icon(Utils::get_datdir(), "pixmaps", "xcpc.png");
         create_main_window();
+        apply_settings();
         start_timer();
     };
 
@@ -2866,6 +2876,7 @@ auto Application::on_shutdown() -> void
 
     auto do_shutdown = [&]() -> void
     {
+        save_settings();
         destroy_main_window();
         destroy_app_icon();
     };
@@ -3061,18 +3072,18 @@ auto Application::on_drive1_disk_remove() -> void
 
 auto Application::on_volume_increase() -> void
 {
-    if((_audio_settings.volume += 0.05f) > 1.0f) {
-        _audio_settings.volume = 1.0f;
+    if((_globals.audio.volume += 0.05f) > 1.0f) {
+        _globals.audio.volume = 1.0f;
     }
-    set_volume(_audio_settings.volume);
+    set_volume(_globals.audio.volume);
 }
 
 auto Application::on_volume_decrease() -> void
 {
-    if((_audio_settings.volume -= 0.05f) < 0.0f) {
-        _audio_settings.volume = 0.0f;
+    if((_globals.audio.volume -= 0.05f) < 0.0f) {
+        _globals.audio.volume = 0.0f;
     }
-    set_volume(_audio_settings.volume);
+    set_volume(_globals.audio.volume);
 }
 
 auto Application::on_audio_settings() -> void
@@ -3082,7 +3093,7 @@ auto Application::on_audio_settings() -> void
     run_dialog(dialog);
 
     try {
-        set_volume(_audio_settings.volume);
+        set_volume(_globals.audio.volume);
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-audio-parameters has failed (%s)", e.what());
@@ -3094,6 +3105,7 @@ auto Application::on_renderer_ximage() -> void
 {
     if(has_ximage() != false) {
         set_renderer_type("ximage");
+        _globals.video.renderer = "ximage";
     }
 }
 
@@ -3101,17 +3113,20 @@ auto Application::on_renderer_opengl() -> void
 {
     if(has_opengl() != false) {
         set_renderer_type("opengl");
+        _globals.video.renderer = "opengl";
     }
 }
 
 auto Application::on_crt_emulation_enable() -> void
 {
     set_crt_emulation(true);
+    _globals.video.crt_emulation = true;
 }
 
 auto Application::on_crt_emulation_disable() -> void
 {
     set_crt_emulation(false);
+    _globals.video.crt_emulation = false;
 }
 
 auto Application::on_video_settings() -> void
@@ -3120,19 +3135,14 @@ auto Application::on_video_settings() -> void
 
     run_dialog(dialog);
 
-    try {
-        _machine->set_parameterf("video.ogl.u_hsampling" , _video_settings.u_hsampling );
-        _machine->set_parameterf("video.ogl.u_vsampling" , _video_settings.u_vsampling );
-        _machine->set_parameterf("video.ogl.u_curvature" , _video_settings.u_curvature );
-        _machine->set_parameterf("video.ogl.u_corner"    , _video_settings.u_corner    );
-        _machine->set_parameterf("video.ogl.u_dotline"   , _video_settings.u_dotline   );
-        _machine->set_parameterf("video.ogl.u_dotmask"   , _video_settings.u_dotmask   );
-        _machine->set_parameterf("video.ogl.u_vignetting", _video_settings.u_vignetting);
-        _machine->set_parameterf("video.ogl.u_brightness", _video_settings.u_brightness);
-    }
-    catch(const std::exception& e) {
-        ::xcpc_log_error("set-video-parameters has failed (%s)", e.what());
-    }
+    set_parameterf("video.ogl.u_hsampling" , _globals.video.u_hsampling );
+    set_parameterf("video.ogl.u_vsampling" , _globals.video.u_vsampling );
+    set_parameterf("video.ogl.u_curvature" , _globals.video.u_curvature );
+    set_parameterf("video.ogl.u_corner"    , _globals.video.u_corner    );
+    set_parameterf("video.ogl.u_dotline"   , _globals.video.u_dotline   );
+    set_parameterf("video.ogl.u_dotmask"   , _globals.video.u_dotmask   );
+    set_parameterf("video.ogl.u_vignetting", _globals.video.u_vignetting);
+    set_parameterf("video.ogl.u_brightness", _globals.video.u_brightness);
     update_all();
 }
 
@@ -3145,11 +3155,13 @@ auto Application::set_joystick_emulation(const bool enabled) -> void
 auto Application::on_joystick_emulation_enable() -> void
 {
     set_joystick_emulation(true);
+    _globals.input.joystick_emulation = true;
 }
 
 auto Application::on_joystick_emulation_disable() -> void
 {
     set_joystick_emulation(false);
+    _globals.input.joystick_emulation = false;
 }
 
 auto Application::on_joystick0_connect() -> void

@@ -19,6 +19,7 @@
 
 #include <xcpc/libxcpc-cxx.h>
 #include <xcpc/amstrad/cpc/cpc-machine.h>
+#include "xcpc-settings.h"
 
 // ---------------------------------------------------------------------------
 // TranslationTraits
@@ -96,14 +97,16 @@ namespace base {
 
 struct VideoSettings
 {
-    float u_hsampling  = 0.75f;
-    float u_vsampling  = 0.25f;
-    float u_curvature  = 0.10f;
-    float u_corner     = 0.15f;
-    float u_dotline    = 0.30f;
-    float u_dotmask    = 0.10f;
-    float u_vignetting = 1.00f;
-    float u_brightness = 1.30f;
+    std::string renderer      = "default";
+    bool        crt_emulation = true;
+    float       u_hsampling   = 0.75f;
+    float       u_vsampling   = 0.25f;
+    float       u_curvature   = 0.10f;
+    float       u_corner      = 0.15f;
+    float       u_dotline     = 0.30f;
+    float       u_dotmask     = 0.10f;
+    float       u_vignetting  = 1.00f;
+    float       u_brightness  = 1.30f;
 };
 
 }
@@ -116,6 +119,22 @@ namespace base {
 
 struct InputSettings
 {
+    bool joystick_emulation = false;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::GlobalSettings
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+struct GlobalSettings
+{
+    AudioSettings audio;
+    VideoSettings video;
+    InputSettings input;
 };
 
 }
@@ -176,22 +195,32 @@ public: // public interface
 
     auto audio_settings() -> AudioSettings&
     {
-        return _audio_settings;
+        return _globals.audio;
     }
 
     auto audio_settings() const -> const AudioSettings&
     {
-        return _audio_settings;
+        return _globals.audio;
     }
 
     auto video_settings() -> VideoSettings&
     {
-        return _video_settings;
+        return _globals.video;
     }
 
     auto video_settings() const -> const VideoSettings&
     {
-        return _video_settings;
+        return _globals.video;
+    }
+
+    auto input_settings() -> InputSettings&
+    {
+        return _globals.input;
+    }
+
+    auto input_settings() const -> const InputSettings&
+    {
+        return _globals.input;
     }
 
 public: // public methods
@@ -227,9 +256,9 @@ public: // public methods
 
     virtual auto set_crt_emulation(const bool crt_emulation) -> void = 0;
 
-    virtual auto set_machine_type(const std::string& machine_type) -> void = 0;
-
     virtual auto set_company_name(const std::string& company_name) -> void = 0;
+
+    virtual auto set_machine_type(const std::string& machine_type) -> void = 0;
 
     virtual auto set_monitor_type(const std::string& monitor_type) -> void = 0;
 
@@ -386,14 +415,22 @@ protected: // protected interface
 
     virtual auto run_dialog(Dialog&) -> void;
 
+    auto load_settings() -> void;
+
+    auto save_settings() -> void;
+
+    auto set_parameterb(const std::string& parameter, bool value) -> void;
+
+    auto set_parameteri(const std::string& parameter, int value) -> void;
+
+    auto set_parameterf(const std::string& parameter, float value) -> void;
+
 protected: // protected data
     int&              _argc;
     char**&           _argv;
     const SettingsPtr _settings;
     const MachinePtr  _machine;
-    AudioSettings     _audio_settings;
-    VideoSettings     _video_settings;
-    InputSettings     _input_settings;
+    GlobalSettings    _globals;
 };
 
 }

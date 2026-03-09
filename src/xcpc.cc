@@ -103,8 +103,7 @@ Application::Application(int& argc, char**& argv)
     , _argv(argv)
     , _settings(new cpc::Settings(argc, argv))
     , _machine(new cpc::Machine(*_settings))
-    , _audio_settings()
-    , _video_settings()
+    , _globals()
 {
 }
 
@@ -113,6 +112,140 @@ auto Application::run_dialog(Dialog& dialog) -> void
     const ScopedPause pause(*this);
 
     return dialog.run();
+}
+
+auto Application::load_settings() -> void
+{
+    auto load_audio_settings = [&](SettingsFile& settings_file) -> void
+    {
+        const auto& audio(settings_file.table("audio"));
+
+        _globals.audio.volume = audio.entry("volume").get_double(_globals.audio.volume);
+    };
+
+    auto load_video_settings = [&](SettingsFile& settings_file) -> void
+    {
+        const auto& video(settings_file.table("video"));
+
+        _globals.video.renderer      = video.entry("renderer"     ).get_string(_globals.video.renderer     );
+        _globals.video.crt_emulation = video.entry("crt_emulation").get_bool  (_globals.video.crt_emulation);
+        _globals.video.u_hsampling   = video.entry("u_hsampling"  ).get_double(_globals.video.u_hsampling  );
+        _globals.video.u_vsampling   = video.entry("u_vsampling"  ).get_double(_globals.video.u_vsampling  );
+        _globals.video.u_curvature   = video.entry("u_curvature"  ).get_double(_globals.video.u_curvature  );
+        _globals.video.u_corner      = video.entry("u_corner"     ).get_double(_globals.video.u_corner     );
+        _globals.video.u_dotline     = video.entry("u_dotline"    ).get_double(_globals.video.u_dotline    );
+        _globals.video.u_dotmask     = video.entry("u_dotmask"    ).get_double(_globals.video.u_dotmask    );
+        _globals.video.u_vignetting  = video.entry("u_vignetting" ).get_double(_globals.video.u_vignetting );
+        _globals.video.u_brightness  = video.entry("u_brightness" ).get_double(_globals.video.u_brightness );
+    };
+
+    auto load_input_settings = [&](SettingsFile& settings_file) -> void
+    {
+        const auto& input = settings_file.table("input");
+
+        _globals.input.joystick_emulation = input.entry("joystick_emulation" ).get_bool(_globals.input.joystick_emulation);
+    };
+
+    auto load_all = [&]() -> void
+    {
+        try {
+            SettingsFile settings_file("xcpc.conf");
+            settings_file.load();
+            load_audio_settings(settings_file);
+            load_video_settings(settings_file);
+            load_input_settings(settings_file);
+        }
+        catch(const std::exception& e) {
+            ::xcpc_log_alert("load_settings() has failed (%s)", e.what());
+        }
+    };
+
+    return load_all();
+}
+
+auto Application::save_settings() -> void
+{
+    auto save_audio_settings = [&](SettingsFile& settings_file) -> void
+    {
+        auto& audio(settings_file.table("audio"));
+
+        audio.entry("volume").set_double(_globals.audio.volume);
+    };
+
+    auto save_video_settings = [&](SettingsFile& settings_file) -> void
+    {
+        auto& video(settings_file.table("video"));
+
+        video.entry("renderer"     ).set_string(_globals.video.renderer     );
+        video.entry("crt_emulation").set_bool  (_globals.video.crt_emulation);
+        video.entry("u_hsampling"  ).set_double(_globals.video.u_hsampling  );
+        video.entry("u_vsampling"  ).set_double(_globals.video.u_vsampling  );
+        video.entry("u_curvature"  ).set_double(_globals.video.u_curvature  );
+        video.entry("u_corner"     ).set_double(_globals.video.u_corner     );
+        video.entry("u_dotline"    ).set_double(_globals.video.u_dotline    );
+        video.entry("u_dotmask"    ).set_double(_globals.video.u_dotmask    );
+        video.entry("u_vignetting" ).set_double(_globals.video.u_vignetting );
+        video.entry("u_brightness" ).set_double(_globals.video.u_brightness );
+    };
+
+    auto save_input_settings = [&](SettingsFile& settings_file) -> void
+    {
+        auto& input = settings_file.table("input");
+
+        input.entry("joystick_emulation").set_bool(_globals.input.joystick_emulation);
+    };
+
+    auto save_all = [&]() -> void
+    {
+        try {
+            SettingsFile settings_file("xcpc.conf");
+            save_audio_settings(settings_file);
+            save_video_settings(settings_file);
+            save_input_settings(settings_file);
+            settings_file.save();
+        }
+        catch(const std::exception& e) {
+            ::xcpc_log_alert("save_settings() has failed (%s)", e.what());
+        }
+    };
+
+    return save_all();
+}
+
+auto Application::set_parameterb(const std::string& parameter, bool value) -> void
+{
+    try {
+        if(bool(_machine) != false) {
+            _machine->set_parameterb(parameter, value);
+        }
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_alert("set_parameterb() has failed (%s)", e.what());
+    }
+}
+
+auto Application::set_parameteri(const std::string& parameter, int value) -> void
+{
+    try {
+        if(bool(_machine) != false) {
+            _machine->set_parameteri(parameter, value);
+        }
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_alert("set_parameteri() has failed (%s)", e.what());
+    }
+}
+
+auto Application::set_parameterf(const std::string& parameter, float value) -> void
+{
+    try {
+        if(bool(_machine) != false) {
+            _machine->set_parameterf(parameter, value);
+        }
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_alert("set_parameterf() has failed (%s)", e.what());
+    }
 }
 
 }

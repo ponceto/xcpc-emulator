@@ -58,6 +58,8 @@ bin_PROGRAMS = \
 xcpc_SOURCES = \
 	xcpc.cc \
 	xcpc.h \
+	xcpc-settings.cc \
+	xcpc-settings.h \
 	$(NULL)
 
 xcpc_CPPFLAGS = \
