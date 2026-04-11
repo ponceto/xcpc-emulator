@@ -73,10 +73,13 @@ static gboolean timeout_handler(GtkWidget* widget)
     return G_SOURCE_REMOVE;
 }
 
-static void schedule(GtkWidget* widget, unsigned long timeout)
+static void reschedule(GtkWidget* widget, unsigned long timeout)
 {
     GtkEmulatorOGL* self = GTK_EMULATOR_OGL(widget);
 
+    if(self->timeout_id != 0) {
+        self->timeout_id = ((void) g_source_remove(self->timeout_id), 0U);
+    }
     if(self->timeout_id == 0) {
         self->timeout_id = g_timeout_add(timeout, G_SOURCE_FUNC(&timeout_handler), self);
     }
@@ -238,6 +241,9 @@ static void impl_widget_size_allocate(GtkWidget* widget, GtkAllocation* allocati
     }
     /* dispatch event */ {
         (void) gem_events_ogl_dispatch(widget, &self->events, gem_events_ogl_copy_or_fill(widget, &self->events, &x11_event));
+    }
+    /* postpone timeout to avoid rendering issue during resize transition */ {
+        reschedule(widget, EMULATOR_DEFAULT_TIMEOUT);
     }
 }
 
@@ -550,7 +556,7 @@ GemVideo* gem_video_ogl_realize(GtkWidget* widget, GemVideo* video)
         (void) (*backend->on_create_window)(backend->instance, &closure);
     }
     /* schedule timeout */ {
-        schedule(widget, 100UL);
+        reschedule(widget, EMULATOR_DEFAULT_TIMEOUT);
     }
     return video;
 }

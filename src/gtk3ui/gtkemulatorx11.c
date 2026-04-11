@@ -65,10 +65,13 @@ static gboolean timeout_handler(GtkWidget* widget)
     return G_SOURCE_REMOVE;
 }
 
-static void schedule(GtkWidget* widget, unsigned long timeout)
+static void reschedule(GtkWidget* widget, unsigned long timeout)
 {
     GtkEmulatorX11* self = GTK_EMULATOR_X11(widget);
 
+    if(self->timeout_id != 0) {
+        self->timeout_id = ((void) g_source_remove(self->timeout_id), 0U);
+    }
     if(self->timeout_id == 0) {
         self->timeout_id = g_timeout_add(timeout, G_SOURCE_FUNC(&timeout_handler), self);
     }
@@ -257,6 +260,9 @@ static void impl_widget_size_allocate(GtkWidget* widget, GtkAllocation* allocati
     }
     /* dispatch event */ {
         (void) gem_events_x11_dispatch(widget, &self->events, gem_events_x11_copy_or_fill(widget, &self->events, &x11_event));
+    }
+    /* postpone timeout to avoid rendering issue during resize transition */ {
+        reschedule(widget, EMULATOR_DEFAULT_TIMEOUT);
     }
 }
 
@@ -453,9 +459,6 @@ static void gtk_emulator_x11_init(GtkEmulatorX11* self)
     /* construct backend */ {
         (void) gem_backend_x11_construct(widget, &self->backend);
     }
-    /* schedule timeout */ {
-        schedule(widget, 1UL);
-    }
 }
 
 GtkWidget* gtk_emulator_x11_new(void)
@@ -557,7 +560,7 @@ GemVideo* gem_video_x11_realize(GtkWidget* widget, GemVideo* video)
         (void) (*backend->on_create_window)(backend->instance, &closure);
     }
     /* schedule timeout */ {
-        schedule(widget, 100UL);
+        reschedule(widget, EMULATOR_DEFAULT_TIMEOUT);
     }
     return video;
 }
