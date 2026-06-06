@@ -2832,10 +2832,6 @@ auto Application::on_startup() -> void
 
     auto apply_settings = [&]() -> void
     {
-        if(_globals.video.renderer != "default") {
-            set_renderer_type(_globals.video.renderer);
-        }
-        set_crt_emulation(_globals.video.crt_emulation);
         set_parameterf("video.ogl.u_hsampling" , _globals.video.u_hsampling );
         set_parameterf("video.ogl.u_vsampling" , _globals.video.u_vsampling );
         set_parameterf("video.ogl.u_curvature" , _globals.video.u_curvature );
@@ -2850,7 +2846,6 @@ auto Application::on_startup() -> void
 
     auto do_startup = [&]() -> void
     {
-        load_settings();
         check_ximage();
         check_opengl();
         create_app_icon(Utils::get_datdir(), "pixmaps", "xcpc.png");

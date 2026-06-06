@@ -93,6 +93,80 @@ auto Environ::setenv(const std::string& variable, const std::string& value) -> v
 }
 
 // ---------------------------------------------------------------------------
+// <anonymous>::SettingsTraits
+// ---------------------------------------------------------------------------
+
+namespace {
+
+struct SettingsTraits
+{
+    static auto load_globals_from_ini() -> base::GlobalSettings
+    {
+        base::GlobalSettings globals;
+
+        auto load_audio_settings = [&](base::SettingsFile& settings_file) -> void
+        {
+            const auto& audio(settings_file.table("audio"));
+
+            globals.audio.volume = audio.entry("volume").get_double(globals.audio.volume);
+        };
+
+        auto load_video_settings = [&](base::SettingsFile& settings_file) -> void
+        {
+            const auto& video(settings_file.table("video"));
+
+            globals.video.renderer      = video.entry("renderer"     ).get_string(globals.video.renderer     );
+            globals.video.crt_emulation = video.entry("crt_emulation").get_bool  (globals.video.crt_emulation);
+            globals.video.u_hsampling   = video.entry("u_hsampling"  ).get_double(globals.video.u_hsampling  );
+            globals.video.u_vsampling   = video.entry("u_vsampling"  ).get_double(globals.video.u_vsampling  );
+            globals.video.u_curvature   = video.entry("u_curvature"  ).get_double(globals.video.u_curvature  );
+            globals.video.u_corner      = video.entry("u_corner"     ).get_double(globals.video.u_corner     );
+            globals.video.u_dotline     = video.entry("u_dotline"    ).get_double(globals.video.u_dotline    );
+            globals.video.u_dotmask     = video.entry("u_dotmask"    ).get_double(globals.video.u_dotmask    );
+            globals.video.u_vignetting  = video.entry("u_vignetting" ).get_double(globals.video.u_vignetting );
+            globals.video.u_brightness  = video.entry("u_brightness" ).get_double(globals.video.u_brightness );
+        };
+
+        auto load_input_settings = [&](base::SettingsFile& settings_file) -> void
+        {
+            const auto& input = settings_file.table("input");
+
+            globals.input.joystick_emulation = input.entry("joystick_emulation").get_bool(globals.input.joystick_emulation);
+        };
+
+        try {
+            base::SettingsFile settings_file("xcpc.conf");
+            settings_file.load();
+            load_audio_settings(settings_file);
+            load_video_settings(settings_file);
+            load_input_settings(settings_file);
+        }
+        catch(const std::exception& e) {
+            ::xcpc_log_alert("load_settings() has failed (%s)", e.what());
+        }
+        return globals;
+    }
+
+    static auto make_settings(const base::GlobalSettings& globals, int& argc, char**& argv) -> cpc::Settings*
+    {
+        std::unique_ptr<cpc::Settings> settings(new cpc::Settings());
+
+        /* seed cli defaults from ini values */ {
+            if(globals.video.renderer != "default") {
+                settings->opt_renderer = globals.video.renderer;
+            }
+            settings->opt_crt_emulation = globals.video.crt_emulation;
+        }
+        /* parse cli, overriding any seeded defaults */ {
+            settings->parse(argc, argv);
+        }
+        return settings.release();
+    }
+};
+
+}
+
+// ---------------------------------------------------------------------------
 // base::Application
 // ---------------------------------------------------------------------------
 
@@ -101,9 +175,9 @@ namespace base {
 Application::Application(int& argc, char**& argv)
     : _argc(argc)
     , _argv(argv)
-    , _settings(new cpc::Settings(argc, argv))
+    , _globals(SettingsTraits::load_globals_from_ini())
+    , _settings(SettingsTraits::make_settings(_globals, argc, argv))
     , _machine(new cpc::Machine(*_settings))
-    , _globals()
 {
 }
 
@@ -116,51 +190,7 @@ auto Application::run_dialog(Dialog& dialog) -> void
 
 auto Application::load_settings() -> void
 {
-    auto load_audio_settings = [&](SettingsFile& settings_file) -> void
-    {
-        const auto& audio(settings_file.table("audio"));
-
-        _globals.audio.volume = audio.entry("volume").get_double(_globals.audio.volume);
-    };
-
-    auto load_video_settings = [&](SettingsFile& settings_file) -> void
-    {
-        const auto& video(settings_file.table("video"));
-
-        _globals.video.renderer      = video.entry("renderer"     ).get_string(_globals.video.renderer     );
-        _globals.video.crt_emulation = video.entry("crt_emulation").get_bool  (_globals.video.crt_emulation);
-        _globals.video.u_hsampling   = video.entry("u_hsampling"  ).get_double(_globals.video.u_hsampling  );
-        _globals.video.u_vsampling   = video.entry("u_vsampling"  ).get_double(_globals.video.u_vsampling  );
-        _globals.video.u_curvature   = video.entry("u_curvature"  ).get_double(_globals.video.u_curvature  );
-        _globals.video.u_corner      = video.entry("u_corner"     ).get_double(_globals.video.u_corner     );
-        _globals.video.u_dotline     = video.entry("u_dotline"    ).get_double(_globals.video.u_dotline    );
-        _globals.video.u_dotmask     = video.entry("u_dotmask"    ).get_double(_globals.video.u_dotmask    );
-        _globals.video.u_vignetting  = video.entry("u_vignetting" ).get_double(_globals.video.u_vignetting );
-        _globals.video.u_brightness  = video.entry("u_brightness" ).get_double(_globals.video.u_brightness );
-    };
-
-    auto load_input_settings = [&](SettingsFile& settings_file) -> void
-    {
-        const auto& input = settings_file.table("input");
-
-        _globals.input.joystick_emulation = input.entry("joystick_emulation" ).get_bool(_globals.input.joystick_emulation);
-    };
-
-    auto load_all = [&]() -> void
-    {
-        try {
-            SettingsFile settings_file("xcpc.conf");
-            settings_file.load();
-            load_audio_settings(settings_file);
-            load_video_settings(settings_file);
-            load_input_settings(settings_file);
-        }
-        catch(const std::exception& e) {
-            ::xcpc_log_alert("load_settings() has failed (%s)", e.what());
-        }
-    };
-
-    return load_all();
+    _globals = SettingsTraits::load_globals_from_ini();
 }
 
 auto Application::save_settings() -> void

@@ -428,9 +428,9 @@ protected: // protected interface
 protected: // protected data
     int&              _argc;
     char**&           _argv;
+    GlobalSettings    _globals;
     const SettingsPtr _settings;
     const MachinePtr  _machine;
-    GlobalSettings    _globals;
 };
 
 }
