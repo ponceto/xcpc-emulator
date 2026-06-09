@@ -3696,6 +3696,26 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
         audio_frame.right = ((right / 1.5f) * _audio.volume);
     };
 
+    auto mix_surround40 = [&](Surround40FrameFlt32& audio_frame) -> void
+    {
+        const auto index = _audio.rd_index;
+
+        const float left  = (_audio.channel0[index] * 0.75f)
+                          + (_audio.channel1[index] * 0.50f)
+                          + (_audio.channel2[index] * 0.25f)
+                          ;
+
+        const float right = (_audio.channel0[index] * 0.25f)
+                          + (_audio.channel1[index] * 0.50f)
+                          + (_audio.channel2[index] * 0.75f)
+                          ;
+
+        audio_frame.front_left  = ((left  / 1.5f) * _audio.volume);
+        audio_frame.front_right = ((right / 1.5f) * _audio.volume);
+        audio_frame.back_left   = ((left  / 1.5f) * _audio.volume);
+        audio_frame.back_right  = ((right / 1.5f) * _audio.volume);
+    };
+
     auto render_mono = [&]() -> void
     {
         for(uint32_t index = 0; index < count; ++index) {
@@ -3722,6 +3742,19 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
         }
     };
 
+    auto render_surround40 = [&]() -> void
+    {
+        for(uint32_t index = 0; index < count; ++index) {
+            if(_audio.rd_index != _audio.wr_index) {
+                mix_surround40(reinterpret_cast<Surround40FrameFlt32*>(output)[index]);
+                _audio.rd_index = ((_audio.rd_index + 1) % SND_BUFSIZE);
+            }
+            else {
+                break;
+            }
+        }
+    };
+
     auto render = [&]() -> void
     {
         switch(_device->playback.channels) {
@@ -3730,6 +3763,9 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
                 break;
             case 2:
                 render_stereo();
+                break;
+            case 4:
+                render_surround40();
                 break;
             default:
                 break;

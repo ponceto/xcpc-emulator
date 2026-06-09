@@ -342,6 +342,31 @@ static_assert(sizeof(StereoFrameFlt32) == 8, "StereoFrameFlt32 has a bad size");
 }
 
 // ---------------------------------------------------------------------------
+// xcpc::Surround40Frame<T>
+// ---------------------------------------------------------------------------
+
+namespace xcpc {
+
+template <typename T>
+struct Surround40Frame
+{
+    T front_left;
+    T front_right;
+    T back_left;
+    T back_right;
+};
+
+using Surround40FrameInt16 = Surround40Frame<int16_t>;
+using Surround40FrameInt32 = Surround40Frame<int32_t>;
+using Surround40FrameFlt32 = Surround40Frame<float>;
+
+static_assert(sizeof(Surround40FrameInt16) ==  8, "Surround40FrameInt16 has a bad size");
+static_assert(sizeof(Surround40FrameInt32) == 16, "Surround40FrameInt32 has a bad size");
+static_assert(sizeof(Surround40FrameFlt32) == 16, "Surround40FrameFlt32 has a bad size");
+
+}
+
+// ---------------------------------------------------------------------------
 // xcpc::AudioConfig
 // ---------------------------------------------------------------------------
 
