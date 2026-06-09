@@ -19,6 +19,7 @@ Optional dependencies :
 ```
 zlib1g-dev
 libbz2-dev
+libzip-dev
 ```
 
 ### GENERATE THE CONFIGURE SCRIPT

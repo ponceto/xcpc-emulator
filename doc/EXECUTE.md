@@ -175,8 +175,9 @@ The supported extensions are:
 
   - `.sna` for loading snapshots
   - `.dsk` for loading raw disk images
-  - `.dsk.gz` for loading compressed disk images with the zlib algorithm.
-  - `.dsk.bz2` for loading compressed disk images with the bz2 algorithm.
+  - `.dsk.gz` for loading compressed disk images with the zlib algorithm (requires zlib).
+  - `.dsk.bz2` for loading compressed disk images with the bz2 algorithm (requires libbz2).
+  - `.zip` for loading disk images packed in a zip archive (requires libzip).
 
-Note: `.zip` disk images are currently not supported, so you have to extract the disk images from the zip archives.
+Note: A zip archive is opened read-only and the alphabetically-first `.dsk` member is loaded automatically; writes back to the archive are not supported (extract the disk first if you need to save changes).
 
