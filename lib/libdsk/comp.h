@@ -24,6 +24,7 @@
 #include "compsq.h"
 #include "compgz.h"
 #include "compbz2.h"
+#include "compzip.h"
 #include "compdskf.h"
 #include "comptlzh.h"
 

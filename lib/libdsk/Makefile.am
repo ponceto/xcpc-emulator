@@ -41,6 +41,8 @@ libdsk_la_SOURCES = \
 	compdskf.h \
 	compgz.c \
 	compgz.h \
+	compzip.c \
+	compzip.h \
 	compress.c \
 	compress.h \
 	compress.inc \

@@ -613,6 +613,10 @@ struct Callbacks
                 application.insert_disk_into_drive0(filename);
                 application.play_emulator();
             }
+            else if(has_extension(filename, ".zip") != false) {
+                application.insert_disk_into_drive0(filename);
+                application.play_emulator();
+            }
         }
     }
 

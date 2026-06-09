@@ -118,7 +118,7 @@ const char traits::secondary_markup[] = ""
     ""                                                                                        EOL
     "You can use your file manager to drag'n drop a supported file directly to the emulator." EOL
     ""                                                                                        EOL
-    "The supported file extensions are: '.dsk', 'dsk.gz', 'dsk.bz2', '.sna'"                  NIL
+    "The supported file extensions are: '.dsk', '.dsk.gz', '.dsk.bz2', '.zip', '.sna'"        NIL
     ;
 
 }
