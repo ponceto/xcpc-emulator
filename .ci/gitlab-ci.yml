@@ -49,7 +49,7 @@ build-tarball:
   artifacts:
     name: "xcpc-sources"
     paths:
-      - ./*.tar.gz
+      - ./xcpc-*.tar.gz
 
 # ----------------------------------------------------------------------------
 # build-binary-amd64
@@ -72,7 +72,30 @@ build-binary-amd64:
   artifacts:
     name: "xcpc-binary-amd64"
     paths:
-      - ./*.tar.gz
+      - ./xcpc-*_*.tar.gz
+
+# ----------------------------------------------------------------------------
+# build-appimage-amd64
+# ----------------------------------------------------------------------------
+
+build-appimage-amd64:
+  stage: build
+  dependencies:
+    - build-tarball
+  tags:
+    - docker
+    - amd64
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
+  script:
+    - ./.ci/ci-build-appimage.sh
+  artifacts:
+    name: "xcpc-appimage-amd64"
+    paths:
+      - ./xcpc-*_*.AppImage
 
 # ----------------------------------------------------------------------------
 # build-debian-amd64

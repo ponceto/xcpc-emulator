@@ -22,7 +22,7 @@
 
 arg_topdir="$(pwd)"
 arg_prefix="/usr/local"
-arg_jobs="$(cat /proc/cpuinfo | grep '^processor' | wc -l)"
+arg_jobs="$(nproc)"
 arg_builddir="_build"
 arg_distdir="_dist"
 arg_tarball="$(ls xcpc-*.tar.gz 2>/dev/null | grep '^xcpc-[0-9]\+.[0-9]\+.[0-9]\+.tar.gz')"

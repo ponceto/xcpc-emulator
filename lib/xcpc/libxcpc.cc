@@ -406,6 +406,30 @@ namespace {
 
 struct libxcpc_traits
 {
+    static char* get_path(const char* variable, const char* fallback)
+    {
+        std::string path;
+        const char* appdir = ::getenv("APPDIR");
+        const char* value  = ::getenv(variable);
+
+        if(value != nullptr) {
+            path += value;
+        }
+        else if((appdir != nullptr) && (*appdir != '\0')) {
+            path += appdir;
+            path.erase(path.find_last_not_of('/') + 1);
+            while(*fallback == '/') {
+                ++fallback;
+            }
+            path += '/';
+            path += fallback;
+        }
+        else {
+            path += fallback;
+        }
+        return ::strdup(path.c_str());
+    }
+
     static char* get_variable(const char* variable, const char* fallback)
     {
         const char* value = ::getenv(variable);
@@ -464,14 +488,14 @@ struct libxcpc_traits
 
     static auto init_directories(XcpcLibrary& library) -> void
     {
-        if(library.bindir == nullptr) { library.bindir = get_variable("XCPC_BINDIR", libxcpc_bindir); }
-        if(library.libdir == nullptr) { library.libdir = get_variable("XCPC_LIBDIR", libxcpc_libdir); }
-        if(library.datdir == nullptr) { library.datdir = get_variable("XCPC_DATDIR", libxcpc_datdir); }
-        if(library.docdir == nullptr) { library.docdir = get_variable("XCPC_DOCDIR", libxcpc_docdir); }
-        if(library.resdir == nullptr) { library.resdir = get_variable("XCPC_RESDIR", libxcpc_resdir); }
-        if(library.romdir == nullptr) { library.romdir = get_variable("XCPC_ROMDIR", libxcpc_romdir); }
-        if(library.dskdir == nullptr) { library.dskdir = get_variable("XCPC_DSKDIR", libxcpc_dskdir); }
-        if(library.snadir == nullptr) { library.snadir = get_variable("XCPC_SNADIR", libxcpc_snadir); }
+        if(library.bindir == nullptr) { library.bindir = get_path("XCPC_BINDIR", libxcpc_bindir); }
+        if(library.libdir == nullptr) { library.libdir = get_path("XCPC_LIBDIR", libxcpc_libdir); }
+        if(library.datdir == nullptr) { library.datdir = get_path("XCPC_DATDIR", libxcpc_datdir); }
+        if(library.docdir == nullptr) { library.docdir = get_path("XCPC_DOCDIR", libxcpc_docdir); }
+        if(library.resdir == nullptr) { library.resdir = get_path("XCPC_RESDIR", libxcpc_resdir); }
+        if(library.romdir == nullptr) { library.romdir = get_path("XCPC_ROMDIR", libxcpc_romdir); }
+        if(library.dskdir == nullptr) { library.dskdir = get_path("XCPC_DSKDIR", libxcpc_dskdir); }
+        if(library.snadir == nullptr) { library.snadir = get_path("XCPC_SNADIR", libxcpc_snadir); }
     }
 
     static auto fini_directories(XcpcLibrary& library) -> void
