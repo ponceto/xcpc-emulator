@@ -1,5 +1,5 @@
 #
-# .gitlab-ci.yml - Copyright (c) 2001-2026 - Olivier Poncet
+# gitlab-ci.yml - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,29 +52,6 @@ build-tarball:
       - ./xcpc-*.tar.gz
 
 # ----------------------------------------------------------------------------
-# build-binary-amd64
-# ----------------------------------------------------------------------------
-
-build-binary-amd64:
-  stage: build
-  dependencies:
-    - build-tarball
-  tags:
-    - docker
-    - amd64
-  rules:
-    - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH == "release"
-  before_script:
-    - ./.ci/ci-setup-debian.sh
-  script:
-    - ./.ci/ci-build-binary.sh
-  artifacts:
-    name: "xcpc-binary-amd64"
-    paths:
-      - ./xcpc-*_*.tar.gz
-
-# ----------------------------------------------------------------------------
 # build-appimage-amd64
 # ----------------------------------------------------------------------------
 
@@ -94,6 +71,29 @@ build-appimage-amd64:
     - ./.ci/ci-build-appimage.sh
   artifacts:
     name: "xcpc-appimage-amd64"
+    paths:
+      - ./xcpc-*_*.AppImage
+
+# ----------------------------------------------------------------------------
+# build-appimage-arm64
+# ----------------------------------------------------------------------------
+
+build-appimage-arm64:
+  stage: build
+  dependencies:
+    - build-tarball
+  tags:
+    - docker
+    - arm64
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
+  script:
+    - ./.ci/ci-build-appimage.sh
+  artifacts:
+    name: "xcpc-appimage-arm64"
     paths:
       - ./xcpc-*_*.AppImage
 
