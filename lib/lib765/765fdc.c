@@ -436,7 +436,12 @@ static void fdc_read(FDC_765 *self, int deleted)
 	{
 		fd = self->fdc_dor_drive[self->fdc_curunit];
        		lensector = (128 << self->fdc_cmd_buf[5]);
-       		if (self->fdc_cmd_buf[8] < 255) 
+/* [xcpc] DTL (cmd_buf[8]) is only meaningful when N (cmd_buf[5]) == 0; for
+ * N != 0 the uPD765A ignores it and transfers the whole sector. Honouring DTL
+ * for N>0 turned partial reads of large sectors into spurious CRC errors
+ * (libdsk "sector longer than expected"), breaking copy-protections that
+ * READ DELETED DATA with N>0 and a short DTL (e.g. Crazy Cars II). */
+       		if (self->fdc_cmd_buf[5] == 0 && self->fdc_cmd_buf[8] < 255)
 			lensector = self->fdc_cmd_buf[8];
 
 		memset(buf, 0, lensector);
