@@ -1,4 +1,4 @@
-2026-06-11	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+2026-06-12	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Compilation fixes (GLib + Gtk)
 	* Some bug fixes and refactoring
@@ -7,6 +7,7 @@
 	* Some UI improvements and refactoring
 	* Zip support for disk images
 	* Better disk images compatibility
+	* Better PSG support for digitized sounds
 	* AppImage support
 
 2024-09-08	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
