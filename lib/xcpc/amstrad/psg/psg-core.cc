@@ -496,10 +496,12 @@ auto Instance::clock() -> void
 {
     auto fixup = [&](Sound& lhs, Sound& rhs) -> void
     {
+#if 0
         if((lhs.period == rhs.period) && (lhs.counter != rhs.counter)) {
             rhs.counter = lhs.counter;
             rhs.phase   = lhs.phase;
         }
+#endif
     };
 
     auto prepare = [&]() -> void
@@ -536,6 +538,9 @@ auto Instance::clock() -> void
         }
         if(has_noise != 0) {
             output |= sig_noise;
+        }
+        if((has_sound == 0) && (has_noise == 0)) {
+            output = +1;
         }
 
         return static_cast<float>(output) * _state.dac[amplitude];

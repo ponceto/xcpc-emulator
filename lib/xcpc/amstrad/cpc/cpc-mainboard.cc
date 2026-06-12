@@ -147,6 +147,12 @@ struct Traits
         audio.volume = 0.5f;
         audio.rd_index = 0;
         audio.wr_index = 0;
+        for(auto& value : audio.dcb_input) {
+            value = 0.0f;
+        }
+        for(auto& value : audio.dcb_output) {
+            value = 0.0f;
+        }
     }
 
     static auto construct(Video& video) -> void
@@ -264,6 +270,12 @@ struct Traits
         }
         audio.rd_index &= 0;
         audio.wr_index &= 0;
+        for(auto& value : audio.dcb_input) {
+            value = 0.0f;
+        }
+        for(auto& value : audio.dcb_output) {
+            value = 0.0f;
+        }
     }
 
     static auto reset(Video& video) -> void
@@ -613,6 +625,15 @@ auto Mainboard::clock() -> void
         }
     };
 
+    auto dc_block = [&](const int channel, const float input) -> float
+    {
+        constexpr float attenuation = 0.999f;
+        const float output = (input - _audio.dcb_input[channel]) + (attenuation * _audio.dcb_output[channel]);
+        _audio.dcb_input[channel]  = input;
+        _audio.dcb_output[channel] = output;
+        return output;
+    };
+
     auto clock_snd = [&]() -> void
     {
         if((_state.snd_ticks += _state.snd_clock) >= _state.cpc_clock) {
@@ -621,9 +642,9 @@ auto Mainboard::clock() -> void
             const auto wr_index = ((_audio.wr_index + 1) % SND_BUFSIZE);
             if(wr_index != rd_index) {
                 const auto& output = _psg->get_output();
-                _audio.channel0[_audio.wr_index] = output.channel0;
-                _audio.channel1[_audio.wr_index] = output.channel1;
-                _audio.channel2[_audio.wr_index] = output.channel2;
+                _audio.channel0[_audio.wr_index] = dc_block(0, output.channel0);
+                _audio.channel1[_audio.wr_index] = dc_block(1, output.channel1);
+                _audio.channel2[_audio.wr_index] = dc_block(2, output.channel2);
                 _audio.wr_index = wr_index;
             }
         }

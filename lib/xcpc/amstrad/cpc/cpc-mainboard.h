@@ -247,6 +247,8 @@ public: // public types
         float    volume;
         uint32_t rd_index;
         uint32_t wr_index;
+        float    dcb_input[3];
+        float    dcb_output[3];
     };
 
     struct Video
