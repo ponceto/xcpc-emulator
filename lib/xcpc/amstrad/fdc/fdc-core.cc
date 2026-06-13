@@ -159,6 +159,41 @@ namespace {
 struct FddTraits final
     : public BasicTraits
 {
+    static inline auto check_supported(const std::string& filename) -> void
+    {
+        uint8_t magic[4] = { 0, 0, 0, 0 };
+        size_t  count    = 0;
+        FILE*   file     = ::fopen(filename.c_str(), "rb");
+
+        if(file != nullptr) {
+            count = ::fread(magic, 1, sizeof(magic), file);
+            static_cast<void>(::fclose(file));
+        }
+        else {
+            return;
+        }
+
+        const char* needed = nullptr;
+        if((count >= 2) && (magic[0] == 0x1f) && (magic[1] == 0x8b)) {
+#ifndef HAVE_LIBZ
+            needed = "gzip (.gz)";
+#endif
+        }
+        else if((count >= 3) && (magic[0] == 0x42) && (magic[1] == 0x5a) && (magic[2] == 0x68)) {
+#ifndef HAVE_LIBBZ2
+            needed = "bzip2 (.bz2)";
+#endif
+        }
+        else if((count >= 4) && (magic[0] == 0x50) && (magic[1] == 0x4b) && (magic[2] == 0x03) && (magic[3] == 0x04)) {
+#ifndef HAVE_LIBZIP
+            needed = "zip (.zip)";
+#endif
+        }
+        if(needed != nullptr) {
+            throw std::runtime_error(std::string("unsupported compressed disk image: this build has no ") + needed + " support");
+        }
+    }
+
     static inline auto create() -> FddImpl*
     {
         FddImpl* fdd = ::fd_newldsk();
@@ -205,6 +240,7 @@ struct FddTraits final
     {
         if(fdd != nullptr) {
             if(filename.size() != 0) {
+                check_supported(filename);
                 ::fdl_setfilename(fdd, filename.c_str());
             }
             else {
