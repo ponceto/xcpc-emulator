@@ -496,12 +496,10 @@ auto Instance::clock() -> void
 {
     auto fixup = [&](Sound& lhs, Sound& rhs) -> void
     {
-#if 0
         if((lhs.period == rhs.period) && (lhs.counter != rhs.counter)) {
             rhs.counter = lhs.counter;
             rhs.phase   = lhs.phase;
         }
-#endif
     };
 
     auto prepare = [&]() -> void
