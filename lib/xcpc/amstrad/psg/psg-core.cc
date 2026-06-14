@@ -509,41 +509,17 @@ auto Instance::clock() -> void
         fixup(_sound[1], _sound[2]);
     };
 
-#if 0 /* original psg output not really adapted to float [-1.0:+1.0] output */
     auto get_output = [&](const int sound_index, const int noise_index) -> float
     {
         const uint8_t has_sound = _state.has_sound[sound_index];
         const uint8_t has_noise = _state.has_noise[sound_index];
-        const uint8_t sig_sound = _sound[sound_index].phase;
-        const uint8_t sig_noise = _noise[noise_index].phase;
+        const uint8_t sig_sound = (has_sound != 0 ? _sound[sound_index].phase : 1);
+        const uint8_t sig_noise = (has_noise != 0 ? _noise[noise_index].phase : 1);
         const uint8_t amplitude = (_sound[sound_index].amplitude & 0x20 ? (_envelope.amplitude & 0x1f) : (_sound[sound_index].amplitude & 0x1f));
-        const uint8_t output    = ((sig_sound & has_sound) | (sig_noise & has_noise));
-
-        return static_cast<float>(output) * _state.dac[amplitude] * 2.0f - 1.0f;
-    };
-#else /* modified psg output adapted to float [-1.0:+1.0] output */
-    auto get_output = [&](const int sound_index, const int noise_index) -> float
-    {
-        const uint8_t has_sound = _state.has_sound[sound_index];
-        const uint8_t has_noise = _state.has_noise[sound_index];
-        const int8_t  sig_sound = (_sound[sound_index].phase != 0 ? +1 : -1);
-        const int8_t  sig_noise = (_noise[noise_index].phase != 0 ? +1 : -1);
-        const uint8_t amplitude = (_sound[sound_index].amplitude & 0x20 ? (_envelope.amplitude & 0x1f) : (_sound[sound_index].amplitude & 0x1f));
-        int8_t        output    = 0;
-
-        if(has_sound != 0) {
-            output |= sig_sound;
-        }
-        if(has_noise != 0) {
-            output |= sig_noise;
-        }
-        if((has_sound == 0) && (has_noise == 0)) {
-            output = +1;
-        }
+        const uint8_t output    = (sig_sound & sig_noise);
 
         return static_cast<float>(output) * _state.dac[amplitude];
     };
-#endif
 
     auto output = [&]() -> void
     {

@@ -153,6 +153,10 @@ struct Traits
         for(auto& value : audio.dcb_output) {
             value = 0.0f;
         }
+        audio.acc0 = 0.0f;
+        audio.acc1 = 0.0f;
+        audio.acc2 = 0.0f;
+        audio.acc_count = 0;
     }
 
     static auto construct(Video& video) -> void
@@ -276,6 +280,10 @@ struct Traits
         for(auto& value : audio.dcb_output) {
             value = 0.0f;
         }
+        audio.acc0 = 0.0f;
+        audio.acc1 = 0.0f;
+        audio.acc2 = 0.0f;
+        audio.acc_count = 0;
     }
 
     static auto reset(Video& video) -> void
@@ -622,16 +630,12 @@ auto Mainboard::clock() -> void
         if((_state.psg_ticks += _state.psg_clock) >= _state.cpc_clock) {
             _state.psg_ticks -= _state.cpc_clock;
             _psg->clock();
+            const auto& output = _psg->get_output();
+            _audio.acc0 += output.channel0;
+            _audio.acc1 += output.channel1;
+            _audio.acc2 += output.channel2;
+            _audio.acc_count += 1;
         }
-    };
-
-    auto dc_block = [&](const int channel, const float input) -> float
-    {
-        constexpr float attenuation = 0.999f;
-        const float output = (input - _audio.dcb_input[channel]) + (attenuation * _audio.dcb_output[channel]);
-        _audio.dcb_input[channel]  = input;
-        _audio.dcb_output[channel] = output;
-        return output;
     };
 
     auto clock_snd = [&]() -> void
@@ -641,12 +645,16 @@ auto Mainboard::clock() -> void
             const auto rd_index = ((_audio.rd_index + 0) % SND_BUFSIZE);
             const auto wr_index = ((_audio.wr_index + 1) % SND_BUFSIZE);
             if(wr_index != rd_index) {
-                const auto& output = _psg->get_output();
-                _audio.channel0[_audio.wr_index] = dc_block(0, output.channel0);
-                _audio.channel1[_audio.wr_index] = dc_block(1, output.channel1);
-                _audio.channel2[_audio.wr_index] = dc_block(2, output.channel2);
+                const float scale = (_audio.acc_count != 0 ? (1.0f / static_cast<float>(_audio.acc_count)) : 0.0f);
+                _audio.channel0[_audio.wr_index] = _audio.acc0 * scale;
+                _audio.channel1[_audio.wr_index] = _audio.acc1 * scale;
+                _audio.channel2[_audio.wr_index] = _audio.acc2 * scale;
                 _audio.wr_index = wr_index;
             }
+            _audio.acc0 = 0.0f;
+            _audio.acc1 = 0.0f;
+            _audio.acc2 = 0.0f;
+            _audio.acc_count = 0;
         }
     };
 
@@ -3687,6 +3695,20 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
 {
     const MutexLock lock(_mutex);
 
+    auto dc_block = [&](const int stream, const float input) -> float
+    {
+        constexpr float attenuation = 0.999f;
+        const float output = (input - _audio.dcb_input[stream]) + (attenuation * _audio.dcb_output[stream]);
+        _audio.dcb_input[stream]  = input;
+        _audio.dcb_output[stream] = output;
+        return output;
+    };
+
+    auto clamp = [&](const float value) -> float
+    {
+        return (value < -1.0f ? -1.0f : (value > +1.0f ? +1.0f : value));
+    };
+
     auto mix_mono = [&](MonoFrameFlt32& audio_frame) -> void
     {
         const auto index = _audio.rd_index;
@@ -3696,7 +3718,7 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
                          + (_audio.channel2[index] * 1.00f)
                          ;
 
-        audio_frame.mono = ((mono / 3.0f) * _audio.volume);
+        audio_frame.mono = clamp(dc_block(0, mono / 3.0f) * _audio.volume);
     };
 
     auto mix_stereo = [&](StereoFrameFlt32& audio_frame) -> void
@@ -3713,8 +3735,8 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
                           + (_audio.channel2[index] * 0.75f)
                           ;
 
-        audio_frame.left  = ((left  / 1.5f) * _audio.volume);
-        audio_frame.right = ((right / 1.5f) * _audio.volume);
+        audio_frame.left  = clamp(dc_block(0, left  / 1.5f) * _audio.volume);
+        audio_frame.right = clamp(dc_block(1, right / 1.5f) * _audio.volume);
     };
 
     auto mix_surround40 = [&](Surround40FrameFlt32& audio_frame) -> void
@@ -3731,10 +3753,13 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
                           + (_audio.channel2[index] * 0.75f)
                           ;
 
-        audio_frame.front_left  = ((left  / 1.5f) * _audio.volume);
-        audio_frame.front_right = ((right / 1.5f) * _audio.volume);
-        audio_frame.back_left   = ((left  / 1.5f) * _audio.volume);
-        audio_frame.back_right  = ((right / 1.5f) * _audio.volume);
+        const float out_l = clamp(dc_block(0, left  / 1.5f) * _audio.volume);
+        const float out_r = clamp(dc_block(1, right / 1.5f) * _audio.volume);
+
+        audio_frame.front_left  = out_l;
+        audio_frame.front_right = out_r;
+        audio_frame.back_left   = out_l;
+        audio_frame.back_right  = out_r;
     };
 
     auto render_mono = [&]() -> void
