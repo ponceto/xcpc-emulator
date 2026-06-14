@@ -1,4 +1,4 @@
-2026-06-12	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
+2026-06-14	Olivier Poncet <olivier.poncet@xcpc-emulator.net>
 
 	* Compilation fixes (GLib + Gtk)
 	* Some bug fixes and refactoring
