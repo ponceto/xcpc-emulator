@@ -1,5 +1,5 @@
 /*
- * cpc-mainboard.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * cpc-mainboard.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,9 +69,10 @@ struct Traits
         setup.refresh_rate  = XCPC_REFRESH_RATE_UNKNOWN;
         setup.keyboard_type = XCPC_KEYBOARD_TYPE_UNKNOWN;
         setup.memory_size   = XCPC_MEMORY_SIZE_UNKNOWN;
+        setup.renderer_type = XCPC_RENDERER_TYPE_UNKNOWN;
         setup.speedup       = 1;
         setup.xshm          = true;
-        setup.scanlines     = true;
+        setup.crt_emulation = true;
     }
 
     static auto construct(Stats& stats) -> void
@@ -90,7 +91,7 @@ struct Traits
 
     static auto construct(Funcs& funcs) -> void
     {
-        funcs.paint_func = [](Mainboard* mainboard) -> void {};
+        funcs.render_func = [](Mainboard* mainboard) -> void {};
     }
 
     static auto construct(State& state) -> void
@@ -146,12 +147,22 @@ struct Traits
         audio.volume = 0.5f;
         audio.rd_index = 0;
         audio.wr_index = 0;
+        for(auto& value : audio.dcb_input) {
+            value = 0.0f;
+        }
+        for(auto& value : audio.dcb_output) {
+            value = 0.0f;
+        }
+        audio.acc0 = 0.0f;
+        audio.acc1 = 0.0f;
+        audio.acc2 = 0.0f;
+        audio.acc_count = 0;
     }
 
     static auto construct(Video& video) -> void
     {
-        video.frame_rate     = 50;
-        video.frame_duration = 20000;
+        video.frame_rate = 50;
+        video.frame_time = 20000;
     }
 
     static auto destruct(Setup& setup) -> void
@@ -263,12 +274,85 @@ struct Traits
         }
         audio.rd_index &= 0;
         audio.wr_index &= 0;
+        for(auto& value : audio.dcb_input) {
+            value = 0.0f;
+        }
+        for(auto& value : audio.dcb_output) {
+            value = 0.0f;
+        }
+        audio.acc0 = 0.0f;
+        audio.acc1 = 0.0f;
+        audio.acc2 = 0.0f;
+        audio.acc_count = 0;
     }
 
     static auto reset(Video& video) -> void
     {
-        video.frame_rate     |= 0;
-        video.frame_duration |= 0;
+        video.frame_rate |= 0;
+        video.frame_time |= 0;
+    }
+
+    static auto reset(dpy::Instance* dpy)
+    {
+        if(dpy != nullptr) {
+            dpy->reset();
+        }
+    }
+
+    static auto reset(kbd::Instance* kbd)
+    {
+        if(kbd != nullptr) {
+            kbd->reset();
+        }
+    }
+
+    static auto reset(cpu::Instance* cpu)
+    {
+        if(cpu != nullptr) {
+            cpu->reset();
+        }
+    }
+
+    static auto reset(vga::Instance* vga)
+    {
+        if(vga != nullptr) {
+            vga->reset();
+        }
+    }
+
+    static auto reset(vdc::Instance* vdc)
+    {
+        if(vdc != nullptr) {
+            vdc->reset();
+        }
+    }
+
+    static auto reset(ppi::Instance* ppi)
+    {
+        if(ppi != nullptr) {
+            ppi->reset();
+        }
+    }
+
+    static auto reset(psg::Instance* psg)
+    {
+        if(psg != nullptr) {
+            psg->reset();
+        }
+    }
+
+    static auto reset(fdc::Instance* fdc)
+    {
+        if(fdc != nullptr) {
+            fdc->reset();
+        }
+    }
+
+    static auto reset(mem::Instance* mem)
+    {
+        if(mem != nullptr) {
+            mem->reset();
+        }
     }
 };
 
@@ -378,17 +462,47 @@ Mainboard::Mainboard(Machine& machine)
     Traits::construct(_state);
     Traits::construct(_audio);
     Traits::construct(_video);
-    construct_dpy();
-    construct_kbd();
-    construct_cpu();
-    construct_vga();
-    construct_vdc();
-    construct_ppi();
-    construct_psg();
-    construct_fdc();
-    construct_ram();
-    construct_rom();
-    construct_exp();
+    if(_dpy == nullptr) {
+        _dpy = new dpy::Instance(*this);
+    }
+    if(_kbd == nullptr) {
+        _kbd = new kbd::Instance(*this);
+    }
+    if(_cpu == nullptr) {
+        _cpu = new cpu::Instance(*this);
+    }
+    if(_vga == nullptr) {
+        _vga = new vga::Instance(*this);
+    }
+    if(_vdc == nullptr) {
+        _vdc = new vdc::Instance(*this);
+    }
+    if(_ppi == nullptr) {
+        _ppi = new ppi::Instance(*this);
+    }
+    if(_psg == nullptr) {
+        _psg = new psg::Instance(*this);
+    }
+    if(_fdc == nullptr) {
+        _fdc = new fdc::Instance(*this);
+        _fdc->attach_drive(fdc::FDC_DRIVE0);
+        _fdc->attach_drive(fdc::FDC_DRIVE1);
+    }
+    for(auto& ram : _ram) {
+        if(ram == nullptr) {
+            ram = new mem::Instance(mem::RAM_BANK, *this);
+        }
+    }
+    for(auto& rom : _rom) {
+        if(rom == nullptr) {
+            rom = new mem::Instance(mem::ROM_BANK, *this);
+        }
+    }
+    for(auto& exp : _exp) {
+        if(exp == nullptr) {
+            exp = nullptr;
+        }
+    }
 }
 
 Mainboard::Mainboard(Machine& machine, const Settings& settings)
@@ -404,17 +518,45 @@ Mainboard::Mainboard(Machine& machine, const Settings& settings)
 
 Mainboard::~Mainboard()
 {
-    destruct_exp();
-    destruct_rom();
-    destruct_ram();
-    destruct_fdc();
-    destruct_psg();
-    destruct_ppi();
-    destruct_vdc();
-    destruct_vga();
-    destruct_cpu();
-    destruct_kbd();
-    destruct_dpy();
+    for(auto& exp : _exp) {
+        if(exp != nullptr) {
+            exp = (delete exp, nullptr);
+        }
+    }
+    for(auto& rom : _rom) {
+        if(rom != nullptr) {
+            rom = (delete rom, nullptr);
+        }
+    }
+    for(auto& ram : _ram) {
+        if(ram != nullptr) {
+            ram = (delete ram, nullptr);
+        }
+    }
+    if(_fdc != nullptr) {
+        _fdc = (delete _fdc, nullptr);
+    }
+    if(_psg != nullptr) {
+        _psg = (delete _psg, nullptr);
+    }
+    if(_ppi != nullptr) {
+        _ppi = (delete _ppi, nullptr);
+    }
+    if(_vdc != nullptr) {
+        _vdc = (delete _vdc, nullptr);
+    }
+    if(_vga != nullptr) {
+        _vga = (delete _vga, nullptr);
+    }
+    if(_cpu != nullptr) {
+        _cpu = (delete _cpu, nullptr);
+    }
+    if(_kbd != nullptr) {
+        _kbd = (delete _kbd, nullptr);
+    }
+    if(_dpy != nullptr) {
+        _dpy = (delete _dpy, nullptr);
+    }
     Traits::destruct(_video);
     Traits::destruct(_audio);
     Traits::destruct(_state);
@@ -443,17 +585,23 @@ auto Mainboard::reset() -> void
     Traits::reset(_state);
     Traits::reset(_audio);
     Traits::reset(_video);
-    reset_dpy();
-    reset_kbd();
-    reset_cpu();
-    reset_vga();
-    reset_vdc();
-    reset_ppi();
-    reset_psg();
-    reset_fdc();
-    reset_ram();
-    reset_rom();
-    reset_exp();
+    Traits::reset(_dpy);
+    Traits::reset(_kbd);
+    Traits::reset(_cpu);
+    Traits::reset(_vga);
+    Traits::reset(_vdc);
+    Traits::reset(_ppi);
+    Traits::reset(_psg);
+    Traits::reset(_fdc);
+    for(auto& ram : _ram) {
+        Traits::reset(ram);
+    }
+    for(auto& rom : _rom) {
+        Traits::reset(rom);
+    }
+    for(auto& exp : _exp) {
+        Traits::reset(exp);
+    }
     update_pal();
 }
 
@@ -482,6 +630,11 @@ auto Mainboard::clock() -> void
         if((_state.psg_ticks += _state.psg_clock) >= _state.cpc_clock) {
             _state.psg_ticks -= _state.cpc_clock;
             _psg->clock();
+            const auto& output = _psg->get_output();
+            _audio.acc0 += output.channel0;
+            _audio.acc1 += output.channel1;
+            _audio.acc2 += output.channel2;
+            _audio.acc_count += 1;
         }
     };
 
@@ -492,12 +645,16 @@ auto Mainboard::clock() -> void
             const auto rd_index = ((_audio.rd_index + 0) % SND_BUFSIZE);
             const auto wr_index = ((_audio.wr_index + 1) % SND_BUFSIZE);
             if(wr_index != rd_index) {
-                const auto& output = _psg->get_output();
-                _audio.channel0[_audio.wr_index] = output.channel0;
-                _audio.channel1[_audio.wr_index] = output.channel1;
-                _audio.channel2[_audio.wr_index] = output.channel2;
+                const float scale = (_audio.acc_count != 0 ? (1.0f / static_cast<float>(_audio.acc_count)) : 0.0f);
+                _audio.channel0[_audio.wr_index] = _audio.acc0 * scale;
+                _audio.channel1[_audio.wr_index] = _audio.acc1 * scale;
+                _audio.channel2[_audio.wr_index] = _audio.acc2 * scale;
                 _audio.wr_index = wr_index;
             }
+            _audio.acc0 = 0.0f;
+            _audio.acc1 = 0.0f;
+            _audio.acc2 = 0.0f;
+            _audio.acc_count = 0;
         }
     };
 
@@ -554,21 +711,21 @@ auto Mainboard::create_disk_into_drive0(const std::string& filename) -> void
         disk.create();
     }
     if(_fdc != nullptr) {
-        _fdc->insert_disk(fdc::Drive::FDC_DRIVE0, filename);
+        _fdc->insert_disk(fdc::FDC_DRIVE0, filename);
     }
 }
 
 auto Mainboard::insert_disk_into_drive0(const std::string& filename) -> void
 {
     if(_fdc != nullptr) {
-        _fdc->insert_disk(fdc::Drive::FDC_DRIVE0, filename);
+        _fdc->insert_disk(fdc::FDC_DRIVE0, filename);
     }
 }
 
 auto Mainboard::remove_disk_from_drive0() -> void
 {
     if(_fdc != nullptr) {
-        _fdc->remove_disk(fdc::Drive::FDC_DRIVE0);
+        _fdc->remove_disk(fdc::FDC_DRIVE0);
     }
 }
 
@@ -579,44 +736,71 @@ auto Mainboard::create_disk_into_drive1(const std::string& filename) -> void
         disk.create();
     }
     if(_fdc != nullptr) {
-        _fdc->insert_disk(fdc::Drive::FDC_DRIVE1, filename);
+        _fdc->insert_disk(fdc::FDC_DRIVE1, filename);
     }
 }
 
 auto Mainboard::insert_disk_into_drive1(const std::string& filename) -> void
 {
     if(_fdc != nullptr) {
-        _fdc->insert_disk(fdc::Drive::FDC_DRIVE1, filename);
+        _fdc->insert_disk(fdc::FDC_DRIVE1, filename);
     }
 }
 
 auto Mainboard::remove_disk_from_drive1() -> void
 {
     if(_fdc != nullptr) {
-        _fdc->remove_disk(fdc::Drive::FDC_DRIVE1);
+        _fdc->remove_disk(fdc::FDC_DRIVE1);
     }
 }
 
-auto Mainboard::set_volume(const float volume) -> void
+auto Mainboard::set_parameterb(const std::string& parameter, bool value) -> void
 {
-    constexpr float min_volume = 0.0f;
-    constexpr float max_volume = 1.0f;
-
-    _audio.volume = volume;
-    if(_audio.volume < min_volume) {
-        _audio.volume = min_volume;
-    }
-    if(_audio.volume > max_volume) {
-        _audio.volume = max_volume;
+    if(parameter.compare(0, 6, "video.") == 0) {
+        if(_dpy != nullptr) {
+            _dpy->set_parameterb(parameter, value);
+        }
+        if(parameter == "video.crt_emulation") {
+            const auto old_crt_emulation = _setup.crt_emulation;
+            const auto new_crt_emulation = _setup.crt_emulation = value;
+            if(new_crt_emulation != old_crt_emulation) {
+                update_vga();
+            }
+        }
     }
 }
 
-auto Mainboard::set_scanlines(const bool scanlines) -> void
+auto Mainboard::set_parameteri(const std::string& parameter, int value) -> void
 {
-    const auto prev_scanlines = _setup.scanlines;
+    if(parameter.compare(0, 6, "video.") == 0) {
+        if(_dpy != nullptr) {
+            _dpy->set_parameteri(parameter, value);
+        }
+    }
+}
 
-    if((_setup.scanlines = scanlines) != prev_scanlines) {
-        update_vga();
+auto Mainboard::set_parameterf(const std::string& parameter, float value) -> void
+{
+    auto set_volume = [&](float volume) -> void
+    {
+        _audio.volume = volume;
+        if(_audio.volume < 0.0f) {
+            _audio.volume = 0.0f;
+        }
+        if(_audio.volume > 1.0f) {
+            _audio.volume = 1.0f;
+        }
+    };
+
+    if(parameter.compare(0, 6, "audio.") == 0) {
+        if(parameter == "audio.volume") {
+            set_volume(value);
+        }
+    }
+    if(parameter.compare(0, 6, "video.") == 0) {
+        if(_dpy != nullptr) {
+            _dpy->set_parameterf(parameter, value);
+        }
     }
 }
 
@@ -624,7 +808,7 @@ auto Mainboard::set_company_name(const std::string& string) -> void
 {
     auto company_name = Utils::company_name_from_string(string);
 
-    auto set = [&](const uint8_t lnk_lk3, const uint8_t lnk_lk2, const uint8_t lnk_lk1) -> void
+    auto update = [&](const uint8_t lnk_lk3, const uint8_t lnk_lk2, const uint8_t lnk_lk1) -> void
     {
         if(company_name != _setup.company_name) {
             _setup.company_name = company_name;
@@ -640,28 +824,28 @@ auto Mainboard::set_company_name(const std::string& string) -> void
     }
     switch(company_name) {
         case XCPC_COMPANY_NAME_ISP:
-            set(0, 0, 0);
+            update(0, 0, 0);
             break;
         case XCPC_COMPANY_NAME_TRIUMPH:
-            set(0, 0, 1);
+            update(0, 0, 1);
             break;
         case XCPC_COMPANY_NAME_SAISHO:
-            set(0, 1, 0);
+            update(0, 1, 0);
             break;
         case XCPC_COMPANY_NAME_SOLAVOX:
-            set(0, 1, 1);
+            update(0, 1, 1);
             break;
         case XCPC_COMPANY_NAME_AWA:
-            set(1, 0, 0);
+            update(1, 0, 0);
             break;
         case XCPC_COMPANY_NAME_SCHNEIDER:
-            set(1, 0, 1);
+            update(1, 0, 1);
             break;
         case XCPC_COMPANY_NAME_ORION:
-            set(1, 1, 0);
+            update(1, 1, 0);
             break;
         case XCPC_COMPANY_NAME_AMSTRAD:
-            set(1, 1, 1);
+            update(1, 1, 1);
             break;
         default:
             throw std::runtime_error("unsupported company name");
@@ -703,7 +887,7 @@ auto Mainboard::set_machine_type(const std::string& string) -> void
         }
     };
 
-    auto set = [&](const MemorySize memory_size, const std::string& firmware, const std::string& amsdos) -> void
+    auto update = [&](const MemorySize memory_size, const std::string& firmware, const std::string& amsdos) -> void
     {
         if(machine_type != _setup.machine_type) {
             _setup.machine_type = machine_type;
@@ -722,13 +906,13 @@ auto Mainboard::set_machine_type(const std::string& string) -> void
     }
     switch(machine_type) {
         case XCPC_MACHINE_TYPE_CPC464:
-            set(XCPC_MEMORY_SIZE_64K, "cpc464en.rom", "amsdos.rom");
+            update(XCPC_MEMORY_SIZE_64K, "cpc464en.rom", "amsdos.rom");
             break;
         case XCPC_MACHINE_TYPE_CPC664:
-            set(XCPC_MEMORY_SIZE_64K, "cpc664en.rom", "amsdos.rom");
+            update(XCPC_MEMORY_SIZE_64K, "cpc664en.rom", "amsdos.rom");
             break;
         case XCPC_MACHINE_TYPE_CPC6128:
-            set(XCPC_MEMORY_SIZE_128K, "cpc6128en.rom", "amsdos.rom");
+            update(XCPC_MEMORY_SIZE_128K, "cpc6128en.rom", "amsdos.rom");
             break;
         default:
             throw std::runtime_error("unsupported machine type");
@@ -740,14 +924,14 @@ auto Mainboard::set_monitor_type(const std::string& string) -> void
 {
     auto monitor_type = Utils::monitor_type_from_string(string);
 
-    auto set = [&](const dpy::Type type) -> void
+    auto update = [&]() -> void
     {
         if(monitor_type != _setup.monitor_type) {
             _setup.monitor_type = monitor_type;
             if(_dpy != nullptr) {
-                _dpy->set_type(type);
-                update_vga();
+                _dpy->set_monitor_type(monitor_type);
             }
+            update_vga();
         }
     };
 
@@ -756,31 +940,15 @@ auto Mainboard::set_monitor_type(const std::string& string) -> void
     }
     switch(monitor_type) {
         case XCPC_MONITOR_TYPE_COLOR:
-            set(dpy::Type::TYPE_COLOR);
-            break;
         case XCPC_MONITOR_TYPE_GREEN:
-            set(dpy::Type::TYPE_GREEN);
-            break;
         case XCPC_MONITOR_TYPE_GRAY:
-            set(dpy::Type::TYPE_GRAY);
-            break;
         case XCPC_MONITOR_TYPE_CTM640:
-            set(dpy::Type::TYPE_CTM640);
-            break;
         case XCPC_MONITOR_TYPE_CTM644:
-            set(dpy::Type::TYPE_CTM644);
-            break;
         case XCPC_MONITOR_TYPE_GT64:
-            set(dpy::Type::TYPE_GT64);
-            break;
         case XCPC_MONITOR_TYPE_GT65:
-            set(dpy::Type::TYPE_GT65);
-            break;
         case XCPC_MONITOR_TYPE_CM14:
-            set(dpy::Type::TYPE_CM14);
-            break;
         case XCPC_MONITOR_TYPE_MM12:
-            set(dpy::Type::TYPE_MM12);
+            update();
             break;
         default:
             throw std::runtime_error("unsupported monitor type");
@@ -792,18 +960,18 @@ auto Mainboard::set_refresh_rate(const std::string& string) -> void
 {
     auto refresh_rate = Utils::refresh_rate_from_string(string);
 
-    auto set = [&](const uint32_t frame_rate, const uint32_t frame_duration, const uint8_t lnk_lk4) -> void
+    auto update = [&](const uint32_t frame_rate, const uint32_t frame_time, const uint8_t lnk_lk4) -> void
     {
         if(refresh_rate != _setup.refresh_rate) {
-            _setup.refresh_rate   = refresh_rate;
-            _video.frame_rate     = frame_rate;
-            _video.frame_duration = frame_duration;
-            _state.lnk_lk4        = lnk_lk4;
+            _setup.refresh_rate = refresh_rate;
+            _video.frame_rate   = frame_rate;
+            _video.frame_time   = frame_time;
+            _state.lnk_lk4      = lnk_lk4;
             if(_dpy != nullptr) {
-                _dpy->set_rate(frame_rate);
-                update_vga();
-                reset();
+                _dpy->set_refresh_rate(refresh_rate);
             }
+            update_vga();
+            reset();
         }
     };
 
@@ -812,10 +980,10 @@ auto Mainboard::set_refresh_rate(const std::string& string) -> void
     }
     switch(refresh_rate) {
         case XCPC_REFRESH_RATE_50HZ:
-            set(50, 20000, 1);
+            update(50, 20000, 1);
             break;
         case XCPC_REFRESH_RATE_60HZ:
-            set(60, 16667, 0);
+            update(60, 16667, 0);
             break;
         default:
             throw std::runtime_error("unsupported refresh rate");
@@ -827,13 +995,12 @@ auto Mainboard::set_keyboard_type(const std::string& string) -> void
 {
     auto keyboard_type = Utils::keyboard_type_from_string(string);
 
-    auto set = [&](const kbd::Type type) -> void
+    auto update = [&]() -> void
     {
         if(keyboard_type != _setup.keyboard_type) {
             _setup.keyboard_type = keyboard_type;
             if(_kbd != nullptr) {
-                auto& kbd(*_kbd);
-                kbd.set_type(type);
+                _kbd->set_keyboard_type(keyboard_type);
             }
         }
     };
@@ -843,19 +1010,11 @@ auto Mainboard::set_keyboard_type(const std::string& string) -> void
     }
     switch(keyboard_type) {
         case XCPC_KEYBOARD_TYPE_ENGLISH:
-            set(kbd::Type::TYPE_ENGLISH);
-            break;
         case XCPC_KEYBOARD_TYPE_FRENCH:
-            set(kbd::Type::TYPE_FRENCH);
-            break;
         case XCPC_KEYBOARD_TYPE_GERMAN:
-            set(kbd::Type::TYPE_GERMAN);
-            break;
         case XCPC_KEYBOARD_TYPE_SPANISH:
-            set(kbd::Type::TYPE_SPANISH);
-            break;
         case XCPC_KEYBOARD_TYPE_DANISH:
-            set(kbd::Type::TYPE_DANISH);
+            update();
             break;
         default:
             throw std::runtime_error("unsupported keyboard type");
@@ -863,32 +1022,29 @@ auto Mainboard::set_keyboard_type(const std::string& string) -> void
     }
 }
 
-auto Mainboard::get_volume() const -> float
+auto Mainboard::set_renderer_type(const std::string& string) -> void
 {
-    return _audio.volume;
-}
+    auto renderer_type = Utils::renderer_type_from_string(string);
 
-auto Mainboard::get_system_info() const -> std::string
-{
-    std::string system_info;
+    auto update = [&]() -> void
+    {
+        if(renderer_type != _setup.renderer_type) {
+            _setup.renderer_type = renderer_type;
+        }
+    };
 
-    system_info += get_company_name();
-    system_info += ' ';
-    system_info += get_machine_type();
-    system_info += ' ';
-    system_info += get_memory_size();
-    system_info += ',';
-    system_info += ' ';
-    system_info += get_monitor_type();
-    system_info += ' ';
-    system_info += '@';
-    system_info += ' ';
-    system_info += get_refresh_rate();
-    system_info += ',';
-    system_info += ' ';
-    system_info += get_keyboard_type();
-
-    return system_info;
+    if(renderer_type == XCPC_RENDERER_TYPE_DEFAULT) {
+        renderer_type = XCPC_RENDERER_TYPE_OPENGL;
+    }
+    switch(renderer_type) {
+        case XCPC_RENDERER_TYPE_XIMAGE:
+        case XCPC_RENDERER_TYPE_OPENGL:
+            update();
+            break;
+        default:
+            throw std::runtime_error("unsupported renderer type");
+            break;
+    }
 }
 
 auto Mainboard::get_company_name() const -> std::string
@@ -921,10 +1077,15 @@ auto Mainboard::get_keyboard_type() const -> std::string
     return Utils::keyboard_type_to_string(_setup.keyboard_type);
 }
 
+auto Mainboard::get_renderer_type() const -> std::string
+{
+    return Utils::renderer_type_to_string(_setup.renderer_type);
+}
+
 auto Mainboard::get_drive0_filename() const -> std::string
 {
     if(_fdc != nullptr) {
-        return _fdc->get_filename(fdc::Drive::FDC_DRIVE0);
+        return _fdc->get_filename(fdc::FDC_DRIVE0);
     }
     return "";
 }
@@ -932,14 +1093,58 @@ auto Mainboard::get_drive0_filename() const -> std::string
 auto Mainboard::get_drive1_filename() const -> std::string
 {
     if(_fdc != nullptr) {
-        return _fdc->get_filename(fdc::Drive::FDC_DRIVE1);
+        return _fdc->get_filename(fdc::FDC_DRIVE1);
     }
     return "";
+}
+
+auto Mainboard::get_drive0_active() const -> bool
+{
+    if(_fdc != nullptr) {
+        return _fdc->is_active(fdc::FDC_DRIVE0);
+    }
+    return false;
+}
+
+auto Mainboard::get_drive1_active() const -> bool
+{
+    if(_fdc != nullptr) {
+        return _fdc->is_active(fdc::FDC_DRIVE1);
+    }
+    return false;
+}
+
+auto Mainboard::get_system_info() const -> std::string
+{
+    std::string system_info;
+
+    system_info += get_company_name();
+    system_info += ' ';
+    system_info += get_machine_type();
+    system_info += ' ';
+    system_info += get_memory_size();
+    system_info += ',';
+    system_info += ' ';
+    system_info += get_monitor_type();
+    system_info += ' ';
+    system_info += '@';
+    system_info += ' ';
+    system_info += get_refresh_rate();
+    system_info += ',';
+    system_info += ' ';
+    system_info += get_keyboard_type();
+
+    return system_info;
 }
 
 auto Mainboard::get_statistics() const -> std::string
 {
     return _stats.buffer;
+}
+
+auto Mainboard::get_volume() const -> float
+{
+    return _audio.volume;
 }
 
 auto Mainboard::on_reset(Event& event) -> unsigned long
@@ -955,13 +1160,13 @@ auto Mainboard::on_clock(Event& event) -> unsigned long
     unsigned long timeout    = 0UL;
     unsigned long timedrift  = 0UL;
     unsigned int  skip_frame = 0;
-    const unsigned long frame_duration = (_video.frame_duration / _setup.speedup);
+    const unsigned long frame_time = (_video.frame_time / _setup.speedup);
 
     /* clock the mainboard */ {
         clock();
     }
     /* compute the next deadline */ {
-        if((_clock.deadline.tv_usec += frame_duration) >= 1000000) {
+        if((_clock.deadline.tv_usec += frame_time) >= 1000000) {
             _clock.deadline.tv_usec -= 1000000;
             _clock.deadline.tv_sec  += 1;
         }
@@ -991,7 +1196,7 @@ auto Mainboard::on_clock(Event& event) -> unsigned long
     }
     /* draw the frame if needed */ {
         if(skip_frame == 0) {
-            (*_funcs.paint_func)(this);
+            (*_funcs.render_func)(this);
             ++_stats.frame_drawn;
         }
     }
@@ -1002,7 +1207,7 @@ auto Mainboard::on_clock(Event& event) -> unsigned long
     }
     /* check if the time has drifted for more than a second */ {
         if(timedrift >= 1000000UL) {
-            timeout = frame_duration;
+            timeout = frame_time;
             _clock.deadline = _clock.currtime;
             if((_clock.deadline.tv_usec += timeout) >= 1000000) {
                 _clock.deadline.tv_usec -= 1000000;
@@ -1023,41 +1228,91 @@ auto Mainboard::on_clock(Event& event) -> unsigned long
 
 auto Mainboard::on_create_window(Event& event) -> unsigned long
 {
-    auto& dpy(*_dpy);
-    /* realize */ {
-        dpy.realize ( event.u.create_window.x11_event->xany.display
-                    , event.u.create_window.x11_event->xany.window
-                    , _setup.xshm );
+    XEvent* x11_event = event.u.create_window.x11_event;
+
+    auto do_render_null = +[](Mainboard* self) -> void
+    {
+    };
+
+    auto do_render_08bpp = +[](Mainboard* self) -> void
+    {
+        self->render_08bpp();
+    };
+
+    auto do_render_16bpp = +[](Mainboard* self) -> void
+    {
+        self->render_16bpp();
+    };
+
+    auto do_render_32bpp = +[](Mainboard* self) -> void
+    {
+        self->render_32bpp();
+    };
+
+    auto do_render_rgba = +[](Mainboard* self) -> void
+    {
+        self->render_rgba();
+    };
+
+    auto do_setup_ximage = [&]() -> void
+    {
+        switch(_dpy->get_image_bpp()) {
+            case 8:
+                _funcs.render_func = do_render_08bpp;
+                break;
+            case 16:
+                _funcs.render_func = do_render_16bpp;
+                break;
+            case 32:
+                _funcs.render_func = do_render_32bpp;
+                break;
+            default:
+                _funcs.render_func = do_render_null;
+                break;
+        }
+    };
+
+    auto do_setup_opengl = [&]() -> void
+    {
+        switch(_dpy->get_image_bpp()) {
+            case 32:
+                _funcs.render_func = do_render_rgba;
+                break;
+            default:
+                _funcs.render_func = do_render_null;
+                break;
+        }
+    };
+
+    auto do_setup_null = [&]() -> void
+    {
+        _funcs.render_func = do_render_null;
+    };
+
+    auto do_setup = [&]() -> void
+    {
+        switch(_setup.renderer_type) {
+            case XCPC_RENDERER_TYPE_XIMAGE:
+                do_setup_ximage();
+                break;
+            case XCPC_RENDERER_TYPE_OPENGL:
+                do_setup_opengl();
+                break;
+            default:
+                do_setup_null();
+                break;
+        }
+    };
+
+    /* realize display with renderer */ {
+        _dpy->realize(_setup.renderer_type, x11_event->xany.display, x11_event->xany.window, _setup.xshm);
+        _dpy->set_parameterb("video.crt_emulation", _setup.crt_emulation);
     }
     /* update gate-array */ {
         update_vga();
     }
-    /* init paint handler */ {
-        switch(dpy->image->bits_per_pixel) {
-            case 8:
-                _funcs.paint_func = [](Mainboard* self) -> void
-                {
-                    self->paint_08bpp();
-                };
-                break;
-            case 16:
-                _funcs.paint_func = [](Mainboard* self) -> void
-                {
-                    self->paint_16bpp();
-                };
-                break;
-            case 32:
-                _funcs.paint_func = [](Mainboard* self) -> void
-                {
-                    self->paint_32bpp();
-                };
-                break;
-            default:
-                _funcs.paint_func = [](Mainboard* self) -> void
-                {
-                };
-                break;
-        }
+    /* setup the render handler */ {
+        do_setup();
     }
     return 0UL;
 }
@@ -1075,7 +1330,7 @@ auto Mainboard::on_resize_window(Event& event) -> unsigned long
     XEvent* x11_event = event.u.resize_window.x11_event;
 
     if((_dpy != nullptr) && (x11_event != nullptr)) {
-        _dpy->resize(x11_event->xconfigure);
+        _dpy->resize(x11_event->xconfigure.width, x11_event->xconfigure.height);
     }
     return 0UL;
 }
@@ -1084,7 +1339,7 @@ auto Mainboard::on_expose_window(Event& event) -> unsigned long
 {
     XEvent* x11_event = event.u.expose_window.x11_event;
 
-    if(_dpy != nullptr) {
+    if((_dpy != nullptr) && (x11_event != nullptr)) {
         _dpy->expose(x11_event->xexpose);
     }
     return 0UL;
@@ -1140,266 +1395,15 @@ auto Mainboard::on_motion_notify(Event& event) -> unsigned long
     return 0UL;
 }
 
-auto Mainboard::construct_dpy() -> void
-{
-    if(_dpy == nullptr) {
-        _dpy = new dpy::Device(dpy::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_kbd() -> void
-{
-    if(_kbd == nullptr) {
-        _kbd = new kbd::Device(kbd::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_cpu() -> void
-{
-    if(_cpu == nullptr) {
-        _cpu = new cpu::Device(cpu::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_vga() -> void
-{
-    if(_vga == nullptr) {
-        _vga = new vga::Device(vga::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_vdc() -> void
-{
-    if(_vdc == nullptr) {
-        _vdc = new vdc::Device(vdc::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_ppi() -> void
-{
-    if(_ppi == nullptr) {
-        _ppi = new ppi::Device(ppi::Type::TYPE_DEFAULT, *this);
-    }
-};
-
-auto Mainboard::construct_psg() -> void
-{
-    if(_psg == nullptr) {
-        _psg = new psg::Device(psg::Type::TYPE_AY8912, *this);
-    }
-};
-
-auto Mainboard::construct_fdc() -> void
-{
-    if(_fdc == nullptr) {
-        _fdc = new fdc::Device(fdc::Type::TYPE_DEFAULT, *this);
-        _fdc->attach_drive(fdc::Drive::FDC_DRIVE0);
-        _fdc->attach_drive(fdc::Drive::FDC_DRIVE1);
-    }
-};
-
-auto Mainboard::construct_ram() -> void
-{
-    for(auto& ram : _ram) {
-        if(ram == nullptr) {
-            ram = new mem::Device(mem::Type::TYPE_RAM, *this);
-        }
-    }
-};
-
-auto Mainboard::construct_rom() -> void
-{
-    for(auto& rom : _rom) {
-        if(rom == nullptr) {
-            rom = new mem::Device(mem::Type::TYPE_ROM, *this);
-        }
-    }
-};
-
-auto Mainboard::construct_exp() -> void
-{
-    for(auto& exp : _exp) {
-        if(exp == nullptr) {
-            exp = nullptr;
-        }
-    }
-};
-
-auto Mainboard::destruct_dpy() -> void
-{
-    if(_dpy != nullptr) {
-        _dpy = (delete _dpy, nullptr);
-    }
-};
-
-auto Mainboard::destruct_kbd() -> void
-{
-    if(_kbd != nullptr) {
-        _kbd = (delete _kbd, nullptr);
-    }
-};
-
-auto Mainboard::destruct_cpu() -> void
-{
-    if(_cpu != nullptr) {
-        _cpu = (delete _cpu, nullptr);
-    }
-};
-
-auto Mainboard::destruct_vga() -> void
-{
-    if(_vga != nullptr) {
-        _vga = (delete _vga, nullptr);
-    }
-};
-
-auto Mainboard::destruct_vdc() -> void
-{
-    if(_vdc != nullptr) {
-        _vdc = (delete _vdc, nullptr);
-    }
-};
-
-auto Mainboard::destruct_ppi() -> void
-{
-    if(_ppi != nullptr) {
-        _ppi = (delete _ppi, nullptr);
-    }
-};
-
-auto Mainboard::destruct_psg() -> void
-{
-    if(_psg != nullptr) {
-        _psg = (delete _psg, nullptr);
-    }
-};
-
-auto Mainboard::destruct_fdc() -> void
-{
-    if(_fdc != nullptr) {
-        _fdc = (delete _fdc, nullptr);
-    }
-};
-
-auto Mainboard::destruct_ram() -> void
-{
-    for(auto& ram : _ram) {
-        if(ram != nullptr) {
-            ram = (delete ram, nullptr);
-        }
-    }
-};
-
-auto Mainboard::destruct_rom() -> void
-{
-    for(auto& rom : _rom) {
-        if(rom != nullptr) {
-            rom = (delete rom, nullptr);
-        }
-    }
-};
-
-auto Mainboard::destruct_exp() -> void
-{
-    for(auto& exp : _exp) {
-        if(exp != nullptr) {
-            exp = (delete exp, nullptr);
-        }
-    }
-};
-
-auto Mainboard::reset_dpy() -> void
-{
-    if(_dpy != nullptr) {
-        _dpy->reset();
-    }
-};
-
-auto Mainboard::reset_kbd() -> void
-{
-    if(_kbd != nullptr) {
-        _kbd->reset();
-    }
-};
-
-auto Mainboard::reset_cpu() -> void
-{
-    if(_cpu != nullptr) {
-        _cpu->reset();
-    }
-};
-
-auto Mainboard::reset_vga() -> void
-{
-    if(_vga != nullptr) {
-        _vga->reset();
-    }
-};
-
-auto Mainboard::reset_vdc() -> void
-{
-    if(_vdc != nullptr) {
-        _vdc->reset();
-    }
-};
-
-auto Mainboard::reset_ppi() -> void
-{
-    if(_ppi != nullptr) {
-        _ppi->reset();
-    }
-};
-
-auto Mainboard::reset_psg() -> void
-{
-    if(_psg != nullptr) {
-        _psg->reset();
-    }
-};
-
-auto Mainboard::reset_fdc() -> void
-{
-    if(_fdc != nullptr) {
-        _fdc->reset();
-    }
-};
-
-auto Mainboard::reset_ram() -> void
-{
-    for(auto& ram : _ram) {
-        if(ram != nullptr) {
-            ram->reset();
-        }
-    }
-};
-
-auto Mainboard::reset_rom() -> void
-{
-    for(auto& rom : _rom) {
-        if(rom != nullptr) {
-            rom->reset();
-        }
-    }
-};
-
-auto Mainboard::reset_exp() -> void
-{
-    for(auto& exp : _exp) {
-        if(exp != nullptr) {
-            exp->reset();
-        }
-    }
-};
-
 auto Mainboard::configure(const Settings& settings) -> void
 {
-    auto clamp_int = [](const int value, const int min, const int max) -> int
+    auto clamp_int = [](int value, const int min, const int max) -> int
     {
         if(value < min) {
-            return min;
+            value = min;
         }
         if(value > max) {
-            return max;
+            value = max;
         }
         return value;
     };
@@ -1423,34 +1427,17 @@ auto Mainboard::configure(const Settings& settings) -> void
         set_monitor_type(settings.opt_monitor);
         set_refresh_rate(settings.opt_refresh);
         set_keyboard_type(settings.opt_keyboard);
+        set_renderer_type(settings.opt_renderer);
 
-        _setup.speedup   = clamp_int(::atoi(settings.opt_speedup.c_str()), 1, 100);
-        _setup.xshm      = settings.opt_xshm;
-        _setup.scanlines = settings.opt_scanlines;
-        _state.snd_clock = _device->sampleRate;
+        _setup.speedup       = clamp_int(::atoi(settings.opt_speedup.c_str()), 1, 100);
+        _setup.xshm          = settings.opt_xshm;
+        _setup.crt_emulation = settings.opt_crt_emulation;
+        _state.snd_clock     = _device->sampleRate;
     };
 
-    auto load_roms = [&]() -> void
+    auto load_system_roms = [&]() -> void
     {
-        std::string firmware(settings.opt_sysrom);
-        std::string expansions[16] = {
-            settings.opt_rom000,
-            settings.opt_rom001,
-            settings.opt_rom002,
-            settings.opt_rom003,
-            settings.opt_rom004,
-            settings.opt_rom005,
-            settings.opt_rom006,
-            settings.opt_rom007,
-            settings.opt_rom008,
-            settings.opt_rom009,
-            settings.opt_rom010,
-            settings.opt_rom011,
-            settings.opt_rom012,
-            settings.opt_rom013,
-            settings.opt_rom014,
-            settings.opt_rom015,
-        };
+        const std::string firmware(settings.opt_sysrom);
 
         /* load lower rom */ {
             try {
@@ -1472,6 +1459,29 @@ auto Mainboard::configure(const Settings& settings) -> void
                 ::xcpc_log_error("error while loading upper rom: %s", e.what());
             }
         }
+    };
+
+    auto load_expansions_roms = [&]() -> void
+    {
+        const std::string expansions[16] = {
+            settings.opt_rom000,
+            settings.opt_rom001,
+            settings.opt_rom002,
+            settings.opt_rom003,
+            settings.opt_rom004,
+            settings.opt_rom005,
+            settings.opt_rom006,
+            settings.opt_rom007,
+            settings.opt_rom008,
+            settings.opt_rom009,
+            settings.opt_rom010,
+            settings.opt_rom011,
+            settings.opt_rom012,
+            settings.opt_rom013,
+            settings.opt_rom014,
+            settings.opt_rom015,
+        };
+
         /* load expansions */ {
             unsigned int index = 0;
             for(auto& exp : _exp) {
@@ -1540,7 +1550,8 @@ auto Mainboard::configure(const Settings& settings) -> void
     {
         try {
             init_machine();
-            load_roms();
+            load_system_roms();
+            load_expansions_roms();
             reset();
             load_initial_snapshot();
             load_initial_drive0();
@@ -1561,7 +1572,7 @@ auto Mainboard::load_lower_rom(const std::string& filename) -> void
     auto*         rom   = _rom[index];
 
     if(rom == nullptr) {
-        rom = _rom[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+        rom = _rom[index] = new mem::Instance(mem::ROM_BANK, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);
@@ -1578,7 +1589,7 @@ auto Mainboard::load_upper_rom(const std::string& filename) -> void
     auto*         rom   = _rom[index];
 
     if(rom == nullptr) {
-        rom = _rom[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+        rom = _rom[index] = new mem::Instance(mem::ROM_BANK, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);
@@ -1594,7 +1605,7 @@ auto Mainboard::load_expansion(const std::string& filename, const int index) -> 
     auto* rom = _exp[index];
 
     if(rom == nullptr) {
-        rom = _exp[index] = new mem::Device(mem::Type::TYPE_ROM, *this);
+        rom = _exp[index] = new mem::Instance(mem::ROM_BANK, *this);
     }
     if(rom != nullptr) {
         std::string path(filename);
@@ -1766,9 +1777,10 @@ auto Mainboard::load_cpc(sna::Snapshot& snapshot) -> void
             ram_size = static_cast<uint32_t>(_setup.memory_size);
         }
         uint32_t bank_index = 0;
+        uint32_t bank_count = countof(_ram);
         for(auto& memory : snapshot->memory) {
             constexpr size_t memory_size = sizeof(memory.data);
-            if(ram_size != 0) {
+            if((ram_size != 0) && (bank_index < bank_count)) {
                 auto* bank = _ram[bank_index];
                 if(bank != nullptr) {
                     bank->store(memory.data, memory_size);
@@ -1935,9 +1947,10 @@ auto Mainboard::save_cpc(sna::Snapshot& snapshot) -> void
         snapshot->header.ram_size_h = (ram_size >> 18);
         snapshot->header.ram_size_l = (ram_size >> 10);
         uint32_t bank_index = 0;
+        uint32_t bank_count = countof(_ram);
         for(auto& memory : snapshot->memory) {
             constexpr size_t memory_size = sizeof(memory.data);
-            if(ram_size != 0) {
+            if((ram_size != 0) && (bank_index < bank_count)) {
                 auto* bank = _ram[bank_index];
                 if(bank != nullptr) {
                     bank->fetch(memory.data, memory_size);
@@ -1974,11 +1987,11 @@ auto Mainboard::update_vga() -> void
     /* copy palette0 to gate-array */ {
         unsigned int index = 0;
         for(auto& pixel : vga->colormap.pixel0) {
-            if(_setup.scanlines != false) {
-                pixel = dpy->palette0[index].pixel;
+            if(_setup.crt_emulation != false) {
+                pixel = dpy->palette0[index];
             }
             else {
-                pixel = dpy->palette0[index].pixel;
+                pixel = dpy->palette0[index];
             }
             ++index;
         }
@@ -1986,11 +1999,11 @@ auto Mainboard::update_vga() -> void
     /* copy palette1 to gate-array */ {
         unsigned int index = 0;
         for(auto& pixel : vga->colormap.pixel1) {
-            if(_setup.scanlines != false) {
-                pixel = dpy->palette1[index].pixel;
+            if(_setup.crt_emulation != false) {
+                pixel = dpy->palette1[index];
             }
             else {
-                pixel = dpy->palette0[index].pixel;
+                pixel = dpy->palette0[index];
             }
             ++index;
         }
@@ -2112,7 +2125,7 @@ auto Mainboard::update_stats() -> void
         const float stats_frames  = static_cast<float>(_stats.frame_drawn * 1000000UL);
         const float stats_elapsed = static_cast<float>(elapsed_us);
         const float stats_fps     = ::rintf(stats_frames / stats_elapsed);
-        const int rc = ::snprintf ( _stats.buffer, sizeof(_stats.buffer), "%d fps", static_cast<int>(stats_fps));
+        const int rc = ::snprintf(_stats.buffer, sizeof(_stats.buffer), "%d fps", static_cast<int>(stats_fps));
         static_cast<void>(rc);
     }
     /* set the new reference */ {
@@ -2122,13 +2135,11 @@ auto Mainboard::update_stats() -> void
     }
 }
 
-auto Mainboard::paint_08bpp() -> void
+auto Mainboard::render_08bpp() -> void
 {
-    auto& dpy(*_dpy);
     auto& vdc(*_vdc);
     auto& vga(*_vga);
     auto* scanline = &vga->scanline[0];
-    auto* ximage   = dpy->image;
     const uint8_t* const mode0 = vga->mode0;
     const uint8_t* const mode1 = vga->mode1;
     const uint8_t* const mode2 = vga->mode2;
@@ -2158,27 +2169,27 @@ auto Mainboard::paint_08bpp() -> void
         /* lft : pixels */ ((h.ht - h.hsp) * h.cw),
         /* rgt : pixels */ ((h.hsp - h.hd) * h.cw),
     };
-    unsigned int address = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
-    const unsigned int rowstride       = ximage->bytes_per_line;
-    int                remaining_lines = ximage->height;
-    uint8_t*  data_iter = XCPC_BYTE_PTR(ximage->data);
-    uint8_t*  this_line = nullptr;
-    uint8_t*  next_line = nullptr;
-    uint8_t   pixel0    = 0;
-    uint8_t   pixel1    = 0;
-    int       row       = 0;
-    int       col       = 0;
-    int       ras       = 0;
+    unsigned int   address         = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
+    const uint32_t bytes_per_line  = _dpy->get_image_bpl();
+    int            remaining_lines = _dpy->get_image_height();
+    uint8_t*       data_iter       = XCPC_BYTE_PTR(_dpy->get_image_data());
+    uint8_t*       curr_line       = nullptr;
+    uint8_t*       next_line       = nullptr;
+    uint8_t        pixel0          = 0;
+    uint8_t        pixel1          = 0;
 
+    if(data_iter == nullptr) {
+        return;
+    }
     /* vertical top border */ {
         const int rows = b.top;
         const int cols = h.ht * h.cw;
-        for(row = 0; row < rows; ++row) {
+        for(int row = 0; row < rows; ++row) {
             if(remaining_lines >= 2) {
-                this_line = data_iter;
-                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                curr_line = data_iter;
+                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 next_line = data_iter;
-                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 pixel0 = scanline->color[16].pixel0;
                 pixel1 = scanline->color[16].pixel1;
                 remaining_lines -= 2;
@@ -2186,8 +2197,8 @@ auto Mainboard::paint_08bpp() -> void
             else {
                 break;
             }
-            for(col = 0; col < cols; ++col) {
-                *this_line++ = pixel0;
+            for(int col = 0; col < cols; ++col) {
+                *curr_line++ = pixel0;
                 *next_line++ = pixel1;
             }
             ++scanline;
@@ -2199,13 +2210,13 @@ auto Mainboard::paint_08bpp() -> void
         const int rass = v.ch;
         const int lfts = b.lft;
         const int rgts = b.rgt;
-        for(row = 0; row < rows; ++row) {
-            for(ras = 0; ras < rass; ++ras) {
+        for(int row = 0; row < rows; ++row) {
+            for(int ras = 0; ras < rass; ++ras) {
                 if(remaining_lines >= 2) {
-                    this_line = data_iter;
-                    data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    curr_line = data_iter;
+                    data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                     next_line = data_iter;
-                    data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                     remaining_lines -= 2;
                 }
                 else {
@@ -2214,8 +2225,8 @@ auto Mainboard::paint_08bpp() -> void
                 /* horizontal left border */ {
                     pixel0 = scanline->color[16].pixel0;
                     pixel1 = scanline->color[16].pixel1;
-                    for(col = 0; col < lfts; ++col) {
-                        *this_line++ = pixel0;
+                    for(int col = 0; col < lfts; ++col) {
+                        *curr_line++ = pixel0;
                         *next_line++ = pixel1;
                     }
                 }
@@ -2223,7 +2234,7 @@ auto Mainboard::paint_08bpp() -> void
                     switch(scanline->mode) {
                         case 0x00: /* mode 0 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -2235,14 +2246,14 @@ auto Mainboard::paint_08bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
@@ -2252,14 +2263,14 @@ auto Mainboard::paint_08bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
@@ -2269,7 +2280,7 @@ auto Mainboard::paint_08bpp() -> void
                             break;
                         case 0x01: /* mode 1 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -2281,28 +2292,28 @@ auto Mainboard::paint_08bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
@@ -2312,28 +2323,28 @@ auto Mainboard::paint_08bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
@@ -2343,7 +2354,7 @@ auto Mainboard::paint_08bpp() -> void
                             break;
                         case 0x02: /* mode 2 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -2355,56 +2366,56 @@ auto Mainboard::paint_08bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 4 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 5 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 6 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 7 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
@@ -2414,56 +2425,56 @@ auto Mainboard::paint_08bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 4 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 5 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 6 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 7 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
@@ -2479,8 +2490,8 @@ auto Mainboard::paint_08bpp() -> void
                 /* horizontal right border */ {
                     pixel0 = scanline->color[16].pixel0;
                     pixel1 = scanline->color[16].pixel1;
-                    for(col = 0; col < rgts; ++col) {
-                        *this_line++ = pixel0;
+                    for(int col = 0; col < rgts; ++col) {
+                        *curr_line++ = pixel0;
                         *next_line++ = pixel1;
                     }
                 }
@@ -2492,12 +2503,12 @@ auto Mainboard::paint_08bpp() -> void
     /* vertical bottom border */ {
         const int rows = b.bot;
         const int cols = h.ht * h.cw;
-        for(row = 0; row < rows; ++row) {
+        for(int row = 0; row < rows; ++row) {
             if(remaining_lines >= 2) {
-                this_line = data_iter;
-                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                curr_line = data_iter;
+                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 next_line = data_iter;
-                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                data_iter = XCPC_BYTE_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 pixel0 = scanline->color[16].pixel0;
                 pixel1 = scanline->color[16].pixel1;
                 remaining_lines -= 2;
@@ -2505,25 +2516,23 @@ auto Mainboard::paint_08bpp() -> void
             else {
                 break;
             }
-            for(col = 0; col < cols; ++col) {
-                *this_line++ = pixel0;
+            for(int col = 0; col < cols; ++col) {
+                *curr_line++ = pixel0;
                 *next_line++ = pixel1;
             }
             ++scanline;
         }
     }
     /* put image */ {
-        _dpy->put_image();
+        _dpy->render();
     }
 }
 
-auto Mainboard::paint_16bpp() -> void
+auto Mainboard::render_16bpp() -> void
 {
-    auto& dpy(*_dpy);
     auto& vdc(*_vdc);
     auto& vga(*_vga);
     auto* scanline = &vga->scanline[0];
-    auto* ximage   = dpy->image;
     const uint8_t* const mode0 = vga->mode0;
     const uint8_t* const mode1 = vga->mode1;
     const uint8_t* const mode2 = vga->mode2;
@@ -2553,27 +2562,27 @@ auto Mainboard::paint_16bpp() -> void
         /* lft : pixels */ ((h.ht - h.hsp) * h.cw),
         /* rgt : pixels */ ((h.hsp - h.hd) * h.cw),
     };
-    unsigned int address = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
-    const unsigned int rowstride       = ximage->bytes_per_line;
-    int                remaining_lines = ximage->height;
-    uint16_t* data_iter = XCPC_WORD_PTR(ximage->data);
-    uint16_t* this_line = nullptr;
-    uint16_t* next_line = nullptr;
-    uint16_t  pixel0    = 0;
-    uint16_t  pixel1    = 0;
-    int       row       = 0;
-    int       col       = 0;
-    int       ras       = 0;
+    unsigned int   address         = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
+    const uint32_t bytes_per_line  = _dpy->get_image_bpl();
+    int            remaining_lines = _dpy->get_image_height();
+    uint16_t*      data_iter       = XCPC_WORD_PTR(_dpy->get_image_data());
+    uint16_t*      curr_line       = nullptr;
+    uint16_t*      next_line       = nullptr;
+    uint16_t       pixel0          = 0;
+    uint16_t       pixel1          = 0;
 
+    if(data_iter == nullptr) {
+        return;
+    }
     /* vertical top border */ {
         const int rows = b.top;
         const int cols = h.ht * h.cw;
-        for(row = 0; row < rows; ++row) {
+        for(int row = 0; row < rows; ++row) {
             if(remaining_lines >= 2) {
-                this_line = data_iter;
-                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                curr_line = data_iter;
+                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 next_line = data_iter;
-                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 pixel0 = scanline->color[16].pixel0;
                 pixel1 = scanline->color[16].pixel1;
                 remaining_lines -= 2;
@@ -2581,8 +2590,8 @@ auto Mainboard::paint_16bpp() -> void
             else {
                 break;
             }
-            for(col = 0; col < cols; ++col) {
-                *this_line++ = pixel0;
+            for(int col = 0; col < cols; ++col) {
+                *curr_line++ = pixel0;
                 *next_line++ = pixel1;
             }
             ++scanline;
@@ -2594,13 +2603,13 @@ auto Mainboard::paint_16bpp() -> void
         const int rass = v.ch;
         const int lfts = b.lft;
         const int rgts = b.rgt;
-        for(row = 0; row < rows; ++row) {
-            for(ras = 0; ras < rass; ++ras) {
+        for(int row = 0; row < rows; ++row) {
+            for(int ras = 0; ras < rass; ++ras) {
                 if(remaining_lines >= 2) {
-                    this_line = data_iter;
-                    data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    curr_line = data_iter;
+                    data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                     next_line = data_iter;
-                    data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                     remaining_lines -= 2;
                 }
                 else {
@@ -2609,8 +2618,8 @@ auto Mainboard::paint_16bpp() -> void
                 /* horizontal left border */ {
                     pixel0 = scanline->color[16].pixel0;
                     pixel1 = scanline->color[16].pixel1;
-                    for(col = 0; col < lfts; ++col) {
-                        *this_line++ = pixel0;
+                    for(int col = 0; col < lfts; ++col) {
+                        *curr_line++ = pixel0;
                         *next_line++ = pixel1;
                     }
                 }
@@ -2618,7 +2627,7 @@ auto Mainboard::paint_16bpp() -> void
                     switch(scanline->mode) {
                         case 0x00: /* mode 0 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -2630,14 +2639,14 @@ auto Mainboard::paint_16bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
@@ -2647,14 +2656,14 @@ auto Mainboard::paint_16bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
@@ -2664,7 +2673,7 @@ auto Mainboard::paint_16bpp() -> void
                             break;
                         case 0x01: /* mode 1 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -2676,28 +2685,28 @@ auto Mainboard::paint_16bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
@@ -2707,28 +2716,28 @@ auto Mainboard::paint_16bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
@@ -2738,7 +2747,7 @@ auto Mainboard::paint_16bpp() -> void
                             break;
                         case 0x02: /* mode 2 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -2750,56 +2759,56 @@ auto Mainboard::paint_16bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 4 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 5 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 6 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 7 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
@@ -2809,56 +2818,56 @@ auto Mainboard::paint_16bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 4 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 5 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 6 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 7 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
@@ -2874,8 +2883,8 @@ auto Mainboard::paint_16bpp() -> void
                 /* horizontal right border */ {
                     pixel0 = scanline->color[16].pixel0;
                     pixel1 = scanline->color[16].pixel1;
-                    for(col = 0; col < rgts; ++col) {
-                        *this_line++ = pixel0;
+                    for(int col = 0; col < rgts; ++col) {
+                        *curr_line++ = pixel0;
                         *next_line++ = pixel1;
                     }
                 }
@@ -2887,12 +2896,12 @@ auto Mainboard::paint_16bpp() -> void
     /* vertical bottom border */ {
         const int rows = b.bot;
         const int cols = h.ht * h.cw;
-        for(row = 0; row < rows; ++row) {
+        for(int row = 0; row < rows; ++row) {
             if(remaining_lines >= 2) {
-                this_line = data_iter;
-                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                curr_line = data_iter;
+                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 next_line = data_iter;
-                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                data_iter = XCPC_WORD_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 pixel0 = scanline->color[16].pixel0;
                 pixel1 = scanline->color[16].pixel1;
                 remaining_lines -= 2;
@@ -2900,25 +2909,23 @@ auto Mainboard::paint_16bpp() -> void
             else {
                 break;
             }
-            for(col = 0; col < cols; ++col) {
-                *this_line++ = pixel0;
+            for(int col = 0; col < cols; ++col) {
+                *curr_line++ = pixel0;
                 *next_line++ = pixel1;
             }
             ++scanline;
         }
     }
     /* put image */ {
-        _dpy->put_image();
+        _dpy->render();
     }
 }
 
-auto Mainboard::paint_32bpp() -> void
+auto Mainboard::render_32bpp() -> void
 {
-    auto& dpy(*_dpy);
     auto& vdc(*_vdc);
     auto& vga(*_vga);
     auto* scanline = &vga->scanline[0];
-    auto* ximage   = dpy->image;
     const uint8_t* const mode0 = vga->mode0;
     const uint8_t* const mode1 = vga->mode1;
     const uint8_t* const mode2 = vga->mode2;
@@ -2948,27 +2955,27 @@ auto Mainboard::paint_32bpp() -> void
         /* lft : pixels */ ((h.ht - h.hsp) * h.cw),
         /* rgt : pixels */ ((h.hsp - h.hd) * h.cw),
     };
-    unsigned int address = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
-    const unsigned int rowstride       = ximage->bytes_per_line;
-    int                remaining_lines = ximage->height;
-    uint32_t* data_iter = XCPC_LONG_PTR(ximage->data);
-    uint32_t* this_line = nullptr;
-    uint32_t* next_line = nullptr;
-    uint32_t  pixel0    = 0;
-    uint32_t  pixel1    = 0;
-    int       row       = 0;
-    int       col       = 0;
-    int       ras       = 0;
+    unsigned int   address         = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
+    const uint32_t bytes_per_line  = _dpy->get_image_bpl();
+    int            remaining_lines = _dpy->get_image_height();
+    uint32_t*      data_iter       = XCPC_LONG_PTR(_dpy->get_image_data());
+    uint32_t*      curr_line       = nullptr;
+    uint32_t*      next_line       = nullptr;
+    uint32_t       pixel0          = 0;
+    uint32_t       pixel1          = 0;
 
+    if(data_iter == nullptr) {
+        return;
+    }
     /* vertical top border */ {
         const int rows = b.top;
         const int cols = h.ht * h.cw;
-        for(row = 0; row < rows; ++row) {
+        for(int row = 0; row < rows; ++row) {
             if(remaining_lines >= 2) {
-                this_line = data_iter;
-                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                curr_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 next_line = data_iter;
-                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 pixel0 = scanline->color[16].pixel0;
                 pixel1 = scanline->color[16].pixel1;
                 remaining_lines -= 2;
@@ -2976,8 +2983,8 @@ auto Mainboard::paint_32bpp() -> void
             else {
                 break;
             }
-            for(col = 0; col < cols; ++col) {
-                *this_line++ = pixel0;
+            for(int col = 0; col < cols; ++col) {
+                *curr_line++ = pixel0;
                 *next_line++ = pixel1;
             }
             ++scanline;
@@ -2989,13 +2996,13 @@ auto Mainboard::paint_32bpp() -> void
         const int rass = v.ch;
         const int lfts = b.lft;
         const int rgts = b.rgt;
-        for(row = 0; row < rows; ++row) {
-            for(ras = 0; ras < rass; ++ras) {
+        for(int row = 0; row < rows; ++row) {
+            for(int ras = 0; ras < rass; ++ras) {
                 if(remaining_lines >= 2) {
-                    this_line = data_iter;
-                    data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    curr_line = data_iter;
+                    data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                     next_line = data_iter;
-                    data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                    data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                     remaining_lines -= 2;
                 }
                 else {
@@ -3004,8 +3011,8 @@ auto Mainboard::paint_32bpp() -> void
                 /* horizontal left border */ {
                     pixel0 = scanline->color[16].pixel0;
                     pixel1 = scanline->color[16].pixel1;
-                    for(col = 0; col < lfts; ++col) {
-                        *this_line++ = pixel0;
+                    for(int col = 0; col < lfts; ++col) {
+                        *curr_line++ = pixel0;
                         *next_line++ = pixel1;
                     }
                 }
@@ -3013,7 +3020,7 @@ auto Mainboard::paint_32bpp() -> void
                     switch(scanline->mode) {
                         case 0x00: /* mode 0 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -3025,14 +3032,14 @@ auto Mainboard::paint_32bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
@@ -3042,14 +3049,14 @@ auto Mainboard::paint_32bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x0f].pixel0;
                                             pixel1 = scanline->color[byte & 0x0f].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 4;
                                         }
@@ -3059,7 +3066,7 @@ auto Mainboard::paint_32bpp() -> void
                             break;
                         case 0x01: /* mode 1 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -3071,28 +3078,28 @@ auto Mainboard::paint_32bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
@@ -3102,28 +3109,28 @@ auto Mainboard::paint_32bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x03].pixel0;
                                             pixel1 = scanline->color[byte & 0x03].pixel1;
-                                            *this_line++ = pixel0; *this_line++ = pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
                                             *next_line++ = pixel1; *next_line++ = pixel1;
                                             byte >>= 2;
                                         }
@@ -3133,7 +3140,7 @@ auto Mainboard::paint_32bpp() -> void
                             break;
                         case 0x02: /* mode 2 */
                             {
-                                for(col = 0; col < cols; ++col) {
+                                for(int col = 0; col < cols; ++col) {
                                     const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
                                     const uint16_t bank = ((addr >> 14) & 0x0003);
                                     const uint16_t disp = ((addr >>  0) & 0x3fff);
@@ -3145,56 +3152,56 @@ auto Mainboard::paint_32bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 4 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 5 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 6 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 7 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
@@ -3204,56 +3211,56 @@ auto Mainboard::paint_32bpp() -> void
                                         /* render pixel 0 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 1 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 2 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 3 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 4 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 5 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 6 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
                                         /* render pixel 7 */ {
                                             pixel0 = scanline->color[byte & 0x01].pixel0;
                                             pixel1 = scanline->color[byte & 0x01].pixel1;
-                                            *this_line++ = pixel0;
+                                            *curr_line++ = pixel0;
                                             *next_line++ = pixel1;
                                             byte >>= 1;
                                         }
@@ -3269,8 +3276,8 @@ auto Mainboard::paint_32bpp() -> void
                 /* horizontal right border */ {
                     pixel0 = scanline->color[16].pixel0;
                     pixel1 = scanline->color[16].pixel1;
-                    for(col = 0; col < rgts; ++col) {
-                        *this_line++ = pixel0;
+                    for(int col = 0; col < rgts; ++col) {
+                        *curr_line++ = pixel0;
                         *next_line++ = pixel1;
                     }
                 }
@@ -3282,12 +3289,12 @@ auto Mainboard::paint_32bpp() -> void
     /* vertical bottom border */ {
         const int rows = b.bot;
         const int cols = h.ht * h.cw;
-        for(row = 0; row < rows; ++row) {
+        for(int row = 0; row < rows; ++row) {
             if(remaining_lines >= 2) {
-                this_line = data_iter;
-                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                curr_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 next_line = data_iter;
-                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + rowstride);
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
                 pixel0 = scanline->color[16].pixel0;
                 pixel1 = scanline->color[16].pixel1;
                 remaining_lines -= 2;
@@ -3295,21 +3302,428 @@ auto Mainboard::paint_32bpp() -> void
             else {
                 break;
             }
-            for(col = 0; col < cols; ++col) {
-                *this_line++ = pixel0;
+            for(int col = 0; col < cols; ++col) {
+                *curr_line++ = pixel0;
                 *next_line++ = pixel1;
             }
             ++scanline;
         }
     }
     /* put image */ {
-        _dpy->put_image();
+        _dpy->render();
+    }
+}
+
+auto Mainboard::render_rgba() -> void
+{
+    auto& vdc(*_vdc);
+    auto& vga(*_vga);
+    auto* scanline = &vga->scanline[0];
+    const uint8_t* const mode0 = vga->mode0;
+    const uint8_t* const mode1 = vga->mode1;
+    const uint8_t* const mode2 = vga->mode2;
+    const uint8_t* const ram[4] = {
+        (*_ram[0])->data,
+        (*_ram[1])->data,
+        (*_ram[2])->data,
+        (*_ram[3])->data,
+    };
+    const HorzProps h = {
+        /* cw  : pixels */ (16),
+        /* ht  : chars  */ (1 + (vdc->regs.named.horizontal_total     < 63 ? vdc->regs.named.horizontal_total     : 63)),
+        /* hd  : chars  */ (0 + (vdc->regs.named.horizontal_displayed < 52 ? vdc->regs.named.horizontal_displayed : 52)),
+        /* hsp : chars  */ (0 + (vdc->regs.named.horizontal_sync_position)),
+        /* hsw : pixels */ (0 + ((vdc->regs.named.sync_width >> 0) & 0x0f)),
+    };
+    const VertProps v = {
+        /* ch  : pixels */ (1 + (vdc->regs.named.maximum_scanline_address)),
+        /* vt  : chars  */ (1 + (vdc->regs.named.vertical_total     < 40 ? vdc->regs.named.vertical_total     : 40)),
+        /* vd  : chars  */ (0 + (vdc->regs.named.vertical_displayed < 40 ? vdc->regs.named.vertical_displayed : 40)),
+        /* vsp : chars  */ (0 + (vdc->regs.named.vertical_sync_position)),
+        /* vsw : pixels */ (0 + ((vdc->regs.named.sync_width >> 4) & 0x0f)),
+    };
+    const Borders b = {
+        /* top : pixels */ ((v.vt - v.vsp) * v.ch) + vdc->regs.named.vertical_total_adjust,
+        /* bot : pixels */ ((v.vsp - v.vd) * v.ch),
+        /* lft : pixels */ ((h.ht - h.hsp) * h.cw),
+        /* rgt : pixels */ ((h.hsp - h.hd) * h.cw),
+    };
+    unsigned int   address         = ((vdc->regs.named.start_address_high << 8) | (vdc->regs.named.start_address_low  << 0));
+    const uint32_t bytes_per_line  = _dpy->get_image_bpl();
+    int            remaining_lines = _dpy->get_image_height();
+    uint32_t*      data_iter       = XCPC_LONG_PTR(_dpy->get_image_data());
+    uint32_t*      curr_line       = nullptr;
+    uint32_t*      next_line       = nullptr;
+    uint32_t       pixel0          = 0;
+    uint32_t       pixel1          = 0;
+
+    if(data_iter == nullptr) {
+        return;
+    }
+    /* vertical top border */ {
+        const int rows = b.top;
+        const int cols = h.ht * h.cw;
+        for(int row = 0; row < rows; ++row) {
+            if(remaining_lines >= 2) {
+                curr_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
+                next_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
+                pixel0 = scanline->color[16].pixel0;
+                pixel1 = scanline->color[16].pixel0;
+                remaining_lines -= 2;
+            }
+            else {
+                break;
+            }
+            for(int col = 0; col < cols; ++col) {
+                *curr_line++ = pixel0;
+                *next_line++ = pixel1;
+            }
+            ++scanline;
+        }
+    }
+    /* vertical active display */ {
+        const int rows = v.vd;
+        const int cols = h.hd;
+        const int rass = v.ch;
+        const int lfts = b.lft;
+        const int rgts = b.rgt;
+        for(int row = 0; row < rows; ++row) {
+            for(int ras = 0; ras < rass; ++ras) {
+                if(remaining_lines >= 2) {
+                    curr_line = data_iter;
+                    data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
+                    next_line = data_iter;
+                    data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
+                    remaining_lines -= 2;
+                }
+                else {
+                    break;
+                }
+                /* horizontal left border */ {
+                    pixel0 = scanline->color[16].pixel0;
+                    pixel1 = scanline->color[16].pixel0;
+                    for(int col = 0; col < lfts; ++col) {
+                        *curr_line++ = pixel0;
+                        *next_line++ = pixel1;
+                    }
+                }
+                /* horizontal active display */ {
+                    switch(scanline->mode) {
+                        case 0x00: /* mode 0 */
+                            {
+                                for(int col = 0; col < cols; ++col) {
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode0[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel0 = scanline->color[byte & 0x0f].pixel0;
+                                            pixel1 = scanline->color[byte & 0x0f].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 4;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel0 = scanline->color[byte & 0x0f].pixel0;
+                                            pixel1 = scanline->color[byte & 0x0f].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 4;
+                                        }
+                                    }
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode0[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel0 = scanline->color[byte & 0x0f].pixel0;
+                                            pixel1 = scanline->color[byte & 0x0f].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 4;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel0 = scanline->color[byte & 0x0f].pixel0;
+                                            pixel1 = scanline->color[byte & 0x0f].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 4;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        case 0x01: /* mode 1 */
+                            {
+                                for(int col = 0; col < cols; ++col) {
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode1[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel0 = scanline->color[byte & 0x03].pixel0;
+                                            pixel1 = scanline->color[byte & 0x03].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel0 = scanline->color[byte & 0x03].pixel0;
+                                            pixel1 = scanline->color[byte & 0x03].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel0 = scanline->color[byte & 0x03].pixel0;
+                                            pixel1 = scanline->color[byte & 0x03].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel0 = scanline->color[byte & 0x03].pixel0;
+                                            pixel1 = scanline->color[byte & 0x03].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 2;
+                                        }
+                                    }
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode1[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel0 = scanline->color[byte & 0x03].pixel0;
+                                            pixel1 = scanline->color[byte & 0x03].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel0 = scanline->color[byte & 0x03].pixel0;
+                                            pixel1 = scanline->color[byte & 0x03].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel0 = scanline->color[byte & 0x03].pixel0;
+                                            pixel1 = scanline->color[byte & 0x03].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 2;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel0 = scanline->color[byte & 0x03].pixel0;
+                                            pixel1 = scanline->color[byte & 0x03].pixel0;
+                                            *curr_line++ = pixel0; *curr_line++ = pixel0;
+                                            *next_line++ = pixel1; *next_line++ = pixel1;
+                                            byte >>= 2;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        case 0x02: /* mode 2 */
+                            {
+                                for(int col = 0; col < cols; ++col) {
+                                    const uint16_t addr = ((address & 0x3000) << 2) | ((ras & 0x0007) << 11) | (((address + col) & 0x03ff) << 1);
+                                    const uint16_t bank = ((addr >> 14) & 0x0003);
+                                    const uint16_t disp = ((addr >>  0) & 0x3fff);
+                                    if(col >= h.hsp) {
+                                        break;
+                                    }
+                                    /* process 1st byte */ {
+                                        uint8_t byte = mode2[ram[bank][disp | 0]];
+                                        /* render pixel 0 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 4 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 5 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 6 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 7 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                    }
+                                    /* process 2nd byte */ {
+                                        uint8_t byte = mode2[ram[bank][disp | 1]];
+                                        /* render pixel 0 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 1 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 2 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 3 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 4 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 5 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 6 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                        /* render pixel 7 */ {
+                                            pixel0 = scanline->color[byte & 0x01].pixel0;
+                                            pixel1 = scanline->color[byte & 0x01].pixel0;
+                                            *curr_line++ = pixel0;
+                                            *next_line++ = pixel1;
+                                            byte >>= 1;
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            ::xcpc_log_alert("mode %d is not supported", scanline->mode);
+                            break;
+                    }
+                }
+                /* horizontal right border */ {
+                    pixel0 = scanline->color[16].pixel0;
+                    pixel1 = scanline->color[16].pixel0;
+                    for(int col = 0; col < rgts; ++col) {
+                        *curr_line++ = pixel0;
+                        *next_line++ = pixel1;
+                    }
+                }
+                ++scanline;
+            }
+            address += h.hd;
+        }
+    }
+    /* vertical bottom border */ {
+        const int rows = b.bot;
+        const int cols = h.ht * h.cw;
+        for(int row = 0; row < rows; ++row) {
+            if(remaining_lines >= 2) {
+                curr_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
+                next_line = data_iter;
+                data_iter = XCPC_LONG_PTR(XCPC_BYTE_PTR(data_iter) + bytes_per_line);
+                pixel0 = scanline->color[16].pixel0;
+                pixel1 = scanline->color[16].pixel0;
+                remaining_lines -= 2;
+            }
+            else {
+                break;
+            }
+            for(int col = 0; col < cols; ++col) {
+                *curr_line++ = pixel0;
+                *next_line++ = pixel1;
+            }
+            ++scanline;
+        }
+    }
+    /* put image */ {
+        _dpy->render();
     }
 }
 
 auto Mainboard::process(const void* input, void* output, const uint32_t count) -> void
 {
     const MutexLock lock(_mutex);
+
+    auto dc_block = [&](const int stream, const float input) -> float
+    {
+        constexpr float attenuation = 0.999f;
+        const float output = (input - _audio.dcb_input[stream]) + (attenuation * _audio.dcb_output[stream]);
+        _audio.dcb_input[stream]  = input;
+        _audio.dcb_output[stream] = output;
+        return output;
+    };
+
+    auto clamp = [&](const float value) -> float
+    {
+        return (value < -1.0f ? -1.0f : (value > +1.0f ? +1.0f : value));
+    };
 
     auto mix_mono = [&](MonoFrameFlt32& audio_frame) -> void
     {
@@ -3320,7 +3734,7 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
                          + (_audio.channel2[index] * 1.00f)
                          ;
 
-        audio_frame.mono = ((mono / 3.0f) * _audio.volume);
+        audio_frame.mono = clamp(dc_block(0, mono / 3.0f) * _audio.volume);
     };
 
     auto mix_stereo = [&](StereoFrameFlt32& audio_frame) -> void
@@ -3337,8 +3751,31 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
                           + (_audio.channel2[index] * 0.75f)
                           ;
 
-        audio_frame.left  = ((left  / 1.5f) * _audio.volume);
-        audio_frame.right = ((right / 1.5f) * _audio.volume);
+        audio_frame.left  = clamp(dc_block(0, left  / 1.5f) * _audio.volume);
+        audio_frame.right = clamp(dc_block(1, right / 1.5f) * _audio.volume);
+    };
+
+    auto mix_surround40 = [&](Surround40FrameFlt32& audio_frame) -> void
+    {
+        const auto index = _audio.rd_index;
+
+        const float left  = (_audio.channel0[index] * 0.75f)
+                          + (_audio.channel1[index] * 0.50f)
+                          + (_audio.channel2[index] * 0.25f)
+                          ;
+
+        const float right = (_audio.channel0[index] * 0.25f)
+                          + (_audio.channel1[index] * 0.50f)
+                          + (_audio.channel2[index] * 0.75f)
+                          ;
+
+        const float out_l = clamp(dc_block(0, left  / 1.5f) * _audio.volume);
+        const float out_r = clamp(dc_block(1, right / 1.5f) * _audio.volume);
+
+        audio_frame.front_left  = out_l;
+        audio_frame.front_right = out_r;
+        audio_frame.back_left   = out_l;
+        audio_frame.back_right  = out_r;
     };
 
     auto render_mono = [&]() -> void
@@ -3367,6 +3804,19 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
         }
     };
 
+    auto render_surround40 = [&]() -> void
+    {
+        for(uint32_t index = 0; index < count; ++index) {
+            if(_audio.rd_index != _audio.wr_index) {
+                mix_surround40(reinterpret_cast<Surround40FrameFlt32*>(output)[index]);
+                _audio.rd_index = ((_audio.rd_index + 1) % SND_BUFSIZE);
+            }
+            else {
+                break;
+            }
+        }
+    };
+
     auto render = [&]() -> void
     {
         switch(_device->playback.channels) {
@@ -3376,6 +3826,9 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
             case 2:
                 render_stereo();
                 break;
+            case 4:
+                render_surround40();
+                break;
             default:
                 break;
         }
@@ -3384,7 +3837,7 @@ auto Mainboard::process(const void* input, void* output, const uint32_t count) -
     return render();
 }
 
-auto Mainboard::cpu_mreq_m1(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t
+auto Mainboard::cpu_mreq_m1(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t
 {
     /* mreq m1 */ {
         const uint16_t bank   = ((addr >> 14) & 0x0003);
@@ -3402,7 +3855,7 @@ auto Mainboard::cpu_mreq_m1(cpu::Device& device, uint16_t addr, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_mreq_rd(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t
+auto Mainboard::cpu_mreq_rd(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t
 {
     /* mreq rd */ {
         const uint16_t bank   = ((addr >> 14) & 0x0003);
@@ -3412,7 +3865,7 @@ auto Mainboard::cpu_mreq_rd(cpu::Device& device, uint16_t addr, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_mreq_wr(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t
+auto Mainboard::cpu_mreq_wr(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t
 {
     /* mreq wr */ {
         const uint16_t bank   = ((addr >> 14) & 0x0003);
@@ -3422,7 +3875,7 @@ auto Mainboard::cpu_mreq_wr(cpu::Device& device, uint16_t addr, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_iorq_m1(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t
+auto Mainboard::cpu_iorq_m1(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t
 {
     /* clear data */ {
         data = 0xff;
@@ -3433,7 +3886,7 @@ auto Mainboard::cpu_iorq_m1(cpu::Device& device, uint16_t port, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_iorq_rd(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t
+auto Mainboard::cpu_iorq_rd(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t
 {
     /* clear data */ {
         data = 0x00;
@@ -3544,7 +3997,7 @@ auto Mainboard::cpu_iorq_rd(cpu::Device& device, uint16_t port, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::cpu_iorq_wr(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t
+auto Mainboard::cpu_iorq_wr(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t
 {
     /* vga-core [0-------xxxxxxxx] [0x7fxx] */ {
         if((port & 0x8000) == 0) {
@@ -3650,21 +4103,21 @@ auto Mainboard::cpu_iorq_wr(cpu::Device& device, uint16_t port, uint8_t data) ->
     return data;
 }
 
-auto Mainboard::vga_raise_nmi(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_raise_nmi(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     _cpu->pulse_nmi();
 
     return value;
 }
 
-auto Mainboard::vga_raise_int(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_raise_int(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     _cpu->pulse_int();
 
     return value;
 }
 
-auto Mainboard::vga_setup_ram(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_setup_ram(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     _state.ram_conf = (value & 0x3f);
 
@@ -3673,7 +4126,7 @@ auto Mainboard::vga_setup_ram(vga::Device& device, uint8_t value) -> uint8_t
     return value;
 }
 
-auto Mainboard::vga_setup_rom(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_setup_rom(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     _state.rom_conf = (value & 0xff);
 
@@ -3682,14 +4135,14 @@ auto Mainboard::vga_setup_rom(vga::Device& device, uint8_t value) -> uint8_t
     return value;
 }
 
-auto Mainboard::vga_setup_rmr(vga::Device& device, uint8_t value) -> uint8_t
+auto Mainboard::vga_setup_rmr(vga::Instance& instance, uint8_t value) -> uint8_t
 {
     update_pal();
 
     return value;
 }
 
-auto Mainboard::vdc_hsync(vdc::Device& device, uint8_t hsync) -> uint8_t
+auto Mainboard::vdc_hsync(vdc::Instance& instance, uint8_t hsync) -> uint8_t
 {
     auto& vga(*_vga);
 
@@ -3712,7 +4165,7 @@ auto Mainboard::vdc_hsync(vdc::Device& device, uint8_t hsync) -> uint8_t
     return 0x00;
 }
 
-auto Mainboard::vdc_vsync(vdc::Device& device, uint8_t vsync) -> uint8_t
+auto Mainboard::vdc_vsync(vdc::Instance& instance, uint8_t vsync) -> uint8_t
 {
     auto& vga(*_vga);
 
@@ -3735,7 +4188,7 @@ auto Mainboard::vdc_vsync(vdc::Device& device, uint8_t vsync) -> uint8_t
     return 0x00;
 }
 
-auto Mainboard::ppi_port_a_rd(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_a_rd(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto psg_get_value = [&]() -> uint8_t
     {
@@ -3787,7 +4240,7 @@ auto Mainboard::ppi_port_a_rd(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_a_wr(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_a_wr(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto psg_get_value = [&]() -> uint8_t
     {
@@ -3842,7 +4295,7 @@ auto Mainboard::ppi_port_a_wr(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_b_rd(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_b_rd(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3860,7 +4313,7 @@ auto Mainboard::ppi_port_b_rd(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_b_wr(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_b_wr(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3870,7 +4323,7 @@ auto Mainboard::ppi_port_b_wr(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_c_rd(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_c_rd(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3880,7 +4333,7 @@ auto Mainboard::ppi_port_c_rd(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::ppi_port_c_wr(ppi::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::ppi_port_c_wr(ppi::Instance& instance, uint8_t data) -> uint8_t
 {
     auto psg_get_value = [&]() -> uint8_t
     {
@@ -3941,7 +4394,7 @@ auto Mainboard::ppi_port_c_wr(ppi::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::psg_port_a_rd(psg::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::psg_port_a_rd(psg::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3951,7 +4404,7 @@ auto Mainboard::psg_port_a_rd(psg::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::psg_port_a_wr(psg::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::psg_port_a_wr(psg::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3961,7 +4414,7 @@ auto Mainboard::psg_port_a_wr(psg::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::psg_port_b_rd(psg::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::psg_port_b_rd(psg::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {
@@ -3971,7 +4424,7 @@ auto Mainboard::psg_port_b_rd(psg::Device& device, uint8_t data) -> uint8_t
     return process();
 }
 
-auto Mainboard::psg_port_b_wr(psg::Device& device, uint8_t data) -> uint8_t
+auto Mainboard::psg_port_b_wr(psg::Instance& instance, uint8_t data) -> uint8_t
 {
     auto process = [&]() -> uint8_t
     {

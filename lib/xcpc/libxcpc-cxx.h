@@ -1,5 +1,5 @@
 /*
- * libxcpc-cxx.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * libxcpc-cxx.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ using MonitorType        = XcpcMonitorType;
 using RefreshRate        = XcpcRefreshRate;
 using KeyboardType       = XcpcKeyboardType;
 using MemorySize         = XcpcMemorySize;
+using RendererType       = XcpcRendererType;
 using EventType          = XcpcEventType;
 using ModifierType       = XcpcModifierType;
 using AnyEvent           = XcpcAnyEvent;
@@ -132,6 +133,8 @@ struct Utils
 
     static auto memory_size_from_string(const std::string& string) -> MemorySize;
 
+    static auto renderer_type_from_string(const std::string& string) -> RendererType;
+
     static auto company_name_to_string(const CompanyName value) -> std::string;
 
     static auto machine_type_to_string(const MachineType value) -> std::string;
@@ -143,6 +146,8 @@ struct Utils
     static auto keyboard_type_to_string(const KeyboardType value) -> std::string;
 
     static auto memory_size_to_string(const MemorySize value) -> std::string;
+
+    static auto renderer_type_to_string(const RendererType value) -> std::string;
 };
 
 }
@@ -158,7 +163,11 @@ class Machine
 public: // public interface
     Machine() = default;
 
+    Machine(Machine&&) = delete;
+
     Machine(const Machine&) = delete;
+
+    Machine& operator=(Machine&&) = delete;
 
     Machine& operator=(const Machine&) = delete;
 
@@ -186,7 +195,11 @@ class Mainboard
 public: // public interface
     Mainboard() = default;
 
+    Mainboard(Mainboard&&) = delete;
+
     Mainboard(const Mainboard&) = delete;
+
+    Mainboard& operator=(Mainboard&&) = delete;
 
     Mainboard& operator=(const Mainboard&) = delete;
 
@@ -214,7 +227,11 @@ class Device
 public: // public interface
     Device() = default;
 
+    Device(Device&&) = delete;
+
     Device(const Device&) = delete;
+
+    Device& operator=(Device&&) = delete;
 
     Device& operator=(const Device&) = delete;
 
@@ -238,7 +255,11 @@ class Peripheral
 public: // public interface
     Peripheral() = default;
 
+    Peripheral(Peripheral&&) = delete;
+
     Peripheral(const Peripheral&) = delete;
+
+    Peripheral& operator=(Peripheral&&) = delete;
 
     Peripheral& operator=(const Peripheral&) = delete;
 
@@ -262,7 +283,11 @@ class Settings
 public: // public interface
     Settings() = default;
 
+    Settings(Settings&&) = delete;
+
     Settings(const Settings&) = delete;
+
+    Settings& operator=(Settings&&) = delete;
 
     Settings& operator=(const Settings&) = delete;
 
@@ -287,9 +312,9 @@ using MonoFrameInt16 = MonoFrame<int16_t>;
 using MonoFrameInt32 = MonoFrame<int32_t>;
 using MonoFrameFlt32 = MonoFrame<float>;
 
-static_assert(sizeof(MonoFrameInt16) == 2);
-static_assert(sizeof(MonoFrameInt32) == 4);
-static_assert(sizeof(MonoFrameFlt32) == 4);
+static_assert(sizeof(MonoFrameInt16) == 2, "MonoFrameInt16 has a bad size");
+static_assert(sizeof(MonoFrameInt32) == 4, "MonoFrameInt32 has a bad size");
+static_assert(sizeof(MonoFrameFlt32) == 4, "MonoFrameFlt32 has a bad size");
 
 }
 
@@ -310,9 +335,34 @@ using StereoFrameInt16 = StereoFrame<int16_t>;
 using StereoFrameInt32 = StereoFrame<int32_t>;
 using StereoFrameFlt32 = StereoFrame<float>;
 
-static_assert(sizeof(StereoFrameInt16) == 4);
-static_assert(sizeof(StereoFrameInt32) == 8);
-static_assert(sizeof(StereoFrameFlt32) == 8);
+static_assert(sizeof(StereoFrameInt16) == 4, "StereoFrameInt16 has a bad size");
+static_assert(sizeof(StereoFrameInt32) == 8, "StereoFrameInt32 has a bad size");
+static_assert(sizeof(StereoFrameFlt32) == 8, "StereoFrameFlt32 has a bad size");
+
+}
+
+// ---------------------------------------------------------------------------
+// xcpc::Surround40Frame<T>
+// ---------------------------------------------------------------------------
+
+namespace xcpc {
+
+template <typename T>
+struct Surround40Frame
+{
+    T front_left;
+    T front_right;
+    T back_left;
+    T back_right;
+};
+
+using Surround40FrameInt16 = Surround40Frame<int16_t>;
+using Surround40FrameInt32 = Surround40Frame<int32_t>;
+using Surround40FrameFlt32 = Surround40Frame<float>;
+
+static_assert(sizeof(Surround40FrameInt16) ==  8, "Surround40FrameInt16 has a bad size");
+static_assert(sizeof(Surround40FrameInt32) == 16, "Surround40FrameInt32 has a bad size");
+static_assert(sizeof(Surround40FrameFlt32) == 16, "Surround40FrameFlt32 has a bad size");
 
 }
 
@@ -358,7 +408,11 @@ public: // public interface
 
     AudioDevice(const AudioConfig& config);
 
+    AudioDevice(AudioDevice&&) = delete;
+
     AudioDevice(const AudioDevice&) = delete;
+
+    AudioDevice& operator=(AudioDevice&&) = delete;
 
     AudioDevice& operator=(const AudioDevice&) = delete;
 
@@ -400,7 +454,11 @@ class AudioProcessor
 public: // public interface
     AudioProcessor(AudioDevice& device);
 
+    AudioProcessor(AudioProcessor&&) = delete;
+
     AudioProcessor(const AudioProcessor&) = delete;
+
+    AudioProcessor& operator=(AudioProcessor&&) = delete;
 
     AudioProcessor& operator=(const AudioProcessor&) = delete;
 

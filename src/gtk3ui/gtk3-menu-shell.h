@@ -1,5 +1,5 @@
 /*
- * gtk3-menu-shell.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-menu-shell.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     MenuShell(GtkWidget*);
 
+    MenuShell(MenuShell&&) = delete;
+
     MenuShell(const MenuShell&) = delete;
+
+    MenuShell& operator=(MenuShell&&) = delete;
 
     MenuShell& operator=(const MenuShell&) = delete;
 
@@ -44,7 +48,7 @@ public: // public interface
         return GTK_MENU_SHELL(_instance);
     }
 
-    void append(Widget&);
+    auto append(Widget&) -> void;
 };
 
 }

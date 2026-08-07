@@ -110,7 +110,7 @@ static int get_i16(unsigned char *buf, int pos)
     if(high_byte & 0x80)				   /* then negative */
 	/* Set all to ones except for the lower 16 */
 	/* Should work if sizeof(int) >= 16 */
-	outInt = (-1) << 16;
+	outInt = (~0u) << 16;
     return (outInt |= (high_byte << 8) | low_byte);
 }
 

@@ -1,5 +1,5 @@
 /*
- * libxcpc.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * libxcpc.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -252,6 +252,20 @@ const XcpcValueEntry memory_size_table[] = {
 }
 
 // ---------------------------------------------------------------------------
+// <anonymous>::renderer_type_table
+// ---------------------------------------------------------------------------
+
+namespace {
+
+const XcpcValueEntry renderer_type_table[] = {
+    { "default", XCPC_RENDERER_TYPE_DEFAULT },
+    { "ximage" , XCPC_RENDERER_TYPE_XIMAGE  },
+    { "opengl" , XCPC_RENDERER_TYPE_OPENGL  },
+};
+
+}
+
+// ---------------------------------------------------------------------------
 // <anonymous>::constants
 // ---------------------------------------------------------------------------
 
@@ -266,7 +280,7 @@ constexpr char libxcpc_version[] = ""
     ;
 
 constexpr char libxcpc_copyright[] = ""
-    "Copyright (c) 2001-2024 - Olivier Poncet";
+    "Copyright (c) 2001-2026 - Olivier Poncet";
     ;
 
 constexpr char libxcpc_comments[] = ""
@@ -304,9 +318,9 @@ constexpr char libxcpc_license[] = ""
     ""                                                                                   "\n"
     "----------------------------------------------------------------------------------" "\n"
     ""                                                                                   "\n"
-    "miniaudio v0.11.21, a single file audio playback and capture library written in C." "\n"
+    "miniaudio v0.11.25, a single file audio playback and capture library written in C." "\n"
     ""                                                                                   "\n"
-    "Copyright 2023 David Reid"                                                          "\n"
+    "Copyright 2025 David Reid"                                                          "\n"
     ""                                                                                   "\n"
     "Permission is hereby granted, free of charge, to any person obtaining a copy of"    "\n"
     "this software and associated documentation files (the \"Software\"), to deal in"    "\n"
@@ -392,7 +406,31 @@ namespace {
 
 struct libxcpc_traits
 {
-    static char* getenv(const char* variable, const char* fallback)
+    static char* get_path(const char* variable, const char* fallback)
+    {
+        std::string path;
+        const char* appdir = ::getenv("APPDIR");
+        const char* value  = ::getenv(variable);
+
+        if(value != nullptr) {
+            path += value;
+        }
+        else if((appdir != nullptr) && (*appdir != '\0')) {
+            path += appdir;
+            path.erase(path.find_last_not_of('/') + 1);
+            while(*fallback == '/') {
+                ++fallback;
+            }
+            path += '/';
+            path += fallback;
+        }
+        else {
+            path += fallback;
+        }
+        return ::strdup(path.c_str());
+    }
+
+    static char* get_variable(const char* variable, const char* fallback)
     {
         const char* value = ::getenv(variable);
 
@@ -450,14 +488,14 @@ struct libxcpc_traits
 
     static auto init_directories(XcpcLibrary& library) -> void
     {
-        if(library.bindir == nullptr) { library.bindir = getenv("XCPC_BINDIR", libxcpc_bindir); }
-        if(library.libdir == nullptr) { library.libdir = getenv("XCPC_LIBDIR", libxcpc_libdir); }
-        if(library.datdir == nullptr) { library.datdir = getenv("XCPC_DATDIR", libxcpc_datdir); }
-        if(library.docdir == nullptr) { library.docdir = getenv("XCPC_DOCDIR", libxcpc_docdir); }
-        if(library.resdir == nullptr) { library.resdir = getenv("XCPC_RESDIR", libxcpc_resdir); }
-        if(library.romdir == nullptr) { library.romdir = getenv("XCPC_ROMDIR", libxcpc_romdir); }
-        if(library.dskdir == nullptr) { library.dskdir = getenv("XCPC_DSKDIR", libxcpc_dskdir); }
-        if(library.snadir == nullptr) { library.snadir = getenv("XCPC_SNADIR", libxcpc_snadir); }
+        if(library.bindir == nullptr) { library.bindir = get_path("XCPC_BINDIR", libxcpc_bindir); }
+        if(library.libdir == nullptr) { library.libdir = get_path("XCPC_LIBDIR", libxcpc_libdir); }
+        if(library.datdir == nullptr) { library.datdir = get_path("XCPC_DATDIR", libxcpc_datdir); }
+        if(library.docdir == nullptr) { library.docdir = get_path("XCPC_DOCDIR", libxcpc_docdir); }
+        if(library.resdir == nullptr) { library.resdir = get_path("XCPC_RESDIR", libxcpc_resdir); }
+        if(library.romdir == nullptr) { library.romdir = get_path("XCPC_ROMDIR", libxcpc_romdir); }
+        if(library.dskdir == nullptr) { library.dskdir = get_path("XCPC_DSKDIR", libxcpc_dskdir); }
+        if(library.snadir == nullptr) { library.snadir = get_path("XCPC_SNADIR", libxcpc_snadir); }
     }
 
     static auto fini_directories(XcpcLibrary& library) -> void
@@ -474,8 +512,8 @@ struct libxcpc_traits
 
     static auto init_joysticks(XcpcLibrary& library) -> void
     {
-        if(library.joystick0 == nullptr) { library.joystick0 = getenv("XCPC_JOYSTICK0", libxcpc_joystick0); }
-        if(library.joystick1 == nullptr) { library.joystick1 = getenv("XCPC_JOYSTICK1", libxcpc_joystick1); }
+        if(library.joystick0 == nullptr) { library.joystick0 = get_variable("XCPC_JOYSTICK0", libxcpc_joystick0); }
+        if(library.joystick1 == nullptr) { library.joystick1 = get_variable("XCPC_JOYSTICK1", libxcpc_joystick1); }
     }
 
     static auto fini_joysticks(XcpcLibrary& library) -> void
@@ -681,6 +719,18 @@ struct libxcpc_traits
         return XCPC_MEMORY_SIZE_UNKNOWN;
     }
 
+    static auto renderer_type_from_string(const char* label) -> XcpcRendererType
+    {
+        if((label != nullptr) && (*label != '\0')) {
+            for(auto& entry : renderer_type_table) {
+                if(::strcasecmp(entry.label, label) == 0) {
+                    return static_cast<XcpcRendererType>(entry.value);
+                }
+            }
+        }
+        return XCPC_RENDERER_TYPE_UNKNOWN;
+    }
+
     static auto company_name_to_string(const XcpcCompanyName value) -> const char*
     {
         for(auto& entry : company_name_table) {
@@ -735,6 +785,16 @@ struct libxcpc_traits
     {
         for(auto& entry : memory_size_table) {
             if(static_cast<XcpcMemorySize>(entry.value) == value) {
+                return entry.label;
+            }
+        }
+        return "unknown";
+    }
+
+    static auto renderer_type_to_string(const XcpcRendererType value) -> const char*
+    {
+        for(auto& entry : renderer_type_table) {
+            if(static_cast<XcpcRendererType>(entry.value) == value) {
                 return entry.label;
             }
         }
@@ -1002,6 +1062,11 @@ XcpcMemorySize xcpc_memory_size_from_string(const char* label)
     return libxcpc_traits::memory_size_from_string(label);
 }
 
+XcpcRendererType xcpc_renderer_type_from_string(const char* label)
+{
+    return libxcpc_traits::renderer_type_from_string(label);
+}
+
 // ---------------------------------------------------------------------------
 // enums to string
 // ---------------------------------------------------------------------------
@@ -1034,6 +1099,11 @@ const char* xcpc_keyboard_type_to_string(XcpcKeyboardType value)
 const char* xcpc_memory_size_to_string(XcpcMemorySize value)
 {
     return libxcpc_traits::memory_size_to_string(value);
+}
+
+const char* xcpc_renderer_type_to_string(XcpcRendererType value)
+{
+    return libxcpc_traits::renderer_type_to_string(value);
 }
 
 // ---------------------------------------------------------------------------
@@ -1172,6 +1242,11 @@ auto Utils::memory_size_from_string(const std::string& string) -> MemorySize
     return ::xcpc_memory_size_from_string(string.c_str());
 }
 
+auto Utils::renderer_type_from_string(const std::string& string) -> RendererType
+{
+    return ::xcpc_renderer_type_from_string(string.c_str());
+}
+
 auto Utils::company_name_to_string(const CompanyName value) -> std::string
 {
     return ::xcpc_company_name_to_string(value);
@@ -1200,6 +1275,11 @@ auto Utils::keyboard_type_to_string(const KeyboardType value) -> std::string
 auto Utils::memory_size_to_string(const MemorySize value) -> std::string
 {
     return ::xcpc_memory_size_to_string(value);
+}
+
+auto Utils::renderer_type_to_string(const RendererType value) -> std::string
+{
+    return ::xcpc_renderer_type_to_string(value);
 }
 
 }

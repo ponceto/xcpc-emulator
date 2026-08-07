@@ -31,4 +31,7 @@
 #ifdef HAVE_LIBBZ2
 	&cc_bz2,	/* BZip2 */
 #endif
+#ifdef HAVE_LIBZIP
+	&cc_zip,	/* Zip archive */
+#endif
 	&cc_tlzh,	/* TeleDisk LZH */

@@ -1,5 +1,5 @@
 /*
- * cpc-mainboard.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * cpc-mainboard.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,15 +18,15 @@
 #define __XCPC_CPC_MAINBOARD_H__
 
 #include <xcpc/amstrad/cpc/cpc-settings.h>
-#include <xcpc/devices/dpy/dpy-device.h>
-#include <xcpc/devices/kbd/kbd-device.h>
-#include <xcpc/devices/cpu/cpu-device.h>
-#include <xcpc/devices/vga/vga-device.h>
-#include <xcpc/devices/vdc/vdc-device.h>
-#include <xcpc/devices/ppi/ppi-device.h>
-#include <xcpc/devices/psg/psg-device.h>
-#include <xcpc/devices/fdc/fdc-device.h>
-#include <xcpc/devices/mem/mem-device.h>
+#include <xcpc/amstrad/dpy/dpy-core.h>
+#include <xcpc/amstrad/kbd/kbd-core.h>
+#include <xcpc/amstrad/cpu/cpu-core.h>
+#include <xcpc/amstrad/vga/vga-core.h>
+#include <xcpc/amstrad/vdc/vdc-core.h>
+#include <xcpc/amstrad/ppi/ppi-core.h>
+#include <xcpc/amstrad/psg/psg-core.h>
+#include <xcpc/amstrad/fdc/fdc-core.h>
+#include <xcpc/amstrad/mem/mem-core.h>
 #include <xcpc/formats/cdt/cdt-format.h>
 #include <xcpc/formats/dsk/dsk-format.h>
 #include <xcpc/formats/sna/sna-format.h>
@@ -38,7 +38,7 @@
 namespace cpc {
 
 using TimeVal   = struct timeval;
-using PaintFunc = void (*)(Mainboard*);
+using RenderFunc = void (*)(Mainboard*);
 
 }
 
@@ -66,7 +66,11 @@ public: // public interface
 
     Mainboard(Machine& machine, const Settings& settings);
 
+    Mainboard(Mainboard&&) = delete;
+
     Mainboard(const Mainboard&) = delete;
+
+    Mainboard& operator=(Mainboard&&) = delete;
 
     Mainboard& operator=(const Mainboard&) = delete;
 
@@ -97,9 +101,11 @@ public: // public interface
 
     auto remove_disk_from_drive1() -> void;
 
-    auto set_volume(const float volume) -> void;
+    auto set_parameterb(const std::string& parameter, bool value) -> void;
 
-    auto set_scanlines(const bool scanlines) -> void;
+    auto set_parameteri(const std::string& parameter, int value) -> void;
+
+    auto set_parameterf(const std::string& parameter, float value) -> void;
 
     auto set_company_name(const std::string& company_name) -> void;
 
@@ -111,9 +117,7 @@ public: // public interface
 
     auto set_keyboard_type(const std::string& keyboard_type) -> void;
 
-    auto get_volume() const -> float;
-
-    auto get_system_info() const -> std::string;
+    auto set_renderer_type(const std::string& renderer_type) -> void;
 
     auto get_company_name() const -> std::string;
 
@@ -127,11 +131,21 @@ public: // public interface
 
     auto get_keyboard_type() const -> std::string;
 
+    auto get_renderer_type() const -> std::string;
+
     auto get_drive0_filename() const -> std::string;
 
     auto get_drive1_filename() const -> std::string;
 
+    auto get_drive0_active() const -> bool;
+
+    auto get_drive1_active() const -> bool;
+
+    auto get_system_info() const -> std::string;
+
     auto get_statistics() const -> std::string;
+
+    auto get_volume() const -> float;
 
 public: // backend interface
     auto on_reset(Event& event) -> unsigned long;
@@ -169,9 +183,10 @@ public: // public types
         RefreshRate  refresh_rate;
         KeyboardType keyboard_type;
         MemorySize   memory_size;
+        RendererType renderer_type;
         uint32_t     speedup;
         bool         xshm;
-        bool         scanlines;
+        bool         crt_emulation;
     };
 
     struct Stats
@@ -190,7 +205,7 @@ public: // public types
 
     struct Funcs
     {
-        PaintFunc paint_func;
+        RenderFunc render_func;
     };
 
     struct State
@@ -236,51 +251,21 @@ public: // public types
         float    volume;
         uint32_t rd_index;
         uint32_t wr_index;
+        float    dcb_input[2];
+        float    dcb_output[2];
+        float    acc0;
+        float    acc1;
+        float    acc2;
+        uint32_t acc_count;
     };
 
     struct Video
     {
         uint32_t frame_rate;
-        uint32_t frame_duration;
+        uint32_t frame_time;
     };
 
 private: // private interface
-    auto construct_dpy() -> void;
-    auto construct_kbd() -> void;
-    auto construct_cpu() -> void;
-    auto construct_vga() -> void;
-    auto construct_vdc() -> void;
-    auto construct_ppi() -> void;
-    auto construct_psg() -> void;
-    auto construct_fdc() -> void;
-    auto construct_ram() -> void;
-    auto construct_rom() -> void;
-    auto construct_exp() -> void;
-
-    auto destruct_dpy() -> void;
-    auto destruct_kbd() -> void;
-    auto destruct_cpu() -> void;
-    auto destruct_vga() -> void;
-    auto destruct_vdc() -> void;
-    auto destruct_ppi() -> void;
-    auto destruct_psg() -> void;
-    auto destruct_fdc() -> void;
-    auto destruct_ram() -> void;
-    auto destruct_rom() -> void;
-    auto destruct_exp() -> void;
-
-    auto reset_dpy() -> void;
-    auto reset_kbd() -> void;
-    auto reset_cpu() -> void;
-    auto reset_vga() -> void;
-    auto reset_vdc() -> void;
-    auto reset_ppi() -> void;
-    auto reset_psg() -> void;
-    auto reset_fdc() -> void;
-    auto reset_ram() -> void;
-    auto reset_rom() -> void;
-    auto reset_exp() -> void;
-
     auto configure(const Settings& settings) -> void;
     auto load_lower_rom(const std::string& filename) -> void;
     auto load_upper_rom(const std::string& filename) -> void;
@@ -291,66 +276,67 @@ private: // private interface
     auto update_vga() -> void;
     auto update_pal() -> void;
     auto update_stats() -> void;
-    auto paint_08bpp() -> void;
-    auto paint_16bpp() -> void;
-    auto paint_32bpp() -> void;
+    auto render_08bpp() -> void;
+    auto render_16bpp() -> void;
+    auto render_32bpp() -> void;
+    auto render_rgba() -> void;
 
 public: // audio interface
     virtual void process(const void* input, void* output, const uint32_t count) override final;
 
 private: // cpu interface
-    virtual auto cpu_mreq_m1(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_mreq_rd(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_mreq_wr(cpu::Device& device, uint16_t addr, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_iorq_m1(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_iorq_rd(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t override final;
-    virtual auto cpu_iorq_wr(cpu::Device& device, uint16_t port, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_mreq_m1(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_mreq_rd(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_mreq_wr(cpu::Instance& instance, uint16_t addr, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_iorq_m1(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_iorq_rd(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t override final;
+    virtual auto cpu_iorq_wr(cpu::Instance& instance, uint16_t port, uint8_t data) -> uint8_t override final;
 
 private: // vga interface
-    virtual auto vga_raise_nmi(vga::Device& device, uint8_t value) -> uint8_t override final;
-    virtual auto vga_raise_int(vga::Device& device, uint8_t value) -> uint8_t override final;
-    virtual auto vga_setup_ram(vga::Device& device, uint8_t value) -> uint8_t override final;
-    virtual auto vga_setup_rom(vga::Device& device, uint8_t value) -> uint8_t override final;
-    virtual auto vga_setup_rmr(vga::Device& device, uint8_t value) -> uint8_t override final;
+    virtual auto vga_raise_nmi(vga::Instance& instance, uint8_t value) -> uint8_t override final;
+    virtual auto vga_raise_int(vga::Instance& instance, uint8_t value) -> uint8_t override final;
+    virtual auto vga_setup_ram(vga::Instance& instance, uint8_t value) -> uint8_t override final;
+    virtual auto vga_setup_rom(vga::Instance& instance, uint8_t value) -> uint8_t override final;
+    virtual auto vga_setup_rmr(vga::Instance& instance, uint8_t value) -> uint8_t override final;
 
 private: // vdc interface
-    virtual auto vdc_hsync(vdc::Device& device, uint8_t hsync) -> uint8_t override final;
-    virtual auto vdc_vsync(vdc::Device& device, uint8_t vsync) -> uint8_t override final;
+    virtual auto vdc_hsync(vdc::Instance& instance, uint8_t hsync) -> uint8_t override final;
+    virtual auto vdc_vsync(vdc::Instance& instance, uint8_t vsync) -> uint8_t override final;
 
 private: // ppi interface
-    virtual auto ppi_port_a_rd(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_a_wr(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_b_rd(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_b_wr(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_c_rd(ppi::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto ppi_port_c_wr(ppi::Device& device, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_a_rd(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_a_wr(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_b_rd(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_b_wr(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_c_rd(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto ppi_port_c_wr(ppi::Instance& instance, uint8_t data) -> uint8_t override final;
 
 private: // psg interface
-    virtual auto psg_port_a_rd(psg::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto psg_port_a_wr(psg::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto psg_port_b_rd(psg::Device& device, uint8_t data) -> uint8_t override final;
-    virtual auto psg_port_b_wr(psg::Device& device, uint8_t data) -> uint8_t override final;
+    virtual auto psg_port_a_rd(psg::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto psg_port_a_wr(psg::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto psg_port_b_rd(psg::Instance& instance, uint8_t data) -> uint8_t override final;
+    virtual auto psg_port_b_wr(psg::Instance& instance, uint8_t data) -> uint8_t override final;
 
 private: // private data
-    Machine&     _machine;
-    Setup        _setup;
-    Stats        _stats;
-    Clock        _clock;
-    Funcs        _funcs;
-    State        _state;
-    Audio        _audio;
-    Video        _video;
-    dpy::Device* _dpy;
-    kbd::Device* _kbd;
-    cpu::Device* _cpu;
-    vga::Device* _vga;
-    vdc::Device* _vdc;
-    ppi::Device* _ppi;
-    psg::Device* _psg;
-    fdc::Device* _fdc;
-    mem::Device* _ram[8];
-    mem::Device* _rom[2];
-    mem::Device* _exp[256];
+    Machine&       _machine;
+    Setup          _setup;
+    Stats          _stats;
+    Clock          _clock;
+    Funcs          _funcs;
+    State          _state;
+    Audio          _audio;
+    Video          _video;
+    dpy::Instance* _dpy;
+    kbd::Instance* _kbd;
+    cpu::Instance* _cpu;
+    vga::Instance* _vga;
+    vdc::Instance* _vdc;
+    ppi::Instance* _ppi;
+    psg::Instance* _psg;
+    fdc::Instance* _fdc;
+    mem::Instance* _ram[8];
+    mem::Instance* _rom[2];
+    mem::Instance* _exp[256];
 };
 
 }

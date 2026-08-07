@@ -1,5 +1,5 @@
 /*
- * gtk3-file-chooser-dialog.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-file-chooser-dialog.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-file-chooser-dialog.h"
@@ -40,12 +44,12 @@ namespace gtk3 {
 struct FileChooserDialogTraits
     : BasicTraits
 {
-    static GtkWidget* create_file_chooser_dialog()
+    static auto create_file_chooser_dialog() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static GtkWidget* create_file_chooser_open_dialog()
+    static auto create_file_chooser_open_dialog() -> GtkWidget*
     {
         return ::gtk_file_chooser_dialog_new ( nullptr
                                              , nullptr
@@ -55,7 +59,7 @@ struct FileChooserDialogTraits
                                              , nullptr );
     }
 
-    static GtkWidget* create_file_chooser_save_dialog()
+    static auto create_file_chooser_save_dialog() -> GtkWidget*
     {
         return ::gtk_file_chooser_dialog_new ( nullptr
                                              , nullptr
@@ -65,7 +69,7 @@ struct FileChooserDialogTraits
                                              , nullptr );
     }
 
-    static std::string get_filename(FileChooserDialog& file_chooser_dialog)
+    static auto get_filename(FileChooserDialog& file_chooser_dialog) -> std::string
     {
         gchar* filename = ::gtk_file_chooser_get_filename(file_chooser_dialog);
         const std::string result(filename);
@@ -102,7 +106,7 @@ FileChooserDialog::FileChooserDialog(GtkWidget* instance)
 {
 }
 
-std::string FileChooserDialog::get_filename()
+auto FileChooserDialog::get_filename() -> std::string
 {
     return traits::get_filename(*this);
 }
@@ -125,7 +129,7 @@ FileChooserOpenDialog::FileChooserOpenDialog(GtkWidget* instance)
 {
 }
 
-void FileChooserOpenDialog::create_file_chooser_open_dialog()
+auto FileChooserOpenDialog::create_file_chooser_open_dialog() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_file_chooser_open_dialog();
@@ -151,7 +155,7 @@ FileChooserSaveDialog::FileChooserSaveDialog(GtkWidget* instance)
 {
 }
 
-void FileChooserSaveDialog::create_file_chooser_save_dialog()
+auto FileChooserSaveDialog::create_file_chooser_save_dialog() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_file_chooser_save_dialog();

@@ -1,5 +1,5 @@
 /*
- * gtk3-file-chooser-dialog.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-file-chooser-dialog.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     FileChooserDialog(GtkWidget*);
 
+    FileChooserDialog(FileChooserDialog&&) = delete;
+
     FileChooserDialog(const FileChooserDialog&) = delete;
+
+    FileChooserDialog& operator=(FileChooserDialog&&) = delete;
 
     FileChooserDialog& operator=(const FileChooserDialog&) = delete;
 
@@ -49,7 +53,7 @@ public: // public interface
         return GTK_FILE_CHOOSER_DIALOG(_instance);
     }
 
-    std::string get_filename();
+    auto get_filename() -> std::string;
 };
 
 }
@@ -70,7 +74,7 @@ public: // public interface
 
     virtual ~FileChooserOpenDialog() = default;
 
-    void create_file_chooser_open_dialog();
+    auto create_file_chooser_open_dialog() -> void;
 };
 
 }
@@ -91,7 +95,7 @@ public: // public interface
 
     virtual ~FileChooserSaveDialog() = default;
 
-    void create_file_chooser_save_dialog();
+    auto create_file_chooser_save_dialog() -> void;
 };
 
 }

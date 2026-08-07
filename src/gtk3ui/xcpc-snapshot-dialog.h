@@ -1,5 +1,5 @@
 /*
- * xcpc-snapshot-dialog.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-snapshot-dialog.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~LoadSnapshotDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }
@@ -52,7 +52,7 @@ public: // public interface
 
     virtual ~SaveSnapshotDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }

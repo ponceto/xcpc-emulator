@@ -1,5 +1,5 @@
 /*
- * gtk3-message-dialog.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-message-dialog.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-message-dialog.h"
@@ -40,12 +44,12 @@ namespace gtk3 {
 struct MessageDialogTraits
     : BasicTraits
 {
-    static GtkWidget* create_message_dialog()
+    static auto create_message_dialog() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static GtkWidget* create_message_info_dialog()
+    static auto create_message_info_dialog() -> GtkWidget*
     {
         return ::gtk_message_dialog_new_with_markup ( nullptr
                                                     , GTK_DIALOG_MODAL
@@ -54,7 +58,7 @@ struct MessageDialogTraits
                                                     , nullptr );
     }
 
-    static GtkWidget* create_message_warning_dialog()
+    static auto create_message_warning_dialog() -> GtkWidget*
     {
         return ::gtk_message_dialog_new_with_markup ( nullptr
                                                     , GTK_DIALOG_MODAL
@@ -63,7 +67,7 @@ struct MessageDialogTraits
                                                     , nullptr );
     }
 
-    static GtkWidget* create_message_question_dialog()
+    static auto create_message_question_dialog() -> GtkWidget*
     {
         return ::gtk_message_dialog_new_with_markup ( nullptr
                                                     , GTK_DIALOG_MODAL
@@ -72,7 +76,7 @@ struct MessageDialogTraits
                                                     , nullptr );
     }
 
-    static GtkWidget* create_message_error_dialog()
+    static auto create_message_error_dialog() -> GtkWidget*
     {
         return ::gtk_message_dialog_new_with_markup ( nullptr
                                                     , GTK_DIALOG_MODAL
@@ -81,7 +85,7 @@ struct MessageDialogTraits
                                                     , nullptr );
     }
 
-    static GtkWidget* create_message_other_dialog()
+    static auto create_message_other_dialog() -> GtkWidget*
     {
         return ::gtk_message_dialog_new_with_markup ( nullptr
                                                     , GTK_DIALOG_MODAL
@@ -90,14 +94,14 @@ struct MessageDialogTraits
                                                     , nullptr );
     }
 
-    static void set_primary_markup(MessageDialog& message_dialog, const std::string& text)
+    static auto set_primary_markup(MessageDialog& message_dialog, const std::string& text) -> void
     {
         if(message_dialog) {
             ::gtk_message_dialog_set_markup(message_dialog, text.c_str());
         }
     }
 
-    static void set_secondary_markup(MessageDialog& message_dialog, const std::string& text)
+    static auto set_secondary_markup(MessageDialog& message_dialog, const std::string& text) -> void
     {
         if(message_dialog) {
             ::gtk_message_dialog_format_secondary_markup(message_dialog, "%s", text.c_str());
@@ -133,12 +137,12 @@ MessageDialog::MessageDialog(GtkWidget* instance)
 {
 }
 
-void MessageDialog::set_primary_markup(const std::string& text)
+auto MessageDialog::set_primary_markup(const std::string& text) -> void
 {
     return traits::set_primary_markup(*this, text);
 }
 
-void MessageDialog::set_secondary_markup(const std::string& text)
+auto MessageDialog::set_secondary_markup(const std::string& text) -> void
 {
     return traits::set_secondary_markup(*this, text);
 }
@@ -161,7 +165,7 @@ MessageInfoDialog::MessageInfoDialog(GtkWidget* instance)
 {
 }
 
-void MessageInfoDialog::create_message_info_dialog()
+auto MessageInfoDialog::create_message_info_dialog() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_message_info_dialog();
@@ -187,7 +191,7 @@ MessageWarningDialog::MessageWarningDialog(GtkWidget* instance)
 {
 }
 
-void MessageWarningDialog::create_message_warning_dialog()
+auto MessageWarningDialog::create_message_warning_dialog() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_message_warning_dialog();
@@ -213,7 +217,7 @@ MessageQuestionDialog::MessageQuestionDialog(GtkWidget* instance)
 {
 }
 
-void MessageQuestionDialog::create_message_question_dialog()
+auto MessageQuestionDialog::create_message_question_dialog() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_message_question_dialog();
@@ -239,7 +243,7 @@ MessageErrorDialog::MessageErrorDialog(GtkWidget* instance)
 {
 }
 
-void MessageErrorDialog::create_message_error_dialog()
+auto MessageErrorDialog::create_message_error_dialog() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_message_error_dialog();
@@ -265,7 +269,7 @@ MessageOtherDialog::MessageOtherDialog(GtkWidget* instance)
 {
 }
 
-void MessageOtherDialog::create_message_other_dialog()
+auto MessageOtherDialog::create_message_other_dialog() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_message_other_dialog();

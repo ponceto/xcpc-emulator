@@ -1,5 +1,5 @@
 /*
- * xcpc-disk-dialog.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-disk-dialog.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
@@ -42,7 +43,7 @@ namespace {
 
 struct traits
 {
-    static bool run_dialog(gtk3::Dialog& dialog)
+    static auto run_dialog(gtk3::Dialog& dialog) -> bool
     {
         switch(dialog.run()) {
             case GTK_RESPONSE_OK:
@@ -70,7 +71,7 @@ CreateDiskDialog::CreateDiskDialog(Application& application, const char drive)
 {
 }
 
-void CreateDiskDialog::run()
+auto CreateDiskDialog::run() -> void
 {
     auto run_confirm_dialog = [&](gtk3::MessageQuestionDialog& dialog) -> bool
     {
@@ -132,7 +133,7 @@ InsertDiskDialog::InsertDiskDialog(Application& application, const char drive)
 {
 }
 
-void InsertDiskDialog::run()
+auto InsertDiskDialog::run() -> void
 {
     auto confirm_insert = [&]() -> bool
     {
@@ -183,7 +184,7 @@ RemoveDiskDialog::RemoveDiskDialog(Application& application, const char drive)
 {
 }
 
-void RemoveDiskDialog::run()
+auto RemoveDiskDialog::run() -> void
 {
     auto confirm_remove = [&]() -> bool
     {

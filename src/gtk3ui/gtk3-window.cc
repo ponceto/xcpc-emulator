@@ -1,5 +1,5 @@
 /*
- * gtk3-window.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-window.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-window.h"
@@ -40,36 +44,43 @@ namespace gtk3 {
 struct WindowTraits
     : BasicTraits
 {
-    static GtkWidget* create_window()
+    static auto create_window() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static GtkWidget* create_toplevel_window()
+    static auto create_toplevel_window() -> GtkWidget*
     {
         return ::gtk_window_new(GTK_WINDOW_TOPLEVEL);
     }
 
-    static GtkWidget* create_popup_window()
+    static auto create_popup_window() -> GtkWidget*
     {
         return ::gtk_window_new(GTK_WINDOW_POPUP);
     }
 
-    static void set_title(Window& window, const std::string& title)
+    static auto set_title(Window& window, const std::string& title) -> void
     {
         if(window) {
             ::gtk_window_set_title(window, title.c_str());
         }
     }
 
-    static void set_icon(Window& window, GdkPixbuf* icon)
+    static auto set_icon(Window& window, GdkPixbuf* icon) -> void
     {
         if(window) {
             ::gtk_window_set_icon(window, icon);
         }
     }
 
-    static void set_skip_taskbar_hint(Window& window, bool taskbar_hint)
+    static auto set_modal(Window& window, bool modal) -> void
+    {
+        if(window) {
+            ::gtk_window_set_modal(window, (modal != false ? TRUE : FALSE));
+        }
+    }
+
+    static auto set_skip_taskbar_hint(Window& window, bool taskbar_hint) -> void
     {
         if(window) {
             ::gtk_window_set_skip_taskbar_hint(window, (taskbar_hint != false ? TRUE : FALSE));
@@ -105,17 +116,22 @@ Window::Window(GtkWidget* instance)
 {
 }
 
-void Window::set_title(const std::string& title)
+auto Window::set_title(const std::string& title) -> void
 {
     return traits::set_title(*this, title);
 }
 
-void Window::set_icon(GdkPixbuf* icon)
+auto Window::set_icon(GdkPixbuf* icon) -> void
 {
     return traits::set_icon(*this, icon);
 }
 
-void Window::set_skip_taskbar_hint(bool taskbar_hint)
+auto Window::set_modal(bool modal) -> void
+{
+    return traits::set_modal(*this, modal);
+}
+
+auto Window::set_skip_taskbar_hint(bool taskbar_hint) -> void
 {
     return traits::set_skip_taskbar_hint(*this, taskbar_hint);
 }
@@ -138,7 +154,7 @@ ToplevelWindow::ToplevelWindow(GtkWidget* instance)
 {
 }
 
-void ToplevelWindow::create_toplevel_window()
+auto ToplevelWindow::create_toplevel_window() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_toplevel_window();
@@ -164,7 +180,7 @@ PopupWindow::PopupWindow(GtkWidget* instance)
 {
 }
 
-void PopupWindow::create_popup_window()
+auto PopupWindow::create_popup_window() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_popup_window();

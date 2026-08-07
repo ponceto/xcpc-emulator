@@ -1,5 +1,5 @@
 /*
- * gtk3-application.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-application.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-application.h"
@@ -40,7 +44,7 @@ namespace gtk3 {
 struct ApplicationTraits
     : BasicTraits
 {
-    static GtkApplication* create_application(const std::string& app_id)
+    static auto create_application(const std::string& app_id) -> GtkApplication*
     {
 #if 1
         constexpr auto flags = G_APPLICATION_HANDLES_OPEN;
@@ -54,7 +58,7 @@ struct ApplicationTraits
         return ::gtk_application_new(app_id.c_str(), flags);
     }
 
-    static void initialize(Application& application, GtkApplication*& instance)
+    static auto initialize(Application& application, GtkApplication*& instance) -> void
     {
         if(instance != nullptr) {
             signal_connect(instance, sig_open    , G_CALLBACK(&on_open    ), &application);
@@ -64,14 +68,14 @@ struct ApplicationTraits
         }
     }
 
-    static void finalize(Application& application, GtkApplication*& instance)
+    static auto finalize(Application& application, GtkApplication*& instance) -> void
     {
         if(instance != nullptr) {
             instance = (::g_object_unref(instance), nullptr);
         }
     }
 
-    static int run(Application& application, int argc, char* argv[])
+    static auto run(Application& application, int argc, char* argv[]) -> int
     {
         if(application) {
             return ::g_application_run(application, argc, argv);
@@ -79,28 +83,28 @@ struct ApplicationTraits
         return EXIT_FAILURE;
     }
 
-    static void on_open(GApplication* object, GFile** files, int num_files, char* hint, Application* application)
+    static auto on_open(GApplication* object, GFile** files, int num_files, char* hint, Application* application) -> void
     {
         ApplicationListener& listener(application->listener());
 
         return listener.on_open(files, num_files);
     }
 
-    static void on_startup(GApplication* object, Application* application)
+    static auto on_startup(GApplication* object, Application* application) -> void
     {
         ApplicationListener& listener(application->listener());
 
         return listener.on_startup();
     }
 
-    static void on_shutdown(GApplication* object, Application* application)
+    static auto on_shutdown(GApplication* object, Application* application) -> void
     {
         ApplicationListener& listener(application->listener());
 
         return listener.on_shutdown();
     }
 
-    static void on_activate(GApplication* object, Application* application)
+    static auto on_activate(GApplication* object, Application* application) -> void
     {
         ApplicationListener& listener(application->listener());
 
@@ -126,19 +130,19 @@ using traits = gtk3::ApplicationTraits;
 
 namespace gtk3 {
 
-void ApplicationListener::on_open(GFile** files, int num_files)
+auto ApplicationListener::on_open(GFile** files, int num_files) -> void
 {
 }
 
-void ApplicationListener::on_startup()
+auto ApplicationListener::on_startup() -> void
 {
 }
 
-void ApplicationListener::on_shutdown()
+auto ApplicationListener::on_shutdown() -> void
 {
 }
 
-void ApplicationListener::on_activate()
+auto ApplicationListener::on_activate() -> void
 {
 }
 
@@ -178,7 +182,7 @@ Application::~Application()
     traits::finalize(*this, _instance);
 }
 
-void Application::create_application(const std::string& app_id)
+auto Application::create_application(const std::string& app_id) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_application(app_id);
@@ -186,7 +190,7 @@ void Application::create_application(const std::string& app_id)
     }
 }
 
-int Application::run(int argc, char* argv[])
+auto Application::run(int argc, char* argv[]) -> int
 {
     return traits::run(*this, argc, argv);
 }

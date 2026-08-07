@@ -1,5 +1,5 @@
 /*
- * cpc-machine.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * cpc-machine.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,17 +47,17 @@ Machine::Machine(Settings& settings)
     , _mainboard(*this, settings)
 {
     _backend.instance          = this;
-    _backend.on_reset          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*event);          };
-    _backend.on_clock          = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*event);          };
-    _backend.on_create_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*event);  };
-    _backend.on_delete_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_delete_window(*event);  };
-    _backend.on_resize_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_resize_window(*event);  };
-    _backend.on_expose_window  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_expose_window(*event);  };
-    _backend.on_key_press      = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_press(*event);      };
-    _backend.on_key_release    = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_release(*event);    };
-    _backend.on_button_press   = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_press(*event);   };
-    _backend.on_button_release = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_release(*event); };
-    _backend.on_motion_notify  = [](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_motion_notify(*event);  };
+    _backend.on_reset          = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_reset(*event);          };
+    _backend.on_clock          = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_clock(*event);          };
+    _backend.on_create_window  = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_create_window(*event);  };
+    _backend.on_delete_window  = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_delete_window(*event);  };
+    _backend.on_resize_window  = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_resize_window(*event);  };
+    _backend.on_expose_window  = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_expose_window(*event);  };
+    _backend.on_key_press      = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_press(*event);      };
+    _backend.on_key_release    = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_key_release(*event);    };
+    _backend.on_button_press   = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_press(*event);   };
+    _backend.on_button_release = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_button_release(*event); };
+    _backend.on_motion_notify  = +[](void* instance, Event* event) -> unsigned long { return reinterpret_cast<Machine*>(instance)->_mainboard.on_motion_notify(*event);  };
     _audio.start();
 }
 
@@ -138,14 +138,19 @@ auto Machine::remove_disk_from_drive1() -> void
     return _mainboard.remove_disk_from_drive1();
 }
 
-auto Machine::set_volume(const float volume) -> void
+auto Machine::set_parameterb(const std::string& parameter, bool value) -> void
 {
-    return _mainboard.set_volume(volume);
+    return _mainboard.set_parameterb(parameter, value);
 }
 
-auto Machine::set_scanlines(const bool scanlines) -> void
+auto Machine::set_parameteri(const std::string& parameter, int value) -> void
 {
-    return _mainboard.set_scanlines(scanlines);
+    return _mainboard.set_parameteri(parameter, value);
+}
+
+auto Machine::set_parameterf(const std::string& parameter, float value) -> void
+{
+    return _mainboard.set_parameterf(parameter, value);
 }
 
 auto Machine::set_company_name(const std::string& company_name) -> void
@@ -173,14 +178,9 @@ auto Machine::set_keyboard_type(const std::string& keyboard_type) -> void
     return _mainboard.set_keyboard_type(keyboard_type);
 }
 
-auto Machine::get_volume() const -> float
+auto Machine::set_renderer_type(const std::string& renderer_type) -> void
 {
-    return _mainboard.get_volume();
-}
-
-auto Machine::get_system_info() const -> std::string
-{
-    return _mainboard.get_system_info();
+    return _mainboard.set_renderer_type(renderer_type);
 }
 
 auto Machine::get_company_name() const -> std::string
@@ -213,6 +213,11 @@ auto Machine::get_keyboard_type() const -> std::string
     return _mainboard.get_keyboard_type();
 }
 
+auto Machine::get_renderer_type() const -> std::string
+{
+    return _mainboard.get_renderer_type();
+}
+
 auto Machine::get_drive0_filename() const -> std::string
 {
     return _mainboard.get_drive0_filename();
@@ -223,9 +228,29 @@ auto Machine::get_drive1_filename() const -> std::string
     return _mainboard.get_drive1_filename();
 }
 
+auto Machine::get_drive0_active() const -> bool
+{
+    return _mainboard.get_drive0_active();
+}
+
+auto Machine::get_drive1_active() const -> bool
+{
+    return _mainboard.get_drive1_active();
+}
+
+auto Machine::get_system_info() const -> std::string
+{
+    return _mainboard.get_system_info();
+}
+
 auto Machine::get_statistics() const -> std::string
 {
     return _mainboard.get_statistics();
+}
+
+auto Machine::get_volume() const -> float
+{
+    return _mainboard.get_volume();
 }
 
 auto Machine::get_backend() const -> const Backend*

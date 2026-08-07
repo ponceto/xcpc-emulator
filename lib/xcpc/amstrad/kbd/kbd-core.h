@@ -1,0 +1,135 @@
+/*
+ * kbd-core.h - Copyright (c) 2001-2026 - Olivier Poncet
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#ifndef __XCPC_KBD_CORE_H__
+#define __XCPC_KBD_CORE_H__
+
+// ---------------------------------------------------------------------------
+// forward declarations
+// ---------------------------------------------------------------------------
+
+namespace kbd {
+
+struct State;
+class  Instance;
+class  Interface;
+
+}
+
+// ---------------------------------------------------------------------------
+// type aliases
+// ---------------------------------------------------------------------------
+
+namespace kbd {
+
+using KeyboardType = xcpc::KeyboardType;
+
+}
+
+// ---------------------------------------------------------------------------
+// kbd::State
+// ---------------------------------------------------------------------------
+
+namespace kbd {
+
+struct State
+{
+    KeyboardType keyboard_type;
+    uint8_t      mode;
+    uint8_t      line;
+    uint8_t      keys[16];
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// kbd::Instance
+// ---------------------------------------------------------------------------
+
+namespace kbd {
+
+class Instance
+{
+public: // public interface
+    Instance(Interface& interface);
+
+    Instance(Instance&&) = delete;
+
+    Instance(const Instance&) = delete;
+
+    Instance& operator=(Instance&&) = delete;
+
+    Instance& operator=(const Instance&) = delete;
+
+    virtual ~Instance();
+
+    auto reset() -> void;
+
+    auto clock() -> void;
+
+    auto set_keyboard_type(const KeyboardType keyboard_type) -> void;
+
+    auto set_line(uint8_t line = 0xff) -> uint8_t;
+
+    auto get_data(uint8_t data = 0xff) -> uint8_t;
+
+    auto key_press(const XKeyEvent& event) -> void;
+
+    auto key_release(const XKeyEvent& event) -> void;
+
+    auto button_press(const XButtonEvent& event) -> void;
+
+    auto button_release(const XButtonEvent& event) -> void;
+
+    auto motion_notify(const XMotionEvent& event) -> void;
+
+    auto operator->() -> State*
+    {
+        return &_state;
+    }
+
+protected: // protected data
+    Interface& _interface;
+    State      _state;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// kbd::Interface
+// ---------------------------------------------------------------------------
+
+namespace kbd {
+
+class Interface
+{
+public: // public interface
+    Interface() = default;
+
+    Interface(const Interface&) = default;
+
+    Interface& operator=(const Interface&) = default;
+
+    virtual ~Interface() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// End-Of-File
+// ---------------------------------------------------------------------------
+
+#endif /* __XCPC_KBD_CORE_H__ */

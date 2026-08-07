@@ -1,5 +1,5 @@
 /*
- * gtk3-menu-bar.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-menu-bar.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-menu-bar.h"
@@ -40,7 +44,7 @@ namespace gtk3 {
 struct MenuBarTraits
     : BasicTraits
 {
-    static GtkWidget* create_menu_bar()
+    static auto create_menu_bar() -> GtkWidget*
     {
         return ::gtk_menu_bar_new();
     }
@@ -74,7 +78,7 @@ MenuBar::MenuBar(GtkWidget* instance)
 {
 }
 
-void MenuBar::create_menu_bar()
+auto MenuBar::create_menu_bar() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_menu_bar();

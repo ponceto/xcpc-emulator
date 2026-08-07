@@ -1,5 +1,5 @@
 /*
- * gtk3-menu-item.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-menu-item.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     ToolItem(GtkWidget*);
 
+    ToolItem(ToolItem&&) = delete;
+
     ToolItem(const ToolItem&) = delete;
+
+    ToolItem& operator=(ToolItem&&) = delete;
 
     ToolItem& operator=(const ToolItem&) = delete;
 
@@ -44,7 +48,7 @@ public: // public interface
         return GTK_TOOL_ITEM(_instance);
     }
 
-    void create_tool_item();
+    auto create_tool_item() -> void;
 };
 
 }
@@ -70,11 +74,11 @@ public: // public interface
         return GTK_TOOL_BUTTON(_instance);
     }
 
-    void create_tool_button();
+    auto create_tool_button() -> void;
 
-    void set_icon_name(const std::string& icon_name);
+    auto set_icon_name(const std::string& icon_name) -> void;
 
-    void add_clicked_callback(GCallback callback, void* data);
+    auto add_clicked_callback(GCallback callback, void* data) -> void;
 };
 
 }
@@ -100,7 +104,7 @@ public: // public interface
         return GTK_SEPARATOR_TOOL_ITEM(_instance);
     }
 
-    void create_separator_tool_item();
+    auto create_separator_tool_item() -> void;
 };
 
 }

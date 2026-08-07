@@ -1,5 +1,5 @@
 /*
- * sna-format.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * sna-format.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,8 +150,8 @@ struct State
     Memory memory[32];
 };
 
-static_assert(sizeof(State::header) == 256UL);
-static_assert(sizeof(State::memory) == 512UL * 1024UL);
+static_assert(sizeof(State::header) == 256UL,          "State::header is invalid");
+static_assert(sizeof(State::memory) == 512UL * 1024UL, "State::memory is invalid");
 
 }
 
@@ -166,7 +166,11 @@ class Snapshot
 public: // public interface
     Snapshot();
 
+    Snapshot(Snapshot&&) = delete;
+
     Snapshot(const Snapshot&) = delete;
+
+    Snapshot& operator=(Snapshot&&) = delete;
 
     Snapshot& operator=(const Snapshot&) = delete;
 
@@ -198,7 +202,11 @@ class SnapshotReader
 public: // public interface
     SnapshotReader(const std::string& filename);
 
+    SnapshotReader(SnapshotReader&&) = delete;
+
     SnapshotReader(const SnapshotReader&) = delete;
+
+    SnapshotReader& operator=(SnapshotReader&&) = delete;
 
     SnapshotReader& operator=(const SnapshotReader&) = delete;
 
@@ -223,7 +231,11 @@ class SnapshotWriter
 public: // public interface
     SnapshotWriter(const std::string& filename);
 
+    SnapshotWriter(SnapshotWriter&&) = delete;
+
     SnapshotWriter(const SnapshotWriter&) = delete;
+
+    SnapshotWriter& operator=(SnapshotWriter&&) = delete;
 
     SnapshotWriter& operator=(const SnapshotWriter&) = delete;
 

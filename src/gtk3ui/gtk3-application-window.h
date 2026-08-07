@@ -1,5 +1,5 @@
 /*
- * gtk3-application-window.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-application-window.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,11 @@ public: // public interface
 
     ApplicationWindow(GtkWidget*);
 
+    ApplicationWindow(ApplicationWindow&&) = delete;
+
     ApplicationWindow(const ApplicationWindow&) = delete;
+
+    ApplicationWindow& operator=(ApplicationWindow&&) = delete;
 
     ApplicationWindow& operator=(const ApplicationWindow&) = delete;
 
@@ -45,7 +49,7 @@ public: // public interface
         return GTK_APPLICATION_WINDOW(_instance);
     }
 
-    void create_application_window(Application&);
+    auto create_application_window(Application&) -> void;
 };
 
 }

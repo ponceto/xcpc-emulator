@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2024 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,40 +42,46 @@ libxcpc_la_SOURCES = \
 	libxcpc-priv.h \
 	libxcpc-events.h \
 	libxcpc-keysyms.h \
-	xlib/xlib.cc \
-	xlib/xlib.h \
 	amstrad/cpc/cpc-machine.cc \
 	amstrad/cpc/cpc-machine.h \
 	amstrad/cpc/cpc-mainboard.cc \
 	amstrad/cpc/cpc-mainboard.h \
 	amstrad/cpc/cpc-settings.cc \
 	amstrad/cpc/cpc-settings.h \
-	devices/dpy/dpy-device.cc \
-	devices/dpy/dpy-device.h \
-	devices/kbd/kbd-device.cc \
-	devices/kbd/kbd-device.h \
-	devices/cpu/cpu-device.cc \
-	devices/cpu/cpu-device.h \
-	devices/cpu/cpu-microcode.inc \
-	devices/cpu/cpu-opcodes.inc \
-	devices/cpu/cpu-opcodes-cb.inc \
-	devices/cpu/cpu-opcodes-ed.inc \
-	devices/cpu/cpu-opcodes-dd.inc \
-	devices/cpu/cpu-opcodes-fd.inc \
-	devices/cpu/cpu-opcodes-ddcb.inc \
-	devices/cpu/cpu-opcodes-fdcb.inc \
-	devices/vga/vga-device.cc \
-	devices/vga/vga-device.h \
-	devices/vdc/vdc-device.cc \
-	devices/vdc/vdc-device.h \
-	devices/ppi/ppi-device.cc \
-	devices/ppi/ppi-device.h \
-	devices/psg/psg-device.cc \
-	devices/psg/psg-device.h \
-	devices/fdc/fdc-device.cc \
-	devices/fdc/fdc-device.h \
-	devices/mem/mem-device.cc \
-	devices/mem/mem-device.h \
+	amstrad/dpy/dpy-core.cc \
+	amstrad/dpy/dpy-core.h \
+	amstrad/dpy/ogl-renderer.cc \
+	amstrad/dpy/ogl-renderer.h \
+	amstrad/dpy/ogl-wrapper.cc \
+	amstrad/dpy/ogl-wrapper.h \
+	amstrad/dpy/x11-renderer.cc \
+	amstrad/dpy/x11-renderer.h \
+	amstrad/dpy/x11-wrapper.cc \
+	amstrad/dpy/x11-wrapper.h \
+	amstrad/kbd/kbd-core.cc \
+	amstrad/kbd/kbd-core.h \
+	amstrad/cpu/cpu-core.cc \
+	amstrad/cpu/cpu-core.h \
+	amstrad/cpu/cpu-microcode.inc \
+	amstrad/cpu/cpu-opcodes.inc \
+	amstrad/cpu/cpu-opcodes-cb.inc \
+	amstrad/cpu/cpu-opcodes-ed.inc \
+	amstrad/cpu/cpu-opcodes-dd.inc \
+	amstrad/cpu/cpu-opcodes-fd.inc \
+	amstrad/cpu/cpu-opcodes-ddcb.inc \
+	amstrad/cpu/cpu-opcodes-fdcb.inc \
+	amstrad/vga/vga-core.cc \
+	amstrad/vga/vga-core.h \
+	amstrad/vdc/vdc-core.cc \
+	amstrad/vdc/vdc-core.h \
+	amstrad/ppi/ppi-core.cc \
+	amstrad/ppi/ppi-core.h \
+	amstrad/psg/psg-core.cc \
+	amstrad/psg/psg-core.h \
+	amstrad/fdc/fdc-core.cc \
+	amstrad/fdc/fdc-core.h \
+	amstrad/mem/mem-core.cc \
+	amstrad/mem/mem-core.h \
 	formats/cdt/cdt-format.cc \
 	formats/cdt/cdt-format.h \
 	formats/dsk/dsk-format.cc \

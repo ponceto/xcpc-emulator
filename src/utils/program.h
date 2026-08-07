@@ -1,5 +1,5 @@
 /*
- * program.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * program.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~Program() = default;
 
-    virtual void main() = 0;
+    virtual auto main() -> void = 0;
 
 protected: // protected data
     ArgList& _arglist;

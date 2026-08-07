@@ -1,5 +1,5 @@
 /*
- * xcpc-application.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-application.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
@@ -36,6 +37,8 @@
 #include "xcpc-application.h"
 #include "xcpc-snapshot-dialog.h"
 #include "xcpc-disk-dialog.h"
+#include "xcpc-audio-settings-dialog.h"
+#include "xcpc-video-settings-dialog.h"
 #include "xcpc-help-dialog.h"
 #include "xcpc-about-dialog.h"
 
@@ -67,6 +70,101 @@ const char IconTraits::ico_volume_decrease[] = "audio-volume-low-symbolic";
 }
 
 // ---------------------------------------------------------------------------
+// <anonymous>::XImageChecker
+// ---------------------------------------------------------------------------
+
+namespace {
+
+struct XImageChecker
+{
+public: // public interface
+    static auto check() -> bool
+    {
+        static const bool has_ximage = probe();
+
+        return has_ximage;
+    }
+
+private: // private interface
+    static auto probe() -> bool
+    {
+        bool result = true;
+
+        if(result != false) {
+            ::xcpc_log_debug("XImage is available");
+        }
+        else {
+            ::xcpc_log_debug("XImage is not available");
+        }
+        return result;
+    }
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// <anonymous>::OpenGLChecker
+// ---------------------------------------------------------------------------
+
+namespace {
+
+struct OpenGLChecker
+{
+public: // public interface
+    static auto check() -> bool
+    {
+        static const bool has_opengl = probe(3, 3);
+
+        return has_opengl;
+    }
+
+private: // private interface
+    static auto probe(const int req_major, const int req_minor) -> bool
+    {
+        const int req_version = ((req_major * 10) + (req_minor % 10));
+
+        auto check_version = [&](GtkWidget* widget) -> bool
+        {
+            const GError* error = ::gtk_gl_area_get_error(GTK_GL_AREA(widget));
+            if(error == nullptr) {
+                ::gtk_gl_area_make_current(GTK_GL_AREA(widget));
+                if(::epoxy_gl_version() >= req_version) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        auto probe_opengl = [&]() -> bool
+        {
+            bool result = false;
+
+            if(result == false) {
+                GtkWidget* window = ::gtk_window_new(GTK_WINDOW_TOPLEVEL);
+                GtkWidget* widget = ::gtk_gl_area_new();
+                ::gtk_gl_area_set_required_version(GTK_GL_AREA(widget), req_major, req_minor);
+                ::gtk_container_add(GTK_CONTAINER(window), widget);
+                ::gtk_widget_realize(window);
+                ::gtk_widget_realize(widget);
+                result = check_version(widget);
+                ::gtk_widget_destroy(window);
+            }
+            if(result != false) {
+                ::xcpc_log_debug("OpenGL is available");
+            }
+            else {
+                ::xcpc_log_debug("OpenGL is not available");
+            }
+            return result;
+        };
+
+        return probe_opengl();
+    }
+};
+
+}
+
+// ---------------------------------------------------------------------------
 // <anonymous>::Callbacks
 // ---------------------------------------------------------------------------
 
@@ -75,12 +173,19 @@ namespace {
 struct Callbacks
 {
     using Application = xcpc::Application;
-    using Canvas      = impl::Canvas;
 
     static auto on_statistics(Application* application) -> gboolean
     {
         if(application != nullptr) {
             application->on_statistics();
+        }
+        return TRUE;
+    }
+
+    static auto on_drive_activity(Application* application) -> gboolean
+    {
+        if(application != nullptr) {
+            application->on_drive_activity();
         }
         return TRUE;
     }
@@ -337,17 +442,45 @@ struct Callbacks
         }
     }
 
-    static auto on_scanlines_enable(GtkWidget* widget, Application* application) -> void
+    static auto on_audio_settings(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_scanlines_enable();
+            application->on_audio_settings();
         }
     }
 
-    static auto on_scanlines_disable(GtkWidget* widget, Application* application) -> void
+    static auto on_renderer_ximage(GtkWidget* widget, Application* application) -> void
     {
         if(application != nullptr) {
-            application->on_scanlines_disable();
+            application->on_renderer_ximage();
+        }
+    }
+
+    static auto on_renderer_opengl(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_renderer_opengl();
+        }
+    }
+
+    static auto on_crt_emulation_enable(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_crt_emulation_enable();
+        }
+    }
+
+    static auto on_crt_emulation_disable(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_crt_emulation_disable();
+        }
+    }
+
+    static auto on_video_settings(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_video_settings();
         }
     }
 
@@ -376,6 +509,20 @@ struct Callbacks
     {
         if(application != nullptr) {
             application->on_joystick1_disconnect();
+        }
+    }
+
+    static auto on_joystick_emulation_enable(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_joystick_emulation_enable();
+        }
+    }
+
+    static auto on_joystick_emulation_disable(GtkWidget* widget, Application* application) -> void
+    {
+        if(application != nullptr) {
+            application->on_joystick_emulation_disable();
         }
     }
 
@@ -442,79 +589,6 @@ struct Callbacks
         }
     }
 
-    static auto on_canvas_realize(GtkWidget* widget, Canvas* canvas) -> void
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_realize();
-        }
-    }
-
-    static auto on_canvas_unrealize(GtkWidget* widget, Canvas* canvas) -> void
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_unrealize();
-        }
-    }
-
-    static auto on_canvas_render(GtkWidget* widget, GdkGLContext* context, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_render(*context);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_resize(GtkWidget* widget, gint width, gint height, Canvas* canvas) -> void
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_resize(width, height);
-        }
-    }
-
-    static auto on_canvas_key_press(GtkWidget* widget, GdkEventKey* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            ::gtk_widget_grab_focus(widget);
-            canvas->on_canvas_key_press(*event);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_key_release(GtkWidget* widget, GdkEventKey* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            ::gtk_widget_grab_focus(widget);
-            canvas->on_canvas_key_release(*event);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_button_press(GtkWidget* widget, GdkEventButton* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            ::gtk_widget_grab_focus(widget);
-            canvas->on_canvas_button_press(*event);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_button_release(GtkWidget* widget, GdkEventButton* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            ::gtk_widget_grab_focus(widget);
-            canvas->on_canvas_button_release(*event);
-        }
-        return TRUE;
-    }
-
-    static auto on_canvas_motion_notify(GtkWidget* widget, GdkEventMotion* event, Canvas* canvas) -> gboolean
-    {
-        if(canvas != nullptr) {
-            canvas->on_canvas_motion_notify(*event);
-        }
-        return TRUE;
-    }
-
     static auto has_extension(const char* filename, const char* extension) -> bool
     {
         if((filename != nullptr) && (extension != nullptr)) {
@@ -532,11 +606,6 @@ struct Callbacks
     static auto open_file(Application& application, const char* filename) -> void
     {
         if(filename != nullptr) {
-            const char* file_scheme_str = "file://";
-            const int   file_scheme_len = ::strlen(file_scheme_str);
-            if(::strncmp(filename, file_scheme_str, file_scheme_len) == 0) {
-                filename += file_scheme_len;
-            }
             if(has_extension(filename, ".sna") != false) {
                 application.load_snapshot(filename);
                 application.play_emulator();
@@ -550,6 +619,10 @@ struct Callbacks
                 application.play_emulator();
             }
             else if(has_extension(filename, ".dsk.bz2") != false) {
+                application.insert_disk_into_drive0(filename);
+                application.play_emulator();
+            }
+            else if(has_extension(filename, ".zip") != false) {
                 application.insert_disk_into_drive0(filename);
                 application.play_emulator();
             }
@@ -569,7 +642,11 @@ struct Callbacks
 
         if(uris != nullptr) {
             for(int index = 0; uris[index] != nullptr; ++index) {
-                open_file(*application, uris[index]);
+                gchar* filename = ::g_filename_from_uri(uris[index], nullptr, nullptr);
+                if(filename != nullptr) {
+                    open_file(*application, filename);
+                    filename = (g_free(filename), nullptr);
+                }
             }
             uris = (::g_strfreev(uris), nullptr);
         }
@@ -592,96 +669,6 @@ AppWidget::AppWidget(Application& application)
 }
 
 // ---------------------------------------------------------------------------
-// impl::Canvas
-// ---------------------------------------------------------------------------
-
-namespace impl {
-
-Canvas::Canvas(Application& application)
-    : AppWidget(application)
-    , gtk3::GLArea(nullptr)
-    , _self(*this)
-{
-}
-
-void Canvas::build()
-{
-    auto build_self = [&]() -> void
-    {
-#ifdef XCPC_ENABLE_GL_AREA
-        _self.create_gl_area();
-        _self.set_can_focus(true);
-        _self.add_realize_callback(G_CALLBACK(&Callbacks::on_canvas_realize), this);
-        _self.add_unrealize_callback(G_CALLBACK(&Callbacks::on_canvas_unrealize), this);
-        _self.add_render_callback(G_CALLBACK(&Callbacks::on_canvas_render), this);
-        _self.add_resize_callback(G_CALLBACK(&Callbacks::on_canvas_resize), this);
-        _self.add_key_press_event_callback(G_CALLBACK(&Callbacks::on_canvas_key_press), this);
-        _self.add_key_release_event_callback(G_CALLBACK(&Callbacks::on_canvas_key_release), this);
-        _self.add_button_press_event_callback(G_CALLBACK(&Callbacks::on_canvas_button_press), this);
-        _self.add_button_release_event_callback(G_CALLBACK(&Callbacks::on_canvas_button_release), this);
-        _self.add_motion_notify_event_callback(G_CALLBACK(&Callbacks::on_canvas_motion_notify), this);
-#endif
-    };
-
-    auto build_all = [&]() -> void
-    {
-        build_self();
-    };
-
-    return build_all();
-}
-
-auto Canvas::on_canvas_realize() -> void
-{
-    ::xcpc_log_debug("on_canvas_realize");
-}
-
-auto Canvas::on_canvas_unrealize() -> void
-{
-    ::xcpc_log_debug("on_canvas_unrealize");
-}
-
-auto Canvas::on_canvas_render(GdkGLContext& context) -> void
-{
-    ::xcpc_log_debug("on_canvas_render");
-    ::glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    ::glClear(GL_COLOR_BUFFER_BIT);
-    ::glFlush();
-}
-
-auto Canvas::on_canvas_resize(gint width, gint height) -> void
-{
-    ::xcpc_log_debug("on_canvas_resize(%d, %d)", width, height);
-}
-
-auto Canvas::on_canvas_key_press(GdkEventKey& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_key_press");
-}
-
-auto Canvas::on_canvas_key_release(GdkEventKey& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_key_release");
-}
-
-auto Canvas::on_canvas_button_press(GdkEventButton& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_button_press");
-}
-
-auto Canvas::on_canvas_button_release(GdkEventButton& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_button_release");
-}
-
-auto Canvas::on_canvas_motion_notify(GdkEventMotion& event) -> void
-{
-    ::xcpc_log_debug("on_canvas_motion_notify");
-}
-
-}
-
-// ---------------------------------------------------------------------------
 // impl::FileMenu
 // ---------------------------------------------------------------------------
 
@@ -699,7 +686,7 @@ FileMenu::FileMenu(Application& application)
 {
 }
 
-void FileMenu::build()
+auto FileMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -774,7 +761,7 @@ ControlsMenu::ControlsMenu(Application& application)
 {
 }
 
-void ControlsMenu::build()
+auto ControlsMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -828,32 +815,32 @@ void ControlsMenu::build()
     return build_all();
 }
 
-void ControlsMenu::show_play()
+auto ControlsMenu::show_play() -> void
 {
     _emulator_play.show();
 }
 
-void ControlsMenu::hide_play()
+auto ControlsMenu::hide_play() -> void
 {
     _emulator_play.hide();
 }
 
-void ControlsMenu::show_pause()
+auto ControlsMenu::show_pause() -> void
 {
     _emulator_pause.show();
 }
 
-void ControlsMenu::hide_pause()
+auto ControlsMenu::hide_pause() -> void
 {
     _emulator_pause.hide();
 }
 
-void ControlsMenu::show_reset()
+auto ControlsMenu::show_reset() -> void
 {
     _emulator_reset.show();
 }
 
-void ControlsMenu::hide_reset()
+auto ControlsMenu::hide_reset() -> void
 {
     _emulator_reset.hide();
 }
@@ -905,7 +892,7 @@ MachineMenu::MachineMenu(Application& application)
 {
 }
 
-void MachineMenu::build()
+auto MachineMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1163,7 +1150,7 @@ Drive0Menu::Drive0Menu(Application& application)
 {
 }
 
-void Drive0Menu::build()
+auto Drive0Menu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1238,7 +1225,7 @@ Drive1Menu::Drive1Menu(Application& application)
 {
 }
 
-void Drive1Menu::build()
+auto Drive1Menu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1308,10 +1295,12 @@ AudioMenu::AudioMenu(Application& application)
     , _menu(nullptr)
     , _volume_increase(nullptr)
     , _volume_decrease(nullptr)
+    , _separator(nullptr)
+    , _audio_settings(nullptr)
 {
 }
 
-void AudioMenu::build()
+auto AudioMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1338,12 +1327,27 @@ void AudioMenu::build()
         _menu.append(_volume_decrease);
     };
 
+    auto build_separator = [&]() -> void
+    {
+        _separator.create_separator_menu_item();
+        _menu.append(_separator);
+    };
+
+    auto build_audio_settings = [&]() -> void
+    {
+        _audio_settings.create_menu_item_with_label(_("Settings..."));
+        _audio_settings.add_activate_callback(G_CALLBACK(&Callbacks::on_audio_settings), &_application);
+        _menu.append(_audio_settings);
+    };
+
     auto build_all = [&]() -> void
     {
         build_self();
         build_menu();
         build_volume_increase();
         build_volume_decrease();
+        build_separator();
+        build_audio_settings();
     };
 
     return build_all();
@@ -1362,12 +1366,20 @@ VideoMenu::VideoMenu(Application& application)
     , gtk3::MenuItem(nullptr)
     , _self(*this)
     , _menu(nullptr)
-    , _scanlines_enable(nullptr)
-    , _scanlines_disable(nullptr)
+    , _renderer(nullptr)
+    , _renderer_menu(nullptr)
+    , _renderer_ximage(nullptr)
+    , _renderer_opengl(nullptr)
+    , _crt_emulation(nullptr)
+    , _crt_emulation_menu(nullptr)
+    , _crt_emulation_enable(nullptr)
+    , _crt_emulation_disable(nullptr)
+    , _separator(nullptr)
+    , _video_settings(nullptr)
 {
 }
 
-void VideoMenu::build()
+auto VideoMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1380,26 +1392,81 @@ void VideoMenu::build()
         _self.set_submenu(_menu);
     };
 
-    auto build_scanlines_enable = [&]() -> void
+    auto build_renderer = [&]() -> void
     {
-        _scanlines_enable.create_menu_item_with_label(_("Enable scanlines"));
-        _scanlines_enable.add_activate_callback(G_CALLBACK(&Callbacks::on_scanlines_enable), &_application);
-        _menu.append(_scanlines_enable);
+        _renderer.create_menu_item_with_label(_("Renderer"));
+        _menu.append(_renderer);
+        _renderer_menu.create_menu();
+        _renderer.set_submenu(_renderer_menu);
     };
 
-    auto build_scanlines_disable = [&]() -> void
+    auto build_renderer_ximage = [&]() -> void
     {
-        _scanlines_disable.create_menu_item_with_label(_("Disable scanlines"));
-        _scanlines_disable.add_activate_callback(G_CALLBACK(&Callbacks::on_scanlines_disable), &_application);
-        _menu.append(_scanlines_disable);
+        _renderer_ximage.create_menu_item_with_label(_("XImage"));
+        _renderer_ximage.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_ximage), &_application);
+        _renderer_menu.append(_renderer_ximage);
+        if(_application.has_ximage() == false) {
+            _renderer_ximage.set_sensitive(false);
+        }
+    };
+
+    auto build_renderer_opengl = [&]() -> void
+    {
+        _renderer_opengl.create_menu_item_with_label(_("OpenGL"));
+        _renderer_opengl.add_activate_callback(G_CALLBACK(&Callbacks::on_renderer_opengl), &_application);
+        _renderer_menu.append(_renderer_opengl);
+        if(_application.has_opengl() == false) {
+            _renderer_opengl.set_sensitive(false);
+        }
+    };
+
+    auto build_crt_emulation = [&]() -> void
+    {
+        _crt_emulation.create_menu_item_with_label(_("CRT emulation"));
+        _menu.append(_crt_emulation);
+        _crt_emulation_menu.create_menu();
+        _crt_emulation.set_submenu(_crt_emulation_menu);
+    };
+
+    auto build_crt_emulation_enable = [&]() -> void
+    {
+        _crt_emulation_enable.create_menu_item_with_label(_("Enable"));
+        _crt_emulation_enable.add_activate_callback(G_CALLBACK(&Callbacks::on_crt_emulation_enable), &_application);
+        _crt_emulation_menu.append(_crt_emulation_enable);
+    };
+
+    auto build_crt_emulation_disable = [&]() -> void
+    {
+        _crt_emulation_disable.create_menu_item_with_label(_("Disable"));
+        _crt_emulation_disable.add_activate_callback(G_CALLBACK(&Callbacks::on_crt_emulation_disable), &_application);
+        _crt_emulation_menu.append(_crt_emulation_disable);
+    };
+
+    auto build_separator = [&]() -> void
+    {
+        _separator.create_separator_menu_item();
+        _menu.append(_separator);
+    };
+
+    auto build_video_settings = [&]() -> void
+    {
+        _video_settings.create_menu_item_with_label(_("Settings..."));
+        _video_settings.add_activate_callback(G_CALLBACK(&Callbacks::on_video_settings), &_application);
+        _menu.append(_video_settings);
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
         build_menu();
-        build_scanlines_enable();
-        build_scanlines_disable();
+        build_renderer();
+        build_renderer_ximage();
+        build_renderer_opengl();
+        build_crt_emulation();
+        build_crt_emulation_enable();
+        build_crt_emulation_disable();
+        build_separator();
+        build_video_settings();
     };
 
     return build_all();
@@ -1418,6 +1485,10 @@ InputMenu::InputMenu(Application& application)
     , gtk3::MenuItem(nullptr)
     , _self(*this)
     , _menu(nullptr)
+    , _joystick_emulation(nullptr)
+    , _joystick_emulation_menu(nullptr)
+    , _joystick_emulation_enable(nullptr)
+    , _joystick_emulation_disable(nullptr)
     , _joystick0(nullptr)
     , _joystick0_menu(nullptr)
     , _joystick0_connect(nullptr)
@@ -1429,7 +1500,7 @@ InputMenu::InputMenu(Application& application)
 {
 }
 
-void InputMenu::build()
+auto InputMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1440,6 +1511,28 @@ void InputMenu::build()
     {
         _menu.create_menu();
         _self.set_submenu(_menu);
+    };
+
+    auto build_joystick_emulation = [&]() -> void
+    {
+        _joystick_emulation.create_menu_item_with_label(_("Joystick emulation"));
+        _menu.append(_joystick_emulation);
+        _joystick_emulation_menu.create_menu();
+        _joystick_emulation.set_submenu(_joystick_emulation_menu);
+    };
+
+    auto build_joystick_emulation_enable = [&]() -> void
+    {
+        _joystick_emulation_enable.create_menu_item_with_label(_("Enable"));
+        _joystick_emulation_enable.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick_emulation_enable), &_application);
+        _joystick_emulation_menu.append(_joystick_emulation_enable);
+    };
+
+    auto build_joystick_emulation_disable = [&]() -> void
+    {
+        _joystick_emulation_disable.create_menu_item_with_label(_("Disable"));
+        _joystick_emulation_disable.add_activate_callback(G_CALLBACK(&Callbacks::on_joystick_emulation_disable), &_application);
+        _joystick_emulation_menu.append(_joystick_emulation_disable);
     };
 
     auto build_joystick0 = [&]() -> void
@@ -1500,6 +1593,9 @@ void InputMenu::build()
     {
         build_self();
         build_menu();
+        build_joystick_emulation();
+        build_joystick_emulation_enable();
+        build_joystick_emulation_disable();
         build_joystick0();
         build_joystick0_connect();
         build_joystick0_disconnect();
@@ -1509,6 +1605,18 @@ void InputMenu::build()
     };
 
     return build_all();
+}
+
+auto InputMenu::set_joystick_emulation(bool enabled)
+{
+    if(enabled == false) {
+        _joystick_emulation_enable.set_sensitive(true);
+        _joystick_emulation_disable.set_sensitive(false);
+    }
+    else {
+        _joystick_emulation_enable.set_sensitive(false);
+        _joystick_emulation_disable.set_sensitive(true);
+    }
 }
 
 }
@@ -1530,7 +1638,7 @@ HelpMenu::HelpMenu(Application& application)
 {
 }
 
-void HelpMenu::build()
+auto HelpMenu::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1600,7 +1708,7 @@ MenuBar::MenuBar(Application& application)
 {
 }
 
-void MenuBar::build()
+auto MenuBar::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1678,34 +1786,39 @@ void MenuBar::build()
     return build_all();
 }
 
-void MenuBar::show_play()
+auto MenuBar::show_play() -> void
 {
     _controls_menu.show_play();
 }
 
-void MenuBar::hide_play()
+auto MenuBar::hide_play() -> void
 {
     _controls_menu.hide_play();
 }
 
-void MenuBar::show_pause()
+auto MenuBar::show_pause() -> void
 {
     _controls_menu.show_pause();
 }
 
-void MenuBar::hide_pause()
+auto MenuBar::hide_pause() -> void
 {
     _controls_menu.hide_pause();
 }
 
-void MenuBar::show_reset()
+auto MenuBar::show_reset() -> void
 {
     _controls_menu.show_reset();
 }
 
-void MenuBar::hide_reset()
+auto MenuBar::hide_reset() -> void
 {
     _controls_menu.hide_reset();
+}
+
+auto MenuBar::set_joystick_emulation(bool enabled) -> void
+{
+    _input_menu.set_joystick_emulation(enabled);
 }
 
 }
@@ -1732,7 +1845,7 @@ ToolBar::ToolBar(Application& application)
 {
 }
 
-void ToolBar::build()
+auto ToolBar::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1824,32 +1937,32 @@ void ToolBar::build()
     return build_all();
 }
 
-void ToolBar::show_play()
+auto ToolBar::show_play() -> void
 {
     _emulator_play.show();
 }
 
-void ToolBar::hide_play()
+auto ToolBar::hide_play() -> void
 {
     _emulator_play.hide();
 }
 
-void ToolBar::show_pause()
+auto ToolBar::show_pause() -> void
 {
     _emulator_pause.show();
 }
 
-void ToolBar::hide_pause()
+auto ToolBar::hide_pause() -> void
 {
     _emulator_pause.hide();
 }
 
-void ToolBar::show_reset()
+auto ToolBar::show_reset() -> void
 {
     _emulator_reset.show();
 }
 
-void ToolBar::hide_reset()
+auto ToolBar::hide_reset() -> void
 {
     _emulator_reset.hide();
 }
@@ -1875,7 +1988,7 @@ InfoBar::InfoBar(Application& application)
 {
 }
 
-void InfoBar::build()
+auto InfoBar::build() -> void
 {
     auto build_self = [&]() -> void
     {
@@ -1935,7 +2048,7 @@ void InfoBar::build()
     return build_all();
 }
 
-void InfoBar::set_state(const std::string& state)
+auto InfoBar::set_state(const std::string& state) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -1945,7 +2058,7 @@ void InfoBar::set_state(const std::string& state)
         char*       string = ::g_markup_printf_escaped(format, state.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -1963,23 +2076,27 @@ void InfoBar::set_state(const std::string& state)
     return update();
 }
 
-void InfoBar::set_drive0(const std::string& drive0)
+auto InfoBar::set_drive0(const std::string& drive0, bool active) -> void
 {
     std::string label(_("{unknown}"));
 
     auto format_label = [&]() -> void
     {
-        const char* format = "<span foreground='yellow' background='darkblue'> A: %s </span>";
+        const char* format = (active != false ? "<span foreground='yellow' background='darkred'> A: %s </span>"
+                                               : "<span foreground='yellow' background='darkblue'> A: %s </span>");
         char*       string = ::g_markup_printf_escaped(format, drive0.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
     auto update_label = [&]() -> void
     {
-        _drive0.set_markup(label);
+        if(label != _drive0_markup) {
+            _drive0_markup = label;
+            _drive0.set_markup(label);
+        }
     };
 
     auto update = [&]() -> void
@@ -1991,23 +2108,27 @@ void InfoBar::set_drive0(const std::string& drive0)
     return update();
 }
 
-void InfoBar::set_drive1(const std::string& drive1)
+auto InfoBar::set_drive1(const std::string& drive1, bool active) -> void
 {
     std::string label(_("{unknown}"));
 
     auto format_label = [&]() -> void
     {
-        const char* format = "<span foreground='yellow' background='darkblue'> B: %s </span>";
+        const char* format = (active != false ? "<span foreground='yellow' background='darkred'> B: %s </span>"
+                                               : "<span foreground='yellow' background='darkblue'> B: %s </span>");
         char*       string = ::g_markup_printf_escaped(format, drive1.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
     auto update_label = [&]() -> void
     {
-        _drive1.set_markup(label);
+        if(label != _drive1_markup) {
+            _drive1_markup = label;
+            _drive1.set_markup(label);
+        }
     };
 
     auto update = [&]() -> void
@@ -2019,7 +2140,7 @@ void InfoBar::set_drive1(const std::string& drive1)
     return update();
 }
 
-void InfoBar::set_system(const std::string& system)
+auto InfoBar::set_system(const std::string& system) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -2029,7 +2150,7 @@ void InfoBar::set_system(const std::string& system)
         char*       string = ::g_markup_printf_escaped(format, system.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -2047,7 +2168,7 @@ void InfoBar::set_system(const std::string& system)
     return update();
 }
 
-void InfoBar::set_volume(const std::string& volume)
+auto InfoBar::set_volume(const std::string& volume) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -2057,7 +2178,7 @@ void InfoBar::set_volume(const std::string& volume)
         char*       string = ::g_markup_printf_escaped(format, volume.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -2075,7 +2196,7 @@ void InfoBar::set_volume(const std::string& volume)
     return update();
 }
 
-void InfoBar::set_stats(const std::string& stats)
+auto InfoBar::set_stats(const std::string& stats) -> void
 {
     std::string label(_("{unknown}"));
 
@@ -2085,7 +2206,7 @@ void InfoBar::set_stats(const std::string& stats)
         char*       string = ::g_markup_printf_escaped(format, stats.c_str());
         if(string != nullptr) {
             std::string(string).swap(label);
-            string = (::g_free(string), nullptr);
+            string = (g_free(string), nullptr);
         }
     };
 
@@ -2115,48 +2236,150 @@ WorkWnd::WorkWnd(Application& application)
     : AppWidget(application)
     , gtk3::HBox(nullptr)
     , _self(*this)
-    , _emulator(nullptr)
-    , _canvas(application)
+    , _viewport(nullptr)
+    , _emulator_x11(nullptr)
+    , _emulator_ogl(nullptr)
 {
 }
 
-void WorkWnd::build()
+auto WorkWnd::build() -> void
 {
+    constexpr bool use_viewport = true;
+    static gchar target[] = "text/uri-list";
+    static const GtkTargetEntry target_entries[] = {
+        { target, 0, 1 },
+    };
+    const std::string renderer_type = _application.get_renderer_type();
+
     auto build_self = [&]() -> void
     {
-        _self.create_hbox();
+        if(bool(_self) == false) {
+            _self.create_hbox();
+        }
     };
 
-    auto build_emulator = [&]() -> void
+    auto build_viewport = [&]() -> void
     {
-        static gchar target[] = "text/uri-list";
-        static const GtkTargetEntry target_entries[] = {
-            { target, 0, 1 },
-        };
-        _emulator.create_emulator();
-        _emulator.set_backend(_application.get_backend());
-        _emulator.set_joystick(0, Utils::get_joystick0());
-        _emulator.set_joystick(1, Utils::get_joystick1());
-        _emulator.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
-        _emulator.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
-        _emulator.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
-        _self.pack_start(_emulator, true, true, 0);
+        if(use_viewport != false) {
+            if(bool(_viewport) == false) {
+                _viewport.create_viewport();
+                _self.pack_start(_viewport, true, true, 8);
+                _viewport.show();
+            }
+        }
     };
 
-    auto build_canvas = [&]() -> void
+    auto build_emulator_x11 = [&]() -> void
     {
-        _canvas.build();
-        _self.pack_start(_canvas, true, true, 0);
+        if(renderer_type == "ximage") {
+            if(bool(_emulator_x11) == false) {
+                _emulator_x11.create_emulator_x11();
+                _emulator_x11.set_backend(_application.get_backend());
+                _emulator_x11.set_joystick(0, Utils::get_joystick0());
+                _emulator_x11.set_joystick(1, Utils::get_joystick1());
+                _emulator_x11.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
+                _emulator_x11.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
+                _emulator_x11.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
+                _emulator_x11.grab_focus();
+                if(use_viewport != false) {
+                    _viewport.add(_emulator_x11);
+                }
+                else {
+                    _self.pack_start(_emulator_x11, true, true, 0);
+                }
+                _emulator_x11.show();
+            }
+        }
+    };
+
+    auto build_emulator_ogl = [&]() -> void
+    {
+        if(renderer_type == "opengl") {
+            if(bool(_emulator_ogl) == false) {
+                _emulator_ogl.create_emulator_ogl();
+                _emulator_ogl.set_backend(_application.get_backend());
+                _emulator_ogl.set_joystick(0, Utils::get_joystick0());
+                _emulator_ogl.set_joystick(1, Utils::get_joystick1());
+                _emulator_ogl.drag_dest_set(GTK_DEST_DEFAULT_ALL, target_entries, 1, GdkDragAction(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK));
+                _emulator_ogl.add_hotkey_callback(G_CALLBACK(&Callbacks::on_hotkey), &_application);
+                _emulator_ogl.add_drag_data_received_callback(G_CALLBACK(&Callbacks::on_drag_data_received), &_application);
+                _emulator_ogl.grab_focus();
+                if(use_viewport != false) {
+                    _viewport.add(_emulator_ogl);
+                }
+                else {
+                    _self.pack_start(_emulator_ogl, true, true, 0);
+                }
+                _emulator_ogl.show();
+            }
+        }
     };
 
     auto build_all = [&]() -> void
     {
         build_self();
-        build_emulator();
-        build_canvas();
+        build_viewport();
+        build_emulator_x11();
+        build_emulator_ogl();
     };
 
     return build_all();
+}
+
+auto WorkWnd::destroy() -> void
+{
+    if(bool(_emulator_x11) != false) {
+        _emulator_x11.shutdown();
+        _emulator_x11.destroy();
+    }
+    if(bool(_emulator_ogl) != false) {
+        _emulator_ogl.shutdown();
+        _emulator_ogl.destroy();
+    }
+}
+
+auto WorkWnd::get_emulator() -> gtk3::Widget&
+{
+    if(_emulator_x11 != false) {
+        return _emulator_x11;
+    }
+    if(_emulator_ogl != false) {
+        return _emulator_ogl;
+    }
+    throw std::runtime_error("no valid emulator widget");
+}
+
+auto WorkWnd::get_joystick_emulation() -> bool
+{
+    bool enabled = false;
+
+    if(_emulator_x11 != false) {
+        enabled |= _emulator_x11.get_joystick_emulation();
+    }
+    if(_emulator_ogl != false) {
+        enabled |= _emulator_ogl.get_joystick_emulation();
+    }
+    return enabled;
+}
+
+auto WorkWnd::set_joystick_emulation(bool enabled) -> void
+{
+    if(_emulator_x11 != false) {
+        _emulator_x11.set_joystick_emulation(enabled);
+    }
+    if(_emulator_ogl != false) {
+        _emulator_ogl.set_joystick_emulation(enabled);
+    }
+}
+
+auto WorkWnd::set_joystick(int id, const std::string& device) -> void
+{
+    if(_emulator_x11 != false) {
+        _emulator_x11.set_joystick(id, device);
+    }
+    if(_emulator_ogl != false) {
+        _emulator_ogl.set_joystick(id, device);
+    }
 }
 
 }
@@ -2178,7 +2401,7 @@ AppWindow::AppWindow(Application& application)
 {
 }
 
-void AppWindow::build()
+auto AppWindow::build() -> void
 {
     auto& _app_context(_application.app_context());
     auto& _app_title(_application.app_title());
@@ -2230,7 +2453,6 @@ void AppWindow::build()
     auto play = [&]() -> void
     {
         _application.play_emulator();
-        _work_wnd.emulator().grab_focus();
     };
 
     auto build_all = [&]() -> void
@@ -2248,37 +2470,37 @@ void AppWindow::build()
     return build_all();
 }
 
-void AppWindow::show_play()
+auto AppWindow::show_play() -> void
 {
     _menu_bar.show_play();
     _tool_bar.show_play();
 }
 
-void AppWindow::hide_play()
+auto AppWindow::hide_play() -> void
 {
     _menu_bar.hide_play();
     _tool_bar.hide_play();
 }
 
-void AppWindow::show_pause()
+auto AppWindow::show_pause() -> void
 {
     _menu_bar.show_pause();
     _tool_bar.show_pause();
 }
 
-void AppWindow::hide_pause()
+auto AppWindow::hide_pause() -> void
 {
     _menu_bar.hide_pause();
     _tool_bar.hide_pause();
 }
 
-void AppWindow::show_reset()
+auto AppWindow::show_reset() -> void
 {
     _menu_bar.show_reset();
     _tool_bar.show_reset();
 }
 
-void AppWindow::hide_reset()
+auto AppWindow::hide_reset() -> void
 {
     _menu_bar.hide_reset();
     _tool_bar.hide_reset();
@@ -2314,6 +2536,7 @@ Application::Application(int& argc, char**& argv)
     , _app_icon(nullptr)
     , _app_window(*this)
     , _timer(0)
+    , _drive_timer(0)
 {
 }
 
@@ -2322,12 +2545,22 @@ Application::~Application()
     stop_timer();
 }
 
-int Application::main()
+auto Application::main() -> int
 {
     if(_settings->quit() == false) {
         create_application("org.gtk.xcpc");
     }
     return run(_argc, _argv);
+}
+
+auto Application::has_ximage() -> bool
+{
+    return XImageChecker::check();
+}
+
+auto Application::has_opengl() -> bool
+{
+    return OpenGLChecker::check();
 }
 
 auto Application::load_snapshot(const std::string& filename) -> void
@@ -2469,22 +2702,23 @@ auto Application::remove_disk_from_drive1() -> void
 
 auto Application::set_volume(const float volume) -> void
 {
-    try {
-        _machine->set_volume(volume);
-    }
-    catch(const std::exception& e) {
-        ::xcpc_log_error("increase-volume has failed (%s)", e.what());
-    }
+    set_parameterf("audio.volume", volume);
     update_all();
 }
 
-auto Application::set_scanlines(const bool scanlines) -> void
+auto Application::set_crt_emulation(const bool crt_emulation) -> void
+{
+    set_parameterb("video.crt_emulation", crt_emulation);
+    update_all();
+}
+
+auto Application::set_company_name(const std::string& company_name) -> void
 {
     try {
-        _machine->set_scanlines(scanlines);
+        _machine->set_company_name(company_name);
     }
     catch(const std::exception& e) {
-        ::xcpc_log_error("set-scanlines has failed (%s)", e.what());
+        ::xcpc_log_error("set-company-name has failed (%s)", e.what());
     }
     update_all();
 }
@@ -2496,17 +2730,6 @@ auto Application::set_machine_type(const std::string& machine_type) -> void
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-machine-type has failed (%s)", e.what());
-    }
-    update_all();
-}
-
-auto Application::set_company_name(const std::string& company_name) -> void
-{
-    try {
-        _machine->set_company_name(company_name);
-    }
-    catch(const std::exception& e) {
-        ::xcpc_log_error("set-company-name has failed (%s)", e.what());
     }
     update_all();
 }
@@ -2544,10 +2767,25 @@ auto Application::set_keyboard_type(const std::string& keyboard_type) -> void
     update_all();
 }
 
+auto Application::set_renderer_type(const std::string& renderer_type) -> void
+{
+    try {
+        if(renderer_type != _machine->get_renderer_type()) {
+            work_wnd().destroy();
+            _machine->set_renderer_type(renderer_type);
+            work_wnd().build();
+        }
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_error("set-renderer-type has failed (%s)", e.what());
+    }
+    update_all();
+}
+
 auto Application::set_joystick0(const std::string& device) -> void
 {
     try {
-        work_wnd().emulator().set_joystick(0, device);
+        work_wnd().set_joystick(0, device);
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-joystick0 has failed (%s)", e.what());
@@ -2558,7 +2796,7 @@ auto Application::set_joystick0(const std::string& device) -> void
 auto Application::set_joystick1(const std::string& device) -> void
 {
     try {
-        work_wnd().emulator().set_joystick(1, device);
+        work_wnd().set_joystick(1, device);
     }
     catch(const std::exception& e) {
         ::xcpc_log_error("set-joystick1 has failed (%s)", e.what());
@@ -2573,13 +2811,37 @@ auto Application::on_open(GFile** files, int num_files) -> void
         char* path = ::g_file_get_path(files[index]);
         if(path != nullptr) {
             Callbacks::open_file(*this, path);
-            path = (::g_free(path), nullptr);
+            path = (g_free(path), nullptr);
         }
     }
 }
 
 auto Application::on_startup() -> void
 {
+    auto check_ximage = [&]() -> void
+    {
+        if(has_ximage() != false) {
+            if(get_renderer_type() == "ximage") {
+                _machine->set_renderer_type("ximage");
+            }
+        }
+        else {
+            _machine->set_renderer_type("ximage");
+        }
+    };
+
+    auto check_opengl = [&]() -> void
+    {
+        if(has_opengl() != false) {
+            if(get_renderer_type() == "opengl") {
+                _machine->set_renderer_type("opengl");
+            }
+        }
+        else {
+            _machine->set_renderer_type("ximage");
+        }
+    };
+
     auto create_app_icon = [&](const std::string& datadir, const std::string& directory, const std::string& filename) -> void
     {
         _app_icon.create_from_file(datadir + '/' + directory + '/' + filename);
@@ -2590,10 +2852,27 @@ auto Application::on_startup() -> void
         _app_window.build();
     };
 
+    auto apply_settings = [&]() -> void
+    {
+        set_parameterf("video.ogl.u_hsampling" , _globals.video.u_hsampling );
+        set_parameterf("video.ogl.u_vsampling" , _globals.video.u_vsampling );
+        set_parameterf("video.ogl.u_curvature" , _globals.video.u_curvature );
+        set_parameterf("video.ogl.u_corner"    , _globals.video.u_corner    );
+        set_parameterf("video.ogl.u_dotline"   , _globals.video.u_dotline   );
+        set_parameterf("video.ogl.u_dotmask"   , _globals.video.u_dotmask   );
+        set_parameterf("video.ogl.u_vignetting", _globals.video.u_vignetting);
+        set_parameterf("video.ogl.u_brightness", _globals.video.u_brightness);
+        set_volume(_globals.audio.volume);
+        set_joystick_emulation(_globals.input.joystick_emulation);
+    };
+
     auto do_startup = [&]() -> void
     {
+        check_ximage();
+        check_opengl();
         create_app_icon(Utils::get_datdir(), "pixmaps", "xcpc.png");
         create_main_window();
+        apply_settings();
         start_timer();
     };
 
@@ -2614,6 +2893,7 @@ auto Application::on_shutdown() -> void
 
     auto do_shutdown = [&]() -> void
     {
+        save_settings();
         destroy_main_window();
         destroy_app_icon();
     };
@@ -2624,6 +2904,12 @@ auto Application::on_shutdown() -> void
 auto Application::on_statistics() -> void
 {
     update_stats();
+}
+
+auto Application::on_drive_activity() -> void
+{
+    update_drive0();
+    update_drive1();
 }
 
 auto Application::on_snapshot_load() -> void
@@ -2809,28 +3095,96 @@ auto Application::on_drive1_disk_remove() -> void
 
 auto Application::on_volume_increase() -> void
 {
-    constexpr float increment = 0.05f;
-    const     float volume    = _machine->get_volume() + increment;
-
-    set_volume(volume);
+    if((_globals.audio.volume += 0.05f) > 1.0f) {
+        _globals.audio.volume = 1.0f;
+    }
+    set_volume(_globals.audio.volume);
 }
 
 auto Application::on_volume_decrease() -> void
 {
-    constexpr float increment = 0.05f;
-    const     float volume    = _machine->get_volume() - increment;
-
-    set_volume(volume);
+    if((_globals.audio.volume -= 0.05f) < 0.0f) {
+        _globals.audio.volume = 0.0f;
+    }
+    set_volume(_globals.audio.volume);
 }
 
-auto Application::on_scanlines_enable() -> void
+auto Application::on_audio_settings() -> void
 {
-    set_scanlines(true);
+    AudioSettingsDialog dialog(*this);
+
+    run_dialog(dialog);
+
+    try {
+        set_volume(_globals.audio.volume);
+    }
+    catch(const std::exception& e) {
+        ::xcpc_log_error("set-audio-parameters has failed (%s)", e.what());
+    }
+    update_all();
 }
 
-auto Application::on_scanlines_disable() -> void
+auto Application::on_renderer_ximage() -> void
 {
-    set_scanlines(false);
+    if(has_ximage() != false) {
+        set_renderer_type("ximage");
+        _globals.video.renderer = "ximage";
+    }
+}
+
+auto Application::on_renderer_opengl() -> void
+{
+    if(has_opengl() != false) {
+        set_renderer_type("opengl");
+        _globals.video.renderer = "opengl";
+    }
+}
+
+auto Application::on_crt_emulation_enable() -> void
+{
+    set_crt_emulation(true);
+    _globals.video.crt_emulation = true;
+}
+
+auto Application::on_crt_emulation_disable() -> void
+{
+    set_crt_emulation(false);
+    _globals.video.crt_emulation = false;
+}
+
+auto Application::on_video_settings() -> void
+{
+    VideoSettingsDialog dialog(*this);
+
+    run_dialog(dialog);
+
+    set_parameterf("video.ogl.u_hsampling" , _globals.video.u_hsampling );
+    set_parameterf("video.ogl.u_vsampling" , _globals.video.u_vsampling );
+    set_parameterf("video.ogl.u_curvature" , _globals.video.u_curvature );
+    set_parameterf("video.ogl.u_corner"    , _globals.video.u_corner    );
+    set_parameterf("video.ogl.u_dotline"   , _globals.video.u_dotline   );
+    set_parameterf("video.ogl.u_dotmask"   , _globals.video.u_dotmask   );
+    set_parameterf("video.ogl.u_vignetting", _globals.video.u_vignetting);
+    set_parameterf("video.ogl.u_brightness", _globals.video.u_brightness);
+    update_all();
+}
+
+auto Application::set_joystick_emulation(const bool enabled) -> void
+{
+    work_wnd().set_joystick_emulation(enabled);
+    update_input();
+}
+
+auto Application::on_joystick_emulation_enable() -> void
+{
+    set_joystick_emulation(true);
+    _globals.input.joystick_emulation = true;
+}
+
+auto Application::on_joystick_emulation_disable() -> void
+{
+    set_joystick_emulation(false);
+    _globals.input.joystick_emulation = false;
 }
 
 auto Application::on_joystick0_connect() -> void
@@ -2869,7 +3223,8 @@ auto Application::on_about() -> void
 
 auto Application::start_timer() -> void
 {
-    static constexpr guint interval = 1511;
+    static constexpr guint interval     = 1511;
+    static constexpr guint drv_interval =  127;
 
     if(_timer != 0) {
         _timer = (static_cast<void>(::g_source_remove(_timer)), 0);
@@ -2877,12 +3232,21 @@ auto Application::start_timer() -> void
     if(_timer == 0) {
         _timer = ::g_timeout_add(interval, G_SOURCE_FUNC(&Callbacks::on_statistics), this);
     }
+    if(_drive_timer != 0) {
+        _drive_timer = (static_cast<void>(::g_source_remove(_drive_timer)), 0);
+    }
+    if(_drive_timer == 0) {
+        _drive_timer = ::g_timeout_add(drv_interval, G_SOURCE_FUNC(&Callbacks::on_drive_activity), this);
+    }
 }
 
 auto Application::stop_timer() -> void
 {
     if(_timer != 0) {
         _timer = (static_cast<void>(::g_source_remove(_timer)), 0);
+    }
+    if(_drive_timer != 0) {
+        _drive_timer = (static_cast<void>(::g_source_remove(_drive_timer)), 0);
     }
 }
 
@@ -2996,7 +3360,7 @@ auto Application::update_drive0() -> void
 
     auto update_label = [&]() -> void
     {
-        info_bar().set_drive0(label);
+        info_bar().set_drive0(label, _machine->get_drive0_active());
     };
 
     auto do_update = [&]() -> void
@@ -3026,7 +3390,7 @@ auto Application::update_drive1() -> void
 
     auto update_label = [&]() -> void
     {
-        info_bar().set_drive1(label);
+        info_bar().set_drive1(label, _machine->get_drive1_active());
     };
 
     auto do_update = [&]() -> void
@@ -3083,6 +3447,16 @@ auto Application::update_stats() -> void
     return do_update();
 }
 
+auto Application::update_input() -> void
+{
+    auto do_update = [&]() -> void
+    {
+        menu_bar().set_joystick_emulation(work_wnd().get_joystick_emulation());
+    };
+
+    return do_update();
+}
+
 auto Application::update_all() -> void
 {
     update_title();
@@ -3092,6 +3466,7 @@ auto Application::update_all() -> void
     update_system();
     update_volume();
     update_stats();
+    update_input();
 }
 
 }
@@ -3100,7 +3475,7 @@ auto Application::update_all() -> void
 // xcpc_main
 // ---------------------------------------------------------------------------
 
-int xcpc_main(int* argc, char*** argv)
+auto xcpc_main(int* argc, char*** argv) -> int
 {
     const xcpc::Environ environ;
     const auto application(std::make_unique<xcpc::Application>(*argc, *argv));

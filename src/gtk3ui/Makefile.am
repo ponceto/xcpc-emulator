@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2024 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,8 +36,10 @@ noinst_LTLIBRARIES = \
 # ----------------------------------------------------------------------------
 
 libxcpcgtk3ui_la_SOURCES = \
-	gtkemulator.c \
-	gtkemulator.h \
+	gtkemulatorx11.c \
+	gtkemulatorx11.h \
+	gtkemulatorogl.c \
+	gtkemulatorogl.h \
 	gtkemulatortypes.h \
 	gtkemulatorprivate.h \
 	all.cc \
@@ -54,10 +56,12 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-bin.h \
 	gtk3-box.cc \
 	gtk3-box.h \
-	gtk3-button.cc \
-	gtk3-button.h \
+	gtk3-grid.cc \
+	gtk3-grid.h \
 	gtk3-frame.cc \
 	gtk3-frame.h \
+	gtk3-viewport.cc \
+	gtk3-viewport.h \
 	gtk3-window.cc \
 	gtk3-window.h \
 	gtk3-application-window.cc \
@@ -70,10 +74,16 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-message-dialog.h \
 	gtk3-file-chooser-dialog.cc \
 	gtk3-file-chooser-dialog.h \
-	gtk3-gl-area.cc \
-	gtk3-gl-area.h \
 	gtk3-label.cc \
 	gtk3-label.h \
+	gtk3-button.cc \
+	gtk3-button.h \
+	gtk3-range.cc \
+	gtk3-range.h \
+	gtk3-scale.cc \
+	gtk3-scale.h \
+	gtk3-gl-area.cc \
+	gtk3-gl-area.h \
 	gtk3-menu-shell.cc \
 	gtk3-menu-shell.h \
 	gtk3-menu-bar.cc \
@@ -86,8 +96,10 @@ libxcpcgtk3ui_la_SOURCES = \
 	gtk3-toolbar.h \
 	gtk3-tool-item.cc \
 	gtk3-tool-item.h \
-	gtk3-emulator.cc \
-	gtk3-emulator.h \
+	gtk3-emulator-x11.cc \
+	gtk3-emulator-x11.h \
+	gtk3-emulator-ogl.cc \
+	gtk3-emulator-ogl.h \
 	gdk3-pixbuf.cc \
 	gdk3-pixbuf.h \
 	xcpc-application.cc \
@@ -96,6 +108,10 @@ libxcpcgtk3ui_la_SOURCES = \
 	xcpc-snapshot-dialog.h \
 	xcpc-disk-dialog.cc \
 	xcpc-disk-dialog.h \
+	xcpc-audio-settings-dialog.cc \
+	xcpc-audio-settings-dialog.h \
+	xcpc-video-settings-dialog.cc \
+	xcpc-video-settings-dialog.h \
 	xcpc-help-dialog.cc \
 	xcpc-help-dialog.h \
 	xcpc-about-dialog.cc \
@@ -131,14 +147,6 @@ if TRUE
 libxcpcgtk3ui_la_CPPFLAGS += $(gtk3_CFLAGS)
 libxcpcgtk3ui_la_LDFLAGS += $(gtk3_LDFLAGS)
 libxcpcgtk3ui_la_LIBADD += $(gtk3_LIBS)
-endif
-
-# ----------------------------------------------------------------------------
-# opengl flags/libraries
-# ----------------------------------------------------------------------------
-
-if TRUE
-libxcpcgtk3ui_la_LIBADD += -lepoxy
 endif
 
 # ----------------------------------------------------------------------------

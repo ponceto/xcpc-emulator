@@ -1,5 +1,5 @@
 /*
- * gtk3-container.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-container.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-container.h"
@@ -40,19 +44,19 @@ namespace gtk3 {
 struct ContainerTraits
     : BasicTraits
 {
-    static GtkWidget* create_container()
+    static auto create_container() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static void add(Container& container, Widget& widget)
+    static auto add(Container& container, Widget& widget) -> void
     {
         if(container && widget) {
             ::gtk_container_add(container, widget);
         }        
     }
 
-    static void remove(Container& container, Widget& widget)
+    static auto remove(Container& container, Widget& widget) -> void
     {
         if(container && widget) {
             ::gtk_container_remove(container, widget);
@@ -88,12 +92,12 @@ Container::Container(GtkWidget* instance)
 {
 }
 
-void Container::add(Widget& widget)
+auto Container::add(Widget& widget) -> void
 {
     return traits::add(*this, widget);
 }
 
-void Container::remove(Widget& widget)
+auto Container::remove(Widget& widget) -> void
 {
     return traits::remove(*this, widget);
 }

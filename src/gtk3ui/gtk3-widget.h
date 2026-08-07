@@ -1,5 +1,5 @@
 /*
- * gtk3-widget.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-widget.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,11 @@ public: // public interface
 
     Widget(GtkWidget*);
 
+    Widget(Widget&&) = delete;
+
     Widget(const Widget&) = delete;
+
+    Widget& operator=(Widget&&) = delete;
 
     Widget& operator=(const Widget&) = delete;
 
@@ -48,48 +52,62 @@ public: // public interface
         return GTK_WIDGET(_instance);
     }
 
-    GtkWidget* operator*() const
+    auto operator*() const -> GtkWidget*
     {
         return _instance;
     }
 
-    void destroy();
+    auto destroy() -> void;
 
-    void show_all();
+    auto show_all() -> void;
 
-    void show();
+    auto show() -> void;
 
-    void hide();
+    auto hide() -> void;
 
-    void grab_focus();
+    auto grab_focus() -> void;
 
-    void set_can_focus(bool can_focus);
+    auto set_can_focus(bool can_focus) -> void;
 
-    void set_focus_on_click(bool focus_on_click);
+    auto set_focus_on_click(bool focus_on_click) -> void;
 
-    void set_sensitive(bool sensitive);
+    auto set_sensitive(bool sensitive) -> void;
 
-    bool is_sensitive();
+    auto is_sensitive() -> bool;
 
-    void drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions);
+    auto set_size_request(int width, int height) -> void;
 
-    void signal_connect(const char* signal, GCallback callback, void* data);
+    auto set_hexpand(bool expand) -> void;
 
-    void add_realize_callback(GCallback callback, void* data);
+    auto set_vexpand(bool expand) -> void;
 
-    void add_unrealize_callback(GCallback callback, void* data);
+    auto set_margin_start(int margin) -> void;
 
-    void add_key_press_event_callback(GCallback callback, void* data);
+    auto set_margin_end(int margin) -> void;
 
-    void add_key_release_event_callback(GCallback callback, void* data);
+    auto set_margin_top(int margin) -> void;
 
-    void add_button_press_event_callback(GCallback callback, void* data);
+    auto set_margin_bottom(int margin) -> void;
 
-    void add_button_release_event_callback(GCallback callback, void* data);
+    auto drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void;
 
-    void add_motion_notify_event_callback(GCallback callback, void* data);
+    auto signal_connect(const char* signal, GCallback callback, void* data) -> void;
 
-    void add_drag_data_received_callback(GCallback callback, void* data);
+    auto add_realize_callback(GCallback callback, void* data) -> void;
+
+    auto add_unrealize_callback(GCallback callback, void* data) -> void;
+
+    auto add_key_press_event_callback(GCallback callback, void* data) -> void;
+
+    auto add_key_release_event_callback(GCallback callback, void* data) -> void;
+
+    auto add_button_press_event_callback(GCallback callback, void* data) -> void;
+
+    auto add_button_release_event_callback(GCallback callback, void* data) -> void;
+
+    auto add_motion_notify_event_callback(GCallback callback, void* data) -> void;
+
+    auto add_drag_data_received_callback(GCallback callback, void* data) -> void;
 
 protected: // protected data
     GtkWidget* _instance;

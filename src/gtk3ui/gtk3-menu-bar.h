@@ -1,5 +1,5 @@
 /*
- * gtk3-menu-bar.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-menu-bar.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     MenuBar(GtkWidget*);
 
+    MenuBar(MenuBar&&) = delete;
+
     MenuBar(const MenuBar&) = delete;
+
+    MenuBar& operator=(MenuBar&&) = delete;
 
     MenuBar& operator=(const MenuBar&) = delete;
 
@@ -44,7 +48,7 @@ public: // public interface
         return GTK_MENU_BAR(_instance);
     }
 
-    void create_menu_bar();
+    auto create_menu_bar() -> void;
 };
 
 }

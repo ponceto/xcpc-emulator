@@ -1,5 +1,5 @@
 /*
- * gtk3-dialog.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-dialog.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,35 +30,39 @@ class DialogListener
 public: // public interface
     DialogListener() = default;
 
+    DialogListener(DialogListener&&) = delete;
+
     DialogListener(const DialogListener&) = delete;
+
+    DialogListener& operator=(DialogListener&&) = delete;
 
     DialogListener& operator=(const DialogListener&) = delete;
 
     virtual ~DialogListener() = default;
 
-    virtual void on_response(const int response);
+    virtual auto on_response(const int response) -> void;
 
-    virtual void on_response_none();
+    virtual auto on_response_none() -> void;
 
-    virtual void on_response_reject();
+    virtual auto on_response_reject() -> void;
 
-    virtual void on_response_accept();
+    virtual auto on_response_accept() -> void;
 
-    virtual void on_response_delete_event();
+    virtual auto on_response_delete_event() -> void;
 
-    virtual void on_response_ok();
+    virtual auto on_response_ok() -> void;
 
-    virtual void on_response_cancel();
+    virtual auto on_response_cancel() -> void;
 
-    virtual void on_response_close();
+    virtual auto on_response_close() -> void;
 
-    virtual void on_response_yes();
+    virtual auto on_response_yes() -> void;
 
-    virtual void on_response_no();
+    virtual auto on_response_no() -> void;
 
-    virtual void on_response_apply();
+    virtual auto on_response_apply() -> void;
 
-    virtual void on_response_help();
+    virtual auto on_response_help() -> void;
 };
 
 }
@@ -85,12 +89,20 @@ public: // public interface
         return GTK_DIALOG(_instance);
     }
 
-    DialogListener& dialog_listener() const
+    auto dialog_listener() const -> DialogListener&
     {
         return _dialog_listener;
     }
 
-    virtual int run();
+    auto create_dialog() -> void;
+
+    auto add_button(const std::string& label, int response_id) -> void;
+
+    auto pack_start(Widget& child, bool expand, bool fill, unsigned int padding) -> void;
+
+    auto pack_end(Widget& child, bool expand, bool fill, unsigned int padding) -> void;
+
+    virtual auto run() -> int;
 
 protected: // protected data
     DialogListener& _dialog_listener;

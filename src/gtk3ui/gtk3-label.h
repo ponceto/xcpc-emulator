@@ -1,5 +1,5 @@
 /*
- * gtk3-label.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-label.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     Label(GtkWidget*);
 
+    Label(Label&&) = delete;
+
     Label(const Label&) = delete;
+
+    Label& operator=(Label&&) = delete;
 
     Label& operator=(const Label&) = delete;
 
@@ -44,13 +48,17 @@ public: // public interface
         return GTK_LABEL(_instance);
     }
 
-    void create_label(const std::string& string);
+    auto create_label(const std::string& string) -> void;
 
-    void set_text(const std::string& string);
+    auto set_text(const std::string& string) -> void;
 
-    void set_markup(const std::string& string);
+    auto set_markup(const std::string& string) -> void;
 
-    void set_ellipsize(PangoEllipsizeMode mode);
+    auto set_ellipsize(PangoEllipsizeMode mode) -> void;
+
+    auto set_xalign(float xalign) -> void;
+
+    auto set_yalign(float yalign) -> void;
 };
 
 }

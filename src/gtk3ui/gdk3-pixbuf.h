@@ -1,5 +1,5 @@
 /*
- * gdk3-pixbuf.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gdk3-pixbuf.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,14 @@ public: // public interface
 
     Pixbuf(GdkPixbuf*);
 
+    Pixbuf(Pixbuf&&) = delete;
+
+    Pixbuf(const Pixbuf&) = delete;
+
+    Pixbuf& operator=(Pixbuf&&) = delete;
+
+    Pixbuf& operator=(const Pixbuf&) = delete;
+
     virtual ~Pixbuf();
 
     operator GdkPixbuf*() const
@@ -44,11 +52,11 @@ public: // public interface
         return _instance;
     }
 
-    void create_from_file(const std::string& filename);
+    auto create_from_file(const std::string& filename) -> void;
 
-    void create_from_resource(const std::string& resource);
+    auto create_from_resource(const std::string& resource) -> void;
 
-    void unref();
+    auto unref() -> void;
 
 protected: // protected data
     GdkPixbuf* _instance;

@@ -1,5 +1,5 @@
 /*
- * gtk3-gl-area.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-gl-area.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     GLArea(GtkWidget*);
 
+    GLArea(GLArea&&) = delete;
+
     GLArea(const GLArea&) = delete;
+
+    GLArea& operator=(GLArea&&) = delete;
 
     GLArea& operator=(const GLArea&) = delete;
 
@@ -44,11 +48,11 @@ public: // public interface
         return GTK_GL_AREA(_instance);
     }
 
-    void create_gl_area();
+    auto create_gl_area() -> void;
 
-    void add_render_callback(GCallback callback, void* data);
+    auto add_render_callback(GCallback callback, void* data) -> void;
 
-    void add_resize_callback(GCallback callback, void* data);
+    auto add_resize_callback(GCallback callback, void* data) -> void;
 };
 
 }

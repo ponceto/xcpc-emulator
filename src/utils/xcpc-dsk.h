@@ -1,5 +1,5 @@
 /*
- * xcpc-dsk.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-dsk.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,15 +33,19 @@ public: // public interface
             , const std::string& program
             , const std::string& command );
 
+    Command(Command&&) = delete;
+
     Command(const Command&) = delete;
+
+    Command& operator=(Command&&) = delete;
 
     Command& operator=(const Command&) = delete;
 
     virtual ~Command() = default;
 
-    virtual void run() = 0;
+    virtual auto run() -> void = 0;
 
-    void addArgument(const std::string& argument)
+    auto addArgument(const std::string& argument) -> void
     {
         _arguments.add(argument);
     }
@@ -66,7 +70,7 @@ public: // public interface
 
     virtual ~HelpCmd() = default;
 
-    virtual void run() override final;
+    virtual auto run() -> void override final;
 };
 
 // ---------------------------------------------------------------------------
@@ -82,7 +86,7 @@ public: // public interface
 
     virtual ~DumpCmd() = default;
 
-    virtual void run() override final;
+    virtual auto run() -> void override final;
 };
 
 // ---------------------------------------------------------------------------
@@ -98,7 +102,7 @@ public: // public interface
 
     virtual ~CreateCmd() = default;
 
-    virtual void run() override final;
+    virtual auto run() -> void override final;
 };
 
 // ---------------------------------------------------------------------------
@@ -114,7 +118,7 @@ public: // public interface
 
     virtual ~Program() = default;
 
-    virtual void main() override final;
+    virtual auto main() -> void override final;
 
 protected: // protected data
     std::string              _program;

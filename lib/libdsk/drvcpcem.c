@@ -431,25 +431,39 @@ dsk_err_t cpcemu_secid(DSK_DRIVER *self, const DSK_GEOMETRY *geom,
  *		   the sector size for weak sectors
  */ 
 
-static long sector_offset(CPCEMU_DSK_DRIVER *self, dsk_psect_t sector, 
-		size_t *seclen, unsigned char **secid)
+static long sector_offset(CPCEMU_DSK_DRIVER *self, dsk_psect_t sector,
+		size_t *seclen, unsigned char **secid, int pick_random)
 {
 	int maxsec = self->cpc_trkhead[0x15];
 	long offset = 0;
 	int n;
+	int nmatch = 0;	/* [xcpc] number of records sharing the requested ID */
+	int pick   = 0;	/* [xcpc] which matching copy to return */
 
 	/* Pointer to sector details */
 	*secid = self->cpc_trkhead + 0x18;
 
-	/* Length of sector */  
+	/* Length of sector */
 	*seclen = (0x80 << self->cpc_trkhead[0x14]);
+
+/* [xcpc] A track may hold several records with the same ID when a weak/fuzzy
+ * sector is stored as duplicate copies (copy-protection such as SRAM 2). Count
+ * the matches; on a read (pick_random) choose one copy at random so successive
+ * reads can return either, reproducing the instability the protection checks
+ * for. Normal disks have unique IDs per track (nmatch <= 1) and are unaffected,
+ * including the v1.1.11 "current sector" fast paths below. */
+	{
+		unsigned char *p = self->cpc_trkhead + 0x18;
+		for (n = 0; n < maxsec; n++) { if (p[2] == sector) ++nmatch; p += 8; }
+	}
+	if (pick_random && nmatch > 1) pick = rand() % nmatch;
 
 	/* Extended DSKs have individual sector sizes */
 	if (!memcmp(self->cpc_dskhead, "EXTENDED", 8))
 	{
 /* v1.1.11: Start by looking at the current sector to see if it's the one
- * requested. */ 
-		if (self->cpc_sector >= 0 && self->cpc_sector < maxsec)
+ * requested. */
+		if (nmatch <= 1 && self->cpc_sector >= 0 && self->cpc_sector < maxsec)
 		{
 /* Calculate the offset of the current sector */
 			for (n = 0; n < self->cpc_sector; n++)
@@ -460,33 +474,41 @@ static long sector_offset(CPCEMU_DSK_DRIVER *self, dsk_psect_t sector,
 			}
 			if ((*secid)[2] == sector) return offset;
 		}
-/* The current sector is not the requested one -- search the track for 
- * a sector with the correct ID */
+/* The current sector is not the requested one -- search the track for
+ * a sector with the correct ID ([xcpc] returning the pick-th matching copy) */
 		offset = 0;
 		*secid = self->cpc_trkhead + 0x18;
 		for (n = 0; n < maxsec; n++)
 		{
 			*seclen = (*secid)[6] + 256 * (*secid)[7]; /* [v0.9.0] */
-			if ((*secid)[2] == sector) return offset;
+			if ((*secid)[2] == sector)
+			{
+				if (pick == 0) return offset;
+				--pick;
+			}
 			offset   += (*seclen);
 			(*secid) += 8;
 		}
 	}
 	else	/* Non-extended, all sector sizes are the same */
 	{
-		if (self->cpc_sector >= 0 && self->cpc_sector < maxsec)
+		if (nmatch <= 1 && self->cpc_sector >= 0 && self->cpc_sector < maxsec)
 		{
 /* v1.1.11: As above, check the current sector first */
 			offset += (*seclen) * self->cpc_sector;
 			(*secid) += 8 * self->cpc_sector;
 			if ((*secid)[2] == sector) return offset;
 		}
-/* And if that fails search from the beginning */
+/* And if that fails search from the beginning ([xcpc] pick-th matching copy) */
 		offset = 0;
 		*secid = self->cpc_trkhead + 0x18;
 		for (n = 0; n < maxsec; n++)
 		{
-			if ((*secid)[2] == sector) return offset;
+			if ((*secid)[2] == sector)
+			{
+				if (pick == 0) return offset;
+				--pick;
+			}
 			offset   += (*seclen);
 			(*secid) += 8;
 		}
@@ -519,11 +541,16 @@ static unsigned char *sector_head(CPCEMU_DSK_DRIVER *self, int sector)
  *
  * sseclen will be set to the actual size of a sector in the file, so that
  * a random copy can be extracted.
- */ 
-static dsk_err_t seekto_sector(CPCEMU_DSK_DRIVER *self, 
+ *
+ * [xcpc] pick_random selects a random copy when several records share the ID
+ * (duplicate-record weak sectors); chosen, if non-NULL, receives the address
+ * of the 8-byte sector-info record actually selected, so the caller can read
+ * ST1/ST2 from the same copy the data comes from.
+ */
+static dsk_err_t seekto_sector(CPCEMU_DSK_DRIVER *self,
 	const DSK_GEOMETRY *geom, int cylinder, int head, int cyl_expected,
 	int head_expected, int sector, size_t *request_len, int *weak_copies,
-	size_t *sseclen)
+	size_t *sseclen, int pick_random, unsigned char **chosen)
 {
 	int offs;
 	size_t seclen;	/* Length of sector data in file */
@@ -535,8 +562,8 @@ static dsk_err_t seekto_sector(CPCEMU_DSK_DRIVER *self,
 	err = load_track_header(self, geom, cylinder, head);
 	if (err) return err;
 	trkbase = ftell(self->cpc_fp);
-	offs = (int)sector_offset(self, sector, &seclen, &secid);
-	
+	offs = (int)sector_offset(self, sector, &seclen, &secid, pick_random);
+
 	if (offs < 0) return DSK_ERR_NOADDR;	/* Sector not found */
 
 	if (cyl_expected != secid[0] || head_expected != secid[1])
@@ -544,6 +571,7 @@ static dsk_err_t seekto_sector(CPCEMU_DSK_DRIVER *self,
 		/* We are not in the right place */
 		return DSK_ERR_NOADDR;
 	}
+	if (chosen) *chosen = secid;	/* [xcpc] record actually selected */
 	*sseclen = 128 << (secid[3] & 7);
 /* Sector shorter than expected. Report a data error, and set
  * request_len to the actual size. */
@@ -596,7 +624,7 @@ dsk_err_t cpcemu_xread(DSK_DRIVER *self, const DSK_GEOMETRY *geom, void *buf,
 				     * are bigger than the size in geom. */
 	int rdeleted = 0;
 	int try_again = 0;
-	unsigned char *sh;
+	unsigned char *sh = NULL;	/* [xcpc] record selected by seekto_sector */
 
 	if (!buf || !geom || !self) return DSK_ERR_BADPTR;
 	DC_CHECK(self)
@@ -606,9 +634,12 @@ dsk_err_t cpcemu_xread(DSK_DRIVER *self, const DSK_GEOMETRY *geom, void *buf,
 
 	do
 	{
-		err  = seekto_sector(cpc_self, geom, cylinder,head, 
+/* [xcpc] pick_random = 1: when a weak sector is stored as duplicate same-ID
+ * records, return a random copy so repeated reads vary. sh receives that same
+ * copy's info record, used for the deleted-mark test and ST1/ST2 below. */
+		err  = seekto_sector(cpc_self, geom, cylinder,head,
 				cyl_expect, head_expect, sector, &len,
-				&weak_copies, &sseclen);
+				&weak_copies, &sseclen, 1, &sh);
 /* Are we retrying because we are looking for deleted data and found 
  * nondeleted or vice versa?
  *
@@ -633,8 +664,9 @@ dsk_err_t cpcemu_xread(DSK_DRIVER *self, const DSK_GEOMETRY *geom, void *buf,
 			cpc_self->cpc_sector = -1;
 		if (err != DSK_ERR_DATAERR && err != DSK_ERR_OK)
 			return err;
-		/* We have the sector. But does it contain deleted data? */
-		sh = sector_head(cpc_self, sector);
+		/* We have the sector. But does it contain deleted data?
+		 * [xcpc] sh was set by seekto_sector to the selected copy, so
+		 * data and ST1/ST2 come from the same record. */
 		if (!sh) return DSK_ERR_NODATA;
 
 		if (deleted) *deleted = 0;
@@ -709,9 +741,9 @@ dsk_err_t cpcemu_xwrite(DSK_DRIVER *self, const DSK_GEOMETRY *geom,
 
 	if (cpc_self->cpc_readonly) return DSK_ERR_RDONLY;
 
-	err  = seekto_sector(cpc_self, geom, cylinder,head,  
+	err  = seekto_sector(cpc_self, geom, cylinder,head,
 				cyl_expect, head_expect, sector, &len,
-				&weak_copies, &sseclen);
+				&weak_copies, &sseclen, 0, NULL);
 	if (err == DSK_ERR_DATAERR || err == DSK_ERR_OK)
 	{
 		unsigned char osh4, osh5;

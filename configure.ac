@@ -1,5 +1,5 @@
 #
-# configure.ac - Copyright (c) 2001-2024 - Olivier Poncet
+# configure.ac - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -82,6 +82,7 @@ AX_CHECK_PTHREAD
 AX_CHECK_LIBDL
 AX_CHECK_ZLIB
 AX_CHECK_BZLIB
+AX_CHECK_LIBZIP
 AX_CHECK_GUI_TOOLKIT
 AX_CHECK_MINIAUDIO
 AX_CHECK_LIBDSK
@@ -136,6 +137,8 @@ AC_CONFIG_FILES([
 	share/Makefile
 	share/applications/Makefile
 	share/applications/xcpc.desktop
+	share/applications/xcpc-x11.desktop
+	share/applications/xcpc-ogl.desktop
 	share/mime/Makefile
 	share/mime/packages/Makefile
 	share/pixmaps/Makefile

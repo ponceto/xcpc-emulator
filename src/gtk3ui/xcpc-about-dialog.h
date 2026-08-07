@@ -1,5 +1,5 @@
 /*
- * xcpc-about-dialog.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-about-dialog.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~AboutDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }

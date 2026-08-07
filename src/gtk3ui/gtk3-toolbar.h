@@ -1,5 +1,5 @@
 /*
- * gtk3-toolbar.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-toolbar.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     Toolbar(GtkWidget*);
 
+    Toolbar(Toolbar&&) = delete;
+
     Toolbar(const Toolbar&) = delete;
+
+    Toolbar& operator=(Toolbar&&) = delete;
 
     Toolbar& operator=(const Toolbar&) = delete;
 
@@ -44,9 +48,9 @@ public: // public interface
         return GTK_TOOLBAR(_instance);
     }
 
-    void create_toolbar();
+    auto create_toolbar() -> void;
 
-    void insert(Widget&, int position);
+    auto insert(Widget&, int position) -> void;
 };
 
 }

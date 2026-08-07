@@ -1,5 +1,5 @@
 /*
- * gtk3-frame.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-frame.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     Frame(GtkWidget*);
 
+    Frame(Frame&&) = delete;
+
     Frame(const Frame&) = delete;
+
+    Frame& operator=(Frame&&) = delete;
 
     Frame& operator=(const Frame&) = delete;
 
@@ -44,7 +48,7 @@ public: // public interface
         return GTK_FRAME(_instance);
     }
 
-    void create_frame(const std::string& string);
+    auto create_frame(const std::string& string) -> void;
 };
 
 }

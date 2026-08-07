@@ -1,5 +1,5 @@
 /*
- * xcpc-about-dialog.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-about-dialog.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
@@ -42,7 +43,7 @@ namespace {
 
 struct traits
 {
-    static void run_dialog(gtk3::Dialog& dialog)
+    static auto run_dialog(gtk3::Dialog& dialog) -> void
     {
         switch(dialog.run()) {
             default:
@@ -64,7 +65,7 @@ AboutDialog::AboutDialog(Application& application)
 {
 }
 
-void AboutDialog::run()
+auto AboutDialog::run() -> void
 {
     auto run_dialog = [&](gtk3::AboutDialog& dialog) -> void
     {

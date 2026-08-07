@@ -1,5 +1,5 @@
 /*
- * gtk3-window.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-window.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     Window(GtkWidget*);
 
+    Window(Window&&) = delete;
+
     Window(const Window&) = delete;
+
+    Window& operator=(Window&&) = delete;
 
     Window& operator=(const Window&) = delete;
 
@@ -44,11 +48,13 @@ public: // public interface
         return GTK_WINDOW(_instance);
     }
 
-    void set_title(const std::string& title);
+    auto set_title(const std::string& title) -> void;
 
-    void set_icon(GdkPixbuf* icon);
+    auto set_icon(GdkPixbuf* icon) -> void;
 
-    void set_skip_taskbar_hint(bool taskbar_hint);
+    auto set_modal(bool modal) -> void;
+
+    auto set_skip_taskbar_hint(bool taskbar_hint) -> void;
 };
 
 }
@@ -69,7 +75,7 @@ public: // public interface
 
     virtual ~ToplevelWindow() = default;
 
-    void create_toplevel_window();
+    auto create_toplevel_window() -> void;
 };
 
 }
@@ -90,7 +96,7 @@ public: // public interface
 
     virtual ~PopupWindow() = default;
 
-    void create_popup_window();
+    auto create_popup_window() -> void;
 };
 
 }

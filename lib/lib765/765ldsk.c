@@ -401,7 +401,7 @@ fd_err_t fdl_new_dsk(LIBDSK_FLOPPY_DRIVE *fdl)
 	dsk_err_t err;
 
 	if (fdl->fdl_filename[0] == 0) return 0; /* No filename */
-	if (!fdl->fdl_type == 0) return 0; /* No type */
+	if (fdl->fdl_type == NULL) return 0; /* No type */
 
 	err = dsk_creat(&fdl->fdl_diskp, fdl->fdl_filename, fdl->fdl_type,
 			 fdl->fdl_compress);

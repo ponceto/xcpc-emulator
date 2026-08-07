@@ -1,5 +1,5 @@
 /*
- * cpc-machine.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * cpc-machine.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,11 @@ class Machine final
 public: // public interface
     Machine(Settings& settings);
 
+    Machine(Machine&&) = delete;
+
     Machine(const Machine&) = delete;
+
+    Machine& operator=(Machine&&) = delete;
 
     Machine& operator=(const Machine&) = delete;
 
@@ -63,9 +67,11 @@ public: // public interface
 
     auto remove_disk_from_drive1() -> void;
 
-    auto set_volume(const float volume) -> void;
+    auto set_parameterb(const std::string& parameter, bool value) -> void;
 
-    auto set_scanlines(const bool scanlines) -> void;
+    auto set_parameteri(const std::string& parameter, int value) -> void;
+
+    auto set_parameterf(const std::string& parameter, float value) -> void;
 
     auto set_company_name(const std::string& company_name) -> void;
 
@@ -77,9 +83,7 @@ public: // public interface
 
     auto set_keyboard_type(const std::string& keyboard_type) -> void;
 
-    auto get_volume() const -> float;
-
-    auto get_system_info() const -> std::string;
+    auto set_renderer_type(const std::string& renderer_type) -> void;
 
     auto get_company_name() const -> std::string;
 
@@ -93,11 +97,21 @@ public: // public interface
 
     auto get_keyboard_type() const -> std::string;
 
+    auto get_renderer_type() const -> std::string;
+
     auto get_drive0_filename() const -> std::string;
 
     auto get_drive1_filename() const -> std::string;
 
+    auto get_drive0_active() const -> bool;
+
+    auto get_drive1_active() const -> bool;
+
+    auto get_system_info() const -> std::string;
+
     auto get_statistics() const -> std::string;
+
+    auto get_volume() const -> float;
 
     auto get_backend() const -> const Backend*;
 

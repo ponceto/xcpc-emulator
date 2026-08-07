@@ -566,6 +566,8 @@ static dsk_err_t uncompress(TLZH_COMPRESS_DATA *self)
 		off += rd;
 	}  while(rd == TLZH_BUFSZ);
 
+    (void)(off); /* ignore warning */
+
 /* This is a decompress-only driver, so set the read-only flag in the 
  * compression structure */
 	self->tlzh_super.cd_readonly = 1;

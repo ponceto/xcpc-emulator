@@ -1,5 +1,5 @@
 /*
- * gtk3-dialog.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-dialog.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-dialog.h"
@@ -40,12 +44,46 @@ namespace gtk3 {
 struct DialogTraits
     : BasicTraits
 {
-    static GtkWidget* create_dialog()
+    static auto create_dialog() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static int dispatch(DialogListener& listener, const int response)
+    static auto create_new_dialog() -> GtkWidget*
+    {
+        return ::gtk_dialog_new();
+    }
+
+    static auto add_button(Dialog& dialog, const std::string& label, int response_id) -> void
+    {
+        if(dialog) {
+            ::gtk_dialog_add_button(dialog, label.c_str(), response_id);
+        }
+    }
+
+    static auto pack_start(Dialog& dialog, Widget& child, bool expand, bool fill, unsigned int padding) -> void
+    {
+        if(dialog && child) {
+            GtkWidget* content_area = ::gtk_dialog_get_content_area(dialog);
+            if(content_area != nullptr) {
+                ::gtk_box_pack_start(GTK_BOX(content_area), child, expand, fill, padding);
+                child.show_all();
+            }
+        }
+    }
+
+    static auto pack_end(Dialog& dialog, Widget& child, bool expand, bool fill, unsigned int padding) -> void
+    {
+        if(dialog && child) {
+            GtkWidget* content_area = ::gtk_dialog_get_content_area(dialog);
+            if(content_area != nullptr) {
+                ::gtk_box_pack_end(GTK_BOX(content_area), child, expand, fill, padding);
+                child.show_all();
+            }
+        }
+    }
+
+    static auto dispatch(DialogListener& listener, const int response) -> int
     {
         switch(response) {
             case GTK_RESPONSE_NONE:
@@ -88,7 +126,7 @@ struct DialogTraits
         return response;
     }
 
-    static int run(Dialog& dialog)
+    static auto run(Dialog& dialog) -> int
     {
         if(dialog) {
             return ::gtk_dialog_run(dialog);
@@ -115,61 +153,61 @@ using traits = gtk3::DialogTraits;
 
 namespace gtk3 {
 
-void DialogListener::on_response(const int response)
+auto DialogListener::on_response(const int response) -> void
 {
 }
 
-void DialogListener::on_response_none()
+auto DialogListener::on_response_none() -> void
 {
     on_response(GTK_RESPONSE_NONE);
 }
 
-void DialogListener::on_response_reject()
+auto DialogListener::on_response_reject() -> void
 {
     on_response(GTK_RESPONSE_REJECT);
 }
 
-void DialogListener::on_response_accept()
+auto DialogListener::on_response_accept() -> void
 {
     on_response(GTK_RESPONSE_ACCEPT);
 }
 
-void DialogListener::on_response_delete_event()
+auto DialogListener::on_response_delete_event() -> void
 {
     on_response(GTK_RESPONSE_DELETE_EVENT);
 }
 
-void DialogListener::on_response_ok()
+auto DialogListener::on_response_ok() -> void
 {
     on_response(GTK_RESPONSE_OK);
 }
 
-void DialogListener::on_response_cancel()
+auto DialogListener::on_response_cancel() -> void
 {
     on_response(GTK_RESPONSE_CANCEL);
 }
 
-void DialogListener::on_response_close()
+auto DialogListener::on_response_close() -> void
 {
     on_response(GTK_RESPONSE_CLOSE);
 }
 
-void DialogListener::on_response_yes()
+auto DialogListener::on_response_yes() -> void
 {
     on_response(GTK_RESPONSE_YES);
 }
 
-void DialogListener::on_response_no()
+auto DialogListener::on_response_no() -> void
 {
     on_response(GTK_RESPONSE_NO);
 }
 
-void DialogListener::on_response_apply()
+auto DialogListener::on_response_apply() -> void
 {
     on_response(GTK_RESPONSE_APPLY);
 }
 
-void DialogListener::on_response_help()
+auto DialogListener::on_response_help() -> void
 {
     on_response(GTK_RESPONSE_HELP);
 }
@@ -194,7 +232,30 @@ Dialog::Dialog(GtkWidget* instance)
 {
 }
 
-int Dialog::run()
+auto Dialog::create_dialog() -> void
+{
+    if(_instance == nullptr) {
+        _instance = traits::create_new_dialog();
+        traits::register_widget_instance(_instance);
+    }
+}
+
+auto Dialog::add_button(const std::string& label, int response_id) -> void
+{
+    return traits::add_button(*this, label, response_id);
+}
+
+auto Dialog::pack_start(Widget& child, bool expand, bool fill, unsigned int padding) -> void
+{
+    return traits::pack_start(*this, child, expand, fill, padding);
+}
+
+auto Dialog::pack_end(Widget& child, bool expand, bool fill, unsigned int padding) -> void
+{
+    return traits::pack_end(*this, child, expand, fill, padding);
+}
+
+auto Dialog::run() -> int
 {
     return traits::dispatch(_dialog_listener, traits::run(*this));
 }

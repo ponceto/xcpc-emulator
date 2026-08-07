@@ -1,5 +1,5 @@
 /*
- * cdt-format.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * cdt-format.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,11 @@ class Tape
 public: // public interface
     Tape(const std::string& filename);
 
+    Tape(Tape&&) = delete;
+
     Tape(const Tape&) = delete;
+
+    Tape& operator=(Tape&&) = delete;
 
     Tape& operator=(const Tape&) = delete;
 

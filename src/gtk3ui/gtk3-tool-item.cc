@@ -1,5 +1,5 @@
 /*
- * gtk3-tool-item.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-tool-item.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-tool-item.h"
@@ -40,22 +44,22 @@ namespace gtk3 {
 struct ToolItemTraits
     : BasicTraits
 {
-    static GtkWidget* create_tool_item()
+    static auto create_tool_item() -> GtkWidget*
     {
         return reinterpret_cast<GtkWidget*>(::gtk_tool_item_new());
     }
 
-    static GtkWidget* create_tool_button()
+    static auto create_tool_button() -> GtkWidget*
     {
         return reinterpret_cast<GtkWidget*>(::gtk_tool_button_new(nullptr, nullptr));
     }
 
-    static GtkWidget* create_separator_tool_item()
+    static auto create_separator_tool_item() -> GtkWidget*
     {
         return reinterpret_cast<GtkWidget*>(::gtk_separator_tool_item_new());
     }
 
-    static void set_icon_name(ToolButton& tool_button, const std::string& icon_name)
+    static auto set_icon_name(ToolButton& tool_button, const std::string& icon_name) -> void
     {
         if(tool_button) {
             ::gtk_tool_button_set_icon_name(tool_button, icon_name.c_str());
@@ -91,7 +95,7 @@ ToolItem::ToolItem(GtkWidget* instance)
 {
 }
 
-void ToolItem::create_tool_item()
+auto ToolItem::create_tool_item() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_tool_item();
@@ -117,7 +121,7 @@ ToolButton::ToolButton(GtkWidget* instance)
 {
 }
 
-void ToolButton::create_tool_button()
+auto ToolButton::create_tool_button() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_tool_button();
@@ -125,12 +129,12 @@ void ToolButton::create_tool_button()
     }
 }
 
-void ToolButton::set_icon_name(const std::string& icon_name)
+auto ToolButton::set_icon_name(const std::string& icon_name) -> void
 {
     return traits::set_icon_name(*this, icon_name);
 }
 
-void ToolButton::add_clicked_callback(GCallback callback, void* data)
+auto ToolButton::add_clicked_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_clicked, callback, data);
 }
@@ -153,7 +157,7 @@ SeparatorToolItem::SeparatorToolItem(GtkWidget* instance)
 {
 }
 
-void SeparatorToolItem::create_separator_tool_item()
+auto SeparatorToolItem::create_separator_tool_item() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_separator_tool_item();

@@ -1,5 +1,5 @@
 /*
- * xcpc-snapshot-dialog.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-snapshot-dialog.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
@@ -42,7 +43,7 @@ namespace {
 
 struct traits
 {
-    static bool run_dialog(gtk3::Dialog& dialog)
+    static auto run_dialog(gtk3::Dialog& dialog) -> bool
     {
         switch(dialog.run()) {
             case GTK_RESPONSE_OK:
@@ -70,7 +71,7 @@ LoadSnapshotDialog::LoadSnapshotDialog(Application& application)
 {
 }
 
-void LoadSnapshotDialog::run()
+auto LoadSnapshotDialog::run() -> void
 {
     auto run_dialog = [&](gtk3::FileChooserOpenDialog& dialog) -> bool
     {
@@ -105,7 +106,7 @@ SaveSnapshotDialog::SaveSnapshotDialog(Application& application)
 {
 }
 
-void SaveSnapshotDialog::run()
+auto SaveSnapshotDialog::run() -> void
 {
     auto run_dialog = [&](gtk3::FileChooserSaveDialog& dialog) -> bool
     {

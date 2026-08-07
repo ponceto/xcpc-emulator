@@ -1,5 +1,5 @@
 /*
- * all.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * all.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,13 +28,19 @@
 #include <gtk3ui/gtk3-container.h>
 #include <gtk3ui/gtk3-bin.h>
 #include <gtk3ui/gtk3-box.h>
+#include <gtk3ui/gtk3-grid.h>
 #include <gtk3ui/gtk3-frame.h>
+#include <gtk3ui/gtk3-viewport.h>
 #include <gtk3ui/gtk3-window.h>
 #include <gtk3ui/gtk3-application-window.h>
 #include <gtk3ui/gtk3-dialog.h>
 #include <gtk3ui/gtk3-about-dialog.h>
 #include <gtk3ui/gtk3-message-dialog.h>
 #include <gtk3ui/gtk3-file-chooser-dialog.h>
+#include <gtk3ui/gtk3-label.h>
+#include <gtk3ui/gtk3-button.h>
+#include <gtk3ui/gtk3-range.h>
+#include <gtk3ui/gtk3-scale.h>
 #include <gtk3ui/gtk3-gl-area.h>
 #include <gtk3ui/gtk3-menu-shell.h>
 #include <gtk3ui/gtk3-menu-bar.h>
@@ -42,8 +48,8 @@
 #include <gtk3ui/gtk3-menu-item.h>
 #include <gtk3ui/gtk3-toolbar.h>
 #include <gtk3ui/gtk3-tool-item.h>
-#include <gtk3ui/gtk3-label.h>
-#include <gtk3ui/gtk3-emulator.h>
+#include <gtk3ui/gtk3-emulator-x11.h>
+#include <gtk3ui/gtk3-emulator-ogl.h>
 
 // ---------------------------------------------------------------------------
 // End-Of-File

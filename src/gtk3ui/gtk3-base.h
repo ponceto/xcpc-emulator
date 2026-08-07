@@ -1,5 +1,5 @@
 /*
- * gtk3-base.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-base.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@
 #define __GTK3_CXX_BASE_H__
 
 #include <gtk/gtk.h>
-#include <gtk3ui/gtkemulator.h>
+#include <gtk3ui/gtkemulatorx11.h>
+#include <gtk3ui/gtkemulatorogl.h>
 
 // ---------------------------------------------------------------------------
 // gtk3::signals
@@ -61,14 +62,14 @@ namespace gtk3 {
 struct BasicTraits
 {
     template <typename T>
-    static void signal_connect(T* instance, const char* signal, GCallback callback, void* data)
+    static auto signal_connect(T* instance, const char* signal, GCallback callback, void* data) -> void
     {
         if(instance != nullptr) {
             static_cast<void>(::g_signal_connect(G_OBJECT(instance), signal, callback, data));
         }
     }
 
-    static void register_widget_instance(GtkWidget*& instance);
+    static auto register_widget_instance(GtkWidget*& instance) -> void;
 };
 
 }

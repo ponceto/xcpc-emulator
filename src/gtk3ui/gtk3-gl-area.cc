@@ -1,5 +1,5 @@
 /*
- * gtk3-gl-area.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-gl-area.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-gl-area.h"
@@ -40,7 +44,7 @@ namespace gtk3 {
 struct GLAreaTraits
     : BasicTraits
 {
-    static GtkWidget* create_gl_area()
+    static auto create_gl_area() -> GtkWidget*
     {
         return ::gtk_gl_area_new();
     }
@@ -74,7 +78,7 @@ GLArea::GLArea(GtkWidget* instance)
 {
 }
 
-void GLArea::create_gl_area()
+auto GLArea::create_gl_area() -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_gl_area();
@@ -82,12 +86,12 @@ void GLArea::create_gl_area()
     }
 }
 
-void GLArea::add_render_callback(GCallback callback, void* data)
+auto GLArea::add_render_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_render, callback, data);
 }
 
-void GLArea::add_resize_callback(GCallback callback, void* data)
+auto GLArea::add_resize_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_resize, callback, data);
 }

@@ -1,5 +1,5 @@
 /*
- * console.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * console.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,9 +32,9 @@ public: // public interface
 
     virtual ~Console() = default;
 
-    virtual void println(const char*, ...);
+    virtual auto println(const char*, ...) -> void;
 
-    virtual void errorln(const char*, ...);
+    virtual auto errorln(const char*, ...) -> void;
 
 protected: // protected data
     std::istream& _istream;

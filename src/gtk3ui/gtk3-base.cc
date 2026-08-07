@@ -1,5 +1,5 @@
 /*
- * gtk3-base.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-base.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-base.h"
@@ -69,7 +73,7 @@ const char sig_motion_notify_event[]  = "motion-notify-event";
 
 namespace {
 
-void on_destroy(GtkWidget* widget_ptr, GtkWidget** widget_ref)
+auto on_destroy(GtkWidget* widget_ptr, GtkWidget** widget_ref) -> void
 {
     if((widget_ref != nullptr) && (*widget_ref == widget_ptr)) {
         *widget_ref = nullptr;
@@ -84,7 +88,7 @@ void on_destroy(GtkWidget* widget_ptr, GtkWidget** widget_ref)
 
 namespace gtk3 {
 
-void BasicTraits::register_widget_instance(GtkWidget*& instance)
+auto BasicTraits::register_widget_instance(GtkWidget*& instance) -> void
 {
     if(instance != nullptr) {
         static_cast<void>(signal_connect(G_OBJECT(instance), sig_destroy, G_CALLBACK(&on_destroy), &instance));

@@ -1,5 +1,5 @@
 /*
- * console.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * console.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,16 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cstdarg>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "console.h"
@@ -39,7 +43,7 @@ namespace {
 
 struct ConsoleTraits
 {
-    static void println(std::ostream& stream, const char* format, va_list arguments)
+    static auto println(std::ostream& stream, const char* format, va_list arguments) -> void
     {
         if(stream.good()) {
             char* message = nullptr;
@@ -69,7 +73,7 @@ Console::Console ( std::istream& istream
 {
 }
 
-void Console::println(const char* format, ...)
+auto Console::println(const char* format, ...) -> void
 {
     va_list arguments;
     va_start(arguments, format);
@@ -77,7 +81,7 @@ void Console::println(const char* format, ...)
     va_end(arguments);
 }
 
-void Console::errorln(const char* format, ...)
+auto Console::errorln(const char* format, ...) -> void
 {
     va_list arguments;
     va_start(arguments, format);

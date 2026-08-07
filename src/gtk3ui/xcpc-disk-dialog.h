@@ -1,5 +1,5 @@
 /*
- * xcpc-disk-dialog.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-disk-dialog.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ public: // public interface
 
     virtual ~CreateDiskDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }
@@ -52,7 +52,7 @@ public: // public interface
 
     virtual ~InsertDiskDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }
@@ -71,7 +71,7 @@ public: // public interface
 
     virtual ~RemoveDiskDialog() = default;
 
-    virtual void run() override;
+    virtual auto run() -> void override;
 };
 
 }

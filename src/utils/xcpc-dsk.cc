@@ -1,5 +1,5 @@
 /*
- * xcpc-dsk.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-dsk.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "xcpc-dsk.h"
@@ -53,7 +58,7 @@ HelpCmd::HelpCmd(base::Console& console, const std::string& program)
 {
 }
 
-void HelpCmd::run()
+auto HelpCmd::run() -> void
 {
     _console.println("Usage: %s <command> [OPTIONS] [FILES]...", _program.c_str());
     _console.println("");
@@ -74,7 +79,7 @@ DumpCmd::DumpCmd(base::Console& console, const std::string& program)
 {
 }
 
-void DumpCmd::run()
+auto DumpCmd::run() -> void
 {
     auto begin = [&](const std::string& filename)
     {
@@ -118,7 +123,7 @@ CreateCmd::CreateCmd(base::Console& console, const std::string& program)
 {
 }
 
-void CreateCmd::run()
+auto CreateCmd::run() -> void
 {
     auto begin = [&](const std::string& filename)
     {
@@ -164,7 +169,7 @@ Program::Program(base::ArgList& arglist, base::Console& console)
 {
 }
 
-void Program::main()
+auto Program::main() -> void
 {
     auto set_program = [&](const std::string& argument) -> void
     {

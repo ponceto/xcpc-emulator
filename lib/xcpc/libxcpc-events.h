@@ -1,5 +1,5 @@
 /*
- * events.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * events.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 #ifndef __XCPC_LIBXCPC_EVENTS_H__
 #define __XCPC_LIBXCPC_EVENTS_H__
+
+#include <X11/Xlib.h>
 
 #ifdef __cplusplus
 extern "C" {

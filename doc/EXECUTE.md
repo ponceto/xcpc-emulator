@@ -16,6 +16,7 @@ Emulation options:
     --refresh={value}           50Hz, 60Hz
     --keyboard={value}          english, french, german, spanish, danish
     --memory={value}            64kb, 128kb, 192kb, 256kb, 320kb, 384kb, 448kb, 512kb
+    --renderer={value}          default, ximage, opengl
     --sysrom={filename}         32Kb system rom
     --rom000={filename}         16Kb expansion rom #00
     --rom001={filename}         16Kb expansion rom #01
@@ -23,16 +24,16 @@ Emulation options:
     --rom003={filename}         16Kb expansion rom #03
     --rom004={filename}         16Kb expansion rom #04
     --rom005={filename}         16Kb expansion rom #05
-    --rom006={filename}         16Kb expansion rom #07
-    --rom007={filename}         16Kb expansion rom #08
-    --rom008={filename}         16Kb expansion rom #09
-    --rom009={filename}         16Kb expansion rom #10
-    --rom010={filename}         16Kb expansion rom #11
-    --rom011={filename}         16Kb expansion rom #12
-    --rom012={filename}         16Kb expansion rom #13
-    --rom013={filename}         16Kb expansion rom #14
-    --rom014={filename}         16Kb expansion rom #15
-    --rom015={filename}         16Kb expansion rom #16
+    --rom006={filename}         16Kb expansion rom #06
+    --rom007={filename}         16Kb expansion rom #07
+    --rom008={filename}         16Kb expansion rom #08
+    --rom009={filename}         16Kb expansion rom #09
+    --rom010={filename}         16Kb expansion rom #10
+    --rom011={filename}         16Kb expansion rom #11
+    --rom012={filename}         16Kb expansion rom #12
+    --rom013={filename}         16Kb expansion rom #13
+    --rom014={filename}         16Kb expansion rom #14
+    --rom015={filename}         16Kb expansion rom #15
     --drive0={filename}         drive0 disk image
     --drive1={filename}         drive1 disk image
     --snapshot={filename}       initial snapshot
@@ -41,8 +42,8 @@ Misc. options:
     --speedup={factor}          speeds up emulation by an integer factor
     --xshm                      use the XShm extension
     --no-xshm                   don't use the XShm extension
-    --scanlines                 simulate crt scanlines
-    --no-scanlines              don't simulate crt scanlines
+    --crt-emulation             simulate crt monitor
+    --no-crt-emulation          don't simulate crt monitor
 
 Debug options:
     --quiet                     set the loglevel to quiet mode
@@ -53,7 +54,7 @@ Debug options:
 
 ### ENVIRONMENT VARIABLES
 
-#### LOGLEVEL
+#### Loglevel
 
 The default loglevel is overridden with the `--quiet`, `--trace`, `--debug` options.
 
@@ -72,6 +73,26 @@ The available loglevel values are:
 3 = print
 4 = trace
 5 = debug
+```
+
+#### Runtime
+
+When Xcpc is run in portable mode or installed in a location other than that configured during compilation, you must tell the emulator where to find some resources such as the logo and the original ROMs (firmware and base).
+ 
+You can set some environment variables to fix some paths:
+
+  - `XCPC_BINDIR`: optional, not currently used
+  - `XCPC_LIBDIR`: optional, not currently used
+  - `XCPC_DATDIR`: optional, not currently used
+  - `XCPC_DOCDIR`: optional, not currently used
+  - `XCPC_RESDIR`: mandatory, specifies the path where to find the emulator logo
+  - `XCPC_ROMDIR`: mandatory, specifies the path where to find the firmware and basic roms
+  - `XCPC_DSKDIR`: optional, not currently used
+  - `XCPC_SNADIR`: optional, not currently used
+
+```
+export XCPC_DATDIR="{path-to-dat-directory}"
+export XCPC_ROMDIR="{path-to-rom-directory}"
 ```
 
 #### Joysticks
@@ -94,6 +115,7 @@ You can adjust audio parameters if they are not good by default.
 
   - `XCPC_AUDIO_CHANNELS`: the channel count, `1` for mono, `2` for stereo
   - `XCPC_AUDIO_SAMPLERATE`: the sample rate, for example `11025`, `22050`, `44100`, `48000`
+  - `XCPC_AUDIO_PERIODSIZEINMILLISECONDS`: the audio period size in milliseconds
 
 Example for a low-end hardware:
 
@@ -154,8 +176,9 @@ The supported extensions are:
 
   - `.sna` for loading snapshots
   - `.dsk` for loading raw disk images
-  - `.dsk.gz` for loading compressed disk images with the zlib algorithm.
-  - `.dsk.bz2` for loading compressed disk images with the bz2 algorithm.
+  - `.dsk.gz` for loading compressed disk images with the zlib algorithm (requires zlib).
+  - `.dsk.bz2` for loading compressed disk images with the bz2 algorithm (requires libbz2).
+  - `.zip` for loading disk images packed in a zip archive (requires libzip).
 
-Note: `.zip` disk images are currently not supported, so you have to extract the disk images from the zip archives.
+Note: A zip archive is opened read-only and the alphabetically-first `.dsk` member is loaded automatically; writes back to the archive are not supported (extract the disk first if you need to save changes).
 

@@ -1,5 +1,5 @@
 /*
- * gtk3-label.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-label.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-label.h"
@@ -40,29 +44,43 @@ namespace gtk3 {
 struct LabelTraits
     : BasicTraits
 {
-    static GtkWidget* create_label(const std::string& string = "label")
+    static auto create_label(const std::string& string = "label") -> GtkWidget*
     {
         return ::gtk_label_new(string.c_str());
     }
 
-    static void set_text(Label& label, const std::string& string)
+    static auto set_text(Label& label, const std::string& string) -> void
     {
         if(label) {
             ::gtk_label_set_text(label, string.c_str());
         }
     }
 
-    static void set_markup(Label& label, const std::string& string)
+    static auto set_markup(Label& label, const std::string& string) -> void
     {
         if(label) {
             ::gtk_label_set_markup(label, string.c_str());
         }
     }
 
-    static void set_ellipsize(Label& label, PangoEllipsizeMode mode)
+    static auto set_ellipsize(Label& label, PangoEllipsizeMode mode) -> void
     {
         if(label) {
             ::gtk_label_set_ellipsize(label, mode);
+        }
+    }
+
+    static auto set_xalign(Label& label, float xalign) -> void
+    {
+        if(label) {
+            ::gtk_label_set_xalign(label, xalign);
+        }
+    }
+
+    static auto set_yalign(Label& label, float yalign) -> void
+    {
+        if(label) {
+            ::gtk_label_set_yalign(label, yalign);
         }
     }
 };
@@ -95,7 +113,7 @@ Label::Label(GtkWidget* instance)
 {
 }
 
-void Label::create_label(const std::string& string)
+auto Label::create_label(const std::string& string) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_label(string);
@@ -103,19 +121,29 @@ void Label::create_label(const std::string& string)
     }
 }
 
-void Label::set_text(const std::string& string)
+auto Label::set_text(const std::string& string) -> void
 {
     return traits::set_text(*this, string);
 }
 
-void Label::set_markup(const std::string& string)
+auto Label::set_markup(const std::string& string) -> void
 {
     return traits::set_markup(*this, string);
 }
 
-void Label::set_ellipsize(PangoEllipsizeMode mode)
+auto Label::set_ellipsize(PangoEllipsizeMode mode) -> void
 {
     return traits::set_ellipsize(*this, mode);
+}
+
+auto Label::set_xalign(float xalign) -> void
+{
+    return traits::set_xalign(*this, xalign);
+}
+
+auto Label::set_yalign(float yalign) -> void
+{
+    return traits::set_yalign(*this, yalign);
 }
 
 }

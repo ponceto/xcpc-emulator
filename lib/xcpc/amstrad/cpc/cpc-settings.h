@@ -1,5 +1,5 @@
 /*
- * cpc-settings.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * cpc-settings.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,26 +29,30 @@ class Machine;
 class Mainboard;
 class Settings;
 
-using Utils            = xcpc::Utils;
-using Event            = xcpc::Event;
-using Backend          = xcpc::Backend;
-using CompanyName      = xcpc::CompanyName;
-using MachineType      = xcpc::MachineType;
-using MonitorType      = xcpc::MonitorType;
-using RefreshRate      = xcpc::RefreshRate;
-using KeyboardType     = xcpc::KeyboardType;
-using MemorySize       = xcpc::MemorySize;
-using Mutex            = xcpc::Mutex;
-using MutexLock        = xcpc::MutexLock;
-using AudioConfig      = xcpc::AudioConfig;
-using AudioDevice      = xcpc::AudioDevice;
-using AudioProcessor   = xcpc::AudioProcessor;
-using MonoFrameInt16   = xcpc::MonoFrameInt16;
-using MonoFrameInt32   = xcpc::MonoFrameInt32;
-using MonoFrameFlt32   = xcpc::MonoFrameFlt32;
-using StereoFrameInt16 = xcpc::StereoFrameInt16;
-using StereoFrameInt32 = xcpc::StereoFrameInt32;
-using StereoFrameFlt32 = xcpc::StereoFrameFlt32;
+using Utils                = xcpc::Utils;
+using Event                = xcpc::Event;
+using Backend              = xcpc::Backend;
+using CompanyName          = xcpc::CompanyName;
+using MachineType          = xcpc::MachineType;
+using MonitorType          = xcpc::MonitorType;
+using RefreshRate          = xcpc::RefreshRate;
+using KeyboardType         = xcpc::KeyboardType;
+using MemorySize           = xcpc::MemorySize;
+using RendererType         = xcpc::RendererType;
+using Mutex                = xcpc::Mutex;
+using MutexLock            = xcpc::MutexLock;
+using AudioConfig          = xcpc::AudioConfig;
+using AudioDevice          = xcpc::AudioDevice;
+using AudioProcessor       = xcpc::AudioProcessor;
+using MonoFrameInt16       = xcpc::MonoFrameInt16;
+using MonoFrameInt32       = xcpc::MonoFrameInt32;
+using MonoFrameFlt32       = xcpc::MonoFrameFlt32;
+using StereoFrameInt16     = xcpc::StereoFrameInt16;
+using StereoFrameInt32     = xcpc::StereoFrameInt32;
+using StereoFrameFlt32     = xcpc::StereoFrameFlt32;
+using Surround40FrameInt16 = xcpc::Surround40FrameInt16;
+using Surround40FrameInt32 = xcpc::Surround40FrameInt32;
+using Surround40FrameFlt32 = xcpc::Surround40FrameFlt32;
 
 }
 
@@ -66,7 +70,11 @@ public: // public interface
 
     Settings(int& argc, char**& argv);
 
+    Settings(Settings&&) = delete;
+
     Settings(const Settings&) = delete;
+
+    Settings& operator=(Settings&&) = delete;
 
     Settings& operator=(const Settings&) = delete;
 
@@ -88,6 +96,7 @@ public: // public data
     std::string opt_refresh;
     std::string opt_keyboard;
     std::string opt_memory;
+    std::string opt_renderer;
     std::string opt_sysrom;
     std::string opt_rom000;
     std::string opt_rom001;
@@ -110,7 +119,7 @@ public: // public data
     std::string opt_snapshot;
     std::string opt_speedup;
     bool        opt_xshm;
-    bool        opt_scanlines;
+    bool        opt_crt_emulation;
     bool        opt_help;
     bool        opt_version;
     int         opt_loglevel;

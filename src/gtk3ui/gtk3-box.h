@@ -1,5 +1,5 @@
 /*
- * gtk3-box.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-box.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     Box(GtkWidget*);
 
+    Box(Box&&) = delete;
+
     Box(const Box&) = delete;
+
+    Box& operator=(Box&&) = delete;
 
     Box& operator=(const Box&) = delete;
 
@@ -44,15 +48,15 @@ public: // public interface
         return GTK_BOX(_instance);
     }
 
-    void set_spacing(int spacing);
+    auto set_spacing(int spacing) -> void;
 
-    void set_homogeneous(bool homogeneous);
+    auto set_homogeneous(bool homogeneous) -> void;
 
-    void pack_start(Widget& child, bool expand, bool fill, unsigned int padding);
+    auto pack_start(Widget& child, bool expand, bool fill, unsigned int padding) -> void;
 
-    void pack_end(Widget& child, bool expand, bool fill, unsigned int padding);
+    auto pack_end(Widget& child, bool expand, bool fill, unsigned int padding) -> void;
 
-    void set_center_widget(Widget& child);
+    auto set_center_widget(Widget& child) -> void;
 };
 
 }
@@ -73,7 +77,7 @@ public: // public interface
 
     virtual ~HBox() = default;
 
-    void create_hbox();
+    auto create_hbox() -> void;
 };
 
 }
@@ -94,7 +98,7 @@ public: // public interface
 
     virtual ~VBox() = default;
 
-    void create_vbox();
+    auto create_vbox() -> void;
 };
 
 }

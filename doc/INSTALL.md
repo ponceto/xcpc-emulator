@@ -12,6 +12,7 @@ Mandatory dependencies :
 build-essential
 xorg-dev
 libgtk-3-dev
+libepoxy-dev
 ```
 
 Optional dependencies :
@@ -19,6 +20,7 @@ Optional dependencies :
 ```
 zlib1g-dev
 libbz2-dev
+libzip-dev
 ```
 
 ### GENERATE THE CONFIGURE SCRIPT

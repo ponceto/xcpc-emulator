@@ -1,5 +1,5 @@
 #
-# .gitlab-ci.yml - Copyright (c) 2001-2024 - Olivier Poncet
+# gitlab-ci.yml - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,103 +16,144 @@
 #
 
 # ----------------------------------------------------------------------------
+# default
+# ----------------------------------------------------------------------------
+
+default:
+  image: debian:stable
+
+# ----------------------------------------------------------------------------
 # stages
 # ----------------------------------------------------------------------------
 
 stages:
-  - prepare
-  - build-bin
-  - build-deb
+  - tarball
+  - build
 
 # ----------------------------------------------------------------------------
-# tarball
+# build-tarball
 # ----------------------------------------------------------------------------
 
-tarball:
-  stage: prepare
-  when: on_success
+build-tarball:
+  stage: tarball
   tags:
-    - debian-11
+    - docker
     - amd64
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
   script:
-    - ./.ci/ci-prepare.sh
+    - ./.ci/ci-build-tarball.sh
   artifacts:
     name: "xcpc-sources"
     paths:
-      - ./*.tar.gz
+      - ./xcpc-*.tar.gz
 
 # ----------------------------------------------------------------------------
-# build-bin_amd64
+# build-appimage-amd64
 # ----------------------------------------------------------------------------
 
-build-bin_amd64:
-  stage: build-bin
-  when: on_success
-  tags:
-    - debian-11
-    - amd64
+build-appimage-amd64:
+  stage: build
   dependencies:
-    - tarball
+    - build-tarball
+  tags:
+    - docker
+    - amd64
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
   script:
-    - ./.ci/ci-build-bin.sh
+    - ./.ci/ci-build-appimage.sh
   artifacts:
-    name: "xcpc-bin_amd64"
+    name: "xcpc-appimage-amd64"
     paths:
-      - ./*.tar.gz
+      - ./xcpc-*_*.AppImage
 
 # ----------------------------------------------------------------------------
-# build-deb_amd64
+# build-appimage-arm64
 # ----------------------------------------------------------------------------
 
-build-deb_amd64:
-  stage: build-deb
-  when: on_success
-  tags:
-    - debian-11
-    - amd64
+build-appimage-arm64:
+  stage: build
   dependencies:
-    - tarball
-  rules:
-    - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH == "release"
-  script:
-    - ./.ci/ci-build-deb.sh
-  artifacts:
-    name: "xcpc-deb_amd64"
-    paths:
-      - ./*.buildinfo
-      - ./*.changes
-      - ./*.deb
-
-# ----------------------------------------------------------------------------
-# build-deb_arm64
-# ----------------------------------------------------------------------------
-
-build-deb_arm64:
-  stage: build-deb
-  when: on_success
+    - build-tarball
   tags:
-    - debian-11
+    - docker
     - arm64
-  dependencies:
-    - tarball
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
   script:
-    - ./.ci/ci-build-deb.sh
+    - ./.ci/ci-build-appimage.sh
   artifacts:
-    name: "xcpc-deb_arm64"
+    name: "xcpc-appimage-arm64"
     paths:
-      - ./*.buildinfo
-      - ./*.changes
-      - ./*.deb
+      - ./xcpc-*_*.AppImage
+
+# ----------------------------------------------------------------------------
+# build-debian-amd64
+# ----------------------------------------------------------------------------
+
+build-debian-amd64:
+  image: debian:bookworm
+  stage: build
+  dependencies:
+    - build-tarball
+  tags:
+    - docker
+    - amd64
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
+  script:
+    - ./.ci/ci-build-debian.sh
+  artifacts:
+    name: "xcpc-debian-amd64"
+    paths:
+      - ./_build/*.tar.gz
+      - ./_build/*.tar.xz
+      - ./_build/*.buildinfo
+      - ./_build/*.changes
+      - ./_build/*.dsc
+      - ./_build/*.deb
+
+# ----------------------------------------------------------------------------
+# build-debian-arm64
+# ----------------------------------------------------------------------------
+
+build-debian-arm64:
+  image: debian:bookworm
+  stage: build
+  dependencies:
+    - build-tarball
+  tags:
+    - docker
+    - arm64
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "release"
+  before_script:
+    - ./.ci/ci-setup-debian.sh
+  script:
+    - ./.ci/ci-build-debian.sh
+  artifacts:
+    name: "xcpc-debian-arm64"
+    paths:
+      - ./_build/*.tar.gz
+      - ./_build/*.tar.xz
+      - ./_build/*.buildinfo
+      - ./_build/*.changes
+      - ./_build/*.dsc
+      - ./_build/*.deb
 
 # ----------------------------------------------------------------------------
 # End-Of-File

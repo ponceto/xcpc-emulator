@@ -1,5 +1,5 @@
 /*
- * gtk3-menu-shell.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-menu-shell.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-menu-shell.h"
@@ -40,12 +44,12 @@ namespace gtk3 {
 struct MenuShellTraits
     : BasicTraits
 {
-    static GtkWidget* create_menu_shell()
+    static auto create_menu_shell() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static void append(MenuShell& menu_shell, Widget& widget)
+    static auto append(MenuShell& menu_shell, Widget& widget) -> void
     {
         if(menu_shell && widget) {
             ::gtk_menu_shell_append(menu_shell, widget);
@@ -81,7 +85,7 @@ MenuShell::MenuShell(GtkWidget* instance)
 {
 }
 
-void MenuShell::append(Widget& widget)
+auto MenuShell::append(Widget& widget) -> void
 {
     return traits::append(*this, widget);
 }

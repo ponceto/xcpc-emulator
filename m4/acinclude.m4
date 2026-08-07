@@ -1,5 +1,5 @@
 #
-# acinclude.m4 - Copyright (c) 2001-2024 - Olivier Poncet
+# acinclude.m4 - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -133,6 +133,15 @@ AC_CHECK_LIB(z, zlibVersion)
 AC_DEFUN([AX_CHECK_BZLIB], [
 AC_CHECK_HEADERS(bzlib.h)
 AC_CHECK_LIB(bz2, BZ2_bzlibVersion)
+])
+
+# ----------------------------------------------------------------------------
+# AX_CHECK_LIBZIP
+# ----------------------------------------------------------------------------
+
+AC_DEFUN([AX_CHECK_LIBZIP], [
+AC_CHECK_HEADERS(zip.h)
+AC_CHECK_LIB(zip, zip_open)
 ])
 
 # ----------------------------------------------------------------------------

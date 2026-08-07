@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2024 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,6 +41,8 @@ libdsk_la_SOURCES = \
 	compdskf.h \
 	compgz.c \
 	compgz.h \
+	compzip.c \
+	compzip.h \
 	compress.c \
 	compress.h \
 	compress.inc \

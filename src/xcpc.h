@@ -1,5 +1,5 @@
 /*
- * xcpc.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 #include <xcpc/libxcpc-cxx.h>
 #include <xcpc/amstrad/cpc/cpc-machine.h>
+#include "xcpc-settings.h"
 
 // ---------------------------------------------------------------------------
 // TranslationTraits
@@ -66,11 +67,75 @@ class DiskDialog;
 class CreateDiskDialog;
 class InsertDiskDialog;
 class RemoveDiskDialog;
+class SettingsDialog;
 class HelpDialog;
 class AboutDialog;
 class ScopedOperation;
 class ScopedPause;
 class ScopedReset;
+
+}
+
+// ---------------------------------------------------------------------------
+// base::AudioSettings
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+struct AudioSettings
+{
+    float volume = 0.50f;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::VideoSettings
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+struct VideoSettings
+{
+    std::string renderer      = "default";
+    bool        crt_emulation = true;
+    float       u_hsampling   = 0.75f;
+    float       u_vsampling   = 0.25f;
+    float       u_curvature   = 0.10f;
+    float       u_corner      = 0.15f;
+    float       u_dotline     = 0.30f;
+    float       u_dotmask     = 0.10f;
+    float       u_vignetting  = 1.00f;
+    float       u_brightness  = 1.30f;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::InputSettings
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+struct InputSettings
+{
+    bool joystick_emulation = false;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::GlobalSettings
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+struct GlobalSettings
+{
+    AudioSettings audio;
+    VideoSettings video;
+    InputSettings input;
+};
 
 }
 
@@ -85,13 +150,17 @@ class Environ
 public: // public interface
     Environ() = default;
 
+    Environ(Environ&&) = delete;
+
     Environ(const Environ&) = delete;
+
+    Environ& operator=(Environ&&) = delete;
 
     Environ& operator=(const Environ&) = delete;
 
     virtual ~Environ() = default;
 
-    static void setenv(const std::string& variable, const std::string& value);
+    static auto setenv(const std::string& variable, const std::string& value) -> void;
 };
 
 }
@@ -107,7 +176,11 @@ class Application
 public: // public interface
     Application(int& argc, char**& argv);
 
+    Application(Application&&) = delete;
+
     Application(const Application&) = delete;
+
+    Application& operator=(Application&&) = delete;
 
     Application& operator=(const Application&) = delete;
 
@@ -120,7 +193,41 @@ public: // public interface
         return _machine->get_backend();
     }
 
+    auto audio_settings() -> AudioSettings&
+    {
+        return _globals.audio;
+    }
+
+    auto audio_settings() const -> const AudioSettings&
+    {
+        return _globals.audio;
+    }
+
+    auto video_settings() -> VideoSettings&
+    {
+        return _globals.video;
+    }
+
+    auto video_settings() const -> const VideoSettings&
+    {
+        return _globals.video;
+    }
+
+    auto input_settings() -> InputSettings&
+    {
+        return _globals.input;
+    }
+
+    auto input_settings() const -> const InputSettings&
+    {
+        return _globals.input;
+    }
+
 public: // public methods
+    virtual auto has_ximage() -> bool = 0;
+
+    virtual auto has_opengl() -> bool = 0;
+
     virtual auto load_snapshot(const std::string& filename) -> void = 0;
 
     virtual auto save_snapshot(const std::string& filename) -> void = 0;
@@ -147,11 +254,11 @@ public: // public methods
 
     virtual auto set_volume(const float volume) -> void = 0;
 
-    virtual auto set_scanlines(const bool scanlines) -> void = 0;
-
-    virtual auto set_machine_type(const std::string& machine_type) -> void = 0;
+    virtual auto set_crt_emulation(const bool crt_emulation) -> void = 0;
 
     virtual auto set_company_name(const std::string& company_name) -> void = 0;
+
+    virtual auto set_machine_type(const std::string& machine_type) -> void = 0;
 
     virtual auto set_monitor_type(const std::string& monitor_type) -> void = 0;
 
@@ -159,9 +266,43 @@ public: // public methods
 
     virtual auto set_keyboard_type(const std::string& keyboard_type) -> void = 0;
 
+    virtual auto set_renderer_type(const std::string& renderer_type) -> void = 0;
+
+    virtual auto set_joystick_emulation(const bool enabled) -> void = 0;
+
     virtual auto set_joystick0(const std::string& device) -> void = 0;
 
     virtual auto set_joystick1(const std::string& device) -> void = 0;
+
+    auto get_machine_type() const -> const std::string
+    {
+        return _machine->get_machine_type();
+    }
+
+    auto get_company_name() const -> const std::string
+    {
+        return _machine->get_company_name();
+    }
+
+    auto get_monitor_type() const -> const std::string
+    {
+        return _machine->get_monitor_type();
+    }
+
+    auto get_refresh_rate() const -> const std::string
+    {
+        return _machine->get_refresh_rate();
+    }
+
+    auto get_keyboard_type() const -> const std::string
+    {
+        return _machine->get_keyboard_type();
+    }
+
+    auto get_renderer_type() const -> const std::string
+    {
+        return _machine->get_renderer_type();
+    }
 
 public: // public signals
     virtual auto on_startup() -> void = 0;
@@ -169,6 +310,8 @@ public: // public signals
     virtual auto on_shutdown() -> void = 0;
 
     virtual auto on_statistics() -> void = 0;
+
+    virtual auto on_drive_activity() -> void = 0;
 
     virtual auto on_snapshot_load() -> void = 0;
 
@@ -240,9 +383,17 @@ public: // public signals
 
     virtual auto on_volume_decrease() -> void = 0;
 
-    virtual auto on_scanlines_enable() -> void = 0;
+    virtual auto on_audio_settings() -> void = 0;
 
-    virtual auto on_scanlines_disable() -> void = 0;
+    virtual auto on_renderer_ximage() -> void = 0;
+
+    virtual auto on_renderer_opengl() -> void = 0;
+
+    virtual auto on_crt_emulation_enable() -> void = 0;
+
+    virtual auto on_crt_emulation_disable() -> void = 0;
+
+    virtual auto on_video_settings() -> void = 0;
 
     virtual auto on_joystick0_connect() -> void = 0;
 
@@ -251,6 +402,10 @@ public: // public signals
     virtual auto on_joystick1_connect() -> void = 0;
 
     virtual auto on_joystick1_disconnect() -> void = 0;
+
+    virtual auto on_joystick_emulation_enable() -> void = 0;
+
+    virtual auto on_joystick_emulation_disable() -> void = 0;
 
     virtual auto on_help() -> void = 0;
 
@@ -262,9 +417,20 @@ protected: // protected interface
 
     virtual auto run_dialog(Dialog&) -> void;
 
+    auto load_settings() -> void;
+
+    auto save_settings() -> void;
+
+    auto set_parameterb(const std::string& parameter, bool value) -> void;
+
+    auto set_parameteri(const std::string& parameter, int value) -> void;
+
+    auto set_parameterf(const std::string& parameter, float value) -> void;
+
 protected: // protected data
     int&              _argc;
     char**&           _argv;
+    GlobalSettings    _globals;
     const SettingsPtr _settings;
     const MachinePtr  _machine;
 };
@@ -282,7 +448,11 @@ class Dialog
 public: // public interface
     Dialog(Application&, const std::string& title);
 
+    Dialog(Dialog&&) = delete;
+
     Dialog(const Dialog&) = delete;
+
+    Dialog& operator=(Dialog&&) = delete;
 
     Dialog& operator=(const Dialog&) = delete;
 
@@ -334,7 +504,11 @@ class SnapshotDialog
 public: // public interface
     SnapshotDialog(Application&, const std::string& title);
 
+    SnapshotDialog(SnapshotDialog&&) = delete;
+
     SnapshotDialog(const SnapshotDialog&) = delete;
+
+    SnapshotDialog& operator=(SnapshotDialog&&) = delete;
 
     SnapshotDialog& operator=(const SnapshotDialog&) = delete;
 
@@ -358,7 +532,11 @@ class LoadSnapshotDialog
 public: // public interface
     LoadSnapshotDialog(Application&);
 
+    LoadSnapshotDialog(LoadSnapshotDialog&&) = delete;
+
     LoadSnapshotDialog(const LoadSnapshotDialog&) = delete;
+
+    LoadSnapshotDialog& operator=(LoadSnapshotDialog&&) = delete;
 
     LoadSnapshotDialog& operator=(const LoadSnapshotDialog&) = delete;
 
@@ -379,7 +557,11 @@ class SaveSnapshotDialog
 public: // public interface
     SaveSnapshotDialog(Application&);
 
+    SaveSnapshotDialog(SaveSnapshotDialog&&) = delete;
+
     SaveSnapshotDialog(const SaveSnapshotDialog&) = delete;
+
+    SaveSnapshotDialog& operator=(SaveSnapshotDialog&&) = delete;
 
     SaveSnapshotDialog& operator=(const SaveSnapshotDialog&) = delete;
 
@@ -400,7 +582,11 @@ class DiskDialog
 public: // public interface
     DiskDialog(Application&, const std::string& title, const char drive);
 
+    DiskDialog(DiskDialog&&) = delete;
+
     DiskDialog(const DiskDialog&) = delete;
+
+    DiskDialog& operator=(DiskDialog&&) = delete;
 
     DiskDialog& operator=(const DiskDialog&) = delete;
 
@@ -436,7 +622,11 @@ class CreateDiskDialog
 public: // public interface
     CreateDiskDialog(Application&, const char drive);
 
+    CreateDiskDialog(CreateDiskDialog&&) = delete;
+
     CreateDiskDialog(const CreateDiskDialog&) = delete;
+
+    CreateDiskDialog& operator=(CreateDiskDialog&&) = delete;
 
     CreateDiskDialog& operator=(const CreateDiskDialog&) = delete;
 
@@ -457,7 +647,11 @@ class InsertDiskDialog
 public: // public interface
     InsertDiskDialog(Application&, const char drive);
 
+    InsertDiskDialog(InsertDiskDialog&&) = delete;
+
     InsertDiskDialog(const InsertDiskDialog&) = delete;
+
+    InsertDiskDialog& operator=(InsertDiskDialog&&) = delete;
 
     InsertDiskDialog& operator=(const InsertDiskDialog&) = delete;
 
@@ -478,11 +672,115 @@ class RemoveDiskDialog
 public: // public interface
     RemoveDiskDialog(Application&, const char drive);
 
+    RemoveDiskDialog(RemoveDiskDialog&&) = delete;
+
     RemoveDiskDialog(const RemoveDiskDialog&) = delete;
+
+    RemoveDiskDialog& operator=(RemoveDiskDialog&&) = delete;
 
     RemoveDiskDialog& operator=(const RemoveDiskDialog&) = delete;
 
     virtual ~RemoveDiskDialog() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::SettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class SettingsDialog
+    : public Dialog
+{
+public: // public interface
+    SettingsDialog(Application&, const std::string& title);
+
+    SettingsDialog(SettingsDialog&&) = delete;
+
+    SettingsDialog(const SettingsDialog&) = delete;
+
+    SettingsDialog& operator=(SettingsDialog&&) = delete;
+
+    SettingsDialog& operator=(const SettingsDialog&) = delete;
+
+    virtual ~SettingsDialog() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::AudioSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class AudioSettingsDialog
+    : public SettingsDialog
+{
+public: // public interface
+    AudioSettingsDialog(Application&);
+
+    AudioSettingsDialog(AudioSettingsDialog&&) = delete;
+
+    AudioSettingsDialog(const AudioSettingsDialog&) = delete;
+
+    AudioSettingsDialog& operator=(AudioSettingsDialog&&) = delete;
+
+    AudioSettingsDialog& operator=(const AudioSettingsDialog&) = delete;
+
+    virtual ~AudioSettingsDialog() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::VideoSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class VideoSettingsDialog
+    : public SettingsDialog
+{
+public: // public interface
+    VideoSettingsDialog(Application&);
+
+    VideoSettingsDialog(VideoSettingsDialog&&) = delete;
+
+    VideoSettingsDialog(const VideoSettingsDialog&) = delete;
+
+    VideoSettingsDialog& operator=(VideoSettingsDialog&&) = delete;
+
+    VideoSettingsDialog& operator=(const VideoSettingsDialog&) = delete;
+
+    virtual ~VideoSettingsDialog() = default;
+};
+
+}
+
+// ---------------------------------------------------------------------------
+// base::InputSettingsDialog
+// ---------------------------------------------------------------------------
+
+namespace base {
+
+class InputSettingsDialog
+    : public SettingsDialog
+{
+public: // public interface
+    InputSettingsDialog(Application&);
+
+    InputSettingsDialog(InputSettingsDialog&&) = delete;
+
+    InputSettingsDialog(const InputSettingsDialog&) = delete;
+
+    InputSettingsDialog& operator=(InputSettingsDialog&&) = delete;
+
+    InputSettingsDialog& operator=(const InputSettingsDialog&) = delete;
+
+    virtual ~InputSettingsDialog() = default;
 };
 
 }
@@ -499,7 +797,11 @@ class HelpDialog
 public: // public interface
     HelpDialog(Application&);
 
+    HelpDialog(HelpDialog&&) = delete;
+
     HelpDialog(const HelpDialog&) = delete;
+
+    HelpDialog& operator=(HelpDialog&&) = delete;
 
     HelpDialog& operator=(const HelpDialog&) = delete;
 
@@ -520,7 +822,11 @@ class AboutDialog
 public: // public interface
     AboutDialog(Application&);
 
+    AboutDialog(AboutDialog&&) = delete;
+
     AboutDialog(const AboutDialog&) = delete;
+
+    AboutDialog& operator=(AboutDialog&&) = delete;
 
     AboutDialog& operator=(const AboutDialog&) = delete;
 
@@ -540,7 +846,11 @@ class ScopedOperation
 public: // public interface
     ScopedOperation(Application&);
 
+    ScopedOperation(ScopedOperation&&) = delete;
+
     ScopedOperation(const ScopedOperation&) = delete;
+
+    ScopedOperation& operator=(ScopedOperation&&) = delete;
 
     ScopedOperation& operator=(const ScopedOperation&) = delete;
 
@@ -564,7 +874,11 @@ class ScopedPause final
 public: // public interface
     ScopedPause(Application&);
 
+    ScopedPause(ScopedPause&&) = delete;
+
     ScopedPause(const ScopedPause&) = delete;
+
+    ScopedPause& operator=(ScopedPause&&) = delete;
 
     ScopedPause& operator=(const ScopedPause&) = delete;
 
@@ -585,7 +899,11 @@ class ScopedReset final
 public: // public interface
     ScopedReset(Application&);
 
+    ScopedReset(ScopedReset&&) = delete;
+
     ScopedReset(const ScopedReset&) = delete;
+
+    ScopedReset& operator=(ScopedReset&&) = delete;
 
     ScopedReset& operator=(const ScopedReset&) = delete;
 
@@ -603,7 +921,11 @@ class Xcpc
 public: // public interface
     Xcpc(int& argc, char**& argv);
 
+    Xcpc(Xcpc&&) = delete;
+
     Xcpc(const Xcpc&) = delete;
+
+    Xcpc& operator=(Xcpc&&) = delete;
 
     Xcpc& operator=(const Xcpc&) = delete;
 

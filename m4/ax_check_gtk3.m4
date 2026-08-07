@@ -1,5 +1,5 @@
 #
-# ax_check_gtk3.m4 - Copyright (c) 2001-2024 - Olivier Poncet
+# ax_check_gtk3.m4 - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 AC_DEFUN([AX_CHECK_GTK3], [
 AC_ARG_ENABLE([gtk3], [AS_HELP_STRING([--enable-gtk3], [add the support of gtk3 (if available) [default=yes]])], [], [enable_gtk3='yes'])
 if test "x${enable_gtk3}" = 'xyes'; then
-    PKG_CHECK_MODULES([gtk3], [gtk+-3.0], [have_gtk3='yes'], [have_gtk3='no'])
+    PKG_CHECK_MODULES([gtk3], [gtk+-3.0 epoxy], [have_gtk3='yes'], [have_gtk3='no'])
 else
     have_gtk3='no'
 fi

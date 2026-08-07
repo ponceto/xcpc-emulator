@@ -1,5 +1,5 @@
 /*
- * xcpc-application.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * xcpc-application.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ using namespace xcpc;
 
 class AppWidget;
 class AppWindow;
-class Canvas;
 class FileMenu;
 class ControlsMenu;
 class MachineMenu;
@@ -60,6 +59,9 @@ class SaveSnapshotDialog;
 class CreateDiskDialog;
 class InsertDiskDialog;
 class RemoveDiskDialog;
+class AudioSettingsDialog;
+class VideoSettingsDialog;
+class InputSettingsDialog;
 class HelpDialog;
 class AboutDialog;
 
@@ -76,62 +78,20 @@ class AppWidget
 public: // public interface
     AppWidget(Application&);
 
+    AppWidget(AppWidget&&) = delete;
+
     AppWidget(const AppWidget&) = delete;
+
+    AppWidget& operator=(AppWidget&&) = delete;
 
     AppWidget& operator=(const AppWidget&) = delete;
 
     virtual ~AppWidget() = default;
 
-    virtual void build() = 0;
+    virtual auto build() -> void = 0;
 
 protected: // protected data
     Application& _application;
-};
-
-}
-
-// ---------------------------------------------------------------------------
-// impl::Canvas
-// ---------------------------------------------------------------------------
-
-namespace impl {
-
-class Canvas final
-    : public AppWidget
-    , public gtk3::GLArea
-{
-public: // public interface
-    Canvas(Application&);
-
-    Canvas(const Canvas&) = delete;
-
-    Canvas& operator=(const Canvas&) = delete;
-
-    virtual ~Canvas() = default;
-
-    virtual void build() override final;
-
-public: // public signals
-    auto on_canvas_realize() -> void;
-
-    auto on_canvas_unrealize() -> void;
-
-    auto on_canvas_render(GdkGLContext& context) -> void;
-
-    auto on_canvas_resize(gint width, gint height) -> void;
-
-    auto on_canvas_key_press(GdkEventKey& event) -> void;
-
-    auto on_canvas_key_release(GdkEventKey& event) -> void;
-
-    auto on_canvas_button_press(GdkEventButton& event) -> void;
-
-    auto on_canvas_button_release(GdkEventButton& event) -> void;
-
-    auto on_canvas_motion_notify(GdkEventMotion& event) -> void;
-
-private: // private data
-    gtk3::GLArea& _self;
 };
 
 }
@@ -149,13 +109,17 @@ class FileMenu final
 public: // public interface
     FileMenu(Application&);
 
+    FileMenu(FileMenu&&) = delete;
+
     FileMenu(const FileMenu&) = delete;
+
+    FileMenu& operator=(FileMenu&&) = delete;
 
     FileMenu& operator=(const FileMenu&) = delete;
 
     virtual ~FileMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -181,25 +145,29 @@ class ControlsMenu final
 public: // public interface
     ControlsMenu(Application&);
 
+    ControlsMenu(ControlsMenu&&) = delete;
+
     ControlsMenu(const ControlsMenu&) = delete;
+
+    ControlsMenu& operator=(ControlsMenu&&) = delete;
 
     ControlsMenu& operator=(const ControlsMenu&) = delete;
 
     virtual ~ControlsMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -225,13 +193,17 @@ class MachineMenu final
 public: // public interface
     MachineMenu(Application&);
 
+    MachineMenu(MachineMenu&&) = delete;
+
     MachineMenu(const MachineMenu&) = delete;
+
+    MachineMenu& operator=(MachineMenu&&) = delete;
 
     MachineMenu& operator=(const MachineMenu&) = delete;
 
     virtual ~MachineMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem& _self;
@@ -284,13 +256,17 @@ class Drive0Menu final
 public: // public interface
     Drive0Menu(Application&);
 
+    Drive0Menu(Drive0Menu&&) = delete;
+
     Drive0Menu(const Drive0Menu&) = delete;
+
+    Drive0Menu& operator=(Drive0Menu&&) = delete;
 
     Drive0Menu& operator=(const Drive0Menu&) = delete;
 
     virtual ~Drive0Menu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -316,13 +292,17 @@ class Drive1Menu final
 public: // public interface
     Drive1Menu(Application&);
 
+    Drive1Menu(Drive1Menu&&) = delete;
+
     Drive1Menu(const Drive1Menu&) = delete;
+
+    Drive1Menu& operator=(Drive1Menu&&) = delete;
 
     Drive1Menu& operator=(const Drive1Menu&) = delete;
 
     virtual ~Drive1Menu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -348,19 +328,25 @@ class AudioMenu final
 public: // public interface
     AudioMenu(Application&);
 
+    AudioMenu(AudioMenu&&) = delete;
+
     AudioMenu(const AudioMenu&) = delete;
+
+    AudioMenu& operator=(AudioMenu&&) = delete;
 
     AudioMenu& operator=(const AudioMenu&) = delete;
 
     virtual ~AudioMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
-    gtk3::MenuItem& _self;
-    gtk3::Menu      _menu;
-    gtk3::MenuItem  _volume_increase;
-    gtk3::MenuItem  _volume_decrease;
+    gtk3::MenuItem&         _self;
+    gtk3::Menu              _menu;
+    gtk3::MenuItem          _volume_increase;
+    gtk3::MenuItem          _volume_decrease;
+    gtk3::SeparatorMenuItem _separator;
+    gtk3::MenuItem          _audio_settings;
 };
 
 }
@@ -378,19 +364,31 @@ class VideoMenu final
 public: // public interface
     VideoMenu(Application&);
 
+    VideoMenu(VideoMenu&&) = delete;
+
     VideoMenu(const VideoMenu&) = delete;
+
+    VideoMenu& operator=(VideoMenu&&) = delete;
 
     VideoMenu& operator=(const VideoMenu&) = delete;
 
     virtual ~VideoMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
-    gtk3::MenuItem& _self;
-    gtk3::Menu      _menu;
-    gtk3::MenuItem  _scanlines_enable;
-    gtk3::MenuItem  _scanlines_disable;
+    gtk3::MenuItem&         _self;
+    gtk3::Menu              _menu;
+    gtk3::MenuItem          _renderer;
+    gtk3::Menu              _renderer_menu;
+    gtk3::MenuItem          _renderer_ximage;
+    gtk3::MenuItem          _renderer_opengl;
+    gtk3::MenuItem          _crt_emulation;
+    gtk3::Menu              _crt_emulation_menu;
+    gtk3::MenuItem          _crt_emulation_enable;
+    gtk3::MenuItem          _crt_emulation_disable;
+    gtk3::SeparatorMenuItem _separator;
+    gtk3::MenuItem          _video_settings;
 };
 
 }
@@ -408,17 +406,27 @@ class InputMenu final
 public: // public interface
     InputMenu(Application&);
 
+    InputMenu(InputMenu&&) = delete;
+
     InputMenu(const InputMenu&) = delete;
+
+    InputMenu& operator=(InputMenu&&) = delete;
 
     InputMenu& operator=(const InputMenu&) = delete;
 
     virtual ~InputMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
+
+    auto set_joystick_emulation(bool enabled);
 
 private: // private data
     gtk3::MenuItem& _self;
     gtk3::Menu      _menu;
+    gtk3::MenuItem  _joystick_emulation;
+    gtk3::Menu      _joystick_emulation_menu;
+    gtk3::MenuItem  _joystick_emulation_enable;
+    gtk3::MenuItem  _joystick_emulation_disable;
     gtk3::MenuItem  _joystick0;
     gtk3::Menu      _joystick0_menu;
     gtk3::MenuItem  _joystick0_connect;
@@ -444,13 +452,17 @@ class HelpMenu final
 public: // public interface
     HelpMenu(Application&);
 
+    HelpMenu(HelpMenu&&) = delete;
+
     HelpMenu(const HelpMenu&) = delete;
+
+    HelpMenu& operator=(HelpMenu&&) = delete;
 
     HelpMenu& operator=(const HelpMenu&) = delete;
 
     virtual ~HelpMenu() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
 private: // private data
     gtk3::MenuItem&         _self;
@@ -475,25 +487,31 @@ class MenuBar final
 public: // public interface
     MenuBar(Application&);
 
+    MenuBar(MenuBar&&) = delete;
+
     MenuBar(const MenuBar&) = delete;
+
+    MenuBar& operator=(MenuBar&&) = delete;
 
     MenuBar& operator=(const MenuBar&) = delete;
 
     virtual ~MenuBar() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
+
+    auto set_joystick_emulation(bool enabled) -> void;
 
 private: // private data
     gtk3::MenuBar& _self;
@@ -523,25 +541,29 @@ class ToolBar final
 public: // public interface
     ToolBar(Application&);
 
+    ToolBar(ToolBar&&) = delete;
+
     ToolBar(const ToolBar&) = delete;
+
+    ToolBar& operator=(ToolBar&&) = delete;
 
     ToolBar& operator=(const ToolBar&) = delete;
 
     virtual ~ToolBar() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
 
 private: // private data
     gtk3::Toolbar&          _self;
@@ -571,25 +593,29 @@ class InfoBar final
 public: // public interface
     InfoBar(Application&);
 
+    InfoBar(InfoBar&&) = delete;
+
     InfoBar(const InfoBar&) = delete;
+
+    InfoBar& operator=(InfoBar&&) = delete;
 
     InfoBar& operator=(const InfoBar&) = delete;
 
     virtual ~InfoBar() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    void set_state(const std::string& state);
+    auto set_state(const std::string& state) -> void;
 
-    void set_drive0(const std::string& drive0);
+    auto set_drive0(const std::string& drive0, bool active) -> void;
 
-    void set_drive1(const std::string& drive1);
+    auto set_drive1(const std::string& drive1, bool active) -> void;
 
-    void set_system(const std::string& system);
+    auto set_system(const std::string& system) -> void;
 
-    void set_volume(const std::string& volume);
+    auto set_volume(const std::string& volume) -> void;
 
-    void set_stats(const std::string& stats);
+    auto set_stats(const std::string& stats) -> void;
 
 private: // private data
     gtk3::HBox& _self;
@@ -599,6 +625,8 @@ private: // private data
     gtk3::Label _system;
     gtk3::Label _volume;
     gtk3::Label _stats;
+    std::string _drive0_markup;
+    std::string _drive1_markup;
 };
 
 }
@@ -616,23 +644,33 @@ class WorkWnd final
 public: // public interface
     WorkWnd(Application&);
 
+    WorkWnd(WorkWnd&&) = delete;
+
     WorkWnd(const WorkWnd&) = delete;
+
+    WorkWnd& operator=(WorkWnd&&) = delete;
 
     WorkWnd& operator=(const WorkWnd&) = delete;
 
     virtual ~WorkWnd() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
-    auto emulator() -> gtk3::Emulator&
-    {
-        return _emulator;
-    }
+    virtual auto destroy() -> void;
+
+    auto get_emulator() -> gtk3::Widget&;
+
+    auto get_joystick_emulation() -> bool;
+
+    auto set_joystick_emulation(bool enabled) -> void;
+
+    auto set_joystick(int id, const std::string& device) -> void;
 
 private: // private data
-    gtk3::HBox&    _self;
-    gtk3::Emulator _emulator;
-    Canvas         _canvas;
+    gtk3::HBox&       _self;
+    gtk3::Viewport    _viewport;
+    gtk3::EmulatorX11 _emulator_x11;
+    gtk3::EmulatorOGL _emulator_ogl;
 };
 
 }
@@ -650,13 +688,17 @@ class AppWindow final
 public: // public interface
     AppWindow(Application&);
 
+    AppWindow(AppWindow&&) = delete;
+
     AppWindow(const AppWindow&) = delete;
+
+    AppWindow& operator=(AppWindow&&) = delete;
 
     AppWindow& operator=(const AppWindow&) = delete;
 
     virtual ~AppWindow() = default;
 
-    virtual void build() override final;
+    virtual auto build() -> void override final;
 
     auto menu_bar() -> auto&
     {
@@ -678,17 +720,17 @@ public: // public interface
         return _info_bar;
     }
 
-    void show_play();
+    auto show_play() -> void;
 
-    void hide_play();
+    auto hide_play() -> void;
 
-    void show_pause();
+    auto show_pause() -> void;
 
-    void hide_pause();
+    auto hide_pause() -> void;
 
-    void show_reset();
+    auto show_reset() -> void;
 
-    void hide_reset();
+    auto hide_reset() -> void;
 
 private: // private data
     gtk3::VBox _layout;
@@ -712,7 +754,11 @@ class Environ
 public: // public interface
     Environ();
 
+    Environ(Environ&&) = delete;
+
     Environ(const Environ&) = delete;
+
+    Environ& operator=(Environ&&) = delete;
 
     Environ& operator=(const Environ&) = delete;
 
@@ -734,13 +780,17 @@ class Application final
 public: // public interface
     Application(int& argc, char**& argv);
 
+    Application(Application&&) = delete;
+
     Application(const Application&) = delete;
+
+    Application& operator=(Application&&) = delete;
 
     Application& operator=(const Application&) = delete;
 
     virtual ~Application();
 
-    virtual int main() override final;
+    virtual auto main() -> int override final;
 
 public: // public accessors
     auto app_context() -> gtk3::Application&
@@ -789,6 +839,10 @@ public: // public accessors
     }
 
 public: // public methods
+    virtual auto has_ximage() -> bool override final;
+
+    virtual auto has_opengl() -> bool override final;
+
     virtual auto load_snapshot(const std::string& filename) -> void override final;
 
     virtual auto save_snapshot(const std::string& filename) -> void override final;
@@ -815,17 +869,21 @@ public: // public methods
 
     virtual auto set_volume(const float value) -> void override final;
 
-    virtual auto set_scanlines(const bool scanlines) -> void override final;
-
-    virtual auto set_machine_type(const std::string& machine_type) -> void override final;
+    virtual auto set_crt_emulation(const bool crt_emulation) -> void override final;
 
     virtual auto set_company_name(const std::string& company_name) -> void override final;
+
+    virtual auto set_machine_type(const std::string& machine_type) -> void override final;
 
     virtual auto set_monitor_type(const std::string& monitor_type) -> void override final;
 
     virtual auto set_refresh_rate(const std::string& refresh_rate) -> void override final;
 
     virtual auto set_keyboard_type(const std::string& keyboard_type) -> void override final;
+
+    virtual auto set_renderer_type(const std::string& renderer_type) -> void override final;
+
+    virtual auto set_joystick_emulation(const bool enabled) -> void override final;
 
     virtual auto set_joystick0(const std::string& device) -> void override final;
 
@@ -839,6 +897,8 @@ public: // public signals
     virtual auto on_shutdown() -> void override final;
 
     virtual auto on_statistics() -> void override final;
+
+    virtual auto on_drive_activity() -> void override final;
 
     virtual auto on_snapshot_load() -> void override final;
 
@@ -910,9 +970,17 @@ public: // public signals
 
     virtual auto on_volume_decrease() -> void override final;
 
-    virtual auto on_scanlines_enable() -> void override final;
+    virtual auto on_audio_settings() -> void override final;
 
-    virtual auto on_scanlines_disable() -> void override final;
+    virtual auto on_renderer_ximage() -> void override final;
+
+    virtual auto on_renderer_opengl() -> void override final;
+
+    virtual auto on_crt_emulation_enable() -> void override final;
+
+    virtual auto on_crt_emulation_disable() -> void override final;
+
+    virtual auto on_video_settings() -> void override final;
 
     virtual auto on_joystick0_connect() -> void override final;
 
@@ -921,6 +989,10 @@ public: // public signals
     virtual auto on_joystick1_connect() -> void override final;
 
     virtual auto on_joystick1_disconnect() -> void override final;
+
+    virtual auto on_joystick_emulation_enable() -> void override final;
+
+    virtual auto on_joystick_emulation_disable() -> void override final;
 
     virtual auto on_help() -> void override final;
 
@@ -959,6 +1031,8 @@ private: // private interface
 
     auto update_stats() -> void;
 
+    auto update_input() -> void;
+
     auto update_all() -> void;
 
 private: // private data
@@ -967,6 +1041,7 @@ private: // private data
     gdk3::Pixbuf    _app_icon;
     impl::AppWindow _app_window;
     guint           _timer;
+    guint           _drive_timer;
 };
 
 }

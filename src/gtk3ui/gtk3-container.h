@@ -1,5 +1,5 @@
 /*
- * gtk3-container.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-container.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     Container(GtkWidget*);
 
+    Container(Container&&) = delete;
+
     Container(const Container&) = delete;
+
+    Container& operator=(Container&&) = delete;
 
     Container& operator=(const Container&) = delete;
 
@@ -44,9 +48,9 @@ public: // public interface
         return GTK_CONTAINER(_instance);
     }
 
-    void add(Widget&);
+    auto add(Widget&) -> void;
 
-    void remove(Widget&);
+    auto remove(Widget&) -> void;
 };
 
 }

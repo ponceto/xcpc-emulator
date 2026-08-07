@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2024 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@ applicationsdir = $(datadir)/applications
 
 dist_applications_DATA = \
 	xcpc.desktop \
+	xcpc-x11.desktop \
+	xcpc-ogl.desktop \
 	$(NULL)
 
 # ----------------------------------------------------------------------------
@@ -31,6 +33,8 @@ dist_applications_DATA = \
 
 EXTRA_DIST = \
 	xcpc.desktop.in \
+	xcpc-x11.desktop.in \
+	xcpc-ogl.desktop.in \
 	$(NULL)
 
 # ----------------------------------------------------------------------------

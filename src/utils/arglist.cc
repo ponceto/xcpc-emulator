@@ -1,5 +1,5 @@
 /*
- * arglist.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * arglist.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,16 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cstdarg>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "arglist.h"

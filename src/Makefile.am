@@ -1,5 +1,5 @@
 #
-# Makefile.am - Copyright (c) 2001-2024 - Olivier Poncet
+# Makefile.am - Copyright (c) 2001-2026 - Olivier Poncet
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,6 +58,8 @@ bin_PROGRAMS = \
 xcpc_SOURCES = \
 	xcpc.cc \
 	xcpc.h \
+	xcpc-settings.cc \
+	xcpc-settings.h \
 	$(NULL)
 
 xcpc_CPPFLAGS = \

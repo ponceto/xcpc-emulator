@@ -1,5 +1,5 @@
 /*
- * gtk3-frame.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-frame.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-frame.h"
@@ -40,7 +44,7 @@ namespace gtk3 {
 struct FrameTraits
     : BasicTraits
 {
-    static GtkWidget* create_frame(const std::string& string = "label")
+    static auto create_frame(const std::string& string = "label") -> GtkWidget*
     {
         return ::gtk_frame_new(string.c_str());
     }
@@ -74,7 +78,7 @@ Frame::Frame(GtkWidget* instance)
 {
 }
 
-void Frame::create_frame(const std::string& string)
+auto Frame::create_frame(const std::string& string) -> void
 {
     if(_instance == nullptr) {
         _instance = traits::create_frame(string);

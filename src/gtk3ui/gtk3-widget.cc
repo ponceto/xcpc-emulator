@@ -1,5 +1,5 @@
 /*
- * gtk3-widget.cc - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-widget.cc - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cstdarg>
 #include <climits>
 #include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#include <mutex>
 #include <iostream>
 #include <stdexcept>
 #include "gtk3-widget.h"
@@ -40,68 +44,68 @@ namespace gtk3 {
 struct WidgetTraits
     : BasicTraits
 {
-    static GtkWidget* create_widget()
+    static auto create_widget() -> GtkWidget*
     {
         return nullptr;
     }
 
-    static void destroy(GtkWidget*& instance)
+    static auto destroy(GtkWidget*& instance) -> void
     {
         if(instance != nullptr) {
             instance = (::gtk_widget_destroy(instance), nullptr);
         }
     }
 
-    static void show_all(Widget& widget)
+    static auto show_all(Widget& widget) -> void
     {
         if(widget) {
             return ::gtk_widget_show_all(widget);
         }
     }
 
-    static void show(Widget& widget)
+    static auto show(Widget& widget) -> void
     {
         if(widget) {
             return ::gtk_widget_show(widget);
         }
     }
 
-    static void hide(Widget& widget)
+    static auto hide(Widget& widget) -> void
     {
         if(widget) {
             return ::gtk_widget_hide(widget);
         }
     }
 
-    static void grab_focus(Widget& widget)
+    static auto grab_focus(Widget& widget) -> void
     {
         if(widget) {
             return ::gtk_widget_grab_focus(widget);
         }
     }
 
-    static void set_can_focus(Widget& widget, bool can_focus)
+    static auto set_can_focus(Widget& widget, bool can_focus) -> void
     {
         if(widget) {
             return ::gtk_widget_set_can_focus(widget, can_focus);
         }
     }
 
-    static void set_focus_on_click(Widget& widget, bool focus_on_click)
+    static auto set_focus_on_click(Widget& widget, bool focus_on_click) -> void
     {
         if(widget) {
             return ::gtk_widget_set_focus_on_click(widget, focus_on_click);
         }
     }
 
-    static void set_sensitive(Widget& widget, bool sensitive)
+    static auto set_sensitive(Widget& widget, bool sensitive) -> void
     {
         if(widget) {
             return ::gtk_widget_set_sensitive(widget, sensitive);
         }
     }
 
-    static bool is_sensitive(Widget& widget)
+    static auto is_sensitive(Widget& widget) -> bool
     {
         if(widget) {
             return ::gtk_widget_is_sensitive(widget) != FALSE;
@@ -109,14 +113,63 @@ struct WidgetTraits
         return false;
     }
 
-    static void drag_dest_set(Widget& widget, GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions)
+    static auto set_size_request(Widget& widget, int width, int height) -> void
+    {
+        if(widget) {
+            return ::gtk_widget_set_size_request(widget, width, height);
+        }
+    }
+
+    static auto drag_dest_set(Widget& widget, GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void
     {
         if(widget) {
             return ::gtk_drag_dest_set(widget, flags, targets, num_targets, actions);
         }
     }
 
-    static void add_events(Widget& widget, gint events)
+    static auto set_hexpand(Widget& widget, bool expand) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_hexpand(widget, expand);
+        }
+    }
+
+    static auto set_vexpand(Widget& widget, bool expand) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_vexpand(widget, expand);
+        }
+    }
+
+    static auto set_margin_start(Widget& widget, int margin) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_margin_start(widget, margin);
+        }
+    }
+
+    static auto set_margin_end(Widget& widget, int margin) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_margin_end(widget, margin);
+        }
+    }
+
+    static auto set_margin_top(Widget& widget, int margin) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_margin_top(widget, margin);
+        }
+    }
+
+    static auto set_margin_bottom(Widget& widget, int margin) -> void
+    {
+        if(widget) {
+            ::gtk_widget_set_margin_bottom(widget, margin);
+        }
+    }
+
+    static auto add_events(Widget& widget, gint events) -> void
     {
         if(widget) {
             return ::gtk_widget_add_events(widget, events);
@@ -158,107 +211,142 @@ Widget::~Widget()
     traits::destroy(_instance);
 }
 
-void Widget::destroy()
+auto Widget::destroy() -> void
 {
     return traits::destroy(_instance);
 }
 
-void Widget::show_all()
+auto Widget::show_all() -> void
 {
     return traits::show_all(*this);
 }
 
-void Widget::show()
+auto Widget::show() -> void
 {
     return traits::show(*this);
 }
 
-void Widget::hide()
+auto Widget::hide() -> void
 {
     return traits::hide(*this);
 }
 
-void Widget::grab_focus()
+auto Widget::grab_focus() -> void
 {
     return traits::grab_focus(*this);
 }
 
-void Widget::set_can_focus(bool can_focus)
+auto Widget::set_can_focus(bool can_focus) -> void
 {
     return traits::set_can_focus(*this, can_focus);
 }
 
-void Widget::set_focus_on_click(bool focus_on_click)
+auto Widget::set_focus_on_click(bool focus_on_click) -> void
 {
     return traits::set_focus_on_click(*this, focus_on_click);
 }
 
-void Widget::set_sensitive(bool sensitive)
+auto Widget::set_sensitive(bool sensitive) -> void
 {
     return traits::set_sensitive(*this, sensitive);
 }
 
-bool Widget::is_sensitive()
+auto Widget::is_sensitive() -> bool
 {
     return traits::is_sensitive(*this);
 }
 
-void Widget::drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions)
+auto Widget::set_size_request(int width, int height) -> void
+{
+    return traits::set_size_request(*this, width, height);
+}
+
+auto Widget::set_hexpand(bool expand) -> void
+{
+    return traits::set_hexpand(*this, expand);
+}
+
+auto Widget::set_vexpand(bool expand) -> void
+{
+    return traits::set_vexpand(*this, expand);
+}
+
+auto Widget::set_margin_start(int margin) -> void
+{
+    return traits::set_margin_start(*this, margin);
+}
+
+auto Widget::set_margin_end(int margin) -> void
+{
+    return traits::set_margin_end(*this, margin);
+}
+
+auto Widget::set_margin_top(int margin) -> void
+{
+    return traits::set_margin_top(*this, margin);
+}
+
+auto Widget::set_margin_bottom(int margin) -> void
+{
+    return traits::set_margin_bottom(*this, margin);
+}
+
+auto Widget::drag_dest_set(GtkDestDefaults flags, const GtkTargetEntry* targets, int num_targets, GdkDragAction actions) -> void
 {
     return traits::drag_dest_set(*this, flags, targets, num_targets, actions);
 }
 
-void Widget::signal_connect(const char* signal, GCallback callback, void* data)
+auto Widget::signal_connect(const char* signal, GCallback callback, void* data) -> void
 {
     return traits::signal_connect(_instance, signal, callback, data);
 }
 
-void Widget::add_realize_callback(GCallback callback, void* data)
+auto Widget::add_realize_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_realize, callback, data);
 }
 
-void Widget::add_unrealize_callback(GCallback callback, void* data)
+auto Widget::add_unrealize_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_unrealize, callback, data);
 }
 
-void Widget::add_key_press_event_callback(GCallback callback, void* data)
+auto Widget::add_key_press_event_callback(GCallback callback, void* data) -> void
 {
     traits::add_events(*this, GDK_KEY_PRESS_MASK);
 
     return signal_connect(sig_key_press_event, callback, data);
 }
 
-void Widget::add_key_release_event_callback(GCallback callback, void* data)
+auto Widget::add_key_release_event_callback(GCallback callback, void* data) -> void
 {
     traits::add_events(*this, GDK_KEY_RELEASE_MASK);
 
     return signal_connect(sig_key_release_event, callback, data);
 }
 
-void Widget::add_button_press_event_callback(GCallback callback, void* data)
+auto Widget::add_button_press_event_callback(GCallback callback, void* data) -> void
 {
     traits::add_events(*this, GDK_BUTTON_PRESS_MASK);
 
     return signal_connect(sig_button_press_event, callback, data);
 }
 
-void Widget::add_button_release_event_callback(GCallback callback, void* data)
+auto Widget::add_button_release_event_callback(GCallback callback, void* data) -> void
 {
     traits::add_events(*this, GDK_BUTTON_RELEASE_MASK);
 
     return signal_connect(sig_button_release_event, callback, data);
 }
 
-void Widget::add_motion_notify_event_callback(GCallback callback, void* data)
+auto Widget::add_motion_notify_event_callback(GCallback callback, void* data) -> void
 {
     traits::add_events(*this, GDK_POINTER_MOTION_MASK);
 
     return signal_connect(sig_motion_notify_event, callback, data);
 }
 
-void Widget::add_drag_data_received_callback(GCallback callback, void* data)
+auto Widget::add_drag_data_received_callback(GCallback callback, void* data) -> void
 {
     return signal_connect(sig_drag_data_received, callback, data);
 }

@@ -1,5 +1,5 @@
 /*
- * gtk3-bin.h - Copyright (c) 2001-2024 - Olivier Poncet
+ * gtk3-bin.h - Copyright (c) 2001-2026 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@ public: // public interface
 
     Bin(GtkWidget*);
 
+    Bin(Bin&&) = delete;
+
     Bin(const Bin&) = delete;
+
+    Bin& operator=(Bin&&) = delete;
 
     Bin& operator=(const Bin&) = delete;
 
