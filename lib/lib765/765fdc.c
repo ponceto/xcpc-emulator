@@ -160,6 +160,7 @@ static void fdc_xlt_error(FDC_765 *self, fd_err_t error)
                 case FD_E_NODATA: self->fdc_st0 |= 0x40;
                                   self->fdc_st1 |= 0x04; break;
 		case FD_E_DATAERR:
+				  self->fdc_st0 |= 0x40;
 				  self->fdc_st1 |= 0x20;
 				  self->fdc_st2 |= 0x20; break;
                 case FD_E_NOSECTOR:
@@ -467,6 +468,7 @@ static void fdc_read(FDC_765 *self, int deleted)
 		}
 		buf += lensector;
 		self->fdc_exec_len += lensector;
+		if (err == FD_E_DATAERR) break;
 		++self->fdc_cmd_buf[4];		/* Next sector */
 	}
 	fdc_results_7(self);
